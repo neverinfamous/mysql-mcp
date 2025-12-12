@@ -8,9 +8,8 @@
         ],
         "outDir": "./dist",
         "rootDir": "./src",
-        "declaration": true,
-        "declarationMap": true,
-        "sourceMap": true,
+        "skipLibCheck": true,
+        /* Strict Type-Checking Options */
         "strict": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
@@ -20,19 +19,25 @@
         "noImplicitThis": true,
         "useUnknownInCatchVariables": true,
         "alwaysStrict": true,
+        "exactOptionalPropertyTypes": true,
+        /* Additional Checks */
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "exactOptionalPropertyTypes": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedIndexedAccess": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
-        "esModuleInterop": true,
+        "allowUnusedLabels": false,
+        "allowUnreachableCode": false,
+        "noUncheckedSideEffectImports": true,
+        /* Module Resolution */
         "forceConsistentCasingInFileNames": true,
-        "skipLibCheck": true,
         "resolveJsonModule": true,
-        "isolatedModules": true
+        "esModuleInterop": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true
     },
     "include": [
         "src/**/*"
@@ -40,6 +45,7 @@
     "exclude": [
         "node_modules",
         "dist",
-        "**/*.test.ts"
+        "**/*.test.ts",
+        "**/*.spec.ts"
     ]
 }
