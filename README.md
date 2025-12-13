@@ -29,6 +29,7 @@ A **MySQL MCP Server** with OAuth 2.0 authentication, connection pooling, and gr
 
 ### Configuration & Usage
 - [📚 MCP Client Configuration](#-mcp-client-configuration)
+- [🔗 Database Connection Scenarios](#database-connection-scenarios)
 - [🔌 Connection Pooling](#-connection-pooling)
 - [🔀 MySQL Router Configuration](#-mysql-router-configuration)
 - [🐙 ProxySQL Configuration](#-proxysql-configuration)
@@ -172,6 +173,103 @@ For security, use environment variables instead of connection strings:
   }
 }
 ```
+
+### Database Connection Scenarios
+
+MySQL can be deployed in many ways. Here's how to configure the connection for your specific setup:
+
+#### 🖥️ Local MySQL (Installed on Your Machine)
+
+If you installed MySQL directly on your computer (via installer, Homebrew, apt, etc.):
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "C:/path/to/mysql-mcp/dist/cli.js",
+        "--transport", "stdio",
+        "--mysql", "mysql://root:password@localhost:3306/mydb"
+      ]
+    }
+  }
+}
+```
+
+**Or with environment variables:**
+```json
+{
+  "env": {
+    "MYSQL_HOST": "localhost",
+    "MYSQL_PORT": "3306",
+    "MYSQL_USER": "root",
+    "MYSQL_PASSWORD": "password",
+    "MYSQL_DATABASE": "mydb"
+  }
+}
+```
+
+#### 🐳 Docker MySQL (MySQL Running in a Container)
+
+If MySQL is running in a Docker container on the same host:
+
+**Option 1: Using host networking**
+```bash
+# Find your Docker MySQL container's IP
+docker inspect mysql-container | grep IPAddress
+```
+Then use that IP address:
+```json
+{
+  "env": {
+    "MYSQL_HOST": "172.17.0.2",
+    "MYSQL_PORT": "3306"
+  }
+}
+```
+
+**Option 2: Using port mapping (recommended)**
+If you started MySQL with `-p 3306:3306`, use `localhost`:
+```json
+{
+  "env": {
+    "MYSQL_HOST": "localhost",
+    "MYSQL_PORT": "3306"
+  }
+}
+```
+
+#### ☁️ Remote MySQL (Cloud/RDS/Managed Services)
+
+For remote MySQL instances like AWS RDS, Google Cloud SQL, Azure Database, or self-hosted remote servers:
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "C:/path/to/mysql-mcp/dist/cli.js",
+        "--transport", "stdio",
+        "--mysql", "mysql://admin:password@your-db.us-east-1.rds.amazonaws.com:3306/production"
+      ]
+    }
+  }
+}
+```
+
+**Common cloud hostnames:**
+| Provider | Example Hostname |
+|----------|------------------|
+| AWS RDS | `your-instance.xxxx.us-east-1.rds.amazonaws.com` |
+| Google Cloud SQL | `project:region:instance` (via Cloud SQL Proxy) or public IP |
+| Azure MySQL | `your-server.mysql.database.azure.com` |
+| PlanetScale | `aws.connect.psdb.cloud` (with SSL required) |
+| DigitalOcean | `your-cluster-do-user-xxx.db.ondigitalocean.com` |
+
+> [!TIP]
+> **Remote connections may require SSL.** Some cloud providers mandate SSL connections. Check your provider's documentation for connection requirements.
 
 [⬆️ Back to Table of Contents](#-table-of-contents)
 

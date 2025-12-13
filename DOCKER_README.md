@@ -41,6 +41,39 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 > **Note:** Use `host.docker.internal` to connect to MySQL running on your host machine.
 
+## 🔗 Database Connection Scenarios
+
+| Scenario | Host to Use | Example Connection String |
+|----------|-------------|---------------------------|
+| **MySQL on host machine** | `host.docker.internal` | `mysql://user:pass@host.docker.internal:3306/db` |
+| **MySQL in Docker** | Container name or network | `mysql://user:pass@mysql-container:3306/db` |
+| **Remote/Cloud MySQL** | Hostname or IP | `mysql://user:pass@db.example.com:3306/db` |
+
+### MySQL on Host Machine
+If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
+```json
+"--mysql", "mysql://user:password@host.docker.internal:3306/database"
+```
+
+### MySQL in Another Docker Container
+Add both containers to the same Docker network, then use the container name:
+```bash
+# Create network and run MySQL
+docker network create mynet
+docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:8
+# Run MCP server on same network
+docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
+  --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
+```
+
+### Remote/Cloud MySQL (RDS, Cloud SQL, etc.)
+Use the remote hostname directly:
+```json
+"--mysql", "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
+```
+
+> **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
+
 ## 🎛️ Tool Filtering
 
 Reduce tool count for clients with limits (Cursor: ~80 warning):
