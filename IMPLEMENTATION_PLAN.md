@@ -1,7 +1,7 @@
 # Database MCP Implementation Plan
 
 > **Last Updated**: December 13, 2025  
-> **Status**: SQLite Complete (89 tools), MySQL Complete (96 tools)
+> **Status**: SQLite Complete (89 tools), MySQL Complete (106 tools)
 
 A development plan for building database MCP servers with OAuth 2.0 authentication, tool filtering, and code mode architecture in TypeScript.
 
@@ -20,7 +20,7 @@ A development plan for building database MCP servers with OAuth 2.0 authenticati
 | Project | Description |
 |---------|-------------|
 | **db-mcp** | SQLite MCP server - **89 tools** ✅ COMPLETE |
-| **mysql-mcp** | MySQL MCP server - **96 tools** ✅ COMPLETE |
+| **mysql-mcp** | MySQL MCP server - **106 tools** ✅ COMPLETE |
 | **postgres-mcp** | Future: Independent PostgreSQL MCP server |
 | **mongo-mcp** | Future: Independent MongoDB MCP server |
 | **redis-mcp** | Future: Independent Redis MCP server |
@@ -38,15 +38,16 @@ Phase 3: SQLite Adapter         ████████████████
   └─ WASM Backend (sql.js)      ████████████████████  76 tools
   └─ Native Backend (better-sqlite3) ██████████████████  89 tools
 Phase 5: MySQL Adapter          ████████████████████ 100% ✅
-  └─ mysql-mcp                  ████████████████████  96 tools
+  └─ mysql-mcp                  ████████████████████  106 tools
 ```
 
 **Completed Servers**:
 - ✅ db-mcp (SQLite) - 89 tools
-- ✅ mysql-mcp (MySQL) - 96 tools
+- ✅ mysql-mcp (MySQL) - 106 tools
   - 75 core MySQL tools (fully tested)
   - 9 Router tools (7 tested, 2 require InnoDB Cluster)
   - 12 ProxySQL tools (proxy management)
+  - 10 MySQL Shell tools (subprocess execution)
 
 **Future Independent Servers** (separate projects, no shared dependencies):
 - postgres-mcp

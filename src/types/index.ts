@@ -409,7 +409,8 @@ export type ToolGroup =
     | 'partitioning'   // Partition management
     | 'transactions'   // Transaction control
     | 'router'         // MySQL Router management
-    | 'proxysql';      // ProxySQL management
+    | 'proxysql'       // ProxySQL management
+    | 'shell';         // MySQL Shell utilities
 
 /**
  * MySQL Router REST API configuration
@@ -429,6 +430,20 @@ export interface RouterConfig {
 
     /** API version path (default: /api/20190715) */
     apiVersion?: string;
+}
+
+/**
+ * MySQL Shell configuration
+ */
+export interface MySQLShellConfig {
+    /** Path to mysqlsh binary (defaults to 'mysqlsh' from PATH) */
+    binPath?: string;
+
+    /** Timeout for shell commands in milliseconds (default: 300000 = 5 min) */
+    timeout?: number;
+
+    /** Working directory for dump/load operations */
+    workDir?: string;
 }
 
 /**

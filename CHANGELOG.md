@@ -37,12 +37,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `proxysql` tool group for filtering ProxySQL tools
 - ProxySQL admin interface configuration via environment variables
 - Comprehensive ProxySQL setup documentation in README
+- **MySQL Shell Support** - 10 new tools for MySQL Shell 8.0 integration
+  - `mysqlsh_version` - Get MySQL Shell version and installation status
+  - `mysqlsh_check_upgrade` - Check server upgrade compatibility
+  - `mysqlsh_export_table` - Export table to file (CSV, TSV, JSON)
+  - `mysqlsh_import_table` - Parallel table import from file
+  - `mysqlsh_import_json` - Import JSON documents to collection or table
+  - `mysqlsh_dump_instance` - Dump entire MySQL instance
+  - `mysqlsh_dump_schemas` - Dump selected schemas
+  - `mysqlsh_dump_tables` - Dump specific tables
+  - `mysqlsh_load_dump` - Load MySQL Shell dump
+  - `mysqlsh_run_script` - Execute JS/Python/SQL script via MySQL Shell
+- New `shell` tool group for filtering MySQL Shell tools
+- MySQL Shell configuration via environment variables (MYSQLSH_PATH, MYSQLSH_TIMEOUT, MYSQLSH_WORK_DIR)
+- Comprehensive MySQL Shell setup documentation in README
 
 ### Changed
-- Total tools increased from 75 to 96
-- Tool groups increased from 12 to 14
+- Total tools increased from 75 to 106
+- Tool groups increased from 12 to 15
 - Updated `.env.example` with Router and ProxySQL configuration templates
-- Updated minimal preset to exclude Router and ProxySQL tools by default
+- Updated minimal preset to exclude Router, ProxySQL, and Shell tools by default
 
 ## [0.1.0] - 2025-12-13
 

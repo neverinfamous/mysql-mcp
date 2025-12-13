@@ -35,6 +35,7 @@ import { getAdminTools, getMonitoringTools, getBackupTools } from './tools/admin
 import { getReplicationTools, getPartitioningTools } from './tools/replication.js';
 import { getRouterTools } from './tools/router.js';
 import { getProxySQLTools } from './tools/proxysql.js';
+import { getShellTools } from './tools/shell.js';
 import { getMySQLResources } from './resources/index.js';
 import { getMySQLPrompts } from './prompts/index.js';
 
@@ -537,7 +538,8 @@ export class MySQLAdapter extends DatabaseAdapter {
             'partitioning',
             'transactions',
             'router',
-            'proxysql'
+            'proxysql',
+            'shell'
         ];
     }
 
@@ -561,7 +563,8 @@ export class MySQLAdapter extends DatabaseAdapter {
             ...getReplicationTools(this),
             ...getPartitioningTools(this),
             ...getRouterTools(this),
-            ...getProxySQLTools(this)
+            ...getProxySQLTools(this),
+            ...getShellTools(this)
         ];
     }
 

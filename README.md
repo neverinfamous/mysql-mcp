@@ -31,6 +31,7 @@ A **MySQL MCP Server** with OAuth 2.0 authentication, connection pooling, and gr
 - [🔌 Connection Pooling](#-connection-pooling)
 - [🔀 MySQL Router Configuration](#-mysql-router-configuration)
 - [🐙 ProxySQL Configuration](#-proxysql-configuration)
+- [🐚 MySQL Shell Configuration](#-mysql-shell-configuration)
 - [🎛️ Tool Filtering Presets](#️-tool-filtering-presets)
 - [📊 Tool Categories](#-tool-categories)
 
@@ -208,7 +209,7 @@ Unlike SQLite (file-based), MySQL is a server-based database that benefits from 
 ## 🎛️ Tool Filtering Presets
 
 > [!IMPORTANT]
-> **AI-enabled IDEs like Cursor have tool limits.** With 96 tools, you should use tool filtering to stay within limits and optimize for your use case. Choose a preset below.
+> **AI-enabled IDEs like Cursor have tool limits.** With 106 tools, you should use tool filtering to stay within limits and optimize for your use case. Choose a preset below.
 
 ### Tool Groups
 
@@ -228,6 +229,7 @@ Unlike SQLite (file-based), MySQL is a server-based database that benefits from 
 | `transactions` | 7 | Transaction control |
 | `router` | 9 | MySQL Router management |
 | `proxysql` | 12 | ProxySQL proxy management |
+| `shell` | 10 | MySQL Shell utilities |
 
 ### Preset: Minimal (~30 tools) ⭐ Recommended for most users
 
@@ -242,7 +244,7 @@ Core database operations with JSON and text. Best for general development.
         "C:/path/to/mysql-mcp/dist/cli.js",
         "--transport", "stdio",
         "--mysql", "mysql://user:password@localhost:3306/database",
-        "--tool-filter", "-performance,-optimization,-backup,-replication,-partitioning,-monitoring,-router,-proxysql"
+        "--tool-filter", "-performance,-optimization,-backup,-replication,-partitioning,-monitoring,-router,-proxysql,-shell"
       ]
     }
   }
@@ -310,7 +312,7 @@ Create your own filter using the syntax:
 
 ## 📊 Tool Categories
 
-This server provides **96 tools** across 14 categories:
+This server provides **106 tools** across 15 categories:
 
 ### Core Database (8 tools)
 
@@ -485,6 +487,27 @@ This server provides **96 tools** across 14 categories:
 | `proxysql_process_list` | Get active sessions like SHOW PROCESSLIST |
 
 [⬆️ Back to Table of Contents](#-table-of-contents)
+
+---
+
+### MySQL Shell (10 tools)
+
+> [!NOTE]
+> Shell tools require MySQL Shell 8.0+ to be installed. Set `MYSQLSH_PATH` if not in system PATH.
+> **Version Compatibility**: MySQL Shell version should match your MySQL Server version for dump/load operations.
+
+| Tool | Description |
+|------|-------------|
+| `mysqlsh_version` | Get MySQL Shell version and installation status |
+| `mysqlsh_check_upgrade` | Check server upgrade compatibility |
+| `mysqlsh_export_table` | Export table to file (CSV, TSV, JSON) |
+| `mysqlsh_import_table` | Parallel table import from file |
+| `mysqlsh_import_json` | Import JSON documents to collection or table |
+| `mysqlsh_dump_instance` | Dump entire MySQL instance |
+| `mysqlsh_dump_schemas` | Dump selected schemas |
+| `mysqlsh_dump_tables` | Dump specific tables |
+| `mysqlsh_load_dump` | Load MySQL Shell dump |
+| `mysqlsh_run_script` | Execute JS/Python/SQL script via MySQL Shell |
 
 ---
 
@@ -753,6 +776,93 @@ mysql -h127.0.0.1 -P6032 -uadmin -padmin
   }
 }
 ```
+
+[⬆️ Back to Table of Contents](#-table-of-contents)
+
+---
+
+## 🐚 MySQL Shell Configuration
+
+If using MySQL Shell tools for advanced data operations, you need MySQL Shell 8.0+ installed.
+
+### Prerequisites
+
+- MySQL Shell 8.0+ installed
+- MySQL Shell binary accessible (in PATH or via environment variable)
+- **Version Compatibility**: MySQL Shell version should match or be newer than your MySQL Server version
+
+> [!WARNING]
+> **Version Mismatch**: MySQL Shell 8.0.x has limited compatibility with MySQL Server 9.x. For best results, ensure your MySQL Shell version matches your server version. The dump/load utilities may show warnings or errors when versions don't align.
+
+### Tool-Specific Requirements
+
+| Tool | Requirements |
+|------|--------------|
+| `mysqlsh_import_json` | Requires X Protocol (port 33060) for collection imports |
+| `mysqlsh_load_dump` | Requires `local_infile=ON` in MySQL Server config |
+| `mysqlsh_check_upgrade` | User needs RELOAD, PROCESS, SELECT privileges |
+| `mysqlsh_dump_*` / `mysqlsh_load_dump` | Shell version should match server version |
+
+### Setting Up MySQL Shell
+
+#### 1. Verify Installation
+
+```bash
+mysqlsh --version
+# Expected: mysqlsh   Ver 8.0.x for ...
+```
+
+#### 2. Configure Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MYSQLSH_PATH` | `mysqlsh` | Path to MySQL Shell binary |
+| `MYSQLSH_WORK_DIR` | Current directory | Working directory for dump/load operations |
+| `MYSQLSH_TIMEOUT` | `300000` | Command timeout in milliseconds (5 min) |
+
+> [!CAUTION]
+> **MySQL Shell commands execute as subprocesses.** Ensure proper file system permissions for dump/load operations.
+
+### MCP Client Configuration with MySQL Shell
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "C:/path/to/mysql-mcp/dist/cli.js",
+        "--transport", "stdio",
+        "--mysql", "mysql://user:password@localhost:3306/database"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "root",
+        "MYSQL_PASSWORD": "your_password",
+        "MYSQL_DATABASE": "production",
+        "MYSQLSH_PATH": "mysqlsh"
+      }
+    }
+  }
+}
+```
+
+### Shell-Only Configuration
+
+If you only want MySQL Shell tools (e.g., for a dedicated backup/migration agent):
+
+```json
+{
+  "args": [
+    "--transport", "stdio",
+    "--mysql", "mysql://user:password@localhost:3306/database",
+    "--tool-filter", "-core,-json,-text,-fulltext,-performance,-optimization,-admin,-monitoring,-backup,-replication,-partitioning,-transactions,-router,-proxysql"
+  ]
+}
+```
+
+This exposes only the 10 MySQL Shell management tools.
 
 [⬆️ Back to Table of Contents](#-table-of-contents)
 

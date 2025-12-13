@@ -145,6 +145,18 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
         'proxysql_memory_stats',
         'proxysql_commands',
         'proxysql_process_list'
+    ],
+    shell: [
+        'mysqlsh_version',
+        'mysqlsh_check_upgrade',
+        'mysqlsh_export_table',
+        'mysqlsh_import_table',
+        'mysqlsh_import_json',
+        'mysqlsh_dump_instance',
+        'mysqlsh_dump_schemas',
+        'mysqlsh_dump_tables',
+        'mysqlsh_load_dump',
+        'mysqlsh_run_script'
     ]
 };
 
