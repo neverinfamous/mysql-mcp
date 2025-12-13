@@ -1,16 +1,17 @@
 # mysql-mcp
 
-*Last updated December 13, 2025*
+*Last updated December 13, 2025 - Production/Stable v1.0.0*
 
 *Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering – TypeScript Edition*
 
-> **BETA** - This project is actively being developed and is not yet ready for production use.
+> **🎉 Version 1.0.0 Released!** Enterprise-grade MySQL MCP Server with 106 tools, OAuth 2.0, and Docker deployment.
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
-![Version](https://img.shields.io/badge/version-0.1.0-green)
-![Status](https://img.shields.io/badge/status-Under%20Development-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-green)
+![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
+[![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 
