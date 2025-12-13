@@ -59,7 +59,8 @@ export const TOOL_GROUP_SCOPES: Record<ToolGroup, StandardScope> = {
     backup: SCOPES.ADMIN,
     replication: SCOPES.ADMIN,
     partitioning: SCOPES.ADMIN,
-    transactions: SCOPES.WRITE
+    transactions: SCOPES.WRITE,
+    router: SCOPES.READ
 };
 
 // =============================================================================

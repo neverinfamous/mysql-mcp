@@ -24,3 +24,6 @@ export { getAdminTools, getMonitoringTools, getBackupTools } from './admin.js';
 
 // Replication and partitioning tools
 export { getReplicationTools, getPartitioningTools } from './replication.js';
+
+// Router management tools
+export { getRouterTools } from './router.js';

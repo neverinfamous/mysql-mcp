@@ -33,6 +33,7 @@ import { getTextTools, getFulltextTools } from './tools/text.js';
 import { getPerformanceTools, getOptimizationTools } from './tools/performance.js';
 import { getAdminTools, getMonitoringTools, getBackupTools } from './tools/admin.js';
 import { getReplicationTools, getPartitioningTools } from './tools/replication.js';
+import { getRouterTools } from './tools/router.js';
 import { getMySQLResources } from './resources/index.js';
 import { getMySQLPrompts } from './prompts/index.js';
 
@@ -533,7 +534,8 @@ export class MySQLAdapter extends DatabaseAdapter {
             'backup',
             'replication',
             'partitioning',
-            'transactions'
+            'transactions',
+            'router'
         ];
     }
 
@@ -555,7 +557,8 @@ export class MySQLAdapter extends DatabaseAdapter {
             ...getMonitoringTools(this),
             ...getBackupTools(this),
             ...getReplicationTools(this),
-            ...getPartitioningTools(this)
+            ...getPartitioningTools(this),
+            ...getRouterTools(this)
         ];
     }
 

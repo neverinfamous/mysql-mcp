@@ -407,7 +407,28 @@ export type ToolGroup =
     | 'backup'         // Export, import, mysqldump
     | 'replication'    // Master/slave, binlog
     | 'partitioning'   // Partition management
-    | 'transactions';  // Transaction control
+    | 'transactions'   // Transaction control
+    | 'router';        // MySQL Router management
+
+/**
+ * MySQL Router REST API configuration
+ */
+export interface RouterConfig {
+    /** Router REST API base URL (e.g., https://localhost:8443) */
+    url?: string;
+
+    /** Router API username */
+    username?: string;
+
+    /** Router API password */
+    password?: string;
+
+    /** Skip TLS certificate verification (for self-signed certs) */
+    insecure?: boolean;
+
+    /** API version path (default: /api/20190715) */
+    apiVersion?: string;
+}
 
 /**
  * Tool filter rule

@@ -120,6 +120,17 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
         'mysql_transaction_release',
         'mysql_transaction_rollback_to',
         'mysql_transaction_execute'
+    ],
+    router: [
+        'mysql_router_status',
+        'mysql_router_routes',
+        'mysql_router_route_status',
+        'mysql_router_route_health',
+        'mysql_router_route_connections',
+        'mysql_router_route_destinations',
+        'mysql_router_route_blocked_hosts',
+        'mysql_router_metadata_status',
+        'mysql_router_pool_status'
     ]
 };
 

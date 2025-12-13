@@ -2,7 +2,7 @@
 
 *Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering – TypeScript Edition*
 
-> **⚠️ UNDER DEVELOPMENT** - This project is actively being developed and is not yet ready for production use.
+> **BETA** - This project is actively being developed and is not yet ready for production use.
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -27,7 +27,8 @@ A **MySQL MCP Server** with OAuth 2.0 authentication, connection pooling, and gr
 ### Configuration & Usage
 - [📚 MCP Client Configuration](#-mcp-client-configuration)
 - [🔌 Connection Pooling](#-connection-pooling)
-- [🎛️ Tool Filtering](#️-tool-filtering)
+- [🔀 MySQL Router Configuration](#-mysql-router-configuration)
+- [🎛️ Tool Filtering Presets](#️-tool-filtering-presets)
 - [📊 Tool Categories](#-tool-categories)
 
 ### Features & Resources
@@ -201,38 +202,111 @@ Unlike SQLite (file-based), MySQL is a server-based database that benefits from 
 
 ---
 
-## 🎛️ Tool Filtering
+## 🎛️ Tool Filtering Presets
 
 > [!IMPORTANT]
-> **AI-enabled IDEs like Cursor have tool limits.** Use tool filtering to stay within limits.
+> **AI-enabled IDEs like Cursor have tool limits.** With 84 tools, you should use tool filtering to stay within limits and optimize for your use case. Choose a preset below.
 
 ### Tool Groups
 
-| Group | Description |
-|-------|-------------|
-| `core` | Basic CRUD, schema, tables |
-| `json` | JSON operations (MySQL 5.7+) |
-| `text` | FULLTEXT, LIKE, REGEXP |
-| `performance` | EXPLAIN, query analysis |
-| `replication` | Master/slave status |
-| `backup` | mysqldump integration |
-| `monitoring` | SHOW PROCESSLIST, status |
-| `admin` | OPTIMIZE, ANALYZE, FLUSH |
+| Group | Tools | Description |
+|-------|-------|-------------|
+| `core` | 8 | Basic CRUD, schema, tables |
+| `json` | 12 | JSON operations (MySQL 5.7+) |
+| `text` | 6 | REGEXP, LIKE, SOUNDEX |
+| `fulltext` | 4 | FULLTEXT search |
+| `performance` | 8 | EXPLAIN, query analysis |
+| `optimization` | 4 | Index hints, recommendations |
+| `admin` | 6 | OPTIMIZE, ANALYZE, FLUSH |
+| `monitoring` | 7 | PROCESSLIST, status variables |
+| `backup` | 4 | Export, import, mysqldump |
+| `replication` | 5 | Master/slave, binlog |
+| `partitioning` | 4 | Partition management |
+| `transactions` | 7 | Transaction control |
+| `router` | 9 | MySQL Router management |
+
+### Preset: Minimal (~30 tools) ⭐ Recommended for most users
+
+Core database operations with JSON and text. Best for general development.
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "C:/path/to/mysql-mcp/dist/cli.js",
+        "--transport", "stdio",
+        "--mysql", "mysql://user:password@localhost:3306/database",
+        "--tool-filter", "-performance,-optimization,-backup,-replication,-partitioning,-monitoring,-router"
+      ]
+    }
+  }
+}
+```
+
+### Preset: DBA (~37 tools)
+
+Admin, monitoring, performance, and optimization tools. For database administration.
+
+```json
+{
+  "args": [
+    "--transport", "stdio",
+    "--mysql", "mysql://user:password@localhost:3306/database",
+    "--tool-filter", "-json,-text,-fulltext"
+  ]
+}
+```
+
+### Preset: Development (~42 tools)
+
+Core, JSON, text, fulltext, and transactions. For application development.
+
+```json
+{
+  "args": [
+    "--transport", "stdio",
+    "--mysql", "mysql://user:password@localhost:3306/database",
+    "--tool-filter", "-performance,-optimization,-backup,-replication,-partitioning"
+  ]
+}
+```
+
+### Preset: Monitoring (~21 tools)
+
+Monitoring, admin, and replication tools. For operations and observability.
+
+```json
+{
+  "args": [
+    "--transport", "stdio",
+    "--mysql", "mysql://user:password@localhost:3306/database",
+    "--tool-filter", "-core,-json,-text,-fulltext,-optimization,-backup,-partitioning,-transactions"
+  ]
+}
+```
 
 ### Custom Filtering
 
+Create your own filter using the syntax:
+- `-group` — Disable all tools in a group
+- `-tool_name` — Disable a specific tool
+- `+tool_name` — Re-enable a tool after group disable
+
 ```bash
-# Disable performance and replication tools
---tool-filter "-performance,-replication"
+# Example: Disable replication and partitioning, but keep mysql_master_status
+--tool-filter "-replication,-partitioning,+mysql_master_status"
 ```
 
 [⬆️ Back to Table of Contents](#-table-of-contents)
 
 ---
 
+
 ## 📊 Tool Categories
 
-This server provides **75 tools** across 12 categories:
+This server provides **84 tools** across 13 categories:
 
 ### Core Database (8 tools)
 
@@ -369,6 +443,23 @@ This server provides **75 tools** across 12 categories:
 | `mysql_drop_partition` | DROP PARTITION |
 | `mysql_reorganize_partition` | REORGANIZE PARTITION |
 
+### MySQL Router (9 tools)
+
+> [!NOTE]
+> Router tools require MySQL Router 8.0.17+ with REST API enabled. Tools marked with ⚠️ require InnoDB Cluster.
+
+| Tool | Description |
+|------|-------------|
+| `mysql_router_status` | Get Router process status and version |
+| `mysql_router_routes` | List all configured routes |
+| `mysql_router_route_status` | Get status of a specific route |
+| `mysql_router_route_health` | Check health/liveness of a route |
+| `mysql_router_route_connections` | List active connections on route |
+| `mysql_router_route_destinations` | List backend MySQL server destinations |
+| `mysql_router_route_blocked_hosts` | List blocked IP addresses for a route |
+| `mysql_router_metadata_status` | ⚠️ InnoDB Cluster metadata cache status |
+| `mysql_router_pool_status` | ⚠️ Connection pool statistics |
+
 [⬆️ Back to Table of Contents](#-table-of-contents)
 
 ---
@@ -443,6 +534,123 @@ MYSQL_PASSWORD=your_password_here
 MYSQL_DATABASE=your_database
 MYSQL_POOL_SIZE=10
 ```
+
+---
+
+## 🔀 MySQL Router Configuration
+
+If using MySQL Router tools for InnoDB Cluster management, you need to configure access to the Router's REST API.
+
+### Prerequisites
+
+- MySQL Router 8.0.17+ with REST API enabled
+- Router REST API credentials (username/password)
+- Network access to Router REST API endpoint (default: HTTPS on port 8443)
+
+### Setting Up Router API Authentication
+
+MySQL Router REST API requires authentication. Follow these steps to configure it:
+
+#### 1. Enable REST API in MySQL Router
+
+Ensure your `mysqlrouter.conf` includes the REST API plugins:
+
+```ini
+[http_server]
+port=8443
+ssl=1
+ssl_cert=/path/to/router-cert.pem
+ssl_key=/path/to/router-key.pem
+
+[http_auth_realm:default_auth_realm]
+backend=default_auth_backend
+method=basic
+name=default_realm
+
+[http_auth_backend:default_auth_backend]
+backend=file
+filename=/path/to/mysqlrouter.pwd
+
+[rest_router]
+require_realm=default_auth_realm
+
+[rest_routing]
+require_realm=default_auth_realm
+
+[rest_metadata_cache]
+require_realm=default_auth_realm
+
+[rest_connection_pool]
+require_realm=default_auth_realm
+```
+
+#### 2. Create Router API Credentials
+
+Create a password file for the REST API:
+
+```bash
+# Generate password hash (prompts for password)
+mysqlrouter_passwd set /path/to/mysqlrouter.pwd router_admin
+```
+
+#### 3. Configure Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MYSQL_ROUTER_URL` | `https://localhost:8443` | Router REST API base URL |
+| `MYSQL_ROUTER_USER` | - | Router API username |
+| `MYSQL_ROUTER_PASSWORD` | - | Router API password |
+| `MYSQL_ROUTER_API_VERSION` | `/api/20190715` | API version path |
+| `MYSQL_ROUTER_INSECURE` | `false` | Skip TLS verification (for self-signed certs) |
+
+> [!CAUTION]
+> **Never commit Router credentials to version control.** Use environment variables or secure secrets management.
+
+### MCP Client Configuration with Router
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "C:/path/to/mysql-mcp/dist/cli.js",
+        "--transport", "stdio",
+        "--mysql", "mysql://user:password@localhost:3306/database"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "app_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "production",
+        "MYSQL_ROUTER_URL": "https://router.example.com:8443",
+        "MYSQL_ROUTER_USER": "router_admin",
+        "MYSQL_ROUTER_PASSWORD": "router_password",
+        "MYSQL_ROUTER_INSECURE": "true"
+      }
+    }
+  }
+}
+```
+
+### Router-Only Configuration
+
+If you only want Router tools (e.g., for a dedicated monitoring agent):
+
+```json
+{
+  "args": [
+    "--transport", "stdio",
+    "--mysql", "mysql://user:password@localhost:3306/database",
+    "--tool-filter", "-core,-json,-text,-fulltext,-performance,-optimization,-admin,-monitoring,-backup,-replication,-partitioning,-transactions"
+  ]
+}
+```
+
+This exposes only the 9 Router management tools.
+
+[⬆️ Back to Table of Contents](#-table-of-contents)
 
 ---
 
