@@ -6,6 +6,7 @@
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import type {
     DatabaseType,
     DatabaseConfig,
@@ -246,17 +247,26 @@ export abstract class DatabaseAdapter {
      * Register a single prompt with the MCP server
      */
     protected registerPrompt(server: McpServer, prompt: PromptDefinition): void {
-        // Note: For now, we register prompts without argument definitions to avoid
-        // complex Zod schema requirements from the MCP SDK. Arguments are still
-        // accepted by the handler.
+        // Build Zod schema from prompt.arguments definitions
+        const zodShape: Record<string, z.ZodTypeAny> = {};
+        if (prompt.arguments) {
+            for (const arg of prompt.arguments) {
+                zodShape[arg.name] = arg.required
+                    ? z.string().describe(arg.description)
+                    : z.string().optional().describe(arg.description);
+            }
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-deprecated
         server.prompt(
             prompt.name,
             prompt.description,
-            {},  // Empty schema - all args treated as optional strings
-            async (providedArgs: Record<string, string>) => {
+            zodShape,
+            async (providedArgs) => {
                 const context = this.createContext();
-                const result = await prompt.handler(providedArgs, context);
+                // Cast args to Record<string, string> for handler compatibility
+                const args = providedArgs as Record<string, string>;
+                const result = await prompt.handler(args, context);
                 return {
                     messages: [{
                         role: 'user' as const,

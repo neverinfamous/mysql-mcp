@@ -36,6 +36,7 @@ A **MySQL MCP Server** with OAuth 2.0 authentication, connection pooling, and gr
 - [📊 Tool Categories](#-tool-categories)
 
 ### Features & Resources
+- [🤖 AI-Powered Prompts](#-ai-powered-prompts)
 - [🔥 Core Capabilities](#-core-capabilities)
 - [🔐 OAuth 2.0 Implementation](#-oauth-20-implementation)
 - [🏆 Why Choose mysql-mcp?](#-why-choose-mysql-mcp)
@@ -508,6 +509,58 @@ This server provides **106 tools** across 15 categories:
 | `mysqlsh_dump_tables` | Dump specific tables |
 | `mysqlsh_load_dump` | Load MySQL Shell dump |
 | `mysqlsh_run_script` | Execute JS/Python/SQL script via MySQL Shell |
+
+---
+
+## 🤖 AI-Powered Prompts
+
+This server includes **4 intelligent prompts** that guide you through complex MySQL workflows:
+
+| Prompt | Description |
+|--------|-------------|
+| `mysql_query_builder` | Construct SQL queries with proper escaping, security, and indexing recommendations |
+| `mysql_schema_design` | Design table schemas with data types, indexes, foreign keys, and best practices |
+| `mysql_performance_analysis` | Analyze slow queries and get EXPLAIN-based optimization recommendations |
+| `mysql_migration` | Generate migration scripts with UP/DOWN, safety checks, and online migration options |
+
+### Prompt Arguments
+
+#### mysql_query_builder
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `operation` | ✅ | Query type: SELECT, INSERT, UPDATE, or DELETE |
+| `table` | ✅ | Target table name |
+| `description` | ✅ | What you want to accomplish |
+
+#### mysql_schema_design
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `entity` | ✅ | What entity/data to store (e.g., "e-commerce product catalog") |
+| `requirements` | ❌ | Specific requirements (e.g., "track price history, support multiple images") |
+
+#### mysql_performance_analysis
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `query` | ✅ | The slow SQL query to analyze |
+| `context` | ❌ | Table structure and data volume context |
+
+#### mysql_migration
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `change` | ✅ | Schema change description (e.g., "Add email column VARCHAR(255)") |
+| `table` | ✅ | Target table name |
+
+### Example Usage
+
+```
+/mysql-mcp/mysql_migration
+  change: "Add an email column (VARCHAR(255), UNIQUE, NOT NULL)"
+  table: "users"
+```
+
+The prompt will generate complete UP/DOWN migrations, safety considerations, lock time estimates, and online migration options (pt-online-schema-change, gh-ost).
+
+[⬆️ Back to Table of Contents](#-table-of-contents)
 
 ---
 

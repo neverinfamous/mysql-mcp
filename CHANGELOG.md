@@ -58,10 +58,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `.env.example` with Router and ProxySQL configuration templates
 - Updated minimal preset to exclude Router, ProxySQL, and Shell tools by default
 
+### Fixed
+- **Prompt Parameter Passing** - Fixed issue where prompt arguments showed `undefined` instead of actual values. Prompts now properly pass arguments from MCP clients to handlers.
+
 ## [0.1.0] - 2025-12-13
 
 ### Added
 - **84 MySQL tools** across 13 categories
+- **4 AI-Powered Prompts** for guided MySQL workflows:
+  - `mysql_query_builder` - Help construct SQL queries with security best practices
+  - `mysql_schema_design` - Design table schemas with indexes and relationships
+  - `mysql_performance_analysis` - Analyze slow queries with optimization recommendations
+  - `mysql_migration` - Generate migration scripts with rollback and online migration options
 - Core database operations (CRUD, schema, tables)
 - JSON operations (MySQL 5.7+)
 - Text processing (REGEXP, LIKE, SOUNDEX)
