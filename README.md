@@ -232,19 +232,142 @@ Unlike SQLite (file-based), MySQL is a server-based database that benefits from 
 
 ## 📊 Tool Categories
 
-> **Coming Soon** - Tool implementation is in progress.
+This server provides **75 tools** across 12 categories:
 
-| Category | Estimated Tools | Description |
-|----------|-----------------|-------------|
-| Core Database | 8 | Schema, SQL, CRUD operations |
-| JSON Operations | 8 | Native JSON functions (MySQL 5.7+) |
-| Text Processing | 5 | FULLTEXT, LIKE, REGEXP |
-| Performance | 8 | EXPLAIN, query analysis, index hints |
-| Replication | 5 | Master/slave status, binlog |
-| Backup/Recovery | 4 | mysqldump integration |
-| Monitoring | 7 | SHOW PROCESSLIST, status vars |
-| Admin | 5 | OPTIMIZE, ANALYZE, FLUSH |
-| **Total** | **~50** | |
+### Core Database (8 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_read_query` | Execute SELECT with parameter binding |
+| `mysql_write_query` | Execute INSERT/UPDATE/DELETE |
+| `mysql_list_tables` | List tables with metadata |
+| `mysql_describe_table` | Get column definitions |
+| `mysql_create_table` | CREATE TABLE with engine/charset |
+| `mysql_drop_table` | DROP TABLE with IF EXISTS |
+| `mysql_create_index` | CREATE INDEX (BTREE, HASH, FULLTEXT) |
+| `mysql_get_indexes` | SHOW INDEX FROM table |
+
+### Transactions (7 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_transaction_begin` | START TRANSACTION with isolation level |
+| `mysql_transaction_commit` | COMMIT |
+| `mysql_transaction_rollback` | ROLLBACK |
+| `mysql_transaction_savepoint` | SAVEPOINT name |
+| `mysql_transaction_release` | RELEASE SAVEPOINT |
+| `mysql_transaction_rollback_to` | ROLLBACK TO SAVEPOINT |
+| `mysql_transaction_execute` | Execute statements atomically |
+
+### JSON Operations (12 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_json_extract` | JSON_EXTRACT with path |
+| `mysql_json_set` | JSON_SET to modify values |
+| `mysql_json_insert` | JSON_INSERT (no overwrite) |
+| `mysql_json_replace` | JSON_REPLACE (only existing) |
+| `mysql_json_remove` | JSON_REMOVE paths |
+| `mysql_json_contains` | JSON_CONTAINS for filtering |
+| `mysql_json_keys` | JSON_KEYS to list object keys |
+| `mysql_json_array_append` | JSON_ARRAY_APPEND |
+| `mysql_json_get` | Simple JSON value extraction |
+| `mysql_json_update` | Update JSON field by path |
+| `mysql_json_search` | Search JSON for string value |
+| `mysql_json_validate` | Validate JSON structure |
+
+### Text Processing (6 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_regexp_match` | REGEXP pattern matching |
+| `mysql_like_search` | LIKE with wildcards |
+| `mysql_soundex` | SOUNDEX phonetic matching |
+| `mysql_substring` | SUBSTRING extraction |
+| `mysql_concat` | String concatenation |
+| `mysql_collation_convert` | Character set conversion |
+
+### FULLTEXT Search (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_fulltext_create` | Create FULLTEXT index |
+| `mysql_fulltext_search` | MATCH...AGAINST natural language |
+| `mysql_fulltext_boolean` | Boolean mode search |
+| `mysql_fulltext_expand` | WITH QUERY EXPANSION |
+
+### Performance (8 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_explain` | EXPLAIN query execution plan |
+| `mysql_explain_analyze` | EXPLAIN ANALYZE (MySQL 8.0) |
+| `mysql_slow_queries` | Query slow query log |
+| `mysql_query_stats` | Performance schema stats |
+| `mysql_index_usage` | Index usage statistics |
+| `mysql_table_stats` | Table statistics |
+| `mysql_buffer_pool_stats` | InnoDB buffer pool info |
+| `mysql_thread_stats` | Thread activity stats |
+
+### Optimization (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_index_recommendation` | Suggest missing indexes |
+| `mysql_query_rewrite` | Query optimization hints |
+| `mysql_force_index` | Generate FORCE INDEX hints |
+| `mysql_optimizer_trace` | View optimizer decisions |
+
+### Admin (6 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_optimize_table` | OPTIMIZE TABLE |
+| `mysql_analyze_table` | ANALYZE TABLE statistics |
+| `mysql_check_table` | CHECK TABLE integrity |
+| `mysql_repair_table` | REPAIR TABLE (MyISAM) |
+| `mysql_flush_tables` | FLUSH TABLES |
+| `mysql_kill_query` | KILL connection/query |
+
+### Monitoring (7 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_show_processlist` | SHOW PROCESSLIST |
+| `mysql_show_status` | SHOW STATUS variables |
+| `mysql_show_variables` | SHOW VARIABLES |
+| `mysql_innodb_status` | SHOW ENGINE INNODB STATUS |
+| `mysql_replication_status` | SHOW SLAVE STATUS |
+| `mysql_pool_stats` | Connection pool statistics |
+| `mysql_server_health` | Server health check |
+
+### Backup (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_export_table` | Export table to SQL/CSV |
+| `mysql_import_data` | LOAD DATA INFILE |
+| `mysql_create_dump` | mysqldump command generation |
+| `mysql_restore_dump` | Restore from dump |
+
+### Replication (5 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_master_status` | SHOW MASTER STATUS |
+| `mysql_slave_status` | SHOW SLAVE STATUS |
+| `mysql_binlog_events` | SHOW BINLOG EVENTS |
+| `mysql_gtid_status` | GTID_EXECUTED status |
+| `mysql_replication_lag` | Calculate replication lag |
+
+### Partitioning (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| `mysql_partition_info` | Partition information |
+| `mysql_add_partition` | ADD PARTITION |
+| `mysql_drop_partition` | DROP PARTITION |
+| `mysql_reorganize_partition` | REORGANIZE PARTITION |
 
 [⬆️ Back to Table of Contents](#-table-of-contents)
 
