@@ -72,6 +72,14 @@ Use the remote hostname directly:
 "--mysql", "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
 ```
 
+| Provider | Example Hostname |
+|----------|------------------|
+| AWS RDS | `your-instance.xxxx.us-east-1.rds.amazonaws.com` |
+| Google Cloud SQL | `project:region:instance` (via Cloud SQL Proxy) |
+| Azure MySQL | `your-server.mysql.database.azure.com` |
+| PlanetScale | `aws.connect.psdb.cloud` (SSL required) |
+| DigitalOcean | `your-cluster-do-user-xxx.db.ondigitalocean.com` |
+
 > **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
 
 ## 🎛️ Tool Filtering
