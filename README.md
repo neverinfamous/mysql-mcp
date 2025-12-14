@@ -4,7 +4,7 @@
 
 *Last updated December 13, 2025 - Production/Stable v1.0.0*
 
-*Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering – TypeScript Edition*
+*Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling, tool filtering, plus support for ProxySQL, MySQL Router, and MySQL Shell - TypeScript Edition*
 
 > **🎉 Version 1.0.0 Released!** Enterprise-grade MySQL MCP Server with 106 tools, OAuth 2.0, and Docker deployment.
 

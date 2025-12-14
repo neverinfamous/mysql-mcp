@@ -45,6 +45,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_read_query',
         description: 'Execute a read-only SQL query (SELECT). Uses prepared statements for safety.',
         group: 'core',
+        tags: ['query', 'select', 'read', 'sql'],
         inputSchema: ReadQuerySchema,
         requiredScopes: ['read'],
         handler: async (params: unknown, _context: RequestContext) => {
@@ -67,6 +68,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_write_query',
         description: 'Execute a write SQL query (INSERT, UPDATE, DELETE). Uses prepared statements for safety.',
         group: 'core',
+        tags: ['query', 'insert', 'update', 'delete', 'write', 'sql'],
         inputSchema: WriteQuerySchema,
         requiredScopes: ['write'],
         handler: async (params: unknown, _context: RequestContext) => {
@@ -89,6 +91,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_list_tables',
         description: 'List all tables and views in the database with metadata.',
         group: 'core',
+        tags: ['tables', 'views', 'list', 'schema', 'metadata'],
         inputSchema: ListTablesSchema,
         requiredScopes: ['read'],
         handler: async (_params: unknown, _context: RequestContext) => {
@@ -115,6 +118,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_describe_table',
         description: 'Get detailed information about a table\'s structure including columns, types, and constraints.',
         group: 'core',
+        tags: ['table', 'columns', 'schema', 'structure', 'describe'],
         inputSchema: DescribeTableSchema,
         requiredScopes: ['read'],
         handler: async (params: unknown, _context: RequestContext) => {
@@ -133,6 +137,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_create_table',
         description: 'Create a new table with specified columns, engine, and charset.',
         group: 'core',
+        tags: ['table', 'create', 'ddl', 'schema'],
         inputSchema: CreateTableSchema,
         requiredScopes: ['write'],
         handler: async (params: unknown, _context: RequestContext) => {
@@ -214,6 +219,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_drop_table',
         description: 'Drop (delete) a table from the database.',
         group: 'core',
+        tags: ['table', 'drop', 'delete', 'ddl'],
         inputSchema: DropTableSchema,
         requiredScopes: ['admin'],
         handler: async (params: unknown, _context: RequestContext) => {
@@ -240,6 +246,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_get_indexes',
         description: 'Get all indexes for a table including type, columns, and cardinality.',
         group: 'core',
+        tags: ['index', 'indexes', 'performance', 'table'],
         inputSchema: GetIndexesSchema,
         requiredScopes: ['read'],
         handler: async (params: unknown, _context: RequestContext) => {
@@ -258,6 +265,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         name: 'mysql_create_index',
         description: 'Create an index on a table. Supports BTREE, HASH, FULLTEXT, and SPATIAL index types.',
         group: 'core',
+        tags: ['index', 'create', 'performance', 'optimization'],
         inputSchema: CreateIndexSchema,
         requiredScopes: ['write'],
         handler: async (params: unknown, _context: RequestContext) => {

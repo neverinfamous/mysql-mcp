@@ -10,7 +10,7 @@ Last Updated December 13, 2025 - Production/Stable v1.0.0
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 
-Enterprise-grade MySQL MCP Server with **106 specialized tools** for database operations, JSON, text search, performance analysis, replication, and administration.
+*Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling, tool filtering, plus support for ProxySQL, MySQL Router, and MySQL Shell - TypeScript Edition*
 
 **[Wiki](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Release Notes](https://github.com/neverinfamous/mysql-mcp/releases)**
 
