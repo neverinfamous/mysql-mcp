@@ -5,7 +5,7 @@
  */
 
 import type { MySQLAdapter } from '../MySQLAdapter.js';
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext, ToolDefinition } from '../../../types/index.js';
 import { generateCompactIndex, generateDiscoveryPrompt } from '../../../utils/promptGenerator.js';
 
 /**
@@ -66,7 +66,7 @@ Use MySQL best practices:
 /**
  * Tool index prompt - shows all available tools in a compact format
  */
-function createToolIndexPrompt(toolDefs: import('../../../types/index.js').ToolDefinition[]): PromptDefinition {
+function createToolIndexPrompt(toolDefs: ToolDefinition[]): PromptDefinition {
     const compactIndex = generateCompactIndex(toolDefs);
     const discovery = generateDiscoveryPrompt(toolDefs);
 

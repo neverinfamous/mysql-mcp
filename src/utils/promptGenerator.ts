@@ -171,7 +171,9 @@ export function generateCompactIndex(tools: ToolDefinition[]): string {
         const args = extractArguments(tool);
         const argStr = args.map(a => a.name).join(', ');
         const brief = tool.description.split('.')[0]; // First sentence
-        byGroup[tool.group]!.push(`${tool.name}(${argStr}) - ${brief}`);
+        const groupTools = byGroup[tool.group] ?? [];
+        groupTools.push(`${tool.name}(${argStr}) - ${brief}`);
+        byGroup[tool.group] = groupTools;
     }
 
     let index = '';
