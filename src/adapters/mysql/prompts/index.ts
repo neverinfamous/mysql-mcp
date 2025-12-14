@@ -1,17 +1,26 @@
 /**
  * MySQL Adapter - MCP Prompts
  * 
- * Pre-built prompts for common MySQL operations.
+ * Pre-built prompts for common MySQL operations and lazy hydration discovery.
  */
 
 import type { MySQLAdapter } from '../MySQLAdapter.js';
 import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import { generateCompactIndex, generateDiscoveryPrompt } from '../../../utils/promptGenerator.js';
 
 /**
  * Get all MySQL prompts
  */
 export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
+    // Get tool definitions for generating indexes
+    const toolDefs = adapter.getToolDefinitions();
+
     return [
+        // Lazy hydration prompts
+        createToolIndexPrompt(toolDefs),
+        createQuickQueryPrompt(adapter),
+        createQuickSchemaPrompt(adapter),
+        // Original prompts
         createQueryBuilderPrompt(adapter),
         createSchemaDesignPrompt(adapter),
         createPerformanceAnalysisPrompt(adapter),
@@ -46,6 +55,104 @@ Use MySQL best practices:
 - Include appropriate WHERE clauses
 - Consider using LIMIT for large result sets
 `);
+        }
+    };
+}
+
+// =============================================================================
+// Lazy Hydration Prompts
+// =============================================================================
+
+/**
+ * Tool index prompt - shows all available tools in a compact format
+ */
+function createToolIndexPrompt(toolDefs: import('../../../types/index.js').ToolDefinition[]): PromptDefinition {
+    const compactIndex = generateCompactIndex(toolDefs);
+    const discovery = generateDiscoveryPrompt(toolDefs);
+
+    return {
+        name: 'mysql_tool_index',
+        description: 'Show all available MySQL tools organized by category',
+        arguments: [],
+        // eslint-disable-next-line @typescript-eslint/require-await
+        handler: async (_args: Record<string, string>, _context: RequestContext) => {
+            return `
+# MySQL MCP Tool Index
+
+This server provides ${toolDefs.length} MySQL tools for database operations.
+
+${discovery}
+## Complete Tool List
+
+${compactIndex}
+
+**Usage**: Call any tool by name with the required arguments. Use \`mysql_read_query\` for SELECT queries and \`mysql_write_query\` for INSERT/UPDATE/DELETE.
+`;
+        }
+    };
+}
+
+/**
+ * Quick query prompt - shortcut for running queries
+ */
+function createQuickQueryPrompt(_adapter: MySQLAdapter): PromptDefinition {
+    return {
+        name: 'mysql_quick_query',
+        description: 'Quickly run a SQL query - shortcut for mysql_read_query or mysql_write_query',
+        arguments: [
+            { name: 'sql', description: 'SQL query to execute', required: true },
+            { name: 'type', description: 'Query type: read or write (default: read)', required: false }
+        ],
+        // eslint-disable-next-line @typescript-eslint/require-await
+        handler: async (args: Record<string, string>, _context: RequestContext) => {
+            const queryType = args['type']?.toLowerCase() === 'write' ? 'write' : 'read';
+            const toolName = queryType === 'write' ? 'mysql_write_query' : 'mysql_read_query';
+
+            return `
+Execute this ${queryType} query using the \`${toolName}\` tool:
+
+\`\`\`sql
+${args['sql']}
+\`\`\`
+
+**Tool to use**: \`${toolName}\`
+**Arguments**: \`{ "query": "${(args['sql'] ?? '').replace(/"/g, '\\"')}" }\`
+`;
+        }
+    };
+}
+
+/**
+ * Quick schema prompt - shortcut for exploring database schema
+ */
+function createQuickSchemaPrompt(_adapter: MySQLAdapter): PromptDefinition {
+    return {
+        name: 'mysql_quick_schema',
+        description: 'Quickly explore database schema - lists tables or describes a specific table',
+        arguments: [
+            { name: 'table', description: 'Table name to describe (leave empty to list all tables)', required: false }
+        ],
+        // eslint-disable-next-line @typescript-eslint/require-await
+        handler: async (args: Record<string, string>, _context: RequestContext) => {
+            if (args['table']) {
+                return `
+Describe the structure of table **${args['table']}** using the \`mysql_describe_table\` tool:
+
+**Tool to use**: \`mysql_describe_table\`
+**Arguments**: \`{ "table": "${args['table']}" }\`
+
+This will show columns, types, indexes, and constraints.
+`;
+            }
+
+            return `
+List all tables in the database using the \`mysql_list_tables\` tool:
+
+**Tool to use**: \`mysql_list_tables\`
+**Arguments**: \`{}\`
+
+This will show all tables with their row counts and metadata.
+`;
         }
     };
 }
