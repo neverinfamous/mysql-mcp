@@ -526,6 +526,9 @@ export interface ToolDefinition {
     /** Tool group for filtering */
     group: ToolGroup;
 
+    /** Searchable tags for tool discovery (used by lazy hydration) */
+    tags?: string[];
+
     /** Zod schema for input validation */
     inputSchema: unknown;
 

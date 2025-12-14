@@ -44,7 +44,7 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.24.3",
+        "@modelcontextprotocol/sdk": "file:../mcp/modelcontextprotocol-sdk-1.24.3.tgz",
         "commander": "^14.0.2",
         "cors": "^2.8.5",
         "jose": "^6.1.3",
