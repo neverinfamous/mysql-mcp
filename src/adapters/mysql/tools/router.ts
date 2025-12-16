@@ -23,12 +23,24 @@ import {
 // =============================================================================
 
 /**
- * Custom HTTPS agent for insecure mode (self-signed certificates)
- * This is more targeted than setting NODE_TLS_REJECT_UNAUTHORIZED globally
+ * Lazily-initialized HTTPS agent for insecure mode (self-signed certificates).
+ * 
+ * SECURITY NOTE: This is an INTENTIONAL feature for development/testing environments
+ * where MySQL Router uses self-signed certificates. It is only activated when the user
+ * explicitly sets MYSQL_ROUTER_INSECURE=true. In production, users should configure
+ * proper TLS certificates on MySQL Router.
+ * 
+ * @see https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html#option_mysqlrouter_server_ssl_key
  */
-const insecureAgent = new https.Agent({
-    rejectUnauthorized: false
-});
+let _insecureAgent: https.Agent | null = null;
+function getInsecureAgent(): https.Agent {
+    // CodeQL: This is intentional - see SECURITY NOTE above
+    // nosemgrep: nodejs.lang.security.audit.tls-connection-insecure.tls-connection-insecure
+    _insecureAgent ??= new https.Agent({
+        rejectUnauthorized: false // codeql-ignore js/disabling-certificate-validation
+    });
+    return _insecureAgent;
+}
 
 /**
  * Get Router configuration from environment variables
@@ -78,7 +90,7 @@ async function routerFetch(
         console.error('WARNING: TLS certificate validation disabled for Router API request. This is insecure and should only be used for development/testing.');
         // Use undici dispatcher for Node.js fetch with custom TLS settings
         // @ts-expect-error - Node.js fetch supports dispatcher option via undici
-        fetchOptions.dispatcher = insecureAgent;
+        fetchOptions.dispatcher = getInsecureAgent();
     }
 
     const response = await fetch(url, fetchOptions);
