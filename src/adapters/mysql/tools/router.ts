@@ -46,6 +46,7 @@ async function routerFetch(
     const apiVersion = cfg.apiVersion ?? '/api/20190715';
     const username = cfg.username ?? '';
     const password = cfg.password ?? '';
+    const insecure = cfg.insecure ?? false;
 
     const url = `${baseUrl}${apiVersion}${path}`;
     const headers: Record<string, string> = {
@@ -57,16 +58,33 @@ async function routerFetch(
         headers['Authorization'] = `Basic ${auth}`;
     }
 
-    const response = await fetch(url, {
-        method: 'GET',
-        headers
-    });
-
-    if (!response.ok) {
-        throw new Error(`Router API error: ${response.status} ${response.statusText}`);
+    // Handle self-signed certificates when insecure mode is enabled
+    const originalTlsReject = process.env['NODE_TLS_REJECT_UNAUTHORIZED'];
+    if (insecure && baseUrl.startsWith('https://')) {
+        process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
     }
 
-    return response.json();
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers
+        });
+
+        if (!response.ok) {
+            throw new Error(`Router API error: ${response.status} ${response.statusText}`);
+        }
+
+        return await response.json();
+    } finally {
+        // Restore original TLS setting
+        if (insecure && baseUrl.startsWith('https://')) {
+            if (originalTlsReject === undefined) {
+                delete process.env['NODE_TLS_REJECT_UNAUTHORIZED'];
+            } else {
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = originalTlsReject;
+            }
+        }
+    }
 }
 
 // =============================================================================
@@ -100,10 +118,16 @@ export function getRouterTools(_adapter: MySQLAdapter): ToolDefinition[] {
 function createRouterStatusTool(): ToolDefinition {
     return {
         name: 'mysql_router_status',
+        title: 'MySQL Router Status',
         description: 'Get MySQL Router process status including version, hostname, and uptime. Requires Router REST API access.',
         group: 'router',
         inputSchema: RouterBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             const result = await routerFetch('/router/status');
             return {
@@ -120,10 +144,16 @@ function createRouterStatusTool(): ToolDefinition {
 function createRouterRoutesTool(): ToolDefinition {
     return {
         name: 'mysql_router_routes',
+        title: 'MySQL Router Routes',
         description: 'List all configured routes in MySQL Router. Returns route names that can be used with other router tools.',
         group: 'router',
         inputSchema: RouterBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             const result = await routerFetch('/routes');
             return {
@@ -144,10 +174,16 @@ function createRouterRoutesTool(): ToolDefinition {
 function createRouterRouteStatusTool(): ToolDefinition {
     return {
         name: 'mysql_router_route_status',
+        title: 'MySQL Router Route Status',
         description: 'Get operational status of a specific route including active connections, total connections, and blocked hosts count.',
         group: 'router',
         inputSchema: RouteNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { routeName } = RouteNameInputSchema.parse(params);
             const result = await routerFetch(`/routes/${encodeURIComponent(routeName)}/status`);
@@ -166,10 +202,16 @@ function createRouterRouteStatusTool(): ToolDefinition {
 function createRouterRouteHealthTool(): ToolDefinition {
     return {
         name: 'mysql_router_route_health',
+        title: 'MySQL Router Route Health',
         description: 'Check if a route is alive and functioning. Returns isAlive boolean indicating route health.',
         group: 'router',
         inputSchema: RouteNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { routeName } = RouteNameInputSchema.parse(params);
             const result = await routerFetch(`/routes/${encodeURIComponent(routeName)}/health`);
@@ -188,10 +230,16 @@ function createRouterRouteHealthTool(): ToolDefinition {
 function createRouterRouteConnectionsTool(): ToolDefinition {
     return {
         name: 'mysql_router_route_connections',
+        title: 'MySQL Router Route Connections',
         description: 'List active connections on a route including source/destination addresses, bytes transferred, and connection times.',
         group: 'router',
         inputSchema: RouteNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { routeName } = RouteNameInputSchema.parse(params);
             const result = await routerFetch(`/routes/${encodeURIComponent(routeName)}/connections`);
@@ -210,10 +258,16 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
 function createRouterRouteDestinationsTool(): ToolDefinition {
     return {
         name: 'mysql_router_route_destinations',
+        title: 'MySQL Router Route Destinations',
         description: 'List backend MySQL server destinations for a route. Shows address and port of each destination server.',
         group: 'router',
         inputSchema: RouteNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { routeName } = RouteNameInputSchema.parse(params);
             const result = await routerFetch(`/routes/${encodeURIComponent(routeName)}/destinations`);
@@ -232,10 +286,16 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
 function createRouterRouteBlockedHostsTool(): ToolDefinition {
     return {
         name: 'mysql_router_route_blocked_hosts',
+        title: 'MySQL Router Blocked Hosts',
         description: 'List IP addresses that have been blocked for a route due to too many failed connection attempts.',
         group: 'router',
         inputSchema: RouteNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { routeName } = RouteNameInputSchema.parse(params);
             const result = await routerFetch(`/routes/${encodeURIComponent(routeName)}/blockedHosts`);
@@ -258,10 +318,16 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
 function createRouterMetadataStatusTool(): ToolDefinition {
     return {
         name: 'mysql_router_metadata_status',
+        title: 'MySQL Router Metadata Status',
         description: 'Get InnoDB Cluster metadata cache status including refresh statistics and last refresh host.',
         group: 'router',
         inputSchema: MetadataNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { metadataName } = MetadataNameInputSchema.parse(params);
             const result = await routerFetch(`/metadata/${encodeURIComponent(metadataName)}/status`);
@@ -284,10 +350,16 @@ function createRouterMetadataStatusTool(): ToolDefinition {
 function createRouterPoolStatusTool(): ToolDefinition {
     return {
         name: 'mysql_router_pool_status',
+        title: 'MySQL Router Pool Status',
         description: 'Get MySQL Router connection pool status including reused connections and idle server connections.',
         group: 'router',
         inputSchema: ConnectionPoolNameInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { poolName } = ConnectionPoolNameInputSchema.parse(params);
             const result = await routerFetch(`/connection_pool/${encodeURIComponent(poolName)}/status`);

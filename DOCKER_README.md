@@ -1,45 +1,168 @@
 # MySQL MCP Server
 
-Last Updated December 13, 2025 - Production/Stable v1.0.0
+*Last updated December 16, 2025 - Production/Stable v2.0.0*
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
-[![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Version](https://img.shields.io/badge/version-v1.0.0-green)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
+![Version](https://img.shields.io/badge/version-2.0.0-green)
 ![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
-[![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
+![Tests](https://img.shields.io/badge/Tests-1478%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-97%25-green.svg)
 
-Enterprise-grade MySQL MCP Server with **106 specialized tools** for database operations, JSON, text search, performance analysis, replication, and administration.
+**[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)**
 
-**[Wiki](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Release Notes](https://github.com/neverinfamous/mysql-mcp/releases)**
+## The Most Comprehensive MySQL MCP Server Available
+
+**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Built for developers who demand enterprise-grade features without sacrificing ease of use.
+
+### 🎯 What Sets Us Apart
+
+| Feature | Description |
+|---------|-------------|
+| **191 Specialized Tools** | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
+| **18 Observability Resources** | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics |
+| **19 AI-Powered Prompts** | Guided workflows for query building, schema design, performance tuning, and infrastructure setup |
+| **OAuth 2.0 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration |
+| **Smart Tool Filtering** | 24 tool groups + 7 meta-groups let you stay within IDE limits while exposing exactly what you need |
+| **HTTP Streaming Transport** | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments |
+| **High-Performance Pooling** | Built-in connection pooling for efficient, concurrent database access |
+| **Ecosystem Integrations** | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities |
+| **Advanced Encryption** | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance |
+| **Production-Ready Security** | SQL injection protection, parameterized queries, input validation, and audit capabilities |
+| **Strict TypeScript** | 100% type-safe codebase with 1500+ tests and 97% coverage |
+| **MCP 2025-11-25 Compliant** | Full protocol support with tool safety hints, resource priorities, and progress notifications |
+
+---
 
 ## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- MySQL 5.7+ or 8.0+ server
+- npm or yarn
+
+> **💡 Jupyter Notebook:** Check out our [Python Quickstart Notebook](examples/notebooks/quickstart.ipynb) for an interactive guide using the Python SDK.
+
+### Installation
+
+```bash
+git clone https://github.com/neverinfamous/mysql-mcp.git
+cd mysql-mcp
+npm install
+npm run build
+node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
+```
+
+### Docker
 
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
-  --mysql mysql://user:password@host:3306/database
+  --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
-**MCP Config (Claude Desktop / Cursor):**
+---
+
+## ⚡ MCP Client Configuration
+
+### HTTP/SSE Server Usage (Advanced)
+
+> **When to use HTTP mode:** Use HTTP mode when deploying `mysql-mcp` as a standalone server that multiple clients can connect to remotely. For local development with Claude Desktop or Cursor IDE, use the default `stdio` mode shown below instead.
+
+**Use cases for HTTP mode:**
+- Running the server in a Docker container accessible over a network
+- Deploying to cloud platforms (AWS, GCP, Azure)
+- Enabling OAuth 2.0 authentication for enterprise security
+- Allowing multiple AI clients to share one database connection
+
+## OAuth 2.0 Authentication
+
+For enterprise deployments, mysql-mcp supports OAuth 2.0 authentication with Keycloak or any RFC-compliant provider.
+
+### Quick Setup
+
+**1. Start with OAuth disabled (default)**
+```bash
+mysql-mcp --mysql mysql://root:pass@localhost/db
+```
+
+**2. Enable OAuth with an identity provider**
+```bash
+mysql-mcp --mysql mysql://root:pass@localhost/db \
+          --oauth-enabled \
+          --oauth-issuer http://localhost:8080/realms/mysql-mcp \
+          --oauth-audience mysql-mcp
+```
+
+**Start the HTTP server:**
+
+```bash
+# Local installation
+node dist/cli.js --transport http --port 3000 --mysql mysql://user:password@localhost:3306/database
+
+# Docker (expose port 3000)
+docker run -p 3000:3000 writenotenow/mysql-mcp \
+  --transport http \
+  --port 3000 \
+  --mysql mysql://user:password@host.docker.internal:3306/database
+```
+
+**Available endpoints:**
+- `GET /sse` - Establish MCP connection via Server-Sent Events
+- `POST /messages` - Send JSON-RPC messages to the server
+- `GET /health` - Health check endpoint
+- `GET /.well-known/oauth-protected-resource` - OAuth 2.0 metadata (when OAuth enabled)
+
+> **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
+
+### Cursor IDE / Claude Desktop
+
 ```json
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "docker",
+      "command": "node",
       "args": [
-        "run", "-i", "--rm",
-        "writenotenow/mysql-mcp:latest",
+        "C:/path/to/mysql-mcp/dist/cli.js",
         "--transport", "stdio",
-        "--mysql", "mysql://user:password@host.docker.internal:3306/database"
+        "--mysql", "mysql://user:password@localhost:3306/database"
       ]
     }
   }
 }
 ```
 
-> **Note:** Use `host.docker.internal` to connect to MySQL running on your host machine.
+### Using Environment Variables (Recommended)
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "C:/path/to/mysql-mcp/dist/cli.js",
+        "--transport", "stdio"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "your_user",
+        "MYSQL_PASSWORD": "your_password",
+        "MYSQL_DATABASE": "your_database"
+      }
+    }
+  }
+}
+```
+
+> **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
+
+---
 
 ## 🔗 Database Connection Scenarios
 
@@ -82,82 +205,204 @@ Use the remote hostname directly:
 
 > **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
 
-## 🎛️ Tool Filtering
+---
 
-Reduce tool count for clients with limits (Cursor: ~80 warning):
+## 🛠️ Tool Filtering
 
-```bash
-docker run -i --rm \
-  writenotenow/mysql-mcp:latest \
-  --transport stdio \
-  --mysql mysql://user:password@host:3306/database \
-  --tool-filter "-performance,-optimization,-backup,-replication,-partitioning,-router,-proxysql,-shell"
-```
+> [!IMPORTANT]
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 191 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (38 tools) as a starting point.
 
-| Syntax | Description |
-|--------|-------------|
-| `-group` | Disable all tools in group |
-| `-tool` | Disable specific tool |
-| `+tool` | Re-enable after group disable |
+### What Can You Filter?
 
-**Groups:** core(8), json(12), text(6), fulltext(4), performance(8), optimization(4), admin(6), monitoring(7), backup(4), replication(5), partitioning(4), transactions(7), router(9), proxysql(12), shell(10)
+The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
 
-**Common filters:**
-- Minimal (~30): `-performance,-optimization,-backup,-replication,-partitioning,-monitoring,-router,-proxysql,-shell`
-- DBA (~37): `-json,-text,-fulltext`
-- Development (~42): `-performance,-optimization,-backup,-replication,-partitioning`
+| Filter Pattern | Example | Tools | Description |
+|----------------|---------|-------|-------------|
+| Shortcut only | `starter` | 38 | Use a predefined bundle |
+| Groups only | `core,json,transactions` | 32 | Combine individual groups |
+| Shortcut + Group | `starter,spatial` | 50 | Extend a shortcut |
+| Shortcut - Tool | `starter,-mysql_drop_table` | 37 | Remove specific tools |
 
-## 🔑 Environment Variables
+### Shortcuts (Predefined Bundles)
 
-| Variable | Description |
-|----------|-------------|
-| `MYSQL_HOST` | MySQL server hostname |
-| `MYSQL_PORT` | MySQL server port (default: 3306) |
-| `MYSQL_USER` | MySQL username |
-| `MYSQL_PASSWORD` | MySQL password |
-| `MYSQL_DATABASE` | Default database |
-| `MYSQL_POOL_SIZE` | Connection pool size (default: 10) |
+| Shortcut | Tools | Use Case | What's Included |
+|----------|-------|----------|-----------------|
+| `starter` | **38** | 🌟 **Recommended** | Core, JSON, trans, text |
+| `essential` | 15 | Minimal footprint | Core, trans |
+| `dev-power` | 45 | Power Developer | Core, schema, perf, stats, fulltext, trans |
+| `ai-data` | 44 | AI Data Analyst | Core, JSON, docstore, text, fulltext |
+| `ai-spatial` | 43 | AI Spatial Analyst | Core, spatial, stats, perf, trans |
+| `dba-monitor` | 35 | DBA Monitoring | Core, monitor, perf, sysschema, opt |
+| `dba-manage` | 33 | DBA Management | Core, admin, backup, repl, parts, events |
+| `dba-secure` | 42 | DBA Security | Core, security, roles, cluster, trans |
+| `base-core` | 48 | Base Ops | Core, JSON, trans, text, schema |
+| `base-advanced` | 39 | Advanced Features | DocStore, spatial, stats, fulltext, events |
+| `ecosystem` | 31 | External Tools | Router, ProxySQL, Shell |
 
-**With environment variables:**
+### Tool Groups (24 Available)
+
+| Group | Tools | Description |
+|-------|-------|-------------|
+| `core` | 8 | Read/write queries, tables, indexes |
+| `transactions` | 7 | BEGIN, COMMIT, ROLLBACK, savepoints |
+| `json` | 17 | JSON functions, merge, diff, stats |
+| `text` | 6 | REGEXP, LIKE, SOUNDEX |
+| `fulltext` | 4 | Natural language search |
+| `performance` | 8 | EXPLAIN, query analysis, slow queries |
+| `optimization` | 4 | Index hints, recommendations |
+| `admin` | 6 | OPTIMIZE, ANALYZE, CHECK |
+| `monitoring` | 7 | PROCESSLIST, status variables |
+| `backup` | 4 | Export, import, mysqldump |
+| `replication` | 5 | Master/slave, binlog |
+| `partitioning` | 4 | Partition management |
+| `router` | 9 | MySQL Router REST API |
+| `proxysql` | 12 | ProxySQL management |
+| `shell` | 10 | MySQL Shell utilities |
+| `schema` | 10 | Views, procedures, triggers, constraints |
+| `events` | 6 | Event Scheduler management |
+| `sysschema` | 8 | sys schema diagnostics |
+| `stats` | 8 | Statistical analysis tools |
+| `spatial` | 12 | Spatial/GIS operations |
+| `security` | 9 | Audit, SSL, encryption, masking |
+| `cluster` | 10 | Group Replication, InnoDB Cluster |
+| `roles` | 8 | MySQL 8.0 role management |
+| `docstore` | 9 | Document Store collections |
+
+---
+
+### Quick Start: Recommended IDE Configuration
+
+Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursorrules`, or equivalent):
+
+#### Option 1: Starter (38 Essential Tools)
+**Best for:** General MySQL database work - CRUD operations, schema management, and monitoring.
+
 ```json
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "writenotenow/mysql-mcp:latest", "--transport", "stdio"],
+      "command": "node",
+      "args": [
+        "/path/to/mysql-mcp/dist/cli.js",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "starter"
+      ],
       "env": {
-        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "root",
-        "MYSQL_PASSWORD": "password",
-        "MYSQL_DATABASE": "mydb"
+        "MYSQL_USER": "your_username",
+        "MYSQL_PASSWORD": "your_password",
+        "MYSQL_DATABASE": "your_database"
       }
     }
   }
 }
 ```
 
-## 📊 Tool Categories (106 tools)
+#### Option 2: Ecosystem (31 Tools + InnoDB Cluster Resource)
+**Best for:** Testing MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| Core | 8 | CRUD, schema, tables, indexes |
-| Transactions | 7 | BEGIN, COMMIT, ROLLBACK, savepoints |
-| JSON | 12 | JSON_EXTRACT, JSON_SET, JSON_CONTAINS |
-| Text | 6 | REGEXP, LIKE, SOUNDEX |
-| FULLTEXT | 4 | Natural language and boolean search |
-| Performance | 8 | EXPLAIN, query analysis |
-| Optimization | 4 | Index hints, recommendations |
-| Admin | 6 | OPTIMIZE, ANALYZE, CHECK |
-| Monitoring | 7 | PROCESSLIST, status variables |
-| Backup | 4 | Export, import, mysqldump |
-| Replication | 5 | Master/slave, binlog, GTID |
-| Partitioning | 4 | Partition management |
-| Router | 9 | MySQL Router REST API |
-| ProxySQL | 12 | Proxy management |
-| Shell | 10 | MySQL Shell utilities |
+> **⚠️ Prerequisites:** Requires MySQL Router, ProxySQL, and MySQL Shell to be installed and configured. See [MySQL Ecosystem Setup Guide](https://github.com/your-repo/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions.
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-ecosystem": {
+      "command": "node",
+      "args": [
+        "/path/to/mysql-mcp/dist/cli.js",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "ecosystem"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "mysql",
+        "MYSQL_ROUTER_URL": "https://localhost:8443",
+        "MYSQL_ROUTER_USER": "rest_api",
+        "MYSQL_ROUTER_PASSWORD": "router_password",
+        "MYSQL_ROUTER_INSECURE": "true",
+        "PROXYSQL_HOST": "localhost",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "admin",
+        "PROXYSQL_PASSWORD": "admin_password",
+        "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
+      }
+    }
+  }
+}
+```
+
+**Customization Notes:**
+
+- Replace `/path/to/mysql-mcp/` with your actual installation path
+- Update credentials (`your_username`, `your_password`, etc.) with your MySQL credentials
+- For Windows: Use forward slashes in paths (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes (`C:\\mysql-mcp\\dist\\cli.js`)
+- **Cluster Resource:** The `mysql://cluster` resource is only available with `ecosystem` filter when connected to an InnoDB Cluster node (port 3307 in example). It returns `{"groupReplicationEnabled": false}` for standard MySQL instances.
+
+> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
+
+---
+
+## 💡 Usage Instructions
+
+### JSON Tools (`mysql_json_*`)
+
+- **Strict Quoting**: When passing string values to JSON tools (like `mysql_json_set` or `mysql_json_insert`), you **must quote the string** if you intend to store it as a JSON string.
+  - ❌ Incorrect: `value: "green"` (interpreted as invalid JSON)
+  - ✅ Correct: `value: "\"green\""` (stored as string "green")
+  - ✅ Correct: `value: 42` (stored as number)
+  - ✅ Correct: `value: {"key": "val"}` (stored as object)
+- **Validation**: Creating or updating JSON values enforces strict JSON validity checks to prevent silent failures.
+
+### Transactions & Safety (`mysql_transaction_*`)
+
+- **Interactive Transactions**: You can perform multiple queries in a single transaction by passing the `transactionId` returned by `mysql_transaction_begin` to subsequent `mysql_read_query` or `mysql_write_query` calls.
+- **Atomic Operations**: Always use transactions for multi-step changes.
+  1. Call `mysql_transaction_begin` → get `transactionId`
+  2. Perform updates with `transactionId`
+  3. If successful, `mysql_transaction_commit`
+  4. If error, `mysql_transaction_rollback`
+
+### Document Store (`mysql_doc_*`)
+
+- **Filters**: The `filter` parameter accepts a **MySQL JSON Path** string (e.g., `$.address.zip`), checking for existence. It is not a full conditional expression (e.g., `$.type == "A"` is invalid).
+- To filter by value, use `mysql_doc_find` to retrieve candidates and filter in your application, or use `mysql_read_query` for complex JSON path conditions.
+
+### Fulltext Search (`mysql_fulltext_boolean`)
+
+- **Operators**: Uses standard MySQL boolean operators:
+  - `+word`: Mandatory (AND)
+  - `-word`: Prohibited (NOT)
+  - `word*`: Wildcard (at end of word)
+  - `> <`: Relevance weighting
+
+### DDL Statements (`mysql_write_query`)
+
+- **DDL Support**: `mysql_write_query` automatically handles DDL statements (like `CREATE TABLE`, `CREATE USER`) that are not supported by the prepared statement protocol. It detects the error and falls back to the text protocol, ensuring seamless execution.
+
+### Security & Role Management
+
+- **Role Permissions**: Role management tools (`mysql_role_create`, `mysql_role_grant`, etc.) require a user with appropriate privileges.
+- **Schema Qualification**: `mysql_role_grant` supports `db.table` syntax (e.g., `GRANT SELECT ON my_schema.my_table`) and correctly handles wildcards.
+- **SSL Status**: Server certificate verification status (`serverCertVerification`) is no longer retrievable via standard variables in MySQL 8.0.34+ and will report as `false` by default.
+
+### Group Replication & InnoDB Cluster
+
+- **Plugin Requirement**: Group Replication tools (`mysql_gr_*`) check for the `group_replication` plugin status. If the plugin is not `ACTIVE`, these tools return a "not active" message instead of failing with SQL errors, allowing safe probing of cluster status.
+- **Cluster Resource** (`mysql://cluster`): This resource provides InnoDB Cluster status including all member nodes. It requires connecting to a cluster node (e.g., port 3307) with a user that has access to `performance_schema.replication_group_members`. For non-cluster deployments, it will return `{"groupReplicationEnabled": false}`.
+
+---
 
 ## 🤖 AI-Powered Prompts
+
+This server includes **19 intelligent prompts** for guided workflows:
 
 | Prompt | Description |
 |--------|-------------|
@@ -165,38 +410,100 @@ docker run -i --rm \
 | `mysql_schema_design` | Design table schemas with indexes and relationships |
 | `mysql_performance_analysis` | Analyze slow queries with optimization recommendations |
 | `mysql_migration` | Generate migration scripts with rollback options |
+| `mysql_database_health_check` | Comprehensive database health assessment |
+| `mysql_backup_strategy` | Enterprise backup planning with RTO/RPO |
+| `mysql_index_tuning` | Index analysis and optimization workflow |
+| `mysql_setup_router` | MySQL Router configuration guide |
+| `mysql_setup_proxysql` | ProxySQL configuration guide |
+| `mysql_setup_replication` | Replication setup guide |
+| `mysql_setup_shell` | MySQL Shell usage guide |
+| `mysql_tool_index` | Complete tool index with categories |
+| `mysql_quick_query` | Quick query execution shortcut |
+| `mysql_quick_schema` | Quick schema exploration |
+| **`mysql_setup_events`** | Event Scheduler setup guide |
+| **`mysql_sys_schema_guide`** | sys schema usage and diagnostics |
+| **`mysql_setup_spatial`** | Spatial/GIS data setup guide |
+| **`mysql_setup_cluster`** | InnoDB Cluster/Group Replication guide |
+| **`mysql_setup_docstore`** | Document Store / X DevAPI guide |
 
-## 📦 Container Info
+---
 
-| Property | Value |
-|----------|-------|
-| Base Image | `node:20-alpine` |
-| Size | ~150MB |
-| Architectures | `linux/amd64`, `linux/arm64` |
-| User | Non-root |
+## 📊 Resources
 
-## 🏷️ Available Tags
+This server exposes **18 resources** for database observability:
 
-| Tag | Description |
-|-----|-------------|
-| `latest` | Current stable (v1.0.0) |
-| `v1.0.0` | First production release |
-| `sha-XXXXXX` | Commit-pinned builds |
+| Resource | Description |
+|----------|-------------|
+| `mysql://schema` | Full database schema |
+| `mysql://tables` | Table listing with metadata |
+| `mysql://variables` | Server configuration variables |
+| `mysql://status` | Server status metrics |
+| `mysql://processlist` | Active connections and queries |
+| `mysql://pool` | Connection pool statistics |
+| `mysql://capabilities` | Server version, features, tool categories |
+| `mysql://health` | Comprehensive health status |
+| `mysql://performance` | Query performance metrics |
+| `mysql://indexes` | Index usage and statistics |
+| `mysql://replication` | Replication status and lag |
+| `mysql://innodb` | InnoDB buffer pool and engine metrics |
+| **`mysql://events`** | Event Scheduler status and scheduled events |
+| **`mysql://sysschema`** | sys schema diagnostics summary |
+| **`mysql://locks`** | InnoDB lock contention detection |
+| **`mysql://cluster`** | Group Replication/InnoDB Cluster status |
+| **`mysql://spatial`** | Spatial columns and indexes |
+| **`mysql://docstore`** | Document Store collections |
 
-## 🔍 Resources
+---
 
-- [GitHub Repository](https://github.com/neverinfamous/mysql-mcp)
-- [Wiki Documentation](https://github.com/neverinfamous/mysql-mcp/wiki)
-- [Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)
-- [Full README](https://github.com/neverinfamous/mysql-mcp/blob/master/README.md)
+## 🔧 Advanced Configuration
 
-## 🐛 Troubleshooting
+For specialized setups, see these Wiki pages:
 
-| Issue | Solution |
-|-------|----------|
-| Connection refused | Use `host.docker.internal` for host MySQL |
-| Authentication failed | Verify MySQL credentials |
-| Too many tools warning | Use `--tool-filter` to reduce tools |
-| Permission denied | Check MySQL user permissions |
+| Topic | Description |
+|-------|-------------|
+| [MySQL Router](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Router) | Configure Router REST API access for InnoDB Cluster |
+| [ProxySQL](https://github.com/neverinfamous/mysql-mcp/wiki/ProxySQL) | Configure ProxySQL admin interface access |
+| [MySQL Shell](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Shell) | Configure MySQL Shell for dump/load operations |
 
-**Architectures:** linux/amd64, linux/arm64
+---
+
+### CLI Options
+
+| Option | Environment Variable | Description |
+|--------|---------------------|-------------|
+| `--oauth-enabled` | `OAUTH_ENABLED` | Enable OAuth authentication |
+| `--oauth-issuer` | `OAUTH_ISSUER` | Authorization server URL |
+| `--oauth-audience` | `OAUTH_AUDIENCE` | Expected token audience |
+| `--oauth-jwks-uri` | `OAUTH_JWKS_URI` | JWKS URI (auto-discovered) |
+| `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds |
+
+### Scopes
+
+| Scope | Access Level |
+|-------|-------------|
+| `read` | Read-only queries |
+| `write` | Read + write operations |
+| `admin` | Administrative operations |
+| `full` | All operations |
+
+> **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+
+## Security
+
+For security concerns, please see our [Security Policy](SECURITY.md).
+
+> **⚠️ Never commit credentials** - Store secrets in `.env` (gitignored)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Code of Conduct
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.

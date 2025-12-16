@@ -20,8 +20,37 @@ permissions:
   attestations: write    # For generating attestations
 
 jobs:
+  # Quality gate - must pass before any builds
+  quality-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Type check
+      run: npm run typecheck
+
+    - name: Run tests
+      run: npm test
+
   # Build each platform on native architecture (avoids QEMU emulation issues)
   build-platform:
+    needs: quality-gate
     strategy:
       fail-fast: false
       matrix:
@@ -43,7 +72,7 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -107,7 +136,7 @@ jobs:
 
     - name: Upload digest
       if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: digests-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
         path: /tmp/digests/*
@@ -125,7 +154,7 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -177,10 +206,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Download digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         path: /tmp/digests
         pattern: digests-*
@@ -236,7 +265,7 @@ jobs:
     # Update Docker Hub description
     - name: Update Docker Hub Description
       if: github.ref == 'refs/heads/master'
-      uses: peter-evans/dockerhub-description@v4
+      uses: peter-evans/dockerhub-description@v5
       continue-on-error: true
       timeout-minutes: 5
       with:
@@ -244,7 +273,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: ${{ env.IMAGE_NAME }}
         readme-filepath: ./DOCKER_README.md
-        short-description: "Enterprise-grade MySQL MCP Server with 106 tools, OAuth 2.0, and tool filtering."
+        short-description: "Enterprise-grade MySQL MCP Server with 191 tools, OAuth 2.0 and Tool Filtering."
 
     - name: Deployment Summary
       if: github.ref == 'refs/heads/master'

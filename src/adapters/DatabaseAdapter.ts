@@ -6,6 +6,7 @@
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { logger } from '../utils/logger.js';
 import { z } from 'zod';
 import type {
     DatabaseType,
@@ -164,7 +165,7 @@ export abstract class DatabaseAdapter {
             }
         }
 
-        console.error(`[mysql-mcp] Registered ${registered}/${tools.length} tools from ${this.name}`);
+        logger.info(`Registered ${registered}/${tools.length} tools from ${this.name}`);
     }
 
     /**
@@ -172,17 +173,29 @@ export abstract class DatabaseAdapter {
      */
     protected registerTool(server: McpServer, tool: ToolDefinition): void {
         // MCP SDK server.tool() registration
-        // Extract the Zod shape from inputSchema for MCP SDK compatibility
-        // The SDK expects ZodRawShapeCompat (e.g., {name: z.string()})
-        const inputSchema = tool.inputSchema as { shape?: Record<string, unknown> } | undefined;
-        const zodShape = inputSchema?.shape ?? {};
+        // Build MCP tool options with annotations (MCP Spec 2025-11-25)
+        const toolOptions: Record<string, unknown> = {
+            description: tool.description,
+        };
 
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
-        server.tool(
+        // Add title if provided (human-readable display name)
+        if (tool.title) {
+            toolOptions['title'] = tool.title;
+        }
+
+        // Add behavioral annotations for AI clients
+        if (tool.annotations) {
+            toolOptions['annotations'] = tool.annotations;
+        }
+
+        // Create the tool options object with input schema
+        // registerTool expects options as the second argument
+        server.registerTool(
             tool.name,
-            tool.description,
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            zodShape as Parameters<typeof server.tool>[2],  // Cast for type compatibility
+            {
+                ...toolOptions,
+                inputSchema: tool.inputSchema as z.ZodType
+            },
             async (params: unknown) => {
                 const context = this.createContext();
                 const result = await tool.handler(params, context);
@@ -204,20 +217,33 @@ export abstract class DatabaseAdapter {
         for (const resource of resources) {
             this.registerResource(server, resource);
         }
-        console.error(`[mysql-mcp] Registered ${resources.length} resources from ${this.name}`);
+        logger.info(`Registered ${resources.length} resources from ${this.name}`);
     }
 
     /**
      * Register a single resource with the MCP server
      */
     protected registerResource(server: McpServer, resource: ResourceDefinition): void {
+        // Build resource metadata with MCP 2025-11-25 enhancements
+        const resourceMeta: Record<string, unknown> = {
+            description: resource.description,
+            mimeType: resource.mimeType ?? 'application/json',
+        };
+
+        // Add title if provided
+        if (resource.title) {
+            resourceMeta['title'] = resource.title;
+        }
+
+        // Add annotations for AI clients (audience, priority, lastModified)
+        if (resource.annotations) {
+            resourceMeta['annotations'] = resource.annotations;
+        }
+
         server.registerResource(
             resource.name,
             resource.uri,
-            {
-                description: resource.description,
-                mimeType: resource.mimeType ?? 'application/json'
-            },
+            resourceMeta as { description?: string; mimeType?: string },
             async (uri: URL) => {
                 const context = this.createContext();
                 const result = await resource.handler(uri.toString(), context);
@@ -240,7 +266,7 @@ export abstract class DatabaseAdapter {
         for (const prompt of prompts) {
             this.registerPrompt(server, prompt);
         }
-        console.error(`[mysql-mcp] Registered ${prompts.length} prompts from ${this.name}`);
+        logger.info(`Registered ${prompts.length} prompts from ${this.name}`);
     }
 
     /**
@@ -257,11 +283,12 @@ export abstract class DatabaseAdapter {
             }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
-        server.prompt(
+        server.registerPrompt(
             prompt.name,
-            prompt.description,
-            zodShape,
+            {
+                description: prompt.description,
+                argsSchema: zodShape
+            },
             async (providedArgs) => {
                 const context = this.createContext();
                 // Cast args to Record<string, string> for handler compatibility

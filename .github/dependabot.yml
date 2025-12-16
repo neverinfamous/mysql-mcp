@@ -5,9 +5,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    labels:
-      - "dependencies"
-      - "npm"
+
     commit-message:
       prefix: "chore"
 
@@ -16,8 +14,6 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    labels:
-      - "dependencies"
-      - "github-actions"
+
     commit-message:
       prefix: "chore"

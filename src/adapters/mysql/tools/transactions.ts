@@ -35,10 +35,14 @@ export function getTransactionTools(adapter: MySQLAdapter): ToolDefinition[] {
 function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_begin',
+        title: 'MySQL Begin Transaction',
         description: 'Begin a new transaction with optional isolation level. Returns a transaction ID for subsequent operations.',
         group: 'transactions',
         inputSchema: TransactionBeginSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { isolationLevel } = TransactionBeginSchema.parse(params);
             const transactionId = await adapter.beginTransaction(isolationLevel);
@@ -57,10 +61,14 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
 function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_commit',
+        title: 'MySQL Commit Transaction',
         description: 'Commit a transaction, making all changes permanent.',
         group: 'transactions',
         inputSchema: TransactionIdSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { transactionId } = TransactionIdSchema.parse(params);
             await adapter.commitTransaction(transactionId);
@@ -75,10 +83,14 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
 function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_rollback',
+        title: 'MySQL Rollback Transaction',
         description: 'Rollback a transaction, undoing all changes.',
         group: 'transactions',
         inputSchema: TransactionIdSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { transactionId } = TransactionIdSchema.parse(params);
             await adapter.rollbackTransaction(transactionId);
@@ -93,10 +105,14 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
 function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_savepoint',
+        title: 'MySQL Create Savepoint',
         description: 'Create a savepoint within a transaction for partial rollback.',
         group: 'transactions',
         inputSchema: TransactionSavepointSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { transactionId, savepoint } = TransactionSavepointSchema.parse(params);
 
@@ -123,10 +139,14 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
 function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_release',
+        title: 'MySQL Release Savepoint',
         description: 'Release a savepoint, removing it without rolling back.',
         group: 'transactions',
         inputSchema: TransactionSavepointSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { transactionId, savepoint } = TransactionSavepointSchema.parse(params);
 
@@ -152,10 +172,14 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
 function createTransactionRollbackToTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_rollback_to',
+        title: 'MySQL Rollback to Savepoint',
         description: 'Rollback to a savepoint, undoing changes after that point.',
         group: 'transactions',
         inputSchema: TransactionSavepointSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { transactionId, savepoint } = TransactionSavepointSchema.parse(params);
 
@@ -181,10 +205,14 @@ function createTransactionRollbackToTool(adapter: MySQLAdapter): ToolDefinition 
 function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_transaction_execute',
+        title: 'MySQL Atomic Execute',
         description: 'Execute multiple SQL statements atomically. All statements succeed or all are rolled back.',
         group: 'transactions',
         inputSchema: TransactionExecuteSchema,
         requiredScopes: ['write'],
+        annotations: {
+            readOnlyHint: false
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { statements, isolationLevel } = TransactionExecuteSchema.parse(params);
 

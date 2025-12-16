@@ -1,22 +1,15 @@
 /**
- * MySQL Replication & Partitioning Tools
+ * MySQL Replication Tools
  * 
- * Replication monitoring and partition management.
- * 9 tools total (5 replication + 4 partitioning).
+ * Replication monitoring and management.
+ * 5 tools: master_status, slave_status, binlog_events, gtid_status, replication_lag.
  */
 
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 
 import type { MySQLAdapter } from '../MySQLAdapter.js';
 import type { ToolDefinition, RequestContext } from '../../../types/index.js';
-import {
-    BinlogEventsSchema,
-    PartitionInfoSchema,
-    AddPartitionSchema,
-    DropPartitionSchema,
-    ReorganizePartitionSchema
-} from '../types.js';
+import { BinlogEventsSchema } from '../types.js';
 import { z } from 'zod';
 
 /**
@@ -32,31 +25,20 @@ export function getReplicationTools(adapter: MySQLAdapter): ToolDefinition[] {
     ];
 }
 
-/**
- * Get partitioning tools
- */
-export function getPartitioningTools(adapter: MySQLAdapter): ToolDefinition[] {
-    return [
-        createPartitionInfoTool(adapter),
-        createAddPartitionTool(adapter),
-        createDropPartitionTool(adapter),
-        createReorganizePartitionTool(adapter)
-    ];
-}
-
-// =============================================================================
-// Replication Tools
-// =============================================================================
-
 function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     const schema = z.object({});
 
     return {
         name: 'mysql_master_status',
+        title: 'MySQL Master Status',
         description: 'Get binary log position from master/source server.',
         group: 'replication',
         inputSchema: schema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             // Try new syntax first, then old
             try {
@@ -79,10 +61,15 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
     return {
         name: 'mysql_slave_status',
+        title: 'MySQL Slave Status',
         description: 'Get detailed replication slave/replica status.',
         group: 'replication',
         inputSchema: schema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             // Try new syntax first
             try {
@@ -103,10 +90,15 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
 function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
     return {
         name: 'mysql_binlog_events',
+        title: 'MySQL Binlog Events',
         description: 'View binary log events for point-in-time recovery or replication debugging.',
         group: 'replication',
         inputSchema: BinlogEventsSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { logFile, position, limit } = BinlogEventsSchema.parse(params);
 
@@ -116,7 +108,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
             if (logFile) {
                 parts.push(`IN '${logFile}'`);
             }
-            if (position) {
+            if (position != null) {
                 parts.push(`FROM ${position}`);
             }
             parts.push(`LIMIT ${limit}`);
@@ -134,10 +126,15 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
     return {
         name: 'mysql_gtid_status',
+        title: 'MySQL GTID Status',
         description: 'Get Global Transaction ID (GTID) status for replication.',
         group: 'replication',
         inputSchema: schema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             // Get GTID executed
             const executedResult = await adapter.executeQuery(
@@ -168,17 +165,22 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
 
     return {
         name: 'mysql_replication_lag',
+        title: 'MySQL Replication Lag',
         description: 'Calculate replication lag in seconds.',
         group: 'replication',
         inputSchema: schema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             // Try to get Seconds_Behind_Master from replica status
             try {
                 const result = await adapter.executeQuery('SHOW REPLICA STATUS');
                 const status = result.rows?.[0];
 
-                if (status) {
+                if (status != null) {
                     return {
                         lagSeconds: status['Seconds_Behind_Source'] ?? status['Seconds_Behind_Master'],
                         ioRunning: status['Replica_IO_Running'] ?? status['Slave_IO_Running'],
@@ -191,7 +193,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
                     const result = await adapter.executeQuery('SHOW SLAVE STATUS');
                     const status = result.rows?.[0];
 
-                    if (status) {
+                    if (status != null) {
                         return {
                             lagSeconds: status['Seconds_Behind_Master'],
                             ioRunning: status['Slave_IO_Running'],
@@ -207,143 +209,6 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
             return {
                 lagSeconds: null,
                 message: 'This server is not configured as a replica'
-            };
-        }
-    };
-}
-
-// =============================================================================
-// Partitioning Tools
-// =============================================================================
-
-function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_partition_info',
-        description: 'Get partition information for a table.',
-        group: 'partitioning',
-        inputSchema: PartitionInfoSchema,
-        requiredScopes: ['read'],
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table } = PartitionInfoSchema.parse(params);
-
-            const result = await adapter.executeQuery(`
-                SELECT 
-                    PARTITION_NAME,
-                    PARTITION_ORDINAL_POSITION,
-                    PARTITION_METHOD,
-                    PARTITION_EXPRESSION,
-                    PARTITION_DESCRIPTION,
-                    TABLE_ROWS,
-                    AVG_ROW_LENGTH,
-                    DATA_LENGTH,
-                    INDEX_LENGTH,
-                    CREATE_TIME,
-                    UPDATE_TIME
-                FROM information_schema.PARTITIONS
-                WHERE TABLE_SCHEMA = DATABASE()
-                  AND TABLE_NAME = ?
-                ORDER BY PARTITION_ORDINAL_POSITION
-            `, [table]);
-
-            // Check if table is partitioned
-            const firstRow = result.rows?.[0];
-            if (!firstRow || firstRow['PARTITION_NAME'] === null) {
-                return {
-                    partitioned: false,
-                    message: 'Table is not partitioned'
-                };
-            }
-
-            return {
-                partitioned: true,
-                method: firstRow['PARTITION_METHOD'],
-                expression: firstRow['PARTITION_EXPRESSION'],
-                partitions: result.rows
-            };
-        }
-    };
-}
-
-function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_add_partition',
-        description: 'Add a new partition to a partitioned table.',
-        group: 'partitioning',
-        inputSchema: AddPartitionSchema,
-        requiredScopes: ['admin'],
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, partitionName, partitionType, value } = AddPartitionSchema.parse(params);
-
-            let sql: string;
-
-            switch (partitionType) {
-                case 'RANGE':
-                    sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
-                    break;
-                case 'LIST':
-                    sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
-                    break;
-                case 'HASH':
-                case 'KEY':
-                    sql = `ALTER TABLE \`${table}\` ADD PARTITION PARTITIONS ${value}`;
-                    break;
-                default:
-                    throw new Error(`Unsupported partition type: ${partitionType}`);
-            }
-
-            await adapter.executeQuery(sql);
-            return { success: true, table, partitionName };
-        }
-    };
-}
-
-function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_drop_partition',
-        description: 'Drop a partition from a partitioned table. Warning: This deletes all data in the partition!',
-        group: 'partitioning',
-        inputSchema: DropPartitionSchema,
-        requiredScopes: ['admin'],
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, partitionName } = DropPartitionSchema.parse(params);
-
-            await adapter.executeQuery(
-                `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``
-            );
-
-            return {
-                success: true,
-                table,
-                partitionName,
-                warning: 'All data in this partition has been deleted'
-            };
-        }
-    };
-}
-
-function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_reorganize_partition',
-        description: 'Reorganize partitions by splitting or merging them.',
-        group: 'partitioning',
-        inputSchema: ReorganizePartitionSchema,
-        requiredScopes: ['admin'],
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, fromPartitions, toPartitions } = ReorganizePartitionSchema.parse(params);
-
-            const fromList = fromPartitions.map(p => `\`${p}\``).join(', ');
-            const toList = toPartitions.map(p =>
-                `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`
-            ).join(', ');
-
-            const sql = `ALTER TABLE \`${table}\` REORGANIZE PARTITION ${fromList} INTO (${toList})`;
-
-            await adapter.executeQuery(sql);
-            return {
-                success: true,
-                table,
-                fromPartitions,
-                toPartitions: toPartitions.map(p => p.name)
             };
         }
     };

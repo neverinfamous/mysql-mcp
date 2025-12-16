@@ -11,6 +11,10 @@ import type { DatabaseAdapter } from '../adapters/DatabaseAdapter.js';
 import type { McpServerConfig, TransportType, DatabaseConfig, ToolFilterConfig } from '../types/index.js';
 import { parseToolFilter, getFilterSummary } from '../filtering/ToolFilter.js';
 import { logger } from '../utils/logger.js';
+import { mcpLogger } from '../logging/McpLogging.js';
+import { progressFactory } from '../progress/ProgressReporter.js';
+import { OAuthResourceServer } from '../auth/OAuthResourceServer.js';
+import { TokenValidator } from '../auth/TokenValidator.js';
 
 /**
  * Default server configuration
@@ -31,6 +35,7 @@ export class McpServer {
     private config: McpServerConfig;
     private toolFilter: ToolFilterConfig;
     private started = false;
+    private activeTransport: { stop(): Promise<void> } | null = null;
 
     constructor(config: Partial<McpServerConfig> = {}) {
         this.config = { ...DEFAULT_CONFIG, ...config };
@@ -40,6 +45,12 @@ export class McpServer {
             name: this.config.name,
             version: this.config.version
         });
+
+        // Initialize MCP protocol logging so clients can receive log messages
+        mcpLogger.setServer(this.server);
+
+        // Initialize MCP protocol progress reporting for long-running operations
+        progressFactory.setServer(this.server);
 
         // Log tool filter summary
         if (this.toolFilter.rules.length > 0) {
@@ -66,6 +77,7 @@ export class McpServer {
         adapter.registerPrompts(this.server);
 
         logger.info(`Registered adapter: ${adapter.name} (${key})`);
+        mcpLogger.info(`Database adapter registered: ${adapter.name}`);
     }
 
     /**
@@ -97,6 +109,7 @@ export class McpServer {
             await this.startTransport(this.config.transport);
             this.started = true;
             logger.info('Server started successfully');
+            mcpLogger.info('MySQL MCP server ready', { transport: this.config.transport });
         } catch (error) {
             logger.error('Failed to start server', { error: String(error) });
             throw error;
@@ -112,12 +125,30 @@ export class McpServer {
                 await this.startStdioTransport();
                 break;
             case 'http':
-            case 'sse':
-                // HTTP/SSE transport would be implemented here
-                throw new Error(`Transport '${transport}' not yet implemented`);
+            case 'sse': {
+                const { createHttpTransport } = await import('../transports/http.js');
+                const port = this.config.port ?? 3000;
+
+                const transport = createHttpTransport({
+                    port,
+                    host: 'localhost', // Default to localhost, could be configurable
+                    corsOrigins: ['*'], // Allow all for now, or make configurable
+                    // Pass OAuth config if enabled
+                    ...(this.config.oauth?.enabled ? {
+                        resourceServer: this.createOAuthResourceServer(),
+                        tokenValidator: this.createTokenValidator()
+                    } : {})
+                }, (sseTransport) => {
+                    logger.info('New SSE connection');
+                    void this.server.connect(sseTransport);
+                });
+
+                await transport.start();
+                this.activeTransport = transport;
+                break;
+            }
             default:
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw new Error(`Unknown transport: ${transport}`);
+                throw new Error(`Unknown transport: ${String(transport)}`);
         }
     }
 
@@ -149,9 +180,19 @@ export class McpServer {
             }
         }
 
+        if (this.activeTransport) {
+            try {
+                await this.activeTransport.stop();
+            } catch (error) {
+                logger.error('Error stopping transport', { error: String(error) });
+            }
+            this.activeTransport = null;
+        }
+
         await this.server.close();
         this.started = false;
         logger.info('Server stopped');
+        mcpLogger.notice('MySQL MCP server stopped');
     }
 
     /**
@@ -180,6 +221,56 @@ export class McpServer {
      */
     getSdkServer(): SdkMcpServer {
         return this.server;
+    }
+
+    /**
+     * Create OAuth resource server from config
+     */
+    private createOAuthResourceServer(): OAuthResourceServer {
+        if (!this.config.oauth?.enabled) {
+            throw new Error('OAuth is not enabled');
+        }
+
+        // Use audience as resource ID if not explicitly configured in future
+        const resourceId = this.config.oauth.audience ?? 'mysql-mcp';
+
+        const issuer = this.config.oauth.issuer;
+        if (!issuer) {
+            throw new Error('OAuth issuer is required');
+        }
+
+        return new OAuthResourceServer({
+            resource: resourceId,
+            authorizationServers: [issuer],
+            scopesSupported: ['read', 'write', 'admin'],
+            bearerMethodsSupported: ['header']
+        });
+    }
+
+    /**
+     * Create token validator from config
+     */
+    private createTokenValidator(): TokenValidator {
+        if (!this.config.oauth?.enabled) {
+            throw new Error('OAuth is not enabled');
+        }
+
+        if (!this.config.oauth.jwksUri) {
+            throw new Error('OAuth JWKS URI is required for validation');
+        }
+
+        const issuer = this.config.oauth.issuer;
+        const audience = this.config.oauth.audience;
+        if (!issuer || !audience) {
+            throw new Error('OAuth issuer and audience are required');
+        }
+
+        return new TokenValidator({
+            issuer,
+            audience,
+            jwksUri: this.config.oauth.jwksUri,
+            clockTolerance: this.config.oauth.clockTolerance
+        });
     }
 }
 

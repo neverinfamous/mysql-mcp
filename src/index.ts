@@ -26,7 +26,8 @@ export {
     getToolFilterFromEnv,
     calculateTokenSavings,
     getFilterSummary,
-    getToolGroupInfo
+    getToolGroupInfo,
+    clearToolFilterCaches
 } from './filtering/ToolFilter.js';
 
 // Types

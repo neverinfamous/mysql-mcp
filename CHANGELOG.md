@@ -5,6 +5,313 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-12-16
+
+### Major Release Highlights
+
+**mysql-mcp v2.0.0** represents a transformative update with **85 new tools** (106 → 191 tools), comprehensive security enhancements, HTTP/SSE streaming transport, and extensive refactoring for production-grade stability.
+
+> **New:** Simplified tool filtering syntax is now supported! Use `"+starter"` or `"starter"` (whitelist mode) to automatically disable all other tools and enable only what you need. Default toolset is now `starter` (38 tools) if no filter is provided.
+
+## [Unreleased]
+
+### Added
+- **CI/CD Quality Gate** - Added `quality-gate` job to `docker-publish.yml` workflow that runs lint, typecheck, and all 1478 unit tests before allowing Docker image builds. Deployments now require all tests to pass.
+- Added comprehensive test coverage for `MySQLAdapter`, `TokenValidator`, and `comparative` stats tools.
+- Added unit tests for security audit tool fallbacks and filtering logic.
+- Added meaningful tests for `locks` resource to handle undefined/partial query results.
+- Added test coverage for `indexes` resource edge cases (undefined rows).
+- Added test coverage for `events` resource edge cases.
+- Added meaningful test coverage for `constraints.ts` (schema-qualified table parsing), `router.ts` (auth headers, TLS handling), and `utilities.ts` (option handling branches).
+- Added **Expanded Jupyter Notebook** (`examples/notebooks/quickstart.ipynb`) demonstrating:
+  - Connecting via `mcp` Python SDK
+  - Reading/Writing data with SQL tools
+  - Accessing Resources
+  - Error handling patterns
+  - **Advanced**: Transactions (Atomic writes), AI Prompts, and Performance Analysis (EXPLAIN)
+  - **JSON Support**: Treating MySQL as a document store with `mysql_json_extract/set`
+  - **Fulltext Search**: Building RAG-ready search with `mysql_fulltext_create/search`
+  - **Spatial Data**: Location-based search (GIS) with `mysql_spatial_distance_sphere`
+  - **Document Store**: NoSQL API (MongoDB-style) with `mysql_doc_create_collection/add/find`
+- Added comprehensive tests for `security` tool edge cases (encryption status, SSL status).
+- Added tests for `views` schema tool validation and check options.
+- **Transaction-Aware Queries** - Added optional `transactionId` parameter to `mysql_read_query` and `mysql_write_query` tools, enabling interactive queries within active transactions.
+- **All 191 tools and 26 resources fully tested** - Comprehensive testing completed including InnoDB Cluster (3-node Group Replication), MySQL Router REST API, ProxySQL admin interface, and MySQL Shell utilities.
+
+### Fixed
+- **ProxySQL Runtime Status** - Fixed `proxysql_runtime_status` failing with SQL syntax error "near 'version': syntax error". The tool was using `@@admin-version` syntax which is not supported by ProxySQL's SQLite-based admin interface. Now correctly queries `global_variables` table.
+- **CRITICAL: MCP stdio Transport Crash** - Removed debug `console.error` in `MySQLAdapter.executeOnConnection()` that was writing to stderr and corrupting the MCP stdio JSON-RPC message stream, causing the server to crash when any tool was called. This was introduced during the DDL support improvements.
+- **DDL Support** - Fixed `mysql_write_query` failing on DDL statements (like `CREATE TABLE`, `CREATE USER`) by implementing automatic fallback to the text protocol when the specific "not supported in prepared statement protocol" error is encountered.
+- **JSON Validation** - Enforced strict JSON validation for `mysql_json_*` tools. String values must now be properly quoted (e.g., `'"value"'`) to be stored as strings. Unquoted strings that are invalid JSON will now throw a descriptive error instead of being accepted and potentially mishandled.
+- **JSON & Text Tools Qualified Table Names** - Fixed all 17 JSON tools and 6 text processing tools to correctly handle schema-qualified table names (e.g., `schema.table`). Previously these tools would reject qualified names with "Invalid table name" errors. Now uses `validateQualifiedIdentifier()` and `escapeQualifiedTable()` for proper handling.
+- Fixed potential issue in `indexes` resource where undefined query results could lead to undefined properties instead of empty arrays.
+- Fixed SQL syntax errors in `mysql_stats_descriptive` tool: escaped `range` reserved keyword and fixed invalid LIMIT/OFFSET syntax in median calculation.
+- Fixed `mysql_json_index_suggest` compatibility with `ONLY_FULL_GROUP_BY` and corrected sampling logic.
+- Fixed `mysql_spatial_polygon` schema validation error by replacing `z.tuple` with `z.array` to generate compatible JSON schema.
+- **Spatial SRID Fix** - Fixed `mysql_spatial_contains` and `mysql_spatial_within` failing on columns with SRID 4326 due to SRID mismatch. Both tools now accept an optional `srid` parameter (default: 4326) and wrap input geometries with `ST_SRID()` to match the column's SRID.
+- **Spatial Coordinate Order** - Fixed `mysql_spatial_point`, `mysql_spatial_distance`, and `mysql_spatial_distance_sphere` creating POINT geometries with incorrect coordinate order for SRID 4326. MySQL 8.0+ follows the EPSG standard axis order (latitude, longitude) for SRID 4326, but the tools were generating `POINT(longitude latitude)`. Now correctly generates `POINT(latitude longitude)`. Updated `mysql_setup_spatial` prompt documentation accordingly.
+- Improved branch coverage across multiple modules.
+- Fixed `mysql_sys_io_summary` failing on MySQL 9.4 due to schema changes in `sys.io_global_by_wait_by_latency` (replaced `wait_class` with `event_name`).
+- **Table Name Handling** - Fixed `mysql_create_table`, `mysql_drop_table`, `mysql_create_index`, `mysql_describe_table`, and `mysql_get_indexes` to correctly handle fully qualified table names (e.g., `schema.table`). Added intelligent parsing and proper backtick escaping for schema prefixes.
+- **Role Grant Handling** - Fixed `mysql_role_grant` to correctly handle schema-qualified table names (e.g., `schema.table`) in the `table` parameter, preventing syntax errors when specifying target tables.
+- **Fixed Role Grant** - Fixed `mysql_role_grant` tool logic to correctly handle wildcard privileges (`*`) versus specific table grants, resolving syntax errors when granting privileges to specific tables.
+- **Schema-Qualified CREATE TABLE** - Fixed `mysql_create_table` failing with "No database selected" when using schema-qualified names (e.g., `testdb.table`). Now automatically issues `USE schema` before CREATE TABLE when a qualified name is detected.
+- **View Management** - Fixed `mysql_create_view` to correctly handle schema-qualified view names (e.g. `schema.view`) and improved validation error messages.
+- **Router TLS Self-Signed Certificates** - Fixed `mysql_router_*` tools failing with "fetch failed" when connecting to Router REST API using HTTPS with self-signed certificates. The `MYSQL_ROUTER_INSECURE=true` environment variable now properly bypasses certificate verification by temporarily setting `NODE_TLS_REJECT_UNAUTHORIZED=0` during the request.
+
+### Coverage
+
+- Branch coverage: ~83.87%
+- Statement coverage: ~97.34%
+
+
+- **Modular Refactoring and Test Improvements** - Significantly improved code quality and test modularity:
+  - **Refactored CLI** - Extracted argument parsing to `src/cli/args.ts` and achieved 91% coverage for `src/cli.ts` (main entry point) including signal handling and error scenarios.
+  - **Modular Tool Structure** - Refactored monolithic tool files into clean, maintainable directories for `security` and `cluster` tools.
+  - **Enhanced Test Coverage** - Added comprehensive tests for:
+    - Service availability: `security` (SSL/TLS status, password validation, encryption status)
+    - Cluster management: `group-replication` (status, flow control, members)
+    - Text processing: `mysql_substring`, `mysql_concat` (WHERE clause validation)
+    - CLI operations: Graceful shutdown, OAuth logging, connection error handling
+  - **Bug Fixes**
+    - Fixed `mysql_list_tables` failing to filter by database name; it now correctly passes the `database` parameter to the schema manager.
+    - Fixed `ExitError` handling in CLI tests and improved mock resilience.
+
+### Security
+
+- **Input Validation Module** - Added centralized `src/utils/validators.ts` with:
+  - `validateIdentifier()` - Validates SQL identifiers (table, column, schema names) against injection
+  - `validateWhereClause()` - Detects dangerous SQL patterns (stacked queries, UNION attacks, timing attacks)
+  - `escapeIdentifier()` and `escapeLikePattern()` - Safe escaping utilities
+- **HTTP Security Headers** - Added security headers to HTTP transport:
+  - `X-Content-Type-Options: nosniff` - Prevents MIME type sniffing
+  - `X-Frame-Options: DENY` - Prevents clickjacking
+  - `X-XSS-Protection: 1; mode=block` - Enables XSS filtering
+  - `Content-Security-Policy: default-src 'none'` - Restrictive CSP for API
+  - `Cache-Control: no-store` - Prevents caching of API responses
+- **Log Sanitization** - Replaced regex-based sanitization in `logger.ts` with manual character validation to prevent ReDoS and allow safe control characters (newlines, tabs).
+- **SQL Injection Prevention** - Added input validation to tool handlers:
+  - `backup.ts` - Table name and WHERE clause validation in export/import tools
+  - `json/core.ts` - Table, column, and WHERE validation in all 8 JSON tools
+- **Security Test Suite** - Added comprehensive security tests:
+  - `security_injection.test.ts` - 14 tests for SQL injection prevention
+  - `security_integration.test.ts` - 11 tests for validation flow and error security
+  - `TokenValidator.test.ts` - 5 new OAuth edge case tests (signature, nbf, expiry)
+  - `http.test.ts` - 6 tests for security header verification
+
+### Changed
+
+- **Refactoring** - Removed deprecated `SSEServerTransport` usage in favor of `StreamableHTTPServerTransport` from `@modelcontextprotocol/sdk`.
+- **Code Quality** - Removed all `eslint-disable` directives across the codebase, ensuring strict type safety and linting compliance.
+- **Test Coverage** - Improved coverage for `http.ts`, `logger.ts`, and `validators.ts` with meaningful test cases.
+
+### Added
+
+- **Performance Test Suite** - Added `src/__tests__/perf.test.ts` with 11 timing-based tests for regression protection:
+  - Tool definition caching validation for `MySQLAdapter.getToolDefinitions()`
+  - O(1) lookup verification for `getToolGroup()` (Map vs linear search)
+  - Caching validation for `getAllToolNames()` and `parseToolFilter()`
+  - Filter performance tests for complex filter chains (-base,-ecosystem,+starter)
+
+
+### Changed
+
+- **Code Organization - Modular Refactoring** - Improved code maintainability by refactoring large monolithic tool files (500+ lines) into focused, modular directory structures:
+  - Phase 1 (Initial Refactoring):
+    - `tools/spatial/` - Split 565-line file into 4 modules: `setup.ts`, `geometry.ts`, `queries.ts`, `operations.ts`
+    - `tools/admin/` - Split 627-line file into 3 modules: `maintenance.ts`, `monitoring.ts`, `backup.ts`
+    - `tools/sysschema/` - Split 583-line file into 3 modules: `activity.ts`, `performance.ts`, `resources.ts`
+  - Phase 2 (Consistency Refactoring):
+    - `tools/performance/` - Split 491-line file into 2 modules: `analysis.ts`, `optimization.ts`
+    - `tools/text/` - Split 315-line file into 2 modules: `processing.ts`, `fulltext.ts`
+    - Separated `replication.ts` and `partitioning.ts` into distinct files (were mixed in one 353-line file)
+  - All modules export through central `index.ts` for backward compatibility
+  - Zero breaking changes - all tool functionality preserved and verified via test suite (1175 tests passing)
+  - Removed all eslint-disable directives and fixed type safety issues
+  - **Modular Refactoring Phase 4**:
+    - Extracted CLI argument parsing logic to `src/cli/args.ts`
+    - Moved MySQL schema operations to `src/adapters/mysql/SchemaManager.ts`
+
+- **Code Organization - Test Suite Modularity** - Refactored large test files into focused, modular test suites to improve maintainability and parallelism:
+  - Split `admin.test.ts` (626 lines) into `admin.test.ts` (admin tools), `monitoring.test.ts` (monitoring tools), and `backup.test.ts` (backup tools).
+  - Split `json.test.ts` (729 lines) and `json_handler.test.ts` (141 lines) into `json_core.test.ts` (8 core tools), `json_helpers.test.ts` (4 helper tools), and `json_enhanced.test.ts` (5 enhanced tools).
+  - Verified all 1489 tests pass with strict type safety enabled.
+
+- **Performance Optimizations** - Implemented caching and algorithmic improvements for faster server startup and tool lookups:
+  - **Tool Definition Caching** - `MySQLAdapter.getToolDefinitions()` now caches all 191 tool definitions after first call, eliminating 20+ factory function calls on subsequent `tools/list` requests
+  - **Reverse Lookup Map** - `getToolGroup()` now uses O(1) Map lookup instead of O(n×m) linear search through 24 groups
+  - **Cached Tool Names** - `getAllToolNames()` caches the 191-tool array after first computation
+  - Added `clearToolFilterCaches()` export for testing purposes
+
+### Fixed
+- **Test Integrity** - Resolved false coverage reports by refactoring `spatial` tests to target actual modular files (`tools/spatial/index.ts`) instead of legacy code.
+- **Server Testing** - Added missing test coverage for `McpServer` HTTP/SSE transport startup, OAuth configuration, and error handling.
+- **Legacy Cleanup** - Removed unused legacy `spatial.ts` file.
+- **Shell Tools Security** - Fixed an injection vulnerability in `mysqlsh_import_table` where `linesTerminatedBy` and `fieldsTerminatedBy` were not properly escaped.
+- **Test Improvements**
+- Improved test coverage and modularity
+  - Removed redundant monolithic tool files (`performance.ts`, `text.ts`)
+  - Enhanced `cli.ts` tests for argument parsing and pool configuration
+  - Improved `MySQLAdapter` transaction error handling tests
+  - Added resilience tests for `innodb` resource
+- Refactored `ToolFilter` into `ToolConstants`
+- Refactored `shell.test.ts` into 5 modular files and improved coverage for shell, spatial, and sysschema tools with meaningful assertions.
+- **Resource Test Refactoring** - Split monolithic `handlers.test.ts` and `diagnostics.test.ts` into 10 modular test files (`spatial`, `status`, `sysschema`, `pool`, `processlist`, `capabilities`, `tables`, `innodb`, `performance`, `schema`) to improve maintainability.
+- **Coverage Boost** - Achieved >80% branch coverage by adding meaningful edge-case tests for resources (handling null results, empty sets) and tool filters.
+- **CLI & Tool Coverage** - Added comprehensive tests for:
+  - CLI argument parsing (`args.test.ts`)
+  - Document Store validation (`docstore.test.ts`)
+  - Performance resource error handling (`performance.test.ts`)
+  - Schema management tools (`management.test.ts`)
+
+### Added
+
+- **85 New Tools** for comprehensive MySQL 8.0 coverage (106 → 191 tools total):
+  
+  **Schema Management (10 tools)** - `schema` group:
+  - `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_views`, `mysql_create_view`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_triggers`, `mysql_list_constraints`, `mysql_list_events`
+  
+  **Event Scheduler (6 tools)** - `events` group:
+  - `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status`
+  
+  **sys Schema Diagnostics (8 tools)** - `sysschema` group:
+  - `mysql_sys_user_summary`, `mysql_sys_io_summary`, `mysql_sys_statement_summary`, `mysql_sys_wait_summary`, `mysql_sys_innodb_lock_waits`, `mysql_sys_schema_stats`, `mysql_sys_host_summary`, `mysql_sys_memory_summary`
+  
+  **Statistical Analysis (8 tools)** - `stats` group:
+  - `mysql_stats_descriptive`, `mysql_stats_percentiles`, `mysql_stats_correlation`, `mysql_stats_distribution`, `mysql_stats_time_series`, `mysql_stats_regression`, `mysql_stats_sampling`, `mysql_stats_histogram`
+  
+  **Spatial/GIS (12 tools)** - `spatial` group:
+  - `mysql_spatial_create_column`, `mysql_spatial_create_index`, `mysql_spatial_point`, `mysql_spatial_polygon`, `mysql_spatial_distance`, `mysql_spatial_distance_sphere`, `mysql_spatial_contains`, `mysql_spatial_within`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, `mysql_spatial_geojson`
+  
+  **Security (9 tools)** - `security` group:
+  - `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security_firewall_rules`, `mysql_security_mask_data`, `mysql_security_password_validate`, `mysql_security_ssl_status`, `mysql_security_user_privileges`, `mysql_security_sensitive_tables`, `mysql_security_encryption_status`
+  
+  **Group Replication & InnoDB Cluster (10 tools)** - `cluster` group:
+  - `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_status`, `mysql_cluster_instances`, `mysql_cluster_topology`, `mysql_cluster_router_status`, `mysql_cluster_switchover`
+  
+  **Role Management (8 tools)** - `roles` group:
+  - `mysql_role_list`, `mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`
+  
+  **Document Store (9 tools)** - `docstore` group:
+  - `mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, `mysql_doc_find`, `mysql_doc_add`, `mysql_doc_modify`, `mysql_doc_remove`, `mysql_doc_create_index`, `mysql_doc_collection_info`
+  
+  **Enhanced JSON (5 tools)** - added to `json` group (12 → 17):
+  - `mysql_json_merge`, `mysql_json_diff`, `mysql_json_normalize`, `mysql_json_stats`, `mysql_json_index_suggest`
+
+- **6 New Resources** for monitoring (12 → 18 resources):
+  - `mysql://events` - Event Scheduler status and scheduled events
+  - `mysql://sysschema` - sys schema diagnostics summary
+  - `mysql://locks` - InnoDB lock contention detection
+  - `mysql://cluster` - Group Replication/InnoDB Cluster status
+  - `mysql://spatial` - Spatial columns and indexes
+  - `mysql://docstore` - Document Store collections
+
+- **5 New Prompts** for guided workflows (14 → 19 prompts):
+  - `mysql_setup_events` - Event Scheduler setup guide
+  - `mysql_sys_schema_guide` - sys schema usage and diagnostics
+  - `mysql_setup_spatial` - Spatial/GIS data setup guide
+  - `mysql_setup_cluster` - InnoDB Cluster/Group Replication guide
+  - `mysql_setup_docstore` - Document Store / X DevAPI guide
+
+- **2 New Meta-Groups** for tool filtering:
+  - `dba` (~70 tools) - DBA tasks (admin, monitoring, security, sysschema, roles)
+  - `ai` (~85 tools) - AI/ML features (docstore, spatial, JSON, stats)
+
+### Changed
+
+- Tool groups increased from 15 to 24 (9 new groups)
+- JSON tools increased from 12 to 17
+- Updated meta-groups: `starter` (~45), `dev` (~65), `base` (~160)
+- README updated with new tool groups and meta-groups
+
+### Fixed
+- **`ai` meta-group now implemented** - Previously documented in v1.1.0 changelog but missing from code. Now fully functional with 77 tools for AI/ML workloads (JSON, Document Store, spatial, statistics)
+- **Tool count accuracy** - Corrected all tool counts in README:
+  - `starter`: 38 tools (was ~33)
+  - `dev`: 67 tools (was ~65)
+  - `ai`: 77 tools (was ~85)
+  - `dba`: 103 tools (was ~70)
+- **README improvements** - Rewrote Tool Filtering section with beginner-friendly explanations, step-by-step filter examples, and syntax reference table
+
+### Changed
+- Updated `MetaGroup` type in `types/index.ts` to include `ai`
+- Added detailed tool count comments in `ToolFilter.ts`
+
+### Added - Documentation
+- **MCP Inspector Usage Guide** - Added documentation in README and Wiki for using MCP Inspector to visually test and debug mysql-mcp servers ([Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/MCP-Inspector))
+
+### Added - Testing
+- **Comprehensive Test Suite** - 1168 tests across 54 test files (>95% global statement coverage)
+- [x] Fix remaining test failures
+- [x] Achieve 90% test coverage with meaningful tests
+- [ ] Add remaining tool definitions
+- [ ] Implement remaining handlers
+- **Test Quality Improvements** - Replaced coverage booster tests with meaningful assertions:
+  - `prompts.test.ts`: 15 content verification assertions (e.g., checking for "migration", "CREATE TABLE")
+  - `resources.test.ts`: 5 handler execution smoke tests with adapter method verification
+  - `sysschema.test.ts`: Comprehensive structure assertions and default parameter handling
+  - Core modules: ToolFilter (42), ConnectionPool (30), McpServer (26)
+  - Tool groups: All 24 groups tested with handler execution tests
+  - Resources: All 18 resources tested with handler execution tests
+  - Prompts: All 19 prompts tested for names, arguments, handlers
+  - Adapters: DatabaseAdapter (45), MySQLAdapter (25)
+  - OAuth: Scopes (30), OAuthResourceServer (21), Errors (21+), AuthorizationServerDiscovery (20+), TokenValidator (17), Middleware (32)
+  - Infrastructure: McpLogging (22), ProgressReporter (21), HTTP Transport (20)
+- **New Test Files** (7 added):
+  - `src/auth/__tests__/errors.test.ts` - All OAuth error classes tested
+  - `src/auth/__tests__/AuthorizationServerDiscovery.test.ts` - RFC 8414 metadata discovery, caching, error handling
+  - `src/logging/__tests__/McpLogging.test.ts` - Log level filtering, configuration, convenience methods
+  - `src/progress/__tests__/ProgressReporter.test.ts` - Progress notifications, factory, error handling
+  - `src/auth/__tests__/OAuthResourceServer.test.ts` - RFC 9728 metadata, scope validation
+  - `src/adapters/mysql/resources/__tests__/handlers.test.ts` - Resource handler execution tests
+  - `src/transports/__tests__/http.test.ts` - CORS, health check, OAuth metadata
+  - `src/adapters/mysql/tools/schema/__tests__/*.test.ts` - 6 modular test files for schema management
+- **Modular Refactoring Phase 3**:
+  - Refactored `schema.ts` (monolithic) into `tools/schema/` (management, views, routines, triggers, constraints, scheduled_events).
+  - Deleted legacy monolithic files `admin.ts` and `sysschema.ts`.
+  - Refactored tests to match modular structure, deleting legacy test files `admin.test.ts`, `sysschema.test.ts`, `schema.test.ts` and duplicates.
+- **HTTP/SSE Transport Integration**:
+  - Fully implemented SSE request handling in `src/transports/http.ts`
+  - Integrated `HttpTransport` class into `McpServer.ts` startup logic
+  - Added support for `/sse` and `/messages` endpoints compliant with MCP protocol
+  - Enabled OAuth authentication for HTTP transport via `OAuthResourceServer` and `TokenValidator` integration
+- **Centralized Mock Infrastructure**:
+  - New `src/__tests__/mocks/index.ts` - Barrel export for all mock factories
+  - `createMockMySQLAdapter()` - Full adapter mock with all methods
+  - `createMockMySQLAdapterEmpty()` - Adapter returning empty results
+  - `createMockMySQLAdapterWithError()` - Adapter that throws on queries
+  - `createMockMySQLAdapterWithTransaction()` - Transaction-enabled mock
+  - `createMockRequestContext()` - Mock RequestContext for handler tests
+- **Handler Execution Tests** - Core and transaction tools include handler behavior tests
+- **Test Scripts**:
+  - `npm test` - Run all tests
+  - `npm run test:coverage` - Run with coverage report (v8 provider)
+  - `npm run test:watch` - Watch mode for development
+- Tests run without database connection (fully mocked)
+- ~10 second total test runtime
+- **Integration Tests**:
+  - `src/adapters/mysql/__tests__/MySQLAdapter.integration.test.ts` - Non-mocked tests against real MySQL Docker container
+  - Verifies connection, CRUD operations, and transaction commit/rollback
+  - **Coverage Improvements**:
+  - Global statement coverage: **>95%**
+  - Branch coverage: **~79%**
+  - **Testing**: Achieved >95% global statement coverage and ~79% branch coverage across the codebase.
+- **Testing**: Added comprehensive unit tests for `src/cli.ts` (91% coverage) including flag parsing, help output, and environment fallbacks.
+- **Testing**: Significantly improved tool handler coverage for `cluster`, `shell`, `sysschema`, `security`, and `text` modules.
+- **Testing**: Added tests for `health` resource and `indexTuning` prompt.
+  - **Tool Coverage**: Added meaningful edge-case tests for `cluster`, `shell`, `sysschema`, `security`, and `text` tools (verification of queries, fallbacks, and error handling)
+- **Coverage Boost**: achieved >80% branch coverage by refactoring and adding dedicated tests for:
+  - `spatial` tools (now comprehensive with validation and fallback tests)
+  - `sysschema` tools (now comprehensive with default checks)
+  - `json` tools (high coverage)
+  - `roles` tools (high coverage)
+  - `text` tools (full coverage including optional parameters)
+  - `docstore` tools (full coverage including result parsing and complex updates)
+  - `admin` tools (comprehensive coverage for maintenance, monitoring, and backup)
+  - `performance` tools (coverage for analysis and optimization)
+  - Resources: `docstore`, `events`, `status`, `variables`, `indexes`, `locks` (now comprehensively tested)
+
+
 ## [1.0.0] - 2025-12-13
 
 ### Added

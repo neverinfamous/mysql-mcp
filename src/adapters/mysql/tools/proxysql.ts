@@ -94,10 +94,16 @@ export function getProxySQLTools(_adapter: MySQLAdapter): ToolDefinition[] {
 function createProxySQLStatusTool(): ToolDefinition {
     return {
         name: 'proxysql_status',
+        title: 'ProxySQL Status',
         description: 'Get ProxySQL version, uptime, and runtime statistics. Returns global status variables from stats_mysql_global.',
         group: 'proxysql',
         inputSchema: ProxySQLBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             const rows = await proxySQLQuery('SELECT * FROM stats_mysql_global');
             return {
@@ -114,16 +120,22 @@ function createProxySQLStatusTool(): ToolDefinition {
 function createProxySQLRuntimeStatusTool(): ToolDefinition {
     return {
         name: 'proxysql_runtime_status',
+        title: 'ProxySQL Runtime Status',
         description: 'Get ProxySQL runtime configuration status including version info and admin variables.',
         group: 'proxysql',
         inputSchema: ProxySQLBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
-            const [version] = await proxySQLQuery('SELECT @@admin-version AS version');
+            const [versionRow] = await proxySQLQuery("SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'");
             const adminVars = await proxySQLQuery("SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 20");
             return {
                 success: true,
-                version: version?.['version'] ?? 'unknown',
+                version: versionRow?.['variable_value'] ?? 'unknown',
                 adminVariables: adminVars
             };
         }
@@ -140,10 +152,16 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
 function createProxySQLServersTool(): ToolDefinition {
     return {
         name: 'proxysql_servers',
+        title: 'ProxySQL Servers',
         description: 'List configured backend MySQL servers from mysql_servers table. Shows hostgroup, hostname, port, status, and weights.',
         group: 'proxysql',
         inputSchema: ProxySQLHostgroupInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
             let sql = 'SELECT * FROM mysql_servers';
@@ -166,10 +184,16 @@ function createProxySQLServersTool(): ToolDefinition {
 function createProxySQLHostgroupsTool(): ToolDefinition {
     return {
         name: 'proxysql_hostgroups',
+        title: 'ProxySQL Hostgroups',
         description: 'List hostgroup configurations with connection pool statistics. Shows connections used/free, query counts, and latency.',
         group: 'proxysql',
         inputSchema: ProxySQLBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             const rows = await proxySQLQuery('SELECT * FROM stats_mysql_connection_pool');
             return {
@@ -190,10 +214,16 @@ function createProxySQLHostgroupsTool(): ToolDefinition {
 function createProxySQLQueryRulesTool(): ToolDefinition {
     return {
         name: 'proxysql_query_rules',
+        title: 'ProxySQL Query Rules',
         description: 'List query routing rules from mysql_query_rules table. Shows rule IDs, match patterns, destination hostgroups, and cache settings.',
         group: 'proxysql',
         inputSchema: ProxySQLLimitInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { limit } = ProxySQLLimitInputSchema.parse(params);
             const maxRows = limit ?? 100;
@@ -213,10 +243,16 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
 function createProxySQLQueryDigestTool(): ToolDefinition {
     return {
         name: 'proxysql_query_digest',
+        title: 'ProxySQL Query Digest',
         description: 'Get query digest statistics showing top queries by execution count. Useful for identifying queries for routing, rewriting, or caching.',
         group: 'proxysql',
         inputSchema: ProxySQLLimitInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { limit } = ProxySQLLimitInputSchema.parse(params);
             const maxRows = limit ?? 50;
@@ -240,10 +276,16 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
 function createProxySQLConnectionPoolTool(): ToolDefinition {
     return {
         name: 'proxysql_connection_pool',
+        title: 'ProxySQL Connection Pool',
         description: 'Get connection pool statistics per backend server. Shows connections used/free, errors, queries, bytes transferred, and latency.',
         group: 'proxysql',
         inputSchema: ProxySQLHostgroupInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
             let sql = 'SELECT * FROM stats_mysql_connection_pool';
@@ -270,10 +312,16 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
 function createProxySQLUsersTool(): ToolDefinition {
     return {
         name: 'proxysql_users',
+        title: 'ProxySQL Users',
         description: 'List configured MySQL users from mysql_users table. Shows username, active status, default hostgroup, and connection limits. Passwords are redacted.',
         group: 'proxysql',
         inputSchema: ProxySQLBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             // Don't expose passwords, select specific columns
             const rows = await proxySQLQuery('SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users');
@@ -296,10 +344,16 @@ function createProxySQLUsersTool(): ToolDefinition {
 function createProxySQLGlobalVariablesTool(): ToolDefinition {
     return {
         name: 'proxysql_global_variables',
+        title: 'ProxySQL Global Variables',
         description: 'Get ProxySQL global variables. Filter by prefix: mysql (MySQL proxy settings), admin (admin interface settings), or all.',
         group: 'proxysql',
         inputSchema: ProxySQLVariableFilterSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { prefix } = ProxySQLVariableFilterSchema.parse(params);
             let sql = 'SELECT * FROM global_variables';
@@ -328,10 +382,16 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
 function createProxySQLMemoryStatsTool(): ToolDefinition {
     return {
         name: 'proxysql_memory_stats',
+        title: 'ProxySQL Memory Stats',
         description: 'Get ProxySQL memory usage metrics from stats_memory_metrics. Shows memory for SQLite, auth, query digests, and more.',
         group: 'proxysql',
         inputSchema: ProxySQLBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             const rows = await proxySQLQuery('SELECT * FROM stats_memory_metrics');
             return {
@@ -352,10 +412,15 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
 function createProxySQLCommandsTool(): ToolDefinition {
     return {
         name: 'proxysql_commands',
+        title: 'ProxySQL Commands',
         description: 'Execute ProxySQL admin commands like LOAD/SAVE for users, servers, query rules, and variables. Also supports FLUSH commands.',
         group: 'proxysql',
         inputSchema: ProxySQLCommandInputSchema,
         requiredScopes: ['admin'],
+        annotations: {
+            readOnlyHint: false,
+            openWorldHint: true
+        },
         handler: async (params: unknown, _context: RequestContext) => {
             const { command } = ProxySQLCommandInputSchema.parse(params);
             await proxySQLQuery(command);
@@ -378,10 +443,16 @@ function createProxySQLCommandsTool(): ToolDefinition {
 function createProxySQLProcessListTool(): ToolDefinition {
     return {
         name: 'proxysql_process_list',
+        title: 'ProxySQL Process List',
         description: 'Get active client sessions similar to MySQL SHOW PROCESSLIST. Shows session ID, user, database, client/server hosts, and current command.',
         group: 'proxysql',
         inputSchema: ProxySQLBaseInputSchema,
         requiredScopes: ['read'],
+        annotations: {
+            readOnlyHint: true,
+            idempotentHint: true,
+            openWorldHint: true
+        },
         handler: async (_params: unknown, _context: RequestContext) => {
             const rows = await proxySQLQuery('SELECT * FROM stats_mysql_processlist');
             return {

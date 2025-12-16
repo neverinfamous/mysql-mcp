@@ -63,3 +63,16 @@ config/secrets/
 # MCP Registry tokens
 .mcpregistry_github_token
 .mcpregistry_registry_token
+
+# MySQL Router & Cluster config files (local setup)
+mysqlrouter.conf
+router-cluster.conf
+router-data/
+cluster-config/
+innodb-cluster.yml
+
+# ProxySQL config files (local setup)
+proxysql.cnf
+
+# MySQL credentials/password files
+*.pwd

@@ -12,13 +12,17 @@ import { z } from 'zod';
 
 export const ReadQuerySchema = z.object({
     query: z.string().describe('SQL SELECT query to execute'),
-    params: z.array(z.unknown()).optional().describe('Query parameters for prepared statement')
+    params: z.array(z.unknown()).optional().describe('Query parameters for prepared statement'),
+    transactionId: z.string().optional().describe('Optional transaction ID for executing within a transaction')
 });
+
 
 export const WriteQuerySchema = z.object({
     query: z.string().describe('SQL INSERT/UPDATE/DELETE query'),
-    params: z.array(z.unknown()).optional().describe('Query parameters for prepared statement')
+    params: z.array(z.unknown()).optional().describe('Query parameters for prepared statement'),
+    transactionId: z.string().optional().describe('Optional transaction ID for executing within a transaction')
 });
+
 
 export const ListTablesSchema = z.object({
     database: z.string().optional().describe('Database name (defaults to connected database)')

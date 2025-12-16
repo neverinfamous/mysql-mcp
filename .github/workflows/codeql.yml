@@ -38,7 +38,7 @@ jobs:
       matrix:
         language: [ 'javascript-typescript' ]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Check for JS/TS files
       id: check-files
       run: |
@@ -47,14 +47,14 @@ jobs:
         else
           echo "has_code=false" >> $GITHUB_OUTPUT
         fi
-    - uses: github/codeql-action/init@v3
+    - uses: github/codeql-action/init@v4
       if: steps.check-files.outputs.has_code == 'true'
       with:
         languages: ${{ matrix.language }}
         queries: security-extended,security-and-quality
-    - uses: github/codeql-action/autobuild@v3
+    - uses: github/codeql-action/autobuild@v4
       if: steps.check-files.outputs.has_code == 'true'
-    - uses: github/codeql-action/analyze@v3
+    - uses: github/codeql-action/analyze@v4
       if: steps.check-files.outputs.has_code == 'true'
       with:
         category: "/language:${{matrix.language}}"

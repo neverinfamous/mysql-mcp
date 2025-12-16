@@ -5,7 +5,7 @@
  * query execution, and tool registration.
  */
 
-import type { PoolConnection } from 'mysql2/promise';
+import type { PoolConnection, FieldPacket } from 'mysql2/promise';
 import { DatabaseAdapter } from '../DatabaseAdapter.js';
 import { ConnectionPool } from '../../pool/ConnectionPool.js';
 import type {
@@ -13,7 +13,6 @@ import type {
     QueryResult,
     SchemaInfo,
     TableInfo,
-    ColumnInfo,
     IndexInfo,
     HealthStatus,
     AdapterCapabilities,
@@ -22,22 +21,34 @@ import type {
     PromptDefinition,
     ToolGroup
 } from '../../types/index.js';
-import { ConnectionError, QueryError, ValidationError, TransactionError } from '../../types/index.js';
+import { ConnectionError, QueryError, TransactionError } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
 
 // Import tool modules
 import { getCoreTools } from './tools/core.js';
 import { getTransactionTools } from './tools/transactions.js';
-import { getJsonTools, getJsonHelperTools } from './tools/json.js';
-import { getTextTools, getFulltextTools } from './tools/text.js';
-import { getPerformanceTools, getOptimizationTools } from './tools/performance.js';
-import { getAdminTools, getMonitoringTools, getBackupTools } from './tools/admin.js';
-import { getReplicationTools, getPartitioningTools } from './tools/replication.js';
+import { getJsonTools, getJsonHelperTools, getJsonEnhancedTools } from './tools/json/index.js';
+import { getTextTools, getFulltextTools } from './tools/text/index.js';
+import { getPerformanceTools, getOptimizationTools } from './tools/performance/index.js';
+import { getAdminTools, getMonitoringTools, getBackupTools } from './tools/admin/index.js';
+import { getReplicationTools } from './tools/replication.js';
+import { getPartitioningTools } from './tools/partitioning.js';
 import { getRouterTools } from './tools/router.js';
 import { getProxySQLTools } from './tools/proxysql.js';
-import { getShellTools } from './tools/shell.js';
+import { getShellTools } from './tools/shell/index.js';
+// New tool modules (9 new groups)
+import { getSchemaTools } from './tools/schema/index.js';
+import { getEventTools } from './tools/events.js';
+import { getSysSchemaTools } from './tools/sysschema/index.js';
+import { getStatsTools } from './tools/stats/index.js';
+import { getSpatialTools } from './tools/spatial/index.js';
+import { getSecurityTools } from './tools/security/index.js';
+import { getClusterTools } from './tools/cluster/index.js';
+import { getRoleTools } from './tools/roles.js';
+import { getDocStoreTools } from './tools/docstore.js';
 import { getMySQLResources } from './resources/index.js';
 import { getMySQLPrompts } from './prompts/index.js';
+import { SchemaManager } from './SchemaManager.js';
 
 /**
  * MySQL Database Adapter
@@ -49,6 +60,8 @@ export class MySQLAdapter extends DatabaseAdapter {
 
     private pool: ConnectionPool | null = null;
     private activeTransactions = new Map<string, PoolConnection>();
+    private cachedToolDefinitions: ToolDefinition[] | null = null;
+    private schemaManager = new SchemaManager(this);
 
     // =========================================================================
     // Connection Lifecycle
@@ -99,10 +112,15 @@ export class MySQLAdapter extends DatabaseAdapter {
         for (const [id, conn] of this.activeTransactions) {
             try {
                 await conn.rollback();
-                conn.release();
                 logger.warn(`Rolled back orphaned transaction: ${id}`);
-            } catch {
-                // Ignore errors during cleanup
+            } catch (error) {
+                logger.warn(`Failed to rollback orphaned transaction ${id}: ${String(error)}`);
+            } finally {
+                try {
+                    conn.release();
+                } catch {
+                    // Ignore release errors
+                }
             }
         }
         this.activeTransactions.clear();
@@ -128,54 +146,45 @@ export class MySQLAdapter extends DatabaseAdapter {
     // Query Execution
     // =========================================================================
 
-    async executeReadQuery(sql: string, params?: unknown[]): Promise<QueryResult> {
+    async executeReadQuery(sql: string, params?: unknown[], transactionId?: string): Promise<QueryResult> {
         this.validateQuery(sql, true);
-        return this.executeQuery(sql, params);
+        return this.executeQuery(sql, params, transactionId);
     }
 
-    async executeWriteQuery(sql: string, params?: unknown[]): Promise<QueryResult> {
+    async executeWriteQuery(sql: string, params?: unknown[], transactionId?: string): Promise<QueryResult> {
         this.validateQuery(sql, false);
-        return this.executeQuery(sql, params);
+        return this.executeQuery(sql, params, transactionId);
     }
 
-    async executeQuery(sql: string, params?: unknown[]): Promise<QueryResult> {
+    async executeQuery(sql: string, params?: unknown[], transactionId?: string): Promise<QueryResult> {
         if (!this.pool) {
             throw new ConnectionError('Not connected to database');
+        }
+
+        if (transactionId) {
+            const conn = this.getTransactionConnection(transactionId);
+            if (!conn) {
+                throw new TransactionError(`Invalid transaction ID: ${transactionId}`);
+            }
+            return this.executeOnConnection(conn, sql, params);
         }
 
         const startTime = Date.now();
 
         try {
             const [results, fields] = await this.pool.execute(sql, params);
-
-            const executionTimeMs = Date.now() - startTime;
-
-            // Handle SELECT results
-            if (Array.isArray(results)) {
-                return {
-                    rows: results as Record<string, unknown>[],
-                    executionTimeMs,
-                    columns: fields?.map(f => ({
-                        name: f.name,
-                        type: this.getTypeName(f.type ?? 0)
-                    }))
-                };
-            }
-
-            // Handle INSERT/UPDATE/DELETE results
-            const resultInfo = results as {
-                affectedRows?: number;
-                insertId?: number | bigint;
-                warningStatus?: number;
-            };
-
-            return {
-                rowsAffected: resultInfo.affectedRows,
-                lastInsertId: resultInfo.insertId,
-                warningCount: resultInfo.warningStatus,
-                executionTimeMs
-            };
+            return this.processExecutionResult(results, fields, startTime);
         } catch (error) {
+            if (this.isUnsupportedPreparedStatementError(error)) {
+                // Fallback to text protocol for statements not supported in prepared mode
+                try {
+                    const [results, fields] = await this.pool.query(sql, params);
+                    return this.processExecutionResult(results, fields, startTime);
+                } catch (fallbackError) {
+                    const err = fallbackError as Error;
+                    throw new QueryError(`Query fallback failed: ${err.message}`, { sql });
+                }
+            }
             const err = error as Error;
             throw new QueryError(`Query failed: ${err.message}`, { sql });
         }
@@ -193,31 +202,18 @@ export class MySQLAdapter extends DatabaseAdapter {
 
         try {
             const [results, fields] = await connection.execute(sql, params);
-
-            const executionTimeMs = Date.now() - startTime;
-
-            if (Array.isArray(results)) {
-                return {
-                    rows: results as Record<string, unknown>[],
-                    executionTimeMs,
-                    columns: fields?.map(f => ({
-                        name: f.name,
-                        type: this.getTypeName(f.type ?? 0)
-                    }))
-                };
-            }
-
-            const resultInfo = results as {
-                affectedRows?: number;
-                insertId?: number | bigint;
-            };
-
-            return {
-                rowsAffected: resultInfo.affectedRows,
-                lastInsertId: resultInfo.insertId,
-                executionTimeMs
-            };
+            return this.processExecutionResult(results, fields, startTime);
         } catch (error) {
+            if (this.isUnsupportedPreparedStatementError(error)) {
+                // Fallback to text protocol
+                try {
+                    const [results, fields] = await connection.query(sql, params);
+                    return this.processExecutionResult(results, fields, startTime);
+                } catch (fallbackError) {
+                    const err = fallbackError as Error;
+                    throw new QueryError(`Query fallback failed: ${err.message}`, { sql });
+                }
+            }
             const err = error as Error;
             throw new QueryError(`Query failed: ${err.message}`, { sql });
         }
@@ -240,30 +236,7 @@ export class MySQLAdapter extends DatabaseAdapter {
             // Use query() which doesn't use prepared statements
             // Unlike execute(), query() is required for certain MySQL commands
             const [results, fields] = await this.pool.query(sql);
-
-            const executionTimeMs = Date.now() - startTime;
-
-            if (Array.isArray(results)) {
-                return {
-                    rows: results as Record<string, unknown>[],
-                    executionTimeMs,
-                    columns: Array.isArray(fields) ? fields.map(f => ({
-                        name: f.name,
-                        type: this.getTypeName(f.type ?? 0)
-                    })) : undefined
-                };
-            }
-
-            const resultInfo = results as {
-                affectedRows?: number;
-                insertId?: number | bigint;
-            };
-
-            return {
-                rowsAffected: resultInfo.affectedRows,
-                lastInsertId: resultInfo.insertId,
-                executionTimeMs
-            };
+            return this.processExecutionResult(results, fields, startTime);
         } catch (error) {
             const err = error as Error;
             throw new QueryError(`Raw query failed: ${err.message}`, { sql });
@@ -344,165 +317,26 @@ export class MySQLAdapter extends DatabaseAdapter {
     // =========================================================================
 
     async getSchema(): Promise<SchemaInfo> {
-        const tables = await this.listTables();
-        const views = tables.filter(t => t.type === 'view');
-        const realTables = tables.filter(t => t.type === 'table');
-
-        // Get all indexes
-        const indexes: IndexInfo[] = [];
-        for (const table of realTables) {
-            const tableIndexes = await this.getTableIndexes(table.name);
-            indexes.push(...tableIndexes);
-        }
-
-        return {
-            tables: realTables,
-            views,
-            indexes
-        };
+        return this.schemaManager.getSchema();
     }
 
-    async listTables(): Promise<TableInfo[]> {
-        const result = await this.executeQuery(`
-            SELECT 
-                TABLE_NAME as name,
-                TABLE_TYPE as type,
-                ENGINE as engine,
-                TABLE_ROWS as rowCount,
-                DATA_LENGTH as dataLength,
-                INDEX_LENGTH as indexLength,
-                CREATE_TIME as createTime,
-                UPDATE_TIME as updateTime,
-                TABLE_COLLATION as collation,
-                TABLE_COMMENT as comment
-            FROM information_schema.TABLES
-            WHERE TABLE_SCHEMA = DATABASE()
-            ORDER BY TABLE_NAME
-        `);
-
-        return (result.rows ?? []).map(row => ({
-            name: row['name'] as string,
-            type: (row['type'] as string) === 'VIEW' ? 'view' as const : 'table' as const,
-            engine: row['engine'] as string | undefined,
-            rowCount: row['rowCount'] as number | undefined,
-            dataLength: row['dataLength'] as number | undefined,
-            indexLength: row['indexLength'] as number | undefined,
-            createTime: row['createTime'] as Date | undefined,
-            updateTime: row['updateTime'] as Date | undefined,
-            collation: row['collation'] as string | undefined,
-            comment: row['comment'] as string | undefined
-        }));
+    async listTables(databaseName?: string): Promise<TableInfo[]> {
+        return this.schemaManager.listTables(databaseName);
     }
 
     async describeTable(tableName: string): Promise<TableInfo> {
-        // Validate table name
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName)) {
-            throw new ValidationError('Invalid table name');
-        }
-
-        // Get column information
-        const columnsResult = await this.executeQuery(`
-            SELECT 
-                COLUMN_NAME as name,
-                DATA_TYPE as type,
-                IS_NULLABLE as nullable,
-                COLUMN_KEY as columnKey,
-                COLUMN_DEFAULT as defaultValue,
-                EXTRA as extra,
-                CHARACTER_SET_NAME as characterSet,
-                COLLATION_NAME as collation,
-                COLUMN_COMMENT as comment
-            FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = ?
-            ORDER BY ORDINAL_POSITION
-        `, [tableName]);
-
-        const columns: ColumnInfo[] = (columnsResult.rows ?? []).map(row => ({
-            name: row['name'] as string,
-            type: row['type'] as string,
-            nullable: row['nullable'] === 'YES',
-            primaryKey: row['columnKey'] === 'PRI',
-            defaultValue: row['defaultValue'],
-            autoIncrement: (row['extra'] as string)?.includes('auto_increment'),
-            characterSet: row['characterSet'] as string | undefined,
-            collation: row['collation'] as string | undefined,
-            comment: row['comment'] as string | undefined
-        }));
-
-        // Get table info
-        const tableResult = await this.executeQuery(`
-            SELECT 
-                TABLE_TYPE as type,
-                ENGINE as engine,
-                TABLE_ROWS as rowCount,
-                TABLE_COLLATION as collation,
-                TABLE_COMMENT as comment
-            FROM information_schema.TABLES
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = ?
-        `, [tableName]);
-
-        const tableRow = tableResult.rows?.[0];
-
-        return {
-            name: tableName,
-            type: tableRow?.['type'] === 'VIEW' ? 'view' : 'table',
-            engine: tableRow?.['engine'] as string | undefined,
-            rowCount: tableRow?.['rowCount'] as number | undefined,
-            collation: tableRow?.['collation'] as string | undefined,
-            comment: tableRow?.['comment'] as string | undefined,
-            columns
-        };
+        return this.schemaManager.describeTable(tableName);
     }
 
     async listSchemas(): Promise<string[]> {
-        const result = await this.executeQuery(`SHOW DATABASES`);
-        return (result.rows ?? []).map(row => {
-            const values = Object.values(row);
-            return values[0] as string;
-        });
+        return this.schemaManager.listSchemas();
     }
 
     /**
      * Get indexes for a table
      */
     async getTableIndexes(tableName: string): Promise<IndexInfo[]> {
-        const result = await this.executeQuery(`
-            SELECT 
-                INDEX_NAME as name,
-                NON_UNIQUE as nonUnique,
-                COLUMN_NAME as columnName,
-                INDEX_TYPE as type,
-                CARDINALITY as cardinality
-            FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = ?
-            ORDER BY INDEX_NAME, SEQ_IN_INDEX
-        `, [tableName]);
-
-        // Group columns by index name
-        const indexMap = new Map<string, IndexInfo>();
-
-        for (const row of result.rows ?? []) {
-            const name = row['name'] as string;
-            const existing = indexMap.get(name);
-
-            if (existing) {
-                existing.columns.push(row['columnName'] as string);
-            } else {
-                indexMap.set(name, {
-                    name,
-                    tableName,
-                    columns: [row['columnName'] as string],
-                    unique: row['nonUnique'] === 0,
-                    type: row['type'] as 'BTREE' | 'HASH' | 'FULLTEXT' | 'SPATIAL',
-                    cardinality: row['cardinality'] as number | undefined
-                });
-            }
-        }
-
-        return Array.from(indexMap.values());
+        return this.schemaManager.getTableIndexes(tableName);
     }
 
     // =========================================================================
@@ -539,7 +373,17 @@ export class MySQLAdapter extends DatabaseAdapter {
             'transactions',
             'router',
             'proxysql',
-            'shell'
+            'shell',
+            // New groups (9)
+            'schema',
+            'events',
+            'sysschema',
+            'stats',
+            'spatial',
+            'security',
+            'cluster',
+            'roles',
+            'docstore'
         ];
     }
 
@@ -548,11 +392,16 @@ export class MySQLAdapter extends DatabaseAdapter {
     // =========================================================================
 
     getToolDefinitions(): ToolDefinition[] {
-        return [
+        if (this.cachedToolDefinitions) {
+            return this.cachedToolDefinitions;
+        }
+
+        this.cachedToolDefinitions = [
             ...getCoreTools(this),
             ...getTransactionTools(this),
             ...getJsonTools(this),
             ...getJsonHelperTools(this),
+            ...getJsonEnhancedTools(this),
             ...getTextTools(this),
             ...getFulltextTools(this),
             ...getPerformanceTools(this),
@@ -564,8 +413,20 @@ export class MySQLAdapter extends DatabaseAdapter {
             ...getPartitioningTools(this),
             ...getRouterTools(this),
             ...getProxySQLTools(this),
-            ...getShellTools(this)
+            ...getShellTools(this),
+            // New tool groups (9 groups, 80 tools)
+            ...getSchemaTools(this),
+            ...getEventTools(this),
+            ...getSysSchemaTools(this),
+            ...getStatsTools(this),
+            ...getSpatialTools(this),
+            ...getSecurityTools(this),
+            ...getClusterTools(this),
+            ...getRoleTools(this),
+            ...getDocStoreTools(this)
         ];
+
+        return this.cachedToolDefinitions;
     }
 
     getResourceDefinitions(): ResourceDefinition[] {
@@ -585,6 +446,62 @@ export class MySQLAdapter extends DatabaseAdapter {
      */
     getPool(): ConnectionPool | null {
         return this.pool;
+    }
+
+    /**
+     * Check if error is due to unsupported prepared statement
+     */
+    private isUnsupportedPreparedStatementError(error: unknown): boolean {
+        const err = error as { code?: string; message?: string };
+        const code = err?.code;
+        const message = typeof err?.message === 'string' ? err.message : '';
+
+        // Message is e.g.: "Execute failed: This command is not supported..."
+        // No debug throw needed now
+
+        return (
+            code === 'ER_UNSUPPORTED_PS' ||
+            message.toLowerCase().includes('not supported') ||
+            message.includes('ER_UNSUPPORTED_PS')
+        );
+    }
+
+    /**
+     * Process execution results into QueryResult
+     */
+    /**
+     * Process execution results into QueryResult
+     */
+    private processExecutionResult(
+        results: unknown,
+        fields: FieldPacket[] | undefined,
+        startTime: number
+    ): QueryResult {
+        const executionTimeMs = Date.now() - startTime;
+
+        if (Array.isArray(results)) {
+            return {
+                rows: results as Record<string, unknown>[],
+                executionTimeMs,
+                columns: Array.isArray(fields) ? fields.map(f => ({
+                    name: f.name,
+                    type: this.getTypeName(f.type ?? 0)
+                })) : undefined
+            };
+        }
+
+        const resultInfo = results as {
+            affectedRows?: number;
+            insertId?: number | bigint;
+            warningStatus?: number;
+        };
+
+        return {
+            rowsAffected: resultInfo.affectedRows,
+            lastInsertId: resultInfo.insertId,
+            warningCount: resultInfo.warningStatus,
+            executionTimeMs
+        };
     }
 
     /**

@@ -13,172 +13,73 @@
 
 import type {
     ToolGroup,
+    MetaGroup,
     ToolFilterConfig,
     ToolDefinition
 } from '../types/index.js';
 
 /**
+ * Cached list of all tool names
+ * Lazy-initialized since TOOL_GROUPS is immutable
+ */
+let cachedAllToolNames: string[] | null = null;
+
+/**
+ * Reverse lookup map: tool name -> group
+ * Lazy-initialized for O(1) tool group lookups
+ */
+let toolToGroupMap: Map<string, ToolGroup> | null = null;
+
+/**
  * Default tool groups and their member tools.
  * This serves as the canonical mapping of tools to groups.
  */
-export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
-    core: [
-        'mysql_read_query',
-        'mysql_write_query',
-        'mysql_list_tables',
-        'mysql_describe_table',
-        'mysql_create_table',
-        'mysql_drop_table',
-        'mysql_create_index',
-        'mysql_get_indexes'
-    ],
-    json: [
-        'mysql_json_extract',
-        'mysql_json_set',
-        'mysql_json_insert',
-        'mysql_json_replace',
-        'mysql_json_remove',
-        'mysql_json_contains',
-        'mysql_json_keys',
-        'mysql_json_array_append',
-        'mysql_json_get',
-        'mysql_json_update',
-        'mysql_json_search',
-        'mysql_json_validate'
-    ],
-    text: [
-        'mysql_regexp_match',
-        'mysql_like_search',
-        'mysql_soundex',
-        'mysql_substring',
-        'mysql_concat',
-        'mysql_collation_convert'
-    ],
-    fulltext: [
-        'mysql_fulltext_create',
-        'mysql_fulltext_search',
-        'mysql_fulltext_boolean',
-        'mysql_fulltext_expand'
-    ],
-    performance: [
-        'mysql_explain',
-        'mysql_explain_analyze',
-        'mysql_slow_queries',
-        'mysql_query_stats',
-        'mysql_index_usage',
-        'mysql_table_stats',
-        'mysql_buffer_pool_stats',
-        'mysql_thread_stats'
-    ],
-    optimization: [
-        'mysql_index_recommendation',
-        'mysql_query_rewrite',
-        'mysql_force_index',
-        'mysql_optimizer_trace'
-    ],
-    admin: [
-        'mysql_optimize_table',
-        'mysql_analyze_table',
-        'mysql_check_table',
-        'mysql_repair_table',
-        'mysql_flush_tables',
-        'mysql_kill_query'
-    ],
-    monitoring: [
-        'mysql_show_processlist',
-        'mysql_show_status',
-        'mysql_show_variables',
-        'mysql_innodb_status',
-        'mysql_replication_status',
-        'mysql_pool_stats',
-        'mysql_server_health'
-    ],
-    backup: [
-        'mysql_export_table',
-        'mysql_import_data',
-        'mysql_create_dump',
-        'mysql_restore_dump'
-    ],
-    replication: [
-        'mysql_master_status',
-        'mysql_slave_status',
-        'mysql_binlog_events',
-        'mysql_gtid_status',
-        'mysql_replication_lag'
-    ],
-    partitioning: [
-        'mysql_partition_info',
-        'mysql_add_partition',
-        'mysql_drop_partition',
-        'mysql_reorganize_partition'
-    ],
-    transactions: [
-        'mysql_transaction_begin',
-        'mysql_transaction_commit',
-        'mysql_transaction_rollback',
-        'mysql_transaction_savepoint',
-        'mysql_transaction_release',
-        'mysql_transaction_rollback_to',
-        'mysql_transaction_execute'
-    ],
-    router: [
-        'mysql_router_status',
-        'mysql_router_routes',
-        'mysql_router_route_status',
-        'mysql_router_route_health',
-        'mysql_router_route_connections',
-        'mysql_router_route_destinations',
-        'mysql_router_route_blocked_hosts',
-        'mysql_router_metadata_status',
-        'mysql_router_pool_status'
-    ],
-    proxysql: [
-        'proxysql_status',
-        'proxysql_servers',
-        'proxysql_hostgroups',
-        'proxysql_query_rules',
-        'proxysql_query_digest',
-        'proxysql_connection_pool',
-        'proxysql_users',
-        'proxysql_global_variables',
-        'proxysql_runtime_status',
-        'proxysql_memory_stats',
-        'proxysql_commands',
-        'proxysql_process_list'
-    ],
-    shell: [
-        'mysqlsh_version',
-        'mysqlsh_check_upgrade',
-        'mysqlsh_export_table',
-        'mysqlsh_import_table',
-        'mysqlsh_import_json',
-        'mysqlsh_dump_instance',
-        'mysqlsh_dump_schemas',
-        'mysqlsh_dump_tables',
-        'mysqlsh_load_dump',
-        'mysqlsh_run_script'
-    ]
-};
+export { TOOL_GROUPS, META_GROUPS } from './ToolConstants.js';
+import { TOOL_GROUPS, META_GROUPS } from './ToolConstants.js';
 
 /**
- * Get all tool names from all groups
+ * Get all tool names from all groups (cached)
  */
 export function getAllToolNames(): string[] {
+    if (cachedAllToolNames) {
+        return cachedAllToolNames;
+    }
     const groups = Object.keys(TOOL_GROUPS) as ToolGroup[];
-    return groups.flatMap(group => TOOL_GROUPS[group]);
+    cachedAllToolNames = groups.flatMap(group => TOOL_GROUPS[group]);
+    return cachedAllToolNames;
 }
 
 /**
- * Get the group for a specific tool
+ * Get or initialize the tool-to-group reverse lookup map
  */
-export function getToolGroup(toolName: string): ToolGroup | undefined {
+function getToolToGroupMap(): Map<string, ToolGroup> {
+    if (toolToGroupMap) {
+        return toolToGroupMap;
+    }
+
+    toolToGroupMap = new Map<string, ToolGroup>();
     const groups = Object.keys(TOOL_GROUPS) as ToolGroup[];
     for (const group of groups) {
-        if (TOOL_GROUPS[group].includes(toolName)) {
-            return group;
+        for (const tool of TOOL_GROUPS[group]) {
+            toolToGroupMap.set(tool, group);
         }
     }
-    return undefined;
+    return toolToGroupMap;
+}
+
+/**
+ * Get the group for a specific tool (O(1) lookup)
+ */
+export function getToolGroup(toolName: string): ToolGroup | undefined {
+    return getToolToGroupMap().get(toolName);
+}
+
+/**
+ * Clear all caches - useful for testing
+ */
+export function clearToolFilterCaches(): void {
+    cachedAllToolNames = null;
+    toolToGroupMap = null;
 }
 
 /**
@@ -189,9 +90,27 @@ function isToolGroup(name: string): name is ToolGroup {
 }
 
 /**
+ * Check if a name is a valid meta-group
+ */
+function isMetaGroup(name: string): name is MetaGroup {
+    return name in META_GROUPS;
+}
+
+/**
+ * Get all tool names from a meta-group
+ */
+export function getMetaGroupTools(metaGroup: MetaGroup): string[] {
+    const tools: string[] = [];
+    for (const group of META_GROUPS[metaGroup]) {
+        tools.push(...TOOL_GROUPS[group]);
+    }
+    return tools;
+}
+
+/**
  * Parse a tool filter string into structured rules
  * 
- * @param filterString - The filter string (e.g., "-replication,-partitioning,+mysql_master_status")
+ * @param filterString - The filter string (e.g., "-base,-ecosystem,+starter")
  * @returns Parsed filter configuration
  */
 export function parseToolFilter(filterString: string | undefined): ToolFilterConfig {
@@ -199,70 +118,109 @@ export function parseToolFilter(filterString: string | undefined): ToolFilterCon
     const enabledTools = new Set<string>(allTools);
 
     if (!filterString || filterString.trim() === '') {
+        // Default to 'starter' group if no filter key is provided
+        const starterTools = new Set(getMetaGroupTools('starter'));
         return {
             raw: '',
             rules: [],
-            enabledTools
+            enabledTools: starterTools
         };
     }
 
     const rules: ToolFilterConfig['rules'] = [];
     const parts = filterString.split(',').map(p => p.trim()).filter(p => p);
 
+    if (parts.length === 0) {
+        return {
+            raw: filterString,
+            rules: [],
+            enabledTools
+        };
+    }
+
+    // If first rule is exclusion (-), start with ALL tools
+    // If first rule is inclusion (+) or no prefix, start with NO tools (whitelist mode)
+    const firstPart = parts[0];
+    if (!firstPart) {
+        // Should be unreachable due to parts.length check above
+        return {
+            raw: filterString,
+            rules: [],
+            enabledTools
+        };
+    }
+    const startsWithExclude = firstPart.startsWith('-');
+
+    if (!startsWithExclude) {
+        enabledTools.clear();
+    }
+
     for (const part of parts) {
-        if (part.startsWith('-')) {
-            const target = part.slice(1);
-            const isGroup = isToolGroup(target);
+        if (!part) continue;
 
-            rules.push({
-                type: 'exclude',
-                target,
-                isGroup
-            });
+        let isInclude = true; // Default to include
+        let isExclude = false;
+        let target = part;
 
-            // Apply exclusion
-            if (isGroup) {
-                for (const tool of TOOL_GROUPS[target]) {
-                    enabledTools.delete(tool);
-                }
+        if (part.startsWith('+')) {
+            isInclude = true;
+            target = part.substring(1);
+        } else if (part.startsWith('-')) {
+            isInclude = false;
+            isExclude = true;
+            target = part.substring(1);
+        }
+
+        // Special case: 'all'
+        if (target === 'all') {
+            if (isExclude) {
+                enabledTools.clear();
             } else {
-                enabledTools.delete(target);
-            }
-        } else if (part.startsWith('+')) {
-            const target = part.slice(1);
-            const isGroup = isToolGroup(target);
-
-            rules.push({
-                type: 'include',
-                target,
-                isGroup
-            });
-
-            // Apply inclusion
-            if (isGroup) {
-                for (const tool of TOOL_GROUPS[target]) {
+                for (const tool of allTools) {
                     enabledTools.add(tool);
                 }
-            } else {
-                enabledTools.add(target);
             }
-        } else {
-            // Bare name without prefix - treat as exclusion for safety
-            const target = part;
-            const isGroup = isToolGroup(target);
+            continue;
+        }
 
-            rules.push({
-                type: 'exclude',
-                target,
-                isGroup
-            });
+        const targetIsMetaGroup = isMetaGroup(target);
+        const targetIsGroup = isToolGroup(target);
 
-            if (isGroup) {
-                for (const tool of TOOL_GROUPS[target]) {
+        rules.push({
+            type: isInclude ? 'include' : 'exclude',
+            target,
+            isGroup: targetIsGroup || targetIsMetaGroup
+        });
+
+        if (targetIsMetaGroup) {
+            // Expand meta-group to all its underlying groups' tools
+            const metaGroupTools = getMetaGroupTools(target as MetaGroup);
+            if (isExclude) {
+                for (const tool of metaGroupTools) {
                     enabledTools.delete(tool);
                 }
             } else {
+                for (const tool of metaGroupTools) {
+                    enabledTools.add(tool);
+                }
+            }
+        } else if (targetIsGroup) {
+            const groupTools = TOOL_GROUPS[target as ToolGroup];
+            if (isExclude) {
+                for (const tool of groupTools) {
+                    enabledTools.delete(tool);
+                }
+            } else {
+                for (const tool of groupTools) {
+                    enabledTools.add(tool);
+                }
+            }
+        } else {
+            // Individual tool
+            if (isExclude) {
                 enabledTools.delete(target);
+            } else {
+                enabledTools.add(target);
             }
         }
     }
@@ -336,8 +294,16 @@ export function getFilterSummary(config: ToolFilterConfig): string {
         lines.push(`  Rules applied:`);
         for (const rule of config.rules) {
             const prefix = rule.type === 'include' ? '+' : '-';
-            const suffix = rule.isGroup ? ' (group)' : '';
-            lines.push(`    ${prefix}${rule.target}${suffix}`);
+            // Determine type: meta-group, group, or tool
+            let type: string;
+            if (isMetaGroup(rule.target)) {
+                type = 'meta-group';
+            } else if (rule.isGroup) {
+                type = 'group';
+            } else {
+                type = 'tool';
+            }
+            lines.push(`    ${prefix}${rule.target} (${type})`);
         }
     }
 
@@ -382,5 +348,16 @@ export function getToolGroupInfo(): { group: ToolGroup; count: number; tools: st
         group,
         count: TOOL_GROUPS[group].length,
         tools: [...TOOL_GROUPS[group]]
+    }));
+}
+
+/**
+ * Get a list of all meta-groups with their expanded tool counts
+ */
+export function getMetaGroupInfo(): { metaGroup: MetaGroup; groups: ToolGroup[]; count: number }[] {
+    return Object.entries(META_GROUPS).map(([metaGroup, groups]) => ({
+        metaGroup: metaGroup as MetaGroup,
+        groups,
+        count: getMetaGroupTools(metaGroup as MetaGroup).length
     }));
 }

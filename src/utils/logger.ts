@@ -67,7 +67,7 @@ function redactSensitive(input: string): string {
  */
 function sanitizeContext(context: Record<string, unknown>): Record<string, unknown> {
     const result: Record<string, unknown> = {};
-    const sensitiveKeys = ['password', 'secret', 'token', 'authorization', 'apiKey', 'api_key'];
+    const sensitiveKeys = ['password', 'secret', 'token', 'authorization', 'apikey', 'api_key'];
 
     for (const [key, value] of Object.entries(context)) {
         const lowerKey = key.toLowerCase();
@@ -91,9 +91,17 @@ function sanitizeContext(context: Record<string, unknown>): Record<string, unkno
  */
 function sanitizeMessage(message: string): string {
     // Remove control characters except newlines and tabs
-    // lgtm[js/regex/redos] - Simple regex, no backtracking vulnerability
-    // eslint-disable-next-line no-control-regex
-    return message.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    // Using explicit character code check to avoid no-control-regex lint error
+    let result = '';
+    for (const char of message) {
+        const code = char.charCodeAt(0);
+        // Allow valid printable characters (>= 32), newlines (10), tabs (9), and carriage returns (13)
+        // Exclude DEL (127)
+        if ((code >= 32 && code !== 127) || code === 10 || code === 9 || code === 13) {
+            result += char;
+        }
+    }
+    return result;
 }
 
 /**

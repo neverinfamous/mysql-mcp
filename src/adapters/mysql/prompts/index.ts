@@ -1,25 +1,85 @@
 /**
- * MySQL Adapter - MCP Prompts
+ * MySQL MCP Prompts
  * 
- * Pre-built prompts for common MySQL operations.
+ * AI-powered prompts for query building, schema design, and optimization.
+ * 19 prompts total.
  */
-
 import type { MySQLAdapter } from '../MySQLAdapter.js';
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext, ToolDefinition } from '../../../types/index.js';
+import { generateCompactIndex, generateDiscoveryPrompt } from '../../../utils/promptGenerator.js';
+
+// Modular prompt imports
+import { createDatabaseHealthCheckPrompt } from './healthCheck.js';
+import { createBackupStrategyPrompt } from './backupStrategy.js';
+import { createIndexTuningPrompt } from './indexTuning.js';
+import { createSetupRouterPrompt } from './routerSetup.js';
+import { createSetupProxysqlPrompt } from './proxysqlSetup.js';
+import { createSetupReplicationPrompt } from './replicationSetup.js';
+import { createSetupMysqlshPrompt } from './mysqlshSetup.js';
+// New prompts (5)
+import { createSetupEventsPrompt } from './eventScheduler.js';
+import { createSysSchemaGuidePrompt } from './sysSchema.js';
+import { createSetupSpatialPrompt } from './spatialSetup.js';
+import { createSetupClusterPrompt } from './clusterSetup.js';
+import { createSetupDocstorePrompt } from './docstoreSetup.js';
 
 /**
- * Get all MySQL prompts
+ * Get all MySQL prompts (14 total)
+ * 
+ * Core (7):
+ * - mysql_tool_index - Lazy hydration tool index
+ * - mysql_quick_query - Quick query shortcut
+ * - mysql_quick_schema - Quick schema exploration
+ * - mysql_query_builder - Query construction assistance
+ * - mysql_schema_design - Schema design guidance
+ * - mysql_performance_analysis - Query performance analysis
+ * - mysql_migration - Migration script generation
+ * 
+ * Extended (7):
+ * - mysql_database_health_check - Comprehensive health assessment
+ * - mysql_backup_strategy - Enterprise backup planning
+ * - mysql_index_tuning - Index analysis and optimization
+ * - mysql_setup_router - MySQL Router configuration
+ * - mysql_setup_proxysql - ProxySQL configuration
+ * - mysql_setup_replication - Replication setup guide
+ * - mysql_setup_shell - MySQL Shell usage guide
  */
 export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
+    // Get tool definitions for generating indexes
+    const toolDefs = adapter.getToolDefinitions();
+
     return [
-        createQueryBuilderPrompt(adapter),
-        createSchemaDesignPrompt(adapter),
-        createPerformanceAnalysisPrompt(adapter),
-        createMigrationPrompt(adapter)
+        // Lazy hydration prompts
+        createToolIndexPrompt(toolDefs),
+        createQuickQueryPrompt(),
+        createQuickSchemaPrompt(),
+        // Original prompts
+        createQueryBuilderPrompt(),
+        createSchemaDesignPrompt(),
+        createPerformanceAnalysisPrompt(),
+        createMigrationPrompt(),
+        // Extended prompts (modular imports)
+        createDatabaseHealthCheckPrompt(),
+        createBackupStrategyPrompt(),
+        createIndexTuningPrompt(),
+        createSetupRouterPrompt(),
+        createSetupProxysqlPrompt(),
+        createSetupReplicationPrompt(),
+        createSetupMysqlshPrompt(),
+        // New prompts (5)
+        createSetupEventsPrompt(),
+        createSysSchemaGuidePrompt(),
+        createSetupSpatialPrompt(),
+        createSetupClusterPrompt(),
+        createSetupDocstorePrompt()
     ];
 }
 
-function createQueryBuilderPrompt(_adapter: MySQLAdapter): PromptDefinition {
+// =============================================================================
+// Core Prompts (inline for simplicity)
+// =============================================================================
+
+function createQueryBuilderPrompt(): PromptDefinition {
     return {
         name: 'mysql_query_builder',
         description: 'Help build SQL queries for common operations',
@@ -50,7 +110,98 @@ Use MySQL best practices:
     };
 }
 
-function createSchemaDesignPrompt(_adapter: MySQLAdapter): PromptDefinition {
+/**
+ * Tool index prompt - shows all available tools in a compact format
+ */
+function createToolIndexPrompt(toolDefs: ToolDefinition[]): PromptDefinition {
+    const compactIndex = generateCompactIndex(toolDefs);
+    const discovery = generateDiscoveryPrompt(toolDefs);
+
+    return {
+        name: 'mysql_tool_index',
+        description: 'Show all available MySQL tools organized by category',
+        arguments: [],
+        handler: (_args: Record<string, string>, _context: RequestContext) => {
+            return Promise.resolve(`
+# MySQL MCP Tool Index
+
+This server provides ${String(toolDefs.length)} MySQL tools for database operations.
+
+${discovery}
+## Complete Tool List
+
+${compactIndex}
+
+**Usage**: Call any tool by name with the required arguments. Use \`mysql_read_query\` for SELECT queries and \`mysql_write_query\` for INSERT/UPDATE/DELETE.
+`);
+        }
+    };
+}
+
+/**
+ * Quick query prompt - shortcut for running queries
+ */
+function createQuickQueryPrompt(): PromptDefinition {
+    return {
+        name: 'mysql_quick_query',
+        description: 'Quickly run a SQL query - shortcut for mysql_read_query or mysql_write_query',
+        arguments: [
+            { name: 'sql', description: 'SQL query to execute', required: true },
+            { name: 'type', description: 'Query type: read or write (default: read)', required: false }
+        ],
+        handler: (args: Record<string, string>, _context: RequestContext) => {
+            const queryType = args['type']?.toLowerCase() === 'write' ? 'write' : 'read';
+            const toolName = queryType === 'write' ? 'mysql_write_query' : 'mysql_read_query';
+
+            return Promise.resolve(`
+Execute this ${queryType} query using the \`${toolName}\` tool:
+
+\`\`\`sql
+${args['sql']}
+\`\`\`
+
+**Tool to use**: \`${toolName}\`
+**Arguments**: \`{ "query": "${(args['sql'] ?? '').replace(/"/g, '\\"')}" }\`
+`);
+        }
+    };
+}
+
+/**
+ * Quick schema prompt - shortcut for exploring database schema
+ */
+function createQuickSchemaPrompt(): PromptDefinition {
+    return {
+        name: 'mysql_quick_schema',
+        description: 'Quickly explore database schema - lists tables or describes a specific table',
+        arguments: [
+            { name: 'table', description: 'Table name to describe (leave empty to list all tables)', required: false }
+        ],
+        handler: (args: Record<string, string>, _context: RequestContext) => {
+            if (args['table']) {
+                return Promise.resolve(`
+Describe the structure of table **${args['table']}** using the \`mysql_describe_table\` tool:
+
+**Tool to use**: \`mysql_describe_table\`
+**Arguments**: \`{ "table": "${args['table']}" }\`
+
+This will show columns, types, indexes, and constraints.
+`);
+            }
+
+            return Promise.resolve(`
+List all tables in the database using the \`mysql_list_tables\` tool:
+
+**Tool to use**: \`mysql_list_tables\`
+**Arguments**: \`{}\`
+
+This will show all tables with their row counts and metadata.
+`);
+        }
+    };
+}
+
+function createSchemaDesignPrompt(): PromptDefinition {
     return {
         name: 'mysql_schema_design',
         description: 'Help design table schemas',
@@ -58,9 +209,8 @@ function createSchemaDesignPrompt(_adapter: MySQLAdapter): PromptDefinition {
             { name: 'entity', description: 'What entity/data you want to store', required: true },
             { name: 'requirements', description: 'Any specific requirements', required: false }
         ],
-        // eslint-disable-next-line @typescript-eslint/require-await
-        handler: async (args: Record<string, string>, _context: RequestContext) => {
-            return `
+        handler: (args: Record<string, string>, _context: RequestContext) => {
+            return Promise.resolve(`
 You are a MySQL database architect. Design a schema for: ${args['entity']}
 
 ${args['requirements'] ? `Requirements: ${args['requirements']}` : ''}
@@ -86,12 +236,12 @@ Best practices to follow:
 - Use UNSIGNED for positive-only integers
 - Consider JSON columns for flexible data
 - Add appropriate indexes based on query patterns
-`;
+`);
         }
     };
 }
 
-function createPerformanceAnalysisPrompt(_adapter: MySQLAdapter): PromptDefinition {
+function createPerformanceAnalysisPrompt(): PromptDefinition {
     return {
         name: 'mysql_performance_analysis',
         description: 'Analyze and optimize slow queries',
@@ -99,9 +249,8 @@ function createPerformanceAnalysisPrompt(_adapter: MySQLAdapter): PromptDefiniti
             { name: 'query', description: 'The slow query to analyze', required: true },
             { name: 'context', description: 'Table structure and data volume', required: false }
         ],
-        // eslint-disable-next-line @typescript-eslint/require-await
-        handler: async (args: Record<string, string>, _context: RequestContext) => {
-            return `
+        handler: (args: Record<string, string>, _context: RequestContext) => {
+            return Promise.resolve(`
 You are a MySQL performance expert. Analyze this query:
 
 \`\`\`sql
@@ -130,12 +279,12 @@ Use these MySQL tools to analyze:
 - mysql_explain_analyze for actual timing
 - mysql_index_usage to check index utilization
 - mysql_table_stats for data volume
-`;
+`);
         }
     };
 }
 
-function createMigrationPrompt(_adapter: MySQLAdapter): PromptDefinition {
+function createMigrationPrompt(): PromptDefinition {
     return {
         name: 'mysql_migration',
         description: 'Generate migration scripts for schema changes',
@@ -143,9 +292,8 @@ function createMigrationPrompt(_adapter: MySQLAdapter): PromptDefinition {
             { name: 'change', description: 'What schema change you need', required: true },
             { name: 'table', description: 'Target table name', required: true }
         ],
-        // eslint-disable-next-line @typescript-eslint/require-await
-        handler: async (args: Record<string, string>, _context: RequestContext) => {
-            return `
+        handler: (args: Record<string, string>, _context: RequestContext) => {
+            return Promise.resolve(`
 You are a MySQL migration expert. Create a migration for: ${args['change']}
 
 Target table: ${args['table']}
@@ -175,7 +323,7 @@ Best practices:
 - Backup before migration
 - Run during low-traffic periods
 - Monitor for lock contention
-`;
+`);
         }
     };
 }

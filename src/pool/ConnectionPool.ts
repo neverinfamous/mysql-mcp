@@ -161,8 +161,8 @@ export class ConnectionPool {
             const result = await this.pool.query(sql, params);
             return result as [T, mysql.FieldPacket[]];
         } catch (error) {
-            const err = error as Error;
-            throw new PoolError(`Query failed: ${err.message}`, { sql });
+            const err = error as Error & { code?: string };
+            throw new PoolError(`Query failed: ${err.message}`, { sql }, err.code);
         }
     }
 
@@ -180,8 +180,8 @@ export class ConnectionPool {
             const result = await this.pool.execute(sql, params);
             return result as [T, mysql.FieldPacket[]];
         } catch (error) {
-            const err = error as Error;
-            throw new PoolError(`Execute failed: ${err.message}`, { sql });
+            const err = error as Error & { code?: string };
+            throw new PoolError(`Execute failed: ${err.message}`, { sql }, err.code);
         }
     }
 

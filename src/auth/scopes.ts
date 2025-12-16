@@ -62,7 +62,17 @@ export const TOOL_GROUP_SCOPES: Record<ToolGroup, StandardScope> = {
     transactions: SCOPES.WRITE,
     router: SCOPES.READ,
     proxysql: SCOPES.READ,
-    shell: SCOPES.ADMIN
+    shell: SCOPES.ADMIN,
+    // New tool groups (v2.0.0)
+    schema: SCOPES.READ,
+    events: SCOPES.ADMIN,
+    sysschema: SCOPES.READ,
+    stats: SCOPES.READ,
+    spatial: SCOPES.READ,
+    security: SCOPES.ADMIN,
+    cluster: SCOPES.READ,
+    roles: SCOPES.ADMIN,
+    docstore: SCOPES.WRITE
 };
 
 // =============================================================================
