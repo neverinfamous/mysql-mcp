@@ -70,6 +70,17 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Verify publication
+        continue-on-error: true
         run: |
-          sleep 30
-          npm view @neverinfamous/mysql-mcp version
+          echo "Waiting for npm registry propagation..."
+          for i in 1 2 3; do
+            sleep 30
+            echo "Attempt $i: Checking npm registry..."
+            if npm view @neverinfamous/mysql-mcp version --registry https://registry.npmjs.org 2>/dev/null; then
+              echo "✅ Package verified on npm registry"
+              exit 0
+            fi
+            echo "Package not yet visible, retrying..."
+          done
+          echo "⚠️ Package may still be propagating to npm registry. This is informational only."
+
