@@ -1,5 +1,5 @@
 {
-    "name": "mysql-mcp",
+    "name": "@neverinfamous/mysql-mcp",
     "version": "2.1.0",
     "description": "Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering",
     "type": "module",

@@ -46,7 +46,6 @@ describe('SchemaManager', () => {
 
             // First call
             await manager.getSchema();
-            const callCountAfterFirst = (mockExecutor.executeQuery as ReturnType<typeof vi.fn>).mock.calls.length;
 
             // Advance time past TTL (31 seconds)
             vi.advanceTimersByTime(31000);

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: npm
-      url: https://www.npmjs.com/package/mysql-mcp
+      url: https://www.npmjs.com/package/@neverinfamous/mysql-mcp
     
     steps:
       - name: Checkout code
@@ -72,4 +72,4 @@ jobs:
       - name: Verify publication
         run: |
           sleep 10
-          npm view mysql-mcp version
+          npm view @neverinfamous/mysql-mcp version
