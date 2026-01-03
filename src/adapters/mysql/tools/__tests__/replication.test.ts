@@ -323,6 +323,7 @@ describe('Partitioning Handler Execution', () => {
             const result = await tool.handler({
                 table: 'logs',
                 fromPartitions: ['p2023'],
+                partitionType: 'RANGE',
                 toPartitions: [
                     { name: 'p2023_h1', value: '202307' },
                     { name: 'p2023_h2', value: '202401' }

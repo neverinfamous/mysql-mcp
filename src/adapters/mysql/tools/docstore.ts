@@ -43,15 +43,53 @@ const AddDocSchema = z.object({
 
 const ModifyDocSchema = z.object({
     collection: z.string(),
-    filter: z.string().describe('Filter expression'),
+    filter: z.string().describe('Filter: JSON path for existence ($.name) OR _id value for specific document'),
     set: z.record(z.string(), z.unknown()).optional().describe('Fields to set'),
     unset: z.array(z.string()).optional()
 });
 
 const RemoveDocSchema = z.object({
     collection: z.string(),
-    filter: z.string().describe('Filter expression')
+    filter: z.string().describe('Filter: JSON path for existence ($.name) OR _id value for specific document')
 });
+
+/**
+ * Parse filter string into a WHERE clause.
+ * Supports:
+ * - JSON path existence: $.name, $.address.city
+ * - _id match: direct _id value (32-char hex string)
+ * - Field equality: name=Alice, age=30
+ */
+function parseDocFilter(filter: string): { where: string; params: unknown[] } {
+    // Check if it's a direct _id (32-char hex)
+    if (/^[a-f0-9]{32}$/i.test(filter)) {
+        return { where: '_id = ?', params: [filter] };
+    }
+    
+    // Check for simple field=value pattern
+    const eqMatch = /^([a-zA-Z_][a-zA-Z0-9_]*)=(.+)$/.exec(filter);
+    if (eqMatch) {
+        const [, field, value] = eqMatch;
+        // Try to parse as number
+        const numVal = Number(value);
+        if (!isNaN(numVal)) {
+            return { 
+                where: `JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field}')) = ?`, 
+                params: [String(numVal)] 
+            };
+        }
+        return { 
+            where: `JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field}')) = ?`, 
+            params: [value] 
+        };
+    }
+    
+    // Default: treat as JSON path existence check
+    if (!filter.startsWith('$')) {
+        throw new Error(`Invalid filter: "${filter}". Use JSON path ($.field), _id value, or field=value format.`);
+    }
+    return { where: `JSON_EXTRACT(doc, '${filter}') IS NOT NULL`, params: [] };
+}
 
 const CreateDocIndexSchema = z.object({
     collection: z.string(),
@@ -220,8 +258,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
 
                 if (updates.length === 0) throw new Error('No modifications specified');
 
-                const query = `UPDATE \`${collection}\` SET ${updates.join(', ')} WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`;
-                const result = await adapter.executeQuery(query);
+                const { where, params: whereParams } = parseDocFilter(filter);
+                const query = `UPDATE \`${collection}\` SET ${updates.join(', ')} WHERE ${where}`;
+                const result = await adapter.executeQuery(query, whereParams);
                 return { success: true, modified: result.rowsAffected ?? 0 };
             }
         },
@@ -237,8 +276,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
                 const { collection, filter } = RemoveDocSchema.parse(params);
                 if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection)) throw new Error('Invalid collection name');
 
-                const query = `DELETE FROM \`${collection}\` WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`;
-                const result = await adapter.executeQuery(query);
+                const { where, params: whereParams } = parseDocFilter(filter);
+                const query = `DELETE FROM \`${collection}\` WHERE ${where}`;
+                const result = await adapter.executeQuery(query, whereParams);
                 return { success: true, removed: result.rowsAffected ?? 0 };
             }
         },

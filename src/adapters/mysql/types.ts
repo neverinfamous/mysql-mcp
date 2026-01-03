@@ -279,7 +279,7 @@ export const AddPartitionSchema = z.object({
     table: z.string().describe('Table name'),
     partitionName: z.string().describe('New partition name'),
     partitionType: z.enum(['RANGE', 'LIST', 'HASH', 'KEY']).describe('Partition type'),
-    value: z.string().describe('Partition value or expression')
+    value: z.string().describe('Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.')
 });
 
 export const DropPartitionSchema = z.object({
@@ -290,8 +290,9 @@ export const DropPartitionSchema = z.object({
 export const ReorganizePartitionSchema = z.object({
     table: z.string().describe('Table name'),
     fromPartitions: z.array(z.string()).describe('Source partition names'),
+    partitionType: z.enum(['RANGE', 'LIST']).describe('Partition type (RANGE or LIST). HASH/KEY partitions cannot be reorganized.'),
     toPartitions: z.array(z.object({
-        name: z.string(),
-        value: z.string()
+        name: z.string().describe('New partition name'),
+        value: z.string().describe('Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST. Do NOT include "LESS THAN" or "VALUES IN" keywords.')
     })).describe('New partition definitions')
 });

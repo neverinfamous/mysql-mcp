@@ -95,6 +95,48 @@ describe('Shell Restore and Script Tools', () => {
             expect(jsArg).toContain('excludeTables: ["t2"]');
             expect(jsArg).toContain('ignoreExistingObjects: true');
         });
+
+        it('should enable local_infile when updateServerSettings is true', async () => {
+            setupMockSpawn(JSON.stringify({ success: true }));
+            const tool = createShellLoadDumpTool();
+            const result = await tool.handler({
+                inputDir: '/backup',
+                updateServerSettings: true
+            }, mockContext) as any;
+
+            expect(result.success).toBe(true);
+            expect(result.localInfileEnabled).toBe(true);
+
+            const jsArg = mockSpawn.mock.calls[0][1][4];
+            expect(jsArg).toContain('SET GLOBAL local_infile = ON');
+        });
+
+        it('should throw helpful error when local_infile is disabled', async () => {
+            setupMockSpawn('', 'ERROR: local_infile is disabled', 1);
+
+            const tool = createShellLoadDumpTool();
+            await expect(tool.handler({
+                inputDir: '/backup'
+            }, mockContext)).rejects.toThrow('local_infile is disabled');
+        });
+
+        it('should throw helpful error when Loading local data is disabled', async () => {
+            setupMockSpawn('', 'Loading local data is disabled on the server', 1);
+
+            const tool = createShellLoadDumpTool();
+            await expect(tool.handler({
+                inputDir: '/backup'
+            }, mockContext)).rejects.toThrow('updateServerSettings: true');
+        });
+
+        it('should re-throw non-local_infile errors', async () => {
+            setupMockSpawn('', 'Schema already exists', 1);
+
+            const tool = createShellLoadDumpTool();
+            await expect(tool.handler({
+                inputDir: '/backup'
+            }, mockContext)).rejects.toThrow('Schema already exists');
+        });
     });
 
     describe('mysqlsh_run_script', () => {

@@ -6,26 +6,115 @@ export interface QueryExecutor {
     executeQuery(sql: string, params?: unknown[]): Promise<QueryResult>;
 }
 
+/**
+ * Default cache TTL in milliseconds (configurable via METADATA_CACHE_TTL_MS env var)
+ */
+const DEFAULT_CACHE_TTL_MS = parseInt(process.env['METADATA_CACHE_TTL_MS'] ?? '30000', 10);
+
+interface CacheEntry<T> {
+    data: T;
+    timestamp: number;
+}
+
 export class SchemaManager {
+    private metadataCache = new Map<string, CacheEntry<unknown>>();
+    private cacheTtlMs = DEFAULT_CACHE_TTL_MS;
+
     constructor(private executor: QueryExecutor) { }
+
+    /**
+     * Get cached value if not expired
+     */
+    private getCached(key: string): unknown {
+        const entry = this.metadataCache.get(key);
+        if (!entry) return undefined;
+        if (Date.now() - entry.timestamp > this.cacheTtlMs) {
+            this.metadataCache.delete(key);
+            return undefined;
+        }
+        return entry.data;
+    }
+
+    /**
+     * Set cache value
+     */
+    private setCache(key: string, data: unknown): void {
+        this.metadataCache.set(key, { data, timestamp: Date.now() });
+    }
+
+    /**
+     * Clear all cached metadata (useful after schema changes)
+     */
+    clearCache(): void {
+        this.metadataCache.clear();
+    }
 
     async getSchema(): Promise<SchemaInfo> {
         const tables = await this.listTables();
         const views = tables.filter(t => t.type === 'view');
         const realTables = tables.filter(t => t.type === 'table');
 
-        // Get all indexes
-        const indexes: IndexInfo[] = [];
-        for (const table of realTables) {
-            const tableIndexes = await this.getTableIndexes(table.name);
-            indexes.push(...tableIndexes);
-        }
+        // Performance optimization: fetch all indexes in a single query instead of N+1
+        const indexes = await this.getAllIndexes();
 
         return {
             tables: realTables,
             views,
             indexes
         };
+    }
+
+    /**
+     * Get all indexes across all tables in a single query
+     * Performance optimization: eliminates N+1 query pattern
+     */
+    private async getAllIndexes(): Promise<IndexInfo[]> {
+        // Check cache first
+        const cached = this.getCached('all_indexes') as IndexInfo[] | undefined;
+        if (cached) return cached;
+
+        const result = await this.executor.executeQuery(`
+            SELECT 
+                s.TABLE_NAME as tableName,
+                s.INDEX_NAME as name,
+                s.NON_UNIQUE as nonUnique,
+                s.COLUMN_NAME as columnName,
+                s.INDEX_TYPE as type,
+                s.CARDINALITY as cardinality
+            FROM information_schema.STATISTICS s
+            INNER JOIN information_schema.TABLES t 
+                ON s.TABLE_SCHEMA = t.TABLE_SCHEMA AND s.TABLE_NAME = t.TABLE_NAME
+            WHERE s.TABLE_SCHEMA = DATABASE()
+              AND t.TABLE_TYPE = 'BASE TABLE'
+            ORDER BY s.TABLE_NAME, s.INDEX_NAME, s.SEQ_IN_INDEX
+        `);
+
+        // Group columns by table+index name
+        const indexMap = new Map<string, IndexInfo>();
+
+        for (const row of result.rows ?? []) {
+            const tableName = row['tableName'] as string;
+            const indexName = row['name'] as string;
+            const mapKey = `${tableName}.${indexName}`;
+            const existing = indexMap.get(mapKey);
+
+            if (existing) {
+                existing.columns.push(row['columnName'] as string);
+            } else {
+                indexMap.set(mapKey, {
+                    name: indexName,
+                    tableName,
+                    columns: [row['columnName'] as string],
+                    unique: row['nonUnique'] === 0,
+                    type: row['type'] as 'BTREE' | 'HASH' | 'FULLTEXT' | 'SPATIAL',
+                    cardinality: row['cardinality'] as number | undefined
+                });
+            }
+        }
+
+        const indexes = Array.from(indexMap.values());
+        this.setCache('all_indexes', indexes);
+        return indexes;
     }
 
     async listTables(databaseName?: string): Promise<TableInfo[]> {

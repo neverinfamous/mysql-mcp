@@ -1,16 +1,16 @@
 # MySQL MCP Server
 
-*Last updated December 16, 2025 - Production/Stable v2.0.0*
+*Last updated January 3, 2026 - Production/Stable v2.1.0*
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
-![Version](https://img.shields.io/badge/version-2.0.0-green)
+![Version](https://img.shields.io/badge/version-2.1.0-green)
 ![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1478%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-1590%20passing-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-97%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)**
@@ -26,14 +26,14 @@
 | **191 Specialized Tools** | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
 | **18 Observability Resources** | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics |
 | **19 AI-Powered Prompts** | Guided workflows for query building, schema design, performance tuning, and infrastructure setup |
-| **OAuth 2.0 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration |
+| **OAuth 2.1 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration |
 | **Smart Tool Filtering** | 24 tool groups + 7 meta-groups let you stay within IDE limits while exposing exactly what you need |
 | **HTTP Streaming Transport** | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments |
 | **High-Performance Pooling** | Built-in connection pooling for efficient, concurrent database access |
 | **Ecosystem Integrations** | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities |
 | **Advanced Encryption** | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance |
 | **Production-Ready Security** | SQL injection protection, parameterized queries, input validation, and audit capabilities |
-| **Strict TypeScript** | 100% type-safe codebase with 1500+ tests and 97% coverage |
+| **Strict TypeScript** | 100% type-safe codebase with 1550+ tests and 97% coverage |
 | **MCP 2025-11-25 Compliant** | Full protocol support with tool safety hints, resource priorities, and progress notifications |
 
 ---
@@ -45,8 +45,6 @@
 - Node.js 18+
 - MySQL 5.7+ or 8.0+ server
 - npm or yarn
-
-> **💡 Jupyter Notebook:** Check out our [Python Quickstart Notebook](examples/notebooks/quickstart.ipynb) for an interactive guide using the Python SDK.
 
 ### Installation
 
@@ -77,12 +75,12 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 **Use cases for HTTP mode:**
 - Running the server in a Docker container accessible over a network
 - Deploying to cloud platforms (AWS, GCP, Azure)
-- Enabling OAuth 2.0 authentication for enterprise security
+- Enabling OAuth 2.1 authentication for enterprise security
 - Allowing multiple AI clients to share one database connection
 
-## OAuth 2.0 Authentication
+## OAuth 2.1 Authentication
 
-For enterprise deployments, mysql-mcp supports OAuth 2.0 authentication with Keycloak or any RFC-compliant provider.
+For enterprise deployments, mysql-mcp supports OAuth 2.1 authentication with Keycloak or any RFC-compliant provider.
 
 ### Quick Setup
 
@@ -116,7 +114,7 @@ docker run -p 3000:3000 writenotenow/mysql-mcp \
 - `GET /sse` - Establish MCP connection via Server-Sent Events
 - `POST /messages` - Send JSON-RPC messages to the server
 - `GET /health` - Health check endpoint
-- `GET /.well-known/oauth-protected-resource` - OAuth 2.0 metadata (when OAuth enabled)
+- `GET /.well-known/oauth-protected-resource` - OAuth 2.1 metadata (when OAuth enabled)
 
 > **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
 
@@ -301,10 +299,13 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 2: Ecosystem (31 Tools + InnoDB Cluster Resource)
-**Best for:** Testing MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
+#### Option 2: Ecosystem (31 Tools for InnoDB Cluster Deployments)
+**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 
-> **⚠️ Prerequisites:** Requires MySQL Router, ProxySQL, and MySQL Shell to be installed and configured. See [MySQL Ecosystem Setup Guide](https://github.com/your-repo/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions.
+> **⚠️ Prerequisites:** 
+> - **InnoDB Cluster** with MySQL Router requires the cluster to be running for Router REST API authentication (uses `metadata_cache` backend)
+> - Router REST API uses HTTPS with self-signed certificates by default — set `MYSQL_ROUTER_INSECURE=true` to bypass certificate verification
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
 
 ```json
 {
@@ -330,8 +331,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_ROUTER_INSECURE": "true",
         "PROXYSQL_HOST": "localhost",
         "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "admin",
-        "PROXYSQL_PASSWORD": "admin_password",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
         "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
       }
     }
@@ -342,9 +343,11 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 **Customization Notes:**
 
 - Replace `/path/to/mysql-mcp/` with your actual installation path
-- Update credentials (`your_username`, `your_password`, etc.) with your MySQL credentials
-- For Windows: Use forward slashes in paths (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes (`C:\\mysql-mcp\\dist\\cli.js`)
-- **Cluster Resource:** The `mysql://cluster` resource is only available with `ecosystem` filter when connected to an InnoDB Cluster node (port 3307 in example). It returns `{"groupReplicationEnabled": false}` for standard MySQL instances.
+- Update credentials with your actual values
+- For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
+- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell 9.5\\bin\\mysqlsh.exe"`
+- **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
+- **Cluster Resource:** The `mysql://cluster` resource is only available when connected to an InnoDB Cluster node
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
 
@@ -352,51 +355,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 ## 💡 Usage Instructions
 
-### JSON Tools (`mysql_json_*`)
+> [!NOTE]
+> Usage instructions are **automatically provided** to AI agents via the MCP protocol during server initialization.
 
-- **Strict Quoting**: When passing string values to JSON tools (like `mysql_json_set` or `mysql_json_insert`), you **must quote the string** if you intend to store it as a JSON string.
-  - ❌ Incorrect: `value: "green"` (interpreted as invalid JSON)
-  - ✅ Correct: `value: "\"green\""` (stored as string "green")
-  - ✅ Correct: `value: 42` (stored as number)
-  - ✅ Correct: `value: {"key": "val"}` (stored as object)
-- **Validation**: Creating or updating JSON values enforces strict JSON validity checks to prevent silent failures.
-
-### Transactions & Safety (`mysql_transaction_*`)
-
-- **Interactive Transactions**: You can perform multiple queries in a single transaction by passing the `transactionId` returned by `mysql_transaction_begin` to subsequent `mysql_read_query` or `mysql_write_query` calls.
-- **Atomic Operations**: Always use transactions for multi-step changes.
-  1. Call `mysql_transaction_begin` → get `transactionId`
-  2. Perform updates with `transactionId`
-  3. If successful, `mysql_transaction_commit`
-  4. If error, `mysql_transaction_rollback`
-
-### Document Store (`mysql_doc_*`)
-
-- **Filters**: The `filter` parameter accepts a **MySQL JSON Path** string (e.g., `$.address.zip`), checking for existence. It is not a full conditional expression (e.g., `$.type == "A"` is invalid).
-- To filter by value, use `mysql_doc_find` to retrieve candidates and filter in your application, or use `mysql_read_query` for complex JSON path conditions.
-
-### Fulltext Search (`mysql_fulltext_boolean`)
-
-- **Operators**: Uses standard MySQL boolean operators:
-  - `+word`: Mandatory (AND)
-  - `-word`: Prohibited (NOT)
-  - `word*`: Wildcard (at end of word)
-  - `> <`: Relevance weighting
-
-### DDL Statements (`mysql_write_query`)
-
-- **DDL Support**: `mysql_write_query` automatically handles DDL statements (like `CREATE TABLE`, `CREATE USER`) that are not supported by the prepared statement protocol. It detects the error and falls back to the text protocol, ensuring seamless execution.
-
-### Security & Role Management
-
-- **Role Permissions**: Role management tools (`mysql_role_create`, `mysql_role_grant`, etc.) require a user with appropriate privileges.
-- **Schema Qualification**: `mysql_role_grant` supports `db.table` syntax (e.g., `GRANT SELECT ON my_schema.my_table`) and correctly handles wildcards.
-- **SSL Status**: Server certificate verification status (`serverCertVerification`) is no longer retrievable via standard variables in MySQL 8.0.34+ and will report as `false` by default.
-
-### Group Replication & InnoDB Cluster
-
-- **Plugin Requirement**: Group Replication tools (`mysql_gr_*`) check for the `group_replication` plugin status. If the plugin is not `ACTIVE`, these tools return a "not active" message instead of failing with SQL errors, allowing safe probing of cluster status.
-- **Cluster Resource** (`mysql://cluster`): This resource provides InnoDB Cluster status including all member nodes. It requires connecting to a cluster node (e.g., port 3307) with a user that has access to `performance_schema.replication_group_members`. For non-cluster deployments, it will return `{"groupReplicationEnabled": false}`.
+For debugging or manual reference, see the source: [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts)
 
 ---
 
@@ -464,6 +426,17 @@ For specialized setups, see these Wiki pages:
 | [MySQL Router](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Router) | Configure Router REST API access for InnoDB Cluster |
 | [ProxySQL](https://github.com/neverinfamous/mysql-mcp/wiki/ProxySQL) | Configure ProxySQL admin interface access |
 | [MySQL Shell](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Shell) | Configure MySQL Shell for dump/load operations |
+
+---
+
+## ⚡ Performance Tuning
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `METADATA_CACHE_TTL_MS` | `30000` | Cache TTL for schema metadata (milliseconds) |
+| `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warning`, `error` |
+
+> **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
 ---
 

@@ -90,7 +90,7 @@ describe('Shell Data Transfer Tools', () => {
             expect(jsArg).toContain('fieldsTerminatedBy: "\\t"');
         });
 
-        it('should export table with WHERE clause and specific columns', async () => {
+        it('should export table with WHERE clause', async () => {
             setupMockSpawn(JSON.stringify({ success: true }));
 
             const tool = createShellExportTableTool();
@@ -99,13 +99,11 @@ describe('Shell Data Transfer Tools', () => {
                 table: 'users',
                 outputPath: '/tmp/users_filtered',
                 format: 'json',
-                where: 'age > 18',
-                columns: ['id', 'name']
+                where: 'age > 18'
             }, mockContext);
 
             const jsArg = mockSpawn.mock.calls[0][1][4];
             expect(jsArg).toContain('where: "age > 18"');
-            expect(jsArg).toContain('columns: ["id","name"]');
         });
 
         it('should escape backslashes in path', async () => {
@@ -151,6 +149,58 @@ describe('Shell Data Transfer Tools', () => {
             expect(jsArg).toContain('fieldsTerminatedBy: ","');
             expect(jsArg).toContain('linesTerminatedBy: "\\n"');
             expect(jsArg).toContain('columns: ["id","name"]');
+        });
+
+        it('should enable local_infile when updateServerSettings is true', async () => {
+            const successJson = JSON.stringify({ success: true, result: { status: 'Done' } });
+            setupMockSpawn(successJson);
+
+            const tool = createShellImportTableTool();
+            const result = await tool.handler({
+                schema: 'test',
+                table: 'users',
+                inputPath: '/tmp/data.csv',
+                updateServerSettings: true
+            }, mockContext) as any;
+
+            expect(result.success).toBe(true);
+            expect(result.localInfileEnabled).toBe(true);
+
+            const jsArg = mockSpawn.mock.calls[0][1][4];
+            expect(jsArg).toContain('SET GLOBAL local_infile = ON');
+        });
+
+        it('should throw helpful error when local_infile is disabled', async () => {
+            setupMockSpawn('', 'ERROR: local_infile is disabled', 1);
+
+            const tool = createShellImportTableTool();
+            await expect(tool.handler({
+                schema: 'test',
+                table: 'users',
+                inputPath: '/tmp/data.csv'
+            }, mockContext)).rejects.toThrow('local_infile is disabled');
+        });
+
+        it('should throw helpful error when Loading local data is disabled', async () => {
+            setupMockSpawn('', 'Loading local data is disabled', 1);
+
+            const tool = createShellImportTableTool();
+            await expect(tool.handler({
+                schema: 'test',
+                table: 'users',
+                inputPath: '/tmp/data.csv'
+            }, mockContext)).rejects.toThrow('updateServerSettings: true');
+        });
+
+        it('should re-throw non-local_infile errors', async () => {
+            setupMockSpawn('', 'Some other error', 1);
+
+            const tool = createShellImportTableTool();
+            await expect(tool.handler({
+                schema: 'test',
+                table: 'users',
+                inputPath: '/tmp/data.csv'
+            }, mockContext)).rejects.toThrow('Some other error');
         });
     });
 
@@ -218,6 +268,101 @@ describe('Shell Data Transfer Tools', () => {
                 schema: 'test',
                 collection: 'docs'
             }, mockContext)).rejects.toThrow('Import failed');
+        });
+
+        it('should throw X Protocol error when access denied in stderr', async () => {
+            setupMockSpawn('', 'Access denied for user', 0);
+
+            const tool = createShellImportJSONTool();
+            await expect(tool.handler({
+                inputPath: '/tmp/docs.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext)).rejects.toThrow('X Protocol authentication failed');
+        });
+
+        it('should throw X Protocol error when 1045 code in stderr', async () => {
+            setupMockSpawn('', 'MySQL Error 1045: Access denied', 0);
+
+            const tool = createShellImportJSONTool();
+            await expect(tool.handler({
+                inputPath: '/tmp/docs.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext)).rejects.toThrow('X Protocol authentication failed');
+        });
+
+        it('should throw error when JSON result has success: false', async () => {
+            setupMockSpawn(JSON.stringify({ success: false, error: 'Collection not found' }), '', 0);
+
+            const tool = createShellImportJSONTool();
+            await expect(tool.handler({
+                inputPath: '/tmp/docs.json',
+                schema: 'test',
+                collection: 'nonexistent'
+            }, mockContext)).rejects.toThrow('Collection not found');
+        });
+
+        it('should throw unknown error when success: false without error message', async () => {
+            setupMockSpawn(JSON.stringify({ success: false }), '', 0);
+
+            const tool = createShellImportJSONTool();
+            await expect(tool.handler({
+                inputPath: '/tmp/docs.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext)).rejects.toThrow('Unknown MySQL Shell error');
+        });
+
+        it('should skip lines that parse to invalid JSON and continue looking', async () => {
+            // First line is invalid JSON, second line is valid
+            setupMockSpawn('{ invalid }\n' + JSON.stringify({ success: true, result: 'ok' }), '', 0);
+
+            const tool = createShellImportJSONTool();
+            const result = await tool.handler({
+                inputPath: '/tmp/docs.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext) as any;
+
+            expect(result.success).toBe(true);
+            expect(result.result).toBe('ok');
+        });
+
+        it('should skip empty lines when parsing JSON', async () => {
+            setupMockSpawn('\n\n' + JSON.stringify({ success: true, result: 'data' }) + '\n\n', '', 0);
+
+            const tool = createShellImportJSONTool();
+            const result = await tool.handler({
+                inputPath: '/tmp/docs.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext) as any;
+
+            expect(result.success).toBe(true);
+            expect(result.result).toBe('data');
+        });
+
+        it('should throw stderr message when failed with non-zero exit code', async () => {
+            setupMockSpawn('', 'Fatal shell error', 1);
+
+            const tool = createShellImportJSONTool();
+            await expect(tool.handler({
+                inputPath: '/tmp/bad.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext)).rejects.toThrow('Fatal shell error');
+        });
+
+        it('should throw stdout when no stderr on failure', async () => {
+            setupMockSpawn('stdout error message only', '', 1);
+
+            const tool = createShellImportJSONTool();
+            await expect(tool.handler({
+                inputPath: '/tmp/bad.json',
+                schema: 'test',
+                collection: 'docs'
+            }, mockContext)).rejects.toThrow('stdout error message only');
         });
     });
 });

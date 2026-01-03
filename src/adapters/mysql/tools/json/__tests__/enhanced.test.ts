@@ -12,7 +12,7 @@ import {
     createJsonStatsTool,
     createJsonIndexSuggestTool
 } from '../enhanced.js';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
+import type { MySQLAdapter } from '../../../MySQLAdapter.js';
 import { createMockMySQLAdapter, createMockRequestContext, createMockQueryResult } from '../../../../../__tests__/mocks/index.js';
 
 describe('JSON Enhanced Tools', () => {
@@ -55,6 +55,20 @@ describe('JSON Enhanced Tools', () => {
             const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
             expect(call).toContain('JSON_MERGE_PRESERVE');
         });
+
+        it('should return object result directly if not string', async () => {
+            // When MySQL returns an object instead of JSON string (some drivers)
+            mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([{ merged: { direct: 'object' } }]));
+
+            const tool = createJsonMergeTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                json1: '{}',
+                json2: '{"direct": "object"}',
+                mode: 'patch'
+            }, mockContext) as { merged: any };
+
+            expect(result.merged).toEqual({ direct: 'object' });
+        });
     });
 
     describe('createJsonDiffTool', () => {
@@ -73,6 +87,44 @@ describe('JSON Enhanced Tools', () => {
 
             expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
             expect(result.identical).toBe(true);
+        });
+
+        it('should parse string keys into array', async () => {
+            mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([{
+                identical: 0,
+                json1_contains_json2: 0,
+                json2_contains_json1: 0,
+                json1_length: 2,
+                json2_length: 1,
+                json1_keys: '["a", "b"]',
+                json2_keys: '["c"]'
+            }]));
+
+            const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                json1: '{"a":1,"b":2}',
+                json2: '{"c":3}'
+            }, mockContext) as { json1Keys: string[]; json2Keys: string[] };
+
+            expect(result.json1Keys).toEqual(['a', 'b']);
+            expect(result.json2Keys).toEqual(['c']);
+        });
+
+        it('should handle non-string keys (already parsed by driver)', async () => {
+            mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([{
+                identical: 0,
+                json1_keys: ['x', 'y'],
+                json2_keys: ['z']
+            }]));
+
+            const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                json1: '{"x":1,"y":2}',
+                json2: '{"z":3}'
+            }, mockContext) as { json1Keys: string[]; json2Keys: string[] };
+
+            expect(result.json1Keys).toEqual(['x', 'y']);
+            expect(result.json2Keys).toEqual(['z']);
         });
     });
 
@@ -93,6 +145,42 @@ describe('JSON Enhanced Tools', () => {
             expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
             expect(result.uniqueKeys).toEqual(['k1', 'k2']);
         });
+
+        it('should include where clause in queries', async () => {
+            mockAdapter.executeQuery
+                .mockResolvedValueOnce(createMockQueryResult([{ key_name: 'k1' }]))
+                .mockResolvedValueOnce(createMockQueryResult([{ value_type: 'STRING', count: 1 }]));
+
+            const tool = createJsonNormalizeTool(mockAdapter as unknown as MySQLAdapter);
+            await tool.handler({
+                table: 'data',
+                column: 'json_col',
+                where: 'active = 1',
+                limit: 10
+            }, mockContext);
+
+            const keysQuery = mockAdapter.executeQuery.mock.calls[0][0] as string;
+            expect(keysQuery).toContain('WHERE active = 1');
+        });
+
+        it('should set truncated flag when more than 20 keys', async () => {
+            const manyKeys = Array.from({ length: 25 }, (_, i) => ({ key_name: `key${i}` }));
+            mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult(manyKeys));
+            // Mock type queries for first 20 keys
+            for (let i = 0; i < 20; i++) {
+                mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([{ value_type: 'STRING', count: 1 }]));
+            }
+
+            const tool = createJsonNormalizeTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                table: 'data',
+                column: 'json_col',
+                limit: 100
+            }, mockContext) as { truncated: boolean; keyCount: number };
+
+            expect(result.truncated).toBe(true);
+            expect(result.keyCount).toBe(25);
+        });
     });
 
     describe('createJsonStatsTool', () => {
@@ -111,6 +199,23 @@ describe('JSON Enhanced Tools', () => {
 
             expect(mockAdapter.executeQuery).toHaveBeenCalled();
             expect(result.totalSampled).toBe(100);
+        });
+
+        it('should include where clause in stats query', async () => {
+            mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([{
+                total_rows: 50,
+                null_count: 2
+            }]));
+
+            const tool = createJsonStatsTool(mockAdapter as unknown as MySQLAdapter);
+            await tool.handler({
+                table: 'data',
+                column: 'json_col',
+                where: 'status = "active"'
+            }, mockContext);
+
+            const query = mockAdapter.executeQuery.mock.calls[0][0] as string;
+            expect(query).toContain('WHERE status = "active"');
         });
     });
 
@@ -131,6 +236,81 @@ describe('JSON Enhanced Tools', () => {
             expect(result.suggestions).toHaveLength(2);
             expect(result.suggestions[0].path).toBe('$.id'); // higher cardinality first
             expect(result.suggestions[0].indexDdl).toContain('BIGINT');
+        });
+
+        it('should use DOUBLE for double value types', async () => {
+            mockAdapter.executeQuery
+                .mockResolvedValueOnce(createMockQueryResult([{ key_name: 'price' }]))
+                .mockResolvedValueOnce(createMockQueryResult([{ value_type: 'DOUBLE', cardinality: 100 }]));
+
+            const tool = createJsonIndexSuggestTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                table: 'products',
+                column: 'data'
+            }, mockContext) as { suggestions: any[] };
+
+            expect(result.suggestions[0].indexDdl).toContain('DOUBLE');
+        });
+
+        it('should use TINYINT(1) for boolean value types', async () => {
+            mockAdapter.executeQuery
+                .mockResolvedValueOnce(createMockQueryResult([{ key_name: 'active' }]))
+                .mockResolvedValueOnce(createMockQueryResult([{ value_type: 'BOOLEAN', cardinality: 2 }]));
+
+            const tool = createJsonIndexSuggestTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                table: 'users',
+                column: 'settings'
+            }, mockContext) as { suggestions: any[] };
+
+            expect(result.suggestions[0].indexDdl).toContain('TINYINT(1)');
+        });
+
+        it('should skip keys with cardinality <= 1', async () => {
+            mockAdapter.executeQuery
+                .mockResolvedValueOnce(createMockQueryResult([{ key_name: 'constant' }]))
+                .mockResolvedValueOnce(createMockQueryResult([{ value_type: 'STRING', cardinality: 1 }]));
+
+            const tool = createJsonIndexSuggestTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                table: 'data',
+                column: 'json_col'
+            }, mockContext) as { suggestions: any[] };
+
+            expect(result.suggestions).toHaveLength(0);
+        });
+
+        it('should handle UNKNOWN type for undefined valueType', async () => {
+            mockAdapter.executeQuery
+                .mockResolvedValueOnce(createMockQueryResult([{ key_name: 'mystery' }]))
+                .mockResolvedValueOnce(createMockQueryResult([{ cardinality: 10 }])); // No value_type
+
+            const tool = createJsonIndexSuggestTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                table: 'data',
+                column: 'json_col'
+            }, mockContext) as { suggestions: any[] };
+
+            expect(result.suggestions[0].type).toBe('UNKNOWN');
+            expect(result.suggestions[0].indexDdl).toContain('VARCHAR(255)');
+        });
+
+        it('should limit suggestions to top 5', async () => {
+            const keys = Array.from({ length: 10 }, (_, i) => ({ key_name: `key${i}` }));
+            mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult(keys));
+            for (let i = 0; i < 10; i++) {
+                mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([
+                    { value_type: 'STRING', cardinality: 100 - i * 10 }
+                ]));
+            }
+
+            const tool = createJsonIndexSuggestTool(mockAdapter as unknown as MySQLAdapter);
+            const result = await tool.handler({
+                table: 'data',
+                column: 'json_col'
+            }, mockContext) as { suggestions: any[] };
+
+            expect(result.suggestions).toHaveLength(5);
         });
     });
 });

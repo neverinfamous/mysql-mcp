@@ -28,7 +28,7 @@ export function createShellExportTableTool(): ToolDefinition {
             openWorldHint: true
         },
         handler: async (params: unknown, _context: RequestContext) => {
-            const { schema, table, outputPath, format, where, columns } =
+            const { schema, table, outputPath, format, where } =
                 ShellExportTableInputSchema.parse(params);
 
             // Escape path for JavaScript
@@ -43,9 +43,6 @@ export function createShellExportTableTool(): ToolDefinition {
             }
             if (where) {
                 options.push(`where: "${escapeForJS(where)}"`);
-            }
-            if (columns && columns.length > 0) {
-                options.push(`columns: ${JSON.stringify(columns)}`);
             }
 
             const optionsStr = options.length > 0 ? `, { ${options.join(', ')} }` : '';
@@ -81,7 +78,7 @@ export function createShellImportTableTool(): ToolDefinition {
             openWorldHint: true
         },
         handler: async (params: unknown, _context: RequestContext) => {
-            const { inputPath, schema, table, threads, skipRows, columns, fieldsTerminatedBy, linesTerminatedBy } =
+            const { inputPath, schema, table, threads, skipRows, columns, fieldsTerminatedBy, linesTerminatedBy, updateServerSettings } =
                 ShellImportTableInputSchema.parse(params);
 
             const escapedPath = inputPath.replace(/\\/g, '\\\\');
@@ -105,17 +102,38 @@ export function createShellImportTableTool(): ToolDefinition {
                 options.push(`linesTerminatedBy: ${JSON.stringify(linesTerminatedBy)}`);
             }
 
-            const jsCode = `return util.importTable("${escapedPath}", { ${options.join(', ')} });`;
+            // Build JavaScript code that optionally enables local_infile
+            let jsCode: string;
+            if (updateServerSettings) {
+                jsCode = `
+                    session.runSql("SET GLOBAL local_infile = ON");
+                    return util.importTable("${escapedPath}", { ${options.join(', ')} });
+                `;
+            } else {
+                jsCode = `return util.importTable("${escapedPath}", { ${options.join(', ')} });`;
+            }
 
-            const result = await execShellJS(jsCode);
-
-            return {
-                success: true,
-                inputPath,
-                schema,
-                table,
-                result
-            };
+            try {
+                const result = await execShellJS(jsCode);
+                return {
+                    success: true,
+                    inputPath,
+                    schema,
+                    table,
+                    localInfileEnabled: updateServerSettings,
+                    result
+                };
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (errorMessage.includes('local_infile') || errorMessage.includes('Loading local data is disabled')) {
+                    throw new Error(
+                        `Import failed: local_infile is disabled on the server. ` +
+                        `Either set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
+                        `or manually run: SET GLOBAL local_infile = ON`
+                    );
+                }
+                throw error;
+            }
         }
     };
 }
@@ -161,19 +179,37 @@ export function createShellImportJSONTool(): ToolDefinition {
             const jsCode = `return util.importJson("${escapedPath}", { ${options.join(', ')} });`;
 
             // util.importJson() ALWAYS requires X Protocol (X DevAPI)
-            const result = await execMySQLShell([
-                '--uri', config.xConnectionUri,
-                '--js',
-                '-e', `
-                    var __result__;
-                    try {
-                        __result__ = (function() { ${jsCode} })();
-                        print(JSON.stringify({ success: true, result: __result__ }));
-                    } catch (e) {
-                        print(JSON.stringify({ success: false, error: e.message }));
-                    }
-                `
-            ]);
+            let result;
+            try {
+                result = await execMySQLShell([
+                    '--uri', config.xConnectionUri,
+                    '--js',
+                    '-e', `
+                        var __result__;
+                        try {
+                            __result__ = (function() { ${jsCode} })();
+                            print(JSON.stringify({ success: true, result: __result__ }));
+                        } catch (e) {
+                            print(JSON.stringify({ success: false, error: e.message }));
+                        }
+                    `
+                ]);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                throw new Error(
+                    `X Protocol connection failed: ${errorMessage}. ` +
+                    `Ensure MySQL X Plugin is enabled (port ${process.env['MYSQL_XPORT'] ?? '33060'}) ` +
+                    `and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`
+                );
+            }
+
+            // Check for X Protocol access denied errors in stderr
+            if (result.stderr.includes('Access denied') || result.stderr.includes('1045')) {
+                throw new Error(
+                    `X Protocol authentication failed. The user may not have access via X Protocol (port ${process.env['MYSQL_XPORT'] ?? '33060'}). ` +
+                    `Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`
+                );
+            }
 
             // Parse result
             const lines = result.stdout.trim().split('\n');

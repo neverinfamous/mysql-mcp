@@ -67,18 +67,19 @@ export function createSpatialDistanceTool(adapter: MySQLAdapter): ToolDefinition
                 throw new Error('Invalid column name');
             }
 
-            const pointWkt = `POINT(${String(point.latitude)} ${String(point.longitude)})`;
+            // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+            const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
 
             let query = `
                 SELECT *,
-                       ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)})) as distance
+                       ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance
                 FROM \`${table}\`
             `;
 
             const queryParams: unknown[] = [pointWkt];
 
             if (maxDistance !== undefined) {
-                query += ` WHERE ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)})) <= ?`;
+                query += ` WHERE ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
                 queryParams.push(pointWkt, maxDistance);
             }
 
@@ -120,18 +121,19 @@ export function createSpatialDistanceSphereTool(adapter: MySQLAdapter): ToolDefi
                 throw new Error('Invalid column name');
             }
 
-            const pointWkt = `POINT(${String(point.latitude)} ${String(point.longitude)})`;
+            // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+            const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
 
             let query = `
                 SELECT *,
-                       ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)})) as distance_meters
+                       ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance_meters
                 FROM \`${table}\`
             `;
 
             const queryParams: unknown[] = [pointWkt];
 
             if (maxDistance !== undefined) {
-                query += ` WHERE ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)})) <= ?`;
+                query += ` WHERE ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
                 queryParams.push(pointWkt, maxDistance);
             }
 

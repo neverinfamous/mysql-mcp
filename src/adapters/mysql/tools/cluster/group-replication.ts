@@ -135,7 +135,6 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
                     s.COUNT_TRANSACTIONS_IN_QUEUE as txInQueue,
                     s.COUNT_TRANSACTIONS_CHECKED as txChecked,
                     s.COUNT_CONFLICTS_DETECTED as conflictsDetected,
-                    s.COUNT_TRANSACTIONS_VALIDATING as txValidating,
                     s.COUNT_TRANSACTIONS_ROWS_VALIDATING as rowsValidating
                 FROM performance_schema.replication_group_members m
                 LEFT JOIN performance_schema.replication_group_member_stats s
@@ -230,8 +229,7 @@ export function createGRTransactionsTool(adapter: MySQLAdapter): ToolDefinition 
                     COUNT_TRANSACTIONS_IN_QUEUE as txInQueue,
                     COUNT_TRANSACTIONS_CHECKED as txChecked,
                     COUNT_CONFLICTS_DETECTED as conflictsDetected,
-                    COUNT_TRANSACTIONS_VALIDATING as txValidating,
-                    COUNT_TRANSACTIONS_CERTIFIED as txCertified,
+                    COUNT_TRANSACTIONS_ROWS_VALIDATING as rowsValidating,
                     COUNT_TRANSACTIONS_REMOTE_IN_APPLIER_QUEUE as remoteInApplierQueue,
                     COUNT_TRANSACTIONS_REMOTE_APPLIED as remoteApplied,
                     COUNT_TRANSACTIONS_LOCAL_PROPOSED as localProposed,

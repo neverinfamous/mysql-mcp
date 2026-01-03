@@ -7,6 +7,7 @@
 
 import { McpServer as SdkMcpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { generateInstructions } from '../constants/ServerInstructions.js';
 import type { DatabaseAdapter } from '../adapters/DatabaseAdapter.js';
 import type { McpServerConfig, TransportType, DatabaseConfig, ToolFilterConfig } from '../types/index.js';
 import { parseToolFilter, getFilterSummary } from '../filtering/ToolFilter.js';
@@ -41,10 +42,25 @@ export class McpServer {
         this.config = { ...DEFAULT_CONFIG, ...config };
         this.toolFilter = parseToolFilter(this.config.toolFilter);
 
-        this.server = new SdkMcpServer({
-            name: this.config.name,
-            version: this.config.version
-        });
+        // Generate dynamic instructions based on enabled tools
+        const instructions = generateInstructions(
+            this.toolFilter.enabledTools,
+            [], // Resources will be added when adapter is registered
+            []  // Prompts will be added when adapter is registered
+        );
+
+        this.server = new SdkMcpServer(
+            {
+                name: this.config.name,
+                version: this.config.version
+            },
+            {
+                capabilities: {
+                    logging: {}
+                },
+                instructions
+            }
+        );
 
         // Initialize MCP protocol logging so clients can receive log messages
         mcpLogger.setServer(this.server);
@@ -56,6 +72,14 @@ export class McpServer {
         if (this.toolFilter.rules.length > 0) {
             logger.info(getFilterSummary(this.toolFilter));
         }
+
+        // Log server initialization with capabilities
+        logger.info('MCP Server initialized', {
+            name: this.config.name,
+            version: this.config.version,
+            toolFilter: this.config.toolFilter ?? 'none',
+            capabilities: ['logging']
+        });
     }
 
     /**
@@ -71,13 +95,24 @@ export class McpServer {
 
         this.adapters.set(key, adapter);
 
+        // Get counts before registration
+        const allTools = adapter.getToolDefinitions();
+        const allResources = adapter.getResourceDefinitions();
+        const allPrompts = adapter.getPromptDefinitions();
+
         // Register adapter's tools, resources, and prompts
         adapter.registerTools(this.server, this.toolFilter.enabledTools);
         adapter.registerResources(this.server);
         adapter.registerPrompts(this.server);
 
+        // Count enabled tools
+        const enabledToolCount = allTools.filter(t => this.toolFilter.enabledTools.has(t.name)).length;
+
         logger.info(`Registered adapter: ${adapter.name} (${key})`);
-        mcpLogger.info(`Database adapter registered: ${adapter.name}`);
+        logger.info(`  Tools: ${enabledToolCount}/${allTools.length} enabled`);
+        logger.info(`  Resources: ${allResources.length}`);
+        logger.info(`  Prompts: ${allPrompts.length}`);
+        mcpLogger.info(`Database adapter registered: ${adapter.name} (${enabledToolCount} tools, ${allResources.length} resources, ${allPrompts.length} prompts)`);
     }
 
     /**
@@ -108,6 +143,10 @@ export class McpServer {
         try {
             await this.startTransport(this.config.transport);
             this.started = true;
+
+            // Enable MCP protocol logging now that transport is connected
+            mcpLogger.setConnected(true);
+
             logger.info('Server started successfully');
             mcpLogger.info('MySQL MCP server ready', { transport: this.config.transport });
         } catch (error) {
@@ -170,6 +209,9 @@ export class McpServer {
 
         logger.info('Stopping MCP server...');
 
+        // Disable MCP logging before disconnecting
+        mcpLogger.setConnected(false);
+
         // Disconnect all adapters
         for (const [key, adapter] of this.adapters) {
             try {
@@ -192,7 +234,6 @@ export class McpServer {
         await this.server.close();
         this.started = false;
         logger.info('Server stopped');
-        mcpLogger.notice('MySQL MCP server stopped');
     }
 
     /**

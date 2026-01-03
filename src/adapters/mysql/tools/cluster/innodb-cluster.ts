@@ -60,13 +60,9 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     };
                 }
 
-                // Get cluster info
+                // Get cluster info - use SELECT * to handle schema variations across versions
                 const clusterResult = await adapter.executeQuery(`
-                    SELECT 
-                        cluster_id as clusterId,
-                        cluster_name as clusterName,
-                        default_replicaset as defaultReplicaset,
-                        description
+                    SELECT *
                     FROM mysql_innodb_cluster_metadata.clusters
                     LIMIT 1
                 `);
@@ -91,10 +87,11 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     instanceCount: (instanceResult.rows?.[0])?.['count'] ?? 0,
                     routerCount: (routerResult.rows?.[0])?.['count'] ?? 0
                 };
-            } catch {
+            } catch (error) {
                 return {
                     isInnoDBCluster: false,
-                    message: 'Unable to query cluster metadata. Ensure InnoDB Cluster is properly configured.'
+                    message: 'Unable to query cluster metadata. Ensure InnoDB Cluster is properly configured.',
+                    error: error instanceof Error ? error.message : String(error)
                 };
             }
         }

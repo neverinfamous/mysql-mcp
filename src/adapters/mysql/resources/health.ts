@@ -19,26 +19,29 @@ export function createHealthResource(adapter: MySQLAdapter): ResourceDefinition 
             priority: 1.0
         },
         handler: async (_uri: string, _context: RequestContext) => {
-            // Get uptime and connection info
-            const statusResult = await adapter.executeQuery(`
-                SHOW GLOBAL STATUS WHERE Variable_name IN (
-                    'Uptime', 'Threads_connected', 'Threads_running', 
-                    'Max_used_connections', 'Connections', 'Aborted_connects',
-                    'Slow_queries', 'Questions', 'Com_select', 'Com_insert',
-                    'Com_update', 'Com_delete', 'Innodb_buffer_pool_read_requests',
-                    'Innodb_buffer_pool_reads', 'Table_locks_waited', 'Table_locks_immediate'
+            // Execute health queries in parallel for better performance
+            const [statusResult, maxConnResult] = await Promise.all([
+                // Get uptime and connection info
+                adapter.executeQuery(`
+                    SHOW GLOBAL STATUS WHERE Variable_name IN (
+                        'Uptime', 'Threads_connected', 'Threads_running', 
+                        'Max_used_connections', 'Connections', 'Aborted_connects',
+                        'Slow_queries', 'Questions', 'Com_select', 'Com_insert',
+                        'Com_update', 'Com_delete', 'Innodb_buffer_pool_read_requests',
+                        'Innodb_buffer_pool_reads', 'Table_locks_waited', 'Table_locks_immediate'
+                    )
+                `),
+                // Get max_connections for percentage calculation
+                adapter.executeQuery(
+                    "SHOW GLOBAL VARIABLES LIKE 'max_connections'"
                 )
-            `);
+            ]);
 
             const status: Record<string, string> = {};
             for (const row of statusResult.rows ?? []) {
                 status[row['Variable_name'] as string] = row['Value'] as string;
             }
 
-            // Get max_connections for percentage calculation
-            const maxConnResult = await adapter.executeQuery(
-                "SHOW GLOBAL VARIABLES LIKE 'max_connections'"
-            );
             const maxConnections = parseInt(
                 (maxConnResult.rows?.[0]?.['Value'] as string) ?? '151',
                 10

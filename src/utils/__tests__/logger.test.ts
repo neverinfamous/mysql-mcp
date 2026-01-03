@@ -34,9 +34,9 @@ describe('Logger', () => {
             expect(logger.getLevel()).toBe('debug');
         });
 
-        it('should set log level to warn', () => {
-            logger.setLevel('warn');
-            expect(logger.getLevel()).toBe('warn');
+        it('should set log level to warning', () => {
+            logger.setLevel('warning');
+            expect(logger.getLevel()).toBe('warning');
         });
 
         it('should set log level to error', () => {
@@ -56,8 +56,8 @@ describe('Logger', () => {
             expect(consoleErrorSpy).toHaveBeenCalled();
         });
 
-        it('should filter info messages when level is warn', () => {
-            logger.setLevel('warn');
+        it('should filter info messages when level is warning', () => {
+            logger.setLevel('warning');
             logger.info('Info message');
             expect(consoleErrorSpy).not.toHaveBeenCalled();
         });
@@ -80,8 +80,9 @@ describe('Logger', () => {
             logger.info('Test info message');
             expect(consoleErrorSpy).toHaveBeenCalled();
             const output = consoleErrorSpy.mock.calls[0][0];
-            expect(output).toContain('[mysql-mcp]');
-            expect(output).toContain('INFO');
+            // New structured format: [timestamp] [LEVEL] [MODULE] message
+            expect(output).toContain('[SERVER]');
+            expect(output).toContain('[INFO]');
             expect(output).toContain('Test info message');
         });
 
@@ -89,14 +90,14 @@ describe('Logger', () => {
             logger.warn('Test warning');
             expect(consoleErrorSpy).toHaveBeenCalled();
             const output = consoleErrorSpy.mock.calls[0][0];
-            expect(output).toContain('WARN');
+            expect(output).toContain('[WARNING]');
         });
 
         it('should log error messages', () => {
             logger.error('Test error');
             expect(consoleErrorSpy).toHaveBeenCalled();
             const output = consoleErrorSpy.mock.calls[0][0];
-            expect(output).toContain('ERROR');
+            expect(output).toContain('[ERROR]');
         });
 
         it('should log debug messages when level is debug', () => {
@@ -104,7 +105,7 @@ describe('Logger', () => {
             logger.debug('Test debug');
             expect(consoleErrorSpy).toHaveBeenCalled();
             const output = consoleErrorSpy.mock.calls[0][0];
-            expect(output).toContain('DEBUG');
+            expect(output).toContain('[DEBUG]');
         });
     });
 
@@ -252,6 +253,170 @@ describe('Logger', () => {
             const output = consoleErrorSpy.mock.calls[0][0];
             expect(output).toContain('"count":42');
             expect(output).toContain('"enabled":true');
+        });
+    });
+
+    describe('logger configuration', () => {
+        it('should set and get logger name', () => {
+            logger.setLoggerName('test-logger');
+            expect(logger.getLoggerName()).toBe('test-logger');
+            // Reset
+            logger.setLoggerName('mysql-mcp');
+        });
+
+        it('should set default module', () => {
+            logger.setDefaultModule('ADAPTER');
+            logger.info('Test message');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[ADAPTER]');
+            // Reset
+            logger.setDefaultModule('SERVER');
+        });
+    });
+
+    describe('additional log levels', () => {
+        it('should log notice messages', () => {
+            logger.notice('Notice message');
+            expect(consoleErrorSpy).toHaveBeenCalled();
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[NOTICE]');
+        });
+
+        it('should log warning messages via warning method', () => {
+            logger.warning('Warning via warning');
+            expect(consoleErrorSpy).toHaveBeenCalled();
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[WARNING]');
+        });
+
+        it('should log critical messages', () => {
+            logger.critical('Critical message');
+            expect(consoleErrorSpy).toHaveBeenCalled();
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[CRITICAL]');
+        });
+
+        it('should log alert messages', () => {
+            logger.alert('Alert message');
+            expect(consoleErrorSpy).toHaveBeenCalled();
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[ALERT]');
+        });
+
+        it('should log emergency messages', () => {
+            logger.emergency('Emergency message');
+            expect(consoleErrorSpy).toHaveBeenCalled();
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[EMERGENCY]');
+        });
+    });
+
+    describe('module-scoped logger', () => {
+        it('should create module-scoped logger with forModule', () => {
+            const moduleLogger = logger.forModule('ADAPTER');
+            moduleLogger.info('Module message');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[ADAPTER]');
+        });
+
+        it('should log debug via module logger', () => {
+            logger.setLevel('debug');
+            const moduleLogger = logger.forModule('QUERY');
+            moduleLogger.debug('Debug from module');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[QUERY]');
+            expect(output).toContain('[DEBUG]');
+        });
+
+        it('should log notice via module logger', () => {
+            const moduleLogger = logger.forModule('POOL');
+            moduleLogger.notice('Pool notice');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[POOL]');
+            expect(output).toContain('[NOTICE]');
+        });
+
+        it('should log warn via module logger', () => {
+            const moduleLogger = logger.forModule('AUTH');
+            moduleLogger.warn('Auth warning');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[AUTH]');
+            expect(output).toContain('[WARNING]');
+        });
+
+        it('should log warning via module logger', () => {
+            const moduleLogger = logger.forModule('TRANSPORT');
+            moduleLogger.warning('Transport warning');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[TRANSPORT]');
+            expect(output).toContain('[WARNING]');
+        });
+
+        it('should log error via module logger', () => {
+            const moduleLogger = logger.forModule('TOOLS');
+            moduleLogger.error('Tool error');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[TOOLS]');
+            expect(output).toContain('[ERROR]');
+        });
+
+        it('should log critical via module logger', () => {
+            const moduleLogger = logger.forModule('RESOURCES');
+            moduleLogger.critical('Resource critical');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[RESOURCES]');
+            expect(output).toContain('[CRITICAL]');
+        });
+
+        it('should log alert via module logger', () => {
+            const moduleLogger = logger.forModule('CLI');
+            moduleLogger.alert('CLI alert');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[CLI]');
+            expect(output).toContain('[ALERT]');
+        });
+
+        it('should log emergency via module logger', () => {
+            const moduleLogger = logger.forModule('SERVER');
+            moduleLogger.emergency('Server emergency');
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[SERVER]');
+            expect(output).toContain('[EMERGENCY]');
+        });
+    });
+
+    describe('log formatting with code', () => {
+        it('should include code in log output when provided', () => {
+            logger.error('Connection failed', { code: 'MYSQL_CONNECT_FAILED' });
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[MYSQL_CONNECT_FAILED]');
+        });
+
+        it('should handle module in context', () => {
+            logger.info('Test', { module: 'AUTH' as const });
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[AUTH]');
+        });
+    });
+
+    describe('edge cases', () => {
+        it('should handle arrays in context', () => {
+            logger.info('List', { items: [1, 2, 3] });
+            const output = consoleErrorSpy.mock.calls[0][0];
+            expect(output).toContain('[1,2,3]');
+        });
+
+        it('should handle null in sensitive context', () => {
+            logger.info('Test', { password: null });
+            const output = consoleErrorSpy.mock.calls[0][0];
+            // null should not be redacted
+            expect(output).toContain('null');
+        });
+
+        it('should handle undefined in sensitive context', () => {
+            logger.info('Test', { password: undefined });
+            // undefined values should not appear in output
+            expect(consoleErrorSpy).toHaveBeenCalled();
         });
     });
 });

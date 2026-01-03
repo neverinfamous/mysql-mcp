@@ -159,12 +159,16 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             readOnlyHint: false
         },
         handler: async (params: unknown, _context: RequestContext) => {
-            const { table, fromPartitions, toPartitions } = ReorganizePartitionSchema.parse(params);
+            const { table, fromPartitions, partitionType, toPartitions } = ReorganizePartitionSchema.parse(params);
 
             const fromList = fromPartitions.map(p => `\`${p}\``).join(', ');
-            const toList = toPartitions.map(p =>
-                `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`
-            ).join(', ');
+            const toList = toPartitions.map(p => {
+                if (partitionType === 'RANGE') {
+                    return `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`;
+                } else {
+                    return `PARTITION \`${p.name}\` VALUES IN (${p.value})`;
+                }
+            }).join(', ');
 
             const sql = `ALTER TABLE \`${table}\` REORGANIZE PARTITION ${fromList} INTO (${toList})`;
 

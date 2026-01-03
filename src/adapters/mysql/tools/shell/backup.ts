@@ -87,7 +87,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
             openWorldHint: true
         },
         handler: async (params: unknown, _context: RequestContext) => {
-            const { schemas, outputDir, threads, compression, dryRun, includeTables, excludeTables } =
+            const { schemas, outputDir, threads, compression, dryRun, includeTables, excludeTables, ddlOnly } =
                 ShellDumpSchemasInputSchema.parse(params);
 
             const escapedPath = outputDir.replace(/\\/g, '\\\\');
@@ -108,19 +108,36 @@ export function createShellDumpSchemasTool(): ToolDefinition {
             if (excludeTables && excludeTables.length > 0) {
                 options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
             }
+            // ddlOnly mode disables all metadata that requires extra privileges
+            if (ddlOnly) {
+                options.push('events: false');
+                options.push('triggers: false');
+                options.push('routines: false');
+            }
 
             const optionsStr = options.length > 0 ? `, { ${options.join(', ')} }` : '';
             const jsCode = `return util.dumpSchemas(${JSON.stringify(schemas)}, "${escapedPath}"${optionsStr});`;
 
-            const result = await execShellJS(jsCode, { timeout: 3600000 });
-
-            return {
-                success: true,
-                schemas,
-                outputDir,
-                dryRun: dryRun ?? false,
-                result
-            };
+            try {
+                const result = await execShellJS(jsCode, { timeout: 3600000 });
+                return {
+                    success: true,
+                    schemas,
+                    outputDir,
+                    dryRun: dryRun ?? false,
+                    ddlOnly: ddlOnly ?? false,
+                    result
+                };
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (errorMessage.includes('EVENT') || errorMessage.includes('TRIGGER') || errorMessage.includes('privilege')) {
+                    throw new Error(
+                        `Dump failed due to missing privileges: ${errorMessage}. ` +
+                        `Try setting ddlOnly: true to skip events, triggers, and routines.`
+                    );
+                }
+                throw error;
+            }
         }
     };
 }
@@ -141,7 +158,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
             openWorldHint: true
         },
         handler: async (params: unknown, _context: RequestContext) => {
-            const { schema, tables, outputDir, threads, compression, where } =
+            const { schema, tables, outputDir, threads, compression, where, all } =
                 ShellDumpTablesInputSchema.parse(params);
 
             const escapedPath = outputDir.replace(/\\/g, '\\\\');
@@ -159,19 +176,40 @@ export function createShellDumpTablesTool(): ToolDefinition {
                     .join(', ');
                 options.push(`where: { ${whereEntries} }`);
             }
+            // When all is explicitly false, disable triggers/routines dumping
+            if (!all) {
+                options.push('triggers: false');
+            }
 
             const optionsStr = options.length > 0 ? `, { ${options.join(', ')} }` : '';
             const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
 
-            const result = await execShellJS(jsCode, { timeout: 3600000 });
-
-            return {
-                success: true,
-                schema,
-                tables,
-                outputDir,
-                result
-            };
+            try {
+                const result = await execShellJS(jsCode, { timeout: 3600000 });
+                return {
+                    success: true,
+                    schema,
+                    tables,
+                    outputDir,
+                    triggersExcluded: !all,
+                    result
+                };
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (errorMessage.includes('privilege') || errorMessage.includes('Access denied') || errorMessage.includes('TRIGGER')) {
+                    throw new Error(
+                        `Dump failed due to missing privileges: ${errorMessage}. ` +
+                        `Try setting all: false to skip triggers if you lack TRIGGER privilege.`
+                    );
+                }
+                if (errorMessage.includes('Fatal error during dump')) {
+                    throw new Error(
+                        `Dump failed: ${errorMessage}. ` +
+                        `This may be due to missing privileges on the schema. Try setting all: false to skip metadata that requires extra privileges.`
+                    );
+                }
+                throw error;
+            }
         }
     };
 }

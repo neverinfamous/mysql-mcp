@@ -64,6 +64,145 @@ describe('CLI', () => {
         delete process.env['OAUTH_ENABLED'];
     });
 
+    describe('canSkipMySQLConnection logic', () => {
+        it('should skip MySQL connection for router-only filter', async () => {
+            await main({
+                config: { toolFilter: 'router' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            // Should NOT call connect because router tools don't need MySQL
+            expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
+            expect(mocks.serverInstance.registerAdapter).toHaveBeenCalled();
+        });
+
+        it('should skip MySQL connection for proxysql-only filter', async () => {
+            await main({
+                config: { toolFilter: 'proxysql' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
+        });
+
+        it('should skip MySQL connection for shell-only filter', async () => {
+            await main({
+                config: { toolFilter: 'shell' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
+        });
+
+        it('should skip MySQL connection for ecosystem shortcut', async () => {
+            await main({
+                config: { toolFilter: 'ecosystem' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
+        });
+
+        it('should skip MySQL connection for combined MySQL-optional groups', async () => {
+            await main({
+                config: { toolFilter: 'router,proxysql,shell' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
+        });
+
+        it('should require MySQL connection for starter shortcut', async () => {
+            await main({
+                config: { toolFilter: 'starter' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+
+        it('should require MySQL connection for dev-power shortcut', async () => {
+            await main({
+                config: { toolFilter: 'dev-power' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+
+        it('should require MySQL connection for mixed MySQL and non-MySQL groups', async () => {
+            await main({
+                config: { toolFilter: 'router,core' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+
+        it('should require MySQL connection for exclusion-only filters', async () => {
+            await main({
+                config: { toolFilter: '-router' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            // Exclusion only means no explicit enabled groups, so can't skip
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+
+        it('should create placeholder adapter when no databases but using external-only tools', async () => {
+            await main({
+                config: { toolFilter: 'router' },
+                databases: [],
+                oauth: undefined
+            });
+
+            // Should register a placeholder adapter
+            expect(mocks.serverInstance.registerAdapter).toHaveBeenCalledWith(
+                expect.anything(),
+                'mysql:external'
+            );
+        });
+
+        it('should require MySQL connection for base-core shortcut', async () => {
+            await main({
+                config: { toolFilter: 'base-core' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+
+        it('should require MySQL connection for ai-data shortcut', async () => {
+            await main({
+                config: { toolFilter: 'ai-data' },
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+
+        it('should require MySQL connection with no toolFilter', async () => {
+            await main({
+                config: {},
+                databases: [{ type: 'mysql', host: 'localhost', database: 'test' } as any],
+                oauth: undefined
+            });
+
+            expect(mocks.adapterInstance.connect).toHaveBeenCalled();
+        });
+    });
+
     describe('main', () => {
         it('should fail if no database config provided', async () => {
             await expect(main({

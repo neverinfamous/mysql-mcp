@@ -15,7 +15,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-01-03
+
+### Fixed
+- **Document Store Filter Tools** — Fixed `mysql_doc_modify` and `mysql_doc_remove` failing with "Invalid JSON path expression" error. These tools previously only supported JSON path existence checks but users expected value-based filtering. Added `parseDocFilter()` function supporting three filter formats:
+  - **By _id**: Direct 32-char hex string (e.g., `bbc83181703d43e68ffad119c4bbbfde`)
+  - **By field=value**: Simple equality (e.g., `name=Alice`, `age=30`)
+  - **By JSON path existence**: Path starting with `$` (e.g., `$.address`)
+  - Now uses parameterized queries for SQL injection protection.
+- **Group Replication Tools MySQL 8.0 Compatibility** — Fixed `mysql_gr_members` and `mysql_gr_transactions` failing with "Unknown column" errors on MySQL 8.0.44. Removed non-existent columns `COUNT_TRANSACTIONS_VALIDATING` and `COUNT_TRANSACTIONS_CERTIFIED` from queries. These columns don't exist in MySQL 8.0's `performance_schema.replication_group_member_stats` table. Tools now use only the available columns documented in MySQL 8.0 (kept `COUNT_TRANSACTIONS_ROWS_VALIDATING` which does exist).
+- **InnoDB Cluster Status Tool** — Fixed `mysql_cluster_status` failing with "Unable to query cluster metadata" due to hardcoded column names (`default_replicaset`) that don't exist in all InnoDB Cluster metadata schema versions. Changed to `SELECT *` for compatibility across MySQL versions. Also added error details to response for easier debugging.
+- **Spatial Coordinate Order (Final Fix)** — Fixed `mysql_spatial_point`, `mysql_spatial_distance`, and `mysql_spatial_distance_sphere` to correctly accept longitude-latitude parameter order by using MySQL's `axis-order=long-lat` option. Previous fix in v2.0.0 swapped the coordinates internally but this was confusing since parameter names didn't match their usage. Now tools accept natural `{ longitude: -122.4194, latitude: 37.7749 }` order and MySQL handles the EPSG 4326 axis order conversion automatically. This resolves the long-standing coordinate confusion issue.
+- **Router TLS with Node.js fetch** — Fixed `mysql_router_*` tools failing with "fetch failed" when `MYSQL_ROUTER_INSECURE=true`. Node.js native `fetch()` uses undici which doesn't support `https.Agent` for TLS options. Replaced with native `https.request()` module for proper self-signed certificate handling.
+- **Partitioning Tools** — Fixed `mysql_reorganize_partition` to support both RANGE and LIST partition types (previously hardcoded to RANGE only). Added required `partitionType` parameter to schema.
+- **MySQL Shell Tools Error Handling** — Improved error detection in `execShellJS()` to properly catch errors from stderr (e.g., `local_infile disabled`, privilege errors, fatal dump errors) instead of silently returning raw output.
+- **MySQL Shell Export Table** — Removed unsupported `columns` option from `mysqlsh_export_table` (not supported by `util.exportTable()` in MySQL Shell 9.x).
+
+### Removed
+- **Jupyter Quickstart Notebook** — Removed `examples/notebooks/quickstart.ipynb` and the `examples/` directory. The notebook had kernel instability issues on Windows (ZMQ socket errors causing kernel restarts during MCP subprocess communication). Usage instructions are now provided to AI agents automatically via the MCP protocol's `instructions` capability.
+
+### Changed
+- **Server Instructions** — Added document store filter syntax documentation with examples for `mysql_doc_modify` and `mysql_doc_remove`. Added spatial tools section documenting coordinate order behavior and MySQL 8.0+ EPSG standard handling with `axis-order=long-lat` option.
+
 ### Added
+- **`mysqlsh_import_table` / `mysqlsh_load_dump` — `updateServerSettings` parameter** — New boolean option to automatically enable `local_infile` on the server before import/load operations. Requires SUPER or SYSTEM_VARIABLES_ADMIN privilege.
+- **`mysqlsh_dump_schemas` — `ddlOnly` parameter** — New boolean option to dump only DDL (schema structure) without events, triggers, or routines. Useful when the user lacks EVENT or TRIGGER privileges.
+- **`mysqlsh_dump_tables` — `all` parameter** — New boolean option (default: false) to control whether triggers are included in the dump. Set to `false` to skip triggers when lacking TRIGGER privilege.
+
+### Changed
+- **Partitioning Schema Descriptions** — Improved `value` parameter descriptions in `AddPartitionSchema` and `ReorganizePartitionSchema` to clarify that only boundary values should be provided (e.g., `"2024"`), not full SQL clauses (e.g., `"LESS THAN (2024)"`).
+- **Server Instructions** — Added partitioning tools section with usage guidance and examples to prevent common parameter format errors.
+
+### Added
+- **Server Instructions** — Usage instructions are now automatically provided to AI agents via the MCP protocol's `instructions` capability during server initialization. See [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts).
+
+### Testing
+- **Branch Coverage Improvements** — Added 112 new tests targeting uncovered branches across multiple modules:
+  - **CLI** — Tests for `canSkipMySQLConnection()` covering router-only, proxysql-only, shell-only, ecosystem shortcut, shortcuts requiring MySQL, exclusion-only filters, and placeholder adapter registration
+  - **Shell Types** — 100% branch coverage for `booleanCoerce` preprocessor across all shell input schemas
+  - **Data Transfer** — Tests for `updateServerSettings`, `local_infile` error handling, X Protocol access denied, and JSON parsing edge cases
+  - **Backup Tools** — Tests for `ddlOnly` mode, privilege errors (EVENT, TRIGGER), and Fatal dump error handling
+  - **Restore Tools** — Tests for `updateServerSettings` and `local_infile` error branches
+  - **JSON Enhanced** — Tests for merge with object results, diff key parsing, where clauses, type mappings (DOUBLE, BOOLEAN, UNKNOWN), and cardinality filtering
+  - **InnoDB Cluster** — New test file covering fallback to GR status, error handling, and router metadata failures
+- **Overall Coverage** — Branch coverage improved from ~83% to ~86%, with 1590 tests passing across 101 test files
+
+### Performance
+- **Native MCP Logging** — Upgraded to MCP SDK v1.25.1 which provides native logging capabilities via `server.sendLoggingMessage()`, eliminating the need for custom stderr-based logging infrastructure
+- **Parallelized Health Queries** — Health resource now executes status and max_connections queries concurrently using `Promise.all()`
+- **Batched Index Queries** — `SchemaManager.getSchema()` now fetches all indexes in a single query
+  - Eliminates N+1 query pattern (e.g., 101 queries → 1 query for 100 tables)
+- **Metadata Cache with TTL** — Added configurable TTL-based cache to `SchemaManager` for expensive metadata queries
+  - Default 30s TTL, configurable via `METADATA_CACHE_TTL_MS` environment variable
+  - `clearCache()` method for invalidation after schema changes
+- **Performance Benchmark Tests** — Added `src/__tests__/performance.test.ts` with 8 tests covering:
+  - Tool definition caching validation
+  - Metadata cache TTL expiration behavior
+  - Parallel vs sequential execution patterns
+  - N+1 to batch query improvement verification
+
+### Changed
+- **Logger Test Updates** — Updated logger tests to match RFC 5424 severity levels:
+  - `warn` → `warning` level naming
+  - Updated format assertions to match `[LEVEL]` structured format (e.g., `[WARNING]`, `[DEBUG]`)
+
+### Added
+- **SchemaManager Cache Tests** — Added tests for cache TTL expiration, cache invalidation, and schema-qualified table name handling in `getTableIndexes()`
+- **Logger Coverage Improvements** — Added 30+ tests covering:
+  - `setLoggerName()`, `getLoggerName()`, `setDefaultModule()` configuration methods
+  - `notice()`, `critical()`, `alert()`, `emergency()` log levels
+  - `forModule()` module-scoped logger with all severity levels
+  - Code formatting in log output
 - **CI/CD Quality Gate** - Added `quality-gate` job to `docker-publish.yml` workflow that runs lint, typecheck, and all 1478 unit tests before allowing Docker image builds. Deployments now require all tests to pass.
 - Added comprehensive test coverage for `MySQLAdapter`, `TokenValidator`, and `comparative` stats tools.
 - Added unit tests for security audit tool fallbacks and filtering logic.
@@ -23,19 +93,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added test coverage for `indexes` resource edge cases (undefined rows).
 - Added test coverage for `events` resource edge cases.
 - Added meaningful test coverage for `constraints.ts` (schema-qualified table parsing), `router.ts` (auth headers, TLS handling), and `utilities.ts` (option handling branches).
-- Added **Expanded Jupyter Notebook** (`examples/notebooks/quickstart.ipynb`) demonstrating:
-  - Connecting via `mcp` Python SDK
-  - Reading/Writing data with SQL tools
-  - Accessing Resources
-  - Error handling patterns
-  - **Advanced**: Transactions (Atomic writes), AI Prompts, and Performance Analysis (EXPLAIN)
-  - **JSON Support**: Treating MySQL as a document store with `mysql_json_extract/set`
-  - **Fulltext Search**: Building RAG-ready search with `mysql_fulltext_create/search`
-  - **Spatial Data**: Location-based search (GIS) with `mysql_spatial_distance_sphere`
-  - **Document Store**: NoSQL API (MongoDB-style) with `mysql_doc_create_collection/add/find`
 - Added comprehensive tests for `security` tool edge cases (encryption status, SSL status).
 - Added tests for `views` schema tool validation and check options.
 - **Transaction-Aware Queries** - Added optional `transactionId` parameter to `mysql_read_query` and `mysql_write_query` tools, enabling interactive queries within active transactions.
+- **MCP Enhanced Logging** — Full MCP protocol-compliant structured logging
+  - RFC 5424 severity levels: debug, info, notice, warning, error, critical, alert, emergency
+  - Module-prefixed error codes (e.g., `DB_CONNECT_FAILED`, `AUTH_TOKEN_INVALID`)
+  - Structured log format: `[timestamp] [LEVEL] [MODULE] [CODE] message {context}`
+  - Module-scoped loggers via `logger.forModule()` and `logger.child()`
+  - Sensitive data redaction for OAuth 2.1 configuration fields
+  - Stack trace inclusion for error-level logs with sanitization
+  - Log injection prevention via control character sanitization
 - **All 191 tools and 26 resources fully tested** - Comprehensive testing completed including InnoDB Cluster (3-node Group Replication), MySQL Router REST API, ProxySQL admin interface, and MySQL Shell utilities.
 
 ### Security

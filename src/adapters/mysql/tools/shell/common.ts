@@ -163,6 +163,35 @@ export async function execShellJS(
         '-e', wrappedCode
     ], options);
 
+    // Check for critical errors in stderr (excluding common warnings)
+    const stderrClean = result.stderr
+        .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, '')
+        .trim();
+    
+    // Detect specific error conditions in stderr
+    if (stderrClean) {
+        // local_infile disabled error
+        if (stderrClean.includes('local_infile') || stderrClean.includes('Loading local data is disabled')) {
+            throw new Error(
+                `MySQL Shell operation failed: local_infile is disabled on the server. ` +
+                `Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
+                `or manually run: SET GLOBAL local_infile = ON`
+            );
+        }
+        // Privilege errors
+        if (stderrClean.includes('privilege') || stderrClean.includes('Access denied')) {
+            throw new Error(`MySQL Shell operation failed due to insufficient privileges: ${stderrClean}`);
+        }
+        // Fatal dump errors
+        if (stderrClean.includes('Fatal error during dump')) {
+            throw new Error(
+                `MySQL Shell dump failed: ${stderrClean}. ` +
+                `This may be caused by missing privileges. For dumpSchemas, try excludeEvents: true. ` +
+                `For dumpTables, try all: false.`
+            );
+        }
+    }
+
     // Try to parse JSON from output
     const lines = result.stdout.trim().split('\n');
     for (let i = lines.length - 1; i >= 0; i--) {
@@ -182,6 +211,11 @@ export async function execShellJS(
             }
             return parsed.result;
         }
+    }
+
+    // If no JSON found but there's stderr content, that's likely an error
+    if (stderrClean && result.exitCode !== 0) {
+        throw new Error(stderrClean);
     }
 
     // If no JSON found, return raw output

@@ -55,6 +55,7 @@ describe('McpLogger', () => {
         beforeEach(() => {
             McpLogger.setServer(mockServer as never);
             McpLogger.setEnabled(true);
+            McpLogger.setConnected(true);
         });
 
         it('should log messages at or above minimum level', () => {
@@ -102,6 +103,7 @@ describe('McpLogger', () => {
         beforeEach(() => {
             McpLogger.setServer(mockServer as never);
             McpLogger.setEnabled(true);
+            McpLogger.setConnected(true);
             McpLogger.setMinLevel('debug');
         });
 
@@ -166,6 +168,7 @@ describe('McpLogger', () => {
         beforeEach(() => {
             McpLogger.setServer(mockServer as never);
             McpLogger.setEnabled(true);
+            McpLogger.setConnected(true);
             McpLogger.setMinLevel('debug');
         });
 
@@ -216,6 +219,7 @@ describe('McpLogger', () => {
         it('should handle sendLoggingMessage errors gracefully', () => {
             McpLogger.setServer(mockServer as never);
             McpLogger.setEnabled(true);
+            McpLogger.setConnected(true);
             mockServer.sendLoggingMessage.mockImplementation(() => {
                 throw new Error('Transport error');
             });
@@ -229,6 +233,7 @@ describe('McpLogger', () => {
         beforeEach(() => {
             McpLogger.setServer(mockServer as never);
             McpLogger.setEnabled(true);
+            McpLogger.setConnected(true);
             McpLogger.setMinLevel('debug');
         });
 

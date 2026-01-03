@@ -8,6 +8,21 @@
 import { z } from 'zod';
 
 // =============================================================================
+// Helper for boolean coercion (handles string "true"/"false" from MCP clients)
+// =============================================================================
+
+const booleanCoerce = z.preprocess(
+    (val) => {
+        if (typeof val === 'string') {
+            if (val.toLowerCase() === 'true') return true;
+            if (val.toLowerCase() === 'false') return false;
+        }
+        return val;
+    },
+    z.boolean()
+);
+
+// =============================================================================
 // Base Schema
 // =============================================================================
 
@@ -37,8 +52,7 @@ export const ShellExportTableInputSchema = z.object({
     table: z.string().describe('Table name to export'),
     outputPath: z.string().describe('Output file path (absolute path recommended)'),
     format: z.enum(['csv', 'tsv', 'json']).optional().default('csv').describe('Export format'),
-    where: z.string().optional().describe('WHERE clause for filtering rows (without WHERE keyword)'),
-    columns: z.array(z.string()).optional().describe('Specific columns to export')
+    where: z.string().optional().describe('WHERE clause for filtering rows (without WHERE keyword)')
 }).describe('Export table to file using util.exportTable()');
 
 export const ShellImportTableInputSchema = z.object({
@@ -49,7 +63,8 @@ export const ShellImportTableInputSchema = z.object({
     skipRows: z.number().int().min(0).optional().describe('Number of header rows to skip'),
     columns: z.array(z.string()).optional().describe('Column mapping for import'),
     fieldsTerminatedBy: z.string().optional().describe('Field delimiter (default: auto-detect)'),
-    linesTerminatedBy: z.string().optional().describe('Line delimiter')
+    linesTerminatedBy: z.string().optional().describe('Line delimiter'),
+    updateServerSettings: booleanCoerce.optional().default(false).describe('Automatically enable local_infile on the server if disabled (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege)')
 }).describe('Parallel table import using util.importTable()');
 
 export const ShellImportJSONInputSchema = z.object({
@@ -57,7 +72,7 @@ export const ShellImportJSONInputSchema = z.object({
     schema: z.string().describe('Target schema (database) name'),
     collection: z.string().describe('Target collection or table name'),
     tableColumn: z.string().optional().describe('Column name for JSON data when importing to table'),
-    convertBsonTypes: z.boolean().optional().default(false).describe('Convert BSON types from MongoDB exports')
+    convertBsonTypes: booleanCoerce.optional().default(false).describe('Convert BSON types from MongoDB exports')
 }).describe('Import JSON documents using util.importJson()');
 
 // =============================================================================
@@ -68,11 +83,11 @@ export const ShellDumpInstanceInputSchema = z.object({
     outputDir: z.string().describe('Output directory for dump (must be empty or non-existent)'),
     threads: z.number().int().min(1).max(128).optional().default(4).describe('Number of parallel threads'),
     compression: z.enum(['none', 'zstd', 'gzip']).optional().default('zstd').describe('Compression method'),
-    dryRun: z.boolean().optional().default(false).describe('Simulate dump without writing files'),
+    dryRun: booleanCoerce.optional().default(false).describe('Simulate dump without writing files'),
     includeSchemas: z.array(z.string()).optional().describe('Schemas to include (default: all non-system)'),
     excludeSchemas: z.array(z.string()).optional().describe('Schemas to exclude'),
-    consistent: z.boolean().optional().default(true).describe('Use consistent snapshot'),
-    users: z.boolean().optional().default(true).describe('Include user accounts and grants')
+    consistent: booleanCoerce.optional().default(true).describe('Use consistent snapshot'),
+    users: booleanCoerce.optional().default(true).describe('Include user accounts and grants')
 }).describe('Dump entire MySQL instance using util.dumpInstance()');
 
 export const ShellDumpSchemasInputSchema = z.object({
@@ -80,9 +95,10 @@ export const ShellDumpSchemasInputSchema = z.object({
     outputDir: z.string().describe('Output directory for dump'),
     threads: z.number().int().min(1).max(128).optional().default(4).describe('Number of parallel threads'),
     compression: z.enum(['none', 'zstd', 'gzip']).optional().default('zstd').describe('Compression method'),
-    dryRun: z.boolean().optional().default(false).describe('Simulate dump without writing files'),
+    dryRun: booleanCoerce.optional().default(false).describe('Simulate dump without writing files'),
     includeTables: z.array(z.string()).optional().describe('Tables to include (schema.table format)'),
-    excludeTables: z.array(z.string()).optional().describe('Tables to exclude (schema.table format)')
+    excludeTables: z.array(z.string()).optional().describe('Tables to exclude (schema.table format)'),
+    ddlOnly: booleanCoerce.optional().default(false).describe('Dump only DDL (schema structure) without data or metadata requiring extra privileges (events, triggers, routines)')
 }).describe('Dump selected schemas using util.dumpSchemas()');
 
 export const ShellDumpTablesInputSchema = z.object({
@@ -91,7 +107,8 @@ export const ShellDumpTablesInputSchema = z.object({
     outputDir: z.string().describe('Output directory for dump'),
     threads: z.number().int().min(1).max(128).optional().default(4).describe('Number of parallel threads'),
     compression: z.enum(['none', 'zstd', 'gzip']).optional().default('zstd').describe('Compression method'),
-    where: z.record(z.string(), z.string()).optional().describe('WHERE clauses per table ({tableName: "condition"})')
+    where: z.record(z.string(), z.string()).optional().describe('WHERE clauses per table ({tableName: "condition"})'),
+    all: booleanCoerce.optional().default(false).describe('Dump all metadata for tables (triggers, etc.). Set to false if lacking privileges.')
 }).describe('Dump specific tables using util.dumpTables()');
 
 // =============================================================================
@@ -101,14 +118,15 @@ export const ShellDumpTablesInputSchema = z.object({
 export const ShellLoadDumpInputSchema = z.object({
     inputDir: z.string().describe('Directory containing MySQL Shell dump'),
     threads: z.number().int().min(1).max(128).optional().default(4).describe('Number of parallel threads'),
-    dryRun: z.boolean().optional().default(false).describe('Simulate load without executing'),
+    dryRun: booleanCoerce.optional().default(false).describe('Simulate load without executing'),
     includeSchemas: z.array(z.string()).optional().describe('Schemas to include'),
     excludeSchemas: z.array(z.string()).optional().describe('Schemas to exclude'),
     includeTables: z.array(z.string()).optional().describe('Tables to include (schema.table format)'),
     excludeTables: z.array(z.string()).optional().describe('Tables to exclude'),
-    ignoreExistingObjects: z.boolean().optional().default(false).describe('Ignore existing objects instead of failing'),
-    ignoreVersion: z.boolean().optional().default(false).describe('Ignore version mismatch between dump and server'),
-    resetProgress: z.boolean().optional().default(false).describe('Reset progress tracking and reload from start')
+    ignoreExistingObjects: booleanCoerce.optional().default(false).describe('Ignore existing objects instead of failing'),
+    ignoreVersion: booleanCoerce.optional().default(false).describe('Ignore version mismatch between dump and server'),
+    resetProgress: booleanCoerce.optional().default(false).describe('Reset progress tracking and reload from start'),
+    updateServerSettings: booleanCoerce.optional().default(false).describe('Automatically enable local_infile on the server if disabled (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege)')
 }).describe('Load dump to instance using util.loadDump()');
 
 // =============================================================================

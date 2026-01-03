@@ -47,8 +47,8 @@ describe('Spatial Queries Tools', () => {
             expect(mockAdapter.executeQuery).toHaveBeenCalled();
             const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
             expect(call).toContain('ST_Distance');
-            // Check SRID default
-            expect(call).toContain('ST_GeomFromText(?, 4326)');
+            // Check SRID default with axis-order option
+            expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
             expect(result.results).toHaveLength(1);
         });
 
@@ -68,7 +68,7 @@ describe('Spatial Queries Tools', () => {
             const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
             expect(call).toContain('ST_Distance');
             expect(call).toContain('<= ?');
-            expect(call).toContain('ST_GeomFromText(?, 3857)');
+            expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
             expect(call).toContain('LIMIT 5');
             const args = mockAdapter.executeQuery.mock.calls[0][1] as any[];
             expect(args).toContain(500);

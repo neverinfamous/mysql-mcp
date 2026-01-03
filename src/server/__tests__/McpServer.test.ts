@@ -37,7 +37,8 @@ vi.mock('../auth/TokenValidator.js', () => ({
     }
 }));
 
-// Mock the MCP SDK server with a proper class
+// Mock the MCP SDK server with a proper class - capture constructor args
+let lastMockMcpServerOptions: unknown = null;
 vi.mock('@modelcontextprotocol/sdk/server/mcp.js', () => ({
     McpServer: class MockMcpServer {
         connect = vi.fn().mockResolvedValue(undefined);
@@ -45,6 +46,9 @@ vi.mock('@modelcontextprotocol/sdk/server/mcp.js', () => ({
         tool = vi.fn();
         resource = vi.fn();
         prompt = vi.fn();
+        constructor(_serverInfo: unknown, options: unknown) {
+            lastMockMcpServerOptions = options;
+        }
     }
 }));
 
@@ -62,6 +66,7 @@ vi.mock('../../utils/logger.js', () => ({
 vi.mock('../../logging/McpLogging.js', () => ({
     mcpLogger: {
         setServer: vi.fn(),
+        setConnected: vi.fn(),
         info: vi.fn(),
         notice: vi.fn()
     }
@@ -116,6 +121,12 @@ describe('McpServer', () => {
             });
             const filter = filteredServer.getToolFilter();
             expect(filter.rules.length).toBeGreaterThan(0);
+        });
+
+        it('should pass instructions to SDK server', () => {
+            new McpServer();
+            expect(lastMockMcpServerOptions).toHaveProperty('instructions');
+            expect((lastMockMcpServerOptions as { instructions: string }).instructions).toContain('mysql-mcp Usage Instructions');
         });
     });
 

@@ -42,9 +42,11 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
         handler: async (params: unknown, _context: RequestContext) => {
             const { longitude, latitude, srid } = PointSchema.parse(params);
 
+            // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+            // MySQL 8.0+ defaults to EPSG standard (latitude-longitude) for SRID 4326
             const result = await adapter.executeQuery(
-                `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(latitude)} ${String(longitude)})'), ${String(srid)})) as wkt,
-                        ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(latitude)} ${String(longitude)})'), ${String(srid)})) as geoJson`
+                `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as wkt,
+                        ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as geoJson`
             );
 
             const row = result.rows?.[0];

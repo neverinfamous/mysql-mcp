@@ -32,6 +32,7 @@ class McpLogger {
     private loggerName = 'mysql-mcp';
     private enabled = true;
     private minLevel: McpLogLevel = 'info';
+    private isConnected = false;
 
     /**
      * Level priority for filtering
@@ -52,6 +53,13 @@ class McpLogger {
      */
     setServer(server: McpServer): void {
         this.server = server;
+    }
+
+    /**
+     * Mark the logger as connected (call after transport is established)
+     */
+    setConnected(connected: boolean): void {
+        this.isConnected = connected;
     }
 
     /**
@@ -86,7 +94,8 @@ class McpLogger {
      * Send a log message to connected MCP clients
      */
     log(level: McpLogLevel, message: string, data?: Record<string, unknown>): void {
-        if (!this.enabled || !this.server || !this.shouldLog(level)) {
+        // Only send logs if connected - prevents "Not connected" errors
+        if (!this.enabled || !this.server || !this.isConnected || !this.shouldLog(level)) {
             return;
         }
 

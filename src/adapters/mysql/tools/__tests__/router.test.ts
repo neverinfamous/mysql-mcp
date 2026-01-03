@@ -2,17 +2,24 @@
  * mysql-mcp - Router Tools Unit Tests
  * 
  * Tests for router tool definitions, annotations, and handler execution.
- * Mocks global fetch to test MySQL Router REST API calls.
+ * Mocks https module to test MySQL Router REST API calls.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getRouterTools } from '../router.js';
 import type { MySQLAdapter } from '../../MySQLAdapter.js';
 import { createMockMySQLAdapter, createMockRequestContext } from '../../../../__tests__/mocks/index.js';
+import { EventEmitter } from 'events';
 
-// Mock fetch
-const mockFetch = vi.fn();
-vi.stubGlobal('fetch', mockFetch);
+// Mock https module
+vi.mock('node:https', () => ({
+    default: {
+        request: vi.fn()
+    }
+}));
+
+import https from 'node:https';
+const mockRequest = https.request as ReturnType<typeof vi.fn>;
 
 describe('getRouterTools', () => {
     let tools: ReturnType<typeof getRouterTools>;
@@ -113,11 +120,24 @@ describe('Handler Execution', () => {
         vi.restoreAllMocks();
     });
 
-    // Helper to mock successful fetch response
-    const mockJsonResponse = (data: unknown) => {
-        mockFetch.mockResolvedValue({
-            ok: true,
-            json: vi.fn().mockResolvedValue(data)
+    // Helper to mock successful https response
+    const mockHttpsResponse = (data: unknown, statusCode = 200) => {
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation((_options, callback) => {
+            const mockRes = new EventEmitter() as EventEmitter & { statusCode: number; statusMessage: string };
+            mockRes.statusCode = statusCode;
+            mockRes.statusMessage = statusCode === 200 ? 'OK' : 'Error';
+
+            setImmediate(() => {
+                callback?.(mockRes);
+                mockRes.emit('data', JSON.stringify(data));
+                mockRes.emit('end');
+            });
+
+            return mockReq;
         });
     };
 
@@ -129,15 +149,15 @@ describe('Handler Execution', () => {
                 hostname: 'router-host',
                 timeStarted: '2024-01-01T00:00:00Z'
             };
-            mockJsonResponse(mockStatus);
+            mockHttpsResponse(mockStatus);
 
             const tool = tools.find(t => t.name === 'mysql_router_status')!;
             const result = await tool.handler({}, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/router/status'),
-                expect.objectContaining({ method: 'GET' })
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.method).toBe('GET');
+            expect(options.path).toContain('/router/status');
             expect(result).toEqual({
                 success: true,
                 status: mockStatus
@@ -153,15 +173,14 @@ describe('Handler Execution', () => {
                     { name: 'bootstrap_rw' }
                 ]
             };
-            mockJsonResponse(mockRoutes);
+            mockHttpsResponse(mockRoutes);
 
             const tool = tools.find(t => t.name === 'mysql_router_routes')!;
             const result = await tool.handler({}, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/routes'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/routes');
             expect(result).toEqual({
                 success: true,
                 routes: mockRoutes
@@ -176,15 +195,14 @@ describe('Handler Execution', () => {
                 totalConnections: 100,
                 blockedHosts: 0
             };
-            mockJsonResponse(mockRouteStatus);
+            mockHttpsResponse(mockRouteStatus);
 
             const tool = tools.find(t => t.name === 'mysql_router_route_status')!;
             const result = await tool.handler({ routeName: 'bootstrap_ro' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/routes/bootstrap_ro/status'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/routes/bootstrap_ro/status');
             expect(result).toEqual({
                 success: true,
                 routeName: 'bootstrap_ro',
@@ -193,30 +211,27 @@ describe('Handler Execution', () => {
         });
 
         it('should URL-encode route names', async () => {
-            mockJsonResponse({});
+            mockHttpsResponse({});
 
             const tool = tools.find(t => t.name === 'mysql_router_route_status')!;
             await tool.handler({ routeName: 'route/with/slashes' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('route%2Fwith%2Fslashes'),
-                expect.any(Object)
-            );
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('route%2Fwith%2Fslashes');
         });
     });
 
     describe('mysql_router_route_health', () => {
         it('should check route health', async () => {
             const mockHealth = { isAlive: true };
-            mockJsonResponse(mockHealth);
+            mockHttpsResponse(mockHealth);
 
             const tool = tools.find(t => t.name === 'mysql_router_route_health')!;
             const result = await tool.handler({ routeName: 'bootstrap_ro' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/routes/bootstrap_ro/health'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/routes/bootstrap_ro/health');
             expect(result).toEqual({
                 success: true,
                 routeName: 'bootstrap_ro',
@@ -232,15 +247,14 @@ describe('Handler Execution', () => {
                     { sourceAddress: '192.168.1.1', destinationAddress: '10.0.0.1', bytesIn: 1024 }
                 ]
             };
-            mockJsonResponse(mockConnections);
+            mockHttpsResponse(mockConnections);
 
             const tool = tools.find(t => t.name === 'mysql_router_route_connections')!;
             const result = await tool.handler({ routeName: 'bootstrap_rw' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/routes/bootstrap_rw/connections'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/routes/bootstrap_rw/connections');
             expect(result).toEqual({
                 success: true,
                 routeName: 'bootstrap_rw',
@@ -257,15 +271,14 @@ describe('Handler Execution', () => {
                     { address: 'mysql-2.example.com', port: 3306 }
                 ]
             };
-            mockJsonResponse(mockDestinations);
+            mockHttpsResponse(mockDestinations);
 
             const tool = tools.find(t => t.name === 'mysql_router_route_destinations')!;
             const result = await tool.handler({ routeName: 'bootstrap_ro' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/routes/bootstrap_ro/destinations'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/routes/bootstrap_ro/destinations');
             expect(result).toEqual({
                 success: true,
                 routeName: 'bootstrap_ro',
@@ -281,15 +294,14 @@ describe('Handler Execution', () => {
                     { address: '192.168.1.100' }
                 ]
             };
-            mockJsonResponse(mockBlockedHosts);
+            mockHttpsResponse(mockBlockedHosts);
 
             const tool = tools.find(t => t.name === 'mysql_router_route_blocked_hosts')!;
             const result = await tool.handler({ routeName: 'bootstrap_rw' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/routes/bootstrap_rw/blockedHosts'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/routes/bootstrap_rw/blockedHosts');
             expect(result).toEqual({
                 success: true,
                 routeName: 'bootstrap_rw',
@@ -305,15 +317,14 @@ describe('Handler Execution', () => {
                 refreshSucceeded: 99,
                 lastRefreshHostName: 'mysql-primary.example.com'
             };
-            mockJsonResponse(mockMetadata);
+            mockHttpsResponse(mockMetadata);
 
             const tool = tools.find(t => t.name === 'mysql_router_metadata_status')!;
             const result = await tool.handler({ metadataName: 'my_cluster' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/metadata/my_cluster/status'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/metadata/my_cluster/status');
             expect(result).toEqual({
                 success: true,
                 metadataName: 'my_cluster',
@@ -328,15 +339,14 @@ describe('Handler Execution', () => {
                 reusedConnections: 50,
                 idleServerConnections: 10
             };
-            mockJsonResponse(mockPoolStatus);
+            mockHttpsResponse(mockPoolStatus);
 
             const tool = tools.find(t => t.name === 'mysql_router_pool_status')!;
             const result = await tool.handler({ poolName: 'default' }, mockContext);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/connection_pool/default/status'),
-                expect.any(Object)
-            );
+            expect(mockRequest).toHaveBeenCalled();
+            const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+            expect(options.path).toContain('/connection_pool/default/status');
             expect(result).toEqual({
                 success: true,
                 poolName: 'default',
@@ -354,25 +364,32 @@ describe('HTTP Header Handling', () => {
         vi.clearAllMocks();
         tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
         mockContext = createMockRequestContext();
-
-        mockFetch.mockResolvedValue({
-            ok: true,
-            json: vi.fn().mockResolvedValue({})
-        });
     });
 
     it('should send Accept: application/json header', async () => {
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation((_options, callback) => {
+            const mockRes = new EventEmitter() as EventEmitter & { statusCode: number; statusMessage: string };
+            mockRes.statusCode = 200;
+            mockRes.statusMessage = 'OK';
+
+            setImmediate(() => {
+                callback?.(mockRes);
+                mockRes.emit('data', '{}');
+                mockRes.emit('end');
+            });
+
+            return mockReq;
+        });
+
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
         await tool.handler({}, mockContext);
 
-        expect(mockFetch).toHaveBeenCalledWith(
-            expect.any(String),
-            expect.objectContaining({
-                headers: expect.objectContaining({
-                    Accept: 'application/json'
-                })
-            })
-        );
+        const options = mockRequest.mock.calls[0][0] as Record<string, Record<string, string>>;
+        expect(options.headers?.Accept).toBe('application/json');
     });
 });
 
@@ -387,10 +404,21 @@ describe('Error Handling', () => {
     });
 
     it('should throw on non-ok response', async () => {
-        mockFetch.mockResolvedValue({
-            ok: false,
-            status: 401,
-            statusText: 'Unauthorized'
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation((_options, callback) => {
+            const mockRes = new EventEmitter() as EventEmitter & { statusCode: number; statusMessage: string };
+            mockRes.statusCode = 401;
+            mockRes.statusMessage = 'Unauthorized';
+
+            setImmediate(() => {
+                callback?.(mockRes);
+                mockRes.emit('end');
+            });
+
+            return mockReq;
         });
 
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
@@ -399,10 +427,21 @@ describe('Error Handling', () => {
     });
 
     it('should throw on 404 response', async () => {
-        mockFetch.mockResolvedValue({
-            ok: false,
-            status: 404,
-            statusText: 'Not Found'
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation((_options, callback) => {
+            const mockRes = new EventEmitter() as EventEmitter & { statusCode: number; statusMessage: string };
+            mockRes.statusCode = 404;
+            mockRes.statusMessage = 'Not Found';
+
+            setImmediate(() => {
+                callback?.(mockRes);
+                mockRes.emit('end');
+            });
+
+            return mockReq;
         });
 
         const tool = tools.find(t => t.name === 'mysql_router_route_status')!;
@@ -411,7 +450,16 @@ describe('Error Handling', () => {
     });
 
     it('should throw on network error', async () => {
-        mockFetch.mockRejectedValue(new Error('Network error'));
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation(() => {
+            setImmediate(() => {
+                mockReq.emit('error', new Error('Network error'));
+            });
+            return mockReq;
+        });
 
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
 
@@ -419,7 +467,16 @@ describe('Error Handling', () => {
     });
 
     it('should throw on connection refused', async () => {
-        mockFetch.mockRejectedValue(new Error('ECONNREFUSED'));
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation(() => {
+            setImmediate(() => {
+                mockReq.emit('error', new Error('ECONNREFUSED'));
+            });
+            return mockReq;
+        });
 
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
 
@@ -448,89 +505,85 @@ describe('Authentication and TLS Handling', () => {
         process.env = originalEnv;
     });
 
+    // Helper to mock response
+    const setupMockRequest = () => {
+        const mockReq = new EventEmitter() as EventEmitter & { end: () => void; destroy: () => void };
+        mockReq.end = vi.fn();
+        mockReq.destroy = vi.fn();
+
+        mockRequest.mockImplementation((_options, callback) => {
+            const mockRes = new EventEmitter() as EventEmitter & { statusCode: number; statusMessage: string };
+            mockRes.statusCode = 200;
+            mockRes.statusMessage = 'OK';
+
+            setImmediate(() => {
+                callback?.(mockRes);
+                mockRes.emit('data', '{}');
+                mockRes.emit('end');
+            });
+
+            return mockReq;
+        });
+
+        return mockReq;
+    };
+
     it('should add Basic auth header when credentials provided', async () => {
         process.env['MYSQL_ROUTER_USER'] = 'admin';
         process.env['MYSQL_ROUTER_PASSWORD'] = 'secret';
 
-        mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+        setupMockRequest();
 
         const tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
         await tool.handler({}, createMockRequestContext());
 
-        const headers = mockFetch.mock.calls[0][1]?.headers as Record<string, string>;
-        expect(headers['Authorization']).toMatch(/^Basic /);
+        const options = mockRequest.mock.calls[0][0] as Record<string, Record<string, string>>;
+        expect(options.headers?.Authorization).toMatch(/^Basic /);
         // Verify the encoded value
         const expectedAuth = Buffer.from('admin:secret').toString('base64');
-        expect(headers['Authorization']).toBe(`Basic ${expectedAuth}`);
+        expect(options.headers?.Authorization).toBe(`Basic ${expectedAuth}`);
     });
 
     it('should not add auth header when no credentials provided', async () => {
-        mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+        setupMockRequest();
 
         const tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
         await tool.handler({}, createMockRequestContext());
 
-        const headers = mockFetch.mock.calls[0][1]?.headers as Record<string, string>;
-        expect(headers['Authorization']).toBeUndefined();
+        const options = mockRequest.mock.calls[0][0] as Record<string, Record<string, string>>;
+        expect(options.headers?.Authorization).toBeUndefined();
     });
 
-    it('should use custom dispatcher for HTTPS with insecure=true', async () => {
+    it('should set rejectUnauthorized=false for HTTPS with insecure=true', async () => {
         process.env['MYSQL_ROUTER_URL'] = 'https://localhost:8443';
         process.env['MYSQL_ROUTER_INSECURE'] = 'true';
 
-        let capturedOptions: Record<string, unknown> | undefined;
-
-        mockFetch.mockImplementation(async (_url: string, options: Record<string, unknown>) => {
-            capturedOptions = options;
-            return { ok: true, json: () => Promise.resolve({}) };
-        });
+        setupMockRequest();
 
         const tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
         await tool.handler({}, createMockRequestContext());
 
-        // Should have dispatcher set for insecure HTTPS requests
-        expect(capturedOptions?.dispatcher).toBeDefined();
+        const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+        // insecure=true means rejectUnauthorized should be false
+        expect(options.rejectUnauthorized).toBe(false);
     });
 
-    it('should not set dispatcher for secure HTTPS requests', async () => {
+    it('should set rejectUnauthorized=true for secure HTTPS requests', async () => {
         process.env['MYSQL_ROUTER_URL'] = 'https://localhost:8443';
         process.env['MYSQL_ROUTER_INSECURE'] = 'false';
 
-        let capturedOptions: Record<string, unknown> | undefined;
-
-        mockFetch.mockImplementation(async (_url: string, options: Record<string, unknown>) => {
-            capturedOptions = options;
-            return { ok: true, json: () => Promise.resolve({}) };
-        });
+        setupMockRequest();
 
         const tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
         const tool = tools.find(t => t.name === 'mysql_router_status')!;
         await tool.handler({}, createMockRequestContext());
 
-        // Should not have dispatcher for secure requests
-        expect(capturedOptions?.dispatcher).toBeUndefined();
-    });
-
-    it('should not set dispatcher for HTTP URLs even with insecure=true', async () => {
-        process.env['MYSQL_ROUTER_URL'] = 'http://localhost:8080';
-        process.env['MYSQL_ROUTER_INSECURE'] = 'true';
-
-        let capturedOptions: Record<string, unknown> | undefined;
-
-        mockFetch.mockImplementation(async (_url: string, options: Record<string, unknown>) => {
-            capturedOptions = options;
-            return { ok: true, json: () => Promise.resolve({}) };
-        });
-
-        const tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
-        const tool = tools.find(t => t.name === 'mysql_router_status')!;
-        await tool.handler({}, createMockRequestContext());
-
-        // Should not have dispatcher for HTTP URLs
-        expect(capturedOptions?.dispatcher).toBeUndefined();
+        const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
+        // insecure=false means rejectUnauthorized should be true
+        expect(options.rejectUnauthorized).toBe(true);
     });
 
     it('should not modify NODE_TLS_REJECT_UNAUTHORIZED env var', async () => {
@@ -538,7 +591,7 @@ describe('Authentication and TLS Handling', () => {
         process.env['MYSQL_ROUTER_INSECURE'] = 'true';
         const originalValue = process.env['NODE_TLS_REJECT_UNAUTHORIZED'];
 
-        mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+        setupMockRequest();
 
         const tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
         const tool = tools.find(t => t.name === 'mysql_router_status')!;

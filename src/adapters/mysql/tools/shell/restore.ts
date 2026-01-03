@@ -29,7 +29,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
         handler: async (params: unknown, _context: RequestContext) => {
             const {
                 inputDir, threads, dryRun, includeSchemas, excludeSchemas,
-                includeTables, excludeTables, ignoreExistingObjects, ignoreVersion, resetProgress
+                includeTables, excludeTables, ignoreExistingObjects, ignoreVersion, resetProgress, updateServerSettings
             } = ShellLoadDumpInputSchema.parse(params);
 
             const escapedPath = inputDir.replace(/\\/g, '\\\\');
@@ -64,16 +64,38 @@ export function createShellLoadDumpTool(): ToolDefinition {
             }
 
             const optionsStr = options.length > 0 ? `, { ${options.join(', ')} }` : '';
-            const jsCode = `return util.loadDump("${escapedPath}"${optionsStr});`;
+            
+            // Build JavaScript code that optionally enables local_infile
+            let jsCode: string;
+            if (updateServerSettings) {
+                jsCode = `
+                    session.runSql("SET GLOBAL local_infile = ON");
+                    return util.loadDump("${escapedPath}"${optionsStr});
+                `;
+            } else {
+                jsCode = `return util.loadDump("${escapedPath}"${optionsStr});`;
+            }
 
-            const result = await execShellJS(jsCode, { timeout: 3600000 });
-
-            return {
-                success: true,
-                inputDir,
-                dryRun: dryRun ?? false,
-                result
-            };
+            try {
+                const result = await execShellJS(jsCode, { timeout: 3600000 });
+                return {
+                    success: true,
+                    inputDir,
+                    dryRun: dryRun ?? false,
+                    localInfileEnabled: updateServerSettings,
+                    result
+                };
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (errorMessage.includes('local_infile') || errorMessage.includes('Loading local data is disabled')) {
+                    throw new Error(
+                        `Load failed: local_infile is disabled on the server. ` +
+                        `Either set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
+                        `or manually run: SET GLOBAL local_infile = ON`
+                    );
+                }
+                throw error;
+            }
         }
     };
 }

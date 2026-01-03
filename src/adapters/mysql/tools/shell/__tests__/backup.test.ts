@@ -137,6 +137,66 @@ describe('Shell Backup Tools', () => {
             expect(jsArg).toContain('includeTables: ["t1"]');
             expect(jsArg).toContain('excludeTables: ["t2"]');
         });
+
+        it('should support ddlOnly mode disabling events, triggers, routines', async () => {
+            const successJson = JSON.stringify({ success: true, result: { status: 'Completed' } });
+            setupMockSpawn(successJson);
+
+            const tool = createShellDumpSchemasTool();
+            const result = await tool.handler({
+                schemas: ['db1'],
+                outputDir: '/backup/ddl',
+                ddlOnly: true
+            }, mockContext) as any;
+
+            expect(result.success).toBe(true);
+            expect(result.ddlOnly).toBe(true);
+
+            const jsArg = mockSpawn.mock.calls[0][1][4];
+            expect(jsArg).toContain('events: false');
+            expect(jsArg).toContain('triggers: false');
+            expect(jsArg).toContain('routines: false');
+        });
+
+        it('should throw helpful error for EVENT privilege errors', async () => {
+            setupMockSpawn('', 'You do not have the EVENT privilege', 1);
+
+            const tool = createShellDumpSchemasTool();
+            await expect(tool.handler({
+                schemas: ['db1'],
+                outputDir: '/backup'
+            }, mockContext)).rejects.toThrow('ddlOnly: true');
+        });
+
+        it('should throw helpful error for TRIGGER privilege errors', async () => {
+            setupMockSpawn('', 'TRIGGER privilege required', 1);
+
+            const tool = createShellDumpSchemasTool();
+            await expect(tool.handler({
+                schemas: ['db1'],
+                outputDir: '/backup'
+            }, mockContext)).rejects.toThrow('ddlOnly: true');
+        });
+
+        it('should throw helpful error for generic privilege errors', async () => {
+            setupMockSpawn('', 'Access denied - privilege required', 1);
+
+            const tool = createShellDumpSchemasTool();
+            await expect(tool.handler({
+                schemas: ['db1'],
+                outputDir: '/backup'
+            }, mockContext)).rejects.toThrow('ddlOnly: true');
+        });
+
+        it('should re-throw non-privilege errors', async () => {
+            setupMockSpawn('', 'Table not found', 1);
+
+            const tool = createShellDumpSchemasTool();
+            await expect(tool.handler({
+                schemas: ['db1'],
+                outputDir: '/backup'
+            }, mockContext)).rejects.toThrow('Table not found');
+        });
     });
 
     describe('mysqlsh_dump_tables', () => {
@@ -169,6 +229,70 @@ describe('Shell Backup Tools', () => {
 
             const jsArg = mockSpawn.mock.calls[0][1][4];
             expect(jsArg).toContain('compression: "none"');
+        });
+
+        it('should disable triggers when all=false (default)', async () => {
+            setupMockSpawn(JSON.stringify({ success: true }));
+            const tool = createShellDumpTablesTool();
+            const result = await tool.handler({
+                schema: 's', tables: ['t'], outputDir: '/o'
+            }, mockContext) as any;
+
+            expect(result.triggersExcluded).toBe(true);
+
+            const jsArg = mockSpawn.mock.calls[0][1][4];
+            expect(jsArg).toContain('triggers: false');
+        });
+
+        it('should include triggers when all=true', async () => {
+            setupMockSpawn(JSON.stringify({ success: true }));
+            const tool = createShellDumpTablesTool();
+            const result = await tool.handler({
+                schema: 's', tables: ['t'], outputDir: '/o',
+                all: true
+            }, mockContext) as any;
+
+            expect(result.triggersExcluded).toBe(false);
+
+            const jsArg = mockSpawn.mock.calls[0][1][4];
+            expect(jsArg).not.toContain('triggers: false');
+        });
+
+        it('should throw helpful error for privilege errors', async () => {
+            setupMockSpawn('', 'Access denied - privilege required', 1);
+
+            const tool = createShellDumpTablesTool();
+            await expect(tool.handler({
+                schema: 's', tables: ['t'], outputDir: '/o'
+            }, mockContext)).rejects.toThrow('all: false');
+        });
+
+        it('should throw helpful error for TRIGGER privilege errors', async () => {
+            setupMockSpawn('', 'TRIGGER privilege required', 1);
+
+            const tool = createShellDumpTablesTool();
+            await expect(tool.handler({
+                schema: 's', tables: ['t'], outputDir: '/o',
+                all: true
+            }, mockContext)).rejects.toThrow('all: false');
+        });
+
+        it('should throw helpful error for Fatal error during dump', async () => {
+            setupMockSpawn('', 'Fatal error during dump occurred', 1);
+
+            const tool = createShellDumpTablesTool();
+            await expect(tool.handler({
+                schema: 's', tables: ['t'], outputDir: '/o'
+            }, mockContext)).rejects.toThrow('all: false');
+        });
+
+        it('should re-throw non-privilege errors', async () => {
+            setupMockSpawn('', 'Connection timeout', 1);
+
+            const tool = createShellDumpTablesTool();
+            await expect(tool.handler({
+                schema: 's', tables: ['t'], outputDir: '/o'
+            }, mockContext)).rejects.toThrow('Connection timeout');
         });
     });
 });

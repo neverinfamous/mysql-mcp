@@ -23,26 +23,6 @@ import {
 // =============================================================================
 
 /**
- * Lazily-initialized HTTPS agent for insecure mode (self-signed certificates).
- * 
- * SECURITY NOTE: This is an INTENTIONAL feature for development/testing environments
- * where MySQL Router uses self-signed certificates. It is only activated when the user
- * explicitly sets MYSQL_ROUTER_INSECURE=true. In production, users should configure
- * proper TLS certificates on MySQL Router.
- * 
- * @see https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html#option_mysqlrouter_server_ssl_key
- */
-let _insecureAgent: https.Agent | null = null;
-function getInsecureAgent(): https.Agent {
-    // CodeQL: This is intentional - see SECURITY NOTE above
-    // nosemgrep: nodejs.lang.security.audit.tls-connection-insecure.tls-connection-insecure
-    _insecureAgent ??= new https.Agent({
-        rejectUnauthorized: false // codeql-ignore js/disabling-certificate-validation
-    });
-    return _insecureAgent;
-}
-
-/**
  * Get Router configuration from environment variables
  */
 function getRouterConfig(): RouterConfig {
@@ -56,7 +36,12 @@ function getRouterConfig(): RouterConfig {
 }
 
 /**
- * Fetch data from MySQL Router REST API
+ * Fetch data from MySQL Router REST API using native https module.
+ * 
+ * Note: We use the https module instead of fetch() because Node.js native fetch
+ * uses undici under the hood, which doesn't support the rejectUnauthorized option
+ * in the same way as https.Agent. This ensures proper handling of self-signed
+ * certificates when MYSQL_ROUTER_INSECURE=true.
  */
 async function routerFetch(
     path: string,
@@ -69,37 +54,69 @@ async function routerFetch(
     const password = cfg.password ?? '';
     const insecure = cfg.insecure ?? false;
 
-    const url = `${baseUrl}${apiVersion}${path}`;
-    const headers: Record<string, string> = {
-        'Accept': 'application/json'
-    };
+    const fullUrl = `${baseUrl}${apiVersion}${path}`;
+    const parsedUrl = new URL(fullUrl);
 
-    if (username && password) {
-        const auth = Buffer.from(`${username}:${password}`).toString('base64');
-        headers['Authorization'] = `Basic ${auth}`;
-    }
+    return new Promise((resolve, reject) => {
+        const headers: Record<string, string> = {
+            'Accept': 'application/json'
+        };
 
-    // Build fetch options - use custom agent for insecure mode to handle self-signed certs
-    // lgtm[js/disabling-certificate-validation] - Intentional for development/testing with self-signed certs
-    const fetchOptions: RequestInit & { dispatcher?: unknown } = {
-        method: 'GET',
-        headers
-    };
+        if (username && password) {
+            const auth = Buffer.from(`${username}:${password}`).toString('base64');
+            headers['Authorization'] = `Basic ${auth}`;
+        }
 
-    if (insecure && baseUrl.startsWith('https://')) {
-        console.error('WARNING: TLS certificate validation disabled for Router API request. This is insecure and should only be used for development/testing.');
-        // Use undici dispatcher for Node.js fetch with custom TLS settings
-        // @ts-expect-error - Node.js fetch supports dispatcher option via undici
-        fetchOptions.dispatcher = getInsecureAgent();
-    }
+        // Build request options
+        // SECURITY NOTE: rejectUnauthorized=false is INTENTIONAL for development/testing
+        // environments where MySQL Router uses self-signed certificates. It is only
+        // activated when the user explicitly sets MYSQL_ROUTER_INSECURE=true.
+        // In production, users should configure proper TLS certificates on MySQL Router.
+        // @see https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html#option_mysqlrouter_server_ssl_key
+        const requestOptions: https.RequestOptions = {
+            hostname: parsedUrl.hostname,
+            port: parsedUrl.port || 8443,
+            path: parsedUrl.pathname,
+            method: 'GET',
+            headers,
+            // CodeQL: This is intentional - see SECURITY NOTE above
+            // nosemgrep: nodejs.lang.security.audit.tls-connection-insecure.tls-connection-insecure
+            rejectUnauthorized: !insecure, // codeql-ignore js/disabling-certificate-validation
+            timeout: 10000 // 10 second timeout
+        };
 
-    const response = await fetch(url, fetchOptions);
+        const req = https.request(requestOptions, (res) => {
+            let data = '';
 
-    if (!response.ok) {
-        throw new Error(`Router API error: ${response.status} ${response.statusText}`);
-    }
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
 
-    return await response.json();
+            res.on('end', () => {
+                const statusCode = res.statusCode ?? 0;
+                if (statusCode >= 200 && statusCode < 300) {
+                    try {
+                        resolve(JSON.parse(data));
+                    } catch {
+                        reject(new Error(`Invalid JSON response: ${data}`));
+                    }
+                } else {
+                    reject(new Error(`Router API error: ${statusCode} ${res.statusMessage ?? 'Unknown'}`));
+                }
+            });
+        });
+
+        req.on('error', (error) => {
+            reject(new Error(`Router API request failed: ${error.message}`));
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Router API request timed out'));
+        });
+
+        req.end();
+    });
 }
 
 // =============================================================================

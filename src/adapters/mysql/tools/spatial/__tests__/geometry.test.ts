@@ -40,8 +40,9 @@ describe('Spatial Geometry Tools', () => {
 
             expect(mockAdapter.executeQuery).toHaveBeenCalled();
             const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-            // Point string might vary slightly based on String() output but generally 'POINT(10 20)'
-            expect(call).toContain('POINT(20 10)');
+            // With axis-order=long-lat, longitude comes first in POINT
+            expect(call).toContain('POINT(10 20)');
+            expect(call).toContain('axis-order=long-lat');
             expect(result.wkt).toBe('POINT(20 10)');
             expect(result.geoJson).toEqual({ type: 'Point', coordinates: [10, 20] });
         });
