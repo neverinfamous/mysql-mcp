@@ -71,5 +71,5 @@ jobs:
 
       - name: Verify publication
         run: |
-          sleep 10
+          sleep 30
           npm view @neverinfamous/mysql-mcp version
