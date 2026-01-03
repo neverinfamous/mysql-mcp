@@ -9,6 +9,7 @@
 [![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
 ![Version](https://img.shields.io/badge/version-2.1.0-green)
 ![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
+[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
@@ -50,20 +51,35 @@
 
 ### Installation
 
+#### NPM (Recommended)
+
+```bash
+# Install globally
+npm install -g @neverinfamous/mysql-mcp
+
+# Run
+mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+
+# Or use npx without installing
+npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+```
+
+#### Docker
+
+```bash
+docker run -i --rm writenotenow/mysql-mcp:latest \
+  --transport stdio \
+  --mysql mysql://user:password@host.docker.internal:3306/database
+```
+
+#### From Source
+
 ```bash
 git clone https://github.com/neverinfamous/mysql-mcp.git
 cd mysql-mcp
 npm install
 npm run build
 node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
-```
-
-### Docker
-
-```bash
-docker run -i --rm writenotenow/mysql-mcp:latest \
-  --transport stdio \
-  --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
 ---
