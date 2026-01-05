@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-*Last updated January 3, 2026 - Production/Stable v2.1.0*
+*Last updated January 4, 2026 - Production/Stable v2.1.0*
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -16,7 +16,7 @@
 ![Tests](https://img.shields.io/badge/Tests-1590%20passing-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-97%25-green.svg)
 
-**[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)**
+**[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## The Most Comprehensive MySQL MCP Server Available
 

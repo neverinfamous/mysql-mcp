@@ -9,6 +9,21 @@ updates:
     commit-message:
       prefix: "chore"
 
+    groups:
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "globals"
+      types:
+        patterns:
+          - "@types/*"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

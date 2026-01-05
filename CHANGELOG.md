@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Docker Workflow: Explicit CodeQL Gating** — Docker image publishing now depends on both `quality-gate` and `codeql` jobs, ensuring security regressions block deployments.
+- **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/*), `eslint` (eslint, @eslint/*, typescript-eslint, globals), and `types` (@types/*) to prevent peer dependency fragmentation.
+
+### Dependencies
+- Bumped `globals` from `^16.5.0` to `^17.0.0` (ESLint 9+ compatibility)
+- Bumped `zod` from `^4.2.1` to `^4.3.5`
+
 ## [2.1.0] - 2026-01-03
 
 ### Fixed

@@ -48,9 +48,47 @@ jobs:
     - name: Run tests
       run: npm test
 
+  # Security gate - CodeQL must pass before any builds
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Check for JS/TS files
+      id: check-files
+      run: |
+        if find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.mjs" -o -name "*.cjs" \) | grep -q .; then
+          echo "has_code=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_code=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Initialize CodeQL
+      if: steps.check-files.outputs.has_code == 'true'
+      uses: github/codeql-action/init@v4
+      with:
+        languages: javascript-typescript
+        queries: security-extended,security-and-quality
+
+    - name: Autobuild
+      if: steps.check-files.outputs.has_code == 'true'
+      uses: github/codeql-action/autobuild@v4
+
+    - name: Perform CodeQL Analysis
+      if: steps.check-files.outputs.has_code == 'true'
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:javascript-typescript"
+
   # Build each platform on native architecture (avoids QEMU emulation issues)
   build-platform:
-    needs: quality-gate
+    needs: [quality-gate, codeql]
     strategy:
       fail-fast: false
       matrix:
