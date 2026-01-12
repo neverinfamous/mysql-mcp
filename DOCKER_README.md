@@ -34,7 +34,7 @@
 | **Ecosystem Integrations** | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities |
 | **Advanced Encryption** | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance |
 | **Production-Ready Security** | SQL injection protection, parameterized queries, input validation, and audit capabilities |
-| **Strict TypeScript** | 100% type-safe codebase with 1550+ tests and 97% coverage |
+| **Strict TypeScript** | 100% type-safe codebase with 1590 tests and 97% coverage |
 | **MCP 2025-11-25 Compliant** | Full protocol support with tool safety hints, resource priorities, and progress notifications |
 
 ---
