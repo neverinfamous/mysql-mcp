@@ -5,14 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2025-12-16
-
-### Major Release Highlights
-
-**mysql-mcp v2.0.0** represents a transformative update with **85 new tools** (106 → 191 tools), comprehensive security enhancements, HTTP/SSE streaming transport, and extensive refactoring for production-grade stability.
-
-> **New:** Simplified tool filtering syntax is now supported! Use `"+starter"` or `"starter"` (whitelist mode) to automatically disable all other tools and enable only what you need. Default toolset is now `starter` (38 tools) if no filter is provided.
-
 ## [Unreleased]
 
 ### Changed
@@ -20,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/*), `eslint` (eslint, @eslint/*, typescript-eslint, globals), and `types` (@types/*) to prevent peer dependency fragmentation.
 
 ### Dependencies
+- Bumped `typescript-eslint` from `^8.51.0` to `^8.52.0`
+- Bumped `@types/node` from `^25.0.3` to `^25.0.6`
 - Bumped `globals` from `^16.5.0` to `^17.0.0` (ESLint 9+ compatibility)
 - Bumped `zod` from `^4.2.1` to `^4.3.5`
 
@@ -150,6 +144,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branch coverage: ~83.87%
 - Statement coverage: ~97.34%
 
+## [2.0.0] - 2025-12-16
+
+### Major Release Highlights
+
+**mysql-mcp v2.0.0** represents a transformative update with **85 new tools** (106 → 191 tools), comprehensive security enhancements, HTTP/SSE streaming transport, and extensive refactoring for production-grade stability.
+
+> **New:** Simplified tool filtering syntax is now supported! Use `"+starter"` or `"starter"` (whitelist mode) to automatically disable all other tools and enable only what you need. Default toolset is now `starter` (38 tools) if no filter is provided.
 
 - **Modular Refactoring and Test Improvements** - Significantly improved code quality and test modularity:
   - **Refactored CLI** - Extracted argument parsing to `src/cli/args.ts` and achieved 91% coverage for `src/cli.ts` (main entry point) including signal handling and error scenarios.
