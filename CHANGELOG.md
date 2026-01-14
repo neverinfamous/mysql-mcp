@@ -8,14 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Node.js 24 LTS Baseline** — Upgraded from Node 20 to Node 24 (current LTS) across Dockerfile, CI workflows, and package.json engines for high-fidelity production security.
 - **Docker Workflow: Explicit CodeQL Gating** — Docker image publishing now depends on both `quality-gate` and `codeql` jobs, ensuring security regressions block deployments.
 - **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/*), `eslint` (eslint, @eslint/*, typescript-eslint, globals), and `types` (@types/*) to prevent peer dependency fragmentation.
 
 ### Dependencies
-- Bumped `typescript-eslint` from `^8.51.0` to `^8.52.0`
-- Bumped `@types/node` from `^25.0.3` to `^25.0.6`
+- Bumped `@modelcontextprotocol/sdk` from `^1.25.1` to `^1.25.2`
+- Bumped `typescript-eslint` from `^8.51.0` to `^8.53.0`
+- Bumped `@types/node` from `^25.0.3` to `^25.0.8`
+- Bumped `@vitest/coverage-v8` from `^4.0.16` to `^4.0.17`
+- Bumped `vitest` from `^4.0.16` to `^4.0.17`
 - Bumped `globals` from `^16.5.0` to `^17.0.0` (ESLint 9+ compatibility)
 - Bumped `zod` from `^4.2.1` to `^4.3.5`
+- Bumped transitive `hono` from `4.11.1` to `4.11.4` (via @hono/node-server)
+
+### Security
+- **CVE Fix: hono JWT Algorithm Confusion** — Updated transitive dependency `hono` to 4.11.4 to fix GHSA-f67f-6cw9-8mq4 (JWT algorithm confusion allowing token forgery and auth bypass when JWK lacks "alg" field).
 
 ## [2.1.0] - 2026-01-03
 
