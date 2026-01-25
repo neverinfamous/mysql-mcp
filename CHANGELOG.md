@@ -13,14 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/*), `eslint` (eslint, @eslint/*, typescript-eslint, globals), and `types` (@types/*) to prevent peer dependency fragmentation.
 
 ### Dependencies
-- Bumped `@modelcontextprotocol/sdk` from `^1.25.1` to `^1.25.2`
-- Bumped `typescript-eslint` from `^8.51.0` to `^8.53.0`
-- Bumped `@types/node` from `^25.0.3` to `^25.0.8`
-- Bumped `@vitest/coverage-v8` from `^4.0.16` to `^4.0.17`
-- Bumped `vitest` from `^4.0.16` to `^4.0.17`
-- Bumped `globals` from `^16.5.0` to `^17.0.0` (ESLint 9+ compatibility)
-- Bumped `zod` from `^4.2.1` to `^4.3.5`
-- Bumped transitive `hono` from `4.11.1` to `4.11.4` (via @hono/node-server)
+- Bumped `@modelcontextprotocol/sdk` from `^1.25.2` to `^1.25.3`
+- Bumped `@types/node` from `^25.0.8` to `^25.0.10`
+- Bumped `@vitest/coverage-v8` from `^4.0.17` to `^4.0.18`
+- Bumped `cors` from `^2.8.5` to `^2.8.6`
+- Bumped `globals` from `^17.0.0` to `^17.1.0`
+- Bumped `mysql2` from `^3.16.0` to `^3.16.1`
+- Bumped `typescript-eslint` from `^8.53.0` to `^8.53.1`
+- Bumped `vitest` from `^4.0.17` to `^4.0.18`
+- Bumped `zod` from `^4.3.5` to `^4.3.6`
 
 ### Security
 - **CVE Fix: hono JWT Algorithm Confusion** — Updated transitive dependency `hono` to 4.11.4 to fix GHSA-f67f-6cw9-8mq4 (JWT algorithm confusion allowing token forgery and auth bypass when JWK lacks "alg" field).
