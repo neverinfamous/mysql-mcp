@@ -27,12 +27,12 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 ## JSON Tools (\`mysql_json_*\`)
 
-- **Strict Quoting**: When passing string values to JSON tools, you **must quote the string** if you intend to store it as a JSON string.
-  - ❌ Incorrect: \`value: "green"\` (interpreted as invalid JSON)
-  - ✅ Correct: \`value: "\\"green\\""\` (stored as string "green")
-  - ✅ Correct: \`value: 42\` (stored as number)
-  - ✅ Correct: \`value: {"key": "val"}\` (stored as object)
-- **Validation**: Creating or updating JSON values enforces strict JSON validity checks.
+- **Automatic String Handling**: JSON tools automatically convert bare strings to valid JSON.
+  - ✅ \`value: "green"\` → stored as JSON string \`"green"\`
+  - ✅ \`value: 42\` → stored as number \`42\`
+  - ✅ \`value: {"key": "val"}\` → stored as object
+  - ✅ \`value: "[1,2,3]"\` → stored as array (already valid JSON)
+- **Validation**: Creating or updating JSON values enforces JSON validity after auto-conversion.
 
 ## Transactions & Safety (\`mysql_transaction_*\`)
 

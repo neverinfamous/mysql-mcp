@@ -27,12 +27,10 @@ function createMockTokenValidator(
   overrides: Partial<TokenValidator> = {},
 ): TokenValidator {
   return {
-    validate: vi
-      .fn()
-      .mockResolvedValue({
-        valid: true,
-        claims: { sub: "user1", scopes: ["read", "write"], exp: 0, iat: 0 },
-      }),
+    validate: vi.fn().mockResolvedValue({
+      valid: true,
+      claims: { sub: "user1", scopes: ["read", "write"], exp: 0, iat: 0 },
+    }),
     invalidateCache: vi.fn(),
     ...overrides,
   } as unknown as TokenValidator;

@@ -83,10 +83,22 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateIdentifier(idColumn, "column");
 
+      // Normalize value to valid JSON (bare strings get wrapped automatically)
+      let jsonValue: string;
+      if (typeof value === "string") {
+        try {
+          JSON.parse(value);
+          jsonValue = value;
+        } catch {
+          // Bare string - wrap it as a JSON string
+          jsonValue = JSON.stringify(value);
+        }
+      } else {
+        jsonValue = JSON.stringify(value);
+      }
+
       // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
       const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE \`${idColumn}\` = ?`;
-      const jsonValue =
-        typeof value === "string" ? value : JSON.stringify(value);
 
       const result = await adapter.executeWriteQuery(sql, [
         path,

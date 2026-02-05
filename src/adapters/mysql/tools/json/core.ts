@@ -28,15 +28,23 @@ import {
  * Export all core JSON tool creation functions
  */
 
+/**
+ * Validate and normalize a value for JSON storage.
+ * - If the value is already valid JSON string representation, return as-is
+ * - If the value is a bare string (not valid JSON), auto-wrap it as a JSON string
+ * - If the value is any other type, serialize it to JSON
+ *
+ * This makes the MCP interface more user-friendly by accepting bare strings
+ * like "article" and automatically converting them to JSON strings '"article"'.
+ */
 function validateJsonString(value: unknown): string {
   if (typeof value === "string") {
     try {
       JSON.parse(value);
       return value;
     } catch {
-      throw new Error(
-        `Invalid JSON value. To store a string/text, it must be quoted (e.g., '"my_string"'). Value provided: ${value}`,
-      );
+      // Bare string - wrap it as a JSON string
+      return JSON.stringify(value);
     }
   }
   return JSON.stringify(value);
