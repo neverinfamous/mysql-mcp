@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`mysql_fulltext_drop`** — New tool for dropping FULLTEXT indexes, providing symmetry with `mysql_fulltext_create`.
+
 ### Fixed
 
 - **JSON Tools Auto-Quoting** — JSON tools (`mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_contains`, `mysql_json_array_append`, `mysql_json_update`) now automatically wrap bare strings as valid JSON. Previously, passing `value: "green"` would fail with "Invalid JSON value" requiring escaped quotes like `value: "\"green\""`. Now bare strings are auto-converted, making the MCP interface more user-friendly.
@@ -15,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Fulltext Tools Minimal Payload (P137)** — All 4 fulltext search tools (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) now return only `id`, searched column(s), and `relevance` instead of all columns. This significantly reduces response payload size.
+- **Fulltext Server Instructions** — Added comprehensive fulltext section documenting index management, search modes, boolean operators, query expansion, and minimal output format.
 - **Text Tools Minimal Payload** — All 6 text tools (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`) now return only `id`, target column(s), and computed result instead of all columns. This significantly reduces response payload size.
 - **Server Instructions** — Added Text Tools section documenting LIKE patterns, regex syntax, SOUNDEX usage, WHERE clause support, and minimal output format.
 - **Node.js 24 LTS Baseline** — Upgraded from Node 20 to Node 24 (current LTS) across Dockerfile, CI workflows, and package.json engines for high-fidelity production security.

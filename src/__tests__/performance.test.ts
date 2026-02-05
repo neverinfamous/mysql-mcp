@@ -15,7 +15,7 @@ describe("Performance Benchmarks", () => {
       let callCount = 0;
       const generateTools = () => {
         callCount++;
-        return Array.from({ length: 191 }, (_, i) => ({
+        return Array.from({ length: 192 }, (_, i) => ({
           name: `tool_${String(i)}`,
           description: `Tool ${String(i)} description`,
         }));
@@ -50,7 +50,7 @@ describe("Performance Benchmarks", () => {
         transactions: 7,
         json: 17,
         text: 6,
-        fulltext: 4,
+        fulltext: 5,
         performance: 8,
         optimization: 4,
         admin: 6,
@@ -73,7 +73,7 @@ describe("Performance Benchmarks", () => {
       };
 
       const total = Object.values(toolGroups).reduce((a, b) => a + b, 0);
-      expect(total).toBe(191);
+      expect(total).toBe(192);
     });
   });
 

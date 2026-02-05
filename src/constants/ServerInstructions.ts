@@ -52,9 +52,14 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
   - ✅ Correct: \`filter: "name=Alice"\` (field=value format)
 - **Find Filters** (\`mysql_doc_find\`): The filter parameter checks for field existence using JSON path (e.g., \`$.address.zip\`).
 
-## Fulltext Search (\`mysql_fulltext_boolean\`)
+## Fulltext Search (\`mysql_fulltext_*\`)
 
-- Uses MySQL boolean operators: \`+word\` (AND), \`-word\` (NOT), \`word*\` (wildcard), \`> <\` (relevance weighting)
+- **Index management**: \`mysql_fulltext_create\` creates a FULLTEXT index, \`mysql_fulltext_drop\` removes it.
+- **Search modes**: \`mysql_fulltext_search\` supports NATURAL (default), BOOLEAN, and EXPANSION modes.
+- **Boolean operators** (\`mysql_fulltext_boolean\`): \`+word\` (required), \`-word\` (excluded), \`word*\` (prefix wildcard), \`>word\`/\`<word\` (relevance weighting).
+- **Query expansion** (\`mysql_fulltext_expand\`): Finds related terms - may return more rows than exact match.
+- **Minimal output**: Tools return only \`id\`, searched column(s), and \`relevance\` score.
+
 
 ## DDL Statements (\`mysql_write_query\`)
 

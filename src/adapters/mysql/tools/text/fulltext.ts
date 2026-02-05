@@ -2,7 +2,7 @@
  * MySQL Text Tools - Fulltext Search
  *
  * FULLTEXT search and indexing tools.
- * 4 tools: fulltext_create, fulltext_search, fulltext_boolean, fulltext_expand.
+ * 5 tools: fulltext_create, fulltext_drop, fulltext_search, fulltext_boolean, fulltext_expand.
  */
 
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
@@ -12,6 +12,11 @@ import type {
 } from "../../../../types/index.js";
 import { FulltextCreateSchema, FulltextSearchSchema } from "../../types.js";
 import { z } from "zod";
+import {
+  validateIdentifier,
+  validateQualifiedIdentifier,
+  escapeQualifiedTable,
+} from "../../../../utils/validators.js";
 
 export function createFulltextCreateTool(
   adapter: MySQLAdapter,
@@ -41,6 +46,38 @@ export function createFulltextCreateTool(
   };
 }
 
+const FulltextDropSchema = z.object({
+  table: z.string().describe("Table containing the index"),
+  indexName: z.string().describe("Name of the FULLTEXT index to drop"),
+});
+
+export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
+  return {
+    name: "mysql_fulltext_drop",
+    title: "MySQL Drop FULLTEXT Index",
+    description: "Drop a FULLTEXT index from a table.",
+    group: "fulltext",
+    inputSchema: FulltextDropSchema,
+    requiredScopes: ["write"],
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { table, indexName } = FulltextDropSchema.parse(params);
+
+      // Validate inputs
+      validateQualifiedIdentifier(table, "table");
+      validateIdentifier(indexName, "index");
+
+      const sql = `DROP INDEX \`${indexName}\` ON ${escapeQualifiedTable(table)}`;
+      await adapter.executeQuery(sql);
+
+      return { success: true, indexName, table };
+    },
+  };
+}
+
 export function createFulltextSearchTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
@@ -59,6 +96,12 @@ export function createFulltextSearchTool(
       const { table, columns, query, mode } =
         FulltextSearchSchema.parse(params);
 
+      // Validate inputs
+      validateQualifiedIdentifier(table, "table");
+      for (const col of columns) {
+        validateIdentifier(col, "column");
+      }
+
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
       let matchClause: string;
 
@@ -73,7 +116,8 @@ export function createFulltextSearchTool(
           matchClause = `MATCH(${columnList}) AGAINST(? IN NATURAL LANGUAGE MODE)`;
       }
 
-      const sql = `SELECT *, ${matchClause} as relevance FROM \`${table}\` WHERE ${matchClause} ORDER BY relevance DESC`;
+      // Return only id, searched columns, and relevance for minimal payload
+      const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
       const result = await adapter.executeReadQuery(sql, [query, query]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -105,10 +149,17 @@ export function createFulltextBooleanTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, columns, query } = schema.parse(params);
 
+      // Validate inputs
+      validateQualifiedIdentifier(table, "table");
+      for (const col of columns) {
+        validateIdentifier(col, "column");
+      }
+
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
       const matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
 
-      const sql = `SELECT *, ${matchClause} as relevance FROM \`${table}\` WHERE ${matchClause}`;
+      // Return only id, searched columns, and relevance for minimal payload
+      const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
       const result = await adapter.executeReadQuery(sql, [query, query]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -140,10 +191,17 @@ export function createFulltextExpandTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, columns, query } = schema.parse(params);
 
+      // Validate inputs
+      validateQualifiedIdentifier(table, "table");
+      for (const col of columns) {
+        validateIdentifier(col, "column");
+      }
+
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
       const matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
 
-      const sql = `SELECT *, ${matchClause} as relevance FROM \`${table}\` WHERE ${matchClause} ORDER BY relevance DESC`;
+      // Return only id, searched columns, and relevance for minimal payload
+      const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
       const result = await adapter.executeReadQuery(sql, [query, query]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };

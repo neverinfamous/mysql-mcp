@@ -51,6 +51,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
   ],
   fulltext: [
     "mysql_fulltext_create",
+    "mysql_fulltext_drop",
     "mysql_fulltext_search",
     "mysql_fulltext_boolean",
     "mysql_fulltext_expand",
@@ -263,14 +264,14 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  * Tool counts (verified):
  *   starter:       38
  *   essential:     15
- *   dev-power:     45 (core:8 + schema:10 + performance:8 + stats:8 + fulltext:4 + transactions:7)
- *   ai-data:       44 (core:8 + json:17 + docstore:9 + text:6 + fulltext:4)
+ *   dev-power:     46 (core:8 + schema:10 + performance:8 + stats:8 + fulltext:5 + transactions:7)
+ *   ai-data:       45 (core:8 + json:17 + docstore:9 + text:6 + fulltext:5)
  *   ai-spatial:    43 (core:8 + spatial:12 + stats:8 + performance:8 + transactions:7)
  *   dba-monitor:   35 (core:8 + monitoring:7 + performance:8 + sysschema:8 + optimization:4)
  *   dba-manage:    33 (core:8 + admin:6 + backup:4 + replication:5 + partitioning:4 + events:6)
  *   dba-secure:    42 (core:8 + security:9 + roles:8 + cluster:10 + transactions:7)
  *   base-core:     48 (core:8 + json:17 + transactions:7 + text:6 + schema:10)
- *   base-advanced: 39 (docstore:9 + spatial:12 + stats:8 + fulltext:4 + events:6)
+ *   base-advanced: 40 (docstore:9 + spatial:12 + stats:8 + fulltext:5 + events:6)
  *   ecosystem:     31
  */
 export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {

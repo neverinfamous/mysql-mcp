@@ -2,7 +2,7 @@
  * MySQL Text & Fulltext Tools
  *
  * Text processing and FULLTEXT search operations.
- * 10 tools total (6 text + 4 fulltext).
+ * 11 tools total (6 text + 5 fulltext).
  */
 
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
@@ -20,6 +20,7 @@ import {
 
 import {
   createFulltextCreateTool,
+  createFulltextDropTool,
   createFulltextSearchTool,
   createFulltextBooleanTool,
   createFulltextExpandTool,
@@ -45,6 +46,7 @@ export function getTextTools(adapter: MySQLAdapter): ToolDefinition[] {
 export function getFulltextTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
     createFulltextCreateTool(adapter),
+    createFulltextDropTool(adapter),
     createFulltextSearchTool(adapter),
     createFulltextBooleanTool(adapter),
     createFulltextExpandTool(adapter),
