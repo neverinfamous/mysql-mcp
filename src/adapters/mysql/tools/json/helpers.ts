@@ -48,10 +48,29 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateIdentifier(idColumn, "column");
 
-      const sql = `SELECT JSON_UNQUOTE(JSON_EXTRACT(\`${column}\`, ?)) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
+      const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
       const result = await adapter.executeReadQuery(sql, [path, id]);
 
-      return { value: result.rows?.[0]?.["value"] };
+      const rawValue = result.rows?.[0]?.["value"];
+      // Parse JSON value for consistency with mysql_json_extract
+      // Return null for missing paths, parse objects/arrays, return primitives as-is
+      if (rawValue === null || rawValue === undefined) {
+        return { value: null };
+      }
+      // If result is already an object (MySQL driver parsed it), return as-is
+      if (typeof rawValue === "object") {
+        return { value: rawValue };
+      }
+      // Try to parse string values as JSON
+      if (typeof rawValue === "string") {
+        try {
+          return { value: JSON.parse(rawValue) as unknown };
+        } catch {
+          // Return unquoted string for primitive string values
+          return { value: rawValue };
+        }
+      }
+      return { value: rawValue };
     },
   };
 }
@@ -158,11 +177,19 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { value } = JsonValidateSchema.parse(params);
 
-      const sql = `SELECT JSON_VALID(?) as is_valid`;
-      const result = await adapter.executeReadQuery(sql, [value]);
+      try {
+        const sql = `SELECT JSON_VALID(?) as is_valid`;
+        const result = await adapter.executeReadQuery(sql, [value]);
 
-      const isValid = result.rows?.[0]?.["is_valid"] === 1;
-      return { valid: isValid };
+        const isValid = result.rows?.[0]?.["is_valid"] === 1;
+        return { valid: isValid };
+      } catch (error) {
+        // MySQL may throw an error for severely malformed input
+        // Return a structured error response instead of propagating
+        const message =
+          error instanceof Error ? error.message : "Unknown validation error";
+        return { valid: false, error: message };
+      }
     },
   };
 }
