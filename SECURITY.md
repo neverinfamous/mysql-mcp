@@ -33,14 +33,6 @@ When connecting to MySQL Router's REST API with self-signed certificates, set `M
 - **CodeQL** - Static analysis for code vulnerabilities
 - **Dependabot** - Automated dependency updates
 
-## Vulnerability Remediation History
-
-| Date | CVE | Package | Severity | Fixed In |
-|------|-----|---------|----------|----------|
-| 2025-12-13 | CVE-2024-21538 | cross-spawn | High (7.7) | v1.0.0 - npm upgrade |
-| 2025-12-13 | CVE-2025-64756 | glob | High (7.5) | v1.0.0 - npm upgrade |
-| 2025-12-13 | CVE-2025-5889 | brace-expansion | Low (1.3) | v1.0.0 - npm upgrade |
-
 ## Reporting a Vulnerability
 
 We take security vulnerabilities seriously. If you discover a security issue, please follow these steps:

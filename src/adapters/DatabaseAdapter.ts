@@ -172,7 +172,7 @@ export abstract class DatabaseAdapter {
      * Register a single tool with the MCP server
      */
     protected registerTool(server: McpServer, tool: ToolDefinition): void {
-        // MCP SDK server.tool() registration
+        // MCP SDK server.registerTool() registration
         // Build MCP tool options with annotations (MCP Spec 2025-11-25)
         const toolOptions: Record<string, unknown> = {
             description: tool.description,
