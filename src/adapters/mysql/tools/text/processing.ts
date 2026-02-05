@@ -42,7 +42,8 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      const sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+      // Return only id and matched column for minimal payload
+      const sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
       const result = await adapter.executeReadQuery(sql, [pattern]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -70,7 +71,8 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      const sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+      // Return only id and matched column for minimal payload
+      const sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
       const result = await adapter.executeReadQuery(sql, [pattern]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -97,7 +99,8 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      const sql = `SELECT *, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+      // Return only id, matched column, and soundex value for minimal payload
+      const sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
       const result = await adapter.executeReadQuery(sql, [value]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -138,7 +141,8 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
           ? `SUBSTRING(\`${column}\`, ?, ?)`
           : `SUBSTRING(\`${column}\`, ?)`;
 
-      let sql = `SELECT *, ${substringExpr} as substring_value FROM ${escapeQualifiedTable(table)}`;
+      // Return only id, source column, and substring result for minimal payload
+      let sql = `SELECT id, \`${column}\`, ${substringExpr} as substring_value FROM ${escapeQualifiedTable(table)}`;
       const queryParams: unknown[] =
         length !== undefined ? [start, length] : [start];
 
@@ -194,7 +198,9 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
       const concatExpr = `CONCAT_WS(?, ${columnList})`;
 
-      let sql = `SELECT *, ${concatExpr} as \`${alias}\` FROM ${escapeQualifiedTable(table)}`;
+      // Return only id, source columns, and concatenated result for minimal payload
+      const sourceColumns = columns.map((c) => `\`${c}\``).join(", ");
+      let sql = `SELECT id, ${sourceColumns}, ${concatExpr} as \`${alias}\` FROM ${escapeQualifiedTable(table)}`;
       const queryParams: unknown[] = [separator];
 
       if (where !== undefined) {
@@ -250,7 +256,8 @@ export function createCollationConvertTool(
         convertExpr = `${convertExpr} COLLATE ${collation}`;
       }
 
-      let sql = `SELECT *, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
+      // Return only id, source column, and converted result for minimal payload
+      let sql = `SELECT id, \`${column}\`, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
 
       if (where !== undefined) {
         sql += ` WHERE ${where}`;

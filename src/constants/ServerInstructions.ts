@@ -92,6 +92,14 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
   - ✅ Example: \`{ longitude: -122.4194, latitude: 37.7749 }\` for San Francisco
   - MySQL 8.0+ uses EPSG standard axis order (latitude, longitude) internally for SRID 4326, but tools handle this conversion automatically using \`axis-order=long-lat\` option.
 - **SRID 4326**: Default spatial reference system is WGS 84 (GPS coordinates). Use \`srid\` parameter to specify other coordinate systems.
+
+## Text Tools (\`mysql_like_search\`, \`mysql_regexp_match\`, etc.)
+
+- **LIKE patterns**: \`%\` matches any characters, \`_\` matches single character.
+- **Regex**: Uses MySQL regex syntax (not PCRE). Example: \`^[A-Z].*@.*\\.com$\`
+- **SOUNDEX**: Finds phonetically similar values - useful for fuzzy name matching with typos.
+- **WHERE clause**: All text tools support optional \`where\` parameter to filter rows.
+- **Minimal output**: Tools return only \`id\`, target column(s), and computed result.
 `;
 
 /**
