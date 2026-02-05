@@ -5,8 +5,12 @@
  * providing guidance for AI agents on tool usage.
  */
 
-import type { ToolGroup, ResourceDefinition, PromptDefinition } from '../types/index.js';
-import { TOOL_GROUPS } from '../filtering/ToolConstants.js';
+import type {
+  ToolGroup,
+  ResourceDefinition,
+  PromptDefinition,
+} from "../types/index.js";
+import { TOOL_GROUPS } from "../filtering/ToolConstants.js";
 
 /**
  * Base instructions that are always included
@@ -94,62 +98,67 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
  * Generate dynamic instructions based on enabled tools, resources, and prompts
  */
 export function generateInstructions(
-    enabledTools: Set<string>,
-    resources: ResourceDefinition[],
-    prompts: PromptDefinition[]
+  enabledTools: Set<string>,
+  resources: ResourceDefinition[],
+  prompts: PromptDefinition[],
 ): string {
-    let instructions = BASE_INSTRUCTIONS;
+  let instructions = BASE_INSTRUCTIONS;
 
-    // Add active tools section
-    const activeGroups = getActiveToolGroups(enabledTools);
-    if (activeGroups.length > 0) {
-        instructions += '\n## Active Tools\n\n';
-        instructions += `This server instance has ${enabledTools.size} tools enabled across ${activeGroups.length} groups:\n\n`;
-        
-        for (const { group, tools } of activeGroups) {
-            instructions += `### ${group} (${tools.length} tools)\n`;
-            instructions += tools.map(t => `- \`${t}\``).join('\n');
-            instructions += '\n\n';
-        }
+  // Add active tools section
+  const activeGroups = getActiveToolGroups(enabledTools);
+  if (activeGroups.length > 0) {
+    instructions += "\n## Active Tools\n\n";
+    instructions += `This server instance has ${enabledTools.size} tools enabled across ${activeGroups.length} groups:\n\n`;
+
+    for (const { group, tools } of activeGroups) {
+      instructions += `### ${group} (${tools.length} tools)\n`;
+      instructions += tools.map((t) => `- \`${t}\``).join("\n");
+      instructions += "\n\n";
     }
+  }
 
-    // Add resources section
-    if (resources.length > 0) {
-        instructions += `## Active Resources (${resources.length})\n\n`;
-        instructions += 'Read-only resources for database metadata:\n\n';
-        for (const resource of resources) {
-            instructions += `- \`${resource.uri}\` - ${resource.description}\n`;
-        }
-        instructions += '\n';
+  // Add resources section
+  if (resources.length > 0) {
+    instructions += `## Active Resources (${resources.length})\n\n`;
+    instructions += "Read-only resources for database metadata:\n\n";
+    for (const resource of resources) {
+      instructions += `- \`${resource.uri}\` - ${resource.description}\n`;
     }
+    instructions += "\n";
+  }
 
-    // Add prompts section
-    if (prompts.length > 0) {
-        instructions += `## Active Prompts (${prompts.length})\n\n`;
-        instructions += 'Pre-built query templates and guided workflows:\n\n';
-        for (const prompt of prompts) {
-            instructions += `- \`${prompt.name}\` - ${prompt.description}\n`;
-        }
-        instructions += '\n';
+  // Add prompts section
+  if (prompts.length > 0) {
+    instructions += `## Active Prompts (${prompts.length})\n\n`;
+    instructions += "Pre-built query templates and guided workflows:\n\n";
+    for (const prompt of prompts) {
+      instructions += `- \`${prompt.name}\` - ${prompt.description}\n`;
     }
+    instructions += "\n";
+  }
 
-    return instructions;
+  return instructions;
 }
 
 /**
  * Get active tool groups with their enabled tools
  */
-function getActiveToolGroups(enabledTools: Set<string>): { group: ToolGroup; tools: string[] }[] {
-    const activeGroups: { group: ToolGroup; tools: string[] }[] = [];
-    
-    for (const [group, allTools] of Object.entries(TOOL_GROUPS) as [ToolGroup, string[]][]) {
-        const enabledInGroup = allTools.filter(tool => enabledTools.has(tool));
-        if (enabledInGroup.length > 0) {
-            activeGroups.push({ group, tools: enabledInGroup });
-        }
+function getActiveToolGroups(
+  enabledTools: Set<string>,
+): { group: ToolGroup; tools: string[] }[] {
+  const activeGroups: { group: ToolGroup; tools: string[] }[] = [];
+
+  for (const [group, allTools] of Object.entries(TOOL_GROUPS) as [
+    ToolGroup,
+    string[],
+  ][]) {
+    const enabledInGroup = allTools.filter((tool) => enabledTools.has(tool));
+    if (enabledInGroup.length > 0) {
+      activeGroups.push({ group, tools: enabledInGroup });
     }
-    
-    return activeGroups;
+  }
+
+  return activeGroups;
 }
 
 /**

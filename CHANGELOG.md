@@ -8,29 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - **Node.js 24 LTS Baseline** — Upgraded from Node 20 to Node 24 (current LTS) across Dockerfile, CI workflows, and package.json engines for high-fidelity production security.
 - **Docker Workflow: Explicit CodeQL Gating** — Docker image publishing now depends on both `quality-gate` and `codeql` jobs, ensuring security regressions block deployments.
-- **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/*), `eslint` (eslint, @eslint/*, typescript-eslint, globals), and `types` (@types/*) to prevent peer dependency fragmentation.
+- **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/_), `eslint` (eslint, @eslint/_, typescript-eslint, globals), and `types` (@types/\*) to prevent peer dependency fragmentation.
 
 ### Dependencies
-- Bumped `@modelcontextprotocol/sdk` from `^1.25.2` to `^1.25.3`
-- Bumped `@types/node` from `^25.0.8` to `^25.0.10`
+
+- Bumped `@modelcontextprotocol/sdk` from `^1.25.2` to `^1.26.0`
+- Bumped `@types/node` from `^25.0.8` to `^25.2.1`
 - Bumped `@vitest/coverage-v8` from `^4.0.17` to `^4.0.18`
+- Bumped `commander` from `^14.0.2` to `^14.0.3`
 - Bumped `cors` from `^2.8.5` to `^2.8.6`
-- Bumped `globals` from `^17.0.0` to `^17.1.0`
-- Bumped `mysql2` from `^3.16.0` to `^3.16.1`
-- Bumped `typescript-eslint` from `^8.53.0` to `^8.53.1`
+- Bumped `globals` from `^17.0.0` to `^17.3.0`
+- Bumped `mysql2` from `^3.16.0` to `^3.16.3`
+- Bumped `typescript-eslint` from `^8.53.0` to `^8.54.0`
 - Bumped `vitest` from `^4.0.17` to `^4.0.18`
 - Bumped `zod` from `^4.3.5` to `^4.3.6`
 
 ### Security
+
 - **CVE Fix: hono JWT Algorithm Confusion** — Updated transitive dependency `hono` to 4.11.4 to fix GHSA-f67f-6cw9-8mq4 (JWT algorithm confusion allowing token forgery and auth bypass when JWK lacks "alg" field).
 
 ## [2.1.0] - 2026-01-03
 
 ### Fixed
+
 - **Document Store Filter Tools** — Fixed `mysql_doc_modify` and `mysql_doc_remove` failing with "Invalid JSON path expression" error. These tools previously only supported JSON path existence checks but users expected value-based filtering. Added `parseDocFilter()` function supporting three filter formats:
-  - **By _id**: Direct 32-char hex string (e.g., `bbc83181703d43e68ffad119c4bbbfde`)
+  - **By \_id**: Direct 32-char hex string (e.g., `bbc83181703d43e68ffad119c4bbbfde`)
   - **By field=value**: Simple equality (e.g., `name=Alice`, `age=30`)
   - **By JSON path existence**: Path starting with `$` (e.g., `$.address`)
   - Now uses parameterized queries for SQL injection protection.
@@ -43,24 +48,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MySQL Shell Export Table** — Removed unsupported `columns` option from `mysqlsh_export_table` (not supported by `util.exportTable()` in MySQL Shell 9.x).
 
 ### Removed
+
 - **Jupyter Quickstart Notebook** — Removed `examples/notebooks/quickstart.ipynb` and the `examples/` directory. The notebook had kernel instability issues on Windows (ZMQ socket errors causing kernel restarts during MCP subprocess communication). Usage instructions are now provided to AI agents automatically via the MCP protocol's `instructions` capability.
 
 ### Changed
+
 - **Server Instructions** — Added document store filter syntax documentation with examples for `mysql_doc_modify` and `mysql_doc_remove`. Added spatial tools section documenting coordinate order behavior and MySQL 8.0+ EPSG standard handling with `axis-order=long-lat` option.
 
 ### Added
+
 - **`mysqlsh_import_table` / `mysqlsh_load_dump` — `updateServerSettings` parameter** — New boolean option to automatically enable `local_infile` on the server before import/load operations. Requires SUPER or SYSTEM_VARIABLES_ADMIN privilege.
 - **`mysqlsh_dump_schemas` — `ddlOnly` parameter** — New boolean option to dump only DDL (schema structure) without events, triggers, or routines. Useful when the user lacks EVENT or TRIGGER privileges.
 - **`mysqlsh_dump_tables` — `all` parameter** — New boolean option (default: false) to control whether triggers are included in the dump. Set to `false` to skip triggers when lacking TRIGGER privilege.
 
 ### Changed
+
 - **Partitioning Schema Descriptions** — Improved `value` parameter descriptions in `AddPartitionSchema` and `ReorganizePartitionSchema` to clarify that only boundary values should be provided (e.g., `"2024"`), not full SQL clauses (e.g., `"LESS THAN (2024)"`).
 - **Server Instructions** — Added partitioning tools section with usage guidance and examples to prevent common parameter format errors.
 
 ### Added
+
 - **Server Instructions** — Usage instructions are now automatically provided to AI agents via the MCP protocol's `instructions` capability during server initialization. See [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts).
 
 ### Testing
+
 - **Branch Coverage Improvements** — Added 112 new tests targeting uncovered branches across multiple modules:
   - **CLI** — Tests for `canSkipMySQLConnection()` covering router-only, proxysql-only, shell-only, ecosystem shortcut, shortcuts requiring MySQL, exclusion-only filters, and placeholder adapter registration
   - **Shell Types** — 100% branch coverage for `booleanCoerce` preprocessor across all shell input schemas
@@ -72,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Overall Coverage** — Branch coverage improved from ~83% to ~86%, with 1590 tests passing across 101 test files
 
 ### Performance
+
 - **Native MCP Logging** — Upgraded to MCP SDK v1.25.1 which provides native logging capabilities via `server.sendLoggingMessage()`, eliminating the need for custom stderr-based logging infrastructure
 - **Parallelized Health Queries** — Health resource now executes status and max_connections queries concurrently using `Promise.all()`
 - **Batched Index Queries** — `SchemaManager.getSchema()` now fetches all indexes in a single query
@@ -86,11 +98,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - N+1 to batch query improvement verification
 
 ### Changed
+
 - **Logger Test Updates** — Updated logger tests to match RFC 5424 severity levels:
   - `warn` → `warning` level naming
   - Updated format assertions to match `[LEVEL]` structured format (e.g., `[WARNING]`, `[DEBUG]`)
 
 ### Added
+
 - **SchemaManager Cache Tests** — Added tests for cache TTL expiration, cache invalidation, and schema-qualified table name handling in `getTableIndexes()`
 - **Logger Coverage Improvements** — Added 30+ tests covering:
   - `setLoggerName()`, `getLoggerName()`, `setDefaultModule()` configuration methods
@@ -209,7 +223,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Caching validation for `getAllToolNames()` and `parseToolFilter()`
   - Filter performance tests for complex filter chains (-base,-ecosystem,+starter)
 
-
 ### Changed
 
 - **Code Organization - Modular Refactoring** - Improved code maintainability by refactoring large monolithic tool files (500+ lines) into focused, modular directory structures:
@@ -240,6 +253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `clearToolFilterCaches()` export for testing purposes
 
 ### Fixed
+
 - **Test Integrity** - Resolved false coverage reports by refactoring `spatial` tests to target actual modular files (`tools/spatial/index.ts`) instead of legacy code.
 - **Server Testing** - Added missing test coverage for `McpServer` HTTP/SSE transport startup, OAuth configuration, and error handling.
 - **Legacy Cleanup** - Removed unused legacy `spatial.ts` file.
@@ -263,34 +277,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **85 New Tools** for comprehensive MySQL 8.0 coverage (106 → 191 tools total):
-  
+
   **Schema Management (10 tools)** - `schema` group:
   - `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_views`, `mysql_create_view`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_triggers`, `mysql_list_constraints`, `mysql_list_events`
-  
+
   **Event Scheduler (6 tools)** - `events` group:
   - `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status`
-  
+
   **sys Schema Diagnostics (8 tools)** - `sysschema` group:
   - `mysql_sys_user_summary`, `mysql_sys_io_summary`, `mysql_sys_statement_summary`, `mysql_sys_wait_summary`, `mysql_sys_innodb_lock_waits`, `mysql_sys_schema_stats`, `mysql_sys_host_summary`, `mysql_sys_memory_summary`
-  
+
   **Statistical Analysis (8 tools)** - `stats` group:
   - `mysql_stats_descriptive`, `mysql_stats_percentiles`, `mysql_stats_correlation`, `mysql_stats_distribution`, `mysql_stats_time_series`, `mysql_stats_regression`, `mysql_stats_sampling`, `mysql_stats_histogram`
-  
+
   **Spatial/GIS (12 tools)** - `spatial` group:
   - `mysql_spatial_create_column`, `mysql_spatial_create_index`, `mysql_spatial_point`, `mysql_spatial_polygon`, `mysql_spatial_distance`, `mysql_spatial_distance_sphere`, `mysql_spatial_contains`, `mysql_spatial_within`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, `mysql_spatial_geojson`
-  
+
   **Security (9 tools)** - `security` group:
   - `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security_firewall_rules`, `mysql_security_mask_data`, `mysql_security_password_validate`, `mysql_security_ssl_status`, `mysql_security_user_privileges`, `mysql_security_sensitive_tables`, `mysql_security_encryption_status`
-  
+
   **Group Replication & InnoDB Cluster (10 tools)** - `cluster` group:
   - `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_status`, `mysql_cluster_instances`, `mysql_cluster_topology`, `mysql_cluster_router_status`, `mysql_cluster_switchover`
-  
+
   **Role Management (8 tools)** - `roles` group:
   - `mysql_role_list`, `mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`
-  
+
   **Document Store (9 tools)** - `docstore` group:
   - `mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, `mysql_doc_find`, `mysql_doc_add`, `mysql_doc_modify`, `mysql_doc_remove`, `mysql_doc_create_index`, `mysql_doc_collection_info`
-  
+
   **Enhanced JSON (5 tools)** - added to `json` group (12 → 17):
   - `mysql_json_merge`, `mysql_json_diff`, `mysql_json_normalize`, `mysql_json_stats`, `mysql_json_index_suggest`
 
@@ -321,6 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README updated with new tool groups and meta-groups
 
 ### Fixed
+
 - **`ai` meta-group now implemented** - Previously documented in v1.1.0 changelog but missing from code. Now fully functional with 77 tools for AI/ML workloads (JSON, Document Store, spatial, statistics)
 - **Tool count accuracy** - Corrected all tool counts in README:
   - `starter`: 38 tools (was ~33)
@@ -330,13 +345,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **README improvements** - Rewrote Tool Filtering section with beginner-friendly explanations, step-by-step filter examples, and syntax reference table
 
 ### Changed
+
 - Updated `MetaGroup` type in `types/index.ts` to include `ai`
 - Added detailed tool count comments in `ToolFilter.ts`
 
 ### Added - Documentation
+
 - **MCP Inspector Usage Guide** - Added documentation in README and Wiki for using MCP Inspector to visually test and debug mysql-mcp servers ([Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/MCP-Inspector))
 
 ### Added - Testing
+
 - **Comprehensive Test Suite** - 1168 tests across 54 test files (>95% global statement coverage)
 - [x] Fix remaining test failures
 - [x] Achieve 90% test coverage with meaningful tests
@@ -407,10 +425,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `performance` tools (coverage for analysis and optimization)
   - Resources: `docstore`, `events`, `status`, `variables`, `indexes`, `locks` (now comprehensively tested)
 
-
 ## [1.0.0] - 2025-12-13
 
 ### Added
+
 - **MySQL Router Support** - 9 new tools for monitoring MySQL Router via REST API
   - `mysql_router_status` - Get Router process status and version
   - `mysql_router_routes` - List all configured routes
@@ -419,8 +437,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `mysql_router_route_connections` - List active connections on route
   - `mysql_router_route_destinations` - List backend MySQL server destinations
   - `mysql_router_route_blocked_hosts` - List blocked IP addresses for a route
-  - `mysql_router_metadata_status` - InnoDB Cluster metadata cache status *(requires InnoDB Cluster)*
-  - `mysql_router_pool_status` - Connection pool statistics *(requires InnoDB Cluster)*
+  - `mysql_router_metadata_status` - InnoDB Cluster metadata cache status _(requires InnoDB Cluster)_
+  - `mysql_router_pool_status` - Connection pool statistics _(requires InnoDB Cluster)_
 - New `router` tool group for filtering Router tools
 - Router REST API configuration via environment variables
 - Comprehensive Router setup documentation in README
@@ -432,7 +450,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `proxysql_query_digest` - Get query digest statistics (top queries)
   - `proxysql_connection_pool` - Get connection pool statistics per server
   - `proxysql_users` - List configured MySQL users
-  - `proxysql_global_variables` - Get global variables (mysql-* and admin-*)
+  - `proxysql_global_variables` - Get global variables (mysql-_ and admin-_)
   - `proxysql_runtime_status` - Get runtime configuration status
   - `proxysql_memory_stats` - Get memory usage metrics
   - `proxysql_commands` - Execute LOAD/SAVE admin commands
@@ -456,17 +474,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive MySQL Shell setup documentation in README
 
 ### Changed
+
 - Total tools increased from 75 to 106
 - Tool groups increased from 12 to 15
 - Updated `.env.example` with Router and ProxySQL configuration templates
 - Updated minimal preset to exclude Router, ProxySQL, and Shell tools by default
 
 ### Fixed
+
 - **Prompt Parameter Passing** - Fixed issue where prompt arguments showed `undefined` instead of actual values. Prompts now properly pass arguments from MCP clients to handlers.
 
 ## [0.1.0] - 2025-12-13
 
 ### Added
+
 - **84 MySQL tools** across 13 categories
 - **4 AI-Powered Prompts** for guided MySQL workflows:
   - `mysql_query_builder` - Help construct SQL queries with security best practices
@@ -494,6 +515,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation and examples
 
 ### Security
+
 - SQL injection prevention via parameterized queries
 - OAuth 2.0 scope-based access control
 - Environment variable configuration for sensitive data

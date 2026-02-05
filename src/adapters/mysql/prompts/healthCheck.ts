@@ -1,24 +1,29 @@
 /**
  * MySQL Prompt - Database Health Check
- * 
+ *
  * Guides user through comprehensive database health assessment.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createDatabaseHealthCheckPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_database_health_check',
-        description: 'Comprehensive database health assessment workflow',
-        arguments: [
-            { name: 'focus', description: 'Optional focus area: connections, performance, replication, storage', required: false }
-        ],
-        handler: (args: Record<string, string>, _context: RequestContext) => {
-            const focus = args['focus'] ?? 'all';
+  return {
+    name: "mysql_database_health_check",
+    description: "Comprehensive database health assessment workflow",
+    arguments: [
+      {
+        name: "focus",
+        description:
+          "Optional focus area: connections, performance, replication, storage",
+        required: false,
+      },
+    ],
+    handler: (args: Record<string, string>, _context: RequestContext) => {
+      const focus = args["focus"] ?? "all";
 
-            return Promise.resolve(`# MySQL Database Health Check
+      return Promise.resolve(`# MySQL Database Health Check
 
 Perform a comprehensive health assessment for this MySQL database.
-${focus !== 'all' ? `**Focus area:** ${focus}` : ''}
+${focus !== "all" ? `**Focus area:** ${focus}` : ""}
 
 ## Step 1: Check Connection Health
 Use \`mysql://health\` resource or \`mysql_pool_stats\` tool to verify:
@@ -51,6 +56,6 @@ Based on findings, provide:
 3. Maintenance tasks to schedule
 
 Please proceed with the health check and report findings.`);
-        }
-    };
+    },
+  };
 }

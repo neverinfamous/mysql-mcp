@@ -1,37 +1,46 @@
 /**
  * MySQL Comparative and Advanced Statistics Tools
- * 
+ *
  * Tools for advanced statistical analysis: correlation, regression, and histogram.
  * 3 tools total.
  */
 
-import { z } from 'zod';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
-import type { ToolDefinition, RequestContext } from '../../../../types/index.js';
+import { z } from "zod";
+import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 
 // =============================================================================
 // Schemas
 // =============================================================================
 
 const CorrelationSchema = z.object({
-    table: z.string().describe('Table name'),
-    column1: z.string().describe('First numeric column'),
-    column2: z.string().describe('Second numeric column'),
-    where: z.string().optional().describe('Optional WHERE clause condition')
+  table: z.string().describe("Table name"),
+  column1: z.string().describe("First numeric column"),
+  column2: z.string().describe("Second numeric column"),
+  where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const RegressionSchema = z.object({
-    table: z.string().describe('Table name'),
-    xColumn: z.string().describe('Independent variable column'),
-    yColumn: z.string().describe('Dependent variable column'),
-    where: z.string().optional().describe('Optional WHERE clause condition')
+  table: z.string().describe("Table name"),
+  xColumn: z.string().describe("Independent variable column"),
+  yColumn: z.string().describe("Dependent variable column"),
+  where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const HistogramSchema = z.object({
-    table: z.string().describe('Table name'),
-    column: z.string().describe('Column for histogram'),
-    buckets: z.number().default(16).describe('Number of histogram buckets (max 1024)'),
-    update: z.boolean().default(false).describe('Whether to create/update the histogram')
+  table: z.string().describe("Table name"),
+  column: z.string().describe("Column for histogram"),
+  buckets: z
+    .number()
+    .default(16)
+    .describe("Number of histogram buckets (max 1024)"),
+  update: z
+    .boolean()
+    .default(false)
+    .describe("Whether to create/update the histogram"),
 });
 
 // =============================================================================
@@ -42,32 +51,37 @@ const HistogramSchema = z.object({
  * Calculate correlation coefficient
  */
 export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_stats_correlation',
-        title: 'MySQL Correlation',
-        description: 'Calculate Pearson correlation coefficient between two numeric columns.',
-        group: 'stats',
-        inputSchema: CorrelationSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, column1, column2, where } = CorrelationSchema.parse(params);
+  return {
+    name: "mysql_stats_correlation",
+    title: "MySQL Correlation",
+    description:
+      "Calculate Pearson correlation coefficient between two numeric columns.",
+    group: "stats",
+    inputSchema: CorrelationSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { table, column1, column2, where } =
+        CorrelationSchema.parse(params);
 
-            // Validate identifiers
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-                throw new Error('Invalid table name');
-            }
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)) {
-                throw new Error('Invalid column name');
-            }
+      // Validate identifiers
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        throw new Error("Invalid table name");
+      }
+      if (
+        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
+        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
+      ) {
+        throw new Error("Invalid column name");
+      }
 
-            const whereClause = where ? `WHERE ${where}` : '';
+      const whereClause = where ? `WHERE ${where}` : "";
 
-            // Calculate Pearson correlation coefficient
-            const query = `
+      // Calculate Pearson correlation coefficient
+      const query = `
                 SELECT 
                     (COUNT(*) * SUM(\`${column1}\` * \`${column2}\`) - SUM(\`${column1}\`) * SUM(\`${column2}\`)) /
                     (SQRT(COUNT(*) * SUM(\`${column1}\` * \`${column1}\`) - SUM(\`${column1}\`) * SUM(\`${column1}\`)) *
@@ -82,69 +96,73 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
                 ${whereClause}
             `;
 
-            const result = await adapter.executeQuery(query);
-            const stats = result.rows?.[0];
+      const result = await adapter.executeQuery(query);
+      const stats = result.rows?.[0];
 
-            const correlation = stats?.['correlation'] as number | null;
-            let interpretation = 'N/A';
-            if (correlation !== null) {
-                const absCorr = Math.abs(correlation);
-                if (absCorr >= 0.9) interpretation = 'Very strong';
-                else if (absCorr >= 0.7) interpretation = 'Strong';
-                else if (absCorr >= 0.5) interpretation = 'Moderate';
-                else if (absCorr >= 0.3) interpretation = 'Weak';
-                else interpretation = 'Very weak / No correlation';
-            }
+      const correlation = stats?.["correlation"] as number | null;
+      let interpretation = "N/A";
+      if (correlation !== null) {
+        const absCorr = Math.abs(correlation);
+        if (absCorr >= 0.9) interpretation = "Very strong";
+        else if (absCorr >= 0.7) interpretation = "Strong";
+        else if (absCorr >= 0.5) interpretation = "Moderate";
+        else if (absCorr >= 0.3) interpretation = "Weak";
+        else interpretation = "Very weak / No correlation";
+      }
 
-            return {
-                column1,
-                column2,
-                correlation: correlation ?? null,
-                interpretation,
-                sampleSize: stats?.['sample_size'] ?? 0,
-                column1Stats: {
-                    mean: stats?.['mean_x'] ?? null,
-                    stddev: stats?.['std_x'] ?? null
-                },
-                column2Stats: {
-                    mean: stats?.['mean_y'] ?? null,
-                    stddev: stats?.['std_y'] ?? null
-                }
-            };
-        }
-    };
+      return {
+        column1,
+        column2,
+        correlation: correlation ?? null,
+        interpretation,
+        sampleSize: stats?.["sample_size"] ?? 0,
+        column1Stats: {
+          mean: stats?.["mean_x"] ?? null,
+          stddev: stats?.["std_x"] ?? null,
+        },
+        column2Stats: {
+          mean: stats?.["mean_y"] ?? null,
+          stddev: stats?.["std_y"] ?? null,
+        },
+      };
+    },
+  };
 }
 
 /**
  * Linear regression analysis
  */
 export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_stats_regression',
-        title: 'MySQL Linear Regression',
-        description: 'Perform simple linear regression analysis (y = mx + b) between two columns.',
-        group: 'stats',
-        inputSchema: RegressionSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, xColumn, yColumn, where } = RegressionSchema.parse(params);
+  return {
+    name: "mysql_stats_regression",
+    title: "MySQL Linear Regression",
+    description:
+      "Perform simple linear regression analysis (y = mx + b) between two columns.",
+    group: "stats",
+    inputSchema: RegressionSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { table, xColumn, yColumn, where } = RegressionSchema.parse(params);
 
-            // Validate identifiers
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-                throw new Error('Invalid table name');
-            }
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)) {
-                throw new Error('Invalid column name');
-            }
+      // Validate identifiers
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        throw new Error("Invalid table name");
+      }
+      if (
+        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
+        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
+      ) {
+        throw new Error("Invalid column name");
+      }
 
-            const whereClause = where ? `WHERE ${where}` : '';
+      const whereClause = where ? `WHERE ${where}` : "";
 
-            // Simpler approach for MySQL
-            const statsQuery = `
+      // Simpler approach for MySQL
+      const statsQuery = `
                 SELECT 
                     COUNT(*) as n,
                     AVG(\`${xColumn}\`) as avg_x,
@@ -158,81 +176,88 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                 ${whereClause}
             `;
 
-            const result = await adapter.executeQuery(statsQuery);
-            const stats = result.rows?.[0];
+      const result = await adapter.executeQuery(statsQuery);
+      const stats = result.rows?.[0];
 
-            if (!stats || (stats['n'] as number) < 2) {
-                return {
-                    error: 'Insufficient data points for regression (need at least 2)',
-                    sampleSize: stats?.['n'] ?? 0
-                };
-            }
+      if (!stats || (stats["n"] as number) < 2) {
+        return {
+          error: "Insufficient data points for regression (need at least 2)",
+          sampleSize: stats?.["n"] ?? 0,
+        };
+      }
 
-            const n = stats['n'] as number;
-            const sumX = stats['sum_x'] as number;
-            const sumY = stats['sum_y'] as number;
-            const sumXY = stats['sum_xy'] as number;
-            const sumX2 = stats['sum_x2'] as number;
-            const sumY2 = stats['sum_y2'] as number;
+      const n = stats["n"] as number;
+      const sumX = stats["sum_x"] as number;
+      const sumY = stats["sum_y"] as number;
+      const sumXY = stats["sum_xy"] as number;
+      const sumX2 = stats["sum_x2"] as number;
+      const sumY2 = stats["sum_y2"] as number;
 
-            // Calculate slope and intercept
-            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-            const intercept = (sumY - slope * sumX) / n;
+      // Calculate slope and intercept
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
 
-            // Calculate R-squared
-            const ssTotal = sumY2 - (sumY * sumY) / n;
-            const ssResidual = sumY2 - intercept * sumY - slope * sumXY;
-            const rSquared = ssTotal > 0 ? 1 - (ssResidual / ssTotal) : 0;
+      // Calculate R-squared
+      const ssTotal = sumY2 - (sumY * sumY) / n;
+      const ssResidual = sumY2 - intercept * sumY - slope * sumXY;
+      const rSquared = ssTotal > 0 ? 1 - ssResidual / ssTotal : 0;
 
-            return {
-                xColumn,
-                yColumn,
-                sampleSize: n,
-                slope: isNaN(slope) ? null : slope,
-                intercept: isNaN(intercept) ? null : intercept,
-                rSquared: isNaN(rSquared) ? null : rSquared,
-                equation: isNaN(slope) ? null : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
-                interpretation: rSquared >= 0.7 ? 'Good fit' : rSquared >= 0.5 ? 'Moderate fit' : 'Poor fit'
-            };
-        }
-    };
+      return {
+        xColumn,
+        yColumn,
+        sampleSize: n,
+        slope: isNaN(slope) ? null : slope,
+        intercept: isNaN(intercept) ? null : intercept,
+        rSquared: isNaN(rSquared) ? null : rSquared,
+        equation: isNaN(slope)
+          ? null
+          : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
+        interpretation:
+          rSquared >= 0.7
+            ? "Good fit"
+            : rSquared >= 0.5
+              ? "Moderate fit"
+              : "Poor fit",
+      };
+    },
+  };
 }
 
 /**
  * Column histogram management
  */
 export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_stats_histogram',
-        title: 'MySQL Histogram Statistics',
-        description: 'View or update column histogram statistics (MySQL 8.0+).',
-        group: 'stats',
-        inputSchema: HistogramSchema,
-        requiredScopes: ['read'], // read for view, admin for update
-        annotations: {
-            readOnlyHint: false // Can update histogram
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, column, buckets, update } = HistogramSchema.parse(params);
+  return {
+    name: "mysql_stats_histogram",
+    title: "MySQL Histogram Statistics",
+    description: "View or update column histogram statistics (MySQL 8.0+).",
+    group: "stats",
+    inputSchema: HistogramSchema,
+    requiredScopes: ["read"], // read for view, admin for update
+    annotations: {
+      readOnlyHint: false, // Can update histogram
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { table, column, buckets, update } = HistogramSchema.parse(params);
 
-            // Validate identifiers
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-                throw new Error('Invalid table name');
-            }
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-                throw new Error('Invalid column name');
-            }
+      // Validate identifiers
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        throw new Error("Invalid table name");
+      }
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+        throw new Error("Invalid column name");
+      }
 
-            if (update) {
-                // Create or update histogram
-                const numBuckets = Math.min(buckets, 1024);
-                await adapter.executeQuery(
-                    `ANALYZE TABLE \`${table}\` UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`
-                );
-            }
+      if (update) {
+        // Create or update histogram
+        const numBuckets = Math.min(buckets, 1024);
+        await adapter.executeQuery(
+          `ANALYZE TABLE \`${table}\` UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
+        );
+      }
 
-            // Get histogram info from information_schema
-            const histogramQuery = `
+      // Get histogram info from information_schema
+      const histogramQuery = `
                 SELECT 
                     SCHEMA_NAME as schemaName,
                     TABLE_NAME as tableName,
@@ -248,25 +273,31 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
                   AND SCHEMA_NAME = DATABASE()
             `;
 
-            const result = await adapter.executeQuery(histogramQuery, [table, column]);
+      const result = await adapter.executeQuery(histogramQuery, [
+        table,
+        column,
+      ]);
 
-            if (!result.rows || result.rows.length === 0) {
-                return {
-                    exists: false,
-                    message: update
-                        ? 'Histogram created but not yet visible in metadata'
-                        : 'No histogram exists for this column',
-                    table,
-                    column
-                };
-            }
+      if (!result.rows || result.rows.length === 0) {
+        return {
+          exists: false,
+          message: update
+            ? "Histogram created but not yet visible in metadata"
+            : "No histogram exists for this column",
+          table,
+          column,
+        };
+      }
 
-            const histogramRow = result.rows[0]; if (!histogramRow) { return { exists: false, table, column }; }
-            return {
-                exists: true,
-                ...histogramRow,
-                updated: update
-            };
-        }
-    };
+      const histogramRow = result.rows[0];
+      if (!histogramRow) {
+        return { exists: false, table, column };
+      }
+      return {
+        exists: true,
+        ...histogramRow,
+        updated: update,
+      };
+    },
+  };
 }

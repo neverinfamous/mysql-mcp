@@ -1,21 +1,25 @@
 /**
  * MySQL Prompt - Replication Setup
- * 
+ *
  * MySQL replication configuration guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupReplicationPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_replication',
-        description: 'MySQL replication setup and configuration guide',
-        arguments: [
-            { name: 'type', description: 'Replication type: async, semisync, group', required: false }
-        ],
-        handler: (args: Record<string, string>, _context: RequestContext) => {
-            const replicationType = args['type'] ?? 'async';
+  return {
+    name: "mysql_setup_replication",
+    description: "MySQL replication setup and configuration guide",
+    arguments: [
+      {
+        name: "type",
+        description: "Replication type: async, semisync, group",
+        required: false,
+      },
+    ],
+    handler: (args: Record<string, string>, _context: RequestContext) => {
+      const replicationType = args["type"] ?? "async";
 
-            return Promise.resolve(`# MySQL Replication Setup Guide
+      return Promise.resolve(`# MySQL Replication Setup Guide
 
 Configure MySQL replication for high availability and read scaling.
 
@@ -60,9 +64,13 @@ gtid_mode = ON
 enforce_gtid_consistency = ON
 read_only = ON
 super_read_only = ON
-${replicationType === 'semisync' ? `
+${
+  replicationType === "semisync"
+    ? `
 # Semi-synchronous replication
-rpl_semi_sync_replica_enabled = 1` : ''}
+rpl_semi_sync_replica_enabled = 1`
+    : ""
+}
 \`\`\`
 
 ## Step 4: Initialize Replica
@@ -142,6 +150,6 @@ Regular monitoring should include:
 5. Re-point other replicas to new source
 
 Start by checking current replication status with \`mysql://replication\`.`);
-        }
-    };
+    },
+  };
 }

@@ -1,23 +1,28 @@
 /**
  * MySQL Resource - Spatial
  */
-import type { MySQLAdapter } from '../MySQLAdapter.js';
-import type { ResourceDefinition, RequestContext } from '../../../types/index.js';
+import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type {
+  ResourceDefinition,
+  RequestContext,
+} from "../../../types/index.js";
 
-export function createSpatialResource(adapter: MySQLAdapter): ResourceDefinition {
-    return {
-        uri: 'mysql://spatial',
-        name: 'Spatial Columns',
-        title: 'MySQL Spatial/GIS Columns',
-        description: 'Spatial columns and indexes in the database',
-        mimeType: 'application/json',
-        annotations: {
-            audience: ['user', 'assistant'],
-            priority: 0.5
-        },
-        handler: async (_uri: string, _context: RequestContext) => {
-            // Get spatial columns
-            const columnsResult = await adapter.executeQuery(`
+export function createSpatialResource(
+  adapter: MySQLAdapter,
+): ResourceDefinition {
+  return {
+    uri: "mysql://spatial",
+    name: "Spatial Columns",
+    title: "MySQL Spatial/GIS Columns",
+    description: "Spatial columns and indexes in the database",
+    mimeType: "application/json",
+    annotations: {
+      audience: ["user", "assistant"],
+      priority: 0.5,
+    },
+    handler: async (_uri: string, _context: RequestContext) => {
+      // Get spatial columns
+      const columnsResult = await adapter.executeQuery(`
                 SELECT 
                     TABLE_SCHEMA as schema_name,
                     TABLE_NAME as table_name,
@@ -31,8 +36,8 @@ export function createSpatialResource(adapter: MySQLAdapter): ResourceDefinition
                 ORDER BY TABLE_NAME, COLUMN_NAME
             `);
 
-            // Get spatial indexes
-            const indexesResult = await adapter.executeQuery(`
+      // Get spatial indexes
+      const indexesResult = await adapter.executeQuery(`
                 SELECT 
                     TABLE_NAME as table_name,
                     INDEX_NAME as index_name,
@@ -43,12 +48,12 @@ export function createSpatialResource(adapter: MySQLAdapter): ResourceDefinition
                 ORDER BY TABLE_NAME, INDEX_NAME
             `);
 
-            return {
-                spatialColumnCount: columnsResult.rows?.length ?? 0,
-                spatialColumns: columnsResult.rows ?? [],
-                spatialIndexCount: indexesResult.rows?.length ?? 0,
-                spatialIndexes: indexesResult.rows ?? []
-            };
-        }
-    };
+      return {
+        spatialColumnCount: columnsResult.rows?.length ?? 0,
+        spatialColumns: columnsResult.rows ?? [],
+        spatialIndexCount: indexesResult.rows?.length ?? 0,
+        spatialIndexes: indexesResult.rows ?? [],
+      };
+    },
+  };
 }

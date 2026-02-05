@@ -1,17 +1,18 @@
 /**
  * MySQL Prompt - InnoDB Cluster Setup
- * 
+ *
  * Complete InnoDB Cluster and Group Replication setup guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupClusterPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_cluster',
-        description: 'Complete MySQL InnoDB Cluster and Group Replication setup guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL InnoDB Cluster Setup Guide
+  return {
+    name: "mysql_setup_cluster",
+    description:
+      "Complete MySQL InnoDB Cluster and Group Replication setup guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL InnoDB Cluster Setup Guide
 
 InnoDB Cluster provides a complete high availability solution using Group Replication, MySQL Shell, and MySQL Router.
 
@@ -113,6 +114,6 @@ cluster.setPrimaryInstance('admin@new-primary:3306')
 4. **Test failover regularly** in staging
 
 Start by checking cluster status with \`mysql_cluster_status\`.`);
-        }
-    };
+    },
+  };
 }

@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - MySQL Shell Setup
- * 
+ *
  * MySQL Shell installation and usage guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupMysqlshPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_shell',
-        description: 'MySQL Shell setup and usage guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL Shell Setup Guide
+  return {
+    name: "mysql_setup_shell",
+    description: "MySQL Shell setup and usage guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL Shell Setup Guide
 
 MySQL Shell is an advanced client with JavaScript, Python, and SQL modes, plus powerful dump/load utilities.
 
@@ -114,6 +114,6 @@ Use mysqlsh_import_table tool:
 - **Connection errors**: Verify MySQL connection string
 
 Start by running \`mysqlsh_version\` to verify installation.`);
-        }
-    };
+    },
+  };
 }

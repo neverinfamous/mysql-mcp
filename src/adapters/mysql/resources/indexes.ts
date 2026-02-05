@@ -1,33 +1,40 @@
 /**
  * MySQL Resource - Indexes
- * 
+ *
  * Index usage statistics and recommendations.
  */
-import type { MySQLAdapter } from '../MySQLAdapter.js';
-import type { ResourceDefinition, RequestContext } from '../../../types/index.js';
+import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type {
+  ResourceDefinition,
+  RequestContext,
+} from "../../../types/index.js";
 
-export function createIndexesResource(adapter: MySQLAdapter): ResourceDefinition {
-    return {
-        uri: 'mysql://indexes',
-        name: 'Index Statistics',
-        title: 'MySQL Index Statistics',
-        description: 'Index usage statistics, unused indexes, and duplicate detection',
-        mimeType: 'application/json',
-        annotations: {
-            audience: ['user', 'assistant'],
-            priority: 0.7
-        },
-        handler: async (_uri: string, _context: RequestContext) => {
-            // Get current database
-            const dbResult = await adapter.executeQuery('SELECT DATABASE() as db');
-            const database = (dbResult.rows?.[0]?.['db'] as string) ?? '';
+export function createIndexesResource(
+  adapter: MySQLAdapter,
+): ResourceDefinition {
+  return {
+    uri: "mysql://indexes",
+    name: "Index Statistics",
+    title: "MySQL Index Statistics",
+    description:
+      "Index usage statistics, unused indexes, and duplicate detection",
+    mimeType: "application/json",
+    annotations: {
+      audience: ["user", "assistant"],
+      priority: 0.7,
+    },
+    handler: async (_uri: string, _context: RequestContext) => {
+      // Get current database
+      const dbResult = await adapter.executeQuery("SELECT DATABASE() as db");
+      const database = (dbResult.rows?.[0]?.["db"] as string) ?? "";
 
-            if (!database) {
-                return { error: 'No database selected' };
-            }
+      if (!database) {
+        return { error: "No database selected" };
+      }
 
-            // Get index statistics
-            const indexResult = await adapter.executeQuery(`
+      // Get index statistics
+      const indexResult = await adapter.executeQuery(
+        `
                 SELECT 
                     TABLE_NAME as table_name,
                     INDEX_NAME as index_name,
@@ -39,12 +46,15 @@ export function createIndexesResource(adapter: MySQLAdapter): ResourceDefinition
                 FROM information_schema.STATISTICS
                 WHERE TABLE_SCHEMA = ?
                 ORDER BY TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
-            `, [database]);
+            `,
+        [database],
+      );
 
-            // Try to get index usage from performance_schema if available
-            let unusedIndexes: unknown[] = [];
-            try {
-                const unusedResult = await adapter.executeQuery(`
+      // Try to get index usage from performance_schema if available
+      let unusedIndexes: unknown[] = [];
+      try {
+        const unusedResult = await adapter.executeQuery(
+          `
                     SELECT 
                         object_schema as schema_name,
                         object_name as table_name,
@@ -54,16 +64,19 @@ export function createIndexesResource(adapter: MySQLAdapter): ResourceDefinition
                       AND index_name IS NOT NULL
                       AND index_name != 'PRIMARY'
                       AND count_star = 0
-                `, [database]);
-                unusedIndexes = unusedResult.rows ?? [];
-            } catch {
-                // Performance schema may not be available
-            }
+                `,
+          [database],
+        );
+        unusedIndexes = unusedResult.rows ?? [];
+      } catch {
+        // Performance schema may not be available
+      }
 
-            // Get duplicate/redundant indexes
-            let duplicateIndexes: unknown[] = [];
-            try {
-                const dupResult = await adapter.executeQuery(`
+      // Get duplicate/redundant indexes
+      let duplicateIndexes: unknown[] = [];
+      try {
+        const dupResult = await adapter.executeQuery(
+          `
                     SELECT 
                         a.TABLE_NAME as table_name,
                         a.INDEX_NAME as redundant_index,
@@ -80,19 +93,21 @@ export function createIndexesResource(adapter: MySQLAdapter): ResourceDefinition
                       AND a.SEQ_IN_INDEX = 1
                       AND (a.INDEX_NAME != 'PRIMARY' AND b.INDEX_NAME != 'PRIMARY')
                     GROUP BY a.TABLE_NAME, a.INDEX_NAME, a.COLUMN_NAME, b.INDEX_NAME
-                `, [database]);
-                duplicateIndexes = dupResult.rows ?? [];
-            } catch {
-                // May fail on older MySQL versions
-            }
+                `,
+          [database],
+        );
+        duplicateIndexes = dupResult.rows ?? [];
+      } catch {
+        // May fail on older MySQL versions
+      }
 
-            return {
-                database,
-                total_indexes: (indexResult.rows ?? []).length,
-                indexes: indexResult.rows ?? [],
-                unused_indexes: unusedIndexes,
-                potential_duplicates: duplicateIndexes
-            };
-        }
-    };
+      return {
+        database,
+        total_indexes: (indexResult.rows ?? []).length,
+        indexes: indexResult.rows ?? [],
+        unused_indexes: unusedIndexes,
+        potential_duplicates: duplicateIndexes,
+      };
+    },
+  };
 }

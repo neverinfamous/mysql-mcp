@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - Spatial/GIS Setup
- * 
+ *
  * Complete Spatial data and GIS setup guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupSpatialPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_spatial',
-        description: 'Complete MySQL Spatial/GIS setup and usage guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL Spatial/GIS Setup Guide
+  return {
+    name: "mysql_setup_spatial",
+    description: "Complete MySQL Spatial/GIS setup and usage guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL Spatial/GIS Setup Guide
 
 MySQL provides native spatial data support with geometry types and spatial functions (ST_*).
 
@@ -104,6 +104,6 @@ WHERE ST_Contains(
 3. **Index not used**: Check column is NOT NULL
 
 Start by creating a spatial column with \`mysql_spatial_create_column\`.`);
-        }
-    };
+    },
+  };
 }

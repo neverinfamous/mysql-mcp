@@ -1,31 +1,41 @@
-import { z } from 'zod';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
-import type { ToolDefinition, RequestContext } from '../../../../types/index.js';
+import { z } from "zod";
+import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 
 const ListEventsSchema = z.object({
-    schema: z.string().optional().describe('Schema name (defaults to current database)'),
-    status: z.enum(['ENABLED', 'DISABLED', 'SLAVESIDE_DISABLED']).optional().describe('Filter by status')
+  schema: z
+    .string()
+    .optional()
+    .describe("Schema name (defaults to current database)"),
+  status: z
+    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
+    .optional()
+    .describe("Filter by status"),
 });
 
 /**
  * List scheduled events
  */
 export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_list_events',
-        title: 'MySQL List Events',
-        description: 'List all scheduled events with execution status and schedule info.',
-        group: 'schema',
-        inputSchema: ListEventsSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { schema, status } = ListEventsSchema.parse(params);
+  return {
+    name: "mysql_list_events",
+    title: "MySQL List Events",
+    description:
+      "List all scheduled events with execution status and schedule info.",
+    group: "schema",
+    inputSchema: ListEventsSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { schema, status } = ListEventsSchema.parse(params);
 
-            let query = `
+      let query = `
                 SELECT 
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
@@ -47,20 +57,20 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE EVENT_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-            const queryParams: unknown[] = [schema ?? null];
+      const queryParams: unknown[] = [schema ?? null];
 
-            if (status) {
-                query += ' AND STATUS = ?';
-                queryParams.push(status);
-            }
+      if (status) {
+        query += " AND STATUS = ?";
+        queryParams.push(status);
+      }
 
-            query += ' ORDER BY EVENT_NAME';
+      query += " ORDER BY EVENT_NAME";
 
-            const result = await adapter.executeQuery(query, queryParams);
-            return {
-                events: result.rows,
-                count: result.rows?.length ?? 0
-            };
-        }
-    };
+      const result = await adapter.executeQuery(query, queryParams);
+      return {
+        events: result.rows,
+        count: result.rows?.length ?? 0,
+      };
+    },
+  };
 }

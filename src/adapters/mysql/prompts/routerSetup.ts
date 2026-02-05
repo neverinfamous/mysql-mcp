@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - Router Setup
- * 
+ *
  * Complete MySQL Router configuration guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupRouterPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_router',
-        description: 'Complete MySQL Router setup and configuration guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL Router Setup Guide
+  return {
+    name: "mysql_setup_router",
+    description: "Complete MySQL Router setup and configuration guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL Router Setup Guide
 
 MySQL Router provides transparent routing between applications and MySQL servers, supporting InnoDB Cluster for high availability.
 
@@ -101,6 +101,6 @@ Use Router tools to verify:
 3. **No destinations**: Verify backend servers are healthy
 
 Start by checking if MySQL Router is installed and running.`);
-        }
-    };
+    },
+  };
 }

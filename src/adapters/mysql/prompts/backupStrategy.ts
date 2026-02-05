@@ -1,25 +1,37 @@
 /**
  * MySQL Prompt - Backup Strategy
- * 
+ *
  * Enterprise backup planning with RTO/RPO considerations.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createBackupStrategyPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_backup_strategy',
-        description: 'Design enterprise backup strategy with RTO/RPO planning',
-        arguments: [
-            { name: 'rpo', description: 'Recovery Point Objective (e.g., "1 hour", "15 minutes")', required: false },
-            { name: 'rto', description: 'Recovery Time Objective (e.g., "4 hours", "30 minutes")', required: false },
-            { name: 'data_size', description: 'Approximate database size (e.g., "100GB", "2TB")', required: false }
-        ],
-        handler: (args: Record<string, string>, _context: RequestContext) => {
-            const rpo = args['rpo'] ?? 'to be determined';
-            const rto = args['rto'] ?? 'to be determined';
-            const dataSize = args['data_size'] ?? 'unknown';
+  return {
+    name: "mysql_backup_strategy",
+    description: "Design enterprise backup strategy with RTO/RPO planning",
+    arguments: [
+      {
+        name: "rpo",
+        description: 'Recovery Point Objective (e.g., "1 hour", "15 minutes")',
+        required: false,
+      },
+      {
+        name: "rto",
+        description: 'Recovery Time Objective (e.g., "4 hours", "30 minutes")',
+        required: false,
+      },
+      {
+        name: "data_size",
+        description: 'Approximate database size (e.g., "100GB", "2TB")',
+        required: false,
+      },
+    ],
+    handler: (args: Record<string, string>, _context: RequestContext) => {
+      const rpo = args["rpo"] ?? "to be determined";
+      const rto = args["rto"] ?? "to be determined";
+      const dataSize = args["data_size"] ?? "unknown";
 
-            return Promise.resolve(`# MySQL Backup Strategy Planning
+      return Promise.resolve(`# MySQL Backup Strategy Planning
 
 Design a comprehensive backup strategy for this MySQL database.
 
@@ -76,6 +88,6 @@ Based on your RPO of ${rpo}:
 - Set up monitoring and alerting
 
 Please provide your RPO/RTO requirements if not specified, and I'll create a tailored backup plan.`);
-        }
-    };
+    },
+  };
 }
