@@ -26,7 +26,7 @@
 
 | Feature                        | Description                                                                                                                                                       |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **191 Specialized Tools**      | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
+| **192 Specialized Tools**      | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
 | **18 Observability Resources** | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                |
 | **19 AI-Powered Prompts**      | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                  |
 | **OAuth 2.1 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration        |
@@ -235,7 +235,7 @@ Use the remote hostname directly:
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 191 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (38 tools) as a starting point.
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (38 tools) as a starting point.
 
 ### What Can You Filter?
 
@@ -254,14 +254,14 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | --------------- | ------ | ------------------ | ------------------------------------------ |
 | `starter`       | **38** | 🌟 **Recommended** | Core, JSON, trans, text                    |
 | `essential`     | 15     | Minimal footprint  | Core, trans                                |
-| `dev-power`     | 45     | Power Developer    | Core, schema, perf, stats, fulltext, trans |
-| `ai-data`       | 44     | AI Data Analyst    | Core, JSON, docstore, text, fulltext       |
+| `dev-power`     | 46     | Power Developer    | Core, schema, perf, stats, fulltext, trans |
+| `ai-data`       | 45     | AI Data Analyst    | Core, JSON, docstore, text, fulltext       |
 | `ai-spatial`    | 43     | AI Spatial Analyst | Core, spatial, stats, perf, trans          |
 | `dba-monitor`   | 35     | DBA Monitoring     | Core, monitor, perf, sysschema, opt        |
 | `dba-manage`    | 33     | DBA Management     | Core, admin, backup, repl, parts, events   |
 | `dba-secure`    | 42     | DBA Security       | Core, security, roles, cluster, trans      |
 | `base-core`     | 48     | Base Ops           | Core, JSON, trans, text, schema            |
-| `base-advanced` | 39     | Advanced Features  | DocStore, spatial, stats, fulltext, events |
+| `base-advanced` | 40     | Advanced Features  | DocStore, spatial, stats, fulltext, events |
 | `ecosystem`     | 31     | External Tools     | Router, ProxySQL, Shell                    |
 
 ### Tool Groups (24 Available)
@@ -272,7 +272,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints      |
 | `json`         | 17    | JSON functions, merge, diff, stats       |
 | `text`         | 6     | REGEXP, LIKE, SOUNDEX                    |
-| `fulltext`     | 4     | Natural language search                  |
+| `fulltext`     | 5     | Natural language & boolean search        |
 | `performance`  | 8     | EXPLAIN, query analysis, slow queries    |
 | `optimization` | 4     | Index hints, recommendations             |
 | `admin`        | 6     | OPTIMIZE, ANALYZE, CHECK                 |
@@ -558,7 +558,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 191 tools, 18 resources, and 19 prompts interactively.
+Open **http://localhost:6274** to browse all 192 tools, 18 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 
