@@ -97,7 +97,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **LIKE patterns**: \`%\` matches any characters, \`_\` matches single character.
 - **Regex**: Uses MySQL regex syntax (not PCRE). Example: \`^[A-Z].*@.*\\.com$\`
-- **SOUNDEX**: Finds phonetically similar values - useful for fuzzy name matching with typos.
+- **SOUNDEX**: Finds phonetically similar values - matches alternative spellings (e.g., \`johndoe\` matches \`jonedoe\`).
 - **WHERE clause**: All text tools support optional \`where\` parameter to filter rows.
 - **Minimal output**: Tools return only \`id\`, target column(s), and computed result.
 `;
