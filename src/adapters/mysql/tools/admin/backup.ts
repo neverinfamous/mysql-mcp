@@ -29,7 +29,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, format, where } = ExportTableSchema.parse(params);
+      const { table, format, where, limit } = ExportTableSchema.parse(params);
 
       // Validate inputs for SQL injection prevention
       validateIdentifier(table, "table");
@@ -41,6 +41,9 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
       let sql = `SELECT * FROM \`${table}\``;
       if (where) {
         sql += ` WHERE ${where}`;
+      }
+      if (limit !== undefined) {
+        sql += ` LIMIT ${limit}`;
       }
 
       const result = await adapter.executeReadQuery(sql);

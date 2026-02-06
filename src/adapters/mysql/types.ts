@@ -342,6 +342,14 @@ export const ExportTableSchema = z.object({
     .default("SQL")
     .describe("Export format"),
   where: z.string().optional().describe("WHERE clause to filter rows"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe(
+      "Maximum number of rows to export (recommended for large tables)",
+    ),
 });
 
 export const ImportDataSchema = z.object({

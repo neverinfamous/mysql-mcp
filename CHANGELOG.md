@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`mysql_export_table` Limit Parameter** — New optional `limit` parameter to control the number of rows exported, preventing oversized payloads for large tables.
 - **`mysql_fulltext_drop`** — New tool for dropping FULLTEXT indexes, providing symmetry with `mysql_fulltext_create`.
+
+### Changed
+
+- **Backup Tools Server Instructions** — Added comprehensive Backup Tools section documenting export formats (SQL/CSV), the new `limit` parameter, WHERE filtering, CSV JSON column escaping notes, import prerequisites, and dump command behavior.
 
 ### Fixed
 

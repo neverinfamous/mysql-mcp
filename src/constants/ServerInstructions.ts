@@ -61,6 +61,15 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Minimal output**: Tools return only \`id\`, searched column(s), and \`relevance\` score.
 
 
+## Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
+
+- **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
+- **Limit rows**: Use \`limit\` parameter to control export size (recommended for large tables).
+- **WHERE filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
+- **CSV and JSON columns**: CSV export escapes JSON columns with double-quote encoding—valid but complex. Consider SQL format for JSON-heavy tables.
+- **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist.
+- **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.
+
 ## DDL Statements (\`mysql_write_query\`)
 
 - DDL statements (like \`CREATE TABLE\`) are automatically handled via text protocol fallback.
