@@ -210,7 +210,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             total_read,
                             avg_read,
                             count_write,
-                            total_write,
+                            total_written,
                             avg_write,
                             total,
                             write_pct

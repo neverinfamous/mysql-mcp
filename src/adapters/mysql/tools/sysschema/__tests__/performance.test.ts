@@ -158,6 +158,9 @@ describe("Sys Schema Performance Tools", () => {
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("sys.io_global_by_file_by_bytes");
+      // Ensure correct column name is used (total_written, not total_write)
+      expect(call).toContain("total_written");
+      expect(call).not.toContain("total_write,");
     });
 
     it("should query global IO summary", async () => {

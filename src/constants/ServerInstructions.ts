@@ -171,6 +171,16 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Views**: \`mysql_list_views\` shows view definitions, security type, and updatability. \`mysql_create_view\` creates or replaces views.
 - **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects.
 - **Constraints**: \`mysql_list_constraints\` returns primary keys, foreign keys, unique constraints, and check constraints for a table.
+
+## Sys Schema Tools (\`mysql_sys_*\`)
+
+- **User/Host activity**: \`mysql_sys_user_summary\` and \`mysql_sys_host_summary\` show connection counts, statement latency, and I/O metrics. Filter with \`user\` or \`host\` parameters.
+- **Statement analysis**: \`mysql_sys_statement_summary\` returns query digest stats. Order by \`total_latency\` (default), \`exec_count\`, \`avg_latency\`, \`rows_sent\`, or \`rows_examined\`.
+- **I/O analysis**: \`mysql_sys_io_summary\` supports \`table\` (default), \`file\`, and \`global\` types for I/O breakdown.
+- **Wait events**: \`mysql_sys_wait_summary\` supports \`global\` (default), \`by_host\`, \`by_user\`, and \`by_instance\` types for wait analysis.
+- **Lock contention**: \`mysql_sys_innodb_lock_waits\` shows active lock waits. Returns \`hasContention: false\` when none.
+- **Memory usage**: \`mysql_sys_memory_summary\` returns memory allocation by event type and by user.
+- **Schema stats**: \`mysql_sys_schema_stats\` returns auto-increment usage ratios for tables.
 `;
 
 /**
