@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/_), `eslint` (eslint, @eslint/_, typescript-eslint, globals), and `types` (@types/\*) to prevent peer dependency fragmentation.
 - **`mysql_innodb_status` Summary Mode** — Added optional `summary: boolean` parameter to return only key metrics (buffer pool, row operations, transactions, log status) instead of raw InnoDB monitor output. Reduces payload from ~5KB to ~200B.
 - **`mysql_replication_status` Structured Response** — Tool now returns `{ configured: false, message: "..." }` when replication is not set up instead of an empty object, making it easier to programmatically check replication status.
+- **`mysql_slave_status` Structured Response** — Tool now returns `{ configured: false, message: "..." }` when server is not a replica instead of an empty object, aligning with other replication tools.
+- **Replication Tools Server Instructions** — Added Replication section documenting master status, slave status, binlog events, GTID status, and replication lag tools.
 - **Monitoring Tools Server Instructions** — Added Monitoring section documenting processlist, status/variables filtering, server health, InnoDB status summary mode, replication status behavior, and pool stats.
 
 ### Dependencies

@@ -75,18 +75,25 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
       // Try new syntax first
       try {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
-        return { status: result.rows?.[0] };
+        const status = result.rows?.[0];
+        if (status) {
+          return { status };
+        }
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
-          return { status: result.rows?.[0] };
+          const status = result.rows?.[0];
+          if (status) {
+            return { status };
+          }
         } catch {
-          return {
-            status: null,
-            message: "This server is not configured as a replica",
-          };
+          // Fall through to not-configured response
         }
       }
+      return {
+        configured: false,
+        message: "This server is not configured as a replica",
+      };
     },
   };
 }
