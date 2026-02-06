@@ -79,7 +79,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Privilege requirements**: Role management requires \`CREATE ROLE\`, \`DROP ROLE\`, \`GRANT\`, and \`REVOKE\` privileges.
 - **Role lifecycle**: Create roles with \`mysql_role_create\`, grant privileges with \`mysql_role_grant\`, then assign to users with \`mysql_role_assign\`.
 - **Listing roles**: \`mysql_role_list\` shows all defined roles. Use \`pattern\` parameter for LIKE-style filtering (e.g., \`pattern: "admin%"\`).
-- **Privilege grants**: \`mysql_role_grant\` supports \`database.table\` syntax (e.g., \`table: "my_schema.my_table"\`). Use \`privileges: ["SELECT", "INSERT"]\`.
+- **Privilege grants**: \`mysql_role_grant\` supports \`database.table\` syntax (e.g., \`table: "my_schema.my_table"\`). Use \`table: "*"\` for schema-wide privileges (e.g., \`testdb.*\`). Use \`privileges: ["SELECT", "INSERT"]\`.
 - **Role assignment**: \`mysql_role_assign\` assigns a role to a user. Use \`withAdminOption: true\` to allow the user to grant the role to others.
 - **User roles**: \`mysql_user_roles\` lists roles assigned to a user, including the \`admin\` flag (Y/N) indicating admin option status.
 - **Existence checks**: \`mysql_role_grants\` returns \`exists: false\` if the role does not exist, avoiding raw SQL errors.
