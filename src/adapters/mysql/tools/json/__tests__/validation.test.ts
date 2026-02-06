@@ -27,8 +27,9 @@ describe("JSON Tool Validation", () => {
   });
 
   describe("Validation Logic", () => {
-    it('should throw error for unquoted string "green"', async () => {
+    it('should accept bare string "green" (auto-wrapped)', async () => {
       const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      // Bare strings are now auto-wrapped to valid JSON strings
       await expect(
         tool.handler(
           {
@@ -40,7 +41,7 @@ describe("JSON Tool Validation", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow(/Invalid JSON value/);
+      ).resolves.not.toThrow();
     });
 
     it('should accept quoted string "\\"green\\""', async () => {
@@ -75,40 +76,42 @@ describe("JSON Tool Validation", () => {
       ).resolves.not.toThrow();
     });
 
-    it("should throw for invalid JSON object string", async () => {
+    it("should accept invalid JSON object string (auto-wrapped as string)", async () => {
       const tool = createJsonReplaceTool(
         mockAdapter as unknown as MySQLAdapter,
       );
+      // Invalid JSON is now wrapped as a plain string, not rejected
       await expect(
         tool.handler(
           {
             table: "data",
             column: "json_col",
             path: "$.obj",
-            value: '{key: "invalid"}', // Missing quotes on key
+            value: '{key: "invalid"}', // Treated as a string value
             where: "id = 1",
           },
           mockContext,
         ),
-      ).rejects.toThrow(/Invalid JSON value/);
+      ).resolves.not.toThrow();
     });
 
-    it("should validate array append values", async () => {
+    it("should accept array append with bare string (auto-wrapped)", async () => {
       const tool = createJsonArrayAppendTool(
         mockAdapter as unknown as MySQLAdapter,
       );
+      // Bare strings are now auto-wrapped
       await expect(
         tool.handler(
           {
             table: "data",
             column: "json_col",
             path: "$",
-            value: "invalid_string",
+            value: "auto_wrapped_string",
             where: "id = 1",
           },
           mockContext,
         ),
-      ).rejects.toThrow(/Invalid JSON value/);
+      ).resolves.not.toThrow();
     });
   });
 });

@@ -11,7 +11,7 @@ import {
   createJsonSearchTool,
   createJsonValidateTool,
 } from "../helpers.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../MySQLAdapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -49,7 +49,8 @@ describe("JSON Helper Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_EXTRACT");
       expect(call).toContain("WHERE `id` = ?");
-      expect(result.value).toBe('{"a":1}');
+      // Value is parsed from JSON string
+      expect(result.value).toEqual({ a: 1 });
     });
   });
 

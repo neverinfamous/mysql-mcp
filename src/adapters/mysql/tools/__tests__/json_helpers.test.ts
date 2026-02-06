@@ -107,8 +107,9 @@ describe("JSON Helper Handler Execution", () => {
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      expect(call).toContain("JSON_UNQUOTE");
+      // Uses JSON_EXTRACT, parses result
       expect(call).toContain("JSON_EXTRACT");
+      // Raw string values are returned as-is after JSON parse attempt
       expect(result.value).toBe("John Doe");
     });
 

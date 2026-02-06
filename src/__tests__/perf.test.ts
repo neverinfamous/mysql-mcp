@@ -65,9 +65,9 @@ describe("Performance Tests", () => {
       expect(cachedCallTime.avg).toBeLessThan(0.5);
     });
 
-    it("should return consistent count of 191 tools", () => {
+    it("should return consistent count of 192 tools", () => {
       const tools = getAllToolNames();
-      expect(tools).toHaveLength(191);
+      expect(tools).toHaveLength(192);
     });
   });
 
@@ -150,7 +150,7 @@ describe("Performance Tests", () => {
       expect(starterConfig.enabledTools.size).toBe(38);
 
       const aiDataConfig = parseToolFilter("ai-data");
-      expect(aiDataConfig.enabledTools.size).toBe(44);
+      expect(aiDataConfig.enabledTools.size).toBe(45);
 
       const dbaMonitorConfig = parseToolFilter("dba-monitor");
       expect(dbaMonitorConfig.enabledTools.size).toBe(35);
@@ -159,7 +159,7 @@ describe("Performance Tests", () => {
       expect(dbaSecureConfig.enabledTools.size).toBe(42);
 
       const devPowerConfig = parseToolFilter("dev-power");
-      expect(devPowerConfig.enabledTools.size).toBe(45);
+      expect(devPowerConfig.enabledTools.size).toBe(46);
     });
 
     describe("filterTools performance", () => {
@@ -198,7 +198,7 @@ describe("Performance Tests", () => {
 
         // First call builds the cache
         const firstCall = adapter.getToolDefinitions();
-        expect(firstCall).toHaveLength(191);
+        expect(firstCall).toHaveLength(192);
 
         // Subsequent calls should return same reference (cached)
         const secondCall = adapter.getToolDefinitions();
@@ -213,7 +213,7 @@ describe("Performance Tests", () => {
         expect(timing.avg).toBeLessThan(0.5);
       });
 
-      it("should return consistent tool count of 191 regardless of filter default", () => {
+      it("should return consistent tool count of 192 regardless of filter default", () => {
         const adapter = new MySQLAdapter();
 
         // getToolDefinitions returns ALL definitions available in the adapter,
@@ -221,7 +221,7 @@ describe("Performance Tests", () => {
         // Wait, MySQLAdapter.getToolDefinitions() returns all tools?
         // Yes, checking the implementation... it usually does.
         const tools = adapter.getToolDefinitions();
-        expect(tools).toHaveLength(191);
+        expect(tools).toHaveLength(192);
       });
     });
   });
