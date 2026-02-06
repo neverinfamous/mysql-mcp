@@ -157,6 +157,14 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **GTID status**: \`mysql_gtid_status\` shows GTID mode (ON/OFF) and executed/purged transaction sets.
 - **Replication lag**: \`mysql_replication_lag\` calculates delay in seconds. Returns \`lagSeconds: null\` if not a replica.
 
+## Events Tools (\`mysql_event_*\`, \`mysql_scheduler_status\`)
+
+- **Scheduler status**: \`mysql_scheduler_status\` shows global scheduler state (ON/OFF), event counts, and recently executed events.
+- **Event types**: \`mysql_event_create\` supports ONE TIME (specify \`executeAt\`) and RECURRING (specify \`interval\`, \`intervalUnit\`, optional \`starts\`/\`ends\`).
+- **Event lifecycle**: Use \`enabled: false\` when creating/testing events. \`onCompletion: "PRESERVE"\` keeps events after expiry.
+- **Alter operations**: \`mysql_event_alter\` can enable/disable, change schedule/body, or rename (via \`newName\`).
+- **Cross-schema**: Both \`mysql_event_list\` and \`mysql_event_status\` accept \`schema\` parameter to query other databases.
+
 ## Schema Tools (\`mysql_list_schemas\`, \`mysql_create_view\`, etc.)
 
 - **Schema management**: \`mysql_list_schemas\` lists databases with charset/collation. \`mysql_create_schema\` and \`mysql_drop_schema\` manage databases.

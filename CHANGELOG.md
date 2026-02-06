@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Backup Tools Server Instructions** — Added comprehensive Backup Tools section documenting export formats (SQL/CSV), the new `limit` parameter, WHERE filtering, CSV JSON column escaping notes, import prerequisites, and dump command behavior.
 - **Partitioning Tools Server Instructions** — Clarified `value` parameter documentation to distinguish between LIST (integer values like `1,2,3`) and LIST COLUMNS (quoted string values like `'region1','region2'`).
 - **Schema Tools Server Instructions** — Added Schema Tools section documenting schema management (`mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`), view operations (`mysql_list_views`, `mysql_create_view`), and introspection tools for procedures, functions, triggers, events, and constraints.
+- **Events Tools Server Instructions** — Added Events Tools section documenting scheduler status, event types (ONE TIME vs RECURRING), event lifecycle (`enabled`, `onCompletion`), alter operations, and cross-schema queries.
 
 ### Fixed
 
