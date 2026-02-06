@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_security_user_privileges` Summary Mode** — Added optional `summary: boolean` parameter to return condensed privilege info (grant counts, role counts, hasAllPrivileges, hasWithGrantOption, sample global privileges) instead of verbose raw GRANT strings. Significantly reduces payload size for servers with many users.
 - **Role Management Server Instructions** — Expanded Role Management documentation from 2 bullets to 7, covering privilege requirements, role lifecycle (create→grant→assign), pattern filtering, `withAdminOption`, user role admin flag display, and graceful `exists: false` response for nonexistent roles.
 - **`mysql_doc_create_collection` `ifNotExists` Parameter** — Added optional `ifNotExists: boolean` parameter (default: false) to use `CREATE TABLE IF NOT EXISTS` syntax, preventing errors when the collection already exists.
+- **Document Store Server Instructions** — Expanded documentation covering `ifNotExists` parameter, collection detection heuristic (tables with `doc JSON` + `_id` fields), and `mysql_doc_find` graceful `exists: false` response for nonexistent collections.
 
 ### Fixed
 
