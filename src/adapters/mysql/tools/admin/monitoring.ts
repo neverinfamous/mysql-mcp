@@ -128,23 +128,123 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
   };
 }
 
-export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+/**
+ * Parse InnoDB status output into key metrics summary
+ */
+function parseInnodbStatusSummary(rawStatus: string): Record<string, unknown> {
+  const summary: Record<string, unknown> = {};
 
+  // Buffer Pool section
+  const bufferPoolMatch = /Buffer pool size\s+(\d+)/.exec(rawStatus);
+  const freeBuffersMatch = /Free buffers\s+(\d+)/.exec(rawStatus);
+  const hitRateMatch = /Buffer pool hit rate\s+(\d+)\s*\/\s*(\d+)/.exec(
+    rawStatus,
+  );
+
+  if (bufferPoolMatch ?? freeBuffersMatch ?? hitRateMatch) {
+    summary["bufferPool"] = {
+      size: bufferPoolMatch
+        ? parseInt(bufferPoolMatch[1] ?? "0", 10)
+        : undefined,
+      freeBuffers: freeBuffersMatch
+        ? parseInt(freeBuffersMatch[1] ?? "0", 10)
+        : undefined,
+      hitRate: hitRateMatch
+        ? `${hitRateMatch[1] ?? "0"}/${hitRateMatch[2] ?? "0"}`
+        : undefined,
+    };
+  }
+
+  // Row Operations section
+  const rowOpsMatch =
+    /(\d+(?:\.\d+)?)\s+inserts\/s,\s*(\d+(?:\.\d+)?)\s+updates\/s,\s*(\d+(?:\.\d+)?)\s+deletes\/s,\s*(\d+(?:\.\d+)?)\s+reads\/s/.exec(
+      rawStatus,
+    );
+  if (rowOpsMatch) {
+    summary["rowOperations"] = {
+      insertsPerSec: parseFloat(rowOpsMatch[1] ?? "0"),
+      updatesPerSec: parseFloat(rowOpsMatch[2] ?? "0"),
+      deletesPerSec: parseFloat(rowOpsMatch[3] ?? "0"),
+      readsPerSec: parseFloat(rowOpsMatch[4] ?? "0"),
+    };
+  }
+
+  // Log section
+  const logSeqMatch = /Log sequence number\s+(\d+)/.exec(rawStatus);
+  const checkpointMatch = /Last checkpoint at\s+(\d+)/.exec(rawStatus);
+  if (logSeqMatch ?? checkpointMatch) {
+    summary["log"] = {
+      sequenceNumber: logSeqMatch
+        ? parseInt(logSeqMatch[1] ?? "0", 10)
+        : undefined,
+      lastCheckpoint: checkpointMatch
+        ? parseInt(checkpointMatch[1] ?? "0", 10)
+        : undefined,
+    };
+  }
+
+  // Transactions section
+  const historyListMatch = /History list length\s+(\d+)/.exec(rawStatus);
+  const trxCountMatch = /Trx id counter\s+(\d+)/.exec(rawStatus);
+  if (historyListMatch ?? trxCountMatch) {
+    summary["transactions"] = {
+      historyListLength: historyListMatch
+        ? parseInt(historyListMatch[1] ?? "0", 10)
+        : undefined,
+      trxIdCounter: trxCountMatch
+        ? parseInt(trxCountMatch[1] ?? "0", 10)
+        : undefined,
+    };
+  }
+
+  // Semaphores section
+  const osWaitsMatch = /OS WAIT ARRAY INFO: reservation count (\d+)/.exec(
+    rawStatus,
+  );
+  if (osWaitsMatch) {
+    summary["semaphores"] = {
+      osWaitReservations: parseInt(osWaitsMatch[1] ?? "0", 10),
+    };
+  }
+
+  return summary;
+}
+
+const InnodbStatusSchema = z.object({
+  summary: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Return parsed summary with key metrics instead of raw output (recommended)",
+    ),
+});
+
+export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_innodb_status",
     title: "MySQL InnoDB Status",
-    description: "Get detailed InnoDB engine status.",
+    description:
+      "Get detailed InnoDB engine status. Use summary=true for parsed key metrics.",
     group: "monitoring",
-    inputSchema: schema,
+    inputSchema: InnodbStatusSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { summary } = InnodbStatusSchema.parse(params);
       const result = await adapter.executeQuery("SHOW ENGINE INNODB STATUS");
-      return { status: result.rows?.[0] };
+      const rawRow = result.rows?.[0];
+      const rawStatus =
+        (rawRow?.["Status"] as string) ?? (rawRow?.["STATUS"] as string) ?? "";
+
+      if (summary) {
+        return { summary: parseInnodbStatusSummary(rawStatus) };
+      }
+
+      return { status: rawRow };
     },
   };
 }
@@ -169,10 +269,29 @@ export function createReplicationStatusTool(
       // Try both old and new syntax
       try {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
-        return { status: result.rows?.[0] };
+        if (!result.rows || result.rows.length === 0) {
+          return {
+            configured: false,
+            message: "Replication is not configured on this server",
+          };
+        }
+        return { configured: true, status: result.rows[0] };
       } catch {
-        const result = await adapter.executeQuery("SHOW SLAVE STATUS");
-        return { status: result.rows?.[0] };
+        try {
+          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+          if (!result.rows || result.rows.length === 0) {
+            return {
+              configured: false,
+              message: "Replication is not configured on this server",
+            };
+          }
+          return { configured: true, status: result.rows[0] };
+        } catch {
+          return {
+            configured: false,
+            message: "Replication is not configured on this server",
+          };
+        }
       }
     },
   };
