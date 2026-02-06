@@ -28,7 +28,7 @@ export function createShellExportTableTool(): ToolDefinition {
     name: "mysqlsh_export_table",
     title: "MySQL Shell Export Table",
     description:
-      "Export a MySQL table to a file using util.exportTable(). Supports CSV, TSV, and JSON formats with filtering.",
+      "Export a MySQL table to a file using util.exportTable(). Supports CSV and TSV formats with WHERE clause filtering.",
     group: "shell",
     inputSchema: ShellExportTableInputSchema,
     requiredScopes: ["read"],
@@ -47,9 +47,8 @@ export function createShellExportTableTool(): ToolDefinition {
       if (format === "csv") {
         options.push('fieldsTerminatedBy: ","');
         options.push('fieldsEnclosedBy: "\\""');
-      } else if (format === "tsv") {
-        options.push('fieldsTerminatedBy: "\\t"');
       }
+      // TSV is the default for util.exportTable(), no special options needed
       if (where) {
         options.push(`where: "${escapeForJS(where)}"`);
       }

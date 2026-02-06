@@ -69,10 +69,10 @@ export const ShellExportTableInputSchema = z
       .string()
       .describe("Output file path (absolute path recommended)"),
     format: z
-      .enum(["csv", "tsv", "json"])
+      .enum(["csv", "tsv"])
       .optional()
       .default("csv")
-      .describe("Export format"),
+      .describe("Export format (csv or tsv)"),
     where: z
       .string()
       .optional()

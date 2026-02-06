@@ -353,7 +353,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_XPORT": "6448",
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql",
+        "MYSQL_DATABASE": "testdb",
         "MYSQL_ROUTER_URL": "https://localhost:8443",
         "MYSQL_ROUTER_USER": "rest_api",
         "MYSQL_ROUTER_PASSWORD": "router_password",

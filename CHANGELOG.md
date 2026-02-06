@@ -57,6 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_stats_distribution` Bucket Boundaries** — Fixed malformed `rangeStart`/`rangeEnd` values in histogram buckets (e.g., `"20.001.73"` instead of `21.73`). MySQL returns DECIMAL columns and FLOOR() results as strings, causing string concatenation instead of arithmetic. Now explicitly converts min, max, and bucket numbers to numbers.
 - **`mysql_spatial_contains` / `mysql_spatial_within` WKT Parsing** — Fixed both tools returning empty results when geometries should match. The tools were not applying `axis-order=long-lat` option to `ST_GeomFromText` calls, causing coordinate mismatch with SRID 4326 geometry columns. Also updated `test-seed.sql` to use `axis-order=long-lat` for proper test data storage.
 - **Router Tools Graceful Error Handling** — All 9 `mysql_router_*` tools now return `{ available: false, reason: "..." }` with descriptive error messages when the Router REST API is unreachable, instead of throwing raw errors. Improved error messages for common issues: connection refused, timeout, TLS certificate errors.
+- **`mysqlsh_export_table` Format Correction** — Removed misleading `json` format option from the export_table tool schema. MySQL Shell's `util.exportTable()` only supports delimited formats (CSV and TSV), not JSON output. The format parameter now correctly accepts only `csv` or `tsv`.
+
+### Changed
+
+- **Shell Tools Server Instructions** — Updated `mysqlsh_export_table` documentation to correctly list only CSV and TSV formats. Added Group Replication note for `mysqlsh_import_table`: target tables must have a PRIMARY KEY when importing to InnoDB Cluster environments.
+- **Test Database Reset Script** — Added `-Cluster` switch to `reset-database.ps1` to support seeding both standalone MySQL (`mysql-final`) and InnoDB Cluster (`mysql-node1`) environments. Documentation examples now consistently use `testdb` database.
 
 ### Changed
 

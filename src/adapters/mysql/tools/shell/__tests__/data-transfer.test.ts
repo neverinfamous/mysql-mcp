@@ -83,7 +83,7 @@ describe("Shell Data Transfer Tools", () => {
       expect(jsArg).toContain('fieldsEnclosedBy: "\\""');
     });
 
-    it("should export table with TSV format", async () => {
+    it("should export table with TSV format (default behavior)", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
 
       const tool = createShellExportTableTool();
@@ -98,7 +98,8 @@ describe("Shell Data Transfer Tools", () => {
       );
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('fieldsTerminatedBy: "\\t"');
+      // TSV is the default for util.exportTable(), no fieldsTerminatedBy option should be set
+      expect(jsArg).not.toContain("fieldsTerminatedBy");
     });
 
     it("should export table with WHERE clause", async () => {
@@ -110,7 +111,7 @@ describe("Shell Data Transfer Tools", () => {
           schema: "test",
           table: "users",
           outputPath: "/tmp/users_filtered",
-          format: "json",
+          format: "csv",
           where: "age > 18",
         },
         mockContext,
@@ -129,7 +130,7 @@ describe("Shell Data Transfer Tools", () => {
           schema: "test",
           table: "users",
           outputPath: "C:\\temp\\dump",
-          format: "json",
+          format: "csv",
         },
         mockContext,
       );
