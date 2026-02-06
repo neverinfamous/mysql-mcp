@@ -202,7 +202,7 @@ export function createSpatialContainsTool(
       const query = `
                 SELECT *
                 FROM \`${table}\`
-                WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}), \`${spatialColumn}\`)
+                WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
                 LIMIT ${String(limit)}
             `;
 
@@ -245,7 +245,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
       const query = `
                 SELECT *
                 FROM \`${table}\`
-                WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}))
+                WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
                 LIMIT ${String(limit)}
             `;
 

@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_import_data` Error Messages** — Improved error message when importing to a non-existent table. Now returns descriptive guidance: `"Import failed: Table 'X' does not exist. Create the table first before importing data."` instead of a raw MySQL error.
 - **`mysql_sys_io_summary` File Type** — Fixed tool failing with "Unknown column 'total_write'" error when using `type: file`. The `sys.io_global_by_file_by_bytes` view column is `total_written`, not `total_write`.
 - **`mysql_stats_distribution` Bucket Boundaries** — Fixed malformed `rangeStart`/`rangeEnd` values in histogram buckets (e.g., `"20.001.73"` instead of `21.73`). MySQL returns DECIMAL columns and FLOOR() results as strings, causing string concatenation instead of arithmetic. Now explicitly converts min, max, and bucket numbers to numbers.
+- **`mysql_spatial_contains` / `mysql_spatial_within` WKT Parsing** — Fixed both tools returning empty results when geometries should match. The tools were not applying `axis-order=long-lat` option to `ST_GeomFromText` calls, causing coordinate mismatch with SRID 4326 geometry columns. Also updated `test-seed.sql` to use `axis-order=long-lat` for proper test data storage.
 
 ### Changed
 

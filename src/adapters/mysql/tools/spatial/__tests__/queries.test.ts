@@ -239,8 +239,8 @@ describe("Spatial Queries Tools", () => {
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ST_Contains");
-      // Verify SRID is applied with default 4326
-      expect(call).toContain("ST_GeomFromText(?, 4326)");
+      // Verify SRID is applied with default 4326 and axis-order option
+      expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
     });
 
     it("should support custom SRID for contains query", async () => {
@@ -260,7 +260,7 @@ describe("Spatial Queries Tools", () => {
       );
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("ST_GeomFromText(?, 3857)");
+      expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
     });
 
     it("should validate identifiers", async () => {
@@ -305,8 +305,8 @@ describe("Spatial Queries Tools", () => {
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ST_Within");
-      // Verify SRID is applied with default 4326
-      expect(call).toContain("ST_GeomFromText(?, 4326)");
+      // Verify SRID is applied with default 4326 and axis-order option
+      expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
     });
 
     it("should support custom SRID for within query", async () => {
@@ -326,7 +326,7 @@ describe("Spatial Queries Tools", () => {
       );
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("ST_GeomFromText(?, 3857)");
+      expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
     });
 
     it("should validate identifiers", async () => {
