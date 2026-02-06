@@ -17,6 +17,77 @@ import {
   validateWhereClause,
 } from "../../../../utils/validators.js";
 
+/**
+ * Format a value for MySQL export.
+ * Handles Date objects, null, undefined, and other types.
+ */
+function formatForMySQL(val: unknown): string {
+  if (val === null || val === undefined) return "NULL";
+
+  // Handle Date objects - format as MySQL datetime
+  if (val instanceof Date) {
+    const yyyy = val.getUTCFullYear();
+    const mm = String(val.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(val.getUTCDate()).padStart(2, "0");
+    const hh = String(val.getUTCHours()).padStart(2, "0");
+    const mi = String(val.getUTCMinutes()).padStart(2, "0");
+    const ss = String(val.getUTCSeconds()).padStart(2, "0");
+    return `'${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}'`;
+  }
+
+  // Handle objects (JSON columns) - stringify
+  if (typeof val === "object") {
+    return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+  }
+
+  // Handle strings
+  if (typeof val === "string") {
+    return `'${val.replace(/'/g, "''")}'`;
+  }
+
+  // Numbers and booleans
+  if (typeof val === "number" || typeof val === "boolean") {
+    return String(val);
+  }
+
+  return "NULL";
+}
+
+/**
+ * Format a value for CSV export.
+ */
+function formatForCSV(val: unknown): string {
+  if (val === null || val === undefined) return "";
+
+  // Handle Date objects - format as ISO string without extra quotes
+  if (val instanceof Date) {
+    const yyyy = val.getUTCFullYear();
+    const mm = String(val.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(val.getUTCDate()).padStart(2, "0");
+    const hh = String(val.getUTCHours()).padStart(2, "0");
+    const mi = String(val.getUTCMinutes()).padStart(2, "0");
+    const ss = String(val.getUTCSeconds()).padStart(2, "0");
+    return `"${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}"`;
+  }
+
+  // Handle objects (JSON columns) - double-quote escaping for CSV
+  if (typeof val === "object") {
+    return `"${JSON.stringify(val).replace(/"/g, '""')}"`;
+  }
+
+  // Handle strings - escape double quotes
+  if (typeof val === "string") {
+    return `"${val.replace(/"/g, '""')}"`;
+  }
+
+  // Numbers and booleans
+  if (typeof val === "number" || typeof val === "boolean") {
+    return `"${val}"`;
+  }
+
+  return "";
+}
+
 export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_export_table",
@@ -63,18 +134,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         const csvLines = [headers.join(",")];
 
         for (const row of rows) {
-          const values = headers.map((h) => {
-            const val = row[h];
-            if (val === null || val === undefined) return "";
-            // Handle objects (JSON columns) by stringifying them
-            if (typeof val === "object")
-              return `"${JSON.stringify(val).replace(/"/g, '""')}"`;
-            if (typeof val === "string") return `"${val.replace(/"/g, '""')}"`;
-            // Numbers and booleans - safe to use directly
-            if (typeof val === "number" || typeof val === "boolean")
-              return `"${val}"`;
-            return "";
-          });
+          const values = headers.map((h) => formatForCSV(row[h]));
           csvLines.push(values.join(","));
         }
 
@@ -88,18 +148,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         const columns = Object.keys(row)
           .map((c) => `\`${c}\``)
           .join(", ");
-        const values = Object.values(row)
-          .map((v) => {
-            if (v === null || v === undefined) return "NULL";
-            if (typeof v === "string") return `'${v.replace(/'/g, "''")}'`;
-            if (typeof v === "object")
-              return `'${JSON.stringify(v).replace(/'/g, "''")}'`;
-            // Numbers and booleans - safe to convert
-            if (typeof v === "number" || typeof v === "boolean")
-              return String(v);
-            return "NULL";
-          })
-          .join(", ");
+        const values = Object.values(row).map(formatForMySQL).join(", ");
 
         insertStatements.push(
           `INSERT INTO \`${table}\` (${columns}) VALUES (${values});`,
@@ -134,22 +183,34 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
       let totalInserted = 0;
 
-      for (const row of data) {
-        // Validate column names
-        for (const colName of Object.keys(row)) {
-          validateIdentifier(colName, "column");
-        }
-        const columns = Object.keys(row)
-          .map((c) => `\`${c}\``)
-          .join(", ");
-        const placeholders = Object.keys(row)
-          .map(() => "?")
-          .join(", ");
-        const values = Object.values(row);
+      try {
+        for (const row of data) {
+          // Validate column names
+          for (const colName of Object.keys(row)) {
+            validateIdentifier(colName, "column");
+          }
+          const columns = Object.keys(row)
+            .map((c) => `\`${c}\``)
+            .join(", ");
+          const placeholders = Object.keys(row)
+            .map(() => "?")
+            .join(", ");
+          const values = Object.values(row);
 
-        const sql = `INSERT INTO \`${table}\` (${columns}) VALUES (${placeholders})`;
-        await adapter.executeWriteQuery(sql, values);
-        totalInserted++;
+          const sql = `INSERT INTO \`${table}\` (${columns}) VALUES (${placeholders})`;
+          await adapter.executeWriteQuery(sql, values);
+          totalInserted++;
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        // Provide clearer error for missing table
+        if (errorMessage.includes("doesn't exist")) {
+          throw new Error(
+            `Import failed: Table '${table}' does not exist. Create the table first before importing data.`,
+          );
+        }
+        throw error;
       }
 
       return { success: true, rowsInserted: totalInserted };
