@@ -111,10 +111,20 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
         const { role } = RoleGrantsSchema.parse(params);
+
+        // Check if role exists first (roles are locked accounts with empty auth string)
+        const checkResult = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+          [role],
+        );
+        if (!checkResult.rows || checkResult.rows.length === 0) {
+          return { role, grants: [], exists: false };
+        }
+
         // SHOW GRANTS cannot be always prepared
         const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
         const grants = (result.rows ?? []).map((r) => Object.values(r)[0]);
-        return { role, grants };
+        return { role, grants, exists: true };
       },
     },
     {
