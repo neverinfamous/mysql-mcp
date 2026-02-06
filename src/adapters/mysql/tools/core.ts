@@ -175,7 +175,15 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table } = DescribeTableSchema.parse(params);
       const tableInfo = await adapter.describeTable(table);
-      return tableInfo;
+      // Graceful handling for non-existent tables
+      if (!tableInfo.columns || tableInfo.columns.length === 0) {
+        return {
+          exists: false,
+          table,
+          message: `Table '${table}' does not exist or has no columns`,
+        };
+      }
+      return { ...tableInfo, exists: true };
     },
   };
 }
@@ -210,7 +218,11 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
           def += " AUTO_INCREMENT";
         }
         if (col.default !== undefined) {
-          const defaultVal = col.default as string | number | boolean | null;
+          let defaultVal = col.default as string | number | boolean | null;
+          // Convert boolean true/false to 1/0 for MySQL compatibility
+          if (typeof defaultVal === "boolean") {
+            defaultVal = defaultVal ? 1 : 0;
+          }
           // Check if default is a SQL function/expression that should not be quoted
           const defaultValue = String(defaultVal).toUpperCase().trim();
           const sqlFunctions = [
@@ -325,8 +337,18 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { table } = GetIndexesSchema.parse(params);
+      // First check if table exists by describing it
+      const tableInfo = await adapter.describeTable(table);
+      if (!tableInfo.columns || tableInfo.columns.length === 0) {
+        return {
+          exists: false,
+          table,
+          indexes: [],
+          message: `Table '${table}' does not exist`,
+        };
+      }
       const indexes = await adapter.getTableIndexes(table);
-      return { indexes };
+      return { exists: true, indexes };
     },
   };
 }

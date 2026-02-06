@@ -37,9 +37,18 @@ describe("InnoDB Cluster Tools", () => {
         ) // Schema check
         .mockResolvedValueOnce(
           createMockQueryResult([{ cluster_name: "myCluster" }]),
-        ) // Cluster info
+        ) // Cluster info (basic)
         .mockResolvedValueOnce(createMockQueryResult([{ count: 3 }])) // Instance count
-        .mockResolvedValueOnce(createMockQueryResult([{ count: 2 }])); // Router count
+        .mockResolvedValueOnce(createMockQueryResult([{ count: 2 }])) // Router count
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              cluster_name: "myCluster",
+              cluster_id: 1,
+              primary_mode: "SINGLE",
+            },
+          ]),
+        ); // Full cluster info (non-summary mode)
 
       const tool = createClusterStatusTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -47,7 +56,11 @@ describe("InnoDB Cluster Tools", () => {
       const result = (await tool.handler({}, mockContext)) as any;
 
       expect(result.isInnoDBCluster).toBe(true);
-      expect(result.cluster).toEqual({ cluster_name: "myCluster" });
+      expect(result.cluster).toEqual({
+        cluster_name: "myCluster",
+        cluster_id: 1,
+        primary_mode: "SINGLE",
+      });
       expect(result.instanceCount).toBe(3);
       expect(result.routerCount).toBe(2);
     });

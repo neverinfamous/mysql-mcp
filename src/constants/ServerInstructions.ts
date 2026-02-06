@@ -72,9 +72,14 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist.
 - **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.
 
-## DDL Statements (\`mysql_write_query\`)
+## Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_create_table\`, etc.)
 
-- DDL statements (like \`CREATE TABLE\`) are automatically handled via text protocol fallback.
+- **Prepared statements**: \`mysql_read_query\` and \`mysql_write_query\` support parameterized queries via the \`params\` array. Use \`?\` placeholders: \`query: "SELECT * FROM users WHERE id = ?", params: [123]\`.
+- **DDL statements**: DDL (e.g., \`CREATE TABLE\`, \`ALTER TABLE\`) is automatically handled via text protocol fallback in \`mysql_write_query\`.
+- **Boolean defaults**: \`mysql_create_table\` auto-converts boolean \`default: true\` to \`1\` and \`default: false\` to \`0\` for MySQL compatibility. Alternatively, use \`TINYINT(1)\` with numeric defaults directly.
+- **Existence checks**: \`mysql_describe_table\` and \`mysql_get_indexes\` return \`{ exists: false, table: "..." }\` gracefully when the table does not exist, avoiding raw SQL errors.
+- **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use \`ifNotExists: true\` to skip if the index already exists.
+- **Table names**: All core tools support qualified names (\`schema.table\` format) for cross-database operations.
 
 ## Role Management (\`mysql_role_*\`, \`mysql_user_roles\`)
 
