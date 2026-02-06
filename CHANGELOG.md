@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Shell Tools Server Instructions** — Updated `mysqlsh_export_table` documentation to correctly list only CSV and TSV formats. Added Group Replication note for `mysqlsh_import_table`: target tables must have a PRIMARY KEY when importing to InnoDB Cluster environments.
+- **`mysqlsh_import_table` Parameter Clarity** — Improved `columns` parameter description to clarify positional mapping behavior (Nth field → Nth column). Updated `fieldsTerminatedBy` description to emphasize CSV files require explicit delimiter setting (auto-detect not supported).
+- **`mysqlsh_import_json` NDJSON Requirement** — Updated tool description and server instructions to clarify file must be NDJSON format (one JSON object per line), not JSON array format.
 - **Test Database Reset Script** — Added `-Cluster` switch to `reset-database.ps1` to support seeding both standalone MySQL (`mysql-final`) and InnoDB Cluster (`mysql-node1`) environments. Documentation examples now consistently use `testdb` database.
 
 ### Changed

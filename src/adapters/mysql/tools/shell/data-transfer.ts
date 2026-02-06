@@ -79,7 +79,7 @@ export function createShellImportTableTool(): ToolDefinition {
     name: "mysqlsh_import_table",
     title: "MySQL Shell Import Table",
     description:
-      "Parallel table import using util.importTable(). Imports CSV, TSV, or other delimited files into a MySQL table using multiple threads.",
+      "Parallel table import using util.importTable(). For CSV files, explicitly set fieldsTerminatedBy to ',' as the delimiter is not auto-detected. Target table must already exist.",
     group: "shell",
     inputSchema: ShellImportTableInputSchema,
     requiredScopes: ["write"],
@@ -171,7 +171,7 @@ export function createShellImportJSONTool(): ToolDefinition {
     name: "mysqlsh_import_json",
     title: "MySQL Shell Import JSON",
     description:
-      "Import JSON documents from a file using util.importJson(). Can import into a collection (X DevAPI) or a table column. REQUIRES X Protocol (port 33060).",
+      "Import JSON documents from a file using util.importJson(). File must be NDJSON format (one JSON object per line, not a JSON array). REQUIRES X Protocol (port 33060).",
     group: "shell",
     inputSchema: ShellImportJSONInputSchema,
     requiredScopes: ["write"],

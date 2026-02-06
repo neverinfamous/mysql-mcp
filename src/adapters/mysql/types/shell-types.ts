@@ -102,11 +102,15 @@ export const ShellImportTableInputSchema = z
     columns: z
       .array(z.string())
       .optional()
-      .describe("Column mapping for import"),
+      .describe(
+        "Column names to map input fields to, in order. Maps Nth field from file to Nth column name in this array",
+      ),
     fieldsTerminatedBy: z
       .string()
       .optional()
-      .describe("Field delimiter (default: auto-detect)"),
+      .describe(
+        'Field delimiter. For CSV files, explicitly set to "," as delimiter is not auto-detected',
+      ),
     linesTerminatedBy: z.string().optional().describe("Line delimiter"),
     updateServerSettings: booleanCoerce
       .optional()
