@@ -90,6 +90,15 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - Tools check for \`group_replication\` plugin status and return "not active" if plugin is not active.
 
+## InnoDB Cluster Tools (\`mysql_cluster_*\`)
+
+- **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (\`mysql_innodb_cluster_metadata\`) must exist.
+- **Cluster status**: \`mysql_cluster_status\` returns cluster metadata. Use \`summary: true\` for condensed output without Router configuration schemas. Returns \`isInnoDBCluster: false\` if not in a cluster.
+- **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role.
+- **Topology**: \`mysql_cluster_topology\` provides an ASCII visualization grouping members by role (PRIMARY, secondaries, recovering, offline).
+- **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return only essential router info without full configuration blobs.
+- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and provides target recommendations. Returns \`canSwitchover: false\` if no viable candidates.
+
 ## MySQL Router Tools (\`mysql_router_*\`)
 
 - **Prerequisites**: MySQL Router must be running with REST API enabled. The REST API requires an InnoDB Cluster backend for authentication (uses \`metadata_cache\` credentials).

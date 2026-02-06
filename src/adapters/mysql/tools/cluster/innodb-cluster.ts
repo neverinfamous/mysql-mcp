@@ -20,6 +20,13 @@ const LimitSchema = z.object({
   limit: z.number().default(100).describe("Maximum number of results"),
 });
 
+const SummarySchema = z.object({
+  summary: z
+    .boolean()
+    .optional()
+    .describe("If true, return condensed output without configuration blobs"),
+});
+
 // =============================================================================
 // Tool Creation Functions
 // =============================================================================
@@ -34,13 +41,14 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get overall InnoDB Cluster status (requires mysql_innodb_cluster_metadata schema).",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: SummarySchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { summary } = SummarySchema.parse(params);
       try {
         // Check for cluster metadata schema
         const schemaCheck = await adapter.executeQuery(`
@@ -65,14 +73,14 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
 
-        // Get cluster info - use SELECT * to handle schema variations across versions
+        // Get cluster info
         const clusterResult = await adapter.executeQuery(`
-                    SELECT *
+                    SELECT cluster_id, cluster_name, description, cluster_type, primary_mode
                     FROM mysql_innodb_cluster_metadata.clusters
                     LIMIT 1
                 `);
 
-        const cluster = clusterResult.rows?.[0];
+        const clusterBasic = clusterResult.rows?.[0];
 
         // Get instance count
         const instanceResult = await adapter.executeQuery(`
@@ -86,9 +94,26 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     FROM mysql_innodb_cluster_metadata.routers
                 `);
 
+        // Summary mode: return only essential metadata
+        if (summary) {
+          return {
+            isInnoDBCluster: true,
+            cluster: clusterBasic ?? null,
+            instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
+            routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+          };
+        }
+
+        // Full mode: include all cluster metadata including options/attributes
+        const fullClusterResult = await adapter.executeQuery(`
+                    SELECT *
+                    FROM mysql_innodb_cluster_metadata.clusters
+                    LIMIT 1
+                `);
+
         return {
           isInnoDBCluster: true,
-          cluster: cluster ?? null,
+          cluster: fullClusterResult.rows?.[0] ?? null,
           instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
           routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
         };
@@ -267,14 +292,38 @@ export function createClusterRouterStatusTool(
     title: "MySQL Cluster Router Status",
     description: "Get status of MySQL Routers connected to the cluster.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: SummarySchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { summary } = SummarySchema.parse(params);
+
       try {
+        // Summary mode: return only essential router info
+        if (summary) {
+          const result = await adapter.executeQuery(`
+                      SELECT 
+                          router_id as routerId,
+                          router_name as routerName,
+                          address,
+                          version,
+                          last_check_in as lastCheckIn,
+                          JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.ROEndpoint')) as roPort,
+                          JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.RWEndpoint')) as rwPort,
+                          JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.LocalCluster')) as localCluster
+                      FROM mysql_innodb_cluster_metadata.routers
+                  `);
+
+          return {
+            routers: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          };
+        }
+
+        // Full mode: include complete attributes blob
         const result = await adapter.executeQuery(`
                     SELECT 
                         router_id as routerId,

@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`proxysql_status` Summary Mode (P141)** — Added optional `summary: boolean` parameter to return only key metrics (uptime, queries, connections, buffer sizes) instead of all 77 status variables. Reduces payload from ~4KB to ~500B.
 - **`proxysql_global_variables` Like Filter** — Added optional `like: string` parameter for LIKE pattern matching on variable names (e.g., `like: "%connection%"`). Can be combined with the existing `prefix` filter for targeted queries.
 - **MySQL Shell Tools Server Instructions** — Added comprehensive Shell Tools section documenting prerequisites, version checking, upgrade compatibility analysis, script execution (JS/Python/SQL), export/import utilities, dump/load operations, and privilege requirements.
+- **`mysql_cluster_status` Summary Mode** — Added optional `summary: boolean` parameter to return only essential cluster metadata (cluster name, ID, type, instance/router counts) instead of full Router configuration schemas. Reduces payload from ~21KB to ~500B.
+- **`mysql_cluster_router_status` Summary Mode** — Added optional `summary: boolean` parameter to return only essential router info (ID, name, address, version, last check-in, ports, local cluster) instead of full configuration blobs. Reduces payload from ~12KB to ~300B per router.
+- **InnoDB Cluster Tools Server Instructions** — Added comprehensive InnoDB Cluster section documenting prerequisites, cluster status, instance listing, topology visualization, router status from metadata, and switchover analysis.
+
 
 ### Changed
 
