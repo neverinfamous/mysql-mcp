@@ -214,6 +214,16 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings).
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope.
 - **Enterprise features**: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
+
+## ProxySQL Tools (\`mysql_proxysql_*\`)
+
+- **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032, user/password: admin/admin or as configured via \`PROXYSQL_*\` env vars).
+- **Status monitoring**: \`proxysql_status\` returns global status variables. Use \`summary: true\` for key metrics only (uptime, queries, connections).
+- **Global variables**: \`proxysql_global_variables\` supports \`prefix\` filter (\`mysql\`, \`admin\`, or \`all\`) and \`like\` pattern for variable name matching.
+- **Backend servers**: \`proxysql_servers\` and \`proxysql_connection_pool\` show backend MySQL server configurations and connection pool stats. Filter with \`hostgroup_id\`.
+- **Query analysis**: \`proxysql_query_rules\` lists routing rules; \`proxysql_query_digest\` shows top queries by execution count.
+- **Admin commands**: \`proxysql_commands\` executes LOAD/SAVE for users, servers, query rules, variables, and FLUSH operations.
+- **Memory/Process**: \`proxysql_memory_stats\` shows memory allocation; \`proxysql_process_list\` shows active client sessions.
 `;
 
 /**
@@ -230,10 +240,10 @@ export function generateInstructions(
   const activeGroups = getActiveToolGroups(enabledTools);
   if (activeGroups.length > 0) {
     instructions += "\n## Active Tools\n\n";
-    instructions += `This server instance has ${enabledTools.size} tools enabled across ${activeGroups.length} groups:\n\n`;
+    instructions += `This server instance has ${enabledTools.size} tools enabled across ${activeGroups.length} groups: \n\n`;
 
     for (const { group, tools } of activeGroups) {
-      instructions += `### ${group} (${tools.length} tools)\n`;
+      instructions += `### ${group} (${tools.length} tools) \n`;
       instructions += tools.map((t) => `- \`${t}\``).join("\n");
       instructions += "\n\n";
     }

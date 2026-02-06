@@ -13,6 +13,7 @@ import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import {
   ProxySQLBaseInputSchema,
+  ProxySQLStatusInputSchema,
   ProxySQLLimitInputSchema,
   ProxySQLHostgroupInputSchema,
   ProxySQLVariableFilterSchema,
@@ -96,17 +97,46 @@ function createProxySQLStatusTool(): ToolDefinition {
     name: "proxysql_status",
     title: "ProxySQL Status",
     description:
-      "Get ProxySQL version, uptime, and runtime statistics. Returns global status variables from stats_mysql_global.",
+      "Get ProxySQL version, uptime, and runtime statistics. Returns global status variables from stats_mysql_global. Use summary: true for condensed key metrics.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLStatusInputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { summary } = ProxySQLStatusInputSchema.parse(params);
       const rows = await proxySQLQuery("SELECT * FROM stats_mysql_global");
+
+      if (summary) {
+        // Key metrics for summary mode
+        const keyMetrics = [
+          "ProxySQL_Uptime",
+          "Questions",
+          "Slow_queries",
+          "Active_Transactions",
+          "Client_Connections_connected",
+          "Client_Connections_created",
+          "Server_Connections_connected",
+          "Server_Connections_created",
+          "Query_Cache_Entries",
+          "Query_Cache_Memory_bytes",
+          "mysql_backend_buffers_bytes",
+          "mysql_frontend_buffers_bytes",
+        ];
+        const filteredRows = rows.filter((row) =>
+          keyMetrics.includes(row["Variable_Name"] as string),
+        );
+        return {
+          success: true,
+          summary: true,
+          stats: filteredRows,
+          totalVarsAvailable: rows.length,
+        };
+      }
+
       return {
         success: true,
         stats: rows,
@@ -366,7 +396,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
     name: "proxysql_global_variables",
     title: "ProxySQL Global Variables",
     description:
-      "Get ProxySQL global variables. Filter by prefix: mysql (MySQL proxy settings), admin (admin interface settings), or all.",
+      "Get ProxySQL global variables. Filter by prefix: mysql (MySQL proxy settings), admin (admin interface settings), or all. Use like parameter for pattern matching.",
     group: "proxysql",
     inputSchema: ProxySQLVariableFilterSchema,
     requiredScopes: ["read"],
@@ -376,13 +406,27 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { prefix } = ProxySQLVariableFilterSchema.parse(params);
+      const { prefix, like } = ProxySQLVariableFilterSchema.parse(params);
       let sql = "SELECT * FROM global_variables";
+      const conditions: string[] = [];
+
+      // Apply prefix filter
       if (prefix === "mysql") {
-        sql += " WHERE variable_name LIKE 'mysql-%'";
+        conditions.push("variable_name LIKE 'mysql-%'");
       } else if (prefix === "admin") {
-        sql += " WHERE variable_name LIKE 'admin-%'";
+        conditions.push("variable_name LIKE 'admin-%'");
       }
+
+      // Apply like pattern filter (sanitize input)
+      if (like) {
+        const sanitizedLike = like.replace(/'/g, "''");
+        conditions.push(`variable_name LIKE '${sanitizedLike}'`);
+      }
+
+      if (conditions.length > 0) {
+        sql += " WHERE " + conditions.join(" AND ");
+      }
+
       const rows = await proxySQLQuery(sql);
       return {
         success: true,

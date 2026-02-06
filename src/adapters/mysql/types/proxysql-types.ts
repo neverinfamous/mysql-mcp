@@ -162,6 +162,15 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 
 export const ProxySQLBaseInputSchema = z.object({});
 
+export const ProxySQLStatusInputSchema = z.object({
+  summary: z
+    .boolean()
+    .optional()
+    .describe(
+      "If true, returns only key metrics (version, uptime, queries, connections) instead of all status variables",
+    ),
+});
+
 export const ProxySQLLimitInputSchema = z.object({
   limit: z
     .number()
@@ -178,6 +187,12 @@ export const ProxySQLVariableFilterSchema = z.object({
     .enum(["mysql", "admin", "all"])
     .optional()
     .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
+  like: z
+    .string()
+    .optional()
+    .describe(
+      "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
+    ),
 });
 
 export const ProxySQLCommandInputSchema = z.object({
