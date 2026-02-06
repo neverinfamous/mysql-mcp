@@ -16,6 +16,7 @@ const ListCollectionsSchema = z.object({
 const CreateCollectionSchema = z.object({
   name: z.string().describe("Collection name"),
   schema: z.string().optional(),
+  ifNotExists: z.boolean().default(false).describe("Add IF NOT EXISTS clause"),
   validation: z
     .object({
       schema: z
@@ -172,11 +173,16 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       requiredScopes: ["write"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
-        const { name, validation } = CreateCollectionSchema.parse(params);
+        const { name, ifNotExists, validation } =
+          CreateCollectionSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid collection name");
 
-        let sql = `CREATE TABLE \`${name}\` (
+        const createClause = ifNotExists
+          ? "CREATE TABLE IF NOT EXISTS"
+          : "CREATE TABLE";
+
+        let sql = `${createClause} \`${name}\` (
                     doc JSON,
                     _id VARBINARY(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
                     _json_schema JSON GENERATED ALWAYS AS ('{}') VIRTUAL
@@ -184,7 +190,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
 
         if (validation?.level && validation.level !== "OFF") {
           const schemaJson = JSON.stringify(validation.schema ?? {});
-          sql = `CREATE TABLE \`${name}\` (
+          sql = `${createClause} \`${name}\` (
                         doc JSON,
                         _id VARBINARY(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
                         CONSTRAINT chk_schema CHECK (JSON_SCHEMA_VALID('${schemaJson}', doc))
@@ -226,6 +232,22 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           FindSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection))
           throw new Error("Invalid collection name");
+
+        // Check if collection exists
+        const tableCheck = await adapter.executeQuery(
+          `SELECT 1 FROM information_schema.TABLES 
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+          [collection],
+        );
+        if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          return {
+            exists: false,
+            collection,
+            error: "Collection does not exist",
+            documents: [],
+            count: 0,
+          };
+        }
 
         let selectClause = "doc";
         if (fields && fields.length > 0) {
