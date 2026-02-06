@@ -224,6 +224,19 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Query analysis**: \`proxysql_query_rules\` lists routing rules; \`proxysql_query_digest\` shows top queries by execution count.
 - **Admin commands**: \`proxysql_commands\` executes LOAD/SAVE for users, servers, query rules, variables, and FLUSH operations.
 - **Memory/Process**: \`proxysql_memory_stats\` shows memory allocation; \`proxysql_process_list\` shows active client sessions.
+
+## MySQL Shell Tools (\`mysqlsh_*\`)
+
+- **Prerequisites**: MySQL Shell must be installed and accessible via \`MYSQLSH_PATH\` environment variable or system PATH.
+- **Version check**: \`mysqlsh_version\` verifies MySQL Shell availability before running other shell tools.
+- **Upgrade checking**: \`mysqlsh_check_upgrade\` analyzes MySQL server for upgrade compatibility issues. Returns \`errorCount\`, \`warningCount\`, and \`noticeCount\` summary with full JSON report.
+- **Script execution**: \`mysqlsh_run_script\` supports JavaScript (\`js\`), Python (\`py\`), and SQL (\`sql\`) languages with full access to MySQL Shell APIs.
+- **Table export**: \`mysqlsh_export_table\` uses \`util.exportTable()\` for CSV, TSV, or JSON export. Use \`where\` parameter for filtered exports.
+- **Parallel import**: \`mysqlsh_import_table\` uses \`util.importTable()\` for high-performance CSV/TSV import. Requires \`local_infile\` enabled on server.
+- **JSON import**: \`mysqlsh_import_json\` uses \`util.importJson()\` to import JSON documents. **Requires X Protocol (port 33060)**.
+- **Dump utilities**: \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\` create compressed parallel dumps. Use \`dryRun: true\` to preview.
+- **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`.
+- **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use \`ddlOnly: true\` (schemas) or \`all: false\` (tables) to skip restricted metadata.
 `;
 
 /**

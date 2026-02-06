@@ -227,22 +227,41 @@ export function createShellDumpTablesTool(): ToolDefinition {
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
+
+        // Check for specific privilege issues
         if (
           errorMessage.includes("privilege") ||
-          errorMessage.includes("Access denied") ||
-          errorMessage.includes("TRIGGER")
+          errorMessage.includes("Access denied")
         ) {
+          // Extract specific privilege if mentioned
+          const privilegeRegex =
+            /(?:missing|requires?|need)[^.]*?(EVENT|TRIGGER|ROUTINE|SELECT|INSERT|UPDATE|DELETE)/i;
+          const privilegeMatch = privilegeRegex.exec(errorMessage);
+          const specificPrivilege = privilegeMatch ? privilegeMatch[1] : null;
+
           throw new Error(
             `Dump failed due to missing privileges: ${errorMessage}. ` +
-              `Try setting all: false to skip triggers if you lack TRIGGER privilege.`,
+              (specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
+                ? `Try setting all: false to skip ${specificPrivilege.toLowerCase()}s.`
+                : `Try setting all: false to skip metadata that requires extra privileges.`),
           );
         }
+
+        // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
+          // Check if it's during metadata writing
+          if (errorMessage.includes("Writing schema metadata")) {
+            throw new Error(
+              `Dump failed while writing schema metadata: ${errorMessage}. ` +
+                `This is typically due to missing EVENT or TRIGGER privileges. Try setting all: false to skip metadata.`,
+            );
+          }
           throw new Error(
             `Dump failed: ${errorMessage}. ` +
-              `This may be due to missing privileges on the schema. Try setting all: false to skip metadata that requires extra privileges.`,
+              `This may be due to missing privileges. Try setting all: false to skip metadata that requires extra privileges.`,
           );
         }
+
         throw error;
       }
     },

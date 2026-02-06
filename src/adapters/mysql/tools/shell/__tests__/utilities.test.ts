@@ -123,20 +123,21 @@ describe("Shell Utilities Tools", () => {
       expect(result.upgradeCheck.raw).toBe("Non-JSON output");
     });
 
-    it("should support outputFormat option", async () => {
+    it("should always use JSON outputFormat internally for reliable parsing", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
 
       const tool = createShellCheckUpgradeTool();
       await tool.handler(
         {
           targetVersion: "8.4.0",
-          outputFormat: "TEXT",
+          outputFormat: "TEXT", // User can request TEXT, but internally we use JSON
         },
         mockContext,
       );
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('outputFormat: "TEXT"');
+      // We force JSON internally for reliable parsing
+      expect(jsArg).toContain('outputFormat: "JSON"');
     });
 
     it("should include targetVersion option when provided", async () => {
@@ -159,7 +160,7 @@ describe("Shell Utilities Tools", () => {
       expect(jsArg).toContain('outputFormat: "JSON"');
     });
 
-    it("should include both options when both provided", async () => {
+    it("should include targetVersion and always use JSON outputFormat", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
 
       const tool = createShellCheckUpgradeTool();
@@ -170,7 +171,8 @@ describe("Shell Utilities Tools", () => {
 
       const jsArg = mockSpawn.mock.calls[0][1][4] as string;
       expect(jsArg).toContain('targetVersion: "9.0.0"');
-      expect(jsArg).toContain('outputFormat: "TEXT"');
+      // We always force JSON internally for reliable parsing
+      expect(jsArg).toContain('outputFormat: "JSON"');
     });
   });
 });

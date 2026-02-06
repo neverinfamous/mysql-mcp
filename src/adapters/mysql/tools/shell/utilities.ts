@@ -35,25 +35,54 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
       // Use connection URI string instead of session object
       // The util.checkForServerUpgrade() accepts a URI string as first arg
       const escapedUri = escapeForJS(config.connectionUri);
-      let jsCode = `return util.checkForServerUpgrade("${escapedUri}"`;
 
-      const options: string[] = [];
+      // Force JSON output format to ensure parseable results
+      const options: string[] = ['outputFormat: "JSON"'];
       if (targetVersion) {
         options.push(`targetVersion: "${targetVersion}"`);
       }
-      if (outputFormat) {
-        options.push(`outputFormat: "${outputFormat}"`);
-      }
 
-      if (options.length > 0) {
-        jsCode += `, { ${options.join(", ")} }`;
-      }
-      jsCode += ");";
+      const jsCode = `return util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
 
       const result = await execShellJS(jsCode, { timeout: 120000 });
 
+      // Parse the upgrade check result
+      // util.checkForServerUpgrade returns { errorCount, warningCount, noticeCount, ... }
+      if (
+        result !== null &&
+        result !== undefined &&
+        typeof result === "object"
+      ) {
+        const checkResult = result as {
+          errorCount?: number;
+          warningCount?: number;
+          noticeCount?: number;
+          checksPerformed?: unknown[];
+          targetVersion?: string;
+          serverVersion?: string;
+        };
+
+        return {
+          success: true,
+          targetVersion: checkResult.targetVersion ?? targetVersion,
+          serverVersion: checkResult.serverVersion,
+          errorCount: checkResult.errorCount ?? 0,
+          warningCount: checkResult.warningCount ?? 0,
+          noticeCount: checkResult.noticeCount ?? 0,
+          checksPerformed: checkResult.checksPerformed?.length ?? 0,
+          upgradeCheck:
+            outputFormat === "TEXT"
+              ? "Use outputFormat: JSON for detailed results"
+              : checkResult,
+        };
+      }
+
       return {
         success: true,
+        targetVersion: targetVersion ?? "latest",
+        errorCount: 0,
+        warningCount: 0,
+        noticeCount: 0,
         upgradeCheck: result,
       };
     },
