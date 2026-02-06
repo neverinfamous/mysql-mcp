@@ -95,7 +95,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Value Parameter**: The \`value\` parameter expects only the boundary value, NOT the full SQL clause.
   - ❌ Incorrect: \`value: "LESS THAN (2024)"\` (SQL syntax error - duplicates keywords)
   - ✅ Correct: \`value: "2024"\` for RANGE partitions
-  - ✅ Correct: \`value: "1,2,3"\` for LIST partitions
+  - ✅ Correct: \`value: "1,2,3"\` for LIST partitions (integer values)
+  - ✅ Correct: \`value: "'region1','region2'"\` for LIST COLUMNS (quoted string values)
   - ✅ Correct: \`value: "4"\` for HASH/KEY (number of partitions to add)
 - **Reorganize**: Requires \`partitionType\` parameter (RANGE or LIST). HASH/KEY partitions cannot be reorganized.
 - **Drop Warning**: \`mysql_drop_partition\` permanently deletes all data in the partition.
