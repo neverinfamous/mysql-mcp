@@ -199,6 +199,8 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table } = IndexUsageSchema.parse(params);
 
+      // Always filter to current database to avoid returning thousands of
+      // MySQL internal indexes with zero counts
       let sql = `
                 SELECT 
                     object_schema as database_name,
@@ -212,6 +214,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
                     count_delete
                 FROM performance_schema.table_io_waits_summary_by_index_usage
                 WHERE index_name IS NOT NULL
+                  AND object_schema = DATABASE()
             `;
 
       if (table) {

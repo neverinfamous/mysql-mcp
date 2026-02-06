@@ -105,6 +105,14 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **SOUNDEX**: Finds phonetically similar values - matches alternative spellings (e.g., \`johndoe\` matches \`jonedoe\`).
 - **WHERE clause**: All text tools support optional \`where\` parameter to filter rows.
 - **Minimal output**: Tools return only \`id\`, target column(s), and computed result.
+
+## Performance Tools (\`mysql_explain\`, \`mysql_query_stats\`, etc.)
+
+- **EXPLAIN formats**: \`mysql_explain\` supports JSON (default), TREE, and TRADITIONAL formats.
+- **EXPLAIN ANALYZE**: \`mysql_explain_analyze\` shows actual execution times (MySQL 8.0+).
+- **Performance schema**: \`mysql_slow_queries\`, \`mysql_query_stats\`, and \`mysql_index_usage\` require \`performance_schema\` enabled.
+- **Index usage**: \`mysql_index_usage\` filters to the current database by default. Use \`table\` parameter to filter further.
+- **Buffer pool**: \`mysql_buffer_pool_stats\` shows InnoDB memory usage and hit rates.
 `;
 
 /**
