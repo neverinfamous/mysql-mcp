@@ -141,6 +141,20 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(role))
           throw new Error("Invalid role name");
 
+        // Check if role exists first
+        const checkResult = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+          [role],
+        );
+        if (!checkResult.rows || checkResult.rows.length === 0) {
+          return {
+            success: false,
+            role,
+            exists: false,
+            error: "Role does not exist",
+          };
+        }
+
         let targetDb = database;
         let targetTable = table;
 
@@ -186,6 +200,23 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       handler: async (params: unknown, _context: RequestContext) => {
         const { role, user, host, withAdminOption } =
           RoleAssignSchema.parse(params);
+
+        // Check if role exists first
+        const checkResult = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+          [role],
+        );
+        if (!checkResult.rows || checkResult.rows.length === 0) {
+          return {
+            success: false,
+            role,
+            user,
+            host,
+            exists: false,
+            error: "Role does not exist",
+          };
+        }
+
         let sql = `GRANT '${role}' TO '${user}'@'${host}'`;
         if (withAdminOption) sql += " WITH ADMIN OPTION";
         await adapter.rawQuery(sql);
@@ -205,6 +236,23 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
         const { role, user, host } = RoleRevokeSchema.parse(params);
+
+        // Check if role exists first
+        const checkResult = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+          [role],
+        );
+        if (!checkResult.rows || checkResult.rows.length === 0) {
+          return {
+            success: false,
+            role,
+            user,
+            host,
+            exists: false,
+            error: "Role does not exist",
+          };
+        }
+
         await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
         return { success: true, role, user, host };
       },
