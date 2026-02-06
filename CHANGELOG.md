@@ -532,7 +532,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MySQL Shell Support** - 10 new tools for MySQL Shell 8.0 integration
   - `mysqlsh_version` - Get MySQL Shell version and installation status
   - `mysqlsh_check_upgrade` - Check server upgrade compatibility
-  - `mysqlsh_export_table` - Export table to file (CSV, TSV, JSON)
+  - `mysqlsh_export_table` - Export table to file (CSV, TSV)
   - `mysqlsh_import_table` - Parallel table import from file
   - `mysqlsh_import_json` - Import JSON documents to collection or table
   - `mysqlsh_dump_instance` - Dump entire MySQL instance

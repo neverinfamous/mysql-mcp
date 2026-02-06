@@ -61,7 +61,7 @@ mysqlsh --py mysql://user:pass@localhost
 - \`mysqlsh_check_upgrade\` - Check MySQL server upgrade compatibility
 
 ### Data Export
-- \`mysqlsh_export_table\` - Export table to CSV/TSV/JSON
+- \`mysqlsh_export_table\` - Export table to CSV/TSV
 - \`mysqlsh_dump_instance\` - Dump entire instance (parallel, fast)
 - \`mysqlsh_dump_schemas\` - Dump specific schemas
 - \`mysqlsh_dump_tables\` - Dump specific tables
