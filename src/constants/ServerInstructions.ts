@@ -120,6 +120,15 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Query optimization**: \`mysql_query_rewrite\` analyzes queries for common anti-patterns (SELECT *, missing LIMIT, OR conditions, leading wildcards) and includes EXPLAIN output.
 - **Force index**: \`mysql_force_index\` generates a query with \`FORCE INDEX\` hint for testing index behavior.
 - **Optimizer trace**: \`mysql_optimizer_trace\` returns detailed MySQL optimizer decisions. Use \`summary: true\` for compact output with only key decisions (recommended for most cases).
+
+## Admin Tools (\`mysql_optimize_table\`, \`mysql_repair_table\`, etc.)
+
+- **Optimize**: \`mysql_optimize_table\` reclaims unused space (InnoDB does recreate + analyze).
+- **Analyze**: \`mysql_analyze_table\` updates index statistics for the query optimizer.
+- **Check**: \`mysql_check_table\` verifies table integrity. Options: QUICK, FAST, MEDIUM, EXTENDED, CHANGED.
+- **Repair**: \`mysql_repair_table\` only works for MyISAM tables; InnoDB reports "not supported."
+- **Flush**: \`mysql_flush_tables\` writes cached changes to disk.
+- **Kill**: \`mysql_kill_query\` terminates queries by process ID. Use \`connection: true\` to kill the entire connection.
 `;
 
 /**

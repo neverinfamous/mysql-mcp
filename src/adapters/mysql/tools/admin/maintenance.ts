@@ -161,8 +161,19 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { processId, connection } = KillQuerySchema.parse(params);
       const killType = connection ? "CONNECTION" : "QUERY";
-      await adapter.executeQuery(`KILL ${killType} ${processId}`);
-      return { success: true, killed: processId, type: killType };
+      try {
+        await adapter.executeQuery(`KILL ${killType} ${processId}`);
+        return { success: true, killed: processId, type: killType };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.includes("Unknown thread id")) {
+          return {
+            success: false,
+            error: `Process ID ${processId} not found`,
+          };
+        }
+        throw error;
+      }
     },
   };
 }
