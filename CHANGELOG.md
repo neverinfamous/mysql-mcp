@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_spatial_contains` / `mysql_spatial_within` WKT Parsing** — Fixed both tools returning empty results when geometries should match. The tools were not applying `axis-order=long-lat` option to `ST_GeomFromText` calls, causing coordinate mismatch with SRID 4326 geometry columns. Also updated `test-seed.sql` to use `axis-order=long-lat` for proper test data storage.
 - **Router Tools Graceful Error Handling** — All 9 `mysql_router_*` tools now return `{ available: false, reason: "..." }` with descriptive error messages when the Router REST API is unreachable, instead of throwing raw errors. Improved error messages for common issues: connection refused, timeout, TLS certificate errors.
 - **`mysqlsh_export_table` Format Correction** — Removed misleading `json` format option from the export_table tool schema. MySQL Shell's `util.exportTable()` only supports delimited formats (CSV and TSV), not JSON output. The format parameter now correctly accepts only `csv` or `tsv`.
+- **`mysqlsh_run_script` SQL Comment Handling** — Fixed SQL scripts with comments (e.g., `-- comment`) or multi-statement syntax failing with "option -e requires an argument" error. SQL scripts are now written to a temp file and executed via `--file` flag instead of `-e`, properly supporting all SQL syntax including comments.
 
 ### Changed
 

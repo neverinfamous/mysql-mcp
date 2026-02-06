@@ -230,9 +230,9 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Prerequisites**: MySQL Shell must be installed and accessible via \`MYSQLSH_PATH\` environment variable or system PATH.
 - **Version check**: \`mysqlsh_version\` verifies MySQL Shell availability before running other shell tools.
 - **Upgrade checking**: \`mysqlsh_check_upgrade\` analyzes MySQL server for upgrade compatibility issues. Returns \`errorCount\`, \`warningCount\`, and \`noticeCount\` summary with full JSON report.
-- **Script execution**: \`mysqlsh_run_script\` supports JavaScript (\`js\`), Python (\`py\`), and SQL (\`sql\`) languages with full access to MySQL Shell APIs.
+- **Script execution**: \`mysqlsh_run_script\` supports JavaScript (\`js\`), Python (\`py\`), and SQL (\`sql\`) languages with full access to MySQL Shell APIs. SQL scripts support comments and multi-statement syntax.
 - **Table export**: \`mysqlsh_export_table\` uses \`util.exportTable()\` for CSV or TSV export. Use \`where\` parameter for filtered exports.
-- **Parallel import**: \`mysqlsh_import_table\` uses \`util.importTable()\` for high-performance CSV/TSV import. Requires \`local_infile\` enabled on server. **Note**: On InnoDB Cluster (Group Replication), target tables must have a PRIMARY KEY.
+- **Parallel import**: \`mysqlsh_import_table\` uses \`util.importTable()\` for high-performance CSV/TSV import. Requires \`local_infile\` enabled on server. Use \`skipRows: 1\` to skip header row. Specify \`columns\` parameter explicitly for accurate column mapping. **Note**: On InnoDB Cluster (Group Replication), target tables must have a PRIMARY KEY.
 - **JSON import**: \`mysqlsh_import_json\` uses \`util.importJson()\` to import JSON documents. **Requires X Protocol (port 33060)**.
 - **Dump utilities**: \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\` create compressed parallel dumps. Use \`dryRun: true\` to preview.
 - **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`.

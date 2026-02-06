@@ -4,6 +4,9 @@
  * Tools for restoring dumps and running custom scripts.
  */
 
+import { promises as fs } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 import type {
   ToolDefinition,
   RequestContext,
@@ -153,9 +156,33 @@ export function createShellRunScriptTool(): ToolDefinition {
           break;
       }
 
-      const args = ["--uri", config.connectionUri, langFlag, "-e", script];
-
-      const result = await execMySQLShell(args, { timeout });
+      let result;
+      // SQL scripts with comments or multi-line content break when passed via -e
+      // Use --file approach for SQL to properly handle all syntax
+      if (language === "sql") {
+        const tempFile = join(
+          tmpdir(),
+          `mysqlsh_script_${Date.now()}_${Math.random().toString(36).slice(2)}.sql`,
+        );
+        try {
+          await fs.writeFile(tempFile, script, "utf8");
+          const args = [
+            "--uri",
+            config.connectionUri,
+            langFlag,
+            "--file",
+            tempFile,
+          ];
+          result = await execMySQLShell(args, { timeout });
+        } finally {
+          // Cleanup temp file
+          await fs.unlink(tempFile).catch(() => void 0);
+        }
+      } else {
+        // JS and Python work fine with -e
+        const args = ["--uri", config.connectionUri, langFlag, "-e", script];
+        result = await execMySQLShell(args, { timeout });
+      }
 
       return {
         success: result.exitCode === 0,
