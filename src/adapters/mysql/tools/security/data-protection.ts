@@ -131,11 +131,16 @@ export function createSecurityMaskDataTool(
           break;
         }
         case "partial": {
-          const maskLength = Math.max(0, value.length - keepFirst - keepLast);
-          maskedValue =
-            value.slice(0, keepFirst) +
-            maskChar.repeat(maskLength) +
-            (keepLast > 0 ? value.slice(-keepLast) : "");
+          // When keepFirst + keepLast covers the entire value, return unchanged
+          if (keepFirst + keepLast >= value.length) {
+            maskedValue = value;
+          } else {
+            const maskLength = value.length - keepFirst - keepLast;
+            maskedValue =
+              value.slice(0, keepFirst) +
+              maskChar.repeat(maskLength) +
+              (keepLast > 0 ? value.slice(-keepLast) : "");
+          }
           break;
         }
         default:
