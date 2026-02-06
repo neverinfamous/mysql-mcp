@@ -12,6 +12,143 @@ import type {
 } from "../../../../types/index.js";
 import { z } from "zod";
 
+/** Trace summary decision type */
+interface TraceSummaryDecision {
+  type: string;
+  table?: string;
+  method?: string;
+  index?: string;
+  accessType?: string;
+  estimatedRows?: number;
+  estimatedCost?: number;
+}
+
+/** Trace summary result type */
+interface TraceSummaryResult {
+  query: string;
+  decisions: TraceSummaryDecision[];
+  error?: string;
+}
+
+/** Extract key optimization decisions from full optimizer trace for summary mode */
+function extractTraceSummary(
+  rows: Record<string, unknown>[] | undefined,
+  query: string,
+): TraceSummaryResult {
+  const decisions: TraceSummaryDecision[] = [];
+
+  if (!rows || rows.length === 0) {
+    return { query, decisions, error: "No trace data available" };
+  }
+
+  const row = rows[0];
+  if (!row) {
+    return { query, decisions, error: "No trace data available" };
+  }
+
+  const traceStr = row["TRACE"];
+  if (typeof traceStr !== "string") {
+    return { query, decisions, error: "Invalid trace format" };
+  }
+
+  try {
+    const trace = JSON.parse(traceStr) as {
+      steps?: {
+        join_optimization?: {
+          select?: number;
+          steps?: {
+            rows_estimation?: {
+              table?: string;
+              range_analysis?: {
+                table_scan?: { rows: number; cost: number };
+                chosen_range_access_summary?: {
+                  range_access_plan?: {
+                    type: string;
+                    index: string;
+                    rows: number;
+                  };
+                  cost_for_plan?: number;
+                  chosen?: boolean;
+                };
+              };
+            }[];
+            considered_execution_plans?: {
+              table?: string;
+              best_access_path?: {
+                considered_access_paths?: {
+                  access_type?: string;
+                  index?: string;
+                  rows?: number;
+                  cost?: number;
+                  chosen?: boolean;
+                }[];
+              };
+            }[];
+          }[];
+        };
+      }[];
+    };
+
+    const steps = trace.steps ?? [];
+    for (const step of steps) {
+      if (step.join_optimization?.steps) {
+        for (const optStep of step.join_optimization.steps) {
+          // Extract rows estimation decisions
+          if (optStep.rows_estimation) {
+            for (const est of optStep.rows_estimation) {
+              const rangeAnalysis = est.range_analysis;
+              if (rangeAnalysis?.chosen_range_access_summary?.chosen) {
+                const plan = rangeAnalysis.chosen_range_access_summary;
+                decisions.push({
+                  type: "index_selection",
+                  table: est.table,
+                  method: plan.range_access_plan?.type,
+                  index: plan.range_access_plan?.index,
+                  estimatedRows: plan.range_access_plan?.rows,
+                  estimatedCost: plan.cost_for_plan,
+                });
+              } else if (rangeAnalysis?.table_scan) {
+                decisions.push({
+                  type: "table_scan",
+                  table: est.table,
+                  estimatedRows: rangeAnalysis.table_scan.rows,
+                  estimatedCost: rangeAnalysis.table_scan.cost,
+                });
+              }
+            }
+          }
+
+          // Extract execution plan decisions
+          if (optStep.considered_execution_plans) {
+            for (const plan of optStep.considered_execution_plans) {
+              const bestPath = plan.best_access_path;
+              if (bestPath?.considered_access_paths) {
+                const chosen = bestPath.considered_access_paths.find(
+                  (p) => p.chosen,
+                );
+                if (chosen) {
+                  decisions.push({
+                    type: "access_path",
+                    table: plan.table,
+                    accessType: chosen.access_type,
+                    index: chosen.index,
+                    estimatedRows: chosen.rows,
+                    estimatedCost: chosen.cost,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch {
+    return { query, decisions, error: "Failed to parse trace" };
+  }
+
+  return { query, decisions };
+}
+
 export function createIndexRecommendationTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
@@ -127,7 +264,11 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      if (upperQuery.includes("OR")) {
+      // Check for OR in WHERE clause (not ORDER BY, FOR, etc.)
+      const wherePattern = /WHERE\s+(.+?)(?:ORDER BY|GROUP BY|LIMIT|$)/is;
+      const whereMatch = wherePattern.exec(upperQuery);
+      const whereClause = whereMatch?.[1];
+      if (whereClause && /\bOR\b/i.test(whereClause)) {
         suggestions.push(
           "OR conditions may prevent index usage; consider UNION instead",
         );
@@ -208,6 +349,12 @@ export function createOptimizerTraceTool(
 ): ToolDefinition {
   const schema = z.object({
     query: z.string().describe("Query to trace"),
+    summary: z
+      .boolean()
+      .optional()
+      .describe(
+        "If true, return only key optimization decisions instead of full trace",
+      ),
   });
 
   return {
@@ -221,7 +368,7 @@ export function createOptimizerTraceTool(
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query } = schema.parse(params);
+      const { query, summary } = schema.parse(params);
 
       // Enable optimizer trace
       await adapter.executeQuery('SET optimizer_trace="enabled=on"');
@@ -234,6 +381,11 @@ export function createOptimizerTraceTool(
         const traceResult = await adapter.executeReadQuery(
           "SELECT * FROM information_schema.OPTIMIZER_TRACE",
         );
+
+        if (summary) {
+          // Extract key decisions from the trace
+          return extractTraceSummary(traceResult.rows, query);
+        }
 
         return { trace: traceResult.rows };
       } finally {

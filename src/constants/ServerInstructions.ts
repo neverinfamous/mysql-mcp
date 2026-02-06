@@ -113,6 +113,13 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Performance schema**: \`mysql_slow_queries\`, \`mysql_query_stats\`, and \`mysql_index_usage\` require \`performance_schema\` enabled.
 - **Index usage**: \`mysql_index_usage\` filters to the current database by default. Use \`table\` parameter to filter further.
 - **Buffer pool**: \`mysql_buffer_pool_stats\` shows InnoDB memory usage and hit rates.
+
+## Optimization Tools (\`mysql_index_recommendation\`, \`mysql_query_rewrite\`, etc.)
+
+- **Index recommendations**: \`mysql_index_recommendation\` analyzes table structure and suggests missing indexes.
+- **Query optimization**: \`mysql_query_rewrite\` analyzes queries for common anti-patterns (SELECT *, missing LIMIT, OR conditions, leading wildcards) and includes EXPLAIN output.
+- **Force index**: \`mysql_force_index\` generates a query with \`FORCE INDEX\` hint for testing index behavior.
+- **Optimizer trace**: \`mysql_optimizer_trace\` returns detailed MySQL optimizer decisions. Use \`summary: true\` for compact output with only key decisions (recommended for most cases).
 `;
 
 /**
