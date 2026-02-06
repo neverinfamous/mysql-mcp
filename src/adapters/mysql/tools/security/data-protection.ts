@@ -273,6 +273,12 @@ export function createSecuritySensitiveTablesTool(
         .join(" OR ");
       const patternParams = patterns.map((p) => `%${p}%`);
 
+      // Build schema condition - use explicit schema if provided, otherwise DATABASE()
+      const schemaCondition = schema
+        ? "TABLE_SCHEMA = ?"
+        : "TABLE_SCHEMA = DATABASE()";
+      const schemaParams = schema ? [schema] : [];
+
       const query = `
                 SELECT 
                     TABLE_NAME as tableName,
@@ -282,13 +288,13 @@ export function createSecuritySensitiveTablesTool(
                     IS_NULLABLE as nullable,
                     COLUMN_COMMENT as comment
                 FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
+                WHERE ${schemaCondition}
                   AND (${patternConditions})
                 ORDER BY TABLE_NAME, COLUMN_NAME
             `;
 
       const result = await adapter.executeQuery(query, [
-        schema ?? null,
+        ...schemaParams,
         ...patternParams,
       ]);
 

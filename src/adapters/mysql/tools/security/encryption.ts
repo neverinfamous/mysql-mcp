@@ -214,8 +214,35 @@ export function createSecurityPasswordValidateTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { password } = PasswordValidateSchema.parse(params);
 
+      // First check if validate_password component is installed
+      // by checking for its variables
+      const policyResult = await adapter.executeQuery(
+        "SHOW VARIABLES LIKE 'validate_password%'",
+      );
+
+      const policy: Record<string, unknown> = Object.fromEntries(
+        (policyResult.rows ?? []).map((r) => {
+          const record = r;
+          const varName =
+            typeof record["Variable_name"] === "string"
+              ? record["Variable_name"]
+              : "";
+          return [varName, record["Value"]];
+        }),
+      );
+
+      // If no validate_password variables exist, component is not installed
+      if (Object.keys(policy).length === 0) {
+        return {
+          available: false,
+          message: "Password validation component not installed",
+          suggestion:
+            'Install with: INSTALL COMPONENT "file://component_validate_password"',
+        };
+      }
+
       try {
-        // Try using validate_password function
+        // Use validate_password function
         const result = await adapter.executeQuery(
           "SELECT VALIDATE_PASSWORD_STRENGTH(?) as strength",
           [password],
@@ -223,22 +250,6 @@ export function createSecurityPasswordValidateTool(
 
         const row = result.rows?.[0];
         const strength = (row?.["strength"] as number) ?? 0;
-
-        // Get password policy
-        const policyResult = await adapter.executeQuery(
-          "SHOW VARIABLES LIKE 'validate_password%'",
-        );
-
-        const policy: Record<string, unknown> = Object.fromEntries(
-          (policyResult.rows ?? []).map((r) => {
-            const record = r;
-            const varName =
-              typeof record["Variable_name"] === "string"
-                ? record["Variable_name"]
-                : "";
-            return [varName, record["Value"]];
-          }),
-        );
 
         let interpretation: string;
         if (strength >= 100) interpretation = "Very Strong";
@@ -256,9 +267,9 @@ export function createSecurityPasswordValidateTool(
       } catch {
         return {
           available: false,
-          message: "Password validation component not installed",
+          message: "Password validation function failed",
           suggestion:
-            'Install with: INSTALL COMPONENT "file://component_validate_password"',
+            'Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
         };
       }
     },

@@ -116,15 +116,15 @@ describe("Security Encryption Tools", () => {
     it("should validate password strength", async () => {
       const tool = createSecurityPasswordValidateTool(mockAdapter);
       mockExecuteQuery
-        // VALIDATE_PASSWORD_STRENGTH
-        .mockResolvedValueOnce({
-          rows: [{ strength: 100 }],
-        })
-        // SHOW VARIABLES
+        // SHOW VARIABLES (checked first to detect component)
         .mockResolvedValueOnce({
           rows: [
             { Variable_name: "validate_password_policy", Value: "STRONG" },
           ],
+        })
+        // VALIDATE_PASSWORD_STRENGTH
+        .mockResolvedValueOnce({
+          rows: [{ strength: 100 }],
         });
 
       const result = (await tool.handler(
@@ -139,10 +139,14 @@ describe("Security Encryption Tools", () => {
     it("should handle weak passwords", async () => {
       const tool = createSecurityPasswordValidateTool(mockAdapter);
       mockExecuteQuery
+        // Policy variables (component installed)
+        .mockResolvedValueOnce({
+          rows: [{ Variable_name: "validate_password.policy", Value: "LOW" }],
+        })
+        // Strength
         .mockResolvedValueOnce({
           rows: [{ strength: 20 }],
-        })
-        .mockResolvedValueOnce({ rows: [] });
+        });
 
       const result = (await tool.handler(
         { password: "123" },
@@ -153,9 +157,10 @@ describe("Security Encryption Tools", () => {
       expect(result.meetsPolicy).toBe(false);
     });
 
-    it("should handle component not installed error", async () => {
+    it("should handle component not installed (empty policy variables)", async () => {
       const tool = createSecurityPasswordValidateTool(mockAdapter);
-      mockExecuteQuery.mockRejectedValue(new Error("Function not found"));
+      // Empty policy variables = component not installed
+      mockExecuteQuery.mockResolvedValueOnce({ rows: [] });
 
       const result = (await tool.handler(
         { password: "pass" },
@@ -164,6 +169,24 @@ describe("Security Encryption Tools", () => {
 
       expect(result.available).toBe(false);
       expect(result.message).toContain("not installed");
+    });
+
+    it("should handle function error after component detected", async () => {
+      const tool = createSecurityPasswordValidateTool(mockAdapter);
+      // Policy check passes (component installed)
+      mockExecuteQuery.mockResolvedValueOnce({
+        rows: [{ Variable_name: "validate_password.policy", Value: "MEDIUM" }],
+      });
+      // Function call fails
+      mockExecuteQuery.mockRejectedValue(new Error("Function not found"));
+
+      const result = (await tool.handler(
+        { password: "pass" },
+        {} as any,
+      )) as any;
+
+      expect(result.available).toBe(false);
+      expect(result.message).toContain("failed");
     });
   });
 });

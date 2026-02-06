@@ -280,13 +280,15 @@ describe("Security Tools", () => {
 
   describe("mysql_security_password_validate", () => {
     it("should return password strength", async () => {
+      // Variables (checked first to detect component)
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "validate_password.policy", Value: "STRONG" },
+        ]),
+      );
       // VALIDATE_PASSWORD_STRENGTH
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ strength: 100 }]),
-      );
-      // Variables
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ Variable_name: "policy", Value: "STRONG" }]),
       );
 
       const tool = tools.find(
@@ -299,17 +301,25 @@ describe("Security Tools", () => {
 
       expect(result.strength).toBe(100);
       expect(result.interpretation).toBe("Very Strong");
-      expect(result.policy).toHaveProperty("policy", "STRONG");
+      expect(result.policy).toHaveProperty(
+        "validate_password.policy",
+        "STRONG",
+      );
     });
 
     it("should handle different password strengths", async () => {
-      // Strong
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ strength: 75 }]),
-      );
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       const tool = tools.find(
         (t) => t.name === "mysql_security_password_validate",
+      );
+
+      // Strong
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "validate_password.policy", Value: "MEDIUM" },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ strength: 75 }]),
       );
       const resultStrong = (await tool?.handler(
         { password: "Strong1" },
@@ -319,9 +329,13 @@ describe("Security Tools", () => {
 
       // Medium
       mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "validate_password.policy", Value: "MEDIUM" },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ strength: 50 }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       const resultMedium = (await tool?.handler(
         { password: "Medium1" },
         mockContext,
@@ -330,9 +344,13 @@ describe("Security Tools", () => {
 
       // Weak
       mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "validate_password.policy", Value: "MEDIUM" },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ strength: 25 }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       const resultWeak = (await tool?.handler(
         { password: "Weak1" },
         mockContext,
@@ -341,9 +359,13 @@ describe("Security Tools", () => {
 
       // Very Weak
       mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "validate_password.policy", Value: "MEDIUM" },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ strength: 0 }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       const resultVeryWeak = (await tool?.handler(
         { password: "VeryWeak" },
         mockContext,
@@ -351,10 +373,9 @@ describe("Security Tools", () => {
       expect(resultVeryWeak.interpretation).toBe("Very Weak");
     });
 
-    it("should handle validation component missing", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Function not found"),
-      );
+    it("should detect component not installed when no policy variables exist", async () => {
+      // Empty policy variables = component not installed
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_password_validate",
@@ -366,6 +387,28 @@ describe("Security Tools", () => {
 
       expect(result.available).toBe(false);
       expect(result.message).toContain("not installed");
+    });
+
+    it("should handle validation function error", async () => {
+      // Policy check passes (component installed)
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "validate_password.policy", Value: "MEDIUM" },
+        ]),
+      );
+      // But function call fails
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Function error"));
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_password_validate",
+      );
+      const result = (await tool?.handler(
+        { password: "test" },
+        mockContext,
+      )) as any;
+
+      expect(result.available).toBe(false);
+      expect(result.message).toContain("failed");
     });
   });
 

@@ -195,6 +195,16 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Regression**: \`mysql_stats_regression\` performs simple linear regression (y = mx + b) with R² fit analysis.
 - **Sampling**: \`mysql_stats_sampling\` returns random rows. Use \`seed\` for reproducibility, \`columns\` to limit output.
 - **Histogram**: \`mysql_stats_histogram\` views MySQL 8.0+ optimizer histogram statistics. Use \`update: true\` to create/refresh.
+
+## Security Tools (\`mysql_security_*\`)
+
+- **SSL status**: \`mysql_security_ssl_status\` returns SSL/TLS connection status, cipher, certificate paths, and session statistics.
+- **Encryption status**: \`mysql_security_encryption_status\` checks TDE availability, keyring plugins, encrypted tablespaces, and encryption settings.
+- **Password validation**: \`mysql_security_password_validate\` uses MySQL \`validate_password\` component to check password strength (0-100 scale). Returns \`available: false\` if component not installed.
+- **Data masking**: \`mysql_security_mask_data\` masks sensitive data. Types: \`email\` (preserves domain), \`phone\` (shows last 4), \`ssn\` (shows last 4), \`credit_card\` (shows first/last 4), \`partial\` (uses \`keepFirst\`/\`keepLast\`).
+- **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload.
+- **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope.
+- **Enterprise features**: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
 `;
 
 /**
