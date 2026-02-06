@@ -181,6 +181,17 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Lock contention**: \`mysql_sys_innodb_lock_waits\` shows active lock waits. Returns \`hasContention: false\` when none.
 - **Memory usage**: \`mysql_sys_memory_summary\` returns memory allocation by event type and by user.
 - **Schema stats**: \`mysql_sys_schema_stats\` returns auto-increment usage ratios for tables.
+
+## Stats Tools (\`mysql_stats_*\`)
+
+- **Descriptive statistics**: \`mysql_stats_descriptive\` returns mean, median, stddev, min, max, count for numeric columns. Supports \`where\` filtering.
+- **Percentiles**: \`mysql_stats_percentiles\` calculates custom percentile values (default: p25, p50, p75, p90, p95, p99).
+- **Correlation**: \`mysql_stats_correlation\` calculates Pearson correlation between two numeric columns with interpretation.
+- **Distribution**: \`mysql_stats_distribution\` analyzes value distribution with configurable histogram buckets.
+- **Time series**: \`mysql_stats_time_series\` aggregates data by time intervals (minute/hour/day/week/month) with sum/avg/count/min/max.
+- **Regression**: \`mysql_stats_regression\` performs simple linear regression (y = mx + b) with R² fit analysis.
+- **Sampling**: \`mysql_stats_sampling\` returns random rows. Use \`seed\` for reproducibility, \`columns\` to limit output.
+- **Histogram**: \`mysql_stats_histogram\` views MySQL 8.0+ optimizer histogram statistics. Use \`update: true\` to create/refresh.
 `;
 
 /**

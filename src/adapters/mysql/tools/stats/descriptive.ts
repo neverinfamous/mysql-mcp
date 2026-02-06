@@ -283,8 +283,8 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
       );
 
       const rangeRow = rangeResult.rows?.[0];
-      const minVal = (rangeRow?.["min_val"] as number) ?? 0;
-      const maxVal = (rangeRow?.["max_val"] as number) ?? 0;
+      const minVal = Number(rangeRow?.["min_val"]) || 0;
+      const maxVal = Number(rangeRow?.["max_val"]) || 0;
 
       if (minVal === maxVal) {
         return {
@@ -318,7 +318,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
       // Format buckets with proper ranges
       const distribution = (result.rows ?? []).map((row) => {
         const r = row;
-        const bucketNum = r["bucket"] as number;
+        const bucketNum = Number(r["bucket"]) || 0;
         return {
           bucket: bucketNum,
           rangeStart: minVal + bucketNum * bucketSize,
