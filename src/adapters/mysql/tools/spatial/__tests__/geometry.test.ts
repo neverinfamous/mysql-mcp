@@ -129,7 +129,8 @@ describe("Spatial Geometry Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("ST_GeomFromText(?)");
+      // Now using axis-order=long-lat for correct coordinate handling
+      expect(call).toContain("axis-order=long-lat");
       const args = mockAdapter.executeQuery.mock.calls[0][1] as any[];
       expect(args[0]).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
 

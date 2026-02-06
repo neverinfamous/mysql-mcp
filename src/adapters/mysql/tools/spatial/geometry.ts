@@ -13,6 +13,32 @@ import type {
 } from "../../../../types/index.js";
 
 // =============================================================================
+// Helpers
+// =============================================================================
+
+/**
+ * Parse GeoJSON result from MySQL.
+ * MySQL returns ST_AsGeoJSON as a string, but mysql2 driver may auto-parse JSON.
+ * This handles both cases.
+ */
+function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }
+  if (typeof value === "object") {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+// =============================================================================
 // Zod Schemas
 // =============================================================================
 
@@ -57,13 +83,9 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
       );
 
       const row = result.rows?.[0];
-      const geoJsonStr = row?.["geoJson"];
       return {
         wkt: row?.["wkt"],
-        geoJson:
-          typeof geoJsonStr === "string"
-            ? (JSON.parse(geoJsonStr) as Record<string, unknown>)
-            : null,
+        geoJson: parseGeoJsonResult(row?.["geoJson"]),
         srid,
         longitude,
         latitude,
@@ -102,20 +124,16 @@ export function createSpatialPolygonTool(
       const wkt = `POLYGON(${rings.join(", ")})`;
 
       const result = await adapter.executeQuery(
-        `SELECT ST_AsText(ST_SRID(ST_GeomFromText(?), ${String(srid)})) as wkt,
-                        ST_AsGeoJSON(ST_SRID(ST_GeomFromText(?), ${String(srid)})) as geoJson,
-                        ST_Area(ST_SRID(ST_GeomFromText(?), ${String(srid)})) as area`,
+        `SELECT ST_AsText(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as wkt,
+                        ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson,
+                        ST_Area(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as area`,
         [wkt, wkt, wkt],
       );
 
       const row = result.rows?.[0];
-      const geoJsonStr = row?.["geoJson"];
       return {
         wkt: row?.["wkt"],
-        geoJson:
-          typeof geoJsonStr === "string"
-            ? (JSON.parse(geoJsonStr) as Record<string, unknown>)
-            : null,
+        geoJson: parseGeoJsonResult(row?.["geoJson"]),
         area: row?.["area"],
         srid,
       };

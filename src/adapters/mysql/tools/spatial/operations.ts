@@ -13,6 +13,32 @@ import type {
 } from "../../../../types/index.js";
 
 // =============================================================================
+// Helpers
+// =============================================================================
+
+/**
+ * Parse GeoJSON result from MySQL.
+ * MySQL returns ST_AsGeoJSON as a string, but mysql2 driver may auto-parse JSON.
+ * This handles both cases.
+ */
+function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }
+  if (typeof value === "object") {
+    return value as Record<string, unknown>;
+  }
+  return null;
+}
+
+// =============================================================================
 // Zod Schemas
 // =============================================================================
 
@@ -70,27 +96,26 @@ export function createSpatialIntersectionTool(
 
       const result = await adapter.executeQuery(
         `SELECT 
-                    ST_Intersects(ST_GeomFromText(?), ST_GeomFromText(?)) as intersects,
+                    ST_Intersects(
+                        ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
+                        ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
+                    ) as intersects,
                     ST_AsText(ST_Intersection(
-                        ST_SRID(ST_GeomFromText(?), ${String(srid)}),
-                        ST_SRID(ST_GeomFromText(?), ${String(srid)})
+                        ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
+                        ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
                     )) as intersection_wkt,
                     ST_AsGeoJSON(ST_Intersection(
-                        ST_SRID(ST_GeomFromText(?), ${String(srid)}),
-                        ST_SRID(ST_GeomFromText(?), ${String(srid)})
+                        ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
+                        ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
                     )) as intersection_geojson`,
         [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
       );
 
       const row = result.rows?.[0];
-      const intersectionGeoJsonStr = row?.["intersection_geojson"];
       return {
         intersects: Boolean(row?.["intersects"]),
         intersectionWkt: row?.["intersection_wkt"],
-        intersectionGeoJson:
-          typeof intersectionGeoJsonStr === "string"
-            ? (JSON.parse(intersectionGeoJsonStr) as Record<string, unknown>)
-            : null,
+        intersectionGeoJson: parseGeoJsonResult(row?.["intersection_geojson"]),
       };
     },
   };
@@ -116,19 +141,15 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
 
       const result = await adapter.executeQuery(
         `SELECT 
-                    ST_AsText(ST_Buffer(ST_SRID(ST_GeomFromText(?), ${String(srid)}), ?)) as buffer_wkt,
-                    ST_AsGeoJSON(ST_Buffer(ST_SRID(ST_GeomFromText(?), ${String(srid)}), ?)) as buffer_geojson`,
+                    ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?)) as buffer_wkt,
+                    ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?)) as buffer_geojson`,
         [geometry, distance, geometry, distance],
       );
 
       const row = result.rows?.[0];
-      const bufferGeoJsonStr = row?.["buffer_geojson"];
       return {
         bufferWkt: row?.["buffer_wkt"],
-        bufferGeoJson:
-          typeof bufferGeoJsonStr === "string"
-            ? (JSON.parse(bufferGeoJsonStr) as Record<string, unknown>)
-            : null,
+        bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
         bufferDistance: distance,
         srid,
       };
@@ -159,20 +180,16 @@ export function createSpatialTransformTool(
 
       const result = await adapter.executeQuery(
         `SELECT 
-                    ST_AsText(ST_Transform(ST_SRID(ST_GeomFromText(?), ${String(fromSrid)}), ${String(toSrid)})) as transformed_wkt,
-                    ST_AsGeoJSON(ST_Transform(ST_SRID(ST_GeomFromText(?), ${String(fromSrid)}), ${String(toSrid)})) as transformed_geojson`,
+                    ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_wkt,
+                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_geojson`,
         [geometry, geometry],
       );
 
       const row = result.rows?.[0];
-      const transformedGeoJsonStr = row?.["transformed_geojson"];
       return {
         originalWkt: geometry,
         transformedWkt: row?.["transformed_wkt"],
-        transformedGeoJson:
-          typeof transformedGeoJsonStr === "string"
-            ? (JSON.parse(transformedGeoJsonStr) as Record<string, unknown>)
-            : null,
+        transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
         fromSrid,
         toSrid,
       };
@@ -203,18 +220,14 @@ export function createSpatialGeoJSONTool(
       if (geometry) {
         // Convert WKT to GeoJSON
         const result = await adapter.executeQuery(
-          `SELECT ST_AsGeoJSON(ST_SRID(ST_GeomFromText(?), ${String(srid)})) as geoJson`,
+          `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson`,
           [geometry],
         );
 
         const row = result.rows?.[0];
-        const geoJsonStr = row?.["geoJson"];
         return {
           wkt: geometry,
-          geoJson:
-            typeof geoJsonStr === "string"
-              ? (JSON.parse(geoJsonStr) as Record<string, unknown>)
-              : null,
+          geoJson: parseGeoJsonResult(row?.["geoJson"]),
           conversion: "WKT to GeoJSON",
         };
       } else if (geoJson) {

@@ -107,6 +107,9 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
   - ✅ Example: \`{ longitude: -122.4194, latitude: 37.7749 }\` for San Francisco
   - MySQL 8.0+ uses EPSG standard axis order (latitude, longitude) internally for SRID 4326, but tools handle this conversion automatically using \`axis-order=long-lat\` option.
 - **SRID 4326**: Default spatial reference system is WGS 84 (GPS coordinates). Use \`srid\` parameter to specify other coordinate systems.
+- **WKT Input**: When providing WKT geometry strings, use **longitude first** order: \`POINT(-122.4194 37.7749)\`.
+- **SPATIAL Indexes**: \`mysql_spatial_create_index\` requires the column to be NOT NULL. The tool validates this and provides an ALTER TABLE suggestion if needed.
+- **GeoJSON Conversion**: \`mysql_spatial_geojson\` converts between WKT and GeoJSON formats. \`mysql_spatial_point\`, \`mysql_spatial_polygon\`, \`mysql_spatial_intersection\`, \`mysql_spatial_buffer\`, and \`mysql_spatial_transform\` also return GeoJSON representations.
 
 ## Text Tools (\`mysql_like_search\`, \`mysql_regexp_match\`, etc.)
 

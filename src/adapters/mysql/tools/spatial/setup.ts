@@ -121,6 +121,32 @@ export function createSpatialCreateIndexTool(
         throw new Error("Invalid index name");
       }
 
+      // Check if column is nullable - SPATIAL indexes require NOT NULL columns
+      const colInfo = await adapter.executeQuery(
+        `SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+        [table, column],
+      );
+
+      if (!colInfo.rows || colInfo.rows.length === 0) {
+        throw new Error(`Column '${column}' not found in table '${table}'`);
+      }
+
+      const row = colInfo.rows[0];
+      const isNullable = row?.["IS_NULLABLE"] === "YES";
+      if (isNullable) {
+        const rawDataType = row?.["DATA_TYPE"];
+        const dataType =
+          typeof rawDataType === "string"
+            ? rawDataType.toUpperCase()
+            : "GEOMETRY";
+        throw new Error(
+          `Cannot create SPATIAL index on nullable column '${column}'. ` +
+            `Alter the column to NOT NULL first: ` +
+            `ALTER TABLE \`${table}\` MODIFY \`${column}\` ${dataType} NOT NULL`,
+        );
+      }
+
       await adapter.executeQuery(
         `CREATE SPATIAL INDEX \`${idxName}\` ON \`${table}\` (\`${column}\`)`,
       );

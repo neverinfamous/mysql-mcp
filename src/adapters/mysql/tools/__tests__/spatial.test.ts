@@ -115,7 +115,12 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_create_index", () => {
     it("should create a spatial index", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      // First call returns column info (NOT NULL column), second call is the index creation
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+        )
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
       const result = await tool.handler(
@@ -127,16 +132,38 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(call).toContain("SPATIAL INDEX");
       expect(result).toHaveProperty("success", true);
     });
 
-    it("should handle index creation errors", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Index already exists"),
+    it("should reject nullable columns", async () => {
+      // Column is nullable - should throw
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ IS_NULLABLE: "YES", DATA_TYPE: "point" }]),
       );
+
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      await expect(
+        tool.handler(
+          {
+            table: "locations",
+            column: "geom",
+            indexName: "idx_locations_geom",
+          },
+          mockContext,
+        ),
+      ).rejects.toThrow("Cannot create SPATIAL index on nullable column");
+    });
+
+    it("should handle index creation errors", async () => {
+      // First call returns column info, second call fails
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+        )
+        .mockRejectedValueOnce(new Error("Index already exists"));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
       await expect(

@@ -87,7 +87,12 @@ describe("Spatial Tools Handlers", () => {
 
     it("should generate default index name if not provided", async () => {
       const tool = findTool("mysql_spatial_create_index")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      // First call returns column info (NOT NULL), second call is index creation
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+        )
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const result = await tool.handler(
         {
@@ -97,7 +102,9 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        2,
         expect.stringContaining(
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
