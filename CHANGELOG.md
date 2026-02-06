@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Sys Schema Tools Server Instructions** — Added Sys Schema Tools section documenting user/host summaries, statement analysis, I/O analysis, wait events, lock contention, memory usage, and schema stats tools.
 - **Stats Tools Server Instructions** — Added Stats Tools section documenting descriptive statistics, percentiles, correlation, distribution, time series, regression, sampling, and histogram tools.
 - **Security Tools Server Instructions** — Added Security Tools section documenting SSL status, encryption status, password validation (component requirement), data masking types, user privileges, sensitive tables detection, and Enterprise features availability.
+- **`mysql_security_user_privileges` Summary Mode** — Added optional `summary: boolean` parameter to return condensed privilege info (grant counts, role counts, hasAllPrivileges, hasWithGrantOption, sample global privileges) instead of verbose raw GRANT strings. Significantly reduces payload size for servers with many users.
 
 ### Fixed
 

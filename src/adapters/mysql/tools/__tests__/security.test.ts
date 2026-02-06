@@ -519,6 +519,46 @@ describe("Security Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("Host = ?");
     });
+
+    it("should return condensed summary when summary=true", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            User: "root",
+            Host: "localhost",
+            plugin: "caching_sha2_password",
+            account_locked: "N",
+          },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            "Grants for root@localhost":
+              "GRANT ALL PRIVILEGES ON *.* TO `root`@`localhost` WITH GRANT OPTION",
+          },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ FROM_USER: "dba_role", FROM_HOST: "%" }]),
+      );
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_user_privileges",
+      );
+      const result = (await tool?.handler(
+        { summary: true },
+        mockContext,
+      )) as any;
+
+      expect(result.summary).toBe(true);
+      expect(result.users[0].grantCount).toBe(1);
+      expect(result.users[0].roleCount).toBe(1);
+      expect(result.users[0].hasAllPrivileges).toBe(true);
+      expect(result.users[0].hasWithGrantOption).toBe(true);
+      expect(result.users[0].grants).toBeUndefined();
+      expect(result.users[0].roles).toBeUndefined();
+    });
   });
 
   describe("mysql_security_sensitive_tables", () => {

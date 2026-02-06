@@ -29,6 +29,12 @@ const UserPrivilegesSchema = z.object({
   user: z.string().optional().describe("Filter by username"),
   host: z.string().default("%").describe("Host pattern"),
   includeRoles: z.boolean().default(true).describe("Include role grants"),
+  summary: z
+    .boolean()
+    .default(false)
+    .describe(
+      "Return condensed summary (privilege counts) instead of raw GRANT strings",
+    ),
 });
 
 const SensitiveTablesSchema = z.object({
@@ -159,7 +165,8 @@ export function createSecurityUserPrivilegesTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { user, host, includeRoles } = UserPrivilegesSchema.parse(params);
+      const { user, host, includeRoles, summary } =
+        UserPrivilegesSchema.parse(params);
 
       // Get users
       let usersQuery = `
@@ -228,20 +235,59 @@ export function createSecurityUserPrivilegesTool(
           }
         }
 
-        userPrivileges.push({
-          user: userName,
-          host: userHost,
-          authPlugin: u["authPlugin"],
-          accountLocked: u["accountLocked"] === "Y",
-          passwordExpired: u["passwordExpired"] === "Y",
-          grants,
-          roles,
-        });
+        if (summary) {
+          // Extract global privileges from GRANT statements
+          const globalPrivileges: string[] = [];
+          let hasAllPrivileges = false;
+          let hasWithGrantOption = false;
+
+          for (const grant of grants) {
+            // Check for ALL PRIVILEGES
+            if (grant.includes("ALL PRIVILEGES")) {
+              hasAllPrivileges = true;
+            }
+            // Check for WITH GRANT OPTION
+            if (grant.includes("WITH GRANT OPTION")) {
+              hasWithGrantOption = true;
+            }
+            // Extract specific privileges from global grants (ON *.*)
+            const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
+            const globalMatch = globalPattern.exec(grant);
+            if (globalMatch?.[1]) {
+              const privs = globalMatch[1].split(",").map((p) => p.trim());
+              globalPrivileges.push(...privs);
+            }
+          }
+
+          userPrivileges.push({
+            user: userName,
+            host: userHost,
+            authPlugin: u["authPlugin"],
+            accountLocked: u["accountLocked"] === "Y",
+            passwordExpired: u["passwordExpired"] === "Y",
+            grantCount: grants.length,
+            roleCount: roles.length,
+            hasAllPrivileges,
+            hasWithGrantOption,
+            globalPrivileges: [...new Set(globalPrivileges)].slice(0, 10), // Dedupe and limit
+          });
+        } else {
+          userPrivileges.push({
+            user: userName,
+            host: userHost,
+            authPlugin: u["authPlugin"],
+            accountLocked: u["accountLocked"] === "Y",
+            passwordExpired: u["passwordExpired"] === "Y",
+            grants,
+            roles,
+          });
+        }
       }
 
       return {
         users: userPrivileges,
         count: userPrivileges.length,
+        summary,
       };
     },
   };
