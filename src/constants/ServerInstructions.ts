@@ -156,6 +156,13 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Binlog events**: \`mysql_binlog_events\` shows binary log events. Use \`logFile\`, \`position\`, and \`limit\` to filter.
 - **GTID status**: \`mysql_gtid_status\` shows GTID mode (ON/OFF) and executed/purged transaction sets.
 - **Replication lag**: \`mysql_replication_lag\` calculates delay in seconds. Returns \`lagSeconds: null\` if not a replica.
+
+## Schema Tools (\`mysql_list_schemas\`, \`mysql_create_view\`, etc.)
+
+- **Schema management**: \`mysql_list_schemas\` lists databases with charset/collation. \`mysql_create_schema\` and \`mysql_drop_schema\` manage databases.
+- **Views**: \`mysql_list_views\` shows view definitions, security type, and updatability. \`mysql_create_view\` creates or replaces views.
+- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects.
+- **Constraints**: \`mysql_list_constraints\` returns primary keys, foreign keys, unique constraints, and check constraints for a table.
 `;
 
 /**
