@@ -350,6 +350,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3307",
+        "MYSQL_XPORT": "6448",
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_password",
         "MYSQL_DATABASE": "mysql",
