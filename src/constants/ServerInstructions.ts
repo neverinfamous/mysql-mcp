@@ -92,10 +92,12 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 ## MySQL Router Tools (\`mysql_router_*\`)
 
-- **Prerequisites**: Router REST API requires InnoDB Cluster to be running (authentication uses \`metadata_cache\` backend)
-- **Self-signed certificates**: Set \`MYSQL_ROUTER_INSECURE=true\` to bypass TLS certificate verification for development/testing
-- **Route names**: Use \`mysql_router_routes\` to list available routes (e.g., \`bootstrap_rw\`, \`bootstrap_ro\`)
-- **Metadata cache**: The \`metadataName\` parameter is typically \`bootstrap\` for bootstrapped routers
+- **Prerequisites**: MySQL Router must be running with REST API enabled. The REST API requires an InnoDB Cluster backend for authentication (uses \`metadata_cache\` credentials).
+- **Self-signed certificates**: Set \`MYSQL_ROUTER_INSECURE=true\` to bypass TLS certificate verification for development/testing environments.
+- **Route names**: Use \`mysql_router_routes\` to list available routes (e.g., \`bootstrap_rw\`, \`bootstrap_ro\`).
+- **Metadata cache**: The \`metadataName\` parameter is typically \`bootstrap\` for bootstrapped routers.
+- **Connection pools**: Pool name is typically \`default\` or \`main\` for standard configurations.
+- **Unavailability handling**: When Router REST API is unreachable, tools return \`{ available: false, reason: "..." }\` with descriptive error message instead of throwing.
 
 ## Partitioning Tools (\`mysql_partition_*\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`)
 

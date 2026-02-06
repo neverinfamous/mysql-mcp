@@ -27,6 +27,21 @@ import {
 // =============================================================================
 
 /**
+ * Response type for graceful Router API unavailability
+ */
+interface RouterUnavailableResponse {
+  available: false;
+  reason: string;
+}
+
+/**
+ * Result type for safe Router API calls
+ */
+type SafeRouterResult<T> =
+  | { success: true; data: T }
+  | { success: false; response: RouterUnavailableResponse };
+
+/**
  * Get Router configuration from environment variables
  */
 function getRouterConfig(): RouterConfig {
@@ -115,16 +130,61 @@ async function routerFetch(
     });
 
     req.on("error", (error) => {
-      reject(new Error(`Router API request failed: ${error.message}`));
+      // Provide more descriptive error messages for common connection issues
+      const errorCode = (error as NodeJS.ErrnoException).code;
+      let message = error.message;
+      if (errorCode === "ECONNREFUSED") {
+        message = `Connection refused - MySQL Router REST API is not reachable at ${baseUrl}`;
+      } else if (errorCode === "ETIMEDOUT" || errorCode === "ESOCKETTIMEDOUT") {
+        message = `Connection timed out - MySQL Router REST API at ${baseUrl} is not responding`;
+      } else if (errorCode === "ENOTFOUND") {
+        message = `Host not found - cannot resolve ${parsedUrl.hostname}`;
+      } else if (
+        errorCode === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
+        errorCode === "CERT_HAS_EXPIRED" ||
+        errorCode === "DEPTH_ZERO_SELF_SIGNED_CERT" ||
+        error.message.includes("self-signed") ||
+        error.message.includes("certificate")
+      ) {
+        message = `TLS certificate error: ${error.message}. Set MYSQL_ROUTER_INSECURE=true for self-signed certificates`;
+      }
+      reject(new Error(`Router API request failed: ${message}`));
     });
 
     req.on("timeout", () => {
       req.destroy();
-      reject(new Error("Router API request timed out"));
+      reject(
+        new Error(
+          `Router API request timed out after 10 seconds - MySQL Router at ${baseUrl} is not responding`,
+        ),
+      );
     });
 
     req.end();
   });
+}
+
+/**
+ * Safe wrapper for routerFetch that returns graceful responses instead of throwing.
+ * Returns { success: true, data } on success or { success: false, response: { available: false, reason } } on failure.
+ */
+async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
+  try {
+    const data = (await routerFetch(path)) as T;
+    return { success: true, data };
+  } catch (error) {
+    const reason =
+      error instanceof Error
+        ? error.message
+        : "Unknown error connecting to Router API";
+    return {
+      success: false,
+      response: {
+        available: false,
+        reason,
+      },
+    };
+  }
 }
 
 // =============================================================================
@@ -170,10 +230,13 @@ function createRouterStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await routerFetch("/router/status");
+      const result = await safeRouterFetch<unknown>("/router/status");
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
-        status: result,
+        status: result.data,
       };
     },
   };
@@ -197,10 +260,13 @@ function createRouterRoutesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await routerFetch("/routes");
+      const result = await safeRouterFetch<unknown>("/routes");
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
-        routes: result,
+        routes: result.data,
       };
     },
   };
@@ -229,13 +295,16 @@ function createRouterRouteStatusTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/routes/${encodeURIComponent(routeName)}/status`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         routeName,
-        status: result,
+        status: result.data,
       };
     },
   };
@@ -260,13 +329,16 @@ function createRouterRouteHealthTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/routes/${encodeURIComponent(routeName)}/health`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         routeName,
-        health: result,
+        health: result.data,
       };
     },
   };
@@ -291,13 +363,16 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/routes/${encodeURIComponent(routeName)}/connections`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         routeName,
-        connections: result,
+        connections: result.data,
       };
     },
   };
@@ -322,13 +397,16 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/routes/${encodeURIComponent(routeName)}/destinations`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         routeName,
-        destinations: result,
+        destinations: result.data,
       };
     },
   };
@@ -353,13 +431,16 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/routes/${encodeURIComponent(routeName)}/blockedHosts`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         routeName,
-        blockedHosts: result,
+        blockedHosts: result.data,
       };
     },
   };
@@ -388,13 +469,16 @@ function createRouterMetadataStatusTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { metadataName } = MetadataNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/metadata/${encodeURIComponent(metadataName)}/status`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         metadataName,
-        status: result,
+        status: result.data,
       };
     },
   };
@@ -423,13 +507,16 @@ function createRouterPoolStatusTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { poolName } = ConnectionPoolNameInputSchema.parse(params);
-      const result = await routerFetch(
+      const result = await safeRouterFetch<unknown>(
         `/connection_pool/${encodeURIComponent(poolName)}/status`,
       );
+      if (!result.success) {
+        return result.response;
+      }
       return {
         success: true,
         poolName,
-        status: result,
+        status: result.data,
       };
     },
   };

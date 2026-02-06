@@ -446,7 +446,7 @@ describe("Error Handling", () => {
     mockContext = createMockRequestContext();
   });
 
-  it("should throw on non-ok response", async () => {
+  it("should return unavailable response on 401 Unauthorized", async () => {
     const mockReq = new EventEmitter() as EventEmitter & {
       end: () => void;
       destroy: () => void;
@@ -471,13 +471,15 @@ describe("Error Handling", () => {
     });
 
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const result = await tool.handler({}, mockContext);
 
-    await expect(tool.handler({}, mockContext)).rejects.toThrow(
-      "Router API error: 401 Unauthorized",
-    );
+    expect(result).toEqual({
+      available: false,
+      reason: "Router API error: 401 Unauthorized",
+    });
   });
 
-  it("should throw on 404 response", async () => {
+  it("should return unavailable response on 404 Not Found", async () => {
     const mockReq = new EventEmitter() as EventEmitter & {
       end: () => void;
       destroy: () => void;
@@ -502,13 +504,18 @@ describe("Error Handling", () => {
     });
 
     const tool = tools.find((t) => t.name === "mysql_router_route_status")!;
+    const result = await tool.handler(
+      { routeName: "nonexistent" },
+      mockContext,
+    );
 
-    await expect(
-      tool.handler({ routeName: "nonexistent" }, mockContext),
-    ).rejects.toThrow("Router API error: 404 Not Found");
+    expect(result).toEqual({
+      available: false,
+      reason: "Router API error: 404 Not Found",
+    });
   });
 
-  it("should throw on network error", async () => {
+  it("should return unavailable response on network error", async () => {
     const mockReq = new EventEmitter() as EventEmitter & {
       end: () => void;
       destroy: () => void;
@@ -524,13 +531,15 @@ describe("Error Handling", () => {
     });
 
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const result = await tool.handler({}, mockContext);
 
-    await expect(tool.handler({}, mockContext)).rejects.toThrow(
-      "Network error",
-    );
+    expect(result).toEqual({
+      available: false,
+      reason: "Router API request failed: Network error",
+    });
   });
 
-  it("should throw on connection refused", async () => {
+  it("should return unavailable response on connection refused", async () => {
     const mockReq = new EventEmitter() as EventEmitter & {
       end: () => void;
       destroy: () => void;
@@ -540,14 +549,20 @@ describe("Error Handling", () => {
 
     mockRequest.mockImplementation(() => {
       setImmediate(() => {
-        mockReq.emit("error", new Error("ECONNREFUSED"));
+        const error = new Error("ECONNREFUSED") as NodeJS.ErrnoException;
+        error.code = "ECONNREFUSED";
+        mockReq.emit("error", error);
       });
       return mockReq;
     });
 
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const result = await tool.handler({}, mockContext);
 
-    await expect(tool.handler({}, mockContext)).rejects.toThrow("ECONNREFUSED");
+    expect(result).toEqual({
+      available: false,
+      reason: expect.stringContaining("Connection refused"),
+    });
   });
 });
 
