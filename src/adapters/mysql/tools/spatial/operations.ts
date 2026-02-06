@@ -17,46 +17,6 @@ import type {
 // =============================================================================
 
 /**
- * Swap coordinates from MySQL's EPSG axis order (lat, lon) to GeoJSON standard (lon, lat).
- * MySQL 8.0+ ST_AsGeoJSON returns coordinates in EPSG order for SRID 4326,
- * which is latitude-first. GeoJSON spec requires longitude-first.
- *
- * Pattern P147: Axis-Order Enforcement for geographic coordinates.
- */
-function swapGeoJsonCoordinates(coords: unknown): unknown {
-  if (!Array.isArray(coords)) {
-    return coords;
-  }
-  // Check if this is a coordinate pair [number, number]
-  if (
-    coords.length === 2 &&
-    typeof coords[0] === "number" &&
-    typeof coords[1] === "number"
-  ) {
-    // Swap: [lat, lon] -> [lon, lat]
-    return [coords[1], coords[0]];
-  }
-  // Recursively process nested arrays (rings, multi-geometries)
-  return coords.map((item) => swapGeoJsonCoordinates(item));
-}
-
-/**
- * Fix GeoJSON axis order for SRID 4326.
- * Applies coordinate swap to ensure GeoJSON spec compliance (lon, lat order).
- */
-function fixGeoJsonAxisOrder(
-  geoJson: Record<string, unknown> | null,
-): Record<string, unknown> | null {
-  if (!geoJson || !("coordinates" in geoJson)) {
-    return geoJson;
-  }
-  return {
-    ...geoJson,
-    coordinates: swapGeoJsonCoordinates(geoJson["coordinates"]),
-  };
-}
-
-/**
  * Parse GeoJSON result from MySQL.
  * MySQL returns ST_AsGeoJSON as a string, but mysql2 driver may auto-parse JSON.
  * This handles both cases.
@@ -155,9 +115,7 @@ export function createSpatialIntersectionTool(
       return {
         intersects: Boolean(row?.["intersects"]),
         intersectionWkt: row?.["intersection_wkt"],
-        intersectionGeoJson: fixGeoJsonAxisOrder(
-          parseGeoJsonResult(row?.["intersection_geojson"]),
-        ),
+        intersectionGeoJson: parseGeoJsonResult(row?.["intersection_geojson"]),
       };
     },
   };
@@ -191,9 +149,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
       const row = result.rows?.[0];
       return {
         bufferWkt: row?.["buffer_wkt"],
-        bufferGeoJson: fixGeoJsonAxisOrder(
-          parseGeoJsonResult(row?.["buffer_geojson"]),
-        ),
+        bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
         bufferDistance: distance,
         srid,
       };
