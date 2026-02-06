@@ -404,9 +404,19 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection))
           throw new Error("Invalid collection name");
 
+        // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
+        const schemaClause = schema
+          ? `\`${schema}\`.\`${collection}\``
+          : `\`${collection}\``;
+        const countResult = await adapter.executeQuery(
+          `SELECT COUNT(*) as rowCount FROM ${schemaClause}`,
+        );
+        const rowCount =
+          (countResult.rows?.[0] as { rowCount: number })?.rowCount ?? 0;
+
         const tableInfo = await adapter.executeQuery(
           `
-                    SELECT TABLE_ROWS as rowCount, DATA_LENGTH as dataSize, INDEX_LENGTH as indexSize
+                    SELECT DATA_LENGTH as dataSize, INDEX_LENGTH as indexSize
                     FROM information_schema.TABLES
                     WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?
                 `,
@@ -422,9 +432,10 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           [schema ?? null, collection],
         );
 
+        const stats = tableInfo.rows?.[0] ?? {};
         return {
           collection,
-          stats: tableInfo.rows?.[0] ?? {},
+          stats: { rowCount, ...stats },
           indexes: indexInfo.rows ?? [],
         };
       },

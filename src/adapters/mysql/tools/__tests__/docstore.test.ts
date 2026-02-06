@@ -578,17 +578,18 @@ describe("Handler Execution", () => {
   describe("mysql_doc_collection_info", () => {
     it("should get collection statistics", async () => {
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ rowCount: 1000 }])) // COUNT(*) query
         .mockResolvedValueOnce(
-          createMockQueryResult([{ rowCount: 1000, dataSize: 50000 }]),
-        )
+          createMockQueryResult([{ dataSize: 50000, indexSize: 10000 }]),
+        ) // INFORMATION_SCHEMA.TABLES
         .mockResolvedValueOnce(
           createMockQueryResult([{ INDEX_NAME: "PRIMARY" }]),
-        );
+        ); // INFORMATION_SCHEMA.STATISTICS
 
       const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
       const result = await tool.handler({ collection: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result).toHaveProperty("collection", "users");
       expect(result).toHaveProperty("stats");
       expect(result).toHaveProperty("indexes");
