@@ -112,7 +112,10 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
             reason: `View '${name}' already exists`,
           };
         }
-        throw err;
+        return {
+          success: false,
+          reason: message,
+        };
       }
     },
   };

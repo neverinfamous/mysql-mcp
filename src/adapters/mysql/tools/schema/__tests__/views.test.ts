@@ -119,5 +119,23 @@ describe("Schema View Tools", () => {
       expect(result.success).toBe(false);
       expect(result.reason).toContain("already exists");
     });
+
+    it("should return success false for invalid SQL definition", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent_table' doesn't exist"),
+      );
+      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+
+      const result = (await tool.handler(
+        {
+          name: "bad_view",
+          definition: "SELECT * FROM nonexistent_table",
+        },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("doesn't exist");
+    });
   });
 });
