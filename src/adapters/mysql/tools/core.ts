@@ -327,6 +327,15 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         throw new Error("Invalid table name");
       }
 
+      // Pre-check existence for skipped indicator when ifExists is true
+      let tableAbsent = false;
+      if (ifExists) {
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns || tableInfo.columns.length === 0) {
+          tableAbsent = true;
+        }
+      }
+
       const ifExistsClause = ifExists ? "IF EXISTS " : "";
       const tableName = escapeId(table);
 
@@ -341,6 +350,15 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
         throw err;
+      }
+
+      if (tableAbsent) {
+        return {
+          success: true,
+          skipped: true,
+          tableName: table,
+          reason: "Table did not exist",
+        };
       }
 
       return { success: true, tableName: table };
@@ -434,9 +452,23 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      await adapter.executeQuery(
-        `CREATE ${uniqueClause}${prefixClause}INDEX \`${name}\` ON ${tableName} (${columnList})${usingClause}`,
-      );
+      try {
+        await adapter.executeQuery(
+          `CREATE ${uniqueClause}${prefixClause}INDEX \`${name}\` ON ${tableName} (${columnList})${usingClause}`,
+        );
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("Duplicate key name")) {
+          return {
+            success: false,
+            reason: `Index '${name}' already exists on table '${table}'`,
+          };
+        }
+        if (message.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        throw err;
+      }
 
       // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)
       if (type === "HASH") {

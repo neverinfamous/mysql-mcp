@@ -471,6 +471,21 @@ describe("Handler Execution", () => {
       );
     });
 
+    it("should return skipped indicator when ifExists is true and table absent", async () => {
+      mockAdapter.describeTable.mockResolvedValue({ columns: [] });
+      mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
+
+      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const result = await tool.handler(
+        { table: "absent_table", ifExists: true },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", true);
+      expect(result).toHaveProperty("skipped", true);
+      expect(result).toHaveProperty("reason", "Table did not exist");
+    });
+
     it("should re-throw non-existence errors in drop table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
@@ -612,6 +627,64 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("warning");
       expect((result as Record<string, unknown>).warning).toContain("MEMORY");
+    });
+
+    it("should return graceful error when duplicate index name exists", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Duplicate key name 'idx_existing'"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "idx_existing",
+          table: "users",
+          columns: ["email"],
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty(
+        "reason",
+        "Index 'idx_existing' already exists on table 'users'",
+      );
+    });
+
+    it("should return exists: false when table does not exist", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "idx_test",
+          table: "nonexistent",
+          columns: ["col1"],
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("exists", false);
+      expect(result).toHaveProperty("table", "nonexistent");
+    });
+
+    it("should re-throw non-index errors in create index", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+
+      await expect(
+        tool.handler(
+          {
+            name: "idx_test",
+            table: "users",
+            columns: ["email"],
+          },
+          mockContext,
+        ),
+      ).rejects.toThrow("Access denied");
     });
   });
 });
