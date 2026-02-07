@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-**Last updated: February 6, 2026**
+**Last Updated: February 7, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
