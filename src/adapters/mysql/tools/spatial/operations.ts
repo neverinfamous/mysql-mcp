@@ -174,6 +174,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
           bufferDistance: distance,
           segments,
+          segmentsApplied: !isGeographic,
           srid,
         };
       } catch (error) {

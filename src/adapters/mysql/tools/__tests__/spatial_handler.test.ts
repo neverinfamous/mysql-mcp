@@ -430,5 +430,77 @@ describe("Spatial Tools Handlers", () => {
         error: "Latitude must be in range",
       });
     });
+
+    it("should return { success: false, reason } for duplicate column (create_column)", async () => {
+      const tool = findTool("mysql_spatial_create_column")!;
+      mockAdapter.executeQuery.mockRejectedValueOnce(
+        new Error("Duplicate column name 'location'"),
+      );
+
+      const result = await tool.handler(
+        {
+          table: "users",
+          column: "location",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        reason: "Column 'location' already exists on table 'users'",
+      });
+    });
+
+    it("should include segmentsApplied: false for geographic SRID (buffer)", async () => {
+      const tool = findTool("mysql_spatial_buffer")!;
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            buffer_wkt: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
+            buffer_geojson:
+              '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}',
+          },
+        ]),
+      );
+
+      const result = await tool.handler(
+        {
+          geometry: "POINT(0 0)",
+          distance: 100,
+          srid: 4326,
+          segments: 4,
+        },
+        mockContext,
+      );
+
+      expect((result as any).segmentsApplied).toBe(false);
+      expect((result as any).segments).toBe(4);
+    });
+
+    it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
+      const tool = findTool("mysql_spatial_buffer")!;
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            buffer_wkt: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
+            buffer_geojson:
+              '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}',
+          },
+        ]),
+      );
+
+      const result = await tool.handler(
+        {
+          geometry: "POINT(0 0)",
+          distance: 100,
+          srid: 0,
+          segments: 4,
+        },
+        mockContext,
+      );
+
+      expect((result as any).segmentsApplied).toBe(true);
+      expect((result as any).segments).toBe(4);
+    });
   });
 });

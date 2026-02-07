@@ -97,6 +97,12 @@ export function createSpatialCreateColumnTool(
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
+        if (msg.includes("Duplicate column name")) {
+          return {
+            success: false,
+            reason: `Column '${column}' already exists on table '${table}'`,
+          };
+        }
         return { success: false, error: msg };
       }
     },
