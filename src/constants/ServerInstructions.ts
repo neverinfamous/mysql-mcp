@@ -108,7 +108,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (\`mysql_innodb_cluster_metadata\`) must exist.
 - **Cluster status**: \`mysql_cluster_status\` returns cluster metadata. Use \`summary: true\` for condensed output without Router configuration schemas. Returns \`isInnoDBCluster: false\` if not in a cluster.
 - **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role.
-- **Topology**: \`mysql_cluster_topology\` provides an ASCII visualization grouping members by role (PRIMARY, secondaries, recovering, offline).
+- **Topology**: \`mysql_cluster_topology\` returns a structured \`topology\` object (with \`primary\`, \`secondaries\`, \`recovering\`, \`offline\` arrays) and a \`visualization\` string grouping members by role.
 - **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return only essential router info without full configuration blobs.
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and provides target recommendations. Returns \`canSwitchover: false\` if no viable candidates.
 

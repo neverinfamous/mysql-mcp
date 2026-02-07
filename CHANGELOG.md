@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_sys_schema_stats` Default Limit** — Reduced default `limit` from 50 to 20. The previous default produced ~34KB payloads (50 rows × 3 arrays). The new default keeps responses manageable while still providing useful coverage.
 - **Sys Schema Tools Server Instructions** — Expanded documentation with default `limit` values, `mysql_sys_schema_stats` 3-array output description (`tableStatistics`, `indexStatistics`, `autoIncrementStatus`), `schema` filter parameter, `mysql_sys_memory_summary` dual-array structure, and `by_instance` per-instance granularity note.
 - **`proxysql_status` Response Parity** — Full (non-summary) response now includes `summary: false` and `totalVarsAvailable` fields, matching the summary response structure for consistent consumption.
+- **InnoDB Cluster Topology Server Instructions** — Updated `mysql_cluster_topology` description to accurately reflect that it returns both a structured `topology` JSON object (with `primary`, `secondaries`, `recovering`, `offline` arrays) and a `visualization` string, not just an ASCII visualization.
 - **ProxySQL Tools Server Instructions** — Updated documentation to describe `proxysql_status` response parity, `proxysql_global_variables` `limit` parameter, and `proxysql_runtime_status` full admin variable listing.
 
 ### Added
