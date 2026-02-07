@@ -79,8 +79,20 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid role name");
         const clause = ifNotExists ? "IF NOT EXISTS " : "";
-        await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
-        return { success: true, roleName: name };
+        try {
+          await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
+          return { success: true, roleName: name };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.includes("Operation CREATE ROLE failed")) {
+            return {
+              success: false,
+              reason: `Role '${name}' already exists`,
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -95,10 +107,22 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         const { name, ifExists } = RoleDropSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid role name");
-        await adapter.executeQuery(
-          `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'`,
-        );
-        return { success: true, roleName: name };
+        try {
+          await adapter.executeQuery(
+            `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'`,
+          );
+          return { success: true, roleName: name };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.includes("Operation DROP ROLE failed")) {
+            return {
+              success: false,
+              reason: `Role '${name}' does not exist`,
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -177,16 +201,29 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           onClause = tbl;
         }
 
-        await adapter.rawQuery(
-          `GRANT ${privileges.join(", ")} ON ${onClause} TO '${role}'`,
-        );
-        return {
-          success: true,
-          role,
-          privileges,
-          database: targetDb,
-          table: targetTable,
-        };
+        try {
+          await adapter.rawQuery(
+            `GRANT ${privileges.join(", ")} ON ${onClause} TO '${role}'`,
+          );
+          return {
+            success: true,
+            role,
+            privileges,
+            database: targetDb,
+            table: targetTable,
+          };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.includes("doesn't exist")) {
+            return {
+              success: false,
+              role,
+              error: message,
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -219,11 +256,26 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
 
         let sql = `GRANT '${role}' TO '${user}'@'${host}'`;
         if (withAdminOption) sql += " WITH ADMIN OPTION";
-        await adapter.rawQuery(sql);
-        await adapter.rawQuery(
-          `SET DEFAULT ROLE '${role}' TO '${user}'@'${host}'`,
-        );
-        return { success: true, role, user, host };
+        try {
+          await adapter.rawQuery(sql);
+          await adapter.rawQuery(
+            `SET DEFAULT ROLE '${role}' TO '${user}'@'${host}'`,
+          );
+          return { success: true, role, user, host };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.includes("Unknown authorization ID")) {
+            return {
+              success: false,
+              role,
+              user,
+              host,
+              error: "User does not exist",
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -253,8 +305,23 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         }
 
-        await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
-        return { success: true, role, user, host };
+        try {
+          await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
+          return { success: true, role, user, host };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.includes("Unknown authorization ID")) {
+            return {
+              success: false,
+              role,
+              user,
+              host,
+              error: "User does not exist",
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -267,6 +334,16 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
         const { user, host } = UserRolesSchema.parse(params);
+
+        // P154: Check if user exists
+        const userCheck = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+          [user, host],
+        );
+        if (!userCheck.rows || userCheck.rows.length === 0) {
+          return { user, host, exists: false };
+        }
+
         const result = await adapter.executeQuery(
           `SELECT FROM_USER as roleName, FROM_HOST as roleHost, WITH_ADMIN_OPTION as admin
                      FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?`,

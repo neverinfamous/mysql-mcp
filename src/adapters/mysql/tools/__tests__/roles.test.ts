@@ -251,7 +251,145 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("role_edges");
+      expect(call).toContain("mysql.user");
+    });
+
+    it("should return exists: false for nonexistent user", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_user_roles")!;
+      const result = await tool.handler(
+        { user: "nonexistent", host: "%" },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        user: "nonexistent",
+        host: "%",
+        exists: false,
+      });
+    });
+  });
+
+  describe("mysql_role_create - error handling", () => {
+    it("should return graceful error for duplicate role", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Operation CREATE ROLE failed for 'test_role'@'%'"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const result = await tool.handler(
+        { name: "test_role", ifNotExists: false },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        reason: "Role 'test_role' already exists",
+      });
+    });
+  });
+
+  describe("mysql_role_drop - error handling", () => {
+    it("should return graceful error for nonexistent role", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Operation DROP ROLE failed for 'test_role'@'%'"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const result = await tool.handler(
+        { name: "test_role", ifExists: false },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        reason: "Role 'test_role' does not exist",
+      });
+    });
+  });
+
+  describe("mysql_role_assign - error handling", () => {
+    it("should return graceful error for nonexistent user", async () => {
+      // Role exists check succeeds
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ "1": 1 }]),
+      );
+      // GRANT rawQuery fails with unknown user
+      mockAdapter.rawQuery.mockRejectedValue(
+        new Error("Unknown authorization ID `baduser`@`%`"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_role_assign")!;
+      const result = await tool.handler(
+        { role: "test_role", user: "baduser", host: "%" },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        role: "test_role",
+        user: "baduser",
+        host: "%",
+        error: "User does not exist",
+      });
+    });
+  });
+
+  describe("mysql_role_revoke - error handling", () => {
+    it("should return graceful error for nonexistent user", async () => {
+      // Role exists check succeeds
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ "1": 1 }]),
+      );
+      // REVOKE rawQuery fails with unknown user
+      mockAdapter.rawQuery.mockRejectedValue(
+        new Error("Unknown authorization ID `baduser`@`%`"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const result = await tool.handler(
+        { role: "test_role", user: "baduser", host: "%" },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        role: "test_role",
+        user: "baduser",
+        host: "%",
+        error: "User does not exist",
+      });
+    });
+  });
+
+  describe("mysql_role_grant - error handling", () => {
+    it("should return graceful error for nonexistent table", async () => {
+      // Role exists check succeeds
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ "1": 1 }]),
+      );
+      // GRANT rawQuery fails with table not found
+      mockAdapter.rawQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const result = await tool.handler(
+        {
+          role: "test_role",
+          privileges: ["SELECT"],
+          database: "testdb",
+          table: "nonexistent",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        role: "test_role",
+        error: "Table 'testdb.nonexistent' doesn't exist",
+      });
     });
   });
 });
