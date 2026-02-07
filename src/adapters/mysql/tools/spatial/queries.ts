@@ -82,30 +82,38 @@ export function createSpatialDistanceTool(
         throw new Error("Invalid column name");
       }
 
-      // Use 'axis-order=long-lat' to accept natural longitude-latitude order
-      const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
+      try {
+        // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+        const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
 
-      let query = `
+        let query = `
                 SELECT *,
                        ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance
                 FROM \`${table}\`
             `;
 
-      const queryParams: unknown[] = [pointWkt];
+        const queryParams: unknown[] = [pointWkt];
 
-      if (maxDistance !== undefined) {
-        query += ` WHERE ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
-        queryParams.push(pointWkt, maxDistance);
+        if (maxDistance !== undefined) {
+          query += ` WHERE ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
+          queryParams.push(pointWkt, maxDistance);
+        }
+
+        query += ` ORDER BY distance LIMIT ${String(limit)}`;
+
+        const result = await adapter.executeQuery(query, queryParams);
+        return {
+          results: result.rows ?? [],
+          count: result.rows?.length ?? 0,
+          referencePoint: point,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      query += ` ORDER BY distance LIMIT ${String(limit)}`;
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        results: result.rows ?? [],
-        count: result.rows?.length ?? 0,
-        referencePoint: point,
-      };
     },
   };
 }
@@ -140,31 +148,39 @@ export function createSpatialDistanceSphereTool(
         throw new Error("Invalid column name");
       }
 
-      // Use 'axis-order=long-lat' to accept natural longitude-latitude order
-      const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
+      try {
+        // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+        const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
 
-      let query = `
+        let query = `
                 SELECT *,
                        ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance_meters
                 FROM \`${table}\`
             `;
 
-      const queryParams: unknown[] = [pointWkt];
+        const queryParams: unknown[] = [pointWkt];
 
-      if (maxDistance !== undefined) {
-        query += ` WHERE ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
-        queryParams.push(pointWkt, maxDistance);
+        if (maxDistance !== undefined) {
+          query += ` WHERE ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
+          queryParams.push(pointWkt, maxDistance);
+        }
+
+        query += ` ORDER BY distance_meters LIMIT ${String(limit)}`;
+
+        const result = await adapter.executeQuery(query, queryParams);
+        return {
+          results: result.rows ?? [],
+          count: result.rows?.length ?? 0,
+          referencePoint: point,
+          unit: "meters",
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      query += ` ORDER BY distance_meters LIMIT ${String(limit)}`;
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        results: result.rows ?? [],
-        count: result.rows?.length ?? 0,
-        referencePoint: point,
-        unit: "meters",
-      };
     },
   };
 }
@@ -199,18 +215,26 @@ export function createSpatialContainsTool(
         throw new Error("Invalid column name");
       }
 
-      const query = `
+      try {
+        const query = `
                 SELECT *
                 FROM \`${table}\`
                 WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
                 LIMIT ${String(limit)}
             `;
 
-      const result = await adapter.executeQuery(query, [polygon]);
-      return {
-        results: result.rows ?? [],
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query, [polygon]);
+        return {
+          results: result.rows ?? [],
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -242,18 +266,26 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         throw new Error("Invalid column name");
       }
 
-      const query = `
+      try {
+        const query = `
                 SELECT *
                 FROM \`${table}\`
                 WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
                 LIMIT ${String(limit)}
             `;
 
-      const result = await adapter.executeQuery(query, [geometry]);
-      return {
-        results: result.rows ?? [],
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query, [geometry]);
+        return {
+          results: result.rows ?? [],
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }

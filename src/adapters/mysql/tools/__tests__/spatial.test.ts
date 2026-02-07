@@ -157,7 +157,7 @@ describe("Handler Execution", () => {
       ).rejects.toThrow("Cannot create SPATIAL index on nullable column");
     });
 
-    it("should handle index creation errors", async () => {
+    it("should handle index creation errors gracefully", async () => {
       // First call returns column info, second call fails
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
@@ -166,16 +166,19 @@ describe("Handler Execution", () => {
         .mockRejectedValueOnce(new Error("Index already exists"));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
-      await expect(
-        tool.handler(
-          {
-            table: "locations",
-            column: "geom",
-            indexName: "idx_locations_geom",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Index already exists");
+      const result = await tool.handler(
+        {
+          table: "locations",
+          column: "geom",
+          indexName: "idx_locations_geom",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Index already exists",
+      });
     });
   });
 
@@ -197,15 +200,21 @@ describe("Handler Execution", () => {
       expect(result).toBeDefined();
     });
 
-    it("should reject invalid coordinates", async () => {
+    it("should handle invalid coordinates gracefully", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Invalid coordinate"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
-      await expect(
-        tool.handler({ longitude: -200, latitude: 40.7484 }, mockContext),
-      ).rejects.toThrow("Invalid coordinate");
+      const result = await tool.handler(
+        { longitude: -200, latitude: 40.7484 },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid coordinate",
+      });
     });
   });
 

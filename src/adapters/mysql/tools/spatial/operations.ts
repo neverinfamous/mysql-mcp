@@ -94,8 +94,9 @@ export function createSpatialIntersectionTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { geometry1, geometry2, srid } = IntersectionSchema.parse(params);
 
-      const result = await adapter.executeQuery(
-        `SELECT 
+      try {
+        const result = await adapter.executeQuery(
+          `SELECT 
                     ST_Intersects(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
@@ -108,15 +109,21 @@ export function createSpatialIntersectionTool(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
                     )) as intersection_geojson`,
-        [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
-      );
+          [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
+        );
 
-      const row = result.rows?.[0];
-      return {
-        intersects: Boolean(row?.["intersects"]),
-        intersectionWkt: row?.["intersection_wkt"],
-        intersectionGeoJson: parseGeoJsonResult(row?.["intersection_geojson"]),
-      };
+        const row = result.rows?.[0];
+        return {
+          intersects: Boolean(row?.["intersects"]),
+          intersectionWkt: row?.["intersection_wkt"],
+          intersectionGeoJson: parseGeoJsonResult(
+            row?.["intersection_geojson"],
+          ),
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -139,20 +146,25 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { geometry, distance, srid } = BufferSchema.parse(params);
 
-      const result = await adapter.executeQuery(
-        `SELECT 
+      try {
+        const result = await adapter.executeQuery(
+          `SELECT 
                     ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?)) as buffer_wkt,
                     ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?)) as buffer_geojson`,
-        [geometry, distance, geometry, distance],
-      );
+          [geometry, distance, geometry, distance],
+        );
 
-      const row = result.rows?.[0];
-      return {
-        bufferWkt: row?.["buffer_wkt"],
-        bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
-        bufferDistance: distance,
-        srid,
-      };
+        const row = result.rows?.[0];
+        return {
+          bufferWkt: row?.["buffer_wkt"],
+          bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
+          bufferDistance: distance,
+          srid,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -178,21 +190,26 @@ export function createSpatialTransformTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { geometry, fromSrid, toSrid } = TransformSchema.parse(params);
 
-      const result = await adapter.executeQuery(
-        `SELECT 
+      try {
+        const result = await adapter.executeQuery(
+          `SELECT 
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_wkt,
                     ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_geojson`,
-        [geometry, geometry],
-      );
+          [geometry, geometry],
+        );
 
-      const row = result.rows?.[0];
-      return {
-        originalWkt: geometry,
-        transformedWkt: row?.["transformed_wkt"],
-        transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
-        fromSrid,
-        toSrid,
-      };
+        const row = result.rows?.[0];
+        return {
+          originalWkt: geometry,
+          transformedWkt: row?.["transformed_wkt"],
+          transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
+          fromSrid,
+          toSrid,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -217,35 +234,40 @@ export function createSpatialGeoJSONTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { geometry, geoJson, srid } = GeoJSONSchema.parse(params);
 
-      if (geometry) {
-        // Convert WKT to GeoJSON
-        const result = await adapter.executeQuery(
-          `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson`,
-          [geometry],
-        );
+      try {
+        if (geometry) {
+          // Convert WKT to GeoJSON
+          const result = await adapter.executeQuery(
+            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson`,
+            [geometry],
+          );
 
-        const row = result.rows?.[0];
-        return {
-          wkt: geometry,
-          geoJson: parseGeoJsonResult(row?.["geoJson"]),
-          conversion: "WKT to GeoJSON",
-        };
-      } else if (geoJson) {
-        // Convert GeoJSON to WKT
-        const result = await adapter.executeQuery(
-          `SELECT ST_AsText(ST_GeomFromGeoJSON(?)) as wkt`,
-          [geoJson],
-        );
+          const row = result.rows?.[0];
+          return {
+            wkt: geometry,
+            geoJson: parseGeoJsonResult(row?.["geoJson"]),
+            conversion: "WKT to GeoJSON",
+          };
+        } else if (geoJson) {
+          // Convert GeoJSON to WKT
+          const result = await adapter.executeQuery(
+            `SELECT ST_AsText(ST_GeomFromGeoJSON(?)) as wkt`,
+            [geoJson],
+          );
 
-        const row = result.rows?.[0];
-        return {
-          wkt: row?.["wkt"],
-          geoJson: JSON.parse(geoJson) as Record<string, unknown>,
-          conversion: "GeoJSON to WKT",
-        };
+          const row = result.rows?.[0];
+          return {
+            wkt: row?.["wkt"],
+            geoJson: JSON.parse(geoJson) as Record<string, unknown>,
+            conversion: "GeoJSON to WKT",
+          };
+        }
+
+        throw new Error("Either geometry or geoJson must be provided");
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       }
-
-      throw new Error("Either geometry or geoJson must be provided");
     },
   };
 }

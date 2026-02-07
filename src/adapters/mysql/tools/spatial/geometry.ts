@@ -75,21 +75,24 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { longitude, latitude, srid } = PointSchema.parse(params);
 
-      // Use 'axis-order=long-lat' to accept natural longitude-latitude order
-      // MySQL 8.0+ defaults to EPSG standard (latitude-longitude) for SRID 4326
-      const result = await adapter.executeQuery(
-        `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as wkt,
+      try {
+        const result = await adapter.executeQuery(
+          `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as wkt,
                         ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as geoJson`,
-      );
+        );
 
-      const row = result.rows?.[0];
-      return {
-        wkt: row?.["wkt"],
-        geoJson: parseGeoJsonResult(row?.["geoJson"]),
-        srid,
-        longitude,
-        latitude,
-      };
+        const row = result.rows?.[0];
+        return {
+          wkt: row?.["wkt"],
+          geoJson: parseGeoJsonResult(row?.["geoJson"]),
+          srid,
+          longitude,
+          latitude,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -114,29 +117,36 @@ export function createSpatialPolygonTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { coordinates, srid } = PolygonSchema.parse(params);
 
-      // Build WKT polygon
-      const rings = coordinates.map(
-        (ring) =>
-          "(" +
-          ring.map(([lon, lat]) => `${String(lon)} ${String(lat)}`).join(", ") +
-          ")",
-      );
-      const wkt = `POLYGON(${rings.join(", ")})`;
+      try {
+        // Build WKT polygon
+        const rings = coordinates.map(
+          (ring) =>
+            "(" +
+            ring
+              .map(([lon, lat]) => `${String(lon)} ${String(lat)}`)
+              .join(", ") +
+            ")",
+        );
+        const wkt = `POLYGON(${rings.join(", ")})`;
 
-      const result = await adapter.executeQuery(
-        `SELECT ST_AsText(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as wkt,
+        const result = await adapter.executeQuery(
+          `SELECT ST_AsText(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as wkt,
                         ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson,
                         ST_Area(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as area`,
-        [wkt, wkt, wkt],
-      );
+          [wkt, wkt, wkt],
+        );
 
-      const row = result.rows?.[0];
-      return {
-        wkt: row?.["wkt"],
-        geoJson: parseGeoJsonResult(row?.["geoJson"]),
-        area: row?.["area"],
-        srid,
-      };
+        const row = result.rows?.[0];
+        return {
+          wkt: row?.["wkt"],
+          geoJson: parseGeoJsonResult(row?.["geoJson"]),
+          area: row?.["area"],
+          srid,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }

@@ -76,14 +76,29 @@ export function createSpatialCreateColumnTool(
         throw new Error("Invalid column name");
       }
 
-      const nullClause = nullable ? "" : " NOT NULL";
-      const sridClause = srid ? ` SRID ${String(srid)}` : "";
+      try {
+        const nullClause = nullable ? "" : " NOT NULL";
+        const sridClause = srid ? ` SRID ${String(srid)}` : "";
 
-      await adapter.executeQuery(
-        `ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${type}${sridClause}${nullClause}`,
-      );
+        await adapter.executeQuery(
+          `ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${type}${sridClause}${nullClause}`,
+        );
 
-      return { success: true, table, column, type, srid };
+        return {
+          success: true,
+          table,
+          column,
+          type,
+          srid: srid ?? null,
+          nullable,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -121,37 +136,48 @@ export function createSpatialCreateIndexTool(
         throw new Error("Invalid index name");
       }
 
-      // Check if column is nullable - SPATIAL indexes require NOT NULL columns
-      const colInfo = await adapter.executeQuery(
-        `SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
-         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-        [table, column],
-      );
-
-      if (!colInfo.rows || colInfo.rows.length === 0) {
-        throw new Error(`Column '${column}' not found in table '${table}'`);
-      }
-
-      const row = colInfo.rows[0];
-      const isNullable = row?.["IS_NULLABLE"] === "YES";
-      if (isNullable) {
-        const rawDataType = row?.["DATA_TYPE"];
-        const dataType =
-          typeof rawDataType === "string"
-            ? rawDataType.toUpperCase()
-            : "GEOMETRY";
-        throw new Error(
-          `Cannot create SPATIAL index on nullable column '${column}'. ` +
-            `Alter the column to NOT NULL first: ` +
-            `ALTER TABLE \`${table}\` MODIFY \`${column}\` ${dataType} NOT NULL`,
+      try {
+        // Check if column is nullable - SPATIAL indexes require NOT NULL
+        const colInfo = await adapter.executeQuery(
+          `SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          [table, column],
         );
+
+        const colRow = colInfo.rows?.[0];
+        if (colRow) {
+          const isNullable = colRow["IS_NULLABLE"] === "YES";
+          const dataType = String(colRow["DATA_TYPE"]).toUpperCase();
+          if (isNullable) {
+            throw new Error(
+              `Cannot create SPATIAL index on nullable column '${column}'. ` +
+                `Alter the column to NOT NULL first: ` +
+                `ALTER TABLE \`${table}\` MODIFY \`${column}\` ${dataType} NOT NULL`,
+            );
+          }
+        }
+
+        await adapter.executeQuery(
+          `CREATE SPATIAL INDEX \`${idxName}\` ON \`${table}\`(\`${column}\`)`,
+        );
+
+        return {
+          success: true,
+          table,
+          column,
+          indexName: idxName,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        // Re-throw nullable column validation (user needs to fix this)
+        if (msg.includes("Cannot create SPATIAL index on nullable column")) {
+          throw error;
+        }
+        return { success: false, error: msg };
       }
-
-      await adapter.executeQuery(
-        `CREATE SPATIAL INDEX \`${idxName}\` ON \`${table}\` (\`${column}\`)`,
-      );
-
-      return { success: true, indexName: idxName, table, column };
     },
   };
 }
