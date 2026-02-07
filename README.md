@@ -13,8 +13,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1590%20passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-97%25-green.svg)
+![Tests](https://img.shields.io/badge/Tests-1695%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-94%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -36,7 +36,7 @@
 | **Ecosystem Integrations**     | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                             |
 | **Advanced Encryption**        | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                          |
 | **Production-Ready Security**  | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                         |
-| **Strict TypeScript**          | 100% type-safe codebase with 1590 tests and 97% coverage                                                                                                          |
+| **Strict TypeScript**          | 100% type-safe codebase with 1695 tests and 94% coverage                                                                                                          |
 | **MCP 2025-11-25 Compliant**   | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                     |
 
 ---
@@ -394,7 +394,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_XPORT": "6448",
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql",
+        "MYSQL_DATABASE": "testdb",
         "MYSQL_ROUTER_URL": "https://localhost:8443",
         "MYSQL_ROUTER_USER": "rest_api",
         "MYSQL_ROUTER_PASSWORD": "router_password",
@@ -607,7 +607,7 @@ npm run test:coverage
 | **Global**      | **97%+** | Statement coverage    |
 | MySQLAdapter    | 93%+     | Adapter logic covered |
 | Branch Coverage | ~86%     | High branch coverage  |
-| Tools (All)     | 99%+     | 1590 tests passing    |
+| Tools (All)     | 99%+     | 1695 tests passing    |
 
 ---
 
