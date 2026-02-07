@@ -34,9 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_describe_table` Existence Check** — Tool now returns `{ exists: false, table: "...", message: "..." }` gracefully when the table does not exist, instead of returning an empty columns array. Simplifies error handling for agents.
 - **`mysql_get_indexes` Existence Check** — Tool now returns `{ exists: false, table: "...", indexes: [], message: "..." }` gracefully when the table does not exist, matching the pattern used by `mysql_describe_table`.
 - **`mysql_create_table` Boolean Default Conversion** — Tool now auto-converts boolean `default: true` to `1` and `default: false` to `0` for MySQL compatibility. Previously, boolean defaults caused "Invalid default value" errors.
+- **`mysql_index_recommendation` Existence Check (P154)** — Tool now returns `{ exists: false, table }` gracefully when the table does not exist, instead of returning empty arrays. Follows the same pattern used by `mysql_describe_table` and `mysql_get_indexes`.
 
 ### Fixed
 
+- **`mysql_query_rewrite` EXPLAIN Error Reporting** — Tool now returns `explainPlan: null` with `explainError` field when EXPLAIN fails (e.g., nonexistent table), instead of silently omitting the explain plan.
+- **`mysql_force_index` Index Validation** — Tool now validates index existence and returns a `warning` field when the specified index is not found on the table, instead of silently generating an invalid query.
 - **`mysql_transaction_execute` SELECT Row Data** — Fixed tool not returning row data for SELECT statements within atomic transactions. Previously returned only `{ statement: 1 }` with no rows. Now returns `rows` and `rowCount` for SELECT statements, and `rowsAffected` for write statements.
 - **`mysql_json_contains` Minimal Payload (P137)** — Tool now returns only `id` and the searched JSON column instead of all columns (`SELECT *`). Reduces payload size for tables with many columns or large non-JSON fields.
 - **`mysql_json_search` Minimal Payload (P137)** — Tool now returns only `id`, the searched JSON column, and `match_path` instead of all columns (`SELECT *`). Matches the minimal-payload pattern applied to fulltext and text tools.

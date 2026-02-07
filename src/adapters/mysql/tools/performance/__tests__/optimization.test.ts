@@ -113,6 +113,24 @@ describe("Performance Optimization Tools", () => {
 
       expect(result.recommendations).toHaveLength(0);
     });
+
+    it("should return exists: false for nonexistent table", async () => {
+      const mockTableInfo = createMockTableInfo("ghost");
+      mockTableInfo.columns = [];
+      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
+
+      const tool = createIndexRecommendationTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ table: "ghost" }, mockContext)) as {
+        exists: boolean;
+        table: string;
+      };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("ghost");
+      expect(mockAdapter.getTableIndexes).not.toHaveBeenCalled();
+    });
   });
 
   describe("createQueryRewriteTool", () => {
@@ -186,20 +204,23 @@ describe("Performance Optimization Tools", () => {
       expect(result.explainPlan).toBeDefined();
     });
 
-    it("should handle explain failure gracefully", async () => {
+    it("should handle explain failure gracefully with explainError", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Explain failed"),
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
 
       const tool = createQueryRewriteTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler(
-        { query: "SELECT * FROM users" },
+        { query: "SELECT * FROM nonexistent" },
         mockContext,
-      )) as { explainPlan: unknown };
+      )) as { explainPlan: unknown; explainError: string };
 
-      expect(result.explainPlan).toBeUndefined();
+      expect(result.explainPlan).toBeNull();
+      expect(result.explainError).toBe(
+        "Table 'testdb.nonexistent' doesn't exist",
+      );
     });
   });
 
@@ -210,6 +231,16 @@ describe("Performance Optimization Tools", () => {
     });
 
     it("should rewrite query with FORCE INDEX", async () => {
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        {
+          name: "PRIMARY",
+          tableName: "users",
+          columns: ["id"],
+          unique: true,
+          type: "BTREE",
+        },
+      ]);
+
       const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         {
@@ -226,6 +257,16 @@ describe("Performance Optimization Tools", () => {
     });
 
     it("should handle table name with backticks in query", async () => {
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        {
+          name: "idx_name",
+          tableName: "users",
+          columns: ["name"],
+          unique: false,
+          type: "BTREE",
+        },
+      ]);
+
       const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         {
@@ -234,10 +275,59 @@ describe("Performance Optimization Tools", () => {
           indexName: "idx_name",
         },
         mockContext,
-      )) as { rewrittenQuery: string };
+      )) as { rewrittenQuery: string; warning?: string };
 
       expect(result.rewrittenQuery).toBe(
         "SELECT * FROM `users` FORCE INDEX (`idx_name`) WHERE id = 1",
+      );
+      expect(result.warning).toBeUndefined();
+    });
+
+    it("should include warning for nonexistent index", async () => {
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        {
+          name: "PRIMARY",
+          tableName: "users",
+          columns: ["id"],
+          unique: true,
+          type: "BTREE",
+        },
+      ]);
+
+      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "users",
+          query: "SELECT * FROM users WHERE id = 1",
+          indexName: "nonexistent_idx",
+        },
+        mockContext,
+      )) as { rewrittenQuery: string; warning: string };
+
+      expect(result.rewrittenQuery).toContain("FORCE INDEX");
+      expect(result.warning).toBe(
+        "Index 'nonexistent_idx' not found on table 'users'",
+      );
+    });
+
+    it("should include warning when table cannot be verified", async () => {
+      mockAdapter.getTableIndexes.mockRejectedValue(
+        new Error("Table doesn't exist"),
+      );
+
+      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "ghost",
+          query: "SELECT * FROM ghost WHERE id = 1",
+          indexName: "some_idx",
+        },
+        mockContext,
+      )) as { rewrittenQuery: string; warning: string };
+
+      expect(result.rewrittenQuery).toContain("FORCE INDEX");
+      expect(result.warning).toBe(
+        "Could not verify index 'some_idx' on table 'ghost'",
       );
     });
   });

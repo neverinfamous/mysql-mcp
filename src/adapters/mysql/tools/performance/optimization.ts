@@ -174,6 +174,11 @@ export function createIndexRecommendationTool(
       // Get columns
       const columns = await adapter.describeTable(table);
 
+      // Graceful handling for non-existent tables (P154)
+      if (!columns.columns || columns.columns.length === 0) {
+        return { exists: false, table };
+      }
+
       // Get existing indexes
       const indexes = await adapter.getTableIndexes(table);
       const indexedColumns = new Set(indexes.flatMap((i) => i.columns));
@@ -181,7 +186,7 @@ export function createIndexRecommendationTool(
       // Analyze which columns might benefit from indexing
       const recommendations: { column: string; reason: string }[] = [];
 
-      for (const col of columns.columns ?? []) {
+      for (const col of columns.columns) {
         if (indexedColumns.has(col.name)) continue;
 
         // Suggest indexes for common patterns
@@ -212,6 +217,7 @@ export function createIndexRecommendationTool(
       }
 
       return {
+        exists: true,
         table,
         existingIndexes: indexes.map((i) => ({
           name: i.name,
@@ -285,7 +291,8 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       // Get EXPLAIN for the query
-      let explainResult: unknown;
+      let explainResult: unknown = null;
+      let explainError: string | undefined;
       try {
         const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
         const result = await adapter.executeReadQuery(explainSql);
@@ -295,20 +302,27 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             explainResult = JSON.parse(explainStr) as unknown;
           }
         }
-      } catch {
-        // Ignore explain errors
+      } catch (err: unknown) {
+        explainError =
+          err instanceof Error ? err.message : "Failed to generate EXPLAIN";
       }
 
-      return {
+      const response: Record<string, unknown> = {
         originalQuery: query,
         suggestions,
         explainPlan: explainResult,
       };
+
+      if (explainError) {
+        response["explainError"] = explainError;
+      }
+
+      return response;
     },
   };
 }
 
-export function createForceIndexTool(_adapter: MySQLAdapter): ToolDefinition {
+export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
     table: z.string(),
     query: z.string().describe("Original query"),
@@ -326,7 +340,7 @@ export function createForceIndexTool(_adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: (params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       const { table, query, indexName } = schema.parse(params);
 
       // Simple replacement - insert FORCE INDEX after table name
@@ -335,11 +349,26 @@ export function createForceIndexTool(_adapter: MySQLAdapter): ToolDefinition {
         `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
       );
 
-      return Promise.resolve({
+      const response: Record<string, unknown> = {
         originalQuery: query,
         rewrittenQuery: rewritten,
         hint: `FORCE INDEX (\`${indexName}\`)`,
-      });
+      };
+
+      // Validate index existence and warn if not found
+      try {
+        const indexes = await adapter.getTableIndexes(table);
+        if (!indexes.some((idx) => idx.name === indexName)) {
+          response["warning"] =
+            `Index '${indexName}' not found on table '${table}'`;
+        }
+      } catch {
+        // If we can't check indexes (e.g., table doesn't exist), add warning
+        response["warning"] =
+          `Could not verify index '${indexName}' on table '${table}'`;
+      }
+
+      return response;
     },
   };
 }
