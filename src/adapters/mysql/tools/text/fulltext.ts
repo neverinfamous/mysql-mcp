@@ -18,6 +18,54 @@ import {
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
 
+/**
+ * Check if an error is a MySQL duplicate key name error (ER_DUP_KEYNAME, code 1061)
+ */
+function isDuplicateKeyError(err: unknown): boolean {
+  if (err instanceof Error) {
+    return (
+      (err as Error & { errno?: number }).errno === 1061 ||
+      err.message.includes("Duplicate key name")
+    );
+  }
+  return false;
+}
+
+/**
+ * Check if an error is a MySQL can't drop key error (ER_CANT_DROP_FIELD_OR_KEY, code 1091)
+ */
+function isCantDropKeyError(err: unknown): boolean {
+  if (err instanceof Error) {
+    return (
+      (err as Error & { errno?: number }).errno === 1091 ||
+      err.message.includes("check that column/key exists")
+    );
+  }
+  return false;
+}
+
+/**
+ * Truncate string values in rows to maxLength if specified
+ */
+function truncateRowValues(
+  rows: Record<string, unknown>[],
+  columns: string[],
+  maxLength?: number,
+): Record<string, unknown>[] {
+  if (maxLength === undefined || maxLength === null || maxLength <= 0)
+    return rows;
+  return rows.map((row) => {
+    const truncated = { ...row };
+    for (const col of columns) {
+      const val = truncated[col];
+      if (typeof val === "string" && val.length > maxLength) {
+        truncated[col] = val.substring(0, maxLength) + "...";
+      }
+    }
+    return truncated;
+  });
+}
+
 export function createFulltextCreateTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
@@ -39,7 +87,18 @@ export function createFulltextCreateTool(
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
 
       const sql = `CREATE FULLTEXT INDEX \`${name}\` ON \`${table}\` (${columnList})`;
-      await adapter.executeQuery(sql);
+
+      try {
+        await adapter.executeQuery(sql);
+      } catch (err: unknown) {
+        if (isDuplicateKeyError(err)) {
+          return {
+            success: false,
+            reason: `Index '${name}' already exists on table '${table}'`,
+          };
+        }
+        throw err;
+      }
 
       return { success: true, indexName: name, columns };
     },
@@ -71,12 +130,32 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(indexName, "index");
 
       const sql = `DROP INDEX \`${indexName}\` ON ${escapeQualifiedTable(table)}`;
-      await adapter.executeQuery(sql);
+
+      try {
+        await adapter.executeQuery(sql);
+      } catch (err: unknown) {
+        if (isCantDropKeyError(err)) {
+          return {
+            success: false,
+            reason: `Index '${indexName}' does not exist on table '${table}'`,
+          };
+        }
+        throw err;
+      }
 
       return { success: true, indexName, table };
     },
   };
 }
+
+const FulltextSearchWithTruncateSchema = FulltextSearchSchema.extend({
+  maxLength: z
+    .number()
+    .optional()
+    .describe(
+      "Optional max characters per text column in results. Truncates with '...' if exceeded.",
+    ),
+});
 
 export function createFulltextSearchTool(
   adapter: MySQLAdapter,
@@ -86,15 +165,15 @@ export function createFulltextSearchTool(
     title: "MySQL FULLTEXT Search",
     description: "Perform FULLTEXT search with relevance ranking.",
     group: "fulltext",
-    inputSchema: FulltextSearchSchema,
+    inputSchema: FulltextSearchWithTruncateSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query, mode } =
-        FulltextSearchSchema.parse(params);
+      const { table, columns, query, mode, maxLength } =
+        FulltextSearchWithTruncateSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -120,7 +199,8 @@ export function createFulltextSearchTool(
       const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
       const result = await adapter.executeReadQuery(sql, [query, query]);
 
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+      const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+      return { rows, count: rows.length };
     },
   };
 }
@@ -132,6 +212,12 @@ export function createFulltextBooleanTool(
     table: z.string(),
     columns: z.array(z.string()),
     query: z.string().describe("Boolean search query with +, -, *, etc."),
+    maxLength: z
+      .number()
+      .optional()
+      .describe(
+        "Optional max characters per text column in results. Truncates with '...' if exceeded.",
+      ),
   });
 
   return {
@@ -147,7 +233,7 @@ export function createFulltextBooleanTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query } = schema.parse(params);
+      const { table, columns, query, maxLength } = schema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -162,7 +248,8 @@ export function createFulltextBooleanTool(
       const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
       const result = await adapter.executeReadQuery(sql, [query, query]);
 
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+      const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+      return { rows, count: rows.length };
     },
   };
 }
@@ -174,6 +261,12 @@ export function createFulltextExpandTool(
     table: z.string(),
     columns: z.array(z.string()),
     query: z.string().describe("Search query to expand"),
+    maxLength: z
+      .number()
+      .optional()
+      .describe(
+        "Optional max characters per text column in results. Truncates with '...' if exceeded.",
+      ),
   });
 
   return {
@@ -189,7 +282,7 @@ export function createFulltextExpandTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query } = schema.parse(params);
+      const { table, columns, query, maxLength } = schema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -204,7 +297,8 @@ export function createFulltextExpandTool(
       const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
       const result = await adapter.executeReadQuery(sql, [query, query]);
 
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+      const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+      return { rows, count: rows.length };
     },
   };
 }

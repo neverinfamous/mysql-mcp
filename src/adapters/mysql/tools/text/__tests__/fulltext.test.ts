@@ -7,11 +7,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createFulltextCreateTool,
+  createFulltextDropTool,
   createFulltextSearchTool,
   createFulltextBooleanTool,
   createFulltextExpandTool,
 } from "../fulltext.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../MySQLAdapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -75,6 +76,99 @@ describe("Text Fulltext Tools", () => {
         "CREATE FULLTEXT INDEX `ft_articles_title_content`",
       );
       expect(result.indexName).toBe("ft_articles_title_content");
+    });
+
+    it("should return graceful response for duplicate index", async () => {
+      const dupError = new Error("Duplicate key name 'ft_idx'");
+      (dupError as Error & { errno?: number }).errno = 1061;
+      mockAdapter.executeQuery.mockRejectedValue(dupError);
+
+      const tool = createFulltextCreateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          table: "articles",
+          columns: ["title"],
+          indexName: "ft_idx",
+        },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("already exists");
+      expect(result.reason).toContain("ft_idx");
+    });
+
+    it("should rethrow non-duplicate errors", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Connection refused"),
+      );
+
+      const tool = createFulltextCreateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await expect(
+        tool.handler(
+          { table: "articles", columns: ["title"], indexName: "ft_idx" },
+          mockContext,
+        ),
+      ).rejects.toThrow("Connection refused");
+    });
+  });
+
+  describe("createFulltextDropTool", () => {
+    it("should create tool with correct definition", () => {
+      const tool = createFulltextDropTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      expect(tool.name).toBe("mysql_fulltext_drop");
+    });
+
+    it("should drop fulltext index", async () => {
+      const tool = createFulltextDropTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "articles", indexName: "ft_idx" },
+        mockContext,
+      )) as { success: boolean; indexName: string };
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(call).toContain("DROP INDEX `ft_idx` ON `articles`");
+      expect(result.success).toBe(true);
+    });
+
+    it("should return graceful response for non-existent index", async () => {
+      const dropError = new Error(
+        "Can't DROP 'ft_nonexistent'; check that column/key exists",
+      );
+      (dropError as Error & { errno?: number }).errno = 1091;
+      mockAdapter.executeQuery.mockRejectedValue(dropError);
+
+      const tool = createFulltextDropTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "articles", indexName: "ft_nonexistent" },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("does not exist");
+      expect(result.reason).toContain("ft_nonexistent");
+    });
+
+    it("should rethrow non-drop errors", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = createFulltextDropTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await expect(
+        tool.handler({ table: "articles", indexName: "ft_idx" }, mockContext),
+      ).rejects.toThrow("Access denied");
     });
   });
 
@@ -148,6 +242,54 @@ describe("Text Fulltext Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("MATCH(`title`) AGAINST(? WITH QUERY EXPANSION)");
     });
+
+    it("should truncate text columns when maxLength is specified", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { id: 1, body: "A".repeat(300), relevance: 1.5 },
+          { id: 2, body: "Short text", relevance: 0.5 },
+        ]),
+      );
+
+      const tool = createFulltextSearchTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          table: "articles",
+          columns: ["body"],
+          query: "test",
+          maxLength: 50,
+        },
+        mockContext,
+      )) as { rows: Record<string, unknown>[]; count: number };
+
+      expect(result.count).toBe(2);
+      expect((result.rows[0].body as string).length).toBe(53); // 50 + "..."
+      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
+      expect(result.rows[1].body).toBe("Short text"); // Not truncated
+    });
+
+    it("should not truncate when maxLength is not specified", async () => {
+      const longText = "A".repeat(500);
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ id: 1, body: longText, relevance: 1.0 }]),
+      );
+
+      const tool = createFulltextSearchTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          table: "articles",
+          columns: ["body"],
+          query: "test",
+        },
+        mockContext,
+      )) as { rows: Record<string, unknown>[] };
+
+      expect(result.rows[0].body).toBe(longText);
+    });
   });
 
   describe("createFulltextBooleanTool", () => {
@@ -176,6 +318,30 @@ describe("Text Fulltext Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("MATCH(`title`) AGAINST(? IN BOOLEAN MODE)");
     });
+
+    it("should truncate text columns when maxLength is specified", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { id: 1, content: "B".repeat(200), relevance: 1.0 },
+        ]),
+      );
+
+      const tool = createFulltextBooleanTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          table: "articles",
+          columns: ["content"],
+          query: "+test",
+          maxLength: 100,
+        },
+        mockContext,
+      )) as { rows: Record<string, unknown>[] };
+
+      expect((result.rows[0].content as string).length).toBe(103); // 100 + "..."
+      expect((result.rows[0].content as string).endsWith("...")).toBe(true);
+    });
   });
 
   describe("createFulltextExpandTool", () => {
@@ -203,6 +369,30 @@ describe("Text Fulltext Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("MATCH(`title`) AGAINST(? WITH QUERY EXPANSION)");
+    });
+
+    it("should truncate text columns when maxLength is specified", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { id: 1, body: "C".repeat(150), relevance: 2.0 },
+        ]),
+      );
+
+      const tool = createFulltextExpandTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          table: "articles",
+          columns: ["body"],
+          query: "test",
+          maxLength: 80,
+        },
+        mockContext,
+      )) as { rows: Record<string, unknown>[] };
+
+      expect((result.rows[0].body as string).length).toBe(83); // 80 + "..."
+      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
     });
   });
 });
