@@ -497,6 +497,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: true,
         memoryStats: mockMemory,
+        count: 1,
       });
     });
   });

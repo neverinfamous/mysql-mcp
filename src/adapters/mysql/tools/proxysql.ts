@@ -504,6 +504,7 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
       return {
         success: true,
         memoryStats: rows,
+        count: rows.length,
       };
     },
   };
