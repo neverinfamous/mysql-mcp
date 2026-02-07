@@ -197,6 +197,23 @@ describe("Admin Backup Tools", () => {
       ).rejects.toThrow();
     });
 
+    it("should return exists: false for non-existent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createExportTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", format: "SQL" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
     it("should generate proper INSERT statements with column names", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([

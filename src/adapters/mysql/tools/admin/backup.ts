@@ -117,8 +117,17 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         sql += ` LIMIT ${limit}`;
       }
 
-      const result = await adapter.executeReadQuery(sql);
-      const rows = result.rows ?? [];
+      let rows: Record<string, unknown>[];
+      try {
+        const result = await adapter.executeReadQuery(sql);
+        rows = result.rows ?? [];
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        throw error;
+      }
 
       if (format === "CSV") {
         if (rows.length === 0) {
