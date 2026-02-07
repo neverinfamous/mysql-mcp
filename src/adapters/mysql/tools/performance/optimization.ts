@@ -403,8 +403,17 @@ export function createOptimizerTraceTool(
       await adapter.executeQuery('SET optimizer_trace="enabled=on"');
 
       try {
-        // Execute the query
-        await adapter.executeReadQuery(query);
+        // Execute the query (may fail for nonexistent tables, etc.)
+        try {
+          await adapter.executeReadQuery(query);
+        } catch (err: unknown) {
+          const errorMsg =
+            err instanceof Error ? err.message : "Query execution failed";
+          if (summary) {
+            return { query, decisions: [], error: errorMsg };
+          }
+          return { query, trace: null, error: errorMsg };
+        }
 
         // Get the trace
         const traceResult = await adapter.executeReadQuery(

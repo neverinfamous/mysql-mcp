@@ -373,17 +373,49 @@ describe("Performance Optimization Tools", () => {
       expect(result).toHaveProperty("trace");
     });
 
-    it("should disable optimizer trace even on error", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(new Error("Query failed"));
+    it("should handle query execution failure gracefully", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
 
       const tool = createOptimizerTraceTool(
         mockAdapter as unknown as MySQLAdapter,
       );
 
-      await expect(
-        tool.handler({ query: "SELECT * FROM users" }, mockContext),
-      ).rejects.toThrow("Query failed");
+      const result = (await tool.handler(
+        { query: "SELECT * FROM nonexistent" },
+        mockContext,
+      )) as { query: string; trace: null; error: string };
 
+      expect(result.query).toBe("SELECT * FROM nonexistent");
+      expect(result.trace).toBeNull();
+      expect(result.error).toBe("Table 'testdb.nonexistent' doesn't exist");
+
+      // Verify optimizer trace is still disabled
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        'SET optimizer_trace="enabled=off"',
+      );
+    });
+
+    it("should handle query failure gracefully in summary mode", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.ghost' doesn't exist"),
+      );
+
+      const tool = createOptimizerTraceTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+
+      const result = (await tool.handler(
+        { query: "SELECT * FROM ghost", summary: true },
+        mockContext,
+      )) as { query: string; decisions: unknown[]; error: string };
+
+      expect(result.query).toBe("SELECT * FROM ghost");
+      expect(result.decisions).toEqual([]);
+      expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
+
+      // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         'SET optimizer_trace="enabled=off"',
       );
