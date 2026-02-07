@@ -146,6 +146,16 @@ const SENSITIVE_KEYS = new Set([
 ]);
 
 /**
+ * Pre-compiled regex for substring matching of sensitive keys.
+ * Avoids O(n×m) spread-and-some on every context key.
+ */
+const SENSITIVE_KEY_PATTERN = new RegExp(
+  [...SENSITIVE_KEYS]
+    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|"),
+);
+
+/**
  * Sanitize log context by redacting sensitive values
  */
 function sanitizeContext(context: LogContext): LogContext {
@@ -155,8 +165,7 @@ function sanitizeContext(context: LogContext): LogContext {
     const lowerKey = key.toLowerCase();
 
     const isSensitive =
-      SENSITIVE_KEYS.has(lowerKey) ||
-      [...SENSITIVE_KEYS].some((k) => lowerKey.includes(k));
+      SENSITIVE_KEYS.has(lowerKey) || SENSITIVE_KEY_PATTERN.test(lowerKey);
 
     if (isSensitive && value !== undefined && value !== null) {
       result[key] = "[REDACTED]";
@@ -179,22 +188,13 @@ function sanitizeContext(context: LogContext): LogContext {
 /**
  * Remove control characters from log messages to prevent log injection
  */
+// Pre-compiled regex for control character removal.
+// Matches: 0x00-0x08, 0x0B, 0x0C, 0x0E-0x1F, 0x7F (excludes \t 0x09, \n 0x0A, \r 0x0D)
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHAR_PATTERN = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
+
 function sanitizeMessage(message: string): string {
-  let result = "";
-  for (const char of message) {
-    const code = char.charCodeAt(0);
-    // Allow valid printable characters (>= 32), newlines (10), tabs (9), and carriage returns (13)
-    // Exclude DEL (127)
-    if (
-      (code >= 32 && code !== 127) ||
-      code === 10 ||
-      code === 9 ||
-      code === 13
-    ) {
-      result += char;
-    }
-  }
-  return result;
+  return message.replace(CONTROL_CHAR_PATTERN, "");
 }
 
 /**

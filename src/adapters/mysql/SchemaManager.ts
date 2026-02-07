@@ -126,6 +126,10 @@ export class SchemaManager {
   }
 
   async listTables(databaseName?: string): Promise<TableInfo[]> {
+    const cacheKey = `tables:${databaseName ?? "default"}`;
+    const cached = this.getCached(cacheKey) as TableInfo[] | undefined;
+    if (cached) return cached;
+
     const schemaClause = databaseName
       ? "TABLE_SCHEMA = ?"
       : "TABLE_SCHEMA = DATABASE()";
@@ -151,7 +155,7 @@ export class SchemaManager {
       params,
     );
 
-    return (result.rows ?? []).map((row) => ({
+    const tables = (result.rows ?? []).map((row) => ({
       name: row["name"] as string,
       type:
         (row["type"] as string) === "VIEW"
@@ -166,6 +170,9 @@ export class SchemaManager {
       collation: row["collation"] as string | undefined,
       comment: row["comment"] as string | undefined,
     }));
+
+    this.setCache(cacheKey, tables);
+    return tables;
   }
 
   async describeTable(tableName: string): Promise<TableInfo> {
@@ -173,6 +180,10 @@ export class SchemaManager {
     if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(tableName)) {
       throw new ValidationError("Invalid table name");
     }
+
+    const cacheKey = `describe:${tableName}`;
+    const cached = this.getCached(cacheKey) as TableInfo | undefined;
+    if (cached) return cached;
 
     const [part1, part2] = tableName.split(".");
     let schemaName: string | undefined;
@@ -241,7 +252,7 @@ export class SchemaManager {
 
     const tableRow = tableResult.rows?.[0];
 
-    return {
+    const result: TableInfo = {
       name: tableName,
       type: tableRow?.["type"] === "VIEW" ? "view" : "table",
       engine: tableRow?.["engine"] as string | undefined,
@@ -250,6 +261,9 @@ export class SchemaManager {
       comment: tableRow?.["comment"] as string | undefined,
       columns,
     };
+
+    this.setCache(cacheKey, result);
+    return result;
   }
 
   async listSchemas(): Promise<string[]> {

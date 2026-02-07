@@ -19,6 +19,12 @@ import {
 } from "../types.js";
 
 /**
+ * Pre-compiled identifier validation patterns (hoisted for performance)
+ */
+const VALID_ID_PATTERN = /^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/;
+const VALID_INDEX_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
+/**
  * Helper to escape table/schema identifiers
  * Handles "table" -> "`table`" and "db.table" -> "`db`.`table`"
  */
@@ -34,7 +40,7 @@ function escapeId(id: string): string {
  * Allows "table" and "db.table" formats
  */
 function isValidId(id: string): boolean {
-  return /^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(id);
+  return VALID_ID_PATTERN.test(id);
 }
 
 /**
@@ -373,7 +379,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         CreateIndexSchema.parse(params);
 
       // Validate names
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+      if (!VALID_INDEX_NAME_PATTERN.test(name)) {
         // Index names usually don't have schema prefix
         throw new Error("Invalid index name");
       }

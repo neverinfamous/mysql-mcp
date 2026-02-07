@@ -31,14 +31,14 @@ describe("SchemaManager", () => {
       await manager.getSchema();
       expect(mockExecutor.executeQuery).toHaveBeenCalledTimes(2); // listTables + getAllIndexes
 
-      // Second call - should use cache for indexes
+      // Second call - should use cache for both listTables and getAllIndexes
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>).mockClear();
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>).mockResolvedValue(
         { rows: [] },
       );
       await manager.getSchema();
-      // Only listTables should be called, getAllIndexes is cached
-      expect(mockExecutor.executeQuery).toHaveBeenCalledTimes(1);
+      // Both listTables and getAllIndexes are now cached
+      expect(mockExecutor.executeQuery).toHaveBeenCalledTimes(0);
     });
 
     it("should expire cache after TTL", async () => {

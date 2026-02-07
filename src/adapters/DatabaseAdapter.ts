@@ -24,6 +24,34 @@ import type {
 } from "../types/index.js";
 
 /**
+ * Dangerous SQL patterns for query validation (hoisted for performance)
+ */
+const DANGEROUS_QUERY_PATTERNS: RegExp[] = [
+  /;\s*DROP\s+/i,
+  /;\s*DELETE\s+/i,
+  /;\s*TRUNCATE\s+/i,
+  /;\s*INSERT\s+/i,
+  /;\s*UPDATE\s+/i,
+  /--\s*$/m, // SQL comment at end of line
+];
+
+/**
+ * Write keywords for read-only query enforcement (hoisted for performance)
+ */
+const WRITE_KEYWORDS: string[] = [
+  "INSERT",
+  "UPDATE",
+  "DELETE",
+  "DROP",
+  "CREATE",
+  "ALTER",
+  "TRUNCATE",
+  "REPLACE",
+  "GRANT",
+  "REVOKE",
+];
+
+/**
  * Abstract base class for database adapters
  */
 export abstract class DatabaseAdapter {
@@ -350,16 +378,7 @@ export abstract class DatabaseAdapter {
     const normalizedSql = sql.trim().toUpperCase();
 
     // Check for dangerous patterns
-    const dangerousPatterns = [
-      /;\s*DROP\s+/i,
-      /;\s*DELETE\s+/i,
-      /;\s*TRUNCATE\s+/i,
-      /;\s*INSERT\s+/i,
-      /;\s*UPDATE\s+/i,
-      /--\s*$/m, // SQL comment at end of line
-    ];
-
-    for (const pattern of dangerousPatterns) {
+    for (const pattern of DANGEROUS_QUERY_PATTERNS) {
       if (pattern.test(sql)) {
         throw new Error("Query contains potentially dangerous patterns");
       }
@@ -367,19 +386,7 @@ export abstract class DatabaseAdapter {
 
     // Enforce read-only for SELECT queries
     if (isReadOnly) {
-      const writeKeywords = [
-        "INSERT",
-        "UPDATE",
-        "DELETE",
-        "DROP",
-        "CREATE",
-        "ALTER",
-        "TRUNCATE",
-        "REPLACE",
-        "GRANT",
-        "REVOKE",
-      ];
-      for (const keyword of writeKeywords) {
+      for (const keyword of WRITE_KEYWORDS) {
         if (normalizedSql.startsWith(keyword)) {
           throw new Error(
             `Read-only mode: ${keyword} statements are not allowed`,

@@ -243,6 +243,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Metadata cache TTL expiration behavior
   - Parallel vs sequential execution patterns
   - N+1 to batch query improvement verification
+- **SchemaManager listTables/describeTable Caching** — Extended TTL caching to `listTables()` and `describeTable()` in `SchemaManager`. Previously only `getAllIndexes()` used the cache, causing redundant `information_schema` round-trips on every `mysql_list_tables`, `mysql_describe_table`, and `getSchema()` call.
+- **Logger sanitizeContext O(1) Matching** — Replaced O(n×m) sensitive key detection (`[...Set].some(k => key.includes(k))`) with a pre-compiled composite regex, eliminating array spread and linear scan on every log context key.
+- **MySQLAdapter getTypeName Static Map** — Hoisted the MySQL type number-to-name map from a per-call object literal to a `static readonly` class property, eliminating allocation on every column of every query result.
+- **DatabaseAdapter validateQuery Hoisted Constants** — Moved `dangerousPatterns` regex array and `writeKeywords` string array from inside `validateQuery()` to module-level constants, avoiding re-creation on every query call.
+- **Logger sanitizeMessage Regex** — Replaced char-by-char string concatenation with a single pre-compiled regex replacement for control character removal.
+- **MySQLAdapter Resource/Prompt Definition Caching** — Added `cachedResourceDefinitions` and `cachedPromptDefinitions` to match the existing `cachedToolDefinitions` pattern, avoiding re-invocation of 18 resource and 13 prompt factory functions.
+- **Core Tool Handler Hoisted Regex** — Moved inline regex patterns (`isValidId`, index name validation) to module-level pre-compiled constants in `core.ts`.
 
 ### Changed
 

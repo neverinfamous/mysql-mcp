@@ -76,7 +76,43 @@ export class MySQLAdapter extends DatabaseAdapter {
   private pool: ConnectionPool | null = null;
   private activeTransactions = new Map<string, PoolConnection>();
   private cachedToolDefinitions: ToolDefinition[] | null = null;
+  private cachedResourceDefinitions: ResourceDefinition[] | null = null;
+  private cachedPromptDefinitions: PromptDefinition[] | null = null;
   private schemaManager = new SchemaManager(this);
+
+  /**
+   * MySQL type number to name mapping (hoisted for performance)
+   */
+  private static readonly TYPE_NAMES: Record<number, string> = {
+    0: "DECIMAL",
+    1: "TINYINT",
+    2: "SMALLINT",
+    3: "INT",
+    4: "FLOAT",
+    5: "DOUBLE",
+    6: "NULL",
+    7: "TIMESTAMP",
+    8: "BIGINT",
+    9: "MEDIUMINT",
+    10: "DATE",
+    11: "TIME",
+    12: "DATETIME",
+    13: "YEAR",
+    14: "NEWDATE",
+    15: "VARCHAR",
+    16: "BIT",
+    245: "JSON",
+    246: "NEWDECIMAL",
+    247: "ENUM",
+    248: "SET",
+    249: "TINYBLOB",
+    250: "MEDIUMBLOB",
+    251: "LONGBLOB",
+    252: "BLOB",
+    253: "VARCHAR",
+    254: "CHAR",
+    255: "GEOMETRY",
+  };
 
   // =========================================================================
   // Connection Lifecycle
@@ -467,11 +503,15 @@ export class MySQLAdapter extends DatabaseAdapter {
   }
 
   getResourceDefinitions(): ResourceDefinition[] {
-    return getMySQLResources(this);
+    if (this.cachedResourceDefinitions) return this.cachedResourceDefinitions;
+    this.cachedResourceDefinitions = getMySQLResources(this);
+    return this.cachedResourceDefinitions;
   }
 
   getPromptDefinitions(): PromptDefinition[] {
-    return getMySQLPrompts(this);
+    if (this.cachedPromptDefinitions) return this.cachedPromptDefinitions;
+    this.cachedPromptDefinitions = getMySQLPrompts(this);
+    return this.cachedPromptDefinitions;
   }
 
   // =========================================================================
@@ -547,37 +587,6 @@ export class MySQLAdapter extends DatabaseAdapter {
    * Convert MySQL type number to name
    */
   private getTypeName(typeNum: number): string {
-    // MySQL type constants
-    const types: Record<number, string> = {
-      0: "DECIMAL",
-      1: "TINYINT",
-      2: "SMALLINT",
-      3: "INT",
-      4: "FLOAT",
-      5: "DOUBLE",
-      6: "NULL",
-      7: "TIMESTAMP",
-      8: "BIGINT",
-      9: "MEDIUMINT",
-      10: "DATE",
-      11: "TIME",
-      12: "DATETIME",
-      13: "YEAR",
-      14: "NEWDATE",
-      15: "VARCHAR",
-      16: "BIT",
-      245: "JSON",
-      246: "NEWDECIMAL",
-      247: "ENUM",
-      248: "SET",
-      249: "TINYBLOB",
-      250: "MEDIUMBLOB",
-      251: "LONGBLOB",
-      252: "BLOB",
-      253: "VARCHAR",
-      254: "CHAR",
-      255: "GEOMETRY",
-    };
-    return types[typeNum] ?? `UNKNOWN(${typeNum})`;
+    return MySQLAdapter.TYPE_NAMES[typeNum] ?? `UNKNOWN(${typeNum})`;
   }
 }
