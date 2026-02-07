@@ -102,6 +102,10 @@ describe("JSON Core Tools", () => {
 
   describe("createJsonInsertTool", () => {
     it("should insert JSON value", async () => {
+      // Mock path existence check (path does not exist)
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ existing_value: null }]),
+      );
       mockAdapter.executeWriteQuery.mockResolvedValue({
         rowsAffected: 1,
         insertId: 0,
@@ -121,6 +125,59 @@ describe("JSON Core Tools", () => {
 
       const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_INSERT");
+    });
+
+    it("should return changed: true when path is new", async () => {
+      // Path does not exist (existing_value is null)
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ existing_value: null }]),
+      );
+      mockAdapter.executeWriteQuery.mockResolvedValue({
+        rowsAffected: 1,
+        insertId: 0,
+      });
+
+      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column: "json_col",
+          path: "$.new_key",
+          value: '"new_value"',
+          where: "id = 1",
+        },
+        mockContext,
+      )) as { rowsAffected: number; changed: boolean };
+
+      expect(result.changed).toBe(true);
+      expect(result.rowsAffected).toBe(1);
+    });
+
+    it("should return changed: false when path already exists", async () => {
+      // Path already exists (existing_value is present)
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ existing_value: '"old_value"' }]),
+      );
+      mockAdapter.executeWriteQuery.mockResolvedValue({
+        rowsAffected: 1,
+        insertId: 0,
+      });
+
+      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column: "json_col",
+          path: "$.key",
+          value: '"new_value"',
+          where: "id = 1",
+        },
+        mockContext,
+      )) as { rowsAffected: number; changed: boolean; note: string };
+
+      expect(result.changed).toBe(false);
+      expect(result.note).toContain("Path already exists");
+      expect(result.rowsAffected).toBe(1);
     });
   });
 
@@ -193,8 +250,11 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
+      // Should use executeReadQuery twice: once for the actual query
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_CONTAINS");
+      expect(call).toContain("SELECT id, `json_col`");
+      expect(call).not.toContain("SELECT *");
     });
 
     it("should include path if provided", async () => {

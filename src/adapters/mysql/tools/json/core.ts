@@ -143,12 +143,27 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
+      // Check if path already exists before insert
+      const checkSql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as existing_value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+      const checkResult = await adapter.executeReadQuery(checkSql, [path]);
+      const pathExists =
+        checkResult.rows?.[0]?.["existing_value"] !== null &&
+        checkResult.rows?.[0]?.["existing_value"] !== undefined;
+
       // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
       const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
       const jsonValue = validateJsonString(value);
 
       const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-      return { rowsAffected: result.rowsAffected };
+
+      if (pathExists) {
+        return {
+          rowsAffected: result.rowsAffected,
+          changed: false,
+          note: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+        };
+      }
+      return { rowsAffected: result.rowsAffected, changed: true };
     },
   };
 }
@@ -251,10 +266,10 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
       const queryParams: unknown[] = [jsonValue];
 
       if (path) {
-        sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)`;
+        sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)`;
         queryParams.push(path);
       } else {
-        sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)`;
+        sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)`;
       }
 
       const result = await adapter.executeReadQuery(sql, queryParams);

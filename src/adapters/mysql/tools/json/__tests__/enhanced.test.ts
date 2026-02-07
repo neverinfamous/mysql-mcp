@@ -98,6 +98,8 @@ describe("JSON Enhanced Tools", () => {
             identical: 1,
             json1_contains_json2: 1,
             json2_contains_json1: 1,
+            json1_keys: "[]",
+            json2_keys: "[]",
           },
         ]),
       );
@@ -109,10 +111,18 @@ describe("JSON Enhanced Tools", () => {
           json2: "{}",
         },
         mockContext,
-      )) as { identical: boolean };
+      )) as {
+        identical: boolean;
+        addedKeys: string[];
+        removedKeys: string[];
+        differences: unknown[];
+      };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.identical).toBe(true);
+      expect(result.addedKeys).toEqual([]);
+      expect(result.removedKeys).toEqual([]);
+      expect(result.differences).toEqual([]);
     });
 
     it("should parse string keys into array", async () => {
@@ -137,10 +147,17 @@ describe("JSON Enhanced Tools", () => {
           json2: '{"c":3}',
         },
         mockContext,
-      )) as { json1Keys: string[]; json2Keys: string[] };
+      )) as {
+        json1Keys: string[];
+        json2Keys: string[];
+        addedKeys: string[];
+        removedKeys: string[];
+      };
 
       expect(result.json1Keys).toEqual(["a", "b"]);
       expect(result.json2Keys).toEqual(["c"]);
+      expect(result.addedKeys).toEqual(["c"]);
+      expect(result.removedKeys).toEqual(["a", "b"]);
     });
 
     it("should handle non-string keys (already parsed by driver)", async () => {
@@ -165,6 +182,50 @@ describe("JSON Enhanced Tools", () => {
 
       expect(result.json1Keys).toEqual(["x", "y"]);
       expect(result.json2Keys).toEqual(["z"]);
+    });
+
+    it("should return value-level differences for shared keys", async () => {
+      // First call: the main comparison query
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              identical: 0,
+              json1_contains_json2: 0,
+              json2_contains_json1: 0,
+              json1_length: 2,
+              json2_length: 2,
+              json1_keys: '["name", "age"]',
+              json2_keys: '["name", "age"]',
+            },
+          ]),
+        )
+        // name: same value
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ v1: '"Alice"', v2: '"Alice"' }]),
+        )
+        // age: different values
+        .mockResolvedValueOnce(createMockQueryResult([{ v1: "30", v2: "31" }]));
+
+      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          json1: '{"name":"Alice","age":30}',
+          json2: '{"name":"Alice","age":31}',
+        },
+        mockContext,
+      )) as {
+        differences: { path: string; value1: unknown; value2: unknown }[];
+        addedKeys: string[];
+        removedKeys: string[];
+      };
+
+      expect(result.addedKeys).toEqual([]);
+      expect(result.removedKeys).toEqual([]);
+      expect(result.differences).toHaveLength(1);
+      expect(result.differences[0].path).toBe("$.age");
+      expect(result.differences[0].value1).toBe(30);
+      expect(result.differences[0].value2).toBe(31);
     });
   });
 

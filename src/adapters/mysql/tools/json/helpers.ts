@@ -149,7 +149,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      const sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
+      const sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
 
       const result = await adapter.executeReadQuery(sql, [
         mode,

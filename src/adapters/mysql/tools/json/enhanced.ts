@@ -132,20 +132,81 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
       ]);
 
       const row = result.rows?.[0];
+      const identical = row?.["identical"] === 1;
+
+      const parseKeys = (raw: unknown): string[] => {
+        if (typeof raw === "string") {
+          return JSON.parse(raw) as string[];
+        }
+        return (raw as string[]) ?? [];
+      };
+
+      const json1Keys = parseKeys(row?.["json1_keys"]);
+      const json2Keys = parseKeys(row?.["json2_keys"]);
+
+      // Compute structural differences
+      const json1KeySet = new Set(json1Keys);
+      const json2KeySet = new Set(json2Keys);
+      const addedKeys = json2Keys.filter((k) => !json1KeySet.has(k));
+      const removedKeys = json1Keys.filter((k) => !json2KeySet.has(k));
+      const sharedKeys = json1Keys.filter((k) => json2KeySet.has(k));
+
+      // Compute value-level differences for shared keys
+      const differences: { path: string; value1: unknown; value2: unknown }[] =
+        [];
+
+      if (!identical && sharedKeys.length > 0) {
+        for (const key of sharedKeys) {
+          const diffSql = `SELECT JSON_EXTRACT(?, CONCAT('$.', ?)) as v1, JSON_EXTRACT(?, CONCAT('$.', ?)) as v2`;
+          const diffResult = await adapter.executeReadQuery(diffSql, [
+            json1,
+            key,
+            json2,
+            key,
+          ]);
+          const diffRow = diffResult.rows?.[0];
+
+          const v1Raw = diffRow?.["v1"];
+          const v2Raw = diffRow?.["v2"];
+
+          // Compare as strings (JSON canonical form)
+          const v1Str =
+            typeof v1Raw === "string" ? v1Raw : JSON.stringify(v1Raw);
+          const v2Str =
+            typeof v2Raw === "string" ? v2Raw : JSON.stringify(v2Raw);
+
+          if (v1Str !== v2Str) {
+            // Parse for cleaner output
+            const parseValue = (raw: unknown): unknown => {
+              if (typeof raw === "string") {
+                try {
+                  return JSON.parse(raw) as unknown;
+                } catch {
+                  return raw;
+                }
+              }
+              return raw;
+            };
+            differences.push({
+              path: `$.${key}`,
+              value1: parseValue(v1Raw),
+              value2: parseValue(v2Raw),
+            });
+          }
+        }
+      }
+
       return {
-        identical: row?.["identical"] === 1,
+        identical,
         json1ContainsJson2: row?.["json1_contains_json2"] === 1,
         json2ContainsJson1: row?.["json2_contains_json1"] === 1,
         json1Length: row?.["json1_length"],
         json2Length: row?.["json2_length"],
-        json1Keys:
-          typeof row?.["json1_keys"] === "string"
-            ? (JSON.parse(row["json1_keys"]) as string[])
-            : row?.["json1_keys"],
-        json2Keys:
-          typeof row?.["json2_keys"] === "string"
-            ? (JSON.parse(row["json2_keys"]) as string[])
-            : row?.["json2_keys"],
+        json1Keys,
+        json2Keys,
+        addedKeys,
+        removedKeys,
+        differences,
       };
     },
   };
