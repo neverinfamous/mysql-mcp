@@ -52,6 +52,14 @@ const BufferSchema = z.object({
   geometry: z.string().describe("WKT geometry"),
   distance: z.number().describe("Buffer distance in meters"),
   srid: z.number().default(4326).describe("SRID"),
+  segments: z
+    .number()
+    .int()
+    .min(1)
+    .default(8)
+    .describe(
+      "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
+    ),
 });
 
 const TransformSchema = z.object({
@@ -144,13 +152,19 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { geometry, distance, srid } = BufferSchema.parse(params);
+      const { geometry, distance, srid, segments } = BufferSchema.parse(params);
 
       try {
+        // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
+        // Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm.
+        const isGeographic = srid !== 0;
+        const strategyClause = isGeographic
+          ? ""
+          : `, ST_Buffer_Strategy('point_circle', ${String(segments)})`;
         const result = await adapter.executeQuery(
           `SELECT 
-                    ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?)) as buffer_wkt,
-                    ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?)) as buffer_geojson`,
+                    ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause})) as buffer_wkt,
+                    ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause})) as buffer_geojson`,
           [geometry, distance, geometry, distance],
         );
 
@@ -159,6 +173,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           bufferWkt: row?.["buffer_wkt"],
           bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
           bufferDistance: distance,
+          segments,
           srid,
         };
       } catch (error) {

@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Partitioning Tools Server Instructions** — Updated documentation to describe P154 existence check behavior, structured error handling for write tools, and MAXVALUE conflict guidance.
+- **`mysql_spatial_buffer` Segments Parameter** — Added optional `segments` parameter (default: 8, MySQL default: 32) controlling the number of segments per quarter-circle in the buffer polygon approximation. Uses MySQL's `ST_Buffer_Strategy('point_circle', N)` for Cartesian geometries (SRID 0). Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm which does not support custom segment counts; the `segments` parameter is ignored for geographic SRIDs.
 - **Replication Tools Server Instructions** — Updated `mysql_binlog_events` documentation to note that it defaults to the oldest available binlog file when `logFile` is omitted, and that it returns `{ success: false, error }` for nonexistent binlog files.
 - **Shell Tools Server Instructions** — Corrected `mysqlsh_import_json` documentation (supports multi-line JSON objects, not just NDJSON). Added `mysqlsh_check_upgrade` error behavior documentation. Added error handling notes for export and dump tools.
 - **`mysqlsh_import_json` Tool Description** — Corrected description to accurately state support for both NDJSON and multi-line JSON objects (not JSON arrays).

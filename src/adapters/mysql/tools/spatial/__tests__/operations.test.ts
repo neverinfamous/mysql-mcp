@@ -95,7 +95,7 @@ describe("Spatial Operations Tools", () => {
       expect(tool.name).toBe("mysql_spatial_buffer");
     });
 
-    it("should create buffer around geometry", async () => {
+    it("should create buffer around geometry with default segments", async () => {
       mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           {
@@ -117,8 +117,40 @@ describe("Spatial Operations Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      // Default SRID is 4326 (geographic) — ST_Buffer_Strategy is not used
+      expect(call).not.toContain("ST_Buffer_Strategy");
       expect(result).toHaveProperty("bufferWkt");
       expect(result).toHaveProperty("bufferGeoJson");
+      expect(result).toHaveProperty("segments", 8);
+    });
+
+    it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            buffer_wkt: "POLYGON(...)",
+            buffer_geojson: '{"type":"Polygon"}',
+          },
+        ]),
+      );
+
+      const tool = createSpatialBufferTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        {
+          geometry: "POINT(0 0)",
+          distance: 100,
+          srid: 0,
+          segments: 4,
+        },
+        mockContext,
+      );
+
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
+      expect(result).toHaveProperty("segments", 4);
     });
   });
 
