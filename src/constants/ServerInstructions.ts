@@ -253,7 +253,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032, user/password: admin/admin or as configured via \`PROXYSQL_*\` env vars).
 - **Status monitoring**: \`proxysql_status\` returns global status variables. Use \`summary: true\` for key metrics only (uptime, queries, connections).
-- **Global variables**: \`proxysql_global_variables\` supports \`prefix\` filter (\`mysql\`, \`admin\`, or \`all\`) and \`like\` pattern for variable name matching.
+- **Global variables**: \`proxysql_global_variables\` supports \`prefix\` filter (\`mysql\`, \`admin\`, or \`all\`) and \`like\` pattern for variable name matching. Variables containing passwords or credentials are automatically redacted.
+- **Runtime status**: \`proxysql_runtime_status\` returns version and admin variables. Sensitive variables (passwords, credentials) are automatically redacted.
 - **Backend servers**: \`proxysql_servers\` and \`proxysql_connection_pool\` show backend MySQL server configurations and connection pool stats. Filter with \`hostgroup_id\`.
 - **Query analysis**: \`proxysql_query_rules\` lists routing rules; \`proxysql_query_digest\` shows top queries by execution count.
 - **Admin commands**: \`proxysql_commands\` executes LOAD/SAVE for users, servers, query rules, variables, and FLUSH operations.

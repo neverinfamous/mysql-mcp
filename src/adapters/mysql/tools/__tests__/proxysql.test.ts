@@ -186,6 +186,44 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("version", "unknown");
     });
+
+    it("should redact sensitive admin variables", async () => {
+      mockQuery
+        .mockResolvedValueOnce([[{ variable_value: "3.0.3" }]])
+        .mockResolvedValueOnce([
+          [
+            { variable_name: "admin-read_only", variable_value: "false" },
+            {
+              variable_name: "admin-admin_credentials",
+              variable_value: "admin:admin",
+            },
+            {
+              variable_name: "admin-cluster_password",
+              variable_value: "secret123",
+            },
+          ],
+        ]);
+
+      const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
+      const result = (await tool.handler({}, mockContext)) as {
+        adminVariables: { variable_name: string; variable_value: string }[];
+      };
+
+      const credVar = result.adminVariables.find(
+        (v) => v.variable_name === "admin-admin_credentials",
+      );
+      expect(credVar?.variable_value).toBe("********");
+
+      const pwVar = result.adminVariables.find(
+        (v) => v.variable_name === "admin-cluster_password",
+      );
+      expect(pwVar?.variable_value).toBe("********");
+
+      const safeVar = result.adminVariables.find(
+        (v) => v.variable_name === "admin-read_only",
+      );
+      expect(safeVar?.variable_value).toBe("false");
+    });
   });
 
   describe("proxysql_servers", () => {
@@ -237,6 +275,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: true,
         hostgroups: mockPools,
+        count: 1,
       });
     });
   });
@@ -378,6 +417,52 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%'",
       );
+    });
+
+    it("should redact sensitive credential variables", async () => {
+      const mockVars = [
+        { variable_name: "mysql-threads", variable_value: "4" },
+        {
+          variable_name: "admin-admin_credentials",
+          variable_value: "admin:admin",
+        },
+        {
+          variable_name: "mysql-monitor_password",
+          variable_value: "monpass",
+        },
+        {
+          variable_name: "admin-stats_credentials",
+          variable_value: "stats:stats",
+        },
+      ];
+      mockQuery.mockResolvedValue([mockVars]);
+
+      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const result = (await tool.handler({}, mockContext)) as {
+        variables: { variable_name: string; variable_value: string }[];
+      };
+
+      // Non-sensitive should be preserved
+      const threads = result.variables.find(
+        (v) => v.variable_name === "mysql-threads",
+      );
+      expect(threads?.variable_value).toBe("4");
+
+      // Sensitive should be redacted
+      const creds = result.variables.find(
+        (v) => v.variable_name === "admin-admin_credentials",
+      );
+      expect(creds?.variable_value).toBe("********");
+
+      const monPw = result.variables.find(
+        (v) => v.variable_name === "mysql-monitor_password",
+      );
+      expect(monPw?.variable_value).toBe("********");
+
+      const statsCreds = result.variables.find(
+        (v) => v.variable_name === "admin-stats_credentials",
+      );
+      expect(statsCreds?.variable_value).toBe("********");
     });
   });
 

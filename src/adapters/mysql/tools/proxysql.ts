@@ -62,6 +62,32 @@ async function proxySQLQuery(
 }
 
 // =============================================================================
+// Sensitive Variable Redaction
+// =============================================================================
+
+/** Patterns matching variable names that contain credentials */
+const SENSITIVE_VARIABLE_PATTERNS = [/password/i, /credentials/i];
+
+/**
+ * Redact variable_value for rows whose variable_name matches sensitive patterns.
+ * Prevents plaintext credential exposure in tool responses.
+ */
+function redactSensitiveVariables(
+  rows: Record<string, unknown>[],
+): Record<string, unknown>[] {
+  return rows.map((row) => {
+    const varName = (row["variable_name"] as string) ?? "";
+    const isSensitive = SENSITIVE_VARIABLE_PATTERNS.some((p) =>
+      p.test(varName),
+    );
+    if (isSensitive) {
+      return { ...row, variable_value: "********" };
+    }
+    return row;
+  });
+}
+
+// =============================================================================
 // Tool Registration
 // =============================================================================
 
@@ -169,10 +195,14 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
       const adminVars = await proxySQLQuery(
         "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 20",
       );
+
+      // Redact sensitive admin variables (passwords, credentials)
+      const redactedVars = redactSensitiveVariables(adminVars);
+
       return {
         success: true,
         version: versionRow?.["variable_value"] ?? "unknown",
-        adminVariables: adminVars,
+        adminVariables: redactedVars,
       };
     },
   };
@@ -239,6 +269,7 @@ function createProxySQLHostgroupsTool(): ToolDefinition {
       return {
         success: true,
         hostgroups: rows,
+        count: rows.length,
       };
     },
   };
@@ -428,10 +459,14 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
       }
 
       const rows = await proxySQLQuery(sql);
+
+      // Redact sensitive credential values (passwords, credentials)
+      const redactedRows = redactSensitiveVariables(rows);
+
       return {
         success: true,
-        variables: rows,
-        count: rows.length,
+        variables: redactedRows,
+        count: redactedRows.length,
       };
     },
   };
