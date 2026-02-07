@@ -213,13 +213,17 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             table: targetTable,
           };
         } catch (error: unknown) {
-          const message =
+          const rawMessage =
             error instanceof Error ? error.message : String(error);
-          if (message.includes("doesn't exist")) {
+          if (rawMessage.includes("doesn't exist")) {
+            // Strip adapter prefix (e.g. "Raw query failed: Query failed: ") for clean output
+            const cleanMessage = rawMessage
+              .replace(/^Raw query failed:\s*/i, "")
+              .replace(/^Query failed:\s*/i, "");
             return {
               success: false,
               role,
-              error: message,
+              error: cleanMessage,
             };
           }
           throw error;
