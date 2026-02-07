@@ -264,6 +264,7 @@ export function createSecurityUserPrivilegesTool(
             }
           }
 
+          const deduped = [...new Set(globalPrivileges)];
           userPrivileges.push({
             user: userName,
             host: userHost,
@@ -274,7 +275,8 @@ export function createSecurityUserPrivilegesTool(
             roleCount: roles.length,
             hasAllPrivileges,
             hasWithGrantOption,
-            globalPrivileges: [...new Set(globalPrivileges)].slice(0, 10), // Dedupe and limit
+            globalPrivileges: deduped.slice(0, 10),
+            totalGlobalPrivileges: deduped.length,
           });
         } else {
           userPrivileges.push({
