@@ -133,8 +133,9 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_histogram", () => {
     it("should handle update", async () => {
-      // First call (UPDATE) returns whatever, second call (SELECT) returns info
+      // First call: table existence check, second: ANALYZE TABLE, third: histogram query
       mockAdapter.executeQuery
+        .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
         .mockResolvedValueOnce({}) // analyze table
         .mockResolvedValueOnce({ rows: [{ histogramType: "SINGLETON" }] }); // select info
 
@@ -147,14 +148,18 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining("ANALYZE TABLE"),
+      const calls = mockAdapter.executeQuery.mock.calls.map(
+        (c: any[]) => c[0] as string,
       );
+      expect(calls.some((c: string) => c.includes("ANALYZE TABLE"))).toBe(true);
       expect(result.exists).toBe(true);
     });
 
     it("should handle non-existent histogram", async () => {
-      mockAdapter.executeQuery.mockResolvedValue({ rows: [] });
+      // First call: table exists, second: no histogram found
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
+        .mockResolvedValueOnce({ rows: [] }); // histogram query
 
       const result: any = await histogramTool.handler(
         {

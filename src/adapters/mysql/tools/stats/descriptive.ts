@@ -102,32 +102,33 @@ export function createDescriptiveStatsTool(
 
       const whereClause = where ? `WHERE ${where}` : "";
 
-      // Get basic count for median calculation
-      const countResult = await adapter.executeQuery(
-        `SELECT COUNT(*) as count FROM \`${table}\` ${whereClause}`,
-      );
-      const totalCount = (countResult.rows?.[0]?.["count"] as number) ?? 0;
+      try {
+        // Get basic count for median calculation
+        const countResult = await adapter.executeQuery(
+          `SELECT COUNT(*) as count FROM \`${table}\` ${whereClause}`,
+        );
+        const totalCount = (countResult.rows?.[0]?.["count"] as number) ?? 0;
 
-      if (totalCount === 0) {
-        return {
-          column,
-          count: 0,
-          mean: null,
-          median: null,
-          stddev: null,
-          variance: null,
-          min: null,
-          max: null,
-          range: null,
-          sum: null,
-        };
-      }
+        if (totalCount === 0) {
+          return {
+            column,
+            count: 0,
+            mean: null,
+            median: null,
+            stddev: null,
+            variance: null,
+            min: null,
+            max: null,
+            range: null,
+            sum: null,
+          };
+        }
 
-      // Calculate median offset/limit
-      const limit = 2 - (totalCount % 2);
-      const offset = Math.floor((totalCount - 1) / 2);
+        // Calculate median offset/limit
+        const limit = 2 - (totalCount % 2);
+        const offset = Math.floor((totalCount - 1) / 2);
 
-      const medianQuery = `
+        const medianQuery = `
                 SELECT AVG(val) as median
                 FROM (
                     SELECT \`${column}\` as val
@@ -139,7 +140,7 @@ export function createDescriptiveStatsTool(
                 ) as median_calc
             `;
 
-      const query = `
+        const query = `
                 SELECT 
                     COUNT(\`${column}\`) as count,
                     AVG(\`${column}\`) as mean,
@@ -153,26 +154,33 @@ export function createDescriptiveStatsTool(
                 ${whereClause}
             `;
 
-      const [statsResult, medianResult] = await Promise.all([
-        adapter.executeQuery(query),
-        adapter.executeQuery(medianQuery),
-      ]);
+        const [statsResult, medianResult] = await Promise.all([
+          adapter.executeQuery(query),
+          adapter.executeQuery(medianQuery),
+        ]);
 
-      const stats = statsResult.rows?.[0];
-      const medianRow = medianResult.rows?.[0];
+        const stats = statsResult.rows?.[0];
+        const medianRow = medianResult.rows?.[0];
 
-      return {
-        column,
-        count: stats?.["count"] ?? 0,
-        mean: stats?.["mean"] ?? null,
-        median: medianRow?.["median"] ?? null,
-        stddev: stats?.["stddev"] ?? null,
-        variance: stats?.["variance"] ?? null,
-        min: stats?.["min"] ?? null,
-        max: stats?.["max"] ?? null,
-        range: stats?.["range"] ?? null,
-        sum: stats?.["sum"] ?? null,
-      };
+        return {
+          column,
+          count: stats?.["count"] ?? 0,
+          mean: stats?.["mean"] ?? null,
+          median: medianRow?.["median"] ?? null,
+          stddev: stats?.["stddev"] ?? null,
+          variance: stats?.["variance"] ?? null,
+          min: stats?.["min"] ?? null,
+          max: stats?.["max"] ?? null,
+          range: stats?.["range"] ?? null,
+          sum: stats?.["sum"] ?? null,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -206,26 +214,27 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
 
       const whereClause = where ? `WHERE ${where}` : "";
 
-      // Get total count
-      const countResult = await adapter.executeQuery(
-        `SELECT COUNT(*) as cnt FROM \`${table}\` ${whereClause}`,
-      );
-      const totalCount = (countResult.rows?.[0]?.["cnt"] as number) ?? 0;
+      try {
+        // Get total count
+        const countResult = await adapter.executeQuery(
+          `SELECT COUNT(*) as cnt FROM \`${table}\` ${whereClause}`,
+        );
+        const totalCount = (countResult.rows?.[0]?.["cnt"] as number) ?? 0;
 
-      if (totalCount === 0) {
-        return {
-          column,
-          totalCount: 0,
-          percentiles: {},
-        };
-      }
+        if (totalCount === 0) {
+          return {
+            column,
+            totalCount: 0,
+            percentiles: {},
+          };
+        }
 
-      // Calculate each percentile
-      const percentileResults: Record<string, unknown> = {};
+        // Calculate each percentile
+        const percentileResults: Record<string, unknown> = {};
 
-      for (const p of percentiles) {
-        const offset = Math.floor((p / 100) * (totalCount - 1));
-        const query = `
+        for (const p of percentiles) {
+          const offset = Math.floor((p / 100) * (totalCount - 1));
+          const query = `
                     SELECT \`${column}\` as value
                     FROM \`${table}\`
                     ${whereClause}
@@ -233,16 +242,23 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
                     LIMIT 1 OFFSET ${String(offset)}
                 `;
 
-        const result = await adapter.executeQuery(query);
-        const valueRow = result.rows?.[0];
-        percentileResults[`p${String(p)}`] = valueRow?.["value"] ?? null;
-      }
+          const result = await adapter.executeQuery(query);
+          const valueRow = result.rows?.[0];
+          percentileResults[`p${String(p)}`] = valueRow?.["value"] ?? null;
+        }
 
-      return {
-        column,
-        totalCount,
-        percentiles: percentileResults,
-      };
+        return {
+          column,
+          totalCount,
+          percentiles: percentileResults,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -277,31 +293,32 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
 
       const whereClause = where ? `WHERE ${where}` : "";
 
-      // Get min/max for bucket calculation
-      const rangeResult = await adapter.executeQuery(
-        `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val FROM \`${table}\` ${whereClause}`,
-      );
+      try {
+        // Get min/max for bucket calculation
+        const rangeResult = await adapter.executeQuery(
+          `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val FROM \`${table}\` ${whereClause}`,
+        );
 
-      const rangeRow = rangeResult.rows?.[0];
-      const minVal = Number(rangeRow?.["min_val"]) || 0;
-      const maxVal = Number(rangeRow?.["max_val"]) || 0;
+        const rangeRow = rangeResult.rows?.[0];
+        const minVal = Number(rangeRow?.["min_val"]) || 0;
+        const maxVal = Number(rangeRow?.["max_val"]) || 0;
 
-      if (minVal === maxVal) {
-        return {
-          column,
-          distribution: [
-            { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
-          ],
-          bucketCount: 1,
-          minValue: minVal,
-          maxValue: maxVal,
-        };
-      }
+        if (minVal === maxVal) {
+          return {
+            column,
+            distribution: [
+              { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
+            ],
+            bucketCount: 1,
+            minValue: minVal,
+            maxValue: maxVal,
+          };
+        }
 
-      const bucketSize = (maxVal - minVal) / buckets;
+        const bucketSize = (maxVal - minVal) / buckets;
 
-      // Generate distribution query with WIDTH_BUCKET emulation
-      const query = `
+        // Generate distribution query with WIDTH_BUCKET emulation
+        const query = `
                 SELECT 
                     FLOOR((\`${column}\` - ${String(minVal)}) / ${String(bucketSize)}) as bucket,
                     COUNT(*) as count,
@@ -313,30 +330,37 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY bucket
             `;
 
-      const result = await adapter.executeQuery(query);
+        const result = await adapter.executeQuery(query);
 
-      // Format buckets with proper ranges
-      const distribution = (result.rows ?? []).map((row) => {
-        const r = row;
-        const bucketNum = Number(r["bucket"]) || 0;
+        // Format buckets with proper ranges
+        const distribution = (result.rows ?? []).map((row) => {
+          const r = row;
+          const bucketNum = Number(r["bucket"]) || 0;
+          return {
+            bucket: bucketNum,
+            rangeStart: minVal + bucketNum * bucketSize,
+            rangeEnd: minVal + (bucketNum + 1) * bucketSize,
+            count: r["count"] as number,
+            bucketMin: r["bucket_min"],
+            bucketMax: r["bucket_max"],
+          };
+        });
+
         return {
-          bucket: bucketNum,
-          rangeStart: minVal + bucketNum * bucketSize,
-          rangeEnd: minVal + (bucketNum + 1) * bucketSize,
-          count: r["count"] as number,
-          bucketMin: r["bucket_min"],
-          bucketMax: r["bucket_max"],
+          column,
+          distribution,
+          bucketCount: buckets,
+          bucketSize,
+          minValue: minVal,
+          maxValue: maxVal,
         };
-      });
-
-      return {
-        column,
-        distribution,
-        bucketCount: buckets,
-        bucketSize,
-        minValue: minVal,
-        maxValue: maxVal,
-      };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -417,16 +441,24 @@ export function createTimeSeriesToolStats(
                 LIMIT ${String(limit)}
             `;
 
-      const result = await adapter.executeQuery(query);
+      try {
+        const result = await adapter.executeQuery(query);
 
-      return {
-        interval,
-        aggregation,
-        valueColumn,
-        timeColumn,
-        dataPoints: result.rows ?? [],
-        count: result.rows?.length ?? 0,
-      };
+        return {
+          interval,
+          aggregation,
+          valueColumn,
+          timeColumn,
+          dataPoints: result.rows ?? [],
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -490,14 +522,22 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
                 `;
       }
 
-      const result = await adapter.executeQuery(query);
+      try {
+        const result = await adapter.executeQuery(query);
 
-      return {
-        sample: result.rows ?? [],
-        sampleSize: result.rows?.length ?? 0,
-        requestedSize: sampleSize,
-        seed: seed ?? null,
-      };
+        return {
+          sample: result.rows ?? [],
+          sampleSize: result.rows?.length ?? 0,
+          requestedSize: sampleSize,
+          seed: seed ?? null,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }

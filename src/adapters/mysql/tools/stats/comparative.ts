@@ -96,35 +96,43 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
                 ${whereClause}
             `;
 
-      const result = await adapter.executeQuery(query);
-      const stats = result.rows?.[0];
+      try {
+        const result = await adapter.executeQuery(query);
+        const stats = result.rows?.[0];
 
-      const correlation = stats?.["correlation"] as number | null;
-      let interpretation = "N/A";
-      if (correlation !== null) {
-        const absCorr = Math.abs(correlation);
-        if (absCorr >= 0.9) interpretation = "Very strong";
-        else if (absCorr >= 0.7) interpretation = "Strong";
-        else if (absCorr >= 0.5) interpretation = "Moderate";
-        else if (absCorr >= 0.3) interpretation = "Weak";
-        else interpretation = "Very weak / No correlation";
+        const correlation = stats?.["correlation"] as number | null;
+        let interpretation = "N/A";
+        if (correlation !== null) {
+          const absCorr = Math.abs(correlation);
+          if (absCorr >= 0.9) interpretation = "Very strong";
+          else if (absCorr >= 0.7) interpretation = "Strong";
+          else if (absCorr >= 0.5) interpretation = "Moderate";
+          else if (absCorr >= 0.3) interpretation = "Weak";
+          else interpretation = "Very weak / No correlation";
+        }
+
+        return {
+          column1,
+          column2,
+          correlation: correlation ?? null,
+          interpretation,
+          sampleSize: stats?.["sample_size"] ?? 0,
+          column1Stats: {
+            mean: stats?.["mean_x"] ?? null,
+            stddev: stats?.["std_x"] ?? null,
+          },
+          column2Stats: {
+            mean: stats?.["mean_y"] ?? null,
+            stddev: stats?.["std_y"] ?? null,
+          },
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      return {
-        column1,
-        column2,
-        correlation: correlation ?? null,
-        interpretation,
-        sampleSize: stats?.["sample_size"] ?? 0,
-        column1Stats: {
-          mean: stats?.["mean_x"] ?? null,
-          stddev: stats?.["std_x"] ?? null,
-        },
-        column2Stats: {
-          mean: stats?.["mean_y"] ?? null,
-          stddev: stats?.["std_y"] ?? null,
-        },
-      };
     },
   };
 }
@@ -176,49 +184,57 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                 ${whereClause}
             `;
 
-      const result = await adapter.executeQuery(statsQuery);
-      const stats = result.rows?.[0];
+      try {
+        const result = await adapter.executeQuery(statsQuery);
+        const stats = result.rows?.[0];
 
-      if (!stats || (stats["n"] as number) < 2) {
+        if (!stats || (stats["n"] as number) < 2) {
+          return {
+            error: "Insufficient data points for regression (need at least 2)",
+            sampleSize: stats?.["n"] ?? 0,
+          };
+        }
+
+        const n = stats["n"] as number;
+        const sumX = stats["sum_x"] as number;
+        const sumY = stats["sum_y"] as number;
+        const sumXY = stats["sum_xy"] as number;
+        const sumX2 = stats["sum_x2"] as number;
+        const sumY2 = stats["sum_y2"] as number;
+
+        // Calculate slope and intercept
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+
+        // Calculate R-squared
+        const ssTotal = sumY2 - (sumY * sumY) / n;
+        const ssResidual = sumY2 - intercept * sumY - slope * sumXY;
+        const rSquared = ssTotal > 0 ? 1 - ssResidual / ssTotal : 0;
+
         return {
-          error: "Insufficient data points for regression (need at least 2)",
-          sampleSize: stats?.["n"] ?? 0,
+          xColumn,
+          yColumn,
+          sampleSize: n,
+          slope: isNaN(slope) ? null : slope,
+          intercept: isNaN(intercept) ? null : intercept,
+          rSquared: isNaN(rSquared) ? null : rSquared,
+          equation: isNaN(slope)
+            ? null
+            : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
+          interpretation:
+            rSquared >= 0.7
+              ? "Good fit"
+              : rSquared >= 0.5
+                ? "Moderate fit"
+                : "Poor fit",
         };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      const n = stats["n"] as number;
-      const sumX = stats["sum_x"] as number;
-      const sumY = stats["sum_y"] as number;
-      const sumXY = stats["sum_xy"] as number;
-      const sumX2 = stats["sum_x2"] as number;
-      const sumY2 = stats["sum_y2"] as number;
-
-      // Calculate slope and intercept
-      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-      const intercept = (sumY - slope * sumX) / n;
-
-      // Calculate R-squared
-      const ssTotal = sumY2 - (sumY * sumY) / n;
-      const ssResidual = sumY2 - intercept * sumY - slope * sumXY;
-      const rSquared = ssTotal > 0 ? 1 - ssResidual / ssTotal : 0;
-
-      return {
-        xColumn,
-        yColumn,
-        sampleSize: n,
-        slope: isNaN(slope) ? null : slope,
-        intercept: isNaN(intercept) ? null : intercept,
-        rSquared: isNaN(rSquared) ? null : rSquared,
-        equation: isNaN(slope)
-          ? null
-          : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
-        interpretation:
-          rSquared >= 0.7
-            ? "Good fit"
-            : rSquared >= 0.5
-              ? "Moderate fit"
-              : "Poor fit",
-      };
     },
   };
 }
@@ -246,6 +262,17 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
       }
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
         throw new Error("Invalid column name");
+      }
+
+      // Check if table exists (P154)
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
       }
 
       if (update) {

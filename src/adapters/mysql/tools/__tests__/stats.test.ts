@@ -358,7 +358,9 @@ describe("Handler Execution", () => {
     });
 
     it("should create histogram when update is true", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ TABLE_NAME: "orders" }]),
+      );
 
       const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
       await tool.handler(
@@ -371,8 +373,11 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("ANALYZE TABLE");
+      // calls[0] is table existence check, calls[1] is ANALYZE TABLE
+      const calls = mockAdapter.executeQuery.mock.calls.map(
+        (c) => c[0] as string,
+      );
+      expect(calls.some((c) => c.includes("ANALYZE TABLE"))).toBe(true);
     });
 
     it("should return histogram metadata when exists", async () => {
@@ -736,5 +741,145 @@ describe("Stats Validation Errors", () => {
         ),
       ).rejects.toThrow("Invalid column name");
     });
+  });
+});
+
+describe("Stats Nonexistent Table Handling", () => {
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
+  let tools: ReturnType<typeof getStatsTools>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockAdapter = createMockMySQLAdapter();
+    tools = getStatsTools(mockAdapter as unknown as MySQLAdapter);
+    mockContext = createMockRequestContext();
+  });
+
+  const tableDoesNotExistError = new Error(
+    "Table 'testdb.nonexistent' doesn't exist",
+  );
+
+  it("mysql_stats_descriptive returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", column: "val" },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_percentiles returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", column: "val" },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_correlation returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", column1: "x", column2: "y" },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_distribution returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", column: "val" },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_time_series returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+    const result = (await tool.handler(
+      {
+        table: "nonexistent",
+        valueColumn: "val",
+        timeColumn: "ts",
+      },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_regression returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", xColumn: "x", yColumn: "y" },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_sampling returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
+
+    const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", sampleSize: 10 },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_histogram returns exists:false for nonexistent table", async () => {
+    mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+    const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+    const result = (await tool.handler(
+      { table: "nonexistent", column: "val" },
+      mockContext,
+    )) as { exists: boolean; table: string };
+
+    expect(result.exists).toBe(false);
+    expect(result.table).toBe("nonexistent");
+  });
+
+  it("mysql_stats_descriptive returns success:false for unknown column", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(
+      new Error("Unknown column 'bad_col' in 'field list'"),
+    );
+
+    const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+    const result = (await tool.handler(
+      { table: "orders", column: "bad_col" },
+      mockContext,
+    )) as { success: boolean; error: string };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Unknown column");
   });
 });
