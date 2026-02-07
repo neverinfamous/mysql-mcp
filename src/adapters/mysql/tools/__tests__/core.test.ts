@@ -373,6 +373,43 @@ describe("Handler Execution", () => {
       expect(sqlCall).toContain("`db`.`table`");
       expect(result).toHaveProperty("success", true);
     });
+
+    it("should return graceful error when table already exists", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table 'test_table' already exists"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const result = await tool.handler(
+        {
+          name: "test_table",
+          columns: [{ name: "id", type: "INT" }],
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty(
+        "reason",
+        "Table 'test_table' already exists",
+      );
+    });
+
+    it("should re-throw non-existence errors in create table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+
+      await expect(
+        tool.handler(
+          {
+            name: "test_table",
+            columns: [{ name: "id", type: "INT" }],
+          },
+          mockContext,
+        ),
+      ).rejects.toThrow("Access denied");
+    });
   });
 
   describe("mysql_drop_table", () => {
@@ -414,6 +451,34 @@ describe("Handler Execution", () => {
 
       const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sqlCall).toContain("DROP TABLE IF EXISTS `db`.`table`");
+    });
+
+    it("should return graceful error when table does not exist", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Unknown table 'testdb.nonexistent'"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const result = await tool.handler(
+        { table: "nonexistent", ifExists: false },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty(
+        "reason",
+        "Table 'nonexistent' does not exist",
+      );
+    });
+
+    it("should re-throw non-existence errors in drop table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+
+      await expect(
+        tool.handler({ table: "some_table", ifExists: false }, mockContext),
+      ).rejects.toThrow("Access denied");
     });
   });
 
@@ -527,6 +592,26 @@ describe("Handler Execution", () => {
 
       const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sqlCall).toContain("ON `db`.`table`");
+    });
+
+    it("should include warning when HASH type is requested", async () => {
+      mockAdapter.getTableIndexes.mockResolvedValue([]);
+      mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
+
+      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "idx_hash",
+          table: "users",
+          columns: ["email"],
+          type: "HASH",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", true);
+      expect(result).toHaveProperty("warning");
+      expect((result as Record<string, unknown>).warning).toContain("MEMORY");
     });
   });
 });

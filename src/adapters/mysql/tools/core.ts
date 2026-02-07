@@ -286,7 +286,18 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(`USE \`${schemaName}\``);
       }
 
-      await adapter.executeQuery(sql);
+      try {
+        await adapter.executeQuery(sql);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("already exists")) {
+          return {
+            success: false,
+            reason: `Table '${name}' already exists`,
+          };
+        }
+        throw err;
+      }
 
       return { success: true, tableName: name };
     },
@@ -318,7 +329,19 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
       const ifExistsClause = ifExists ? "IF EXISTS " : "";
       const tableName = escapeId(table);
-      await adapter.executeQuery(`DROP TABLE ${ifExistsClause}${tableName}`);
+
+      try {
+        await adapter.executeQuery(`DROP TABLE ${ifExistsClause}${tableName}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("Unknown table")) {
+          return {
+            success: false,
+            reason: `Table '${table}' does not exist`,
+          };
+        }
+        throw err;
+      }
 
       return { success: true, tableName: table };
     },
@@ -414,6 +437,16 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
       await adapter.executeQuery(
         `CREATE ${uniqueClause}${prefixClause}INDEX \`${name}\` ON ${tableName} (${columnList})${usingClause}`,
       );
+
+      // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)
+      if (type === "HASH") {
+        return {
+          success: true,
+          indexName: name,
+          warning:
+            "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
+        };
+      }
 
       return { success: true, indexName: name };
     },

@@ -83,7 +83,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **DDL statements**: DDL (e.g., \`CREATE TABLE\`, \`ALTER TABLE\`) is automatically handled via text protocol fallback in \`mysql_write_query\`.
 - **Boolean defaults**: \`mysql_create_table\` auto-converts boolean \`default: true\` to \`1\` and \`default: false\` to \`0\` for MySQL compatibility. Alternatively, use \`TINYINT(1)\` with numeric defaults directly.
 - **Existence checks**: \`mysql_describe_table\` and \`mysql_get_indexes\` return \`{ exists: false, table: "..." }\` gracefully when the table does not exist, avoiding raw SQL errors.
-- **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use \`ifNotExists: true\` to skip if the index already exists.
+- **Create/Drop safety**: \`mysql_create_table\` returns \`{ success: false, reason }\` when the table already exists (without \`ifNotExists\`). \`mysql_drop_table\` returns \`{ success: false, reason }\` when the table does not exist (without \`ifExists\`).
+- **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use \`ifNotExists: true\` to skip if the index already exists. Note: InnoDB only supports BTREE indexes; HASH type is silently converted to BTREE (the response includes a \`warning\` field). HASH is only effective with the MEMORY engine.
 - **Table names**: All core tools support qualified names (\`schema.table\` format) for cross-database operations.
 
 ## Role Management (\`mysql_role_*\`, \`mysql_user_roles\`)
