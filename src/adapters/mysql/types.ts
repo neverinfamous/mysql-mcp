@@ -282,6 +282,13 @@ export const SlowQuerySchema = z.object({
 
 export const IndexUsageSchema = z.object({
   table: z.string().optional().describe("Filter by table name"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(50)
+    .describe("Maximum number of indexes to return"),
 });
 
 export const TableStatsSchema = z.object({

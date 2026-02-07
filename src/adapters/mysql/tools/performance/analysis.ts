@@ -67,7 +67,7 @@ export function createExplainAnalyzeTool(
     name: "mysql_explain_analyze",
     title: "MySQL EXPLAIN ANALYZE",
     description:
-      "Get query execution plan with actual timing using EXPLAIN ANALYZE (MySQL 8.0+).",
+      "Get query execution plan with actual timing using EXPLAIN ANALYZE (MySQL 8.0+). Only TREE format is supported.",
     group: "performance",
     inputSchema: schema,
     requiredScopes: ["read"],
@@ -77,16 +77,19 @@ export function createExplainAnalyzeTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { query, format } = schema.parse(params);
 
+      // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
+      // (requires explain_json_format_version=2 which is not widely available).
+      // Return a descriptive error for JSON format requests.
+      if (format === "JSON") {
+        return {
+          supported: false,
+          reason:
+            "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
+        };
+      }
+
       const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
       const result = await adapter.executeReadQuery(sql);
-
-      if (format === "JSON" && result.rows?.[0] !== undefined) {
-        const explainRow = result.rows[0];
-        const jsonStr = explainRow["EXPLAIN"];
-        if (typeof jsonStr === "string") {
-          return { analysis: JSON.parse(jsonStr) as unknown };
-        }
-      }
 
       return { analysis: result.rows };
     },
@@ -197,7 +200,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table } = IndexUsageSchema.parse(params);
+      const { table, limit } = IndexUsageSchema.parse(params);
 
       // Always filter to current database to avoid returning thousands of
       // MySQL internal indexes with zero counts
@@ -221,7 +224,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
         sql += ` AND object_name = ?`;
       }
 
-      sql += ` ORDER BY count_read + count_write DESC`;
+      sql += ` ORDER BY count_read + count_write DESC LIMIT ${limit}`;
 
       const result = await adapter.executeReadQuery(sql, table ? [table] : []);
       return { indexUsage: result.rows };
@@ -265,7 +268,12 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
             `;
 
       const result = await adapter.executeReadQuery(sql, [table]);
-      return { stats: result.rows?.[0] };
+
+      if (!result.rows || result.rows.length === 0) {
+        return { exists: false, table };
+      }
+
+      return { stats: result.rows[0] };
     },
   };
 }

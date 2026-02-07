@@ -146,10 +146,12 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 ## Performance Tools (\`mysql_explain\`, \`mysql_query_stats\`, etc.)
 
 - **EXPLAIN formats**: \`mysql_explain\` supports JSON (default), TREE, and TRADITIONAL formats.
-- **EXPLAIN ANALYZE**: \`mysql_explain_analyze\` shows actual execution times (MySQL 8.0+).
+- **EXPLAIN ANALYZE**: \`mysql_explain_analyze\` shows actual execution times (MySQL 8.0+). Only TREE format is supported; JSON format returns \`{ supported: false, reason }\`.
 - **Performance schema**: \`mysql_slow_queries\`, \`mysql_query_stats\`, and \`mysql_index_usage\` require \`performance_schema\` enabled.
-- **Index usage**: \`mysql_index_usage\` filters to the current database by default. Use \`table\` parameter to filter further.
+- **Index usage**: \`mysql_index_usage\` filters to the current database by default. Use \`table\` parameter to filter further. Use \`limit\` (default: 50) to cap results.
+- **Table stats**: \`mysql_table_stats\` returns \`{ exists: false, table: "..." }\` gracefully when the table does not exist.
 - **Buffer pool**: \`mysql_buffer_pool_stats\` shows InnoDB memory usage and hit rates.
+- **Thread stats**: \`mysql_thread_stats\` shows active threads with user, host, database, command, and connection type.
 
 ## Optimization Tools (\`mysql_index_recommendation\`, \`mysql_query_rewrite\`, etc.)
 

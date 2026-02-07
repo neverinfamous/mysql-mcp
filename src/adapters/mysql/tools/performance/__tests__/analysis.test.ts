@@ -165,28 +165,19 @@ describe("Performance Analysis Tools", () => {
       expect(result).toHaveProperty("analysis");
     });
 
-    it("should handle JSON format for EXPLAIN ANALYZE", async () => {
-      const mockAnalysis = { query_block: { table: { table_name: "t1" } } };
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          {
-            EXPLAIN: JSON.stringify(mockAnalysis),
-          },
-        ]),
-      );
-
+    it("should return unsupported for JSON format", async () => {
       const tool = createExplainAnalyzeTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT 1", format: "JSON" },
         mockContext,
-      )) as { analysis: unknown };
+      )) as { supported: boolean; reason: string };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "EXPLAIN ANALYZE FORMAT=JSON SELECT 1",
-      );
-      expect(result.analysis).toEqual(mockAnalysis);
+      expect(result.supported).toBe(false);
+      expect(result.reason).toContain("does not support FORMAT=JSON");
+      // Should NOT call executeReadQuery for JSON format
+      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
     });
   });
 
@@ -297,6 +288,26 @@ describe("Performance Analysis Tools", () => {
       const args = mockAdapter.executeReadQuery.mock.calls[0][1];
       expect(args).toEqual(["users"]);
     });
+
+    it("should apply default limit", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      await tool.handler({}, mockContext);
+
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      expect(call).toContain("LIMIT 50");
+    });
+
+    it("should use custom limit", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      await tool.handler({ limit: 10 }, mockContext);
+
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      expect(call).toContain("LIMIT 10");
+    });
   });
 
   describe("createTableStatsTool", () => {
@@ -326,16 +337,17 @@ describe("Performance Analysis Tools", () => {
       expect(result.stats).toBeDefined();
     });
 
-    it("should return undefined stats if table not found", async () => {
+    it("should return exists false if table not found", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { stats: unknown };
+      )) as { exists: boolean; table: string };
 
-      expect(result.stats).toBeUndefined();
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
     });
   });
 
