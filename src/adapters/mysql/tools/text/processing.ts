@@ -36,14 +36,18 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, pattern } = RegexpMatchSchema.parse(params);
+      const { table, column, pattern, where } = RegexpMatchSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
+      validateWhereClause(where);
 
       // Return only id and matched column for minimal payload
-      const sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+      let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+      if (where !== undefined) {
+        sql += ` AND (${where})`;
+      }
       const result = await adapter.executeReadQuery(sql, [pattern]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -65,14 +69,18 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, pattern } = LikeSearchSchema.parse(params);
+      const { table, column, pattern, where } = LikeSearchSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
+      validateWhereClause(where);
 
       // Return only id and matched column for minimal payload
-      const sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+      let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+      if (where !== undefined) {
+        sql += ` AND (${where})`;
+      }
       const result = await adapter.executeReadQuery(sql, [pattern]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -93,14 +101,18 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, value } = SoundexSchema.parse(params);
+      const { table, column, value, where } = SoundexSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
+      validateWhereClause(where);
 
       // Return only id, matched column, and soundex value for minimal payload
-      const sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+      let sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+      if (where !== undefined) {
+        sql += ` AND (${where})`;
+      }
       const result = await adapter.executeReadQuery(sql, [value]);
 
       return { rows: result.rows, count: result.rows?.length ?? 0 };
@@ -151,7 +163,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       const result = await adapter.executeReadQuery(sql, queryParams);
-      return { rows: result.rows };
+      return { rows: result.rows, count: result.rows?.length ?? 0 };
     },
   };
 }
@@ -171,6 +183,13 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
       .default("concatenated")
       .describe("Result column name"),
     where: z.string().optional(),
+    includeSourceColumns: z
+      .boolean()
+      .optional()
+      .default(true)
+      .describe(
+        "Include individual source columns in output (default: true). Set to false for minimal payload.",
+      ),
   });
 
   return {
@@ -185,7 +204,8 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, separator, alias, where } = schema.parse(params);
+      const { table, columns, separator, alias, where, includeSourceColumns } =
+        schema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -198,9 +218,11 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
       const concatExpr = `CONCAT_WS(?, ${columnList})`;
 
-      // Return only id, source columns, and concatenated result for minimal payload
-      const sourceColumns = columns.map((c) => `\`${c}\``).join(", ");
-      let sql = `SELECT id, ${sourceColumns}, ${concatExpr} as \`${alias}\` FROM ${escapeQualifiedTable(table)}`;
+      // Optionally include source columns for full context or minimal payload
+      const selectColumns = includeSourceColumns
+        ? `id, ${columnList}, ${concatExpr} as \`${alias}\``
+        : `id, ${concatExpr} as \`${alias}\``;
+      let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
       const queryParams: unknown[] = [separator];
 
       if (where !== undefined) {
@@ -208,7 +230,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       const result = await adapter.executeReadQuery(sql, queryParams);
-      return { rows: result.rows };
+      return { rows: result.rows, count: result.rows?.length ?? 0 };
     },
   };
 }
@@ -264,7 +286,7 @@ export function createCollationConvertTool(
       }
 
       const result = await adapter.executeReadQuery(sql);
-      return { rows: result.rows };
+      return { rows: result.rows, count: result.rows?.length ?? 0 };
     },
   };
 }

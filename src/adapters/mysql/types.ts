@@ -210,18 +210,30 @@ export const RegexpMatchSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column name"),
   pattern: z.string().describe("Regular expression pattern"),
+  where: z
+    .string()
+    .optional()
+    .describe("Additional WHERE clause for filtering"),
 });
 
 export const LikeSearchSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column name"),
   pattern: z.string().describe("LIKE pattern with % and _ wildcards"),
+  where: z
+    .string()
+    .optional()
+    .describe("Additional WHERE clause for filtering"),
 });
 
 export const SoundexSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column name"),
   value: z.string().describe("Value to match phonetically"),
+  where: z
+    .string()
+    .optional()
+    .describe("Additional WHERE clause for filtering"),
 });
 
 export const FulltextCreateSchema = z.object({

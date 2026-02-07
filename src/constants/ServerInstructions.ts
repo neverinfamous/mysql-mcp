@@ -138,8 +138,9 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **LIKE patterns**: \`%\` matches any characters, \`_\` matches single character.
 - **Regex**: Uses MySQL regex syntax (not PCRE). Example: \`^[A-Z].*@.*\\.com$\`
 - **SOUNDEX**: Finds phonetically similar values - matches alternative spellings (e.g., \`johndoe\` matches \`jonedoe\`).
-- **WHERE clause**: All text tools support optional \`where\` parameter to filter rows.
-- **Minimal output**: Tools return only \`id\`, target column(s), and computed result.
+- **WHERE clause**: All text tools support optional \`where\` parameter to filter rows. For pattern-matching tools (\`mysql_regexp_match\`, \`mysql_like_search\`, \`mysql_soundex\`), the \`where\` clause is combined with the pattern match using AND.
+- **Concat columns**: \`mysql_concat\` includes source columns by default. Use \`includeSourceColumns: false\` for minimal payload (only id and concatenated result).
+- **Minimal output**: Tools return only \`id\`, target column(s), and computed result with \`count\`.
 
 ## Performance Tools (\`mysql_explain\`, \`mysql_query_stats\`, etc.)
 

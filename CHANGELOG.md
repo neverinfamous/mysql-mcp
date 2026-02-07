@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Transaction Tools Server Instructions** — Expanded transaction documentation from 4 generic lines to comprehensive section covering interactive transaction workflow (`transactionId` in `mysql_read_query`/`mysql_write_query`), atomic execution via `mysql_transaction_execute`, savepoint tools, and isolation level options.
 - **`mysql_json_diff` Field-Level Comparison** — Enhanced tool to compute value-level differences for shared keys, returning `addedKeys`, `removedKeys`, and `differences` arrays with `{ path, value1, value2 }` entries. Previously only reported key-level metadata (identical, contains, length).
 - **`mysql_json_insert` Changed Indicator** — Tool now returns `{ changed: true/false }` to indicate whether the value was actually inserted. When the path already exists, returns `changed: false` with an explanatory note instead of a misleading `rowsAffected: 1`.
+- **Text Tools `where` Support** — Added optional `where` parameter to `mysql_regexp_match`, `mysql_like_search`, and `mysql_soundex` for additional row filtering. The `where` clause is combined with the pattern match using AND. All 6 text tools now consistently support `where` filtering.
+- **Text Tools `count` Response** — Added `count` field to `mysql_substring`, `mysql_concat`, and `mysql_collation_convert` responses for consistency. All 6 text tools now return `{ rows, count }`.
+- **`mysql_concat` `includeSourceColumns` Option** — Added optional `includeSourceColumns` parameter (default: `true`). Set to `false` for minimal payload containing only `id` and the concatenated result, omitting individual source columns.
 
 ### Changed
 
