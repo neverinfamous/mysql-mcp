@@ -370,8 +370,8 @@ describe("Handler Execution", () => {
   describe("mysql_router_pool_status", () => {
     it("should fetch connection pool status", async () => {
       const mockPoolStatus = {
-        reusedConnections: 50,
         idleServerConnections: 10,
+        stashedServerConnections: 5,
       };
       mockHttpsResponse(mockPoolStatus);
 

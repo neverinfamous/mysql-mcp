@@ -496,7 +496,7 @@ function createRouterPoolStatusTool(): ToolDefinition {
     name: "mysql_router_pool_status",
     title: "MySQL Router Pool Status",
     description:
-      "Get MySQL Router connection pool status including reused connections and idle server connections.",
+      "Get MySQL Router connection pool status including idle and stashed server connections.",
     group: "router",
     inputSchema: ConnectionPoolNameInputSchema,
     requiredScopes: ["read"],
