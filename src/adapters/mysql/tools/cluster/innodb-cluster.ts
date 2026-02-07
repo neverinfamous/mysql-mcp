@@ -111,9 +111,39 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     LIMIT 1
                 `);
 
+        // Strip bulky static Router JSON schemas from router_options to reduce payload
+        const cluster = fullClusterResult.rows?.[0] ?? null;
+        if (cluster?.["router_options"] != null) {
+          try {
+            const opts =
+              typeof cluster["router_options"] === "string"
+                ? (JSON.parse(cluster["router_options"]) as Record<
+                    string,
+                    unknown
+                  >)
+                : (cluster["router_options"] as Record<string, unknown>);
+            if (opts["Configuration"] != null) {
+              const config = opts["Configuration"] as Record<string, unknown>;
+              for (const version of Object.keys(config)) {
+                const versionConfig = config[version] as Record<
+                  string,
+                  unknown
+                > | null;
+                if (versionConfig != null) {
+                  delete versionConfig["GuidelinesSchema"];
+                  delete versionConfig["ConfigurationChangesSchema"];
+                }
+              }
+            }
+            cluster["router_options"] = opts;
+          } catch {
+            // Keep original if parsing fails
+          }
+        }
+
         return {
           isInnoDBCluster: true,
-          cluster: fullClusterResult.rows?.[0] ?? null,
+          cluster,
           instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
           routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
         };
@@ -158,8 +188,8 @@ export function createClusterInstancesTool(
                         i.mysql_server_uuid as serverUuid,
                         i.instance_name as instanceName,
                         i.description,
-                        m.MEMBER_STATE as memberState,
-                        m.MEMBER_ROLE as memberRole
+                        COALESCE(m.MEMBER_STATE, 'OFFLINE') as memberState,
+                        COALESCE(m.MEMBER_ROLE, 'NONE') as memberRole
                     FROM mysql_innodb_cluster_metadata.instances i
                     LEFT JOIN performance_schema.replication_group_members m
                         ON i.mysql_server_uuid = m.MEMBER_ID
@@ -211,7 +241,7 @@ export function createClusterTopologyTool(
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Get all members
+      // Get all GR members
       const membersResult = await adapter.executeQuery(`
                 SELECT 
                     MEMBER_ID as id,
@@ -225,15 +255,48 @@ export function createClusterTopologyTool(
             `);
 
       const members = membersResult.rows ?? [];
+      const grMemberIds = new Set(
+        members.map((m) => m["id"] as string).filter(Boolean),
+      );
+
+      // Cross-reference with cluster metadata for offline instances
+      let metadataOffline: Record<string, unknown>[] = [];
+      try {
+        const metaResult = await adapter.executeQuery(`
+                  SELECT 
+                      mysql_server_uuid as id,
+                      SUBSTRING_INDEX(address, ':', 1) as host,
+                      CAST(SUBSTRING_INDEX(address, ':', -1) AS UNSIGNED) as port
+                  FROM mysql_innodb_cluster_metadata.instances
+              `);
+        if (metaResult.rows) {
+          metadataOffline = metaResult.rows
+            .filter((i) => !grMemberIds.has(i["id"] as string))
+            .map((i) => ({
+              id: i["id"],
+              host: i["host"],
+              port: i["port"],
+              state: "OFFLINE",
+              role: "NONE",
+              version: null,
+              source: "metadata",
+            }));
+        }
+      } catch {
+        // Cluster metadata not available; skip
+      }
 
       // Build topology representation
       const topology = {
         primary: members.filter((m) => m["role"] === "PRIMARY"),
         secondaries: members.filter((m) => m["role"] === "SECONDARY"),
         recovering: members.filter((m) => m["state"] === "RECOVERING"),
-        offline: members.filter(
-          (m) => m["state"] !== "ONLINE" && m["state"] !== "RECOVERING",
-        ),
+        offline: [
+          ...members.filter(
+            (m) => m["state"] !== "ONLINE" && m["state"] !== "RECOVERING",
+          ),
+          ...metadataOffline,
+        ],
       };
 
       // Generate ASCII visualization
@@ -271,10 +334,11 @@ export function createClusterTopologyTool(
         }
       }
 
+      const allMembers = members.length + metadataOffline.length;
       return {
         topology,
         visualization: ascii,
-        totalMembers: members.length,
+        totalMembers: allMembers,
         onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
       };
     },
@@ -323,7 +387,7 @@ export function createClusterRouterStatusTool(
           };
         }
 
-        // Full mode: include complete attributes blob
+        // Full mode: include attributes but strip bulky Configuration blob
         const result = await adapter.executeQuery(`
                     SELECT 
                         router_id as routerId,
@@ -335,9 +399,25 @@ export function createClusterRouterStatusTool(
                     FROM mysql_innodb_cluster_metadata.routers
                 `);
 
+        const routers = (result.rows ?? []).map((r) => {
+          if (r["attributes"] != null) {
+            try {
+              const attrs =
+                typeof r["attributes"] === "string"
+                  ? (JSON.parse(r["attributes"]) as Record<string, unknown>)
+                  : (r["attributes"] as Record<string, unknown>);
+              delete attrs["Configuration"];
+              return { ...r, attributes: attrs };
+            } catch {
+              return r;
+            }
+          }
+          return r;
+        });
+
         return {
-          routers: result.rows ?? [],
-          count: result.rows?.length ?? 0,
+          routers,
+          count: routers.length,
         };
       } catch {
         return {
@@ -445,9 +525,12 @@ export function createClusterSwitchoverTool(
         canSwitchover: candidates.some(
           (c) => c.suitability !== "NOT_RECOMMENDED",
         ),
-        warning: candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
-          ? "All secondaries have significant replication lag. Switchover not recommended."
-          : undefined,
+        warning:
+          onlineSecondaries.length === 0
+            ? "No online secondaries available for switchover."
+            : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
+              ? "All secondaries have significant replication lag. Switchover not recommended."
+              : undefined,
       };
     },
   };

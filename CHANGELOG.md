@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_cluster_status` Full-Mode Payload Reduction** — Strips `GuidelinesSchema` and `ConfigurationChangesSchema` from `router_options` JSON in full (non-summary) mode. These static Router version metadata schemas accounted for ~10KB of the response without providing dynamic cluster state information.
+- **`mysql_cluster_router_status` Full-Mode Payload Reduction** — Strips the `Configuration` blob from router `attributes` JSON in full (non-summary) mode. The per-endpoint SSL/connection configs were repeated ~5× with largely identical values, accounting for ~12KB per router.
+- **`mysql_cluster_instances` Offline Node Reporting** — Instances registered in cluster metadata but not active in the Group Replication group now report `memberState: 'OFFLINE'` and `memberRole: 'NONE'` instead of `null`, making offline nodes immediately identifiable.
+- **`mysql_cluster_topology` Offline Instance Visibility** — Topology visualization now cross-references `mysql_innodb_cluster_metadata.instances` against active GR members to detect nodes that are registered in metadata but offline. These appear in the `offline` array and ASCII visualization with `source: 'metadata'`.
+- **`mysql_cluster_switchover` Zero-Secondary Warning** — When no online secondaries exist, the warning now reads `"No online secondaries available for switchover."` instead of the misleading `"All secondaries have significant replication lag."` which implied secondaries existed but were lagging.
 - **`proxysql_global_variables` Credential Redaction** — Variables whose names contain `password` or `credentials` (e.g., `admin-admin_credentials`, `mysql-monitor_password`, `admin-cluster_password`) now have their values replaced with `********` instead of exposing plaintext credentials.
 - **`proxysql_runtime_status` Credential Redaction** — Admin variables containing `password` or `credentials` are now automatically redacted, matching the pattern applied to `proxysql_global_variables`.
 - **`proxysql_runtime_status` Full Admin Variables** — Removed hardcoded `LIMIT 20` truncation that hid admin variables beyond the first 20. Now returns all admin variables with sensitive values redacted.

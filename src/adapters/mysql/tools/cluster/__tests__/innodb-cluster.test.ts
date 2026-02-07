@@ -9,6 +9,8 @@ import {
   createClusterStatusTool,
   createClusterInstancesTool,
   createClusterRouterStatusTool,
+  createClusterSwitchoverTool,
+  createClusterTopologyTool,
 } from "../innodb-cluster.js";
 import type { MySQLAdapter } from "../../../MySQLAdapter.js";
 import {
@@ -177,6 +179,227 @@ describe("InnoDB Cluster Tools", () => {
 
       expect(result.routers).toHaveLength(1);
       expect(result.count).toBe(1);
+    });
+
+    it("should strip Configuration from attributes in full mode", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            routerId: 1,
+            routerName: "router1",
+            address: "192.168.1.1",
+            attributes: JSON.stringify({
+              ROEndpoint: "6447",
+              RWEndpoint: "6446",
+              Configuration: { endpoint1: { ssl: true, port: 6446 } },
+            }),
+          },
+        ]),
+      );
+
+      const tool = createClusterRouterStatusTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { summary: false },
+        mockContext,
+      )) as any;
+
+      expect(result.routers).toHaveLength(1);
+      expect(result.routers[0].attributes).toBeDefined();
+      expect(result.routers[0].attributes.ROEndpoint).toBe("6447");
+      expect(result.routers[0].attributes.Configuration).toBeUndefined();
+    });
+  });
+
+  describe("createClusterStatusTool - payload optimization", () => {
+    it("should strip GuidelinesSchema and ConfigurationChangesSchema in full mode", async () => {
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { SCHEMA_NAME: "mysql_innodb_cluster_metadata" },
+          ]),
+        )
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ cluster_name: "myCluster" }]),
+        )
+        .mockResolvedValueOnce(createMockQueryResult([{ count: 3 }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ count: 1 }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              cluster_name: "myCluster",
+              router_options: JSON.stringify({
+                Configuration: {
+                  "9.2.0": {
+                    GuidelinesSchema: { type: "object", properties: {} },
+                    ConfigurationChangesSchema: {
+                      type: "object",
+                      properties: {},
+                    },
+                    SomeUsefulOption: "keep-this",
+                  },
+                },
+              }),
+            },
+          ]),
+        );
+
+      const tool = createClusterStatusTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { summary: false },
+        mockContext,
+      )) as any;
+
+      expect(result.isInnoDBCluster).toBe(true);
+      const routerOpts = result.cluster.router_options;
+      expect(routerOpts.Configuration["9.2.0"].SomeUsefulOption).toBe(
+        "keep-this",
+      );
+      expect(
+        routerOpts.Configuration["9.2.0"].GuidelinesSchema,
+      ).toBeUndefined();
+      expect(
+        routerOpts.Configuration["9.2.0"].ConfigurationChangesSchema,
+      ).toBeUndefined();
+    });
+  });
+
+  describe("createClusterInstancesTool - null state normalization", () => {
+    it("should return OFFLINE/NONE for instances not in GR group", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            instanceId: 1,
+            address: "node1:3306",
+            memberState: "ONLINE",
+            memberRole: "PRIMARY",
+          },
+          {
+            instanceId: 2,
+            address: "node2:3306",
+            memberState: "OFFLINE",
+            memberRole: "NONE",
+          },
+        ]),
+      );
+
+      const tool = createClusterInstancesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.instances[0].memberState).toBe("ONLINE");
+      expect(result.instances[0].memberRole).toBe("PRIMARY");
+      expect(result.instances[1].memberState).toBe("OFFLINE");
+      expect(result.instances[1].memberRole).toBe("NONE");
+    });
+  });
+
+  describe("createClusterTopologyTool - metadata cross-reference", () => {
+    it("should include metadata-only instances in offline list", async () => {
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              id: "uuid1",
+              host: "node1",
+              port: 3306,
+              state: "ONLINE",
+              role: "PRIMARY",
+              version: "9.2.0",
+            },
+          ]),
+        )
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: "uuid1", host: "node1", port: 3306 },
+            { id: "uuid2", host: "node2", port: 3306 },
+            { id: "uuid3", host: "node3", port: 3306 },
+          ]),
+        );
+
+      const tool = createClusterTopologyTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.totalMembers).toBe(3);
+      expect(result.onlineMembers).toBe(1);
+      expect(result.topology.offline).toHaveLength(2);
+      expect(result.topology.offline[0].state).toBe("OFFLINE");
+      expect(result.topology.offline[0].source).toBe("metadata");
+      expect(result.visualization).toContain("node2");
+    });
+  });
+
+  describe("createClusterSwitchoverTool", () => {
+    it("should warn when no online secondaries exist", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            memberId: "uuid1",
+            host: "node1",
+            port: 3306,
+            state: "ONLINE",
+            role: "PRIMARY",
+            version: "9.2.0",
+            txQueue: 0,
+            applierQueue: 0,
+          },
+        ]),
+      );
+
+      const tool = createClusterSwitchoverTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.canSwitchover).toBe(false);
+      expect(result.candidates).toHaveLength(0);
+      expect(result.warning).toBe(
+        "No online secondaries available for switchover.",
+      );
+    });
+
+    it("should recommend good switchover candidate", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            memberId: "uuid1",
+            host: "node1",
+            port: 3306,
+            state: "ONLINE",
+            role: "PRIMARY",
+            version: "9.2.0",
+            txQueue: 0,
+            applierQueue: 0,
+          },
+          {
+            memberId: "uuid2",
+            host: "node2",
+            port: 3306,
+            state: "ONLINE",
+            role: "SECONDARY",
+            version: "9.2.0",
+            txQueue: 0,
+            applierQueue: 0,
+          },
+        ]),
+      );
+
+      const tool = createClusterSwitchoverTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.canSwitchover).toBe(true);
+      expect(result.candidates).toHaveLength(1);
+      expect(result.candidates[0].suitability).toBe("GOOD");
+      expect(result.recommendedTarget).not.toBeNull();
+      expect(result.warning).toBeUndefined();
     });
   });
 });
