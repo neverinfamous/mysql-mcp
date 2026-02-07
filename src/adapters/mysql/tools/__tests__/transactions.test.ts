@@ -337,7 +337,7 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_transaction_execute", () => {
-    it("should execute multiple statements atomically", async () => {
+    it("should execute multiple write statements atomically", async () => {
       // Add executeOnConnection mock
       (
         mockAdapter as { executeOnConnection?: ReturnType<typeof vi.fn> }
@@ -359,6 +359,47 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("statementsExecuted", 2);
       expect(result).toHaveProperty("results");
+      const results = (result as { results: { rowsAffected?: number }[] })
+        .results;
+      expect(results[0]).toHaveProperty("rowsAffected", 1);
+    });
+
+    it("should return rows for SELECT statements", async () => {
+      const mockRows = [
+        { id: 1, name: "Alice" },
+        { id: 2, name: "Bob" },
+      ];
+      (
+        mockAdapter as { executeOnConnection?: ReturnType<typeof vi.fn> }
+      ).executeOnConnection = vi
+        .fn()
+        .mockResolvedValueOnce({ rows: mockRows })
+        .mockResolvedValueOnce({ rowsAffected: 1 });
+
+      const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
+      const result = await tool.handler(
+        {
+          statements: ["SELECT * FROM users", "INSERT INTO logs VALUES (1)"],
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", true);
+      expect(result).toHaveProperty("statementsExecuted", 2);
+      const results = (
+        result as {
+          results: {
+            rows?: Record<string, unknown>[];
+            rowCount?: number;
+            rowsAffected?: number;
+          }[];
+        }
+      ).results;
+      expect(results[0]).toHaveProperty("rows", mockRows);
+      expect(results[0]).toHaveProperty("rowCount", 2);
+      expect(results[0]).not.toHaveProperty("rowsAffected");
+      expect(results[1]).toHaveProperty("rowsAffected", 1);
+      expect(results[1]).not.toHaveProperty("rows");
     });
 
     it("should rollback on failure", async () => {

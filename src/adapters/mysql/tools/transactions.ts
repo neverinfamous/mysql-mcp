@@ -251,17 +251,30 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         throw new Error("Failed to get transaction connection");
       }
 
-      const results: { statement: number; rowsAffected?: number }[] = [];
+      const results: {
+        statement: number;
+        rowsAffected?: number;
+        rows?: Record<string, unknown>[];
+        rowCount?: number;
+      }[] = [];
 
       try {
         for (let i = 0; i < statements.length; i++) {
           const stmt = statements[i];
           if (!stmt) continue;
           const result = await adapter.executeOnConnection(connection, stmt);
-          results.push({
-            statement: i + 1,
-            rowsAffected: result.rowsAffected,
-          });
+          if (result.rows) {
+            results.push({
+              statement: i + 1,
+              rows: result.rows,
+              rowCount: result.rows.length,
+            });
+          } else {
+            results.push({
+              statement: i + 1,
+              rowsAffected: result.rowsAffected,
+            });
+          }
         }
 
         await adapter.commitTransaction(transactionId);

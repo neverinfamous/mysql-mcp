@@ -36,11 +36,10 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 ## Transactions & Safety (\`mysql_transaction_*\`)
 
-- Use transactions for multi-step changes:
-  1. Call \`mysql_transaction_begin\` → get \`transactionId\`
-  2. Perform updates with \`transactionId\`
-  3. If successful, \`mysql_transaction_commit\`
-  4. If error, \`mysql_transaction_rollback\`
+- **Interactive transactions**: Use \`mysql_transaction_begin\` → get \`transactionId\` → pass it to \`mysql_read_query\` or \`mysql_write_query\` for queries within the transaction → \`mysql_transaction_commit\` or \`mysql_transaction_rollback\`.
+- **Atomic execution**: \`mysql_transaction_execute\` runs multiple SQL statements in a single atomic transaction. All succeed or all are rolled back. Returns \`rows\` and \`rowCount\` for SELECT statements, \`rowsAffected\` for write statements.
+- **Isolation levels**: \`mysql_transaction_begin\` and \`mysql_transaction_execute\` accept optional \`isolationLevel\`: \`READ UNCOMMITTED\`, \`READ COMMITTED\`, \`REPEATABLE READ\` (default), \`SERIALIZABLE\`.
+- **Savepoints**: Within an active transaction, use \`mysql_transaction_savepoint\` to create checkpoints, \`mysql_transaction_rollback_to\` for partial rollback, and \`mysql_transaction_release\` to remove a savepoint.
 
 ## Document Store (\`mysql_doc_*\`)
 
