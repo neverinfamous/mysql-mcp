@@ -241,6 +241,18 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid collection name");
 
+        // Pre-check existence when ifExists is true so we can report accurately
+        if (ifExists) {
+          const exists = await checkCollectionExists(adapter, name);
+          if (!exists) {
+            return {
+              success: true,
+              collection: name,
+              message: "Collection did not exist",
+            };
+          }
+        }
+
         try {
           await adapter.executeQuery(
             `DROP TABLE ${ifExists ? "IF EXISTS " : ""}\`${name}\``,
