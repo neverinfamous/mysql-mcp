@@ -155,7 +155,9 @@ describe("Handler Execution", () => {
       expect(mockEnd).toHaveBeenCalled();
       expect(result).toEqual({
         success: true,
+        summary: false,
         stats: mockStats,
+        totalVarsAvailable: 2,
       });
     });
   });
@@ -393,7 +395,9 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
       const result = await tool.handler({}, mockContext);
 
-      expect(mockQuery).toHaveBeenCalledWith("SELECT * FROM global_variables");
+      expect(mockQuery).toHaveBeenCalledWith(
+        "SELECT * FROM global_variables LIMIT 200",
+      );
       expect(result).toHaveProperty("variables", mockVars);
     });
 
@@ -404,7 +408,7 @@ describe("Handler Execution", () => {
       await tool.handler({ prefix: "mysql" }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%'",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 200",
       );
     });
 
@@ -415,7 +419,18 @@ describe("Handler Execution", () => {
       await tool.handler({ prefix: "admin" }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%'",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 200",
+      );
+    });
+
+    it("should respect custom limit", async () => {
+      mockQuery.mockResolvedValue([[]]);
+
+      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      await tool.handler({ limit: 50 }, mockContext);
+
+      expect(mockQuery).toHaveBeenCalledWith(
+        "SELECT * FROM global_variables LIMIT 50",
       );
     });
 

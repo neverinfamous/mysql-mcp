@@ -165,7 +165,9 @@ function createProxySQLStatusTool(): ToolDefinition {
 
       return {
         success: true,
+        summary: false,
         stats: rows,
+        totalVarsAvailable: rows.length,
       };
     },
   };
@@ -193,7 +195,7 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
         "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
       );
       const adminVars = await proxySQLQuery(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 20",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%'",
       );
 
       // Redact sensitive admin variables (passwords, credentials)
@@ -437,7 +439,8 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { prefix, like } = ProxySQLVariableFilterSchema.parse(params);
+      const { prefix, like, limit } =
+        ProxySQLVariableFilterSchema.parse(params);
       let sql = "SELECT * FROM global_variables";
       const conditions: string[] = [];
 
@@ -457,6 +460,9 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
       if (conditions.length > 0) {
         sql += " WHERE " + conditions.join(" AND ");
       }
+
+      const maxRows = limit ?? 200;
+      sql += ` LIMIT ${maxRows}`;
 
       const rows = await proxySQLQuery(sql);
 

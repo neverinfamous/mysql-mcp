@@ -193,6 +193,10 @@ export const ProxySQLVariableFilterSchema = z.object({
     .describe(
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
+  limit: z
+    .number()
+    .optional()
+    .describe("Maximum number of variables to return (default: 200)"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({
