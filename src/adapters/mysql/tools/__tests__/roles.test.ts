@@ -156,8 +156,9 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_revoke", () => {
     it("should revoke role from user", async () => {
-      // First call: role exists check; second call: role_edges assignment check
+      // 1: role exists check; 2: user exists check; 3: role_edges assignment check
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
 
@@ -173,8 +174,9 @@ describe("Handler Execution", () => {
     });
 
     it("should return graceful error when role is not assigned", async () => {
-      // First call: role exists check succeeds; second call: role_edges returns empty
+      // 1: role exists; 2: user exists; 3: role_edges returns empty
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -366,14 +368,10 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_revoke - error handling", () => {
     it("should return graceful error for nonexistent user", async () => {
-      // Role exists check succeeds, role_edges assignment check succeeds
+      // 1: role exists; 2: user does NOT exist
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
-      // REVOKE rawQuery fails with unknown user
-      mockAdapter.rawQuery.mockRejectedValue(
-        new Error("Unknown authorization ID `baduser`@`%`"),
-      );
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
       const result = await tool.handler(
@@ -388,6 +386,7 @@ describe("Handler Execution", () => {
         host: "%",
         error: "User does not exist",
       });
+      expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
 

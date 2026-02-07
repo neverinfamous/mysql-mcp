@@ -309,6 +309,21 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         }
 
+        // P154: Check if user exists before checking assignment
+        const userCheck = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+          [user, host],
+        );
+        if (!userCheck.rows || userCheck.rows.length === 0) {
+          return {
+            success: false,
+            role,
+            user,
+            host,
+            error: "User does not exist",
+          };
+        }
+
         // Check if the role is actually assigned to this user
         const assignCheck = await adapter.executeQuery(
           `SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?`,
