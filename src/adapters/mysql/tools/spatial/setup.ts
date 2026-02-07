@@ -178,9 +178,8 @@ export function createSpatialCreateIndexTool(
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
-        // Re-throw nullable column validation (user needs to fix this)
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
-          throw error;
+          return { success: false, reason: msg };
         }
         return { success: false, error: msg };
       }

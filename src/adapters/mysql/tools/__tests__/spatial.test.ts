@@ -138,23 +138,28 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("success", true);
     });
 
-    it("should reject nullable columns", async () => {
-      // Column is nullable - should throw
+    it("should return structured error for nullable columns", async () => {
+      // Column is nullable - should return { success: false, reason }
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ IS_NULLABLE: "YES", DATA_TYPE: "point" }]),
       );
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
-      await expect(
-        tool.handler(
-          {
-            table: "locations",
-            column: "geom",
-            indexName: "idx_locations_geom",
-          },
-          mockContext,
+      const result = await tool.handler(
+        {
+          table: "locations",
+          column: "geom",
+          indexName: "idx_locations_geom",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        reason: expect.stringContaining(
+          "Cannot create SPATIAL index on nullable column",
         ),
-      ).rejects.toThrow("Cannot create SPATIAL index on nullable column");
+      });
     });
 
     it("should handle index creation errors gracefully", async () => {
