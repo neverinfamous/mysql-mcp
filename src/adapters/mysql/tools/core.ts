@@ -382,9 +382,14 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
-      const uniqueClause = unique ? "UNIQUE " : "";
-      const typeClause = type ? `USING ${type} ` : "";
       const tableName = escapeId(table);
+
+      // FULLTEXT and SPATIAL are index type prefixes (CREATE FULLTEXT INDEX ...)
+      // BTREE and HASH use the USING clause (... USING BTREE)
+      const isPrefixType = type === "FULLTEXT" || type === "SPATIAL";
+      const prefixClause = isPrefixType ? `${type} ` : "";
+      const uniqueClause = !isPrefixType && unique ? "UNIQUE " : "";
+      const usingClause = type && !isPrefixType ? ` USING ${type}` : "";
 
       // Note: IF NOT EXISTS not supported for indexes in MySQL
       // We'll check if it exists first
@@ -401,7 +406,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       await adapter.executeQuery(
-        `CREATE ${uniqueClause}INDEX \`${name}\` ${typeClause}ON ${tableName} (${columnList})`,
+        `CREATE ${uniqueClause}${prefixClause}INDEX \`${name}\` ON ${tableName} (${columnList})${usingClause}`,
       );
 
       return { success: true, indexName: name };
