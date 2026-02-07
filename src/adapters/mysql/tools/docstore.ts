@@ -133,6 +133,21 @@ const CollectionInfoSchema = z.object({
   schema: z.string().optional(),
 });
 
+/**
+ * Check if a collection (table) exists in the current database.
+ */
+async function checkCollectionExists(
+  adapter: MySQLAdapter,
+  collection: string,
+): Promise<boolean> {
+  const result = await adapter.executeQuery(
+    `SELECT 1 FROM information_schema.TABLES
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+    [collection],
+  );
+  return (result.rows?.length ?? 0) > 0;
+}
+
 export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
     {
@@ -197,8 +212,20 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
                     ) ENGINE=InnoDB`;
         }
 
-        await adapter.executeQuery(sql);
-        return { success: true, collection: name };
+        try {
+          await adapter.executeQuery(sql);
+          return { success: true, collection: name };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.toLowerCase().includes("already exists")) {
+            return {
+              success: false,
+              reason: `Collection '${name}' already exists`,
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -213,10 +240,23 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         const { name, ifExists } = DropCollectionSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid collection name");
-        await adapter.executeQuery(
-          `DROP TABLE ${ifExists ? "IF EXISTS " : ""}\`${name}\``,
-        );
-        return { success: true, collection: name };
+
+        try {
+          await adapter.executeQuery(
+            `DROP TABLE ${ifExists ? "IF EXISTS " : ""}\`${name}\``,
+          );
+          return { success: true, collection: name };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (message.toLowerCase().includes("unknown table")) {
+            return {
+              success: false,
+              reason: `Collection '${name}' does not exist`,
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -288,6 +328,10 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection))
           throw new Error("Invalid collection name");
 
+        if (!(await checkCollectionExists(adapter, collection))) {
+          return { exists: false, collection };
+        }
+
         let inserted = 0;
         for (const doc of documents) {
           doc["_id"] ??= crypto.randomUUID().replace(/-/g, "");
@@ -313,6 +357,10 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           ModifyDocSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection))
           throw new Error("Invalid collection name");
+
+        if (!(await checkCollectionExists(adapter, collection))) {
+          return { exists: false, collection };
+        }
 
         const updates: string[] = [];
         if (set) {
@@ -349,6 +397,10 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection))
           throw new Error("Invalid collection name");
 
+        if (!(await checkCollectionExists(adapter, collection))) {
+          return { exists: false, collection };
+        }
+
         const { where, params: whereParams } = parseDocFilter(filter);
         const query = `DELETE FROM \`${collection}\` WHERE ${where}`;
         const result = await adapter.executeQuery(query, whereParams);
@@ -371,24 +423,43 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid index name");
 
-        for (const field of fields) {
-          const colName = `_idx_${field.path.replace(/\./g, "_")}`;
-          const cast = field.type === "TEXT" ? "CHAR(255)" : field.type;
-          await adapter.executeQuery(
-            `ALTER TABLE \`${collection}\` ADD COLUMN \`${colName}\` ${cast} 
-                         GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field.path}'))) STORED`,
-          );
+        if (!(await checkCollectionExists(adapter, collection))) {
+          return { exists: false, collection };
         }
 
-        const cols = fields
-          .map((f) => `\`_idx_${f.path.replace(/\./g, "_")}\``)
-          .join(", ");
-        const uniqueClause = unique ? "UNIQUE " : "";
-        await adapter.executeQuery(
-          `CREATE ${uniqueClause}INDEX \`${name}\` ON \`${collection}\` (${cols})`,
-        );
+        try {
+          for (const field of fields) {
+            const colName = `_idx_${field.path.replace(/\./g, "_")}`;
+            const cast = field.type === "TEXT" ? "CHAR(255)" : field.type;
+            await adapter.executeQuery(
+              `ALTER TABLE \`${collection}\` ADD COLUMN \`${colName}\` ${cast} 
+                           GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field.path}'))) STORED`,
+            );
+          }
 
-        return { success: true, index: name };
+          const cols = fields
+            .map((f) => `\`_idx_${f.path.replace(/\./g, "_")}\``)
+            .join(", ");
+          const uniqueClause = unique ? "UNIQUE " : "";
+          await adapter.executeQuery(
+            `CREATE ${uniqueClause}INDEX \`${name}\` ON \`${collection}\` (${cols})`,
+          );
+
+          return { success: true, index: name };
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (
+            message.toLowerCase().includes("duplicate column") ||
+            message.toLowerCase().includes("duplicate key")
+          ) {
+            return {
+              success: false,
+              reason: `Index '${name}' or its generated columns already exist on '${collection}'`,
+            };
+          }
+          throw error;
+        }
       },
     },
     {
@@ -403,6 +474,16 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
         const { collection, schema } = CollectionInfoSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(collection))
           throw new Error("Invalid collection name");
+
+        // Check if collection exists
+        const existsCheck = await adapter.executeQuery(
+          `SELECT 1 FROM information_schema.TABLES
+           WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
+          [schema ?? null, collection],
+        );
+        if (!existsCheck.rows || existsCheck.rows.length === 0) {
+          return { exists: false, collection };
+        }
 
         // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
         const schemaClause = schema

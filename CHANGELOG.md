@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Docstore Tools Graceful Error Handling (P154)** — `mysql_doc_create_collection` returns `{ success: false, reason }` for duplicate collections (without `ifNotExists`). `mysql_doc_drop_collection` returns `{ success: false, reason }` for nonexistent collections (without `ifExists`). `mysql_doc_collection_info`, `mysql_doc_add`, `mysql_doc_modify`, `mysql_doc_remove`, and `mysql_doc_create_index` return `{ exists: false, collection }` for nonexistent collections. `mysql_doc_create_index` also returns `{ success: false, reason }` for duplicate index/generated columns. Previously all propagated raw MySQL errors.
 - **`mysql_role_revoke` User Existence Pre-Check** — Fixed `mysql_role_revoke` returning the "not assigned" message for nonexistent users instead of distinguishing them from valid users with unassigned roles. Now pre-checks `mysql.user` before the `role_edges` assignment check and returns `{ success: false, error: "User does not exist" }` for nonexistent users, matching `mysql_role_assign` behavior.
 - **`mysql_role_revoke` Assignment Pre-Check** — Fixed `mysql_role_revoke` returning `success: true` when revoking a role that was not assigned to the user. Now pre-checks `mysql.role_edges` and returns `{ success: false, reason: "Role '...' is not assigned to user '...'@'...'" }` when the role is not currently assigned.
 - **`mysql_role_grant` Error Message Sanitization** — Fixed `mysql_role_grant` leaking internal adapter prefix (`Raw query failed: Query failed:`) in error messages for nonexistent tables. Now strips the prefix to return clean MySQL error messages (e.g., `"Table 'testdb.nonexistent' doesn't exist"`).
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_stats_time_series` Week Interval Format** — Fixed `interval: "week"` producing ambiguous period format (`2026-06`) indistinguishable from month format (`2026-02`). Changed `DATE_FORMAT` from `%Y-%u` to `%x-W%v`, producing unambiguous ISO week format (e.g., `2026-W06`).
 - **`mysql_stats_distribution` Bucket Off-by-One** — Fixed requesting N buckets but receiving N+1 entries when the maximum value falls exactly on a bucket boundary. Added `LEAST()` clamp to ensure the max value is included in the last bucket instead of creating an extra one.
 - **`mysql_security_user_privileges` Summary Truncation Indicator** — Summary mode (`summary: true`) silently capped `globalPrivileges` to 10 entries with no way for consumers to detect truncation. Now includes `totalGlobalPrivileges` field showing the full deduplicated count alongside the truncated array.
+
 ### Changed
 
 - **Partitioning Tools Server Instructions** — Updated documentation to describe P154 existence check behavior, structured error handling for write tools, and MAXVALUE conflict guidance.
