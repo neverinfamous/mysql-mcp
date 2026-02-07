@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_list_constraints` Existence Check (P154)** — Returns `{ exists: false, table }` when the table does not exist, instead of returning an empty constraints array indistinguishable from a table with no constraints.
 - **Events Tool Graceful Error Handling** — `mysql_event_create` returns `{ success: false, reason }` for duplicate events (errno 1537), `mysql_event_alter` and `mysql_event_drop` (without `ifExists`) return `{ success: false, reason }` for nonexistent events (errno 1539), instead of propagating raw MySQL errors.
 - **`mysql_event_status` Existence Check (P154)** — Returns `{ exists: false, name }` when the event is not found, instead of throwing a raw error.
+- **`mysql_sys_wait_summary` by_instance Output Normalization** — The `by_instance` type now returns human-readable formatted latencies (`total_latency`, `avg_latency`) using `FORMAT_PICO_TIME()` and consistent column aliases (`event`, `total`, `instance`), matching the output format of `global`, `by_host`, and `by_user` types. Previously returned raw picosecond values with inconsistent field names (`event_name`, `count_star`, `sum_timer_wait`).
 
 ### Changed
 
@@ -27,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **X Protocol Documentation** — Documented `MYSQL_XPORT` environment variable in README env var example and ecosystem prerequisites. Added X Protocol requirements to test database plan for shell and docstore tool groups.
 - **Schema Tools Server Instructions** — Expanded documentation to describe `mysql_create_schema`/`mysql_drop_schema`/`mysql_create_view` graceful error responses, `mysql_list_constraints` P154 behavior with `type` filter parameter, `mysql_create_view` parameters (`orReplace`, `algorithm`, `checkOption`), and `schema` parameter on all introspection tools.
 - **Events Tools Server Instructions** — Expanded documentation to describe graceful error handling, `ifNotExists` support for `mysql_event_create`, P154 behavior for `mysql_event_status`, and `onCompletion` alter capability for `mysql_event_alter`.
+- **`mysql_sys_schema_stats` Default Limit** — Reduced default `limit` from 50 to 20. The previous default produced ~34KB payloads (50 rows × 3 arrays). The new default keeps responses manageable while still providing useful coverage.
+- **Sys Schema Tools Server Instructions** — Expanded documentation with default `limit` values, `mysql_sys_schema_stats` 3-array output description (`tableStatistics`, `indexStatistics`, `autoIncrementStatus`), `schema` filter parameter, `mysql_sys_memory_summary` dual-array structure, and `by_instance` per-instance granularity note.
 
 ### Added
 

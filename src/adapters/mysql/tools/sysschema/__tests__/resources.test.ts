@@ -56,6 +56,18 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.autoIncrementStatus).toHaveLength(1);
     });
 
+    it("should use default limit of 20", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createSysSchemaStatsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await tool.handler({}, mockContext);
+
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(call).toContain("LIMIT 20");
+    });
+
     it("should filter by schema", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 

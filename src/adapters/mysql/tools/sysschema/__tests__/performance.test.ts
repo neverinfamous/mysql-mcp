@@ -113,7 +113,7 @@ describe("Sys Schema Performance Tools", () => {
       expect(call).toContain("sys.waits_by_user_by_latency");
     });
 
-    it("should query by instance", async () => {
+    it("should query by instance with formatted latency", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysWaitSummaryTool(
@@ -125,6 +125,10 @@ describe("Sys Schema Performance Tools", () => {
       expect(call).toContain(
         "performance_schema.events_waits_summary_by_instance",
       );
+      expect(call).toContain("FORMAT_PICO_TIME");
+      expect(call).toContain("AS total_latency");
+      expect(call).toContain("AS avg_latency");
+      expect(call).toContain("AS total");
     });
   });
 
