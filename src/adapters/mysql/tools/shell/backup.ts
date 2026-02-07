@@ -72,14 +72,36 @@ export function createShellDumpInstanceTool(): ToolDefinition {
         options.length > 0 ? `, { ${options.join(", ")} }` : "";
       const jsCode = `return util.dumpInstance("${escapedPath}"${optionsStr});`;
 
-      const result = await execShellJS(jsCode, { timeout: 3600000 }); // 1 hour timeout
+      try {
+        const result = await execShellJS(jsCode, { timeout: 3600000 }); // 1 hour timeout
 
-      return {
-        success: true,
-        outputDir,
-        dryRun: dryRun ?? false,
-        result,
-      };
+        return {
+          success: true,
+          outputDir,
+          dryRun: dryRun ?? false,
+          result,
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes("privilege") ||
+          errorMessage.includes("Access denied")
+        ) {
+          throw new Error(
+            `Dump failed due to missing privileges: ${errorMessage}. ` +
+              `Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). ` +
+              `Consider using mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.`,
+          );
+        }
+        if (errorMessage.includes("Fatal error during dump")) {
+          throw new Error(
+            `Dump failed: ${errorMessage}. ` +
+              `This may be caused by missing privileges. Consider using mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.`,
+          );
+        }
+        throw error;
+      }
     },
   };
 }

@@ -109,6 +109,33 @@ describe("Shell Backup Tools", () => {
       expect(jsArg).toContain("consistent: false");
       expect(jsArg).toContain("users: false");
     });
+
+    it("should throw helpful error for privilege errors", async () => {
+      setupMockSpawn("", "Access denied for user", 1);
+
+      const tool = createShellDumpInstanceTool();
+      await expect(
+        tool.handler({ outputDir: "/backup/full" }, mockContext),
+      ).rejects.toThrow("missing privileges");
+    });
+
+    it("should throw helpful error for Fatal error during dump", async () => {
+      setupMockSpawn("", "Fatal error during dump: Writing schema metadata", 1);
+
+      const tool = createShellDumpInstanceTool();
+      await expect(
+        tool.handler({ outputDir: "/backup/full" }, mockContext),
+      ).rejects.toThrow("mysqlsh_dump_schemas");
+    });
+
+    it("should re-throw non-privilege errors", async () => {
+      setupMockSpawn("", "Connection refused", 1);
+
+      const tool = createShellDumpInstanceTool();
+      await expect(
+        tool.handler({ outputDir: "/backup/full" }, mockContext),
+      ).rejects.toThrow("Connection refused");
+    });
   });
 
   describe("mysqlsh_dump_schemas", () => {

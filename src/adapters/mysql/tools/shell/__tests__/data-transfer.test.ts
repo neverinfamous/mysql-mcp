@@ -140,6 +140,39 @@ describe("Shell Data Transfer Tools", () => {
       // So we look for "C:\\temp\\dump" in the string
       expect(jsArg).toContain("C:\\\\temp\\\\dump");
     });
+    it("should throw helpful error for privilege errors", async () => {
+      setupMockSpawn("", "Access denied for user", 1);
+
+      const tool = createShellExportTableTool();
+      await expect(
+        tool.handler(
+          {
+            schema: "test",
+            table: "users",
+            outputPath: "/tmp/dump",
+            format: "csv",
+          },
+          mockContext,
+        ),
+      ).rejects.toThrow("SELECT privilege");
+    });
+
+    it("should re-throw non-privilege errors", async () => {
+      setupMockSpawn("", "Connection timeout", 1);
+
+      const tool = createShellExportTableTool();
+      await expect(
+        tool.handler(
+          {
+            schema: "test",
+            table: "users",
+            outputPath: "/tmp/dump",
+            format: "csv",
+          },
+          mockContext,
+        ),
+      ).rejects.toThrow("Connection timeout");
+    });
   });
 
   describe("mysqlsh_import_table", () => {

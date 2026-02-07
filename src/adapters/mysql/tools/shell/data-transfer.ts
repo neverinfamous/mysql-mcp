@@ -57,16 +57,31 @@ export function createShellExportTableTool(): ToolDefinition {
         options.length > 0 ? `, { ${options.join(", ")} }` : "";
       const jsCode = `return util.exportTable("${schema}.${table}", "${escapedPath}"${optionsStr});`;
 
-      const result = await execShellJS(jsCode);
+      try {
+        const result = await execShellJS(jsCode);
 
-      return {
-        success: true,
-        schema,
-        table,
-        outputPath,
-        format,
-        result,
-      };
+        return {
+          success: true,
+          schema,
+          table,
+          outputPath,
+          format,
+          result,
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes("privilege") ||
+          errorMessage.includes("Access denied")
+        ) {
+          throw new Error(
+            `Export failed due to insufficient privileges: ${errorMessage}. ` +
+              `Ensure the user has SELECT privilege on ${schema}.${table}.`,
+          );
+        }
+        throw error;
+      }
     },
   };
 }
@@ -171,7 +186,7 @@ export function createShellImportJSONTool(): ToolDefinition {
     name: "mysqlsh_import_json",
     title: "MySQL Shell Import JSON",
     description:
-      "Import JSON documents from a file using util.importJson(). File must be NDJSON format (one JSON object per line, not a JSON array). REQUIRES X Protocol (port 33060).",
+      "Import JSON documents from a file using util.importJson(). Supports NDJSON (one JSON object per line) and multi-line JSON objects (not JSON arrays). REQUIRES X Protocol (port 33060).",
     group: "shell",
     inputSchema: ShellImportJSONInputSchema,
     requiredScopes: ["write"],
