@@ -475,6 +475,37 @@ describe("Replication Fallback Handling", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("FROM 12345");
     });
+
+    it("should return graceful error for nonexistent binlog file", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Could not find target log"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const result = (await tool.handler(
+        { logFile: "nonexistent.000001" },
+        mockContext,
+      )) as { success: boolean; logFile: string; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.logFile).toBe("nonexistent.000001");
+      expect(result.error).toContain("not found");
+    });
+
+    it("should return graceful error for generic binlog query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Binary logging not enabled"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Failed to read binlog events");
+    });
   });
 
   describe("mysql_replication_lag fallback", () => {

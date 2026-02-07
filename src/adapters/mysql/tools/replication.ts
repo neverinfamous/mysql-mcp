@@ -127,8 +127,23 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
       sql += " " + parts.join(" ");
 
-      const result = await adapter.executeQuery(sql);
-      return { events: result.rows };
+      try {
+        const result = await adapter.executeQuery(sql);
+        return { events: result.rows };
+      } catch (e) {
+        const message = String(e);
+        if (logFile && message.includes("Could not find target log")) {
+          return {
+            success: false,
+            logFile,
+            error: `Binlog file '${logFile}' not found`,
+          };
+        }
+        return {
+          success: false,
+          error: `Failed to read binlog events: ${message}`,
+        };
+      }
     },
   };
 }
