@@ -318,9 +318,10 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         const bucketSize = (maxVal - minVal) / buckets;
 
         // Generate distribution query with WIDTH_BUCKET emulation
+        // Clamp with LEAST to prevent max value from creating an extra bucket
         const query = `
                 SELECT 
-                    FLOOR((\`${column}\` - ${String(minVal)}) / ${String(bucketSize)}) as bucket,
+                    LEAST(FLOOR((\`${column}\` - ${String(minVal)}) / ${String(bucketSize)}), ${String(buckets - 1)}) as bucket,
                     COUNT(*) as count,
                     MIN(\`${column}\`) as bucket_min,
                     MAX(\`${column}\`) as bucket_max
@@ -417,7 +418,7 @@ export function createTimeSeriesToolStats(
           dateFormat = "%Y-%m-%d";
           break;
         case "week":
-          dateFormat = "%Y-%u";
+          dateFormat = "%x-W%v";
           break;
         case "month":
           dateFormat = "%Y-%m";
