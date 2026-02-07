@@ -66,6 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_import_data` Existence Check (P154)** — Tool now returns `{ exists: false, table }` gracefully when the target table does not exist, instead of throwing a raw error. Follows the same pattern used by `mysql_export_table` and `mysql_describe_table`.
+- **`mysql_import_data` Duplicate Key Handling** — Tool now returns `{ success: false, error, rowsInserted }` for duplicate key violations, reporting how many rows were successfully inserted before the conflict. Previously propagated a raw MySQL error.
 - **`mysql_export_table` Existence Check (P154)** — Tool now returns `{ exists: false, table: "..." }` gracefully when the table does not exist, instead of propagating a raw MySQL error. Follows the same pattern used by `mysql_table_stats` and `mysql_index_recommendation`.
 
 ### Fixed

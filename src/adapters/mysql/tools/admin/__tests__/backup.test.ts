@@ -345,29 +345,50 @@ describe("Admin Backup Tools", () => {
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
     });
 
-    it("should handle import errors gracefully", async () => {
+    it("should return structured error for duplicate key violations", async () => {
       mockAdapter.executeWriteQuery
         .mockResolvedValueOnce({
           rows: [],
           rowsAffected: 1,
           executionTimeMs: 5,
         })
-        .mockRejectedValueOnce(new Error("Duplicate entry"));
+        .mockRejectedValueOnce(
+          new Error("Duplicate entry '1' for key 'users.PRIMARY'"),
+        );
 
       const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "users",
+          data: [
+            { id: 1, name: "First" },
+            { id: 1, name: "Duplicate" },
+          ],
+        },
+        mockContext,
+      )) as { success: boolean; error: string; rowsInserted: number };
 
-      await expect(
-        tool.handler(
-          {
-            table: "users",
-            data: [
-              { id: 1, name: "First" },
-              { id: 1, name: "Duplicate" },
-            ],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Duplicate entry");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Duplicate entry");
+      expect(result.rowsInserted).toBe(1);
+    });
+
+    it("should return exists: false for non-existent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "nonexistent",
+          data: [{ name: "test" }],
+        },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
     });
   });
 

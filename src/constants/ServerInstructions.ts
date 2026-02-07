@@ -69,7 +69,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Limit rows**: Use \`limit\` parameter to control export size (recommended for large tables).
 - **WHERE filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
 - **CSV and JSON columns**: CSV export escapes JSON columns with double-quote encoding—valid but complex. Consider SQL format for JSON-heavy tables.
-- **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist.
+- **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist. Returns \`{ exists: false, table }\` gracefully if the table does not exist.
+- **Duplicate key handling**: \`mysql_import_data\` returns \`{ success: false, error, rowsInserted }\` for duplicate key violations instead of throwing, reporting how many rows were successfully inserted before the conflict.
 - **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.
 
 ## Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_create_table\`, etc.)

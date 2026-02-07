@@ -213,11 +213,17 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
-        // Provide clearer error for missing table
+        // Graceful handling for missing table (P154)
         if (errorMessage.includes("doesn't exist")) {
-          throw new Error(
-            `Import failed: Table '${table}' does not exist. Create the table first before importing data.`,
-          );
+          return { exists: false, table };
+        }
+        // Graceful handling for duplicate key violations
+        if (errorMessage.includes("Duplicate entry")) {
+          return {
+            success: false,
+            error: errorMessage,
+            rowsInserted: totalInserted,
+          };
         }
         throw error;
       }
