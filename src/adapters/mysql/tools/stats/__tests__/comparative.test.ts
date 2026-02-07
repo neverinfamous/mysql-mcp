@@ -133,9 +133,10 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_histogram", () => {
     it("should handle update", async () => {
-      // First call: table existence check, second: ANALYZE TABLE, third: histogram query
+      // First call: table existence check, second: column check, third: ANALYZE TABLE, fourth: histogram query
       mockAdapter.executeQuery
         .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
+        .mockResolvedValueOnce({ rows: [{ COLUMN_NAME: "age" }] }) // column check
         .mockResolvedValueOnce({}) // analyze table
         .mockResolvedValueOnce({ rows: [{ histogramType: "SINGLETON" }] }); // select info
 
@@ -156,9 +157,10 @@ describe("Comparative Stats Tools", () => {
     });
 
     it("should handle non-existent histogram", async () => {
-      // First call: table exists, second: no histogram found
+      // First call: table exists, second: column exists, third: no histogram found
       mockAdapter.executeQuery
         .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
+        .mockResolvedValueOnce({ rows: [{ COLUMN_NAME: "age" }] }) // column check
         .mockResolvedValueOnce({ rows: [] }); // histogram query
 
       const result: any = await histogramTool.handler(
@@ -171,6 +173,25 @@ describe("Comparative Stats Tools", () => {
 
       expect(result.exists).toBe(false);
       expect(result.message).toContain("No histogram exists");
+    });
+
+    it("should handle non-existent column", async () => {
+      // First call: table exists, second: column does not exist
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
+        .mockResolvedValueOnce({ rows: [] }); // column check - not found
+
+      const result: any = await histogramTool.handler(
+        {
+          table: "users",
+          column: "nonexistent_col",
+        },
+        {} as any,
+      );
+
+      expect(result.exists).toBe(false);
+      expect(result.message).toContain("does not exist on table");
+      expect(result.column).toBe("nonexistent_col");
     });
   });
 });

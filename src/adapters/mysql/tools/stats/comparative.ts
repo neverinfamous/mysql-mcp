@@ -275,6 +275,22 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         return { exists: false, table };
       }
 
+      // Check if column exists on the table
+      const columnCheck = await adapter.executeQuery(
+        `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+        [table, column],
+      );
+
+      if (!columnCheck.rows || columnCheck.rows.length === 0) {
+        return {
+          exists: false,
+          table,
+          column,
+          message: `Column '${column}' does not exist on table '${table}'`,
+        };
+      }
+
       if (update) {
         // Create or update histogram
         const numBuckets = Math.min(buckets, 1024);
