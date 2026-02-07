@@ -43,6 +43,15 @@ export function createListConstraintsTool(
         tableName = parts[1];
       }
 
+      // P154: Check table existence first
+      const existsResult = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
+        [schemaName, tableName],
+      );
+      if (!existsResult.rows || existsResult.rows.length === 0) {
+        return { exists: false, table: tableName };
+      }
+
       // Query for table constraints
       let query = `
                 SELECT 

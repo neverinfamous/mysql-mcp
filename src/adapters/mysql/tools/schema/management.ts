@@ -96,8 +96,19 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
       const sql = `CREATE DATABASE ${ifNotExistsClause}\`${name}\` CHARACTER SET ${charset} COLLATE ${collation}`;
 
-      await adapter.executeQuery(sql);
-      return { success: true, schemaName: name };
+      try {
+        await adapter.executeQuery(sql);
+        return { success: true, schemaName: name };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.toLowerCase().includes("database exists")) {
+          return {
+            success: false,
+            reason: `Schema '${name}' already exists`,
+          };
+        }
+        throw err;
+      }
     },
   };
 }
@@ -138,9 +149,24 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       const ifExistsClause = ifExists ? "IF EXISTS " : "";
-      await adapter.executeQuery(`DROP DATABASE ${ifExistsClause}\`${name}\``);
-
-      return { success: true, schemaName: name };
+      try {
+        await adapter.executeQuery(
+          `DROP DATABASE ${ifExistsClause}\`${name}\``,
+        );
+        return { success: true, schemaName: name };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (
+          message.toLowerCase().includes("database doesn't exist") ||
+          message.toLowerCase().includes("database does not exist")
+        ) {
+          return {
+            success: false,
+            reason: `Schema '${name}' does not exist`,
+          };
+        }
+        throw err;
+      }
     },
   };
 }

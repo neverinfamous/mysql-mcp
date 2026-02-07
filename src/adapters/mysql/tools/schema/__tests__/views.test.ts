@@ -101,5 +101,23 @@ describe("Schema View Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("WITH CASCADED CHECK OPTION");
     });
+
+    it("should return success false when view already exists", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table 'my_view' already exists"),
+      );
+      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+
+      const result = (await tool.handler(
+        {
+          name: "my_view",
+          definition: "SELECT 1",
+        },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("already exists");
+    });
   });
 });

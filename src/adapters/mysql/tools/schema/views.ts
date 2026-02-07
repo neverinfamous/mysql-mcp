@@ -101,8 +101,19 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         sql += ` WITH ${checkOption} CHECK OPTION`;
       }
 
-      await adapter.executeQuery(sql);
-      return { success: true, viewName: name };
+      try {
+        await adapter.executeQuery(sql);
+        return { success: true, viewName: name };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.toLowerCase().includes("already exists")) {
+          return {
+            success: false,
+            reason: `View '${name}' already exists`,
+          };
+        }
+        throw err;
+      }
     },
   };
 }

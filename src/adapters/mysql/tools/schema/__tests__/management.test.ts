@@ -105,6 +105,23 @@ describe("Schema Management Tools", () => {
       expect(sql).toContain("latin1");
       expect(sql).toContain("latin1_swedish_ci");
     });
+
+    it("should return success false when schema already exists", async () => {
+      const tool = createCreateSchemaTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Can't create database 'existing_db'; database exists"),
+      );
+
+      const result = (await tool.handler(
+        { name: "existing_db", ifNotExists: false },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("already exists");
+    });
   });
 
   describe("mysql_drop_schema", () => {
@@ -151,6 +168,21 @@ describe("Schema Management Tools", () => {
 
       const sql = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(sql).toBe("DROP DATABASE `db`");
+    });
+
+    it("should return success false when schema does not exist", async () => {
+      const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Can't drop database 'gone_db'; database doesn't exist"),
+      );
+
+      const result = (await tool.handler(
+        { name: "gone_db", ifExists: false },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("does not exist");
     });
   });
 });

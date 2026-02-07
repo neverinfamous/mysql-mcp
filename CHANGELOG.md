@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Partitioning Write Tools Graceful Error Handling** — `mysql_add_partition`, `mysql_drop_partition`, and `mysql_reorganize_partition` now return structured `{ success: false, error }` responses for common failures (non-partitioned table, nonexistent partition, MAXVALUE conflicts, duplicate values) instead of propagating raw MySQL errors.
 - **`mysql_binlog_events` Graceful Error Handling (P154)** — Tool now returns `{ success: false, logFile, error }` when the specified binlog file does not exist, instead of propagating a raw MySQL error. Also handles generic binlog query failures gracefully with `{ success: false, error }`.
 - **Shell Tool Error Handling** — `mysqlsh_export_table` and `mysqlsh_dump_instance` now catch privilege/access-denied errors and provide actionable guidance instead of propagating raw errors. `mysqlsh_dump_instance` also catches fatal dump errors with fallback suggestions.
+- **Schema Tool Graceful Error Handling** — `mysql_create_schema` returns `{ success: false, reason }` when the schema already exists (without `ifNotExists`), `mysql_drop_schema` returns `{ success: false, reason }` when the schema does not exist (without `ifExists`), and `mysql_create_view` returns `{ success: false, reason }` when the view already exists (without `orReplace`). Previously all three propagated raw MySQL errors.
+- **`mysql_list_constraints` Existence Check (P154)** — Returns `{ exists: false, table }` when the table does not exist, instead of returning an empty constraints array indistinguishable from a table with no constraints.
 
 ### Changed
 
@@ -21,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Shell Tools Server Instructions** — Corrected `mysqlsh_import_json` documentation (supports multi-line JSON objects, not just NDJSON). Added `mysqlsh_check_upgrade` error behavior documentation. Added error handling notes for export and dump tools.
 - **`mysqlsh_import_json` Tool Description** — Corrected description to accurately state support for both NDJSON and multi-line JSON objects (not JSON arrays).
 - **X Protocol Documentation** — Documented `MYSQL_XPORT` environment variable in README env var example and ecosystem prerequisites. Added X Protocol requirements to test database plan for shell and docstore tool groups.
+- **Schema Tools Server Instructions** — Expanded documentation to describe `mysql_create_schema`/`mysql_drop_schema`/`mysql_create_view` graceful error responses, `mysql_list_constraints` P154 behavior with `type` filter parameter, `mysql_create_view` parameters (`orReplace`, `algorithm`, `checkOption`), and `schema` parameter on all introspection tools.
 
 ### Added
 
