@@ -41,6 +41,17 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table } = PartitionInfoSchema.parse(params);
 
+      // Check if table exists (P154)
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
+
       const result = await adapter.executeQuery(
         `
                 SELECT 
@@ -118,8 +129,37 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      await adapter.executeQuery(sql);
-      return { success: true, table, partitionName };
+      try {
+        await adapter.executeQuery(sql);
+        return { success: true, table, partitionName };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+
+        if (msg.includes("not partitioned")) {
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' is not partitioned`,
+          };
+        }
+        if (msg.includes("MAXVALUE")) {
+          return {
+            success: false,
+            table,
+            error: `Cannot add RANGE partition — existing MAXVALUE partition must be reorganized first using mysql_reorganize_partition`,
+          };
+        }
+        if (msg.includes("Multiple definition")) {
+          return {
+            success: false,
+            table,
+            partitionName,
+            error: `Partition value(s) already exist in another partition`,
+          };
+        }
+
+        return { success: false, table, partitionName, error: msg };
+      }
     },
   };
 }
@@ -140,16 +180,41 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, partitionName } = DropPartitionSchema.parse(params);
 
-      await adapter.executeQuery(
-        `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``,
-      );
+      try {
+        await adapter.executeQuery(
+          `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``,
+        );
 
-      return {
-        success: true,
-        table,
-        partitionName,
-        warning: "All data in this partition has been deleted",
-      };
+        return {
+          success: true,
+          table,
+          partitionName,
+          warning: "All data in this partition has been deleted",
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+
+        if (msg.includes("not partitioned")) {
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' is not partitioned`,
+          };
+        }
+        if (
+          msg.includes("Error in list of partitions") ||
+          msg.includes("Unknown partition")
+        ) {
+          return {
+            success: false,
+            table,
+            partitionName,
+            error: `Partition '${partitionName}' does not exist on table '${table}'`,
+          };
+        }
+
+        return { success: false, table, partitionName, error: msg };
+      }
     },
   };
 }
@@ -182,13 +247,40 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
 
       const sql = `ALTER TABLE \`${table}\` REORGANIZE PARTITION ${fromList} INTO (${toList})`;
 
-      await adapter.executeQuery(sql);
-      return {
-        success: true,
-        table,
-        fromPartitions,
-        toPartitions: toPartitions.map((p) => p.name),
-      };
+      try {
+        await adapter.executeQuery(sql);
+        return {
+          success: true,
+          table,
+          fromPartitions,
+          toPartitions: toPartitions.map((p) => p.name),
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+
+        if (msg.includes("not partitioned")) {
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' is not partitioned`,
+          };
+        }
+        if (msg.includes("Error in list of partitions")) {
+          return {
+            success: false,
+            table,
+            fromPartitions,
+            error: `One or more source partitions (${fromPartitions.join(", ")}) do not exist on table '${table}'`,
+          };
+        }
+
+        return {
+          success: false,
+          table,
+          fromPartitions,
+          error: msg,
+        };
+      }
     },
   };
 }

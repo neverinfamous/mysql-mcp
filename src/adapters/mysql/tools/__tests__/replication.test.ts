@@ -214,24 +214,33 @@ describe("Partitioning Handler Execution", () => {
 
   describe("mysql_partition_info", () => {
     it("should query partition info", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
-          { PARTITION_NAME: "p0", TABLE_ROWS: 1000, PARTITION_METHOD: "RANGE" },
-        ]),
-      );
+      // First call: existence check, second call: partition query
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              PARTITION_NAME: "p0",
+              TABLE_ROWS: 1000,
+              PARTITION_METHOD: "RANGE",
+            },
+          ]),
+        );
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       await tool.handler({ table: "logs" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(call).toContain("PARTITIONS");
     });
 
     it("should detect non-partitioned table", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ PARTITION_NAME: null, TABLE_ROWS: 1000 }]),
-      );
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PARTITION_NAME: null, TABLE_ROWS: 1000 }]),
+        );
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
@@ -242,15 +251,17 @@ describe("Partitioning Handler Execution", () => {
     });
 
     it("should detect partitioned table with method and expression", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
-          {
-            PARTITION_NAME: "p0",
-            PARTITION_METHOD: "RANGE",
-            PARTITION_EXPRESSION: "TO_DAYS(created_at)",
-          },
-        ]),
-      );
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              PARTITION_NAME: "p0",
+              PARTITION_METHOD: "RANGE",
+              PARTITION_EXPRESSION: "TO_DAYS(created_at)",
+            },
+          ]),
+        );
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "logs" }, mockContext)) as {
@@ -382,6 +393,168 @@ describe("Partitioning Handler Execution", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("REORGANIZE PARTITION");
       expect(result).toHaveProperty("success", true);
+    });
+
+    it("should return structured error for non-partitioned table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error(
+          "Partition management on a not partitioned table is not possible",
+        ),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const result = (await tool.handler(
+        {
+          table: "users",
+          fromPartitions: ["p1"],
+          partitionType: "RANGE",
+          toPartitions: [{ name: "p1a", value: "50" }],
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not partitioned");
+    });
+
+    it("should return structured error for nonexistent partition", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Error in list of partitions to REORGANIZE"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const result = (await tool.handler(
+        {
+          table: "logs",
+          fromPartitions: ["nonexistent"],
+          partitionType: "RANGE",
+          toPartitions: [{ name: "p_new", value: "2030" }],
+        },
+        mockContext,
+      )) as { success: boolean; fromPartitions: string[]; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.fromPartitions).toEqual(["nonexistent"]);
+      expect(result.error).toContain("do not exist");
+    });
+  });
+
+  describe("mysql_partition_info existence check", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_partition_info")!;
+      const result = (await tool.handler(
+        { table: "nonexistent" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+  });
+
+  describe("mysql_add_partition error handling", () => {
+    it("should return structured error for non-partitioned table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error(
+          "Partition management on a not partitioned table is not possible",
+        ),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const result = (await tool.handler(
+        {
+          table: "users",
+          partitionName: "p1",
+          partitionType: "RANGE",
+          value: "100",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not partitioned");
+    });
+
+    it("should return structured error for MAXVALUE conflict", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("MAXVALUE can only be used in last partition definition"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const result = (await tool.handler(
+        {
+          table: "logs",
+          partitionName: "p2025",
+          partitionType: "RANGE",
+          value: "2026",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("MAXVALUE");
+      expect(result.error).toContain("mysql_reorganize_partition");
+    });
+
+    it("should return structured error for duplicate partition values", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Multiple definition of same constant in list partitioning"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const result = (await tool.handler(
+        {
+          table: "regions",
+          partitionName: "p_dup",
+          partitionType: "LIST",
+          value: "'east'",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("already exist");
+    });
+  });
+
+  describe("mysql_drop_partition error handling", () => {
+    it("should return structured error for non-partitioned table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error(
+          "Partition management on a not partitioned table is not possible",
+        ),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_drop_partition")!;
+      const result = (await tool.handler(
+        { table: "users", partitionName: "p1" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not partitioned");
+    });
+
+    it("should return structured error for nonexistent partition", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Error in list of partitions to DROP"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_drop_partition")!;
+      const result = (await tool.handler(
+        { table: "logs", partitionName: "nonexistent" },
+        mockContext,
+      )) as {
+        success: boolean;
+        partitionName: string;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.partitionName).toBe("nonexistent");
+      expect(result.error).toContain("does not exist");
     });
   });
 });
