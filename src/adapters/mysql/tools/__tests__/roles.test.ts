@@ -156,6 +156,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_revoke", () => {
     it("should revoke role from user", async () => {
+      // First call: role exists check; second call: role_edges assignment check
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
+
       const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
       await tool.handler(
         { role: "test_role", user: "testuser", host: "localhost" },
@@ -165,6 +170,29 @@ describe("Handler Execution", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
       const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
       expect(call).toContain("REVOKE");
+    });
+
+    it("should return graceful error when role is not assigned", async () => {
+      // First call: role exists check succeeds; second call: role_edges returns empty
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const result = await tool.handler(
+        { role: "test_role", user: "testuser", host: "localhost" },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        role: "test_role",
+        user: "testuser",
+        host: "localhost",
+        reason:
+          "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
+      });
+      expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
 
@@ -338,10 +366,10 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_revoke - error handling", () => {
     it("should return graceful error for nonexistent user", async () => {
-      // Role exists check succeeds
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ "1": 1 }]),
-      );
+      // Role exists check succeeds, role_edges assignment check succeeds
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
       // REVOKE rawQuery fails with unknown user
       mockAdapter.rawQuery.mockRejectedValue(
         new Error("Unknown authorization ID `baduser`@`%`"),

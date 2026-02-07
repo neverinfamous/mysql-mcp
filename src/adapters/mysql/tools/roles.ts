@@ -309,6 +309,21 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         }
 
+        // Check if the role is actually assigned to this user
+        const assignCheck = await adapter.executeQuery(
+          `SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?`,
+          [role, user, host],
+        );
+        if (!assignCheck.rows || assignCheck.rows.length === 0) {
+          return {
+            success: false,
+            role,
+            user,
+            host,
+            reason: `Role '${role}' is not assigned to user '${user}'@'${host}'`,
+          };
+        }
+
         try {
           await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
           return { success: true, role, user, host };
