@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Shell Tool Error Handling** — `mysqlsh_export_table` and `mysqlsh_dump_instance` now catch privilege/access-denied errors and provide actionable guidance instead of propagating raw errors. `mysqlsh_dump_instance` also catches fatal dump errors with fallback suggestions.
 - **Schema Tool Graceful Error Handling** — `mysql_create_schema` returns `{ success: false, reason }` when the schema already exists (without `ifNotExists`), `mysql_drop_schema` returns `{ success: false, reason }` when the schema does not exist (without `ifExists`), and `mysql_create_view` returns `{ success: false, reason }` when the view already exists (without `orReplace`) or when the SQL definition is invalid (e.g., referencing nonexistent tables). Previously all three propagated raw MySQL errors.
 - **`mysql_list_constraints` Existence Check (P154)** — Returns `{ exists: false, table }` when the table does not exist, instead of returning an empty constraints array indistinguishable from a table with no constraints.
+- **Events Tool Graceful Error Handling** — `mysql_event_create` returns `{ success: false, reason }` for duplicate events (errno 1537), `mysql_event_alter` and `mysql_event_drop` (without `ifExists`) return `{ success: false, reason }` for nonexistent events (errno 1539), instead of propagating raw MySQL errors.
+- **`mysql_event_status` Existence Check (P154)** — Returns `{ exists: false, name }` when the event is not found, instead of throwing a raw error.
 
 ### Changed
 
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysqlsh_import_json` Tool Description** — Corrected description to accurately state support for both NDJSON and multi-line JSON objects (not JSON arrays).
 - **X Protocol Documentation** — Documented `MYSQL_XPORT` environment variable in README env var example and ecosystem prerequisites. Added X Protocol requirements to test database plan for shell and docstore tool groups.
 - **Schema Tools Server Instructions** — Expanded documentation to describe `mysql_create_schema`/`mysql_drop_schema`/`mysql_create_view` graceful error responses, `mysql_list_constraints` P154 behavior with `type` filter parameter, `mysql_create_view` parameters (`orReplace`, `algorithm`, `checkOption`), and `schema` parameter on all introspection tools.
+- **Events Tools Server Instructions** — Expanded documentation to describe graceful error handling, `ifNotExists` support for `mysql_event_create`, P154 behavior for `mysql_event_status`, and `onCompletion` alter capability for `mysql_event_alter`.
 
 ### Added
 

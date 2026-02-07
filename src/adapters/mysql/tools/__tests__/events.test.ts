@@ -238,13 +238,16 @@ describe("Handler Execution", () => {
       expect(result).toBeDefined();
     });
 
-    it("should throw error when event is not found", async () => {
+    it("should return exists false when event is not found", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_status")!;
-      await expect(
-        tool.handler({ name: "nonexistent_event" }, mockContext),
-      ).rejects.toThrow("Event 'nonexistent_event' not found");
+      const result = await tool.handler(
+        { name: "nonexistent_event" },
+        mockContext,
+      );
+
+      expect(result).toEqual({ exists: false, name: "nonexistent_event" });
     });
   });
 
@@ -612,5 +615,98 @@ describe("Event Drop Advanced", () => {
 
     const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
     expect(call).not.toContain("IF EXISTS");
+  });
+});
+
+describe("Event Graceful Error Handling", () => {
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
+  let tools: ReturnType<typeof getEventTools>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockAdapter = createMockMySQLAdapter();
+    tools = getEventTools(mockAdapter as unknown as MySQLAdapter);
+    mockContext = createMockRequestContext();
+  });
+
+  it("should return success false when creating duplicate event", async () => {
+    const mysqlError = new Error(
+      "Query failed: Execute failed: Event 'my_event' already exists",
+    );
+    mockAdapter.executeQuery.mockRejectedValue(mysqlError);
+
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      reason: "Event 'my_event' already exists",
+    });
+  });
+
+  it("should return success false when altering nonexistent event", async () => {
+    const mysqlError = new Error(
+      "Query failed: Execute failed: Unknown event 'ghost_event'",
+    );
+    mockAdapter.executeQuery.mockRejectedValue(mysqlError);
+
+    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const result = await tool.handler(
+      {
+        name: "ghost_event",
+        enabled: true,
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      reason: "Event 'ghost_event' does not exist",
+    });
+  });
+
+  it("should return success false when dropping nonexistent event without ifExists", async () => {
+    const mysqlError = new Error(
+      "Query failed: Execute failed: Unknown event 'ghost_event'",
+    );
+    mockAdapter.executeQuery.mockRejectedValue(mysqlError);
+
+    const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+    const result = await tool.handler(
+      {
+        name: "ghost_event",
+        ifExists: false,
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      reason: "Event 'ghost_event' does not exist",
+    });
+  });
+
+  it("should rethrow unexpected errors from create", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
+
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    await expect(
+      tool.handler(
+        {
+          name: "my_event",
+          schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+          body: "SELECT 1",
+        },
+        mockContext,
+      ),
+    ).rejects.toThrow("Connection lost");
   });
 });

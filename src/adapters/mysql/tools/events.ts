@@ -195,8 +195,19 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
 
       sql += `\nDO ${body}`;
 
-      await adapter.executeQuery(sql);
-      return { success: true, eventName: name };
+      try {
+        await adapter.executeQuery(sql);
+        return { success: true, eventName: name };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.toLowerCase().includes("already exists")) {
+          return {
+            success: false,
+            reason: `Event '${name}' already exists`,
+          };
+        }
+        throw error;
+      }
     },
   };
 }
@@ -287,8 +298,19 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
 
       sql += "\n" + clauses.join("\n");
 
-      await adapter.executeQuery(sql);
-      return { success: true, eventName: newName ?? name };
+      try {
+        await adapter.executeQuery(sql);
+        return { success: true, eventName: newName ?? name };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.toLowerCase().includes("unknown event")) {
+          return {
+            success: false,
+            reason: `Event '${name}' does not exist`,
+          };
+        }
+        throw error;
+      }
     },
   };
 }
@@ -317,9 +339,20 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       const ifExistsClause = ifExists ? "IF EXISTS " : "";
-      await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
 
-      return { success: true, eventName: name };
+      try {
+        await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
+        return { success: true, eventName: name };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.toLowerCase().includes("unknown event")) {
+          return {
+            success: false,
+            reason: `Event '${name}' does not exist`,
+          };
+        }
+        throw error;
+      }
     },
   };
 }
@@ -425,7 +458,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
       const result = await adapter.executeQuery(query, [schema ?? null, name]);
 
       if (!result.rows || result.rows.length === 0) {
-        throw new Error(`Event '${name}' not found`);
+        return { exists: false, name };
       }
 
       return result.rows[0];
