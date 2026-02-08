@@ -276,6 +276,19 @@ describe("Security Tools", () => {
 
       expect(result.masked).toBe("1234********3456");
     });
+
+    it("should fully mask short credit card values with warning", async () => {
+      const tool = tools.find((t) => t.name === "mysql_security_mask_data");
+      const result = (await tool?.handler(
+        { value: "123", type: "credit_card" },
+        mockContext,
+      )) as any;
+
+      expect(result.original).toBe("123");
+      expect(result.masked).toBe("***");
+      expect(result.type).toBe("credit_card");
+      expect(result.warning).toContain("too short");
+    });
   });
 
   describe("mysql_security_password_validate", () => {
@@ -487,6 +500,10 @@ describe("Security Tools", () => {
     });
 
     it("should include roles if requested", async () => {
+      // P154: User existence pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ User: "root" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "root", Host: "localhost" }]),
       );
@@ -559,10 +576,31 @@ describe("Security Tools", () => {
       expect(result.users[0].grants).toBeUndefined();
       expect(result.users[0].roles).toBeUndefined();
     });
+
+    it("should return exists:false for nonexistent user (P154)", async () => {
+      // P154 pre-check returns empty
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_user_privileges",
+      );
+      const result = (await tool?.handler(
+        { user: "nonexistent_user" },
+        mockContext,
+      )) as any;
+
+      expect(result.exists).toBe(false);
+      expect(result.user).toBe("nonexistent_user");
+      expect(result.users).toBeUndefined();
+    });
   });
 
   describe("mysql_security_sensitive_tables", () => {
     it("should find sensitive columns based on patterns", async () => {
+      // P154: Schema existence pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "test" }]),
+      );
       // COLUMNS query
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -586,6 +624,23 @@ describe("Security Tools", () => {
       expect(result.tableCount).toBe(1);
       expect(result.sensitiveTables[0].table).toBe("users");
       expect(result.sensitiveTables[0].sensitiveColumns).toHaveLength(2);
+    });
+
+    it("should return exists:false for nonexistent schema (P154)", async () => {
+      // P154 pre-check returns empty
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_sensitive_tables",
+      );
+      const result = (await tool?.handler(
+        { schema: "nonexistent_schema" },
+        mockContext,
+      )) as any;
+
+      expect(result.exists).toBe(false);
+      expect(result.schema).toBe("nonexistent_schema");
+      expect(result.sensitiveTables).toBeUndefined();
     });
   });
 

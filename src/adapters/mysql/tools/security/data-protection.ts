@@ -124,6 +124,15 @@ export function createSecurityMaskDataTool(
         case "credit_card": {
           // Show first 4 and last 4
           const ccDigits = value.replace(/\D/g, "");
+          if (ccDigits.length < 8) {
+            return Promise.resolve({
+              original: value,
+              masked: maskChar.repeat(value.length),
+              type,
+              warning:
+                "Value too short for credit_card format (expected at least 8 digits); fully masked instead",
+            });
+          }
           maskedValue =
             ccDigits.slice(0, 4) +
             maskChar.repeat(Math.max(0, ccDigits.length - 8)) +
@@ -172,6 +181,17 @@ export function createSecurityUserPrivilegesTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { user, host, includeRoles, summary } =
         UserPrivilegesSchema.parse(params);
+
+      // P154: User existence check when explicitly provided
+      if (user) {
+        const userCheck = await adapter.executeQuery(
+          "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
+          [user],
+        );
+        if (!userCheck.rows || userCheck.rows.length === 0) {
+          return { exists: false, user };
+        }
+      }
 
       // Get users
       let usersQuery = `
@@ -319,6 +339,17 @@ export function createSecuritySensitiveTablesTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { schema, patterns } = SensitiveTablesSchema.parse(params);
+
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
 
       // Build pattern conditions
       const patternConditions = patterns
