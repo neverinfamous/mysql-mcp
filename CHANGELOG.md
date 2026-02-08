@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_index_usage` Table Existence Check (P154)** — When a `table` parameter is provided, tool now pre-checks existence via `information_schema.TABLES` and returns `{ exists: false, table }` for nonexistent tables, instead of silently returning an empty `indexUsage` array indistinguishable from a table with no index activity.
 - **Performance Tools Graceful Error Handling (P154)** — `mysql_explain` and `mysql_explain_analyze` now return `{ exists: false, error }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., syntax errors) instead of propagating raw MySQL errors.
 - **Text Tools Graceful Error Handling (P154)** — All 6 text tools (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`) now return `{ exists: false, table }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., unknown column, invalid regex, invalid charset), instead of propagating raw MySQL errors.
 - **Fulltext Tools Graceful Error Handling (P154)** — All 5 fulltext tools now handle errors gracefully. `mysql_fulltext_create` and `mysql_fulltext_drop` return `{ exists: false, table }` for nonexistent tables (in addition to existing duplicate/missing index handling). `mysql_fulltext_search`, `mysql_fulltext_boolean`, and `mysql_fulltext_expand` return `{ exists: false, table }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., column mismatch). Previously all 5 tools propagated raw MySQL errors for these cases.
@@ -136,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_optimizer_trace` Summary Mode** — Added optional `summary: boolean` parameter to return only key optimization decisions (index selections, access paths, estimated costs) instead of the full verbose trace. Reduces payload from ~10KB to ~500B for typical queries.
 - **Admin Tools Server Instructions** — Added Admin Tools section documenting optimize, analyze, check, repair, flush, and kill operations.
 - **`mysql_index_usage` Database Filter** — Tool now filters to current database by default, preventing massive payloads (~45KB → ~1KB) from including all MySQL internal indexes with zero counts.
+- **`mysql_index_usage` Default Limit** — Reduced default `limit` from 50 to 20. The previous default produced ~13KB payloads (46 index entries) in a modest test database. The new default keeps responses manageable while covering the most-active indexes.
 - **Node.js 24 LTS Baseline** — Upgraded from Node 20 to Node 24 (current LTS) across Dockerfile, CI workflows, and package.json engines for high-fidelity production security.
 - **Docker Workflow: Explicit CodeQL Gating** — Docker image publishing now depends on both `quality-gate` and `codeql` jobs, ensuring security regressions block deployments.
 - **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/_), `eslint` (eslint, @eslint/_, typescript-eslint, globals), and `types` (@types/\*) to prevent peer dependency fragmentation.
@@ -169,8 +171,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_concat` `includeSourceColumns` Option** — Added optional `includeSourceColumns` parameter (default: `true`). Set to `false` for minimal payload containing only `id` and the concatenated result, omitting individual source columns.
 - **Fulltext Search `maxLength` Parameter** — Added optional `maxLength` parameter to `mysql_fulltext_search`, `mysql_fulltext_boolean`, and `mysql_fulltext_expand`. Truncates TEXT column values exceeding `maxLength` characters with `...` appended, reducing payload size for tables with large text content.
 - **Fulltext Tools Server Instructions** — Updated documentation with column-matching requirement (MATCH columns must exactly match FULLTEXT index), `maxLength` parameter usage, and graceful error handling for create/drop operations.
-- **`mysql_index_usage` Limit Parameter** — Added optional `limit` parameter (default: 50) to cap the number of returned index usage rows, preventing excessively large payloads in databases with many indexes.
-- **Performance Tools Server Instructions** — Updated documentation with `mysql_table_stats` existence check pattern, `mysql_thread_stats` description, `mysql_explain_analyze` TREE-only constraint, and `mysql_index_usage` limit parameter.
+- **`mysql_index_usage` Limit Parameter** — Added optional `limit` parameter (default: 20) to cap the number of returned index usage rows, preventing excessively large payloads in databases with many indexes.
+- **Performance Tools Server Instructions** — Updated documentation with `mysql_table_stats` existence check pattern, `mysql_thread_stats` description, `mysql_explain_analyze` TREE-only constraint, `mysql_index_usage` limit parameter with P154 existence check, and server-level metadata tools clarification.
 
 ### Dependencies
 

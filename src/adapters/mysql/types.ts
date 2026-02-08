@@ -287,7 +287,7 @@ export const IndexUsageSchema = z.object({
     .int()
     .positive()
     .optional()
-    .default(50)
+    .default(20)
     .describe("Maximum number of indexes to return"),
 });
 

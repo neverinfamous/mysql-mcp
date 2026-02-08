@@ -218,6 +218,17 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, limit } = IndexUsageSchema.parse(params);
 
+      // P154: Check table existence when a specific table is requested
+      if (table) {
+        const check = await adapter.executeReadQuery(
+          `SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+          [table],
+        );
+        if (!check.rows || check.rows.length === 0) {
+          return { exists: false, table };
+        }
+      }
+
       // Always filter to current database to avoid returning thousands of
       // MySQL internal indexes with zero counts
       let sql = `

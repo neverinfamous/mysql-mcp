@@ -342,15 +342,30 @@ describe("Performance Analysis Tools", () => {
     });
 
     it("should filter by table name", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      // First call: table existence check, second call: index usage query
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
       await tool.handler({ table: "users" }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      // Second call should be the index usage query with table filter
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0] as string;
       expect(call).toContain("object_name = ?");
-      const args = mockAdapter.executeReadQuery.mock.calls[0][1];
+      const args = mockAdapter.executeReadQuery.mock.calls[1][1];
       expect(args).toEqual(["users"]);
+    });
+
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler({ table: "nonexistent" }, mockContext);
+
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      // Should only call once (existence check), not the index usage query
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(1);
     });
 
     it("should apply default limit", async () => {
@@ -360,7 +375,7 @@ describe("Performance Analysis Tools", () => {
       await tool.handler({}, mockContext);
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      expect(call).toContain("LIMIT 50");
+      expect(call).toContain("LIMIT 20");
     });
 
     it("should use custom limit", async () => {
