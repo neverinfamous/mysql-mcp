@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - Event Scheduler Setup
- * 
+ *
  * Complete Event Scheduler configuration guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupEventsPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_events',
-        description: 'Complete MySQL Event Scheduler setup and configuration guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL Event Scheduler Setup Guide
+  return {
+    name: "mysql_setup_events",
+    description: "Complete MySQL Event Scheduler setup and configuration guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL Event Scheduler Setup Guide
 
 MySQL Event Scheduler allows you to schedule SQL statements to run at specific times or intervals.
 
@@ -98,6 +98,6 @@ DO
 3. **Event disappeared**: Check ON COMPLETION PRESERVE setting
 
 Start by checking the scheduler status with \`mysql_scheduler_status\`.`);
-        }
-    };
+    },
+  };
 }

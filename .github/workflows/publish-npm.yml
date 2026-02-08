@@ -19,7 +19,7 @@ jobs:
     environment:
       name: npm
       url: https://www.npmjs.com/package/@neverinfamous/mysql-mcp
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -27,9 +27,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+          node-version: "24.x"
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -83,4 +83,3 @@ jobs:
             echo "Package not yet visible, retrying..."
           done
           echo "⚠️ Package may still be propagating to npm registry. This is informational only."
-

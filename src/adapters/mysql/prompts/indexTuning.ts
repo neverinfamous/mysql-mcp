@@ -1,23 +1,28 @@
 /**
  * MySQL Prompt - Index Tuning
- * 
+ *
  * Index analysis and optimization workflow.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createIndexTuningPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_index_tuning',
-        description: 'Analyze and optimize database indexes',
-        arguments: [
-            { name: 'table', description: 'Specific table to analyze (optional, analyzes all if not provided)', required: false }
-        ],
-        handler: (args: Record<string, string>, _context: RequestContext) => {
-            const table = args['table'];
+  return {
+    name: "mysql_index_tuning",
+    description: "Analyze and optimize database indexes",
+    arguments: [
+      {
+        name: "table",
+        description:
+          "Specific table to analyze (optional, analyzes all if not provided)",
+        required: false,
+      },
+    ],
+    handler: (args: Record<string, string>, _context: RequestContext) => {
+      const table = args["table"];
 
-            return Promise.resolve(`# MySQL Index Tuning Workflow
+      return Promise.resolve(`# MySQL Index Tuning Workflow
 
-${table ? `Analyze and optimize indexes for table: **${table}**` : 'Analyze and optimize indexes across the database'}
+${table ? `Analyze and optimize indexes for table: **${table}**` : "Analyze and optimize indexes across the database"}
 
 ## Step 1: Identify Index Issues
 
@@ -84,7 +89,7 @@ After changes:
 2. Compare query execution times
 3. Monitor \`mysql://performance\` for improvements
 
-${table ? `\nStart by analyzing indexes on table **${table}**.` : '\nStart by reviewing the `mysql://indexes` resource.'}`);
-        }
-    };
+${table ? `\nStart by analyzing indexes on table **${table}**.` : "\nStart by reviewing the `mysql://indexes` resource."}`);
+    },
+  };
 }

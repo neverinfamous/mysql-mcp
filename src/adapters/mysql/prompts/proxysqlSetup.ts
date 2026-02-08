@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - ProxySQL Setup
- * 
+ *
  * Complete ProxySQL configuration guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupProxysqlPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_proxysql',
-        description: 'Complete ProxySQL setup and configuration guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# ProxySQL Setup Guide
+  return {
+    name: "mysql_setup_proxysql",
+    description: "Complete ProxySQL setup and configuration guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# ProxySQL Setup Guide
 
 ProxySQL is a high-performance MySQL proxy supporting connection pooling, query routing, and caching.
 
@@ -110,6 +110,6 @@ Use \`proxysql_query_digest\` to find:
 4. **Monitor**: Watch query digest for performance issues
 
 Start by checking ProxySQL connection with \`proxysql_status\`.`);
-        }
-    };
+    },
+  };
 }

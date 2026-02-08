@@ -1,48 +1,79 @@
 /**
  * MySQL sys Schema Tools - Resource Monitoring
- * 
+ *
  * Tools for monitoring database resources and objects.
  * 3 tools: schema_stats, innodb_lock_waits, memory_summary.
  */
 
-import { z } from 'zod';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
-import type { ToolDefinition, RequestContext } from '../../../../types/index.js';
+import { z } from "zod";
+import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 
 // =============================================================================
 // Zod Schemas
 // =============================================================================
 
 const LimitSchema = z.object({
-    limit: z.number().default(20).describe('Maximum number of results to return')
+  limit: z.number().default(10).describe("Maximum number of results to return"),
 });
 
 /**
  * Get schema object statistics
  */
-export function createSysSchemaStatsTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_sys_schema_stats',
-        title: 'MySQL Schema Statistics',
-        description: 'Get aggregated statistics for a schema including tables, indexes, and auto-increment status.',
-        group: 'sysschema',
-        inputSchema: z.object({
-            schema: z.string().optional().describe('Schema name (defaults to current database)'),
-            limit: z.number().default(50).describe('Maximum number of results')
-        }),
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { schema, limit } = z.object({
-                schema: z.string().optional(),
-                limit: z.number().default(50)
-            }).parse(params);
+export function createSysSchemaStatsTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_sys_schema_stats",
+    title: "MySQL Schema Statistics",
+    description:
+      "Get aggregated statistics for a schema including tables, indexes, and auto-increment status.",
+    group: "sysschema",
+    inputSchema: z.object({
+      schema: z
+        .string()
+        .optional()
+        .describe("Schema name (defaults to current database)"),
+      limit: z.number().default(10).describe("Maximum number of results"),
+    }),
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { schema, limit } = z
+        .object({
+          schema: z.string().optional(),
+          limit: z.number().default(10),
+        })
+        .parse(params);
 
-            // Get table statistics
-            const tableStatsQuery = `
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
+
+      // Resolve actual database name for response
+      let resolvedSchema = schema;
+      if (!resolvedSchema) {
+        const dbResult = await adapter.executeQuery("SELECT DATABASE() as db");
+        const rows = dbResult.rows ?? [];
+        const dbRow = rows[0] as Record<string, unknown> | undefined;
+        resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
+      }
+
+      // Get table statistics
+      const tableStatsQuery = `
                 SELECT 
                     table_schema,
                     table_name,
@@ -66,8 +97,8 @@ export function createSysSchemaStatsTool(adapter: MySQLAdapter): ToolDefinition 
                 LIMIT ${String(limit)}
             `;
 
-            // Get index statistics
-            const indexStatsQuery = `
+      // Get index statistics
+      const indexStatsQuery = `
                 SELECT 
                     table_schema,
                     table_name,
@@ -86,8 +117,8 @@ export function createSysSchemaStatsTool(adapter: MySQLAdapter): ToolDefinition 
                 LIMIT ${String(limit)}
             `;
 
-            // Get auto-increment status
-            const autoIncQuery = `
+      // Get auto-increment status
+      const autoIncQuery = `
                 SELECT 
                     table_schema,
                     table_name,
@@ -101,41 +132,44 @@ export function createSysSchemaStatsTool(adapter: MySQLAdapter): ToolDefinition 
                 LIMIT ${String(limit)}
             `;
 
-            const [tableStats, indexStats, autoIncStats] = await Promise.all([
-                adapter.executeQuery(tableStatsQuery, [schema ?? null]),
-                adapter.executeQuery(indexStatsQuery, [schema ?? null]),
-                adapter.executeQuery(autoIncQuery, [schema ?? null])
-            ]);
+      const [tableStats, indexStats, autoIncStats] = await Promise.all([
+        adapter.executeQuery(tableStatsQuery, [schema ?? null]),
+        adapter.executeQuery(indexStatsQuery, [schema ?? null]),
+        adapter.executeQuery(autoIncQuery, [schema ?? null]),
+      ]);
 
-            return {
-                tableStatistics: tableStats.rows ?? [],
-                indexStatistics: indexStats.rows ?? [],
-                autoIncrementStatus: autoIncStats.rows ?? [],
-                schemaName: schema ?? 'current'
-            };
-        }
-    };
+      return {
+        tableStatistics: tableStats.rows ?? [],
+        indexStatistics: indexStats.rows ?? [],
+        autoIncrementStatus: autoIncStats.rows ?? [],
+        schemaName: resolvedSchema,
+      };
+    },
+  };
 }
 
 /**
  * Get InnoDB lock waits
  */
-export function createSysInnoDBLockWaitsTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_sys_innodb_lock_waits',
-        title: 'MySQL InnoDB Lock Waits',
-        description: 'Get current InnoDB lock contention information from sys schema.',
-        group: 'sysschema',
-        inputSchema: LimitSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { limit } = LimitSchema.parse(params);
+export function createSysInnoDBLockWaitsTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_sys_innodb_lock_waits",
+    title: "MySQL InnoDB Lock Waits",
+    description:
+      "Get current InnoDB lock contention information from sys schema.",
+    group: "sysschema",
+    inputSchema: LimitSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { limit } = LimitSchema.parse(params);
 
-            const query = `
+      const query = `
                 SELECT 
                     wait_started,
                     wait_age,
@@ -161,36 +195,38 @@ export function createSysInnoDBLockWaitsTool(adapter: MySQLAdapter): ToolDefinit
                 LIMIT ${String(limit)}
             `;
 
-            const result = await adapter.executeQuery(query);
-            return {
-                lockWaits: result.rows,
-                count: result.rows?.length ?? 0,
-                hasContention: (result.rows?.length ?? 0) > 0
-            };
-        }
-    };
+      const result = await adapter.executeQuery(query);
+      return {
+        lockWaits: result.rows,
+        count: result.rows?.length ?? 0,
+        hasContention: (result.rows?.length ?? 0) > 0,
+      };
+    },
+  };
 }
 
 /**
  * Get memory usage summary
  */
-export function createSysMemorySummaryTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_sys_memory_summary',
-        title: 'MySQL Memory Summary',
-        description: 'Get memory usage summary by allocation type from sys schema.',
-        group: 'sysschema',
-        inputSchema: LimitSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { limit } = LimitSchema.parse(params);
+export function createSysMemorySummaryTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_sys_memory_summary",
+    title: "MySQL Memory Summary",
+    description: "Get memory usage summary by allocation type from sys schema.",
+    group: "sysschema",
+    inputSchema: LimitSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { limit } = LimitSchema.parse(params);
 
-            // Global memory summary
-            const globalQuery = `
+      // Global memory summary
+      const globalQuery = `
                 SELECT 
                     event_name,
                     current_count,
@@ -204,8 +240,8 @@ export function createSysMemorySummaryTool(adapter: MySQLAdapter): ToolDefinitio
                 LIMIT ${String(limit)}
             `;
 
-            // Memory by user
-            const userQuery = `
+      // Memory by user
+      const userQuery = `
                 SELECT 
                     user,
                     current_count_used,
@@ -218,15 +254,15 @@ export function createSysMemorySummaryTool(adapter: MySQLAdapter): ToolDefinitio
                 LIMIT ${String(limit)}
             `;
 
-            const [globalStats, userStats] = await Promise.all([
-                adapter.executeQuery(globalQuery),
-                adapter.executeQuery(userQuery)
-            ]);
+      const [globalStats, userStats] = await Promise.all([
+        adapter.executeQuery(globalQuery),
+        adapter.executeQuery(userQuery),
+      ]);
 
-            return {
-                globalMemory: globalStats.rows ?? [],
-                memoryByUser: userStats.rows ?? []
-            };
-        }
-    };
+      return {
+        globalMemory: globalStats.rows ?? [],
+        memoryByUser: userStats.rows ?? [],
+      };
+    },
+  };
 }

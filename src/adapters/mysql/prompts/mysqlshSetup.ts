@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - MySQL Shell Setup
- * 
+ *
  * MySQL Shell installation and usage guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupMysqlshPrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_shell',
-        description: 'MySQL Shell setup and usage guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL Shell Setup Guide
+  return {
+    name: "mysql_setup_shell",
+    description: "MySQL Shell setup and usage guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL Shell Setup Guide
 
 MySQL Shell is an advanced client with JavaScript, Python, and SQL modes, plus powerful dump/load utilities.
 
@@ -61,7 +61,7 @@ mysqlsh --py mysql://user:pass@localhost
 - \`mysqlsh_check_upgrade\` - Check MySQL server upgrade compatibility
 
 ### Data Export
-- \`mysqlsh_export_table\` - Export table to CSV/TSV/JSON
+- \`mysqlsh_export_table\` - Export table to CSV/TSV
 - \`mysqlsh_dump_instance\` - Dump entire instance (parallel, fast)
 - \`mysqlsh_dump_schemas\` - Dump specific schemas
 - \`mysqlsh_dump_tables\` - Dump specific tables
@@ -114,6 +114,6 @@ Use mysqlsh_import_table tool:
 - **Connection errors**: Verify MySQL connection string
 
 Start by running \`mysqlsh_version\` to verify installation.`);
-        }
-    };
+    },
+  };
 }

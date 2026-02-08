@@ -1,31 +1,50 @@
-import { z } from 'zod';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
-import type { ToolDefinition, RequestContext } from '../../../../types/index.js';
+import { z } from "zod";
+import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 
 const ListObjectsSchema = z.object({
-    schema: z.string().optional().describe('Schema name (defaults to current database)'),
-    type: z.enum(['PROCEDURE', 'FUNCTION']).optional().describe('Filter by type')
+  schema: z
+    .string()
+    .optional()
+    .describe("Schema name (defaults to current database)"),
+  type: z.enum(["PROCEDURE", "FUNCTION"]).optional().describe("Filter by type"),
 });
 
 /**
  * List stored procedures
  */
-export function createListStoredProceduresTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_list_stored_procedures',
-        title: 'MySQL List Stored Procedures',
-        description: 'List all stored procedures with parameters and metadata.',
-        group: 'schema',
-        inputSchema: ListObjectsSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { schema } = ListObjectsSchema.parse(params);
+export function createListStoredProceduresTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_list_stored_procedures",
+    title: "MySQL List Stored Procedures",
+    description: "List all stored procedures with parameters and metadata.",
+    group: "schema",
+    inputSchema: ListObjectsSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { schema } = ListObjectsSchema.parse(params);
 
-            const query = `
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
+
+      const query = `
                 SELECT 
                     r.ROUTINE_NAME as name,
                     r.ROUTINE_TYPE as type,
@@ -52,34 +71,46 @@ export function createListStoredProceduresTool(adapter: MySQLAdapter): ToolDefin
                 ORDER BY r.ROUTINE_NAME
             `;
 
-            const result = await adapter.executeQuery(query, [schema ?? null]);
-            return {
-                procedures: result.rows,
-                count: result.rows?.length ?? 0
-            };
-        }
-    };
+      const result = await adapter.executeQuery(query, [schema ?? null]);
+      return {
+        procedures: result.rows,
+        count: result.rows?.length ?? 0,
+      };
+    },
+  };
 }
 
 /**
  * List user-defined functions
  */
 export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_list_functions',
-        title: 'MySQL List Functions',
-        description: 'List all user-defined functions with return types and metadata.',
-        group: 'schema',
-        inputSchema: ListObjectsSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { schema } = ListObjectsSchema.parse(params);
+  return {
+    name: "mysql_list_functions",
+    title: "MySQL List Functions",
+    description:
+      "List all user-defined functions with return types and metadata.",
+    group: "schema",
+    inputSchema: ListObjectsSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { schema } = ListObjectsSchema.parse(params);
 
-            const query = `
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
+
+      const query = `
                 SELECT 
                     r.ROUTINE_NAME as name,
                     r.DATA_TYPE as returnType,
@@ -96,11 +127,11 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY r.ROUTINE_NAME
             `;
 
-            const result = await adapter.executeQuery(query, [schema ?? null]);
-            return {
-                functions: result.rows,
-                count: result.rows?.length ?? 0
-            };
-        }
-    };
+      const result = await adapter.executeQuery(query, [schema ?? null]);
+      return {
+        functions: result.rows,
+        count: result.rows?.length ?? 0,
+      };
+    },
+  };
 }

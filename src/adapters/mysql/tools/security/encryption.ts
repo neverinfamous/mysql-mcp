@@ -1,19 +1,22 @@
 /**
  * MySQL Security - Encryption and SSL Tools
- * 
+ *
  * Tools for SSL/TLS monitoring, encryption status, and password validation.
  */
 
-import { z } from 'zod';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
-import type { ToolDefinition, RequestContext } from '../../../../types/index.js';
+import { z } from "zod";
+import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 
 // =============================================================================
 // Zod Schemas
 // =============================================================================
 
 const PasswordValidateSchema = z.object({
-    password: z.string().describe('Password to validate')
+  password: z.string().describe("Password to validate"),
 });
 
 // =============================================================================
@@ -23,106 +26,119 @@ const PasswordValidateSchema = z.object({
 /**
  * Get SSL/TLS connection status
  */
-export function createSecuritySSLStatusTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_security_ssl_status',
-        title: 'MySQL SSL Status',
-        description: 'Get SSL/TLS connection and certificate status.',
-        group: 'security',
-        inputSchema: z.object({}),
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
+export function createSecuritySSLStatusTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_security_ssl_status",
+    title: "MySQL SSL Status",
+    description: "Get SSL/TLS connection and certificate status.",
+    group: "security",
+    inputSchema: z.object({}),
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (_params: unknown, _context: RequestContext) => {
+      // Get SSL status
+      const statusResult = await adapter.executeQuery(
+        "SHOW STATUS LIKE 'Ssl%'",
+      );
+
+      const status: Record<string, unknown> = Object.fromEntries(
+        (statusResult.rows ?? []).map((r) => {
+          const record = r;
+          const varName =
+            typeof record["Variable_name"] === "string"
+              ? record["Variable_name"]
+              : "";
+          return [varName, record["Value"]];
+        }),
+      );
+
+      // Get SSL variables
+      const varsResult = await adapter.executeQuery(
+        "SHOW VARIABLES LIKE '%ssl%'",
+      );
+
+      const variables: Record<string, unknown> = Object.fromEntries(
+        (varsResult.rows ?? []).map((r) => {
+          const record = r;
+          const varName =
+            typeof record["Variable_name"] === "string"
+              ? record["Variable_name"]
+              : "";
+          return [varName, record["Value"]];
+        }),
+      );
+
+      // Check current connection
+      // We use raw status/variables now, but @@ssl_cipher is still valid
+      // const connResult = await adapter.executeQuery("SELECT @@ssl_cipher as cipher"); // Removing unused query for now as we get cipher from status
+
+      // Actually, wait, status['Ssl_cipher'] gives the cipher.
+      // But let's check if we need @@ssl_cipher.
+      // The original code used: sslEnabled: str(status['Ssl_cipher']) !== ''
+      // So we don't strictly need @@ssl_cipher if Ssl_cipher status is reliable.
+      // Let's just remove the unused query entirely.
+
+      // const connRow = connResult.rows?.[0]; // deleted
+
+      // Helper to safely extract string values
+      const str = (val: unknown, defaultVal = ""): string =>
+        typeof val === "string" ? val : defaultVal;
+
+      return {
+        sslEnabled: str(status["Ssl_cipher"]) !== "",
+        currentCipher: str(status["Ssl_cipher"], "None"),
+        sslVersion: str(status["Ssl_version"], "N/A"),
+        serverCertVerification: false, // Unknown in recent versions via variables
+        configuration: {
+          sslCa: str(variables["ssl_ca"]),
+          sslCert: str(variables["ssl_cert"]),
+          sslKey: str(variables["ssl_key"]),
+          requireSecureTransport: str(
+            variables["require_secure_transport"],
+            "OFF",
+          ),
         },
-        handler: async (_params: unknown, _context: RequestContext) => {
-            // Get SSL status
-            const statusResult = await adapter.executeQuery(
-                "SHOW STATUS LIKE 'Ssl%'"
-            );
-
-            const status: Record<string, unknown> = Object.fromEntries(
-                (statusResult.rows ?? []).map(r => {
-                    const record = r;
-                    const varName = typeof record['Variable_name'] === 'string' ? record['Variable_name'] : '';
-                    return [varName, record['Value']];
-                })
-            );
-
-            // Get SSL variables
-            const varsResult = await adapter.executeQuery(
-                "SHOW VARIABLES LIKE '%ssl%'"
-            );
-
-            const variables: Record<string, unknown> = Object.fromEntries(
-                (varsResult.rows ?? []).map(r => {
-                    const record = r;
-                    const varName = typeof record['Variable_name'] === 'string' ? record['Variable_name'] : '';
-                    return [varName, record['Value']];
-                })
-            );
-
-            // Check current connection
-            // We use raw status/variables now, but @@ssl_cipher is still valid
-            // const connResult = await adapter.executeQuery("SELECT @@ssl_cipher as cipher"); // Removing unused query for now as we get cipher from status
-
-            // Actually, wait, status['Ssl_cipher'] gives the cipher.
-            // But let's check if we need @@ssl_cipher. 
-            // The original code used: sslEnabled: str(status['Ssl_cipher']) !== ''
-            // So we don't strictly need @@ssl_cipher if Ssl_cipher status is reliable.
-            // Let's just remove the unused query entirely.
-
-            // const connRow = connResult.rows?.[0]; // deleted
-
-            // Helper to safely extract string values
-            const str = (val: unknown, defaultVal = ''): string =>
-                typeof val === 'string' ? val : defaultVal;
-
-            return {
-                sslEnabled: str(status['Ssl_cipher']) !== '',
-                currentCipher: str(status['Ssl_cipher'], 'None'),
-                sslVersion: str(status['Ssl_version'], 'N/A'),
-                serverCertVerification: false, // Unknown in recent versions via variables
-                configuration: {
-                    sslCa: str(variables['ssl_ca']),
-                    sslCert: str(variables['ssl_cert']),
-                    sslKey: str(variables['ssl_key']),
-                    requireSecureTransport: str(variables['require_secure_transport'], 'OFF')
-                },
-                sessionStats: {
-                    acceptedConnects: str(status['Ssl_accepts'], '0'),
-                    finishedConnects: str(status['Ssl_finished_accepts'], '0')
-                }
-            };
-        }
-    };
+        sessionStats: {
+          acceptedConnects: str(status["Ssl_accepts"], "0"),
+          finishedConnects: str(status["Ssl_finished_accepts"], "0"),
+        },
+      };
+    },
+  };
 }
 
 /**
  * Check encryption status
  */
-export function createSecurityEncryptionStatusTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_security_encryption_status',
-        title: 'MySQL Encryption Status',
-        description: 'Get Transparent Data Encryption (TDE) and keyring status.',
-        group: 'security',
-        inputSchema: z.object({}),
-        requiredScopes: ['admin'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (_params: unknown, _context: RequestContext) => {
-            // Check for keyring plugins
-            const keyringResult = await adapter.executeQuery(`
+export function createSecurityEncryptionStatusTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_security_encryption_status",
+    title: "MySQL Encryption Status",
+    description: "Get Transparent Data Encryption (TDE) and keyring status.",
+    group: "security",
+    inputSchema: z.object({}),
+    requiredScopes: ["admin"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (_params: unknown, _context: RequestContext) => {
+      // Check for keyring plugins
+      const keyringResult = await adapter.executeQuery(`
                 SELECT PLUGIN_NAME, PLUGIN_STATUS
                 FROM information_schema.PLUGINS
                 WHERE PLUGIN_NAME LIKE 'keyring%'
             `);
 
-            // Check encrypted tablespaces
-            const tablespaceResult = await adapter.executeQuery(`
+      // Check encrypted tablespaces
+      const tablespaceResult = await adapter.executeQuery(`
                 SELECT 
                     NAME,
                     ENCRYPTION
@@ -130,108 +146,132 @@ export function createSecurityEncryptionStatusTool(adapter: MySQLAdapter): ToolD
                 WHERE ENCRYPTION = 'Y'
             `);
 
-            // Check encryption variables
-            const varsResult = await adapter.executeQuery(
-                "SHOW VARIABLES LIKE '%encrypt%'"
-            );
+      // Check encryption variables
+      const varsResult = await adapter.executeQuery(
+        "SHOW VARIABLES LIKE '%encrypt%'",
+      );
 
-            const variables: Record<string, unknown> = Object.fromEntries(
-                (varsResult.rows ?? []).map(r => {
-                    const record = r;
-                    const varName = typeof record['Variable_name'] === 'string' ? record['Variable_name'] : '';
-                    return [varName, record['Value']];
-                })
-            );
+      const variables: Record<string, unknown> = Object.fromEntries(
+        (varsResult.rows ?? []).map((r) => {
+          const record = r;
+          const varName =
+            typeof record["Variable_name"] === "string"
+              ? record["Variable_name"]
+              : "";
+          return [varName, record["Value"]];
+        }),
+      );
 
-            // Check redo/undo log encryption
-            const innodbVarsResult = await adapter.executeQuery(
-                "SHOW VARIABLES LIKE 'innodb_%encrypt%'"
-            );
+      // Check redo/undo log encryption
+      const innodbVarsResult = await adapter.executeQuery(
+        "SHOW VARIABLES LIKE 'innodb_%encrypt%'",
+      );
 
-            const innodbVars: Record<string, unknown> = Object.fromEntries(
-                (innodbVarsResult.rows ?? []).map(r => {
-                    const record = r;
-                    const varName = typeof record['Variable_name'] === 'string' ? record['Variable_name'] : '';
-                    return [varName, record['Value']];
-                })
-            );
+      const innodbVars: Record<string, unknown> = Object.fromEntries(
+        (innodbVarsResult.rows ?? []).map((r) => {
+          const record = r;
+          const varName =
+            typeof record["Variable_name"] === "string"
+              ? record["Variable_name"]
+              : "";
+          return [varName, record["Value"]];
+        }),
+      );
 
-            return {
-                keyringPlugins: keyringResult.rows ?? [],
-                keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
-                encryptedTablespaces: tablespaceResult.rows ?? [],
-                encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
-                encryptionSettings: {
-                    ...variables,
-                    ...innodbVars
-                },
-                tdeAvailable: (keyringResult.rows?.length ?? 0) > 0
-            };
-        }
-    };
+      return {
+        keyringPlugins: keyringResult.rows ?? [],
+        keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
+        encryptedTablespaces: tablespaceResult.rows ?? [],
+        encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
+        encryptionSettings: {
+          ...variables,
+          ...innodbVars,
+        },
+        tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
+      };
+    },
+  };
 }
 
 /**
  * Validate password strength
  */
-export function createSecurityPasswordValidateTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_security_password_validate',
-        title: 'MySQL Password Validation',
-        description: 'Validate password strength using MySQL validate_password component.',
-        group: 'security',
-        inputSchema: PasswordValidateSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { password } = PasswordValidateSchema.parse(params);
+export function createSecurityPasswordValidateTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_security_password_validate",
+    title: "MySQL Password Validation",
+    description:
+      "Validate password strength using MySQL validate_password component.",
+    group: "security",
+    inputSchema: PasswordValidateSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { password } = PasswordValidateSchema.parse(params);
 
-            try {
-                // Try using validate_password function
-                const result = await adapter.executeQuery(
-                    'SELECT VALIDATE_PASSWORD_STRENGTH(?) as strength',
-                    [password]
-                );
+      // First check if validate_password component is installed
+      // by checking for its variables
+      const policyResult = await adapter.executeQuery(
+        "SHOW VARIABLES LIKE 'validate_password%'",
+      );
 
-                const row = result.rows?.[0];
-                const strength = row?.['strength'] as number ?? 0;
+      const policy: Record<string, unknown> = Object.fromEntries(
+        (policyResult.rows ?? []).map((r) => {
+          const record = r;
+          const varName =
+            typeof record["Variable_name"] === "string"
+              ? record["Variable_name"]
+              : "";
+          return [varName, record["Value"]];
+        }),
+      );
 
-                // Get password policy
-                const policyResult = await adapter.executeQuery(
-                    "SHOW VARIABLES LIKE 'validate_password%'"
-                );
+      // If no validate_password variables exist, component is not installed
+      if (Object.keys(policy).length === 0) {
+        return {
+          available: false,
+          message: "Password validation component not installed",
+          suggestion:
+            'Install with: INSTALL COMPONENT "file://component_validate_password"',
+        };
+      }
 
-                const policy: Record<string, unknown> = Object.fromEntries(
-                    (policyResult.rows ?? []).map(r => {
-                        const record = r;
-                        const varName = typeof record['Variable_name'] === 'string' ? record['Variable_name'] : '';
-                        return [varName, record['Value']];
-                    })
-                );
+      try {
+        // Use validate_password function
+        const result = await adapter.executeQuery(
+          "SELECT VALIDATE_PASSWORD_STRENGTH(?) as strength",
+          [password],
+        );
 
-                let interpretation: string;
-                if (strength >= 100) interpretation = 'Very Strong';
-                else if (strength >= 75) interpretation = 'Strong';
-                else if (strength >= 50) interpretation = 'Medium';
-                else if (strength >= 25) interpretation = 'Weak';
-                else interpretation = 'Very Weak';
+        const row = result.rows?.[0];
+        const strength = (row?.["strength"] as number) ?? 0;
 
-                return {
-                    strength,
-                    interpretation,
-                    meetsPolicy: strength >= 50, // General guideline
-                    policy
-                };
-            } catch {
-                return {
-                    available: false,
-                    message: 'Password validation component not installed',
-                    suggestion: 'Install with: INSTALL COMPONENT "file://component_validate_password"'
-                };
-            }
-        }
-    };
+        let interpretation: string;
+        if (strength >= 100) interpretation = "Very Strong";
+        else if (strength >= 75) interpretation = "Strong";
+        else if (strength >= 50) interpretation = "Medium";
+        else if (strength >= 25) interpretation = "Weak";
+        else interpretation = "Very Weak";
+
+        return {
+          strength,
+          interpretation,
+          meetsPolicy: strength >= 50, // General guideline
+          policy,
+        };
+      } catch {
+        return {
+          available: false,
+          message: "Password validation function failed",
+          suggestion:
+            'Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
+        };
+      }
+    },
+  };
 }

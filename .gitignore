@@ -77,3 +77,6 @@ proxysql.cnf
 
 # MySQL credentials/password files
 *.pwd
+
+# Test server
+test-server/

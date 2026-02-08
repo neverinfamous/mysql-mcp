@@ -1,31 +1,48 @@
-import { z } from 'zod';
-import type { MySQLAdapter } from '../../MySQLAdapter.js';
-import type { ToolDefinition, RequestContext } from '../../../../types/index.js';
+import { z } from "zod";
+import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 
 const ListTriggersSchema = z.object({
-    table: z.string().optional().describe('Filter by table name'),
-    schema: z.string().optional().describe('Schema name (defaults to current database)')
+  table: z.string().optional().describe("Filter by table name"),
+  schema: z
+    .string()
+    .optional()
+    .describe("Schema name (defaults to current database)"),
 });
 
 /**
  * List triggers
  */
 export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
-    return {
-        name: 'mysql_list_triggers',
-        title: 'MySQL List Triggers',
-        description: 'List all triggers with event timing, action, and definition.',
-        group: 'schema',
-        inputSchema: ListTriggersSchema,
-        requiredScopes: ['read'],
-        annotations: {
-            readOnlyHint: true,
-            idempotentHint: true
-        },
-        handler: async (params: unknown, _context: RequestContext) => {
-            const { table, schema } = ListTriggersSchema.parse(params);
+  return {
+    name: "mysql_list_triggers",
+    title: "MySQL List Triggers",
+    description: "List all triggers with event timing, action, and definition.",
+    group: "schema",
+    inputSchema: ListTriggersSchema,
+    requiredScopes: ["read"],
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { table, schema } = ListTriggersSchema.parse(params);
 
-            let query = `
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
+
+      let query = `
                 SELECT 
                     TRIGGER_NAME as name,
                     EVENT_OBJECT_TABLE as tableName,
@@ -38,20 +55,21 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-            const queryParams: unknown[] = [schema ?? null];
+      const queryParams: unknown[] = [schema ?? null];
 
-            if (table) {
-                query += ' AND EVENT_OBJECT_TABLE = ?';
-                queryParams.push(table);
-            }
+      if (table) {
+        query += " AND EVENT_OBJECT_TABLE = ?";
+        queryParams.push(table);
+      }
 
-            query += ' ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION';
+      query +=
+        " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION";
 
-            const result = await adapter.executeQuery(query, queryParams);
-            return {
-                triggers: result.rows,
-                count: result.rows?.length ?? 0
-            };
-        }
-    };
+      const result = await adapter.executeQuery(query, queryParams);
+      return {
+        triggers: result.rows,
+        count: result.rows?.length ?? 0,
+      };
+    },
+  };
 }

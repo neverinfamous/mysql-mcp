@@ -21,32 +21,32 @@ Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pool
 
 ### Tool Categories (106 tools)
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| Core Database | 8 | CRUD, schema, tables, indexes |
-| Transactions | 7 | BEGIN, COMMIT, ROLLBACK, savepoints |
-| JSON Operations | 12 | JSON_EXTRACT, JSON_SET, JSON_CONTAINS |
-| Text Processing | 6 | REGEXP, LIKE, SOUNDEX, SUBSTRING |
-| FULLTEXT Search | 4 | Natural language and boolean search |
-| Performance | 8 | EXPLAIN, query analysis, buffer pool |
-| Optimization | 4 | Index hints, query rewrite suggestions |
-| Admin | 6 | OPTIMIZE, ANALYZE, CHECK, REPAIR |
-| Monitoring | 7 | PROCESSLIST, status variables, health |
-| Backup | 4 | Export, import, mysqldump |
-| Replication | 5 | Master/slave status, binlog, GTID |
-| Partitioning | 4 | Partition management |
-| MySQL Router | 9 | Router REST API management |
-| ProxySQL | 12 | Proxy monitoring and configuration |
-| MySQL Shell | 10 | Shell utilities, dump/load, upgrades |
+| Category        | Tools | Description                            |
+| --------------- | ----- | -------------------------------------- |
+| Core Database   | 8     | CRUD, schema, tables, indexes          |
+| Transactions    | 7     | BEGIN, COMMIT, ROLLBACK, savepoints    |
+| JSON Operations | 12    | JSON_EXTRACT, JSON_SET, JSON_CONTAINS  |
+| Text Processing | 6     | REGEXP, LIKE, SOUNDEX, SUBSTRING       |
+| FULLTEXT Search | 4     | Natural language and boolean search    |
+| Performance     | 8     | EXPLAIN, query analysis, buffer pool   |
+| Optimization    | 4     | Index hints, query rewrite suggestions |
+| Admin           | 6     | OPTIMIZE, ANALYZE, CHECK, REPAIR       |
+| Monitoring      | 7     | PROCESSLIST, status variables, health  |
+| Backup          | 4     | Export, import, mysqldump              |
+| Replication     | 5     | Master/slave status, binlog, GTID      |
+| Partitioning    | 4     | Partition management                   |
+| MySQL Router    | 9     | Router REST API management             |
+| ProxySQL        | 12    | Proxy monitoring and configuration     |
+| MySQL Shell     | 10    | Shell utilities, dump/load, upgrades   |
 
 ### AI-Powered Prompts
 
-| Prompt | Description |
-|--------|-------------|
-| `mysql_query_builder` | Construct SQL queries with security best practices |
-| `mysql_schema_design` | Design table schemas with indexes and relationships |
+| Prompt                       | Description                                            |
+| ---------------------------- | ------------------------------------------------------ |
+| `mysql_query_builder`        | Construct SQL queries with security best practices     |
+| `mysql_schema_design`        | Design table schemas with indexes and relationships    |
 | `mysql_performance_analysis` | Analyze slow queries with optimization recommendations |
-| `mysql_migration` | Generate migration scripts with rollback options |
+| `mysql_migration`            | Generate migration scripts with rollback options       |
 
 ### Enterprise Features
 
@@ -83,10 +83,14 @@ docker run -i --rm writenotenow/mysql-mcp:v1.0.0 \
     "mysql-mcp": {
       "command": "docker",
       "args": [
-        "run", "-i", "--rm",
+        "run",
+        "-i",
+        "--rm",
         "writenotenow/mysql-mcp:v1.0.0",
-        "--transport", "stdio",
-        "--mysql", "mysql://user:password@host:3306/database"
+        "--transport",
+        "stdio",
+        "--mysql",
+        "mysql://user:password@host:3306/database"
       ]
     }
   }
@@ -102,12 +106,14 @@ Reduce tool count for clients with limits:
 ```json
 {
   "args": [
-    "--tool-filter", "-performance,-optimization,-backup,-replication,-partitioning,-router,-proxysql,-shell"
+    "--tool-filter",
+    "-performance,-optimization,-backup,-replication,-partitioning,-router,-proxysql,-shell"
   ]
 }
 ```
 
 **Presets:**
+
 - Minimal (~30 tools): Core + JSON + Text
 - DBA (~37 tools): Admin + Monitoring + Performance
 - Development (~42 tools): Core + JSON + Text + Transactions

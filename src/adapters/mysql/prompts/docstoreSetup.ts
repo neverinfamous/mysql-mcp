@@ -1,17 +1,17 @@
 /**
  * MySQL Prompt - Document Store Setup
- * 
+ *
  * Complete Document Store / X DevAPI setup guide.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSetupDocstorePrompt(): PromptDefinition {
-    return {
-        name: 'mysql_setup_docstore',
-        description: 'Complete MySQL Document Store and X DevAPI setup guide',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL Document Store Setup Guide
+  return {
+    name: "mysql_setup_docstore",
+    description: "Complete MySQL Document Store and X DevAPI setup guide",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL Document Store Setup Guide
 
 MySQL Document Store allows you to store and query JSON documents using collections, similar to NoSQL databases.
 
@@ -118,6 +118,6 @@ db.users.createIndex("email_idx", {
 3. **Schema not found**: Create database first
 
 Start by listing collections with \`mysql_doc_list_collections\`.`);
-        }
-    };
+    },
+  };
 }

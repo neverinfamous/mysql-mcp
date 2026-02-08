@@ -1,17 +1,18 @@
 /**
  * MySQL Prompt - sys Schema Guide
- * 
+ *
  * Complete sys schema usage guide for diagnostics.
  */
-import type { PromptDefinition, RequestContext } from '../../../types/index.js';
+import type { PromptDefinition, RequestContext } from "../../../types/index.js";
 
 export function createSysSchemaGuidePrompt(): PromptDefinition {
-    return {
-        name: 'mysql_sys_schema_guide',
-        description: 'Complete MySQL sys schema usage guide for diagnostics and troubleshooting',
-        arguments: [],
-        handler: (_args: Record<string, string>, _context: RequestContext) => {
-            return Promise.resolve(`# MySQL sys Schema Guide
+  return {
+    name: "mysql_sys_schema_guide",
+    description:
+      "Complete MySQL sys schema usage guide for diagnostics and troubleshooting",
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      return Promise.resolve(`# MySQL sys Schema Guide
 
 The sys schema provides human-readable views built on Performance Schema data for database diagnostics.
 
@@ -104,6 +105,6 @@ SELECT sys.format_statement('SELECT * FROM users WHERE id = 1');
 4. **Monitor performance_schema memory**
 
 Start by checking overall user activity with \`mysql_sys_user_summary\`.`);
-        }
-    };
+    },
+  };
 }
