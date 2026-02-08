@@ -168,7 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 - Bumped `@modelcontextprotocol/sdk` from `^1.25.2` to `^1.26.0`
-- Bumped `@types/node` from `^25.0.8` to `^25.2.1`
+- Bumped `@types/node` from `^25.0.8` to `^25.2.2`
 - Bumped `@vitest/coverage-v8` from `^4.0.17` to `^4.0.18`
 - Bumped `globals` from `^17.0.0` to `^17.3.0`
 - Bumped `mysql2` from `^3.16.0` to `^3.16.3`
@@ -178,7 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- **CVE Fix: hono JWT Algorithm Confusion** — Updated transitive dependency `hono` to 4.11.4 to fix GHSA-f67f-6cw9-8mq4 (JWT algorithm confusion allowing token forgery and auth bypass when JWK lacks "alg" field).
+- **CVE Fix: hono Multiple Vulnerabilities** — Updated transitive dependency `hono` to latest to fix GHSA-f67f-6cw9-8mq4 (JWT algorithm confusion), GHSA-9r54-q6cx-xmh5 (XSS in ErrorBoundary), GHSA-6wqw-2p9w-4vw4 (cache middleware Web Cache Deception), GHSA-r354-f388-2fhh (IPv4 validation bypass in IP Restriction), and GHSA-w332-q679-j88p (arbitrary key read in serve static middleware).
 - **SQL Injection Hardening: Role Tools** — Added `validateIdentifier()` for role names and `validateMySQLUserHost()` for user/host values to all 5 role tool handlers (`mysql_role_grants`, `mysql_role_grant`, `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`). Prevents SQL injection via interpolated identifiers in `rawQuery()` calls.
 - **SQL Injection Hardening: Privilege Allowlist** — Added `validateMySQLPrivilege()` with an explicit allowlist of 30+ valid MySQL privilege keywords. `mysql_role_grant` now validates each privilege against the allowlist before interpolation into GRANT statements.
 - **SQL Injection Hardening: Subquery Detection** — Added `(SELECT ...` pattern to `DANGEROUS_WHERE_PATTERNS` in `validateWhereClause()`, blocking data exfiltration via subquery injection in WHERE clauses.
