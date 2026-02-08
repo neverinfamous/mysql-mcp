@@ -338,6 +338,22 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         throw new Error("Invalid event name");
       }
 
+      // Pre-check event existence for informative messaging
+      if (ifExists) {
+        const existsCheck = await adapter.executeQuery(
+          "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
+          [name],
+        );
+        if (!existsCheck.rows || existsCheck.rows.length === 0) {
+          return {
+            success: true,
+            skipped: true,
+            reason: "Event did not exist",
+            eventName: name,
+          };
+        }
+      }
+
       const ifExistsClause = ifExists ? "IF EXISTS " : "";
 
       try {
@@ -375,6 +391,17 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { schema, includeDisabled } = EventListSchema.parse(params);
+
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
 
       let query = `
                 SELECT 
@@ -430,6 +457,17 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { name, schema } = EventStatusSchema.parse(params);
+
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
 
       const query = `
                 SELECT 

@@ -150,7 +150,12 @@ describe("Handler Execution", () => {
 
   describe("mysql_event_drop", () => {
     it("should drop an event", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      // First call: pre-check returns event exists (ifExists defaults to true)
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ EVENT_NAME: "old_event" }]),
+      );
+      // Second call: actual DROP
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_drop")!;
       const result = await tool.handler(
@@ -160,14 +165,19 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("DROP EVENT");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(dropCall).toContain("DROP EVENT");
       expect(result).toHaveProperty("success", true);
     });
 
     it("should use IF EXISTS clause", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      // First call: pre-check returns event exists
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ EVENT_NAME: "maybe_exists" }]),
+      );
+      // Second call: actual DROP
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_drop")!;
       await tool.handler(
@@ -178,8 +188,31 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("IF EXISTS");
+      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(dropCall).toContain("IF EXISTS");
+    });
+
+    it("should return skipped when ifExists is true and event does not exist", async () => {
+      // Pre-check returns empty (event doesn't exist)
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+      const result = await tool.handler(
+        {
+          name: "ghost_event",
+          ifExists: true,
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        skipped: true,
+        reason: "Event did not exist",
+        eventName: "ghost_event",
+      });
+      // Should only have the pre-check query, no DROP
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -199,16 +232,38 @@ describe("Handler Execution", () => {
     });
 
     it("should accept schema filter via params", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      // First call: schema existence check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
+      );
+      // Second call: actual event list query
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_list")!;
       // Uses parameterized query
       await tool.handler({ schema: "mydb" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      // Second call should contain the schema param
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        2,
         expect.any(String),
         expect.arrayContaining(["mydb"]),
       );
+    });
+
+    it("should return exists false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      const result = await tool.handler(
+        { schema: "nonexistent_db" },
+        mockContext,
+      );
+
+      expect(result).toEqual({ exists: false, schema: "nonexistent_db" });
+      // Should only have the schema check query, no event list query
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
     it("should exclude disabled events when includeDisabled is false", async () => {
@@ -248,6 +303,20 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toEqual({ exists: false, name: "nonexistent_event" });
+    });
+
+    it("should return exists false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_event_status")!;
+      const result = await tool.handler(
+        { name: "any_event", schema: "nonexistent_db" },
+        mockContext,
+      );
+
+      expect(result).toEqual({ exists: false, schema: "nonexistent_db" });
+      // Should only have the schema check query, no event status query
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
   });
 
