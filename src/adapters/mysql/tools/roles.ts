@@ -85,8 +85,25 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         const { name, ifNotExists } = RoleCreateSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid role name");
-        const clause = ifNotExists ? "IF NOT EXISTS " : "";
+
+        // Pre-check existence for skipped indicator when ifNotExists is true
+        if (ifNotExists) {
+          const checkResult = await adapter.executeQuery(
+            `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            [name],
+          );
+          if (checkResult.rows && checkResult.rows.length > 0) {
+            return {
+              success: true,
+              skipped: true,
+              roleName: name,
+              reason: "Role already exists",
+            };
+          }
+        }
+
         try {
+          const clause = ifNotExists ? "IF NOT EXISTS " : "";
           await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
           return { success: true, roleName: name };
         } catch (error: unknown) {
@@ -114,11 +131,23 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         const { name, ifExists } = RoleDropSchema.parse(params);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
           throw new Error("Invalid role name");
+
+        // Pre-check existence for skipped indicator when ifExists is true
+        let roleAbsent = false;
+        if (ifExists) {
+          const checkResult = await adapter.executeQuery(
+            `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            [name],
+          );
+          if (!checkResult.rows || checkResult.rows.length === 0) {
+            roleAbsent = true;
+          }
+        }
+
         try {
           await adapter.executeQuery(
             `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'`,
           );
-          return { success: true, roleName: name };
         } catch (error: unknown) {
           const message =
             error instanceof Error ? error.message : String(error);
@@ -130,6 +159,17 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           throw error;
         }
+
+        if (roleAbsent) {
+          return {
+            success: true,
+            skipped: true,
+            roleName: name,
+            reason: "Role did not exist",
+          };
+        }
+
+        return { success: true, roleName: name };
       },
     },
     {

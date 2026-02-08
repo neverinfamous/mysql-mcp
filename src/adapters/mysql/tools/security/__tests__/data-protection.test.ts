@@ -10,7 +10,7 @@ import {
   createSecurityUserPrivilegesTool,
   createSecuritySensitiveTablesTool,
 } from "../data-protection.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../MySQLAdapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -78,6 +78,11 @@ describe("Security Data Protection Tools", () => {
 
   describe("createSecurityUserPrivilegesTool", () => {
     it("should get user privileges and roles", async () => {
+      // Mock P154 user existence pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ User: "john", Host: "localhost" }]),
+      );
+
       // Mock users query
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -116,7 +121,7 @@ describe("Security Data Protection Tools", () => {
         mockContext,
       )) as { users: any[] };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
       expect(result.users).toHaveLength(1);
       expect(result.users[0].user).toBe("john");
       expect(result.users[0].grants).toHaveLength(1);

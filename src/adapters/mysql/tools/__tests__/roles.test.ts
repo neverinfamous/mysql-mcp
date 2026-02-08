@@ -83,12 +83,17 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_create", () => {
     it("should create a role with IF NOT EXISTS default", async () => {
+      // First call: pre-check (role does not exist)
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
+
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
       await tool.handler({ name: "test_role" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("CREATE ROLE IF NOT EXISTS");
+      // Second call should be the CREATE ROLE
+      const createCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(createCall).toContain("CREATE ROLE IF NOT EXISTS");
     });
 
     it("should create a role without IF NOT EXISTS", async () => {
@@ -108,6 +113,28 @@ describe("Handler Execution", () => {
       await expect(
         tool.handler({ name: "invalid-role" }, mockContext),
       ).rejects.toThrow("Invalid role name");
+    });
+
+    it("should return skipped when ifNotExists and role already exists", async () => {
+      // Pre-check finds an existing role
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ "1": 1 }]),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const result = await tool.handler(
+        { name: "test_role", ifNotExists: true },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        skipped: true,
+        roleName: "test_role",
+        reason: "Role already exists",
+      });
+      // Should NOT have issued a CREATE ROLE query
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -200,12 +227,17 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_drop", () => {
     it("should drop a role with IF EXISTS default", async () => {
+      // First call: pre-check (role exists)
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
+
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
       await tool.handler({ name: "test_role" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("DROP ROLE IF EXISTS");
+      // Second call should be the DROP ROLE
+      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(dropCall).toContain("DROP ROLE IF EXISTS");
     });
 
     it("should drop a role without IF EXISTS", async () => {
@@ -222,6 +254,26 @@ describe("Handler Execution", () => {
       await expect(
         tool.handler({ name: "invalid-role" }, mockContext),
       ).rejects.toThrow("Invalid role name");
+    });
+
+    it("should return skipped when ifExists and role does not exist", async () => {
+      // Pre-check finds no role
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const result = await tool.handler(
+        { name: "test_role", ifExists: true },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        skipped: true,
+        roleName: "test_role",
+        reason: "Role did not exist",
+      });
     });
   });
 
