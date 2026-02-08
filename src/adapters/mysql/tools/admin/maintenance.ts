@@ -147,8 +147,19 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           ),
         );
         const notFound = tables.filter((t) => !foundTables.has(t));
+
         if (notFound.length > 0) {
-          return { success: false, notFound };
+          // Flush valid tables before reporting missing ones
+          const validTables = tables.filter((t) => foundTables.has(t));
+          if (validTables.length > 0) {
+            const validList = validTables.map((t) => `\`${t}\``).join(", ");
+            await adapter.executeQuery(`FLUSH TABLES ${validList}`);
+          }
+          return {
+            success: false,
+            notFound,
+            flushed: validTables,
+          };
         }
 
         const tableList = tables.map((t) => `\`${t}\``).join(", ");

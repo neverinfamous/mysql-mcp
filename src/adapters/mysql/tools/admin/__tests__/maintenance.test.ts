@@ -565,10 +565,11 @@ describe("Admin Maintenance Tools", () => {
   });
 
   describe("flush table existence check", () => {
-    it("should return notFound for nonexistent tables", async () => {
+    it("should flush valid tables and return notFound for nonexistent ones", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ TABLE_NAME: "users" }]),
       );
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -581,8 +582,31 @@ describe("Admin Maintenance Tools", () => {
       expect(result).toEqual({
         success: false,
         notFound: ["nonexistent_xyz"],
+        flushed: ["users"],
       });
-      // Should NOT have called executeQuery (flush was skipped)
+      // Should have flushed the valid table
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "FLUSH TABLES `users`",
+      );
+    });
+
+    it("should return notFound with empty flushed when no tables exist", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createFlushTablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { tables: ["nonexistent_a", "nonexistent_b"] },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        notFound: ["nonexistent_a", "nonexistent_b"],
+        flushed: [],
+      });
+      // Should NOT have called executeQuery (no valid tables to flush)
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
