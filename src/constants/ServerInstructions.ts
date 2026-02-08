@@ -67,6 +67,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Query expansion** (\`mysql_fulltext_expand\`): Finds related terms - may return more rows than exact match.
 - **Column matching**: MATCH column list must exactly match the columns of an existing FULLTEXT index. Searching a subset of indexed columns will fail.
 - **Output**: Tools return only \`id\`, searched column(s), and \`relevance\` score. Use \`maxLength\` parameter to truncate long text columns in results (e.g., \`maxLength: 200\` truncates values over 200 characters with \`...\`).
+- **Error handling**: All fulltext tools return \`{ exists: false, table }\` for nonexistent tables. Search tools (\`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`) also return \`{ success: false, error }\` for other query errors (e.g., FULLTEXT index column mismatch). No raw MySQL errors are thrown.
 
 
 ## Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)

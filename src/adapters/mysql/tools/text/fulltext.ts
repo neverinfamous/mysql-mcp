@@ -97,6 +97,10 @@ export function createFulltextCreateTool(
             reason: `Index '${name}' already exists on table '${table}'`,
           };
         }
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
         throw err;
       }
 
@@ -139,6 +143,10 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
             success: false,
             reason: `Index '${indexName}' does not exist on table '${table}'`,
           };
+        }
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
         }
         throw err;
       }
@@ -197,10 +205,18 @@ export function createFulltextSearchTool(
 
       // Return only id, searched columns, and relevance for minimal payload
       const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-      const result = await adapter.executeReadQuery(sql, [query, query]);
 
-      const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-      return { rows, count: rows.length };
+      try {
+        const result = await adapter.executeReadQuery(sql, [query, query]);
+        const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+        return { rows, count: rows.length };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -246,10 +262,18 @@ export function createFulltextBooleanTool(
 
       // Return only id, searched columns, and relevance for minimal payload
       const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
-      const result = await adapter.executeReadQuery(sql, [query, query]);
 
-      const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-      return { rows, count: rows.length };
+      try {
+        const result = await adapter.executeReadQuery(sql, [query, query]);
+        const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+        return { rows, count: rows.length };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -295,10 +319,18 @@ export function createFulltextExpandTool(
 
       // Return only id, searched columns, and relevance for minimal payload
       const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-      const result = await adapter.executeReadQuery(sql, [query, query]);
 
-      const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-      return { rows, count: rows.length };
+      try {
+        const result = await adapter.executeReadQuery(sql, [query, query]);
+        const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+        return { rows, count: rows.length };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }

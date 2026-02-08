@@ -115,6 +115,23 @@ describe("Text Fulltext Tools", () => {
         ),
       ).rejects.toThrow("Connection refused");
     });
+
+    it("should return exists:false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createFulltextCreateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", columns: ["title"], indexName: "ft_idx" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
   });
 
   describe("createFulltextDropTool", () => {
@@ -169,6 +186,23 @@ describe("Text Fulltext Tools", () => {
       await expect(
         tool.handler({ table: "articles", indexName: "ft_idx" }, mockContext),
       ).rejects.toThrow("Access denied");
+    });
+
+    it("should return exists:false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createFulltextDropTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", indexName: "ft_idx" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
     });
   });
 
@@ -290,6 +324,40 @@ describe("Text Fulltext Tools", () => {
 
       expect(result.rows[0].body).toBe(longText);
     });
+
+    it("should return exists:false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createFulltextSearchTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", columns: ["title"], query: "test" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success:false for generic query error", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Can't find FULLTEXT index matching the column list"),
+      );
+
+      const tool = createFulltextSearchTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "articles", columns: ["title"], query: "test" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("FULLTEXT index");
+    });
   });
 
   describe("createFulltextBooleanTool", () => {
@@ -342,6 +410,40 @@ describe("Text Fulltext Tools", () => {
       expect((result.rows[0].content as string).length).toBe(103); // 100 + "..."
       expect((result.rows[0].content as string).endsWith("...")).toBe(true);
     });
+
+    it("should return exists:false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createFulltextBooleanTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", columns: ["title"], query: "+test" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success:false for generic query error", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Can't find FULLTEXT index matching the column list"),
+      );
+
+      const tool = createFulltextBooleanTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "articles", columns: ["title"], query: "+test" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("FULLTEXT index");
+    });
   });
 
   describe("createFulltextExpandTool", () => {
@@ -393,6 +495,40 @@ describe("Text Fulltext Tools", () => {
 
       expect((result.rows[0].body as string).length).toBe(83); // 80 + "..."
       expect((result.rows[0].body as string).endsWith("...")).toBe(true);
+    });
+
+    it("should return exists:false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createFulltextExpandTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", columns: ["title"], query: "test" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success:false for generic query error", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Can't find FULLTEXT index matching the column list"),
+      );
+
+      const tool = createFulltextExpandTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "articles", columns: ["title"], query: "test" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("FULLTEXT index");
     });
   });
 });
