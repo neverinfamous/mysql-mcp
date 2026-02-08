@@ -259,11 +259,6 @@ export const FulltextSearchSchema = z.object({
 
 export const ExplainSchema = z.object({
   query: z.string().describe("SQL query to explain"),
-  analyze: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Run EXPLAIN ANALYZE (MySQL 8.0+)"),
   format: z
     .enum(["TRADITIONAL", "JSON", "TREE"])
     .optional()

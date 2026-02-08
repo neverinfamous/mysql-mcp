@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_explain` Vestigial `analyze` Parameter Removed** — Removed the unused `analyze: boolean` parameter from the `mysql_explain` tool schema. The parameter was parsed by Zod but never used by the handler (`mysql_explain_analyze` is the dedicated tool for EXPLAIN ANALYZE). Its presence misled AI agents into thinking `mysql_explain` could run EXPLAIN ANALYZE.
+
 - **`mysql_index_usage` Table Existence Check (P154)** — When a `table` parameter is provided, tool now pre-checks existence via `information_schema.TABLES` and returns `{ exists: false, table }` for nonexistent tables, instead of silently returning an empty `indexUsage` array indistinguishable from a table with no index activity.
 - **Performance Tools Graceful Error Handling (P154)** — `mysql_explain` and `mysql_explain_analyze` now return `{ exists: false, error }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., syntax errors) instead of propagating raw MySQL errors.
 - **Text Tools Graceful Error Handling (P154)** — All 6 text tools (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`) now return `{ exists: false, table }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., unknown column, invalid regex, invalid charset), instead of propagating raw MySQL errors.
