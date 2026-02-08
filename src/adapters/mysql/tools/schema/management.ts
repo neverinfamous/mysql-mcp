@@ -93,6 +93,22 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         throw new Error("Invalid schema name");
       }
 
+      // Pre-check: detect no-op when ifNotExists is true
+      if (ifNotExists) {
+        const check = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [name],
+        );
+        if (check.rows && check.rows.length > 0) {
+          return {
+            success: true,
+            skipped: true,
+            reason: "Schema already exists",
+            schemaName: name,
+          };
+        }
+      }
+
       const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
       const sql = `CREATE DATABASE ${ifNotExistsClause}\`${name}\` CHARACTER SET ${charset} COLLATE ${collation}`;
 
@@ -146,6 +162,22 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       ];
       if (systemSchemas.includes(name.toLowerCase())) {
         throw new Error("Cannot drop system schema");
+      }
+
+      // Pre-check: detect no-op when ifExists is true
+      if (ifExists) {
+        const check = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [name],
+        );
+        if (!check.rows || check.rows.length === 0) {
+          return {
+            success: true,
+            skipped: true,
+            reason: "Schema did not exist",
+            schemaName: name,
+          };
+        }
       }
 
       const ifExistsClause = ifExists ? "IF EXISTS " : "";
