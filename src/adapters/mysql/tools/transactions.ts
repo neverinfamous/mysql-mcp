@@ -244,6 +244,13 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       const { statements, isolationLevel } =
         TransactionExecuteSchema.parse(params);
 
+      if (statements.length === 0) {
+        return {
+          success: false,
+          reason: "No statements provided. Pass at least one SQL statement.",
+        };
+      }
+
       const transactionId = await adapter.beginTransaction(isolationLevel);
       const connection = adapter.getTransactionConnection(transactionId);
 
