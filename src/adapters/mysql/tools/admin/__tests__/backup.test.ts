@@ -390,6 +390,25 @@ describe("Admin Backup Tools", () => {
       expect(result.exists).toBe(false);
       expect(result.table).toBe("nonexistent");
     });
+
+    it("should return structured error for unknown column", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(
+        new Error("Unknown column 'nonexistent_col' in 'field list'"),
+      );
+
+      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "users",
+          data: [{ nonexistent_col: "test" }],
+        },
+        mockContext,
+      )) as { success: boolean; error: string; rowsInserted: number };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+      expect(result.rowsInserted).toBe(0);
+    });
   });
 
   describe("createCreateDumpTool", () => {

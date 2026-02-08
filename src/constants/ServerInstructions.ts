@@ -73,11 +73,11 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 ## Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
-- **Limit rows**: Use \`limit\` parameter to control export size (recommended for large tables).
+- **Default limit**: \`mysql_export_table\` returns at most 100 rows by default. Use \`limit\` parameter to override.
 - **WHERE filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
 - **CSV and JSON columns**: CSV export escapes JSON columns with double-quote encoding—valid but complex. Consider SQL format for JSON-heavy tables.
 - **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist. Returns \`{ exists: false, table }\` gracefully if the table does not exist.
-- **Duplicate key handling**: \`mysql_import_data\` returns \`{ success: false, error, rowsInserted }\` for duplicate key violations instead of throwing, reporting how many rows were successfully inserted before the conflict.
+- **Import error handling**: \`mysql_import_data\` returns \`{ success: false, error, rowsInserted }\` for all insertion failures (duplicate keys, unknown columns, data truncation) instead of throwing, reporting how many rows were successfully inserted before the error.
 - **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.
 
 ## Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_create_table\`, etc.)

@@ -377,8 +377,9 @@ export const ExportTableSchema = z.object({
     .int()
     .positive()
     .optional()
+    .default(100)
     .describe(
-      "Maximum number of rows to export (recommended for large tables)",
+      "Maximum number of rows to export (default: 100). Set higher to export more rows.",
     ),
 });
 

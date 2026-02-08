@@ -190,14 +190,17 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, rowsInserted: 0 };
       }
 
+      // Validate all column names upfront (throws for SQL injection - must not be caught)
+      for (const row of data) {
+        for (const colName of Object.keys(row)) {
+          validateIdentifier(colName, "column");
+        }
+      }
+
       let totalInserted = 0;
 
       try {
         for (const row of data) {
-          // Validate column names
-          for (const colName of Object.keys(row)) {
-            validateIdentifier(colName, "column");
-          }
           const columns = Object.keys(row)
             .map((c) => `\`${c}\``)
             .join(", ");
@@ -225,7 +228,12 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             rowsInserted: totalInserted,
           };
         }
-        throw error;
+        // Catch-all for other MySQL errors (unknown column, data truncation, etc.)
+        return {
+          success: false,
+          error: errorMessage,
+          rowsInserted: totalInserted,
+        };
       }
 
       return { success: true, rowsInserted: totalInserted };
