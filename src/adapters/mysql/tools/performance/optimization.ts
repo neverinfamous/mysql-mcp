@@ -343,6 +343,12 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, query, indexName } = schema.parse(params);
 
+      // P154: Check table existence first
+      const tableInfo = await adapter.describeTable(table);
+      if (!tableInfo.columns || tableInfo.columns.length === 0) {
+        return { exists: false, table };
+      }
+
       // Simple replacement - insert FORCE INDEX after table name
       const rewritten = query.replace(
         new RegExp(`FROM\\s+\`?${table}\`?`, "i"),
@@ -356,16 +362,10 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
       };
 
       // Validate index existence and warn if not found
-      try {
-        const indexes = await adapter.getTableIndexes(table);
-        if (!indexes.some((idx) => idx.name === indexName)) {
-          response["warning"] =
-            `Index '${indexName}' not found on table '${table}'`;
-        }
-      } catch {
-        // If we can't check indexes (e.g., table doesn't exist), add warning
+      const indexes = await adapter.getTableIndexes(table);
+      if (!indexes.some((idx) => idx.name === indexName)) {
         response["warning"] =
-          `Could not verify index '${indexName}' on table '${table}'`;
+          `Index '${indexName}' not found on table '${table}'`;
       }
 
       return response;

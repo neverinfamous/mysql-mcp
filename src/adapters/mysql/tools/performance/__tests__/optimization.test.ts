@@ -310,10 +310,10 @@ describe("Performance Optimization Tools", () => {
       );
     });
 
-    it("should include warning when table cannot be verified", async () => {
-      mockAdapter.getTableIndexes.mockRejectedValue(
-        new Error("Table doesn't exist"),
-      );
+    it("should return exists: false for nonexistent table (P154)", async () => {
+      const mockTableInfo = createMockTableInfo("ghost");
+      mockTableInfo.columns = [];
+      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
       const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -323,12 +323,11 @@ describe("Performance Optimization Tools", () => {
           indexName: "some_idx",
         },
         mockContext,
-      )) as { rewrittenQuery: string; warning: string };
+      )) as { exists: boolean; table: string };
 
-      expect(result.rewrittenQuery).toContain("FORCE INDEX");
-      expect(result.warning).toBe(
-        "Could not verify index 'some_idx' on table 'ghost'",
-      );
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("ghost");
+      expect(mockAdapter.getTableIndexes).not.toHaveBeenCalled();
     });
   });
 
