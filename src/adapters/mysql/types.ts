@@ -400,8 +400,10 @@ export const BinlogEventsSchema = z.object({
   limit: z
     .number()
     .optional()
-    .default(100)
-    .describe("Maximum events to return"),
+    .default(20)
+    .describe(
+      "Maximum events to return (default: 20). Set higher for more events.",
+    ),
 });
 
 // =============================================================================

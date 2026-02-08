@@ -114,11 +114,32 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { logFile, position, limit } = BinlogEventsSchema.parse(params);
 
+      // Resolve effective log file: use provided or fetch current from master status
+      let effectiveLogFile = logFile;
+      if (!effectiveLogFile) {
+        try {
+          let masterResult;
+          try {
+            masterResult = await adapter.executeQuery("SHOW BINARY LOG STATUS");
+          } catch {
+            masterResult = await adapter.executeQuery("SHOW MASTER STATUS");
+          }
+          const currentFile = masterResult.rows?.[0]?.["File"] as
+            | string
+            | undefined;
+          if (currentFile) {
+            effectiveLogFile = currentFile;
+          }
+        } catch {
+          // Binary logging may not be enabled; fall through to default behavior
+        }
+      }
+
       let sql = "SHOW BINLOG EVENTS";
       const parts: string[] = [];
 
-      if (logFile) {
-        parts.push(`IN '${logFile}'`);
+      if (effectiveLogFile) {
+        parts.push(`IN '${effectiveLogFile}'`);
       }
       if (position != null) {
         parts.push(`FROM ${position}`);
@@ -132,11 +153,12 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         return { events: result.rows };
       } catch (e) {
         const message = String(e);
-        if (logFile && message.includes("Could not find target log")) {
+        const targetFile = effectiveLogFile || logFile;
+        if (targetFile && message.includes("Could not find target log")) {
           return {
             success: false,
-            logFile,
-            error: `Binlog file '${logFile}' not found`,
+            logFile: targetFile,
+            error: `Binlog file '${targetFile}' not found`,
           };
         }
         return {

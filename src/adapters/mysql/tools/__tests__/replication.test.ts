@@ -140,7 +140,7 @@ describe("Replication Handler Execution", () => {
   });
 
   describe("mysql_binlog_events", () => {
-    it("should query binlog events", async () => {
+    it("should query binlog events with explicit logFile", async () => {
       mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Log_name: "mysql-bin.000001", Event_type: "Query" },
@@ -148,11 +148,12 @@ describe("Replication Handler Execution", () => {
       );
 
       const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
-      await tool.handler({ logName: "mysql-bin.000001" }, mockContext);
+      await tool.handler({ logFile: "mysql-bin.000001" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      // With explicit logFile, no master status query needed
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("BINLOG EVENTS");
+      expect(call).toContain("IN 'mysql-bin.000001'");
     });
 
     it("should limit events", async () => {
@@ -160,12 +161,32 @@ describe("Replication Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
       await tool.handler(
-        { logName: "mysql-bin.000001", limit: 10 },
+        { logFile: "mysql-bin.000001", limit: 10 },
         mockContext,
       );
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("LIMIT 10");
+    });
+
+    it("should auto-resolve current binlog file when logFile is omitted", async () => {
+      // First call: SHOW BINARY LOG STATUS, second call: SHOW BINLOG EVENTS
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ File: "mysql-bin.000010", Position: 154 }]),
+        )
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { Log_name: "mysql-bin.000010", Event_type: "Query" },
+          ]),
+        );
+
+      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      await tool.handler({}, mockContext);
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const binlogCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(binlogCall).toContain("IN 'mysql-bin.000010'");
     });
   });
 
@@ -635,17 +656,24 @@ describe("Replication Fallback Handling", () => {
       const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
       await tool.handler({ logFile: "mysql-bin.000005" }, mockContext);
 
+      // With explicit logFile, first call is the binlog query itself
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("IN 'mysql-bin.000005'");
     });
 
     it("should include position when specified", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      // First call: master status (logFile not provided), second: binlog events
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ File: "mysql-bin.000001", Position: 4 }]),
+        )
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
       await tool.handler({ position: 12345 }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      // Second call is the actual SHOW BINLOG EVENTS query
+      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(call).toContain("FROM 12345");
     });
 
@@ -666,6 +694,7 @@ describe("Replication Fallback Handling", () => {
     });
 
     it("should return graceful error for generic binlog query failure", async () => {
+      // All calls fail (master status and binlog events)
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Binary logging not enabled"),
       );
