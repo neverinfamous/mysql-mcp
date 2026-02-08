@@ -111,7 +111,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     LIMIT 1
                 `);
 
-        // Strip bulky static Router JSON schemas from router_options to reduce payload
+        // Strip bulky Router Configuration blob from router_options to reduce payload
         const cluster = fullClusterResult.rows?.[0] ?? null;
         if (cluster?.["router_options"] != null) {
           try {
@@ -122,19 +122,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     unknown
                   >)
                 : (cluster["router_options"] as Record<string, unknown>);
-            if (opts["Configuration"] != null) {
-              const config = opts["Configuration"] as Record<string, unknown>;
-              for (const version of Object.keys(config)) {
-                const versionConfig = config[version] as Record<
-                  string,
-                  unknown
-                > | null;
-                if (versionConfig != null) {
-                  delete versionConfig["GuidelinesSchema"];
-                  delete versionConfig["ConfigurationChangesSchema"];
-                }
-              }
-            }
+            delete opts["Configuration"];
             cluster["router_options"] = opts;
           } catch {
             // Keep original if parsing fails

@@ -107,7 +107,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 ## Group Replication (\`mysql_gr_*\`)
 
-- Tools check for \`group_replication\` plugin status and return "not active" if plugin is not active.
+- Tools check for \`group_replication\` plugin status and return \`{ enabled: false }\` if the plugin is not active.
 
 ## InnoDB Cluster Tools (\`mysql_cluster_*\`)
 
@@ -116,7 +116,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role.
 - **Topology**: \`mysql_cluster_topology\` returns a structured \`topology\` object (with \`primary\`, \`secondaries\`, \`recovering\`, \`offline\` arrays) and a \`visualization\` string grouping members by role.
 - **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return only essential router info without full configuration blobs.
-- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and provides target recommendations. Returns \`canSwitchover: false\` if no viable candidates.
+- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and provides target recommendations. Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.
 
 ## MySQL Router Tools (\`mysql_router_*\`)
 

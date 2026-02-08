@@ -213,7 +213,7 @@ describe("InnoDB Cluster Tools", () => {
   });
 
   describe("createClusterStatusTool - payload optimization", () => {
-    it("should strip GuidelinesSchema and ConfigurationChangesSchema in full mode", async () => {
+    it("should strip entire Configuration from router_options in full mode", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
           createMockQueryResult([
@@ -240,6 +240,7 @@ describe("InnoDB Cluster Tools", () => {
                     SomeUsefulOption: "keep-this",
                   },
                 },
+                SomeTopLevelOption: "preserved",
               }),
             },
           ]),
@@ -255,15 +256,8 @@ describe("InnoDB Cluster Tools", () => {
 
       expect(result.isInnoDBCluster).toBe(true);
       const routerOpts = result.cluster.router_options;
-      expect(routerOpts.Configuration["9.2.0"].SomeUsefulOption).toBe(
-        "keep-this",
-      );
-      expect(
-        routerOpts.Configuration["9.2.0"].GuidelinesSchema,
-      ).toBeUndefined();
-      expect(
-        routerOpts.Configuration["9.2.0"].ConfigurationChangesSchema,
-      ).toBeUndefined();
+      expect(routerOpts.Configuration).toBeUndefined();
+      expect(routerOpts.SomeTopLevelOption).toBe("preserved");
     });
   });
 
