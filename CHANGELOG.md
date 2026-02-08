@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-02-08
+
 ### Fixed
 
 - **`mysql_security_user_privileges` Existence Check (P154)** — Tool now pre-checks user existence via `mysql.user` when the `user` parameter is provided, returning `{ exists: false, user }` for nonexistent users instead of returning an empty `users` array indistinguishable from a query with no matching users.
