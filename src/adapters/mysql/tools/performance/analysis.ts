@@ -129,7 +129,7 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
 
       let sql = `
                 SELECT 
-                    DIGEST_TEXT as query,
+                    LEFT(DIGEST_TEXT, 200) as query,
                     COUNT_STAR as executions,
                     AVG_TIMER_WAIT/1000000000 as avg_time_ms,
                     SUM_TIMER_WAIT/1000000000 as total_time_ms,
@@ -156,7 +156,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
       .enum(["total_time", "avg_time", "executions"])
       .optional()
       .default("total_time"),
-    limit: z.number().optional().default(20),
+    limit: z.number().optional().default(10),
   });
 
   return {
@@ -182,7 +182,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
       const sql = `
                 SELECT 
                     SCHEMA_NAME as database_name,
-                    DIGEST_TEXT as query_text,
+                    LEFT(DIGEST_TEXT, 200) as query_text,
                     COUNT_STAR as execution_count,
                     AVG_TIMER_WAIT/1000000000 as avg_time_ms,
                     MAX_TIMER_WAIT/1000000000 as max_time_ms,

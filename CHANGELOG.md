@@ -138,6 +138,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Admin Tools Server Instructions** — Added Admin Tools section documenting optimize, analyze, check, repair, flush, and kill operations.
 - **`mysql_index_usage` Database Filter** — Tool now filters to current database by default, preventing massive payloads (~45KB → ~1KB) from including all MySQL internal indexes with zero counts.
 - **`mysql_index_usage` Default Limit** — Reduced default `limit` from 50 to 20. The previous default produced ~13KB payloads (46 index entries) in a modest test database. The new default keeps responses manageable while covering the most-active indexes.
+- **`mysql_slow_queries` / `mysql_query_stats` Digest Truncation (P137)** — Both tools now truncate `DIGEST_TEXT` to 200 characters via `LEFT(DIGEST_TEXT, 200)`, preventing multi-KB normalized DDL/DML statements from inflating payloads. Full digest text is available in `performance_schema` directly if needed.
+- **`mysql_query_stats` Default Limit** — Reduced default `limit` from 20 to 10 to keep default payloads manageable.
+- **`mysql_index_usage` Default Limit** — Reduced default `limit` from 20 to 10 to keep default payloads manageable.
 - **Node.js 24 LTS Baseline** — Upgraded from Node 20 to Node 24 (current LTS) across Dockerfile, CI workflows, and package.json engines for high-fidelity production security.
 - **Docker Workflow: Explicit CodeQL Gating** — Docker image publishing now depends on both `quality-gate` and `codeql` jobs, ensuring security regressions block deployments.
 - **Dependabot Grouping** — Added dependency groups for `vitest` (vitest, @vitest/_), `eslint` (eslint, @eslint/_, typescript-eslint, globals), and `types` (@types/\*) to prevent peer dependency fragmentation.

@@ -264,7 +264,7 @@ describe("Performance Analysis Tools", () => {
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      expect(call).toContain("events_statements_summary_by_digest");
+      expect(call).toContain("LEFT(DIGEST_TEXT, 200)");
       expect(call).toContain("LIMIT 5");
       expect(result).toHaveProperty("slowQueries");
     });
@@ -300,6 +300,8 @@ describe("Performance Analysis Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("ORDER BY SUM_TIMER_WAIT DESC");
+      expect(call).toContain("LEFT(DIGEST_TEXT, 200)");
+      expect(call).toContain("LIMIT 10");
     });
 
     it("should order by executions when requested", async () => {
@@ -375,7 +377,7 @@ describe("Performance Analysis Tools", () => {
       await tool.handler({}, mockContext);
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      expect(call).toContain("LIMIT 20");
+      expect(call).toContain("LIMIT 10");
     });
 
     it("should use custom limit", async () => {
