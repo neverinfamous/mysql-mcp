@@ -50,10 +50,10 @@ export type MetaGroup =
   | "ai-spatial" // AI Spatial Analyst (Core, Spatial, Stats, Perf) ~43 tools
   | "dba-monitor" // DBA Monitoring (Core, Monitor, Perf, SysSchema, Opt) ~35 tools
   | "dba-manage" // DBA Management (Core, Admin, Backup, Repl, Parts, Events) ~33 tools
-  | "dba-secure" // DBA Security (Core, Security, Roles, Cluster) ~42 tools
+  | "dba-secure" // DBA Security (Core, Security, Roles) ~32 tools
   | "base-core" // Base: Core Operations ~48 tools
   | "base-advanced" // Base: Advanced Features ~39 tools
-  | "ecosystem"; // External Tools ~31 tools
+  | "ecosystem"; // External Tools + Cluster ~41 tools
 
 /**
  * MySQL Router REST API configuration

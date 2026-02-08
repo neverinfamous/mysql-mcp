@@ -107,7 +107,7 @@ describe("CLI", () => {
       expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
     });
 
-    it("should skip MySQL connection for ecosystem shortcut", async () => {
+    it("should require MySQL connection for ecosystem shortcut (cluster needs MySQL)", async () => {
       await main({
         config: { toolFilter: "ecosystem" },
         databases: [
@@ -116,7 +116,8 @@ describe("CLI", () => {
         oauth: undefined,
       });
 
-      expect(mocks.adapterInstance.connect).not.toHaveBeenCalled();
+      // ecosystem now includes cluster group which requires MySQL connection
+      expect(mocks.adapterInstance.connect).toHaveBeenCalled();
     });
 
     it("should skip MySQL connection for combined MySQL-optional groups", async () => {

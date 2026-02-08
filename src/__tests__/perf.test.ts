@@ -156,7 +156,7 @@ describe("Performance Tests", () => {
       expect(dbaMonitorConfig.enabledTools.size).toBe(35);
 
       const dbaSecureConfig = parseToolFilter("dba-secure");
-      expect(dbaSecureConfig.enabledTools.size).toBe(42);
+      expect(dbaSecureConfig.enabledTools.size).toBe(32);
 
       const devPowerConfig = parseToolFilter("dev-power");
       expect(devPowerConfig.enabledTools.size).toBe(46);

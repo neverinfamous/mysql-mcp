@@ -60,11 +60,13 @@ function canSkipMySQLConnection(toolFilter: string | undefined): boolean {
     if (part.startsWith("-")) continue; // Skip exclusions
     const cleanPart = part.replace(/^[+]/, "");
 
-    // 'ecosystem' shortcut = router + proxysql + shell (no MySQL needed)
+    // 'ecosystem' shortcut = router + proxysql + shell + cluster
+    // Note: cluster requires MySQL, so ecosystem no longer skips MySQL connection
     if (cleanPart === "ecosystem") {
       enabledGroups.add("router");
       enabledGroups.add("proxysql");
       enabledGroups.add("shell");
+      enabledGroups.add("cluster");
     } else {
       enabledGroups.add(cleanPart);
     }

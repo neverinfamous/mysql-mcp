@@ -262,10 +262,10 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `ai-spatial`    | 43     | AI Spatial Analyst | core, spatial, stats, performance, transactions          |
 | `dba-monitor`   | 35     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization   |
 | `dba-manage`    | 33     | DBA Management     | core, admin, backup, replication, partitioning, events   |
-| `dba-secure`    | 42     | DBA Security       | core, security, roles, cluster, transactions             |
+| `dba-secure`    | 32     | DBA Security       | core, security, roles, transactions                      |
 | `base-core`     | 48     | Base Ops           | core, json, transactions, text, schema                   |
 | `base-advanced` | 40     | Advanced Features  | docstore, spatial, stats, fulltext, events               |
-| `ecosystem`     | 31     | External Tools     | router, proxysql, shell                                  |
+| `ecosystem`     | 41     | External Tools     | router, proxysql, shell, cluster                         |
 
 ### Tool Groups (24 Available)
 

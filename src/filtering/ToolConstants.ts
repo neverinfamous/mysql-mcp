@@ -269,10 +269,10 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  *   ai-spatial:    43 (core:8 + spatial:12 + stats:8 + performance:8 + transactions:7)
  *   dba-monitor:   35 (core:8 + monitoring:7 + performance:8 + sysschema:8 + optimization:4)
  *   dba-manage:    33 (core:8 + admin:6 + backup:4 + replication:5 + partitioning:4 + events:6)
- *   dba-secure:    42 (core:8 + security:9 + roles:8 + cluster:10 + transactions:7)
+ *   dba-secure:    32 (core:8 + security:9 + roles:8 + transactions:7)
  *   base-core:     48 (core:8 + json:17 + transactions:7 + text:6 + schema:10)
  *   base-advanced: 40 (docstore:9 + spatial:12 + stats:8 + fulltext:5 + events:6)
- *   ecosystem:     31
+ *   ecosystem:     41 (router:9 + proxysql:12 + shell:10 + cluster:10)
  */
 export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
   // 1. General Use
@@ -307,12 +307,12 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "partitioning",
     "events",
   ],
-  "dba-secure": ["core", "security", "roles", "cluster", "transactions"],
+  "dba-secure": ["core", "security", "roles", "transactions"],
 
   // 4. Base Blocks (Building Blocks)
   "base-core": ["core", "json", "transactions", "text", "schema"],
   "base-advanced": ["docstore", "spatial", "stats", "fulltext", "events"],
 
   // 5. Ecosystem
-  ecosystem: ["router", "proxysql", "shell"],
+  ecosystem: ["router", "proxysql", "shell", "cluster"],
 };

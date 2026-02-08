@@ -123,6 +123,7 @@ describe("META_GROUPS", () => {
     expect(META_GROUPS.ecosystem).toContain("router");
     expect(META_GROUPS.ecosystem).toContain("proxysql");
     expect(META_GROUPS.ecosystem).toContain("shell");
+    expect(META_GROUPS.ecosystem).toContain("cluster");
   });
 });
 
@@ -179,8 +180,8 @@ describe("getMetaGroupTools", () => {
 
   it("should return all tools for ecosystem meta-group", () => {
     const tools = getMetaGroupTools("ecosystem");
-    // ecosystem = router(9) + proxysql(12) + shell(10) = 31
-    expect(tools).toHaveLength(31);
+    // ecosystem = router(9) + proxysql(12) + shell(10) + cluster(10) = 41
+    expect(tools).toHaveLength(41);
   });
 
   it("should return correct tools for base-core meta-group", () => {
@@ -207,7 +208,7 @@ describe("getMetaGroupTools", () => {
 
   it("should return correct tools for dba-secure meta-group", () => {
     const tools = getMetaGroupTools("dba-secure");
-    expect(tools).toHaveLength(42);
+    expect(tools).toHaveLength(32);
   });
 });
 
@@ -241,7 +242,7 @@ describe("parseToolFilter", () => {
 
   it("should disable a meta-group", () => {
     const config = parseToolFilter("-ecosystem");
-    expect(config.enabledTools.size).toBe(161); // 192 - 31
+    expect(config.enabledTools.size).toBe(151); // 192 - 41
     expect(config.enabledTools.has("mysql_router_status")).toBe(false);
     expect(config.enabledTools.has("proxysql_status")).toBe(false);
     expect(config.enabledTools.has("mysqlsh_version")).toBe(false);
