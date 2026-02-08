@@ -181,16 +181,17 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
     name: "proxysql_runtime_status",
     title: "ProxySQL Runtime Status",
     description:
-      "Get ProxySQL runtime configuration status including version info and admin variables.",
+      "Get ProxySQL runtime configuration status including version info and admin variables. Use summary: true for condensed key variables only.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLStatusInputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { summary } = ProxySQLStatusInputSchema.parse(params);
       const [versionRow] = await proxySQLQuery(
         "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
       );
@@ -201,10 +202,35 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
       // Redact sensitive admin variables (passwords, credentials)
       const redactedVars = redactSensitiveVariables(adminVars);
 
+      if (summary) {
+        // Key admin variables for summary mode
+        const keyAdminVars = [
+          "admin-version",
+          "admin-read_only",
+          "admin-cluster_username",
+          "admin-mysql_ifaces",
+          "admin-restapi_enabled",
+          "admin-web_enabled",
+          "admin-stats_mysql_connection_pool",
+        ];
+        const filteredVars = redactedVars.filter((row) =>
+          keyAdminVars.includes(row["variable_name"] as string),
+        );
+        return {
+          success: true,
+          summary: true,
+          version: versionRow?.["variable_value"] ?? "unknown",
+          adminVariables: filteredVars,
+          totalAdminVarsAvailable: redactedVars.length,
+        };
+      }
+
       return {
         success: true,
+        summary: false,
         version: versionRow?.["variable_value"] ?? "unknown",
         adminVariables: redactedVars,
+        totalAdminVarsAvailable: redactedVars.length,
       };
     },
   };
@@ -461,7 +487,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         sql += " WHERE " + conditions.join(" AND ");
       }
 
-      const maxRows = limit ?? 200;
+      const maxRows = limit ?? 50;
       sql += ` LIMIT ${maxRows}`;
 
       const rows = await proxySQLQuery(sql);

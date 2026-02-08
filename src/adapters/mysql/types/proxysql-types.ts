@@ -196,7 +196,7 @@ export const ProxySQLVariableFilterSchema = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of variables to return (default: 200)"),
+    .describe("Maximum number of variables to return (default: 50)"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({

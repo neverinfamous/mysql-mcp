@@ -178,6 +178,8 @@ describe("Handler Execution", () => {
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("version", "3.0.3");
+      expect(result).toHaveProperty("summary", false);
+      expect(result).toHaveProperty("totalAdminVarsAvailable", 1);
     });
 
     it("should handle missing version", async () => {
@@ -225,6 +227,58 @@ describe("Handler Execution", () => {
         (v) => v.variable_name === "admin-read_only",
       );
       expect(safeVar?.variable_value).toBe("false");
+    });
+
+    it("should return summary with key variables only when summary: true", async () => {
+      const mockAdminVars = [
+        { variable_name: "admin-version", variable_value: "3.0.3" },
+        { variable_name: "admin-read_only", variable_value: "false" },
+        { variable_name: "admin-mysql_ifaces", variable_value: "0.0.0.0:6032" },
+        { variable_name: "admin-restapi_enabled", variable_value: "true" },
+        {
+          variable_name: "admin-admin_credentials",
+          variable_value: "admin:admin",
+        },
+        {
+          variable_name: "admin-cluster_password",
+          variable_value: "secret",
+        },
+        {
+          variable_name: "admin-hash_passwords",
+          variable_value: "true",
+        },
+        {
+          variable_name: "admin-refresh_interval",
+          variable_value: "2000",
+        },
+      ];
+      mockQuery
+        .mockResolvedValueOnce([[{ variable_value: "3.0.3" }]])
+        .mockResolvedValueOnce([mockAdminVars]);
+
+      const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
+      const result = (await tool.handler({ summary: true }, mockContext)) as {
+        success: boolean;
+        summary: boolean;
+        version: string;
+        adminVariables: { variable_name: string; variable_value: string }[];
+        totalAdminVarsAvailable: number;
+      };
+
+      expect(result.success).toBe(true);
+      expect(result.summary).toBe(true);
+      expect(result.version).toBe("3.0.3");
+      // Should have fewer variables than the full list
+      expect(result.adminVariables.length).toBeLessThan(mockAdminVars.length);
+      expect(result.totalAdminVarsAvailable).toBe(mockAdminVars.length);
+      // Should include key variables
+      const varNames = result.adminVariables.map((v) => v.variable_name);
+      expect(varNames).toContain("admin-version");
+      expect(varNames).toContain("admin-read_only");
+      expect(varNames).toContain("admin-mysql_ifaces");
+      // Should NOT include non-key variables
+      expect(varNames).not.toContain("admin-hash_passwords");
+      expect(varNames).not.toContain("admin-refresh_interval");
     });
   });
 
@@ -396,7 +450,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables LIMIT 200",
+        "SELECT * FROM global_variables LIMIT 50",
       );
       expect(result).toHaveProperty("variables", mockVars);
     });
@@ -408,7 +462,7 @@ describe("Handler Execution", () => {
       await tool.handler({ prefix: "mysql" }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 200",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 50",
       );
     });
 
@@ -419,7 +473,7 @@ describe("Handler Execution", () => {
       await tool.handler({ prefix: "admin" }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 200",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 50",
       );
     });
 
