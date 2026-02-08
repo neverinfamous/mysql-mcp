@@ -311,7 +311,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "MySQL MCP with 191 tools, OAuth 2.1, HTTP Streamable, Smart Tool Filtering & Connection Pooling."
+          short-description: "MySQL MCP with 192 tools, OAuth 2.1, HTTP Streamable, Smart Tool Filtering & Connection Pooling."
 
       - name: Deployment Summary
         if: github.ref == 'refs/heads/master'

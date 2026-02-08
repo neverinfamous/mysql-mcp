@@ -169,10 +169,12 @@ export function createShellRunScriptTool(): ToolDefinition {
       // SQL scripts with comments or multi-line content break when passed via -e
       // Use --file approach for SQL to properly handle all syntax
       if (language === "sql") {
-        const tempFile = join(
-          tmpdir(),
-          `mysqlsh_script_${Date.now()}_${Math.random().toString(36).slice(2)}.sql`,
+        // Create a secure temp directory via mkdtemp (restrictive permissions,
+        // unique path) to avoid CodeQL js/insecure-temporary-file alert.
+        const tempDir = await fs.mkdtemp(
+          join(tmpdir(), `mysqlsh_script_`),
         );
+        const tempFile = join(tempDir, "script.sql");
         try {
           await fs.writeFile(tempFile, script, "utf8");
           const args = [
@@ -184,8 +186,8 @@ export function createShellRunScriptTool(): ToolDefinition {
           ];
           result = await execMySQLShell(args, { timeout });
         } finally {
-          // Cleanup temp file
-          await fs.unlink(tempFile).catch(() => void 0);
+          // Cleanup temp directory and its contents
+          await fs.rm(tempDir, { recursive: true }).catch(() => void 0);
         }
       } else {
         // JS and Python work fine with -e

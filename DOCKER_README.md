@@ -236,6 +236,8 @@ Use the remote hostname directly:
 > [!IMPORTANT]
 > **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (38 tools) as a starting point.
 
+> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+
 ### What Can You Filter?
 
 The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
@@ -497,12 +499,16 @@ For specialized setups, see these Wiki pages:
 
 ## ⚡ Performance Tuning
 
+Schema metadata is cached to reduce repeated queries during tool/resource invocations.
+
 | Variable                | Default | Description                                        |
 | ----------------------- | ------- | -------------------------------------------------- |
 | `METADATA_CACHE_TTL_MS` | `30000` | Cache TTL for schema metadata (milliseconds)       |
 | `LOG_LEVEL`             | `info`  | Log verbosity: `debug`, `info`, `warning`, `error` |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
+
+> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses and `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See [`ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/master/src/constants/ServerInstructions.ts) for per-tool details.
 
 ---
 
