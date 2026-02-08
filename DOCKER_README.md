@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-**Last Updated: February 7, 2026**
+**Last Updated: February 8, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -11,7 +11,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1695%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-1794%20passing-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-94%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
@@ -34,7 +34,7 @@
 | **Ecosystem Integrations**     | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                             |
 | **Advanced Encryption**        | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                          |
 | **Production-Ready Security**  | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                         |
-| **Strict TypeScript**          | 100% type-safe codebase with 1695 tests and 94% coverage                                                                                                          |
+| **Strict TypeScript**          | 100% type-safe codebase with 1794 tests and 94% coverage                                                                                                          |
 | **MCP 2025-11-25 Compliant**   | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                     |
 
 ---
@@ -363,7 +363,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 3: Ecosystem (31 Tools for InnoDB Cluster Deployments)
+#### Option 3: Ecosystem (41 Tools for InnoDB Cluster Deployments)
 
 **Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 
