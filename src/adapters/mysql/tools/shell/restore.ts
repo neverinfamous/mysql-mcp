@@ -109,11 +109,12 @@ export function createShellLoadDumpTool(): ToolDefinition {
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          throw new Error(
-            `Load failed: local_infile is disabled on the server. ` +
-              `Either set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
-              `or manually run: SET GLOBAL local_infile = ON`,
-          );
+          return {
+            success: false,
+            inputDir,
+            error: "Load failed: local_infile is disabled on the server.",
+            hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+          };
         }
         if (errorMessage.includes("Duplicate objects")) {
           return {

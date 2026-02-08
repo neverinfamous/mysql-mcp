@@ -110,22 +110,32 @@ describe("Shell Backup Tools", () => {
       expect(jsArg).toContain("users: false");
     });
 
-    it("should throw helpful error for privilege errors", async () => {
+    it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied for user", 1);
 
       const tool = createShellDumpInstanceTool();
-      await expect(
-        tool.handler({ outputDir: "/backup/full" }, mockContext),
-      ).rejects.toThrow("missing privileges");
+      const result = (await tool.handler(
+        { outputDir: "/backup/full" },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("missing privileges");
+      expect(result.hint).toContain("mysqlsh_dump_schemas");
     });
 
-    it("should throw helpful error for Fatal error during dump", async () => {
+    it("should return structured error for Fatal error during dump", async () => {
       setupMockSpawn("", "Fatal error during dump: Writing schema metadata", 1);
 
       const tool = createShellDumpInstanceTool();
-      await expect(
-        tool.handler({ outputDir: "/backup/full" }, mockContext),
-      ).rejects.toThrow("mysqlsh_dump_schemas");
+      const result = (await tool.handler(
+        { outputDir: "/backup/full" },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Fatal error during dump");
+      expect(result.hint).toContain("mysqlsh_dump_schemas");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -223,49 +233,55 @@ describe("Shell Backup Tools", () => {
       expect(jsArg).toContain("routines: false");
     });
 
-    it("should throw helpful error for EVENT privilege errors", async () => {
+    it("should return structured error for EVENT privilege errors", async () => {
       setupMockSpawn("", "You do not have the EVENT privilege", 1);
 
       const tool = createShellDumpSchemasTool();
-      await expect(
-        tool.handler(
-          {
-            schemas: ["db1"],
-            outputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("ddlOnly: true");
+      const result = (await tool.handler(
+        {
+          schemas: ["db1"],
+          outputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("missing privileges");
+      expect(result.hint).toContain("ddlOnly: true");
     });
 
-    it("should throw helpful error for TRIGGER privilege errors", async () => {
+    it("should return structured error for TRIGGER privilege errors", async () => {
       setupMockSpawn("", "TRIGGER privilege required", 1);
 
       const tool = createShellDumpSchemasTool();
-      await expect(
-        tool.handler(
-          {
-            schemas: ["db1"],
-            outputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("ddlOnly: true");
+      const result = (await tool.handler(
+        {
+          schemas: ["db1"],
+          outputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("missing privileges");
+      expect(result.hint).toContain("ddlOnly: true");
     });
 
-    it("should throw helpful error for generic privilege errors", async () => {
+    it("should return structured error for generic privilege errors", async () => {
       setupMockSpawn("", "Access denied - privilege required", 1);
 
       const tool = createShellDumpSchemasTool();
-      await expect(
-        tool.handler(
-          {
-            schemas: ["db1"],
-            outputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("ddlOnly: true");
+      const result = (await tool.handler(
+        {
+          schemas: ["db1"],
+          outputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("missing privileges");
+      expect(result.hint).toContain("ddlOnly: true");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -367,53 +383,59 @@ describe("Shell Backup Tools", () => {
       expect(jsArg).not.toContain("triggers: false");
     });
 
-    it("should throw helpful error for privilege errors", async () => {
+    it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied - privilege required", 1);
 
       const tool = createShellDumpTablesTool();
-      await expect(
-        tool.handler(
-          {
-            schema: "s",
-            tables: ["t"],
-            outputDir: "/o",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("all: false");
+      const result = (await tool.handler(
+        {
+          schema: "s",
+          tables: ["t"],
+          outputDir: "/o",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("missing privileges");
+      expect(result.hint).toContain("all: false");
     });
 
-    it("should throw helpful error for TRIGGER privilege errors", async () => {
+    it("should return structured error for TRIGGER privilege errors", async () => {
       setupMockSpawn("", "TRIGGER privilege required", 1);
 
       const tool = createShellDumpTablesTool();
-      await expect(
-        tool.handler(
-          {
-            schema: "s",
-            tables: ["t"],
-            outputDir: "/o",
-            all: true,
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("all: false");
+      const result = (await tool.handler(
+        {
+          schema: "s",
+          tables: ["t"],
+          outputDir: "/o",
+          all: true,
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("missing privileges");
+      expect(result.hint).toContain("all: false");
     });
 
-    it("should throw helpful error for Fatal error during dump", async () => {
+    it("should return structured error for Fatal error during dump", async () => {
       setupMockSpawn("", "Fatal error during dump occurred", 1);
 
       const tool = createShellDumpTablesTool();
-      await expect(
-        tool.handler(
-          {
-            schema: "s",
-            tables: ["t"],
-            outputDir: "/o",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("all: false");
+      const result = (await tool.handler(
+        {
+          schema: "s",
+          tables: ["t"],
+          outputDir: "/o",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Fatal error during dump");
+      expect(result.hint).toContain("all: false");
     });
 
     it("should return structured error for non-privilege errors", async () => {

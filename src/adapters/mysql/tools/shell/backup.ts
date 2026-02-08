@@ -88,17 +88,20 @@ export function createShellDumpInstanceTool(): ToolDefinition {
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          throw new Error(
-            `Dump failed due to missing privileges: ${errorMessage}. ` +
-              `Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). ` +
-              `Consider using mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.`,
-          );
+          return {
+            success: false,
+            outputDir,
+            error: `Dump failed due to missing privileges: ${errorMessage}.`,
+            hint: "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
+          };
         }
         if (errorMessage.includes("Fatal error during dump")) {
-          throw new Error(
-            `Dump failed: ${errorMessage}. ` +
-              `This may be caused by missing privileges. Consider using mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.`,
-          );
+          return {
+            success: false,
+            outputDir,
+            error: `Dump failed: ${errorMessage}.`,
+            hint: "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
+          };
         }
         return { success: false, outputDir, error: errorMessage };
       }
@@ -181,10 +184,13 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           errorMessage.includes("TRIGGER") ||
           errorMessage.includes("privilege")
         ) {
-          throw new Error(
-            `Dump failed due to missing privileges: ${errorMessage}. ` +
-              `Try setting ddlOnly: true to skip events, triggers, and routines.`,
-          );
+          return {
+            success: false,
+            schemas,
+            outputDir,
+            error: `Dump failed due to missing privileges: ${errorMessage}.`,
+            hint: "Set ddlOnly: true to skip events, triggers, and routines.",
+          };
         }
         return { success: false, schemas, outputDir, error: errorMessage };
       }
@@ -261,27 +267,31 @@ export function createShellDumpTablesTool(): ToolDefinition {
           const privilegeMatch = privilegeRegex.exec(errorMessage);
           const specificPrivilege = privilegeMatch ? privilegeMatch[1] : null;
 
-          throw new Error(
-            `Dump failed due to missing privileges: ${errorMessage}. ` +
-              (specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
-                ? `Try setting all: false to skip ${specificPrivilege.toLowerCase()}s.`
-                : `Try setting all: false to skip metadata that requires extra privileges.`),
-          );
+          return {
+            success: false,
+            schema,
+            tables,
+            outputDir,
+            error: `Dump failed due to missing privileges: ${errorMessage}.`,
+            hint:
+              specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
+                ? `Set all: false to skip ${specificPrivilege.toLowerCase()}s.`
+                : "Set all: false to skip metadata that requires extra privileges.",
+          };
         }
 
         // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
-          // Check if it's during metadata writing
-          if (errorMessage.includes("Writing schema metadata")) {
-            throw new Error(
-              `Dump failed while writing schema metadata: ${errorMessage}. ` +
-                `This is typically due to missing EVENT or TRIGGER privileges. Try setting all: false to skip metadata.`,
-            );
-          }
-          throw new Error(
-            `Dump failed: ${errorMessage}. ` +
-              `This may be due to missing privileges. Try setting all: false to skip metadata that requires extra privileges.`,
-          );
+          return {
+            success: false,
+            schema,
+            tables,
+            outputDir,
+            error: errorMessage.includes("Writing schema metadata")
+              ? `Dump failed while writing schema metadata: ${errorMessage}.`
+              : `Dump failed: ${errorMessage}.`,
+            hint: "Set all: false to skip metadata that requires extra privileges.",
+          };
         }
 
         return {

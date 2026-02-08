@@ -281,7 +281,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Dump utilities**: \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\` create compressed parallel dumps. Use \`dryRun: true\` to preview. All dump tools return structured error messages for privilege issues with actionable guidance.
 - **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`. Returns \`{ success: false, error, hint }\` for duplicate object conflicts.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use \`ddlOnly: true\` (schemas) or \`all: false\` (tables) to skip restricted metadata.
-- **Error handling**: All shell tools return \`{ success: false, error }\` for operational failures (connection errors, timeouts, nonexistent objects) instead of throwing raw exceptions. Privilege and local_infile errors include actionable guidance.
+- **Error handling**: All shell tools return \`{ success: false, error }\` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a \`hint\` field with actionable remediation guidance.
 `;
 
 /**

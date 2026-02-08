@@ -125,32 +125,36 @@ describe("Shell Restore and Script Tools", () => {
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
     });
 
-    it("should throw helpful error when local_infile is disabled", async () => {
+    it("should return structured error when local_infile is disabled", async () => {
       setupMockSpawn("", "ERROR: local_infile is disabled", 1);
 
       const tool = createShellLoadDumpTool();
-      await expect(
-        tool.handler(
-          {
-            inputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("local_infile is disabled");
+      const result = (await tool.handler(
+        {
+          inputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("local_infile");
+      expect(result.hint).toContain("updateServerSettings");
     });
 
-    it("should throw helpful error when Loading local data is disabled", async () => {
+    it("should return structured error when Loading local data is disabled", async () => {
       setupMockSpawn("", "Loading local data is disabled on the server", 1);
 
       const tool = createShellLoadDumpTool();
-      await expect(
-        tool.handler(
-          {
-            inputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("updateServerSettings: true");
+      const result = (await tool.handler(
+        {
+          inputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("local_infile");
+      expect(result.hint).toContain("updateServerSettings");
     });
 
     it("should return structured error for non-local_infile errors", async () => {
