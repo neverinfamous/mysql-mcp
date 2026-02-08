@@ -43,14 +43,22 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      // Return only id and matched column for minimal payload
-      let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
-      if (where !== undefined) {
-        sql += ` AND (${where})`;
-      }
-      const result = await adapter.executeReadQuery(sql, [pattern]);
+      try {
+        // Return only id and matched column for minimal payload
+        let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+        if (where !== undefined) {
+          sql += ` AND (${where})`;
+        }
+        const result = await adapter.executeReadQuery(sql, [pattern]);
 
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -76,14 +84,22 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      // Return only id and matched column for minimal payload
-      let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
-      if (where !== undefined) {
-        sql += ` AND (${where})`;
-      }
-      const result = await adapter.executeReadQuery(sql, [pattern]);
+      try {
+        // Return only id and matched column for minimal payload
+        let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+        if (where !== undefined) {
+          sql += ` AND (${where})`;
+        }
+        const result = await adapter.executeReadQuery(sql, [pattern]);
 
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -108,14 +124,22 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      // Return only id, matched column, and soundex value for minimal payload
-      let sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
-      if (where !== undefined) {
-        sql += ` AND (${where})`;
-      }
-      const result = await adapter.executeReadQuery(sql, [value]);
+      try {
+        // Return only id, matched column, and soundex value for minimal payload
+        let sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+        if (where !== undefined) {
+          sql += ` AND (${where})`;
+        }
+        const result = await adapter.executeReadQuery(sql, [value]);
 
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -153,17 +177,25 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
           ? `SUBSTRING(\`${column}\`, ?, ?)`
           : `SUBSTRING(\`${column}\`, ?)`;
 
-      // Return only id, source column, and substring result for minimal payload
-      let sql = `SELECT id, \`${column}\`, ${substringExpr} as substring_value FROM ${escapeQualifiedTable(table)}`;
-      const queryParams: unknown[] =
-        length !== undefined ? [start, length] : [start];
+      try {
+        // Return only id, source column, and substring result for minimal payload
+        let sql = `SELECT id, \`${column}\`, ${substringExpr} as substring_value FROM ${escapeQualifiedTable(table)}`;
+        const queryParams: unknown[] =
+          length !== undefined ? [start, length] : [start];
 
-      if (where !== undefined) {
-        sql += ` WHERE ${where}`;
+        if (where !== undefined) {
+          sql += ` WHERE ${where}`;
+        }
+
+        const result = await adapter.executeReadQuery(sql, queryParams);
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      const result = await adapter.executeReadQuery(sql, queryParams);
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
     },
   };
 }
@@ -218,19 +250,27 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
       const concatExpr = `CONCAT_WS(?, ${columnList})`;
 
-      // Optionally include source columns for full context or minimal payload
-      const selectColumns = includeSourceColumns
-        ? `id, ${columnList}, ${concatExpr} as \`${alias}\``
-        : `id, ${concatExpr} as \`${alias}\``;
-      let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
-      const queryParams: unknown[] = [separator];
+      try {
+        // Optionally include source columns for full context or minimal payload
+        const selectColumns = includeSourceColumns
+          ? `id, ${columnList}, ${concatExpr} as \`${alias}\``
+          : `id, ${concatExpr} as \`${alias}\``;
+        let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
+        const queryParams: unknown[] = [separator];
 
-      if (where !== undefined) {
-        sql += ` WHERE ${where}`;
+        if (where !== undefined) {
+          sql += ` WHERE ${where}`;
+        }
+
+        const result = await adapter.executeReadQuery(sql, queryParams);
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      const result = await adapter.executeReadQuery(sql, queryParams);
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
     },
   };
 }
@@ -278,15 +318,23 @@ export function createCollationConvertTool(
         convertExpr = `${convertExpr} COLLATE ${collation}`;
       }
 
-      // Return only id, source column, and converted result for minimal payload
-      let sql = `SELECT id, \`${column}\`, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
+      try {
+        // Return only id, source column, and converted result for minimal payload
+        let sql = `SELECT id, \`${column}\`, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
 
-      if (where !== undefined) {
-        sql += ` WHERE ${where}`;
+        if (where !== undefined) {
+          sql += ` WHERE ${where}`;
+        }
+
+        const result = await adapter.executeReadQuery(sql);
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      const result = await adapter.executeReadQuery(sql);
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
     },
   };
 }

@@ -213,16 +213,17 @@ describe("JSON Enhanced Handler Execution", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Database error"));
 
       const tool = tools.find((t) => t.name === "mysql_json_normalize")!;
-      await expect(
-        tool.handler(
-          {
-            table: "users",
-            column: "metadata",
-            limit: 100,
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Database error");
+      const result = (await tool.handler(
+        {
+          table: "users",
+          column: "metadata",
+          limit: 100,
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Database error");
     });
   });
 

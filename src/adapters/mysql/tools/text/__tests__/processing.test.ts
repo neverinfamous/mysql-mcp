@@ -13,7 +13,7 @@ import {
   createConcatTool,
   createCollationConvertTool,
 } from "../processing.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../MySQLAdapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -251,6 +251,210 @@ describe("Text Processing Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("WHERE id < 1000");
+    });
+  });
+
+  // =========================================================================
+  // P154 Error Handling Tests
+  // =========================================================================
+
+  describe("P154: createRegexpMatchTool error handling", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createRegexpMatchTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", column: "email", pattern: "^a" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success: false for other query errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown column 'bad_col' in 'field list'"),
+      );
+
+      const tool = createRegexpMatchTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", column: "bad_col", pattern: "^a" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+    });
+  });
+
+  describe("P154: createLikeSearchTool error handling", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createLikeSearchTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "nonexistent", column: "name", pattern: "%test%" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success: false for other query errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown column 'bad_col' in 'field list'"),
+      );
+
+      const tool = createLikeSearchTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "users", column: "bad_col", pattern: "%test%" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+    });
+  });
+
+  describe("P154: createSoundexTool error handling", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createSoundexTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "nonexistent", column: "name", value: "Jon" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success: false for other query errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown column 'bad_col' in 'field list'"),
+      );
+
+      const tool = createSoundexTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "users", column: "bad_col", value: "Jon" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+    });
+  });
+
+  describe("P154: createSubstringTool error handling", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createSubstringTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "nonexistent", column: "name", start: 1 },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success: false for other query errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown column 'bad_col' in 'field list'"),
+      );
+
+      const tool = createSubstringTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "users", column: "bad_col", start: 1 },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+    });
+  });
+
+  describe("P154: createConcatTool error handling", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createConcatTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "nonexistent", columns: ["a", "b"] },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success: false for other query errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown column 'bad_col' in 'field list'"),
+      );
+
+      const tool = createConcatTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { table: "users", columns: ["bad_col", "other"] },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+    });
+  });
+
+  describe("P154: createCollationConvertTool error handling", () => {
+    it("should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createCollationConvertTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent", column: "name", charset: "utf8mb4" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return success: false for other query errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown character set: 'invalid_charset'"),
+      );
+
+      const tool = createCollationConvertTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", column: "name", charset: "invalid_charset" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown character set");
     });
   });
 });
