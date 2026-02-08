@@ -467,7 +467,6 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { prefix, like, limit } =
         ProxySQLVariableFilterSchema.parse(params);
-      let sql = "SELECT * FROM global_variables";
       const conditions: string[] = [];
 
       // Apply prefix filter
@@ -483,14 +482,20 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         conditions.push(`variable_name LIKE '${sanitizedLike}'`);
       }
 
-      if (conditions.length > 0) {
-        sql += " WHERE " + conditions.join(" AND ");
-      }
+      const whereClause =
+        conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "";
+
+      // Get total count (without LIMIT) for truncation awareness
+      const countRows = await proxySQLQuery(
+        `SELECT COUNT(*) AS cnt FROM global_variables${whereClause}`,
+      );
+      const countRow = countRows[0] ?? { cnt: 0 };
+      const totalVarsAvailable = Number(countRow["cnt"]);
 
       const maxRows = limit ?? 50;
-      sql += ` LIMIT ${maxRows}`;
-
-      const rows = await proxySQLQuery(sql);
+      const rows = await proxySQLQuery(
+        `SELECT * FROM global_variables${whereClause} LIMIT ${maxRows}`,
+      );
 
       // Redact sensitive credential values (passwords, credentials)
       const redactedRows = redactSensitiveVariables(rows);
@@ -499,6 +504,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         success: true,
         variables: redactedRows,
         count: redactedRows.length,
+        totalVarsAvailable,
       };
     },
   };

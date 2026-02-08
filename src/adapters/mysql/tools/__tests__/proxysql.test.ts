@@ -444,41 +444,59 @@ describe("Handler Execution", () => {
       const mockVars = [
         { variable_name: "mysql-threads", variable_value: "4" },
       ];
-      mockQuery.mockResolvedValue([mockVars]);
+      mockQuery
+        .mockResolvedValueOnce([[{ cnt: 1 }]])
+        .mockResolvedValueOnce([mockVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
+        "SELECT COUNT(*) AS cnt FROM global_variables",
+      );
+      expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM global_variables LIMIT 50",
       );
       expect(result).toHaveProperty("variables", mockVars);
+      expect(result).toHaveProperty("totalVarsAvailable", 1);
     });
 
     it("should filter by mysql prefix", async () => {
-      mockQuery.mockResolvedValue([[]]);
+      mockQuery
+        .mockResolvedValueOnce([[{ cnt: 0 }]])
+        .mockResolvedValueOnce([[]]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
       await tool.handler({ prefix: "mysql" }, mockContext);
 
+      expect(mockQuery).toHaveBeenCalledWith(
+        "SELECT COUNT(*) AS cnt FROM global_variables WHERE variable_name LIKE 'mysql-%'",
+      );
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 50",
       );
     });
 
     it("should filter by admin prefix", async () => {
-      mockQuery.mockResolvedValue([[]]);
+      mockQuery
+        .mockResolvedValueOnce([[{ cnt: 0 }]])
+        .mockResolvedValueOnce([[]]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
       await tool.handler({ prefix: "admin" }, mockContext);
 
+      expect(mockQuery).toHaveBeenCalledWith(
+        "SELECT COUNT(*) AS cnt FROM global_variables WHERE variable_name LIKE 'admin-%'",
+      );
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 50",
       );
     });
 
     it("should respect custom limit", async () => {
-      mockQuery.mockResolvedValue([[]]);
+      mockQuery
+        .mockResolvedValueOnce([[{ cnt: 0 }]])
+        .mockResolvedValueOnce([[]]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
       await tool.handler({ limit: 50 }, mockContext);
@@ -504,11 +522,14 @@ describe("Handler Execution", () => {
           variable_value: "stats:stats",
         },
       ];
-      mockQuery.mockResolvedValue([mockVars]);
+      mockQuery
+        .mockResolvedValueOnce([[{ cnt: 4 }]])
+        .mockResolvedValueOnce([mockVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
       const result = (await tool.handler({}, mockContext)) as {
         variables: { variable_name: string; variable_value: string }[];
+        totalVarsAvailable: number;
       };
 
       // Non-sensitive should be preserved
@@ -532,6 +553,9 @@ describe("Handler Execution", () => {
         (v) => v.variable_name === "admin-stats_credentials",
       );
       expect(statsCreds?.variable_value).toBe("********");
+
+      // totalVarsAvailable should reflect total count
+      expect(result.totalVarsAvailable).toBe(4);
     });
   });
 
