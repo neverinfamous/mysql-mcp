@@ -76,6 +76,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Default limit**: \`mysql_export_table\` returns at most 100 rows by default. Use \`limit\` parameter to override.
 - **WHERE filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
 - **CSV and JSON columns**: CSV export escapes JSON columns with double-quote encoding—valid but complex. Consider SQL format for JSON-heavy tables.
+- **Export error handling**: \`mysql_export_table\` returns \`{ exists: false, table }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., invalid WHERE clause, unknown column). No raw exceptions are thrown.
 - **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist. Returns \`{ exists: false, table }\` gracefully if the table does not exist.
 - **Import error handling**: \`mysql_import_data\` returns \`{ success: false, error, rowsInserted }\` for all insertion failures (duplicate keys, unknown columns, data truncation) instead of throwing, reporting how many rows were successfully inserted before the error.
 - **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.

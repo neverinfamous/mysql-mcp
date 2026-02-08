@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_export_table` Graceful Query Error Handling (P154)** — Tool now returns `{ success: false, error }` for query errors (e.g., invalid WHERE clause, unknown column in WHERE) instead of propagating raw MySQL exceptions. Nonexistent table handling (`{ exists: false, table }`) was already correct; this fix covers all other query error paths.
 - **`mysql_flush_tables` Table Existence Pre-Check (P154)** — When specific tables are provided, tool now pre-checks existence via `information_schema.TABLES` and returns `{ success: false, notFound: [...] }` for any nonexistent tables instead of silently succeeding. Global flush (no tables specified) is unaffected.
 - **`mysql_flush_tables` Partial Flush on Mixed Input** — When a mix of valid and nonexistent tables is provided, valid tables are now flushed before reporting the error. The response returns `{ success: false, notFound: [...], flushed: [...] }` listing both missing and successfully flushed tables, instead of skipping the flush entirely.
 - **Admin Tools `rowCount` Consistency** — `mysql_optimize_table`, `mysql_analyze_table`, and `mysql_repair_table` now include `rowCount` in their responses, matching the existing behavior of `mysql_check_table`.

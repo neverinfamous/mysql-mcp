@@ -214,6 +214,23 @@ describe("Admin Backup Tools", () => {
       expect(result.table).toBe("nonexistent");
     });
 
+    it("should return structured error for query failures", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Unknown column 'invalid_col' in 'where clause'"),
+      );
+
+      const tool = createExportTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", format: "SQL", where: "invalid_col = 'bad'" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown column");
+    });
+
     it("should generate proper INSERT statements with column names", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([

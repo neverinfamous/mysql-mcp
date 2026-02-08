@@ -126,7 +126,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
-        throw error;
+        return { success: false, error: msg };
       }
 
       if (format === "CSV") {
