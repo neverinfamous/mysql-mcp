@@ -38,6 +38,21 @@ describe("Schema Routine Tools", () => {
       expect(call).toContain("information_schema.ROUTINES");
       expect(result).toBeDefined();
     });
+
+    it("should return exists false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createListStoredProceduresTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { schema: "nonexistent_db" },
+        mockContext,
+      )) as { exists: boolean; schema: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.schema).toBe("nonexistent_db");
+    });
   });
 
   describe("mysql_list_functions", () => {
@@ -55,6 +70,21 @@ describe("Schema Routine Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
+    });
+
+    it("should return exists false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createListFunctionsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { schema: "nonexistent_db" },
+        mockContext,
+      )) as { exists: boolean; schema: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.schema).toBe("nonexistent_db");
     });
   });
 });

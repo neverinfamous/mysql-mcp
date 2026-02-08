@@ -34,6 +34,19 @@ describe("Schema Event Tools", () => {
       expect(result).toBeDefined();
     });
 
+    it("should return exists false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createListEventsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { schema: "nonexistent_db" },
+        mockContext,
+      )) as { exists: boolean; schema: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.schema).toBe("nonexistent_db");
+    });
+
     it("should filter by status when provided", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 

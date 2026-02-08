@@ -224,7 +224,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Graceful schema errors**: \`mysql_create_schema\` returns \`{ success: false, reason }\` when the schema already exists (without \`ifNotExists\`). \`mysql_drop_schema\` returns \`{ success: false, reason }\` when the schema does not exist (without \`ifExists\`).
 - **Views**: \`mysql_create_view\` supports \`orReplace\` (default: false), \`algorithm\` (UNDEFINED/MERGE/TEMPTABLE), and \`checkOption\` (NONE/CASCADED/LOCAL). Returns \`{ success: false, reason }\` when the view already exists without \`orReplace\` or when the SQL definition is invalid (e.g., referencing nonexistent tables). \`mysql_list_views\` shows definitions, security type, and updatability.
 - **Constraints**: \`mysql_list_constraints\` returns primary keys, foreign keys, unique, and check constraints. Use \`type\` parameter to filter (e.g., \`type: "FOREIGN KEY"\`). Returns \`{ exists: false, table }\` when the table does not exist.
-- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects. All accept optional \`schema\` parameter for cross-database inspection.
+- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects. All accept optional \`schema\` parameter for cross-database inspection. Returns \`{ exists: false, schema }\` when the specified schema does not exist.
 
 ## Sys Schema Tools (\`mysql_sys_*\`)
 

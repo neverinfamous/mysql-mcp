@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Schema Introspection P154 Schema Existence Check** — `mysql_list_views`, `mysql_list_triggers`, `mysql_list_events`, `mysql_list_stored_procedures`, and `mysql_list_functions` now pre-check schema existence via `information_schema.SCHEMATA` when the optional `schema` parameter is explicitly provided, returning `{ exists: false, schema }` for nonexistent schemas instead of silently returning empty arrays indistinguishable from schemas with no objects.
 - **`mysql_export_table` Graceful Query Error Handling (P154)** — Tool now returns `{ success: false, error }` for query errors (e.g., invalid WHERE clause, unknown column in WHERE) instead of propagating raw MySQL exceptions. Nonexistent table handling (`{ exists: false, table }`) was already correct; this fix covers all other query error paths.
 - **`mysql_flush_tables` Table Existence Pre-Check (P154)** — When specific tables are provided, tool now pre-checks existence via `information_schema.TABLES` and returns `{ success: false, notFound: [...] }` for any nonexistent tables instead of silently succeeding. Global flush (no tables specified) is unaffected.
 - **`mysql_flush_tables` Partial Flush on Mixed Input** — When a mix of valid and nonexistent tables is provided, valid tables are now flushed before reporting the error. The response returns `{ success: false, notFound: [...], flushed: [...] }` listing both missing and successfully flushed tables, instead of skipping the flush entirely.

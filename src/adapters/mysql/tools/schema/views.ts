@@ -49,6 +49,17 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { schema } = ListViewsSchema.parse(params);
 
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
+
       const query = `
                 SELECT 
                     TABLE_NAME as name,
