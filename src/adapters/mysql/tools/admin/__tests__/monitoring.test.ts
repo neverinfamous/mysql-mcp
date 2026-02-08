@@ -161,6 +161,71 @@ describe("Admin Monitoring Tools", () => {
       expect(result.status).toHaveProperty("Uptime", "12345");
       expect(result.status).toHaveProperty("Queries", "98765");
     });
+
+    it("should apply default limit of 100 when results exceed it", async () => {
+      const rows = Array.from({ length: 150 }, (_, i) => ({
+        Variable_name: `Status_${i}`,
+        Value: `${i}`,
+      }));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult(rows));
+
+      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        status: Record<string, string>;
+        rowCount: number;
+        totalAvailable: number;
+        limited: boolean;
+      };
+
+      expect(Object.keys(result.status)).toHaveLength(100);
+      expect(result.rowCount).toBe(100);
+      expect(result.totalAvailable).toBe(150);
+      expect(result.limited).toBe(true);
+    });
+
+    it("should respect explicit limit parameter", async () => {
+      const rows = Array.from({ length: 20 }, (_, i) => ({
+        Variable_name: `Status_${i}`,
+        Value: `${i}`,
+      }));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult(rows));
+
+      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({ limit: 5 }, mockContext)) as {
+        status: Record<string, string>;
+        rowCount: number;
+        totalAvailable: number;
+        limited: boolean;
+      };
+
+      expect(Object.keys(result.status)).toHaveLength(5);
+      expect(result.rowCount).toBe(5);
+      expect(result.totalAvailable).toBe(20);
+      expect(result.limited).toBe(true);
+    });
+
+    it("should redact RSA public key values", async () => {
+      mockAdapter.rawQuery.mockResolvedValue(
+        createMockQueryResult([
+          { Variable_name: "Uptime", Value: "12345" },
+          {
+            Variable_name: "Caching_sha2_password_rsa_public_key",
+            Value:
+              "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkq...\n-----END PUBLIC KEY-----",
+          },
+        ]),
+      );
+
+      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        status: Record<string, string>;
+      };
+
+      expect(result.status["Uptime"]).toBe("12345");
+      expect(result.status["Caching_sha2_password_rsa_public_key"]).toBe(
+        "[REDACTED]",
+      );
+    });
   });
 
   describe("createShowVariablesTool", () => {
@@ -238,6 +303,29 @@ describe("Admin Monitoring Tools", () => {
 
       expect(result.variables).toHaveProperty("version", "8.0.33");
       expect(result.variables).toHaveProperty("datadir", "/var/lib/mysql/");
+    });
+
+    it("should apply default limit of 100 when results exceed it", async () => {
+      const rows = Array.from({ length: 200 }, (_, i) => ({
+        Variable_name: `var_${i}`,
+        Value: `val_${i}`,
+      }));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult(rows));
+
+      const tool = createShowVariablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        variables: Record<string, string>;
+        rowCount: number;
+        totalAvailable: number;
+        limited: boolean;
+      };
+
+      expect(Object.keys(result.variables)).toHaveLength(100);
+      expect(result.rowCount).toBe(100);
+      expect(result.totalAvailable).toBe(200);
+      expect(result.limited).toBe(true);
     });
   });
 

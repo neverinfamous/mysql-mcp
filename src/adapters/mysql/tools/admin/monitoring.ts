@@ -53,7 +53,8 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { like, global } = ShowStatusSchema.parse(params);
+      const { like, global, limit } = ShowStatusSchema.parse(params);
+      const effectiveLimit = limit ?? 100;
 
       let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
 
@@ -75,11 +76,26 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
           row["variable_name"]) as string;
         const value = (row["Value"] ?? row["VALUE"] ?? row["value"]) as string;
         if (name) {
-          status[name] = value;
+          // Redact RSA public key blobs (multi-line PEM certificates)
+          status[name] = value?.includes("-----BEGIN PUBLIC KEY-----")
+            ? "[REDACTED]"
+            : value;
         }
       }
 
-      return { status, rowCount: result.rows?.length ?? 0 };
+      const totalAvailable = Object.keys(status).length;
+      const entries = Object.entries(status);
+      const limited = entries.length > effectiveLimit;
+      const truncated = limited
+        ? Object.fromEntries(entries.slice(0, effectiveLimit))
+        : status;
+
+      return {
+        status: truncated,
+        rowCount: Object.keys(truncated).length,
+        totalAvailable,
+        ...(limited && { limited: true }),
+      };
     },
   };
 }
@@ -97,7 +113,8 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { like, global } = ShowVariablesSchema.parse(params);
+      const { like, global, limit } = ShowVariablesSchema.parse(params);
+      const effectiveLimit = limit ?? 100;
 
       let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
@@ -123,7 +140,19 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      return { variables, rowCount: result.rows?.length ?? 0 };
+      const totalAvailable = Object.keys(variables).length;
+      const entries = Object.entries(variables);
+      const limited = entries.length > effectiveLimit;
+      const truncated = limited
+        ? Object.fromEntries(entries.slice(0, effectiveLimit))
+        : variables;
+
+      return {
+        variables: truncated,
+        rowCount: Object.keys(truncated).length,
+        totalAvailable,
+        ...(limited && { limited: true }),
+      };
     },
   };
 }

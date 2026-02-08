@@ -333,6 +333,14 @@ export const ShowProcesslistSchema = z.object({
 export const ShowStatusSchema = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern"),
   global: z.boolean().optional().default(true).describe("Show global status"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe(
+      "Maximum number of variables to return (default: 100). Set higher to see all.",
+    ),
 });
 
 export const ShowVariablesSchema = z.object({
@@ -342,6 +350,14 @@ export const ShowVariablesSchema = z.object({
     .optional()
     .default(true)
     .describe("Show global variables"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe(
+      "Maximum number of variables to return (default: 100). Set higher to see all.",
+    ),
 });
 
 // =============================================================================
