@@ -37,7 +37,7 @@ export function createSysSchemaStatsTool(
         .string()
         .optional()
         .describe("Schema name (defaults to current database)"),
-      limit: z.number().default(20).describe("Maximum number of results"),
+      limit: z.number().default(10).describe("Maximum number of results"),
     }),
     requiredScopes: ["read"],
     annotations: {
@@ -48,9 +48,29 @@ export function createSysSchemaStatsTool(
       const { schema, limit } = z
         .object({
           schema: z.string().optional(),
-          limit: z.number().default(20),
+          limit: z.number().default(10),
         })
         .parse(params);
+
+      // P154: Schema existence check when explicitly provided
+      if (schema) {
+        const schemaCheck = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [schema],
+        );
+        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          return { exists: false, schema };
+        }
+      }
+
+      // Resolve actual database name for response
+      let resolvedSchema = schema;
+      if (!resolvedSchema) {
+        const dbResult = await adapter.executeQuery("SELECT DATABASE() as db");
+        const rows = dbResult.rows ?? [];
+        const dbRow = rows[0] as Record<string, unknown> | undefined;
+        resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
+      }
 
       // Get table statistics
       const tableStatsQuery = `
@@ -122,7 +142,7 @@ export function createSysSchemaStatsTool(
         tableStatistics: tableStats.rows ?? [],
         indexStatistics: indexStats.rows ?? [],
         autoIncrementStatus: autoIncStats.rows ?? [],
-        schemaName: schema ?? "current",
+        schemaName: resolvedSchema,
       };
     },
   };

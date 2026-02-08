@@ -36,6 +36,10 @@ describe("Sys Schema Resource Tools", () => {
     });
 
     it("should query schema stats (tables, indexes, auto-inc)", async () => {
+      // Mock SELECT DATABASE()
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ db: "testdb" }]),
+      );
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([{ table_name: "t1" }])) // Tables
         .mockResolvedValueOnce(createMockQueryResult([{ index_name: "idx1" }])) // Indexes
@@ -48,15 +52,21 @@ describe("Sys Schema Resource Tools", () => {
         tableStatistics: unknown[];
         indexStatistics: unknown[];
         autoIncrementStatus: unknown[];
+        schemaName: string;
       };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
       expect(result.tableStatistics).toHaveLength(1);
       expect(result.indexStatistics).toHaveLength(1);
       expect(result.autoIncrementStatus).toHaveLength(1);
+      expect(result.schemaName).toBe("testdb");
     });
 
-    it("should use default limit of 20", async () => {
+    it("should use default limit of 10", async () => {
+      // Mock SELECT DATABASE()
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ db: "testdb" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysSchemaStatsTool(
@@ -64,11 +74,16 @@ describe("Sys Schema Resource Tools", () => {
       );
       await tool.handler({}, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("LIMIT 20");
+      // First call is SELECT DATABASE(), second is table stats
+      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(call).toContain("LIMIT 10");
     });
 
-    it("should filter by schema", async () => {
+    it("should filter by schema with existence check", async () => {
+      // Mock schema existence check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "test_db" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysSchemaStatsTool(
@@ -76,8 +91,11 @@ describe("Sys Schema Resource Tools", () => {
       );
       await tool.handler({ schema: "test_db" }, mockContext);
 
-      // Check first call (tables)
-      const args = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
+      // First call is schema existence check
+      const schemaCheck = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(schemaCheck).toContain("information_schema.SCHEMATA");
+      // Second call is table stats with schema param
+      const args = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
       expect(args).toContain("test_db");
     });
 
@@ -95,6 +113,43 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.tableStatistics).toEqual([]);
       expect(result.indexStatistics).toEqual([]);
       expect(result.autoIncrementStatus).toEqual([]);
+    });
+
+    it("should return exists: false for nonexistent schema (P154)", async () => {
+      // Mock schema existence check returning empty
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = createSysSchemaStatsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { schema: "nonexistent_db" },
+        mockContext,
+      )) as { exists: boolean; schema: string };
+
+      expect(result).toEqual({ exists: false, schema: "nonexistent_db" });
+      // Should only call the schema check, not the 3 stats queries
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("should resolve actual database name when schema not provided", async () => {
+      // Mock SELECT DATABASE()
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ db: "real_db_name" }]),
+      );
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createSysSchemaStatsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        schemaName: string;
+      };
+
+      expect(result.schemaName).toBe("real_db_name");
+      // First call should be SELECT DATABASE()
+      const firstCall = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(firstCall).toContain("SELECT DATABASE()");
     });
   });
 

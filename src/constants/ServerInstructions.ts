@@ -234,7 +234,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Wait events**: \`mysql_sys_wait_summary\` supports \`global\` (default), \`by_host\`, \`by_user\`, and \`by_instance\` types for wait analysis. The \`by_instance\` type provides per-instance granularity from \`performance_schema\` with formatted latencies.
 - **Lock contention**: \`mysql_sys_innodb_lock_waits\` shows active lock waits. Returns \`hasContention: false\` when none.
 - **Memory usage**: \`mysql_sys_memory_summary\` returns \`globalMemory\` (by event type) and \`memoryByUser\` arrays. The \`limit\` parameter (default 20) applies to both arrays.
-- **Schema stats**: \`mysql_sys_schema_stats\` returns 3 arrays: \`tableStatistics\` (DML and I/O per table), \`indexStatistics\` (per-index usage), and \`autoIncrementStatus\` (usage ratios). Filter by \`schema\` (defaults to current database). The \`limit\` parameter (default 20) applies per array.
+- **Schema stats**: \`mysql_sys_schema_stats\` returns 3 arrays: \`tableStatistics\` (DML and I/O per table), \`indexStatistics\` (per-index usage), and \`autoIncrementStatus\` (usage ratios). Filter by \`schema\` (defaults to current database). Returns \`{ exists: false, schema }\` when the specified schema does not exist. The \`limit\` parameter (default 10) applies per array.
 
 ## Stats Tools (\`mysql_stats_*\`)
 
