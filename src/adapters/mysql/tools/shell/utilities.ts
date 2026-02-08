@@ -44,7 +44,14 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
 
       const jsCode = `return util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
 
-      const result = await execShellJS(jsCode, { timeout: 120000 });
+      let result;
+      try {
+        result = await execShellJS(jsCode, { timeout: 120000 });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        return { success: false, error: errorMessage };
+      }
 
       // Parse the upgrade check result
       // util.checkForServerUpgrade returns { errorCount, warningCount, noticeCount, ... }

@@ -80,7 +80,7 @@ export function createShellExportTableTool(): ToolDefinition {
               `Ensure the user has SELECT privilege on ${schema}.${table}.`,
           );
         }
-        throw error;
+        return { success: false, schema, table, error: errorMessage };
       }
     },
   };
@@ -172,7 +172,13 @@ export function createShellImportTableTool(): ToolDefinition {
               `or manually run: SET GLOBAL local_infile = ON`,
           );
         }
-        throw error;
+        return {
+          success: false,
+          inputPath,
+          schema,
+          table,
+          error: errorMessage,
+        };
       }
     },
   };

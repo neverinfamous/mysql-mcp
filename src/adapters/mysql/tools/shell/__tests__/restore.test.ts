@@ -153,18 +153,35 @@ describe("Shell Restore and Script Tools", () => {
       ).rejects.toThrow("updateServerSettings: true");
     });
 
-    it("should re-throw non-local_infile errors", async () => {
+    it("should return structured error for non-local_infile errors", async () => {
       setupMockSpawn("", "Schema already exists", 1);
 
       const tool = createShellLoadDumpTool();
-      await expect(
-        tool.handler(
-          {
-            inputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Schema already exists");
+      const result = (await tool.handler(
+        {
+          inputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Schema already exists");
+    });
+
+    it("should return structured error with hint for duplicate objects", async () => {
+      setupMockSpawn("", "Duplicate objects found in destination", 1);
+
+      const tool = createShellLoadDumpTool();
+      const result = (await tool.handler(
+        {
+          inputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Duplicate objects");
+      expect(result.hint).toContain("ignoreExistingObjects");
     });
   });
 

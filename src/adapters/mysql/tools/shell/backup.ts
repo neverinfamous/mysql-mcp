@@ -100,7 +100,7 @@ export function createShellDumpInstanceTool(): ToolDefinition {
               `This may be caused by missing privileges. Consider using mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.`,
           );
         }
-        throw error;
+        return { success: false, outputDir, error: errorMessage };
       }
     },
   };
@@ -186,7 +186,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
               `Try setting ddlOnly: true to skip events, triggers, and routines.`,
           );
         }
-        throw error;
+        return { success: false, schemas, outputDir, error: errorMessage };
       }
     },
   };
@@ -284,7 +284,13 @@ export function createShellDumpTablesTool(): ToolDefinition {
           );
         }
 
-        throw error;
+        return {
+          success: false,
+          schema,
+          tables,
+          outputDir,
+          error: errorMessage,
+        };
       }
     },
   };

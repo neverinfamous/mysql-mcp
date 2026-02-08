@@ -88,27 +88,21 @@ describe("Shell Utilities Tools", () => {
       expect(result.upgradeCheck).toEqual({ raw: "Raw text output" });
     });
 
-    it("should handle JSON parsing errors", async () => {
-      // Mock valid JSON first line but invalid second, or just invalid json
-      // execShellJS parses output lines from bottom up looking for JSON
-      const shellOutput = `
-             some logs
-             { invalid json }
-             `;
-
-      // We need to fail execution to bubble up the stderr/stdout if parsing fails
-      setupMockSpawn(shellOutput, "", 1);
+    it("should return structured error for failed execution", async () => {
+      // When execShellJS fails (exit code 1), handler returns structured error
+      setupMockSpawn("some stderr output", "", 1);
 
       const tool = createShellCheckUpgradeTool();
 
-      await expect(
-        tool.handler(
-          {
-            targetVersion: "8.4.0",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow();
+      const result = (await tool.handler(
+        {
+          targetVersion: "8.4.0",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
 
     it("should return raw output if JSON parsing fails but exit code is 0", async () => {

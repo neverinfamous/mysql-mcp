@@ -128,13 +128,17 @@ describe("Shell Backup Tools", () => {
       ).rejects.toThrow("mysqlsh_dump_schemas");
     });
 
-    it("should re-throw non-privilege errors", async () => {
+    it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Connection refused", 1);
 
       const tool = createShellDumpInstanceTool();
-      await expect(
-        tool.handler({ outputDir: "/backup/full" }, mockContext),
-      ).rejects.toThrow("Connection refused");
+      const result = (await tool.handler(
+        { outputDir: "/backup/full" },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Connection refused");
     });
   });
 
@@ -264,19 +268,20 @@ describe("Shell Backup Tools", () => {
       ).rejects.toThrow("ddlOnly: true");
     });
 
-    it("should re-throw non-privilege errors", async () => {
+    it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Table not found", 1);
 
       const tool = createShellDumpSchemasTool();
-      await expect(
-        tool.handler(
-          {
-            schemas: ["db1"],
-            outputDir: "/backup",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Table not found");
+      const result = (await tool.handler(
+        {
+          schemas: ["db1"],
+          outputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Table not found");
     });
   });
 
@@ -411,20 +416,21 @@ describe("Shell Backup Tools", () => {
       ).rejects.toThrow("all: false");
     });
 
-    it("should re-throw non-privilege errors", async () => {
+    it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Connection timeout", 1);
 
       const tool = createShellDumpTablesTool();
-      await expect(
-        tool.handler(
-          {
-            schema: "s",
-            tables: ["t"],
-            outputDir: "/o",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Connection timeout");
+      const result = (await tool.handler(
+        {
+          schema: "s",
+          tables: ["t"],
+          outputDir: "/o",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Connection timeout");
     });
   });
 });

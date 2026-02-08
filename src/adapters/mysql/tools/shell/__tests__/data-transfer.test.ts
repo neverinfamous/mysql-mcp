@@ -157,21 +157,22 @@ describe("Shell Data Transfer Tools", () => {
       ).rejects.toThrow("SELECT privilege");
     });
 
-    it("should re-throw non-privilege errors", async () => {
+    it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Connection timeout", 1);
 
       const tool = createShellExportTableTool();
-      await expect(
-        tool.handler(
-          {
-            schema: "test",
-            table: "users",
-            outputPath: "/tmp/dump",
-            format: "csv",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Connection timeout");
+      const result = (await tool.handler(
+        {
+          schema: "test",
+          table: "users",
+          outputPath: "/tmp/dump",
+          format: "csv",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Connection timeout");
     });
   });
 
@@ -265,20 +266,21 @@ describe("Shell Data Transfer Tools", () => {
       ).rejects.toThrow("updateServerSettings: true");
     });
 
-    it("should re-throw non-local_infile errors", async () => {
+    it("should return structured error for non-local_infile errors", async () => {
       setupMockSpawn("", "Some other error", 1);
 
       const tool = createShellImportTableTool();
-      await expect(
-        tool.handler(
-          {
-            schema: "test",
-            table: "users",
-            inputPath: "/tmp/data.csv",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Some other error");
+      const result = (await tool.handler(
+        {
+          schema: "test",
+          table: "users",
+          inputPath: "/tmp/data.csv",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Some other error");
     });
   });
 

@@ -115,7 +115,15 @@ export function createShellLoadDumpTool(): ToolDefinition {
               `or manually run: SET GLOBAL local_infile = ON`,
           );
         }
-        throw error;
+        if (errorMessage.includes("Duplicate objects")) {
+          return {
+            success: false,
+            inputDir,
+            error: errorMessage,
+            hint: "Use ignoreExistingObjects: true to skip existing objects",
+          };
+        }
+        return { success: false, inputDir, error: errorMessage };
       }
     },
   };
