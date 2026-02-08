@@ -56,7 +56,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
   - **By existence**: Use JSON path: \`filter: "$.address"\` (matches docs where address field exists)
   - ❌ Incorrect: \`filter: "$.name == 'Alice'"\` (comparison operators not supported in path)
   - ✅ Correct: \`filter: "name=Alice"\` (field=value format)
-- **Find Filters** (\`mysql_doc_find\`): The filter parameter checks for field existence using JSON path only (e.g., \`$.address.zip\`). Does NOT support \`_id\` or \`field=value\` formats. Returns \`exists: false\` gracefully if the collection does not exist.
+- **Schema existence**: \`mysql_doc_list_collections\` returns \`{ exists: false, schema }\` when a nonexistent schema is explicitly provided, matching the P154 pattern used by schema introspection and event tools.
+- **Find Filters** (\`mysql_doc_find\`): The filter parameter checks for field existence using JSON path only (e.g., \`$.address.zip\`). Does NOT support \`_id\` or \`field=value\` formats. Returns \`{ exists: false, collection, documents: [], count: 0 }\` gracefully if the collection does not exist.
 
 
 ## Fulltext Search (\`mysql_fulltext_*\`)

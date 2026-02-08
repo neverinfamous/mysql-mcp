@@ -86,15 +86,42 @@ describe("Handler Execution", () => {
     });
 
     it("should filter by schema", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ SCHEMA_NAME: "mydb" }])) // schema exists
+        .mockResolvedValueOnce(createMockQueryResult([])); // collections query
 
       const tool = tools.find((t) => t.name === "mysql_doc_list_collections")!;
       await tool.handler({ schema: "mydb" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      // First call: schema existence check
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining("SCHEMATA"),
+        ["mydb"],
+      );
+      // Second call: collections query with schema params
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        2,
         expect.any(String),
         ["mydb", "mydb"],
       );
+    });
+
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_list_collections")!;
+      const result = await tool.handler(
+        { schema: "nonexistent_schema" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
     });
   });
 
@@ -284,6 +311,25 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("documents");
     });
 
+    it("should return exists: false without error field for nonexistent collection", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // collection does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const result = await tool.handler(
+        { collection: "nonexistent_col" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        collection: "nonexistent_col",
+        documents: [],
+        count: 0,
+      });
+      expect(result).not.toHaveProperty("error");
+    });
+
     it("should handle pre-parsed JSON documents", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
@@ -354,15 +400,14 @@ describe("Handler Execution", () => {
         mockContext,
       )) as {
         exists: boolean;
-        error: string;
         documents: unknown[];
         count: number;
       };
 
       expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("error", "Collection does not exist");
       expect(result).toHaveProperty("documents", []);
       expect(result).toHaveProperty("count", 0);
+      expect(result).not.toHaveProperty("error");
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
   });

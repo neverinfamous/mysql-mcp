@@ -160,6 +160,18 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
         const { schema } = ListCollectionsSchema.parse(params);
+
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
+        }
+
         const query = `
                     SELECT TABLE_NAME as name, TABLE_COMMENT as comment, TABLE_ROWS as rowCount
                     FROM information_schema.TABLES
@@ -295,7 +307,6 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return {
             exists: false,
             collection,
-            error: "Collection does not exist",
             documents: [],
             count: 0,
           };
