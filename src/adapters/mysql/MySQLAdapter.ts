@@ -324,6 +324,22 @@ export class MySQLAdapter extends DatabaseAdapter {
       throw new ConnectionError("Not connected");
     }
 
+    // Validate isolation level against allowlist before interpolation
+    const VALID_ISOLATION_LEVELS = [
+      "READ UNCOMMITTED",
+      "READ COMMITTED",
+      "REPEATABLE READ",
+      "SERIALIZABLE",
+    ];
+    if (
+      isolationLevel &&
+      !VALID_ISOLATION_LEVELS.includes(isolationLevel.toUpperCase())
+    ) {
+      throw new TransactionError(
+        `Invalid isolation level: ${isolationLevel}. Must be one of: ${VALID_ISOLATION_LEVELS.join(", ")}`,
+      );
+    }
+
     const connection = await this.pool.getConnection();
     const transactionId = crypto.randomUUID();
 

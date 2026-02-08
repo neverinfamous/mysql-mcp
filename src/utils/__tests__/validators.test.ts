@@ -9,6 +9,7 @@ import {
   validateQualifiedIdentifier,
   escapeIdentifier,
   validateWhereClause,
+  validateMySQLPrivilege,
   escapeLikePattern,
 } from "../validators.js";
 
@@ -133,6 +134,28 @@ describe("validators", () => {
       ).toThrow(ValidationError);
     });
 
+    it("should reject subquery injection", () => {
+      expect(() =>
+        validateWhereClause("id = (SELECT password FROM mysql.user LIMIT 1)"),
+      ).toThrow(ValidationError);
+      expect(() =>
+        validateWhereClause(
+          "id = IF((SELECT 1 FROM mysql.user WHERE User='root'), 1, 0)",
+        ),
+      ).toThrow(ValidationError);
+      expect(() =>
+        validateWhereClause("id IN ( SELECT id FROM secrets)"),
+      ).toThrow(ValidationError);
+    });
+
+    it("should allow legitimate parenthesized expressions (not subqueries)", () => {
+      expect(() => validateWhereClause("status IN (1, 2, 3)")).not.toThrow();
+      expect(() =>
+        validateWhereClause("(a = 1 OR b = 2) AND c = 3"),
+      ).not.toThrow();
+      expect(() => validateWhereClause("column = 'SELECT'")).not.toThrow();
+    });
+
     it("should reject file operations", () => {
       expect(() => validateWhereClause("1=1 INTO OUTFILE '/tmp/data'")).toThrow(
         ValidationError,
@@ -159,6 +182,42 @@ describe("validators", () => {
 
     it("should accept escaped quotes", () => {
       expect(() => validateWhereClause("name = 'O''Brien'")).not.toThrow();
+    });
+  });
+
+  describe("validateMySQLPrivilege", () => {
+    it("should accept valid MySQL privileges", () => {
+      expect(() => validateMySQLPrivilege("SELECT")).not.toThrow();
+      expect(() => validateMySQLPrivilege("INSERT")).not.toThrow();
+      expect(() => validateMySQLPrivilege("UPDATE")).not.toThrow();
+      expect(() => validateMySQLPrivilege("DELETE")).not.toThrow();
+      expect(() => validateMySQLPrivilege("ALL PRIVILEGES")).not.toThrow();
+      expect(() => validateMySQLPrivilege("CREATE VIEW")).not.toThrow();
+      expect(() => validateMySQLPrivilege("REPLICATION SLAVE")).not.toThrow();
+    });
+
+    it("should be case-insensitive", () => {
+      expect(() => validateMySQLPrivilege("select")).not.toThrow();
+      expect(() => validateMySQLPrivilege("Select")).not.toThrow();
+    });
+
+    it("should reject SQL injection in privilege names", () => {
+      expect(() => validateMySQLPrivilege("SELECT; DROP TABLE users")).toThrow(
+        ValidationError,
+      );
+      expect(() => validateMySQLPrivilege("SELECT, DELETE")).toThrow(
+        ValidationError,
+      );
+      expect(() => validateMySQLPrivilege("INVALID_PRIV")).toThrow(
+        ValidationError,
+      );
+    });
+
+    it("should reject empty or non-string values", () => {
+      expect(() => validateMySQLPrivilege("")).toThrow(ValidationError);
+      expect(() => validateMySQLPrivilege(null as unknown as string)).toThrow(
+        ValidationError,
+      );
     });
   });
 

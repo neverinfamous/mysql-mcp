@@ -329,6 +329,23 @@ describe("MySQLAdapter", () => {
       expect(mockConnection.release).toHaveBeenCalled();
     });
 
+    it("should reject invalid isolation levels", async () => {
+      await expect(
+        adapter.beginTransaction("SERIALIZABLE; DROP TABLE users"),
+      ).rejects.toThrow(TransactionError);
+      await expect(adapter.beginTransaction("INVALID LEVEL")).rejects.toThrow(
+        TransactionError,
+      );
+    });
+
+    it("should accept valid isolation levels", async () => {
+      const txId = await adapter.beginTransaction("READ COMMITTED");
+      expect(txId).toBeDefined();
+      expect(mockConnection.execute).toHaveBeenCalledWith(
+        "SET TRANSACTION ISOLATION LEVEL READ COMMITTED",
+      );
+    });
+
     it("should throw error when beginning transaction if not connected", async () => {
       await adapter.disconnect();
       await expect(adapter.beginTransaction()).rejects.toThrow(ConnectionError);

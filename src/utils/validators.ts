@@ -44,6 +44,8 @@ const DANGEROUS_WHERE_PATTERNS = [
   /\bUNION\s+(ALL\s+)?SELECT\b/i,
   /\bEXCEPT\s+SELECT\b/i,
   /\bINTERSECT\s+SELECT\b/i,
+  // Subquery injection - SELECT inside WHERE (data exfiltration)
+  /\(\s*SELECT\b/i,
   // Dangerous functions
   /\bINTO\s+(OUTFILE|DUMPFILE)\b/i,
   /\bLOAD_FILE\s*\(/i,
@@ -88,6 +90,48 @@ export function validateIdentifier(
   if (!IDENTIFIER_PATTERN.test(name)) {
     throw new ValidationError(
       `Invalid ${type} name: must start with letter/underscore and contain only alphanumeric characters`,
+      type,
+    );
+  }
+}
+
+/**
+ * Valid MySQL user/host pattern
+ * - Allows alphanumeric, underscore, percent (wildcard), dot, hyphen
+ * - Max length 255 characters (MySQL host limit)
+ * - Blocks injection characters: quotes, semicolons, backticks, parentheses, spaces
+ */
+const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.-]+$/;
+
+/**
+ * Validate a MySQL user or host value for safe interpolation
+ *
+ * Unlike identifiers, MySQL usernames and hosts can contain wildcards (%),
+ * dots, hyphens, and can start with digits. This validator blocks SQL
+ * injection characters while permitting legitimate MySQL auth ID patterns.
+ *
+ * @param value - The user or host string to validate
+ * @param type - "user" or "host" for error messages
+ * @throws ValidationError if value contains dangerous characters
+ */
+export function validateMySQLUserHost(
+  value: string,
+  type: "user" | "host" = "user",
+): void {
+  if (!value || typeof value !== "string") {
+    throw new ValidationError(`${type} must be a non-empty string`, type);
+  }
+
+  if (value.length > 255) {
+    throw new ValidationError(
+      `${type} exceeds maximum length of 255 characters`,
+      type,
+    );
+  }
+
+  if (!MYSQL_USER_HOST_PATTERN.test(value)) {
+    throw new ValidationError(
+      `Invalid ${type}: contains disallowed characters. Only alphanumeric, underscore, percent, dot, and hyphen are allowed.`,
       type,
     );
   }
@@ -172,6 +216,69 @@ export function validateWhereClause(where: string | undefined): void {
     throw new ValidationError(
       "WHERE clause contains unbalanced double quotes",
       "where",
+    );
+  }
+}
+
+/**
+ * Valid MySQL privilege keywords (allowlist for GRANT statements)
+ */
+const VALID_MYSQL_PRIVILEGES = new Set([
+  "ALL",
+  "ALL PRIVILEGES",
+  "ALTER",
+  "ALTER ROUTINE",
+  "CREATE",
+  "CREATE ROLE",
+  "CREATE ROUTINE",
+  "CREATE TABLESPACE",
+  "CREATE TEMPORARY TABLES",
+  "CREATE USER",
+  "CREATE VIEW",
+  "DELETE",
+  "DROP",
+  "DROP ROLE",
+  "EVENT",
+  "EXECUTE",
+  "FILE",
+  "GRANT OPTION",
+  "INDEX",
+  "INSERT",
+  "LOCK TABLES",
+  "PROCESS",
+  "REFERENCES",
+  "RELOAD",
+  "REPLICATION CLIENT",
+  "REPLICATION SLAVE",
+  "SELECT",
+  "SHOW DATABASES",
+  "SHOW VIEW",
+  "SHUTDOWN",
+  "SUPER",
+  "TRIGGER",
+  "UPDATE",
+  "USAGE",
+]);
+
+/**
+ * Validate a MySQL privilege keyword against the allowlist
+ *
+ * @param privilege - The privilege string to validate
+ * @throws ValidationError if the privilege is not recognized
+ */
+export function validateMySQLPrivilege(privilege: string): void {
+  if (!privilege || typeof privilege !== "string") {
+    throw new ValidationError(
+      "Privilege must be a non-empty string",
+      "privilege",
+    );
+  }
+
+  const normalized = privilege.trim().toUpperCase();
+  if (!VALID_MYSQL_PRIVILEGES.has(normalized)) {
+    throw new ValidationError(
+      `Invalid MySQL privilege: '${privilege}'. Must be a valid MySQL privilege keyword.`,
+      "privilege",
     );
   }
 }

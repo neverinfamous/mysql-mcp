@@ -5,6 +5,12 @@
 import { z } from "zod";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import {
+  validateIdentifier,
+  validateMySQLPrivilege,
+  validateMySQLUserHost,
+  escapeLikePattern,
+} from "../../../utils/validators.js";
 
 const RoleListSchema = z.object({
   pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
@@ -61,7 +67,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         const { pattern } = RoleListSchema.parse(params);
         let query = `SELECT u.User as roleName, u.Host FROM mysql.user u
                     WHERE u.account_locked='Y' AND u.password_expired='Y' AND u.authentication_string=''`;
-        if (pattern) query += ` AND u.User LIKE '${pattern}'`;
+        if (pattern)
+          query += ` AND u.User LIKE '${escapeLikePattern(pattern)}'`;
         const result = await adapter.executeQuery(query);
         return { roles: result.rows ?? [], count: result.rows?.length ?? 0 };
       },
@@ -136,6 +143,9 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       handler: async (params: unknown, _context: RequestContext) => {
         const { role } = RoleGrantsSchema.parse(params);
 
+        // Validate role identifier before interpolation
+        validateIdentifier(role, "column");
+
         // Check if role exists first (roles are locked accounts with empty auth string)
         const checkResult = await adapter.executeQuery(
           `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
@@ -165,6 +175,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(role))
           throw new Error("Invalid role name");
 
+        // Validate each privilege against allowlist
+        for (const priv of privileges) {
+          validateMySQLPrivilege(priv);
+        }
+
         // Check if role exists first
         const checkResult = await adapter.executeQuery(
           `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
@@ -190,6 +205,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             targetTable = tablePart;
           }
         }
+
+        // Validate database and table identifiers when not wildcards
+        if (targetDb !== "*") validateIdentifier(targetDb, "database");
+        if (targetTable !== "*") validateIdentifier(targetTable, "table");
 
         const db = targetDb === "*" ? "*" : `\`${targetDb}\``;
         const tbl = targetTable === "*" ? "*" : `\`${targetTable}\``;
@@ -241,6 +260,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       handler: async (params: unknown, _context: RequestContext) => {
         const { role, user, host, withAdminOption } =
           RoleAssignSchema.parse(params);
+
+        // Validate all interpolated identifiers
+        validateIdentifier(role, "column");
+        validateMySQLUserHost(user, "user");
+        validateMySQLUserHost(host, "host");
 
         // Check if role exists first
         const checkResult = await adapter.executeQuery(
@@ -340,6 +364,12 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         }
 
         try {
+          // Validate before interpolation (role/user/host already validated by earlier checks
+          // but validate user/host explicitly for this rawQuery)
+          validateIdentifier(role, "column");
+          validateMySQLUserHost(user, "user");
+          validateMySQLUserHost(host, "host");
+
           await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
           return { success: true, role, user, host };
         } catch (error: unknown) {
