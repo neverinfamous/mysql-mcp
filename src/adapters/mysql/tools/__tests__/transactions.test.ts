@@ -158,6 +158,21 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("transactionId", "txn-123");
     });
+
+    it("should return structured error for non-existent transaction", async () => {
+      (
+        mockAdapter.commitTransaction as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new Error("Transaction not found: gone"));
+
+      const tool = tools.find((t) => t.name === "mysql_transaction_commit")!;
+      const result = await tool.handler({ transactionId: "gone" }, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("reason");
+      expect((result as { reason: string }).reason).toContain(
+        "Transaction not found",
+      );
+    });
   });
 
   describe("mysql_transaction_rollback", () => {
@@ -171,6 +186,21 @@ describe("Handler Execution", () => {
       expect(mockAdapter.rollbackTransaction).toHaveBeenCalledWith("txn-123");
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("message");
+    });
+
+    it("should return structured error for non-existent transaction", async () => {
+      (
+        mockAdapter.rollbackTransaction as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new Error("Transaction not found: gone"));
+
+      const tool = tools.find((t) => t.name === "mysql_transaction_rollback")!;
+      const result = await tool.handler({ transactionId: "gone" }, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("reason");
+      expect((result as { reason: string }).reason).toContain(
+        "Transaction not found",
+      );
     });
   });
 
@@ -195,36 +225,40 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("savepoint", "sp1");
     });
 
-    it("should throw for invalid savepoint name", async () => {
+    it("should return structured error for invalid savepoint name", async () => {
       const tool = tools.find((t) => t.name === "mysql_transaction_savepoint")!;
 
-      await expect(
-        tool.handler(
-          {
-            transactionId: "txn-123",
-            savepoint: "invalid-name",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid savepoint name");
+      const result = await tool.handler(
+        {
+          transactionId: "txn-123",
+          savepoint: "invalid-name",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("reason", "Invalid savepoint name");
     });
 
-    it("should throw for non-existent transaction", async () => {
+    it("should return structured error for non-existent transaction", async () => {
       (
         mockAdapter.getTransactionConnection as ReturnType<typeof vi.fn>
       ).mockReturnValue(undefined);
 
       const tool = tools.find((t) => t.name === "mysql_transaction_savepoint")!;
 
-      await expect(
-        tool.handler(
-          {
-            transactionId: "nonexistent",
-            savepoint: "sp1",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Transaction not found");
+      const result = await tool.handler(
+        {
+          transactionId: "nonexistent",
+          savepoint: "sp1",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect((result as { reason: string }).reason).toContain(
+        "Transaction not found",
+      );
     });
   });
 
@@ -246,36 +280,40 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("message", "Savepoint released.");
     });
 
-    it("should throw for invalid savepoint name", async () => {
+    it("should return structured error for invalid savepoint name", async () => {
       const tool = tools.find((t) => t.name === "mysql_transaction_release")!;
 
-      await expect(
-        tool.handler(
-          {
-            transactionId: "txn-123",
-            savepoint: "123invalid",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid savepoint name");
+      const result = await tool.handler(
+        {
+          transactionId: "txn-123",
+          savepoint: "123invalid",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("reason", "Invalid savepoint name");
     });
 
-    it("should throw for non-existent transaction", async () => {
+    it("should return structured error for non-existent transaction", async () => {
       (
         mockAdapter.getTransactionConnection as ReturnType<typeof vi.fn>
       ).mockReturnValue(undefined);
 
       const tool = tools.find((t) => t.name === "mysql_transaction_release")!;
 
-      await expect(
-        tool.handler(
-          {
-            transactionId: "gone",
-            savepoint: "sp1",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Transaction not found");
+      const result = await tool.handler(
+        {
+          transactionId: "gone",
+          savepoint: "sp1",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect((result as { reason: string }).reason).toContain(
+        "Transaction not found",
+      );
     });
   });
 
@@ -299,23 +337,24 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("message", "Rolled back to savepoint.");
     });
 
-    it("should throw for invalid savepoint name with special chars", async () => {
+    it("should return structured error for invalid savepoint name with special chars", async () => {
       const tool = tools.find(
         (t) => t.name === "mysql_transaction_rollback_to",
       )!;
 
-      await expect(
-        tool.handler(
-          {
-            transactionId: "txn-123",
-            savepoint: "DROP TABLE users; --",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid savepoint name");
+      const result = await tool.handler(
+        {
+          transactionId: "txn-123",
+          savepoint: "DROP TABLE users; --",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("reason", "Invalid savepoint name");
     });
 
-    it("should throw for non-existent transaction", async () => {
+    it("should return structured error for non-existent transaction", async () => {
       (
         mockAdapter.getTransactionConnection as ReturnType<typeof vi.fn>
       ).mockReturnValue(undefined);
@@ -324,15 +363,18 @@ describe("Handler Execution", () => {
         (t) => t.name === "mysql_transaction_rollback_to",
       )!;
 
-      await expect(
-        tool.handler(
-          {
-            transactionId: "missing",
-            savepoint: "sp1",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Transaction not found");
+      const result = await tool.handler(
+        {
+          transactionId: "missing",
+          savepoint: "sp1",
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect((result as { reason: string }).reason).toContain(
+        "Transaction not found",
+      );
     });
   });
 
@@ -413,7 +455,7 @@ describe("Handler Execution", () => {
       expect(results[1]).not.toHaveProperty("rows");
     });
 
-    it("should rollback on failure", async () => {
+    it("should return structured error on failure with rollback", async () => {
       (
         mockAdapter as { executeOnConnection?: ReturnType<typeof vi.fn> }
       ).executeOnConnection = vi
@@ -423,16 +465,19 @@ describe("Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
 
-      await expect(
-        tool.handler(
-          {
-            statements: ["INSERT INTO users VALUES (1)", "INSERT INTO invalid"],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Transaction failed and was rolled back");
+      const result = await tool.handler(
+        {
+          statements: ["INSERT INTO users VALUES (1)", "INSERT INTO invalid"],
+        },
+        mockContext,
+      );
 
       expect(mockAdapter.rollbackTransaction).toHaveBeenCalled();
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("rolledBack", true);
+      expect((result as { reason: string }).reason).toContain(
+        "Transaction failed and was rolled back",
+      );
     });
 
     it("should pass isolation level to beginTransaction", async () => {

@@ -73,12 +73,17 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { transactionId } = TransactionIdSchema.parse(params);
-      await adapter.commitTransaction(transactionId);
-      return {
-        success: true,
-        transactionId,
-        message: "Transaction committed successfully.",
-      };
+      try {
+        await adapter.commitTransaction(transactionId);
+        return {
+          success: true,
+          transactionId,
+          message: "Transaction committed successfully.",
+        };
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, reason: msg };
+      }
     },
   };
 }
@@ -99,12 +104,17 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { transactionId } = TransactionIdSchema.parse(params);
-      await adapter.rollbackTransaction(transactionId);
-      return {
-        success: true,
-        transactionId,
-        message: "Transaction rolled back.",
-      };
+      try {
+        await adapter.rollbackTransaction(transactionId);
+        return {
+          success: true,
+          transactionId,
+          message: "Transaction rolled back.",
+        };
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, reason: msg };
+      }
     },
   };
 }
@@ -130,17 +140,25 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
 
       const connection = adapter.getTransactionConnection(transactionId);
       if (!connection) {
-        throw new Error(`Transaction not found: ${transactionId}`);
+        return {
+          success: false,
+          reason: `Transaction not found: ${transactionId}`,
+        };
       }
 
       // Validate savepoint name
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-        throw new Error("Invalid savepoint name");
+        return { success: false, reason: "Invalid savepoint name" };
       }
 
-      // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
-      await connection.query(`SAVEPOINT ${savepoint}`);
-      return { success: true, transactionId, savepoint };
+      try {
+        // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
+        await connection.query(`SAVEPOINT ${savepoint}`);
+        return { success: true, transactionId, savepoint };
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, reason: msg };
+      }
     },
   };
 }
@@ -165,21 +183,29 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
 
       const connection = adapter.getTransactionConnection(transactionId);
       if (!connection) {
-        throw new Error(`Transaction not found: ${transactionId}`);
+        return {
+          success: false,
+          reason: `Transaction not found: ${transactionId}`,
+        };
       }
 
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-        throw new Error("Invalid savepoint name");
+        return { success: false, reason: "Invalid savepoint name" };
       }
 
-      // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
-      await connection.query(`RELEASE SAVEPOINT ${savepoint}`);
-      return {
-        success: true,
-        transactionId,
-        savepoint,
-        message: "Savepoint released.",
-      };
+      try {
+        // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
+        await connection.query(`RELEASE SAVEPOINT ${savepoint}`);
+        return {
+          success: true,
+          transactionId,
+          savepoint,
+          message: "Savepoint released.",
+        };
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, reason: msg };
+      }
     },
   };
 }
@@ -206,21 +232,29 @@ function createTransactionRollbackToTool(
 
       const connection = adapter.getTransactionConnection(transactionId);
       if (!connection) {
-        throw new Error(`Transaction not found: ${transactionId}`);
+        return {
+          success: false,
+          reason: `Transaction not found: ${transactionId}`,
+        };
       }
 
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-        throw new Error("Invalid savepoint name");
+        return { success: false, reason: "Invalid savepoint name" };
       }
 
-      // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
-      await connection.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
-      return {
-        success: true,
-        transactionId,
-        savepoint,
-        message: "Rolled back to savepoint.",
-      };
+      try {
+        // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
+        await connection.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+        return {
+          success: true,
+          transactionId,
+          savepoint,
+          message: "Rolled back to savepoint.",
+        };
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, reason: msg };
+      }
     },
   };
 }
@@ -293,9 +327,12 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         await adapter.rollbackTransaction(transactionId);
-        throw new Error(
-          `Transaction failed and was rolled back: ${String(error)}`,
-        );
+        const msg = String(error instanceof Error ? error.message : error);
+        return {
+          success: false,
+          reason: `Transaction failed and was rolled back: ${msg}`,
+          rolledBack: true,
+        };
       }
     },
   };
