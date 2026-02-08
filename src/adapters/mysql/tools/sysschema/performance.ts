@@ -160,7 +160,6 @@ export function createSysWaitSummaryTool(
           query = `
                         SELECT 
                             event_name AS event,
-                            object_instance_begin AS instance,
                             count_star AS total,
                             FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
                             FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency

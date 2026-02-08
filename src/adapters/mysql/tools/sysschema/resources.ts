@@ -17,7 +17,7 @@ import type {
 // =============================================================================
 
 const LimitSchema = z.object({
-  limit: z.number().default(20).describe("Maximum number of results to return"),
+  limit: z.number().default(10).describe("Maximum number of results to return"),
 });
 
 /**
