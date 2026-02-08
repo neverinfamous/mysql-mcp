@@ -369,6 +369,9 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("should execute FLUSH TABLES for specific table", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ TABLE_NAME: "users" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
@@ -383,6 +386,13 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("should execute FLUSH TABLES for multiple specific tables", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { TABLE_NAME: "users" },
+          { TABLE_NAME: "orders" },
+          { TABLE_NAME: "products" },
+        ]),
+      );
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
@@ -465,6 +475,137 @@ describe("Admin Maintenance Tools", () => {
       await tool.handler({ processId: 2147483647 }, mockContext);
       expect(mockAdapter.executeQuery).toHaveBeenLastCalledWith(
         "KILL QUERY 2147483647",
+      );
+    });
+
+    it("should return structured error for unknown thread ID", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Unknown thread id: 999999"),
+      );
+
+      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler({ processId: 999999 }, mockContext);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Process ID 999999 not found",
+      });
+    });
+
+    it("should rethrow non-thread-id errors", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
+
+      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      await expect(
+        tool.handler({ processId: 123 }, mockContext),
+      ).rejects.toThrow("Connection lost");
+    });
+  });
+
+  describe("rowCount consistency", () => {
+    it("mysql_optimize_table should include rowCount", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          { Table: "t1", Op: "optimize", Msg_type: "status", Msg_text: "OK" },
+          { Table: "t2", Op: "optimize", Msg_type: "status", Msg_text: "OK" },
+        ]),
+      );
+
+      const tool = createOptimizeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { tables: ["t1", "t2"] },
+        mockContext,
+      )) as { results: unknown[]; rowCount: number };
+
+      expect(result.rowCount).toBe(2);
+    });
+
+    it("mysql_analyze_table should include rowCount", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          { Table: "t1", Op: "analyze", Msg_type: "status", Msg_text: "OK" },
+        ]),
+      );
+
+      const tool = createAnalyzeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
+        results: unknown[];
+        rowCount: number;
+      };
+
+      expect(result.rowCount).toBe(1);
+    });
+
+    it("mysql_repair_table should include rowCount", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            Table: "t1",
+            Op: "repair",
+            Msg_type: "note",
+            Msg_text: "not supported",
+          },
+        ]),
+      );
+
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
+        results: unknown[];
+        rowCount: number;
+      };
+
+      expect(result.rowCount).toBe(1);
+    });
+  });
+
+  describe("flush table existence check", () => {
+    it("should return notFound for nonexistent tables", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ TABLE_NAME: "users" }]),
+      );
+
+      const tool = createFlushTablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { tables: ["users", "nonexistent_xyz"] },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        notFound: ["nonexistent_xyz"],
+      });
+      // Should NOT have called executeQuery (flush was skipped)
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
+
+    it("should flush when all tables exist", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { TABLE_NAME: "users" },
+          { TABLE_NAME: "orders" },
+        ]),
+      );
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createFlushTablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { tables: ["users", "orders"] },
+        mockContext,
+      );
+
+      expect(result).toEqual({ success: true });
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "FLUSH TABLES `users`, `orders`",
       );
     });
   });

@@ -35,7 +35,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
       const { tables } = OptimizeTableSchema.parse(params);
       const tableList = tables.map((t) => `\`${t}\``).join(", ");
       const result = await adapter.executeQuery(`OPTIMIZE TABLE ${tableList}`);
-      return { results: result.rows };
+      return { results: result.rows, rowCount: result.rows?.length ?? 0 };
     },
   };
 }
@@ -57,7 +57,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
       const { tables } = AnalyzeTableSchema.parse(params);
       const tableList = tables.map((t) => `\`${t}\``).join(", ");
       const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
-      return { results: result.rows };
+      return { results: result.rows, rowCount: result.rows?.length ?? 0 };
     },
   };
 }
@@ -114,7 +114,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
       const result = await adapter.executeQuery(
         `REPAIR TABLE ${tableList}${quickClause}`,
       );
-      return { results: result.rows };
+      return { results: result.rows, rowCount: result.rows?.length ?? 0 };
     },
   };
 }
@@ -134,13 +134,29 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { tables } = FlushTablesSchema.parse(params);
 
-      let sql = "FLUSH TABLES";
       if (tables && tables.length > 0) {
+        // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
+        const placeholders = tables.map(() => "?").join(", ");
+        const checkResult = await adapter.executeReadQuery(
+          `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (${placeholders})`,
+          tables,
+        );
+        const foundTables = new Set(
+          (checkResult.rows ?? []).map(
+            (r: Record<string, unknown>) => r["TABLE_NAME"] as string,
+          ),
+        );
+        const notFound = tables.filter((t) => !foundTables.has(t));
+        if (notFound.length > 0) {
+          return { success: false, notFound };
+        }
+
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        sql = `FLUSH TABLES ${tableList}`;
+        await adapter.executeQuery(`FLUSH TABLES ${tableList}`);
+      } else {
+        await adapter.executeQuery("FLUSH TABLES");
       }
 
-      await adapter.executeQuery(sql);
       return { success: true };
     },
   };

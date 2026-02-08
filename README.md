@@ -265,7 +265,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `dba-secure`    | 32     | DBA Security       | core, security, roles, transactions                      |
 | `base-core`     | 48     | Base Ops           | core, json, transactions, text, schema                   |
 | `base-advanced` | 40     | Advanced Features  | docstore, spatial, stats, fulltext, events               |
-| `ecosystem`     | 41     | External Tools     | router, proxysql, shell, cluster                         |
+| `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell                         |
 
 ### Tool Groups (24 Available)
 
@@ -283,18 +283,18 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `backup`       | 4     | Export, import, mysqldump                |
 | `replication`  | 5     | Master/slave, binlog                     |
 | `partitioning` | 4     | Partition management                     |
-| `router`       | 9     | MySQL Router REST API                    |
-| `proxysql`     | 12    | ProxySQL management                      |
-| `shell`        | 10    | MySQL Shell utilities                    |
 | `schema`       | 10    | Views, procedures, triggers, constraints |
+| `shell`        | 10    | MySQL Shell utilities                    |
 | `events`       | 6     | Event Scheduler management               |
 | `sysschema`    | 8     | sys schema diagnostics                   |
 | `stats`        | 8     | Statistical analysis tools               |
 | `spatial`      | 12    | Spatial/GIS operations                   |
 | `security`     | 9     | Audit, SSL, encryption, masking          |
-| `cluster`      | 10    | Group Replication, InnoDB Cluster        |
 | `roles`        | 8     | MySQL 8.0 role management                |
 | `docstore`     | 9     | Document Store collections               |
+| `cluster`      | 10    | Group Replication, InnoDB Cluster        |
+| `proxysql`     | 12    | ProxySQL management                      |
+| `router`       | 9     | MySQL Router REST API                    |
 
 ---
 

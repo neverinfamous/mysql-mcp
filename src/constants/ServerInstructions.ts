@@ -186,8 +186,9 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Analyze**: \`mysql_analyze_table\` updates index statistics for the query optimizer.
 - **Check**: \`mysql_check_table\` verifies table integrity. Options: QUICK, FAST, MEDIUM, EXTENDED, CHANGED.
 - **Repair**: \`mysql_repair_table\` only works for MyISAM tables; InnoDB reports "not supported."
-- **Flush**: \`mysql_flush_tables\` writes cached changes to disk.
-- **Kill**: \`mysql_kill_query\` terminates queries by process ID. Use \`connection: true\` to kill the entire connection.
+- **Flush**: \`mysql_flush_tables\` writes cached changes to disk. Returns \`{ success: false, notFound }\` when any specified table does not exist (global flush with no tables always succeeds).
+- **Kill**: \`mysql_kill_query\` terminates queries by process ID. Use \`connection: true\` to kill the entire connection. Returns \`{ success: false, error }\` for invalid process IDs.
+- **Error handling**: \`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, and \`mysql_repair_table\` return MySQL's native per-table \`results\` array. Nonexistent tables appear as rows with \`Msg_type: "Error"\` and \`Msg_text: "Table does not exist"\` (no P154 wrapping—these are multi-table DDL commands).
 
 ## Monitoring Tools (\`mysql_show_processlist\`, \`mysql_server_health\`, etc.)
 
