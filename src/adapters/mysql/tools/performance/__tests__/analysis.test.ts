@@ -128,6 +128,36 @@ describe("Performance Analysis Tools", () => {
 
       expect(result.plan).toBe(mockRows);
     });
+
+    it("should return exists false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { query: "SELECT * FROM nonexistent" },
+        mockContext,
+      )) as { exists: boolean; error: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.error).toContain("doesn't exist");
+    });
+
+    it("should return success false for invalid SQL", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("You have an error in your SQL syntax"),
+      );
+
+      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { query: "SELECTT * FROMM users" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("SQL syntax");
+    });
   });
 
   describe("createExplainAnalyzeTool", () => {
@@ -178,6 +208,40 @@ describe("Performance Analysis Tools", () => {
       expect(result.reason).toContain("does not support FORMAT=JSON");
       // Should NOT call executeReadQuery for JSON format
       expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
+    });
+
+    it("should return exists false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = createExplainAnalyzeTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { query: "SELECT * FROM nonexistent" },
+        mockContext,
+      )) as { exists: boolean; error: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.error).toContain("doesn't exist");
+    });
+
+    it("should return success false for invalid SQL", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("You have an error in your SQL syntax"),
+      );
+
+      const tool = createExplainAnalyzeTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { query: "SELECTT * FROMM users" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("SQL syntax");
     });
   });
 

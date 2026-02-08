@@ -253,19 +253,19 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Shortcuts (Predefined Bundles)
 
-| Shortcut        | Tools  | Use Case           | What's Included                            |
-| --------------- | ------ | ------------------ | ------------------------------------------ |
-| `starter`       | **38** | 🌟 **Recommended** | Core, JSON, trans, text                    |
-| `essential`     | 15     | Minimal footprint  | Core, trans                                |
-| `dev-power`     | 46     | Power Developer    | Core, schema, perf, stats, fulltext, trans |
-| `ai-data`       | 45     | AI Data Analyst    | Core, JSON, docstore, text, fulltext       |
-| `ai-spatial`    | 43     | AI Spatial Analyst | Core, spatial, stats, perf, trans          |
-| `dba-monitor`   | 35     | DBA Monitoring     | Core, monitor, perf, sysschema, opt        |
-| `dba-manage`    | 33     | DBA Management     | Core, admin, backup, repl, parts, events   |
-| `dba-secure`    | 42     | DBA Security       | Core, security, roles, cluster, trans      |
-| `base-core`     | 48     | Base Ops           | Core, JSON, trans, text, schema            |
-| `base-advanced` | 40     | Advanced Features  | DocStore, spatial, stats, fulltext, events |
-| `ecosystem`     | 31     | External Tools     | Router, ProxySQL, Shell                    |
+| Shortcut        | Tools  | Use Case           | What's Included                                          |
+| --------------- | ------ | ------------------ | -------------------------------------------------------- |
+| `starter`       | **38** | 🌟 **Recommended** | core, json, transactions, text                           |
+| `essential`     | 15     | Minimal footprint  | core, transactions                                       |
+| `dev-power`     | 46     | Power Developer    | core, schema, performance, stats, fulltext, transactions |
+| `ai-data`       | 45     | AI Data Analyst    | core, json, docstore, text, fulltext                     |
+| `ai-spatial`    | 43     | AI Spatial Analyst | core, spatial, stats, performance, transactions          |
+| `dba-monitor`   | 35     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization   |
+| `dba-manage`    | 33     | DBA Management     | core, admin, backup, replication, partitioning, events   |
+| `dba-secure`    | 42     | DBA Security       | core, security, roles, cluster, transactions             |
+| `base-core`     | 48     | Base Ops           | core, json, transactions, text, schema                   |
+| `base-advanced` | 40     | Advanced Features  | docstore, spatial, stats, fulltext, events               |
+| `ecosystem`     | 31     | External Tools     | router, proxysql, shell                                  |
 
 ### Tool Groups (24 Available)
 

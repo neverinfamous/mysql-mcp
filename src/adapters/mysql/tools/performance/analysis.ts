@@ -40,17 +40,25 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
             ? `EXPLAIN FORMAT=TREE ${query}`
             : `EXPLAIN ${query}`;
 
-      const result = await adapter.executeReadQuery(sql);
+      try {
+        const result = await adapter.executeReadQuery(sql);
 
-      if (format === "JSON" && result.rows?.[0] !== undefined) {
-        const explainRow = result.rows[0];
-        const jsonStr = explainRow["EXPLAIN"];
-        if (typeof jsonStr === "string") {
-          return { plan: JSON.parse(jsonStr) as unknown };
+        if (format === "JSON" && result.rows?.[0] !== undefined) {
+          const explainRow = result.rows[0];
+          const jsonStr = explainRow["EXPLAIN"];
+          if (typeof jsonStr === "string") {
+            return { plan: JSON.parse(jsonStr) as unknown };
+          }
         }
-      }
 
-      return { plan: result.rows };
+        return { plan: result.rows };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, error: msg };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -89,9 +97,17 @@ export function createExplainAnalyzeTool(
       }
 
       const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
-      const result = await adapter.executeReadQuery(sql);
 
-      return { analysis: result.rows };
+      try {
+        const result = await adapter.executeReadQuery(sql);
+        return { analysis: result.rows };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, error: msg };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }

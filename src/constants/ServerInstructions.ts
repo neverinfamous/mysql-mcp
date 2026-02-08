@@ -170,6 +170,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Table stats**: \`mysql_table_stats\` returns \`{ exists: false, table: "..." }\` gracefully when the table does not exist.
 - **Buffer pool**: \`mysql_buffer_pool_stats\` shows InnoDB memory usage and hit rates.
 - **Thread stats**: \`mysql_thread_stats\` shows active threads with user, host, database, command, and connection type.
+- **Error handling**: \`mysql_explain\` and \`mysql_explain_analyze\` return \`{ exists: false, error }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., syntax errors). No raw MySQL errors are thrown.
 
 ## Optimization Tools (\`mysql_index_recommendation\`, \`mysql_query_rewrite\`, etc.)
 
