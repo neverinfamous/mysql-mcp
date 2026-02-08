@@ -507,4 +507,66 @@ describe("JSON Enhanced Tools", () => {
       expect(result.suggestions).toHaveLength(5);
     });
   });
+
+  describe("P154 Graceful Error Handling", () => {
+    const tableError = new Error("Table 'testdb.nonexistent' doesn't exist");
+
+    it("json_normalize should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(tableError);
+      const tool = createJsonNormalizeTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_stats should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(tableError);
+      const tool = createJsonStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_index_suggest should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(tableError);
+      const tool = createJsonIndexSuggestTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_merge should return success: false for invalid input", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Invalid JSON text"),
+      );
+      const tool = createJsonMergeTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { json1: "not-json", json2: "{}" },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+    });
+
+    it("json_diff should return success: false for invalid input", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Invalid JSON text"),
+      );
+      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { json1: "not-json", json2: "{}" },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+    });
+  });
 });

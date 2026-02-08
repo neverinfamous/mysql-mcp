@@ -121,4 +121,50 @@ describe("JSON Helper Tools", () => {
       expect(result.valid).toBe(true);
     });
   });
+
+  describe("P154 Graceful Error Handling", () => {
+    const tableError = new Error("Table 'testdb.nonexistent' doesn't exist");
+
+    it("json_get should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+      const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc", path: "$.x", id: 1 },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_update should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+      const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc", path: "$.x", value: 1, id: 1 },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_search should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+      const tool = createJsonSearchTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc", searchValue: "test" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("should return success: false for generic errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Connection lost"),
+      );
+      const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { table: "data", column: "doc", path: "$.x", id: 1 },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Connection lost" });
+    });
+  });
 });

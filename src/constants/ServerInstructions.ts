@@ -33,6 +33,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
   - ✅ \`value: {"key": "val"}\` → stored as object
   - ✅ \`value: "[1,2,3]"\` → stored as array (already valid JSON)
 - **Validation**: Creating or updating JSON values enforces JSON validity after auto-conversion.
+- **Error Handling**: All table-querying JSON tools return \`{ exists: false, table }\` for nonexistent tables and \`{ success: false, error }\` for other query errors, instead of throwing raw exceptions. \`mysql_json_merge\` and \`mysql_json_diff\` (literal JSON, no table) return \`{ success: false, error }\` for invalid input.
 
 ## Transactions & Safety (\`mysql_transaction_*\`)
 

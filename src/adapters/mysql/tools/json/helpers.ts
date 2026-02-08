@@ -48,29 +48,37 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateIdentifier(idColumn, "column");
 
-      const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
-      const result = await adapter.executeReadQuery(sql, [path, id]);
+      try {
+        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
+        const result = await adapter.executeReadQuery(sql, [path, id]);
 
-      const rawValue = result.rows?.[0]?.["value"];
-      // Parse JSON value for consistency with mysql_json_extract
-      // Return null for missing paths, parse objects/arrays, return primitives as-is
-      if (rawValue === null || rawValue === undefined) {
-        return { value: null };
-      }
-      // If result is already an object (MySQL driver parsed it), return as-is
-      if (typeof rawValue === "object") {
-        return { value: rawValue };
-      }
-      // Try to parse string values as JSON
-      if (typeof rawValue === "string") {
-        try {
-          return { value: JSON.parse(rawValue) as unknown };
-        } catch {
-          // Return unquoted string for primitive string values
+        const rawValue = result.rows?.[0]?.["value"];
+        // Parse JSON value for consistency with mysql_json_extract
+        // Return null for missing paths, parse objects/arrays, return primitives as-is
+        if (rawValue === null || rawValue === undefined) {
+          return { value: null };
+        }
+        // If result is already an object (MySQL driver parsed it), return as-is
+        if (typeof rawValue === "object") {
           return { value: rawValue };
         }
+        // Try to parse string values as JSON
+        if (typeof rawValue === "string") {
+          try {
+            return { value: JSON.parse(rawValue) as unknown };
+          } catch {
+            // Return unquoted string for primitive string values
+            return { value: rawValue };
+          }
+        }
+        return { value: rawValue };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-      return { value: rawValue };
     },
   };
 }
@@ -102,29 +110,37 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateIdentifier(idColumn, "column");
 
-      // Normalize value to valid JSON (bare strings get wrapped automatically)
-      let jsonValue: string;
-      if (typeof value === "string") {
-        try {
-          JSON.parse(value);
-          jsonValue = value;
-        } catch {
-          // Bare string - wrap it as a JSON string
+      try {
+        // Normalize value to valid JSON (bare strings get wrapped automatically)
+        let jsonValue: string;
+        if (typeof value === "string") {
+          try {
+            JSON.parse(value);
+            jsonValue = value;
+          } catch {
+            // Bare string - wrap it as a JSON string
+            jsonValue = JSON.stringify(value);
+          }
+        } else {
           jsonValue = JSON.stringify(value);
         }
-      } else {
-        jsonValue = JSON.stringify(value);
+
+        // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE \`${idColumn}\` = ?`;
+
+        const result = await adapter.executeWriteQuery(sql, [
+          path,
+          jsonValue,
+          id,
+        ]);
+        return { success: result.rowsAffected === 1 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-
-      // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-      const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE \`${idColumn}\` = ?`;
-
-      const result = await adapter.executeWriteQuery(sql, [
-        path,
-        jsonValue,
-        id,
-      ]);
-      return { success: result.rowsAffected === 1 };
     },
   };
 }
@@ -149,15 +165,23 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      const sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
+      try {
+        const sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
 
-      const result = await adapter.executeReadQuery(sql, [
-        mode,
-        searchValue,
-        mode,
-        searchValue,
-      ]);
-      return { rows: result.rows, count: result.rows?.length ?? 0 };
+        const result = await adapter.executeReadQuery(sql, [
+          mode,
+          searchValue,
+          mode,
+          searchValue,
+        ]);
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
+      }
     },
   };
 }

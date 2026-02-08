@@ -326,4 +326,139 @@ describe("JSON Core Tools", () => {
       expect(call).toContain("JSON_ARRAY_APPEND");
     });
   });
+
+  describe("P154 Graceful Error Handling", () => {
+    const tableError = new Error("Table 'testdb.nonexistent' doesn't exist");
+
+    it("json_extract should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+      const tool = createJsonExtractTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc", path: "$.x" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_set should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+      const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        {
+          table: "nonexistent",
+          column: "doc",
+          path: "$.x",
+          value: "1",
+          where: "id = 1",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_insert should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        {
+          table: "nonexistent",
+          column: "doc",
+          path: "$.x",
+          value: "1",
+          where: "id = 1",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_replace should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+      const tool = createJsonReplaceTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        {
+          table: "nonexistent",
+          column: "doc",
+          path: "$.x",
+          value: "1",
+          where: "id = 1",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_remove should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+      const tool = createJsonRemoveTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        {
+          table: "nonexistent",
+          column: "doc",
+          paths: ["$.x"],
+          where: "id = 1",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_contains should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+      const tool = createJsonContainsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc", value: "1" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_keys should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+      const tool = createJsonKeysTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { table: "nonexistent", column: "doc" },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("json_array_append should return exists: false for nonexistent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+      const tool = createJsonArrayAppendTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        {
+          table: "nonexistent",
+          column: "doc",
+          path: "$",
+          value: "1",
+          where: "id = 1",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ exists: false, table: "nonexistent" });
+    });
+
+    it("should return success: false for generic errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Connection lost"),
+      );
+      const tool = createJsonExtractTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { table: "data", column: "doc", path: "$.x" },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Connection lost" });
+    });
+  });
 });
