@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
+import * as fsModule from "fs";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -12,6 +13,20 @@ import {
 vi.mock("child_process", () => ({
   spawn: vi.fn(),
 }));
+
+vi.mock("fs", async () => {
+  const actual =
+    await vi.importActual<typeof import("fs")>("fs");
+  return {
+    ...actual,
+    promises: {
+      ...actual.promises,
+      mkdtemp: vi.fn().mockResolvedValue("/tmp/mysqlsh_script_abc123"),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      rm: vi.fn().mockResolvedValue(undefined),
+    },
+  };
+});
 
 describe("Shell Restore and Script Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -226,7 +241,7 @@ describe("Shell Restore and Script Tools", () => {
       expect(args).toContain("--py");
     });
 
-    it("should run sql script", async () => {
+    it("should run sql script via secure temp file", async () => {
       setupMockSpawn("SQL output");
 
       const tool = createShellRunScriptTool();
@@ -241,6 +256,20 @@ describe("Shell Restore and Script Tools", () => {
       expect(result.success).toBe(true);
       const args = mockSpawn.mock.calls[0][1];
       expect(args).toContain("--sql");
+      expect(args).toContain("--file");
+
+      // Verify secure temp dir was created and cleaned up
+      const fsp = fsModule.promises;
+      expect(fsp.mkdtemp).toHaveBeenCalled();
+      expect(fsp.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining("script.sql"),
+        "SELECT 1",
+        "utf8",
+      );
+      expect(fsp.rm).toHaveBeenCalledWith(
+        "/tmp/mysqlsh_script_abc123",
+        { recursive: true },
+      );
     });
   });
 });
