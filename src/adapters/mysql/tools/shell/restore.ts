@@ -171,9 +171,7 @@ export function createShellRunScriptTool(): ToolDefinition {
       if (language === "sql") {
         // Create a secure temp directory via mkdtemp (restrictive permissions,
         // unique path) to avoid CodeQL js/insecure-temporary-file alert.
-        const tempDir = await fs.mkdtemp(
-          join(tmpdir(), `mysqlsh_script_`),
-        );
+        const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
         const tempFile = join(tempDir, "script.sql");
         try {
           await fs.writeFile(tempFile, script, "utf8");

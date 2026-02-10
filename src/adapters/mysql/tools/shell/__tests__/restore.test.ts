@@ -15,8 +15,7 @@ vi.mock("child_process", () => ({
 }));
 
 vi.mock("fs", async () => {
-  const actual =
-    await vi.importActual<typeof import("fs")>("fs");
+  const actual = await vi.importActual<typeof import("fs")>("fs");
   return {
     ...actual,
     promises: {
@@ -266,10 +265,9 @@ describe("Shell Restore and Script Tools", () => {
         "SELECT 1",
         "utf8",
       );
-      expect(fsp.rm).toHaveBeenCalledWith(
-        "/tmp/mysqlsh_script_abc123",
-        { recursive: true },
-      );
+      expect(fsp.rm).toHaveBeenCalledWith("/tmp/mysqlsh_script_abc123", {
+        recursive: true,
+      });
     });
   });
 });
