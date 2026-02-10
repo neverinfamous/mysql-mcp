@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`mysqlsh_run_script` Secure Temporary File Handling (CodeQL)** — Replaced insecure `os.tmpdir()` + manual filename pattern with `fs.mkdtemp()` for SQL script temp files. The previous approach created predictable files in the shared OS temp directory, flagged by CodeQL as `js/insecure-temporary-file`. Now creates a unique temporary directory with restrictive permissions via `mkdtemp`, writes the script inside it, and recursively removes the directory after execution.
 
+### Dependencies
+
+- Bumped `@types/node` from `^25.2.2` to `^25.2.3`
+- Bumped `typescript-eslint` from `^8.54.0` to `^8.55.0`
+
 ## [2.2.0] - 2026-02-08
 
 ### Fixed
