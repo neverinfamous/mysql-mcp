@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - **`mysqlsh_run_script` Secure Temporary File Handling (CodeQL)** — Replaced insecure `os.tmpdir()` + manual filename pattern with `fs.mkdtemp()` for SQL script temp files. The previous approach created predictable files in the shared OS temp directory, flagged by CodeQL as `js/insecure-temporary-file`. Now creates a unique temporary directory with restrictive permissions via `mkdtemp`, writes the script inside it, and recursively removes the directory after execution.
+- **CVE Fix: `qs` ArrayLimit Bypass (GHSA-w7fw-mjwx-w883)** — Updated transitive dependency `qs` (via `express` → `@modelcontextprotocol/sdk`) from 6.14.1 to 6.14.2 to fix an arrayLimit bypass in comma parsing that allows denial of service.
 
 ### Dependencies
 
