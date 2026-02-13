@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`--server-host` CLI Option / `MCP_HOST` Environment Variable** — Configurable host binding for HTTP/SSE transport. Defaults to `localhost`. Set to `0.0.0.0` for containerized deployments where the server must accept connections from outside the container. Precedence: CLI flag > environment variable > default.
+
 ### Security
 
 - **`mysqlsh_run_script` Secure Temporary File Handling (CodeQL)** — Replaced insecure `os.tmpdir()` + manual filename pattern with `fs.mkdtemp()` for SQL script temp files. The previous approach created predictable files in the shared OS temp directory, flagged by CodeQL as `js/insecure-temporary-file`. Now creates a unique temporary directory with restrictive permissions via `mkdtemp`, writes the script inside it, and recursively removes the directory after execution.

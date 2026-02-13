@@ -28,6 +28,9 @@ export interface McpServerConfig {
   /** HTTP port (for http/sse transports) */
   port?: number;
 
+  /** Host to bind HTTP transport to (default: localhost) */
+  host?: string;
+
   /** Database configurations */
   databases: DatabaseConfig[];
 

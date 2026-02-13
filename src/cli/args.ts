@@ -65,6 +65,13 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      case "--server-host":
+        if (nextArg && !nextArg.startsWith("-")) {
+          config.host = nextArg;
+          i++;
+        }
+        break;
+
       case "--mysql":
       case "-m":
         if (nextArg && !nextArg.startsWith("-")) {
@@ -262,6 +269,11 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
   }
 
+  // Check for server host in environment
+  if (!config.host) {
+    config.host = process.env["MCP_HOST"] ?? process.env["HOST"];
+  }
+
   // Check OAuth environment variables
   if (!oauthEnabled && process.env["OAUTH_ENABLED"] === "true") {
     oauthEnabled = true;
@@ -324,6 +336,7 @@ Pool Options:
 Server Options:
   --transport, -t <type>      Transport type: stdio, http, sse (default: stdio)
   --port, -p <port>           HTTP port for http/sse transports
+  --server-host <host>        Host to bind HTTP transport to (default: localhost)
   --tool-filter, -f <filter>  Tool filter string (e.g., "-replication,-partitioning")
   --name <name>               Server name (default: mysql-mcp)
 
@@ -346,6 +359,7 @@ Environment Variables:
   MYSQL_DATABASE              MySQL database
   MYSQL_POOL_SIZE             Connection pool size
   MYSQL_MCP_TOOL_FILTER       Tool filter string
+  MCP_HOST                    Host to bind HTTP transport to
   LOG_LEVEL                   Log level (debug, info, warn, error)
   OAUTH_ENABLED               Enable OAuth (true/false)
   OAUTH_ISSUER                Authorization server URL

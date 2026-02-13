@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-**Last Updated F0ebruary 10, 2026**
+**Last Updated February 13, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -118,12 +118,13 @@ mysql-mcp --mysql mysql://root:pass@localhost/db \
 
 ```bash
 # Local installation
-node dist/cli.js --transport http --port 3000 --mysql mysql://user:password@localhost:3306/database
+node dist/cli.js --transport http --port 3000 --server-host 0.0.0.0 --mysql mysql://user:password@localhost:3306/database
 
 # Docker (expose port 3000)
 docker run -p 3000:3000 writenotenow/mysql-mcp \
   --transport http \
   --port 3000 \
+  --server-host 0.0.0.0 \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
@@ -514,13 +515,14 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 ### CLI Options
 
-| Option                    | Environment Variable    | Description                 |
-| ------------------------- | ----------------------- | --------------------------- |
-| `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth authentication |
-| `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL    |
-| `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience     |
-| `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)  |
-| `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds  |
+| Option                    | Environment Variable    | Description                                         |
+| ------------------------- | ----------------------- | --------------------------------------------------- |
+| `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
+| `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth authentication                         |
+| `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
+| `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
+| `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
+| `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
 
 ### Scopes
 

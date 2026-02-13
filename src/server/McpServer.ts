@@ -182,7 +182,7 @@ export class McpServer {
         const transport = createHttpTransport(
           {
             port,
-            host: "localhost", // Default to localhost, could be configurable
+            host: this.config.host ?? "localhost",
             corsOrigins: ["*"], // Allow all for now, or make configurable
             // Pass OAuth config if enabled
             ...(this.config.oauth?.enabled
