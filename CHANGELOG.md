@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 - Bumped `@types/node` from `^25.2.2` to `^25.2.3`
+- Bumped `mysql2` from `^3.16.3` to `^3.17.1`
 - Bumped `typescript-eslint` from `^8.54.0` to `^8.55.0`
 
 ## [2.2.0] - 2026-02-08
