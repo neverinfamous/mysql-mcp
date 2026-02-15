@@ -36,7 +36,8 @@ export type ToolGroup =
   | "security" // Security and auditing
   | "cluster" // Group Replication & InnoDB Cluster
   | "roles" // Role management
-  | "docstore"; // Document Store / X DevAPI
+  | "docstore" // Document Store / X DevAPI
+  | "codemode"; // Code Mode sandbox execution
 
 /**
  * Meta-group identifiers for common multi-group selections

@@ -61,6 +61,7 @@ import { getSecurityTools } from "./tools/security/index.js";
 import { getClusterTools } from "./tools/cluster/index.js";
 import { getRoleTools } from "./tools/roles.js";
 import { getDocStoreTools } from "./tools/docstore.js";
+import { getCodeModeTools } from "./tools/codemode/index.js";
 import { getMySQLResources } from "./resources/index.js";
 import { getMySQLPrompts } from "./prompts/index.js";
 import { SchemaManager } from "./SchemaManager.js";
@@ -473,6 +474,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       "cluster",
       "roles",
       "docstore",
+      "codemode",
     ];
   }
 
@@ -513,6 +515,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       ...getClusterTools(this),
       ...getRoleTools(this),
       ...getDocStoreTools(this),
+      ...getCodeModeTools(this),
     ];
 
     return this.cachedToolDefinitions;
@@ -539,6 +542,13 @@ export class MySQLAdapter extends DatabaseAdapter {
    */
   getPool(): ConnectionPool | null {
     return this.pool;
+  }
+
+  /**
+   * Get IDs of all active transactions (for Code Mode cleanup)
+   */
+  getActiveTransactionIds(): string[] {
+    return Array.from(this.activeTransactions.keys());
   }
 
   /**

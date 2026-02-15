@@ -253,6 +253,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_doc_create_index",
     "mysql_doc_collection_info",
   ],
+  codemode: ["mysql_execute_code"],
 };
 
 /**
@@ -276,8 +277,8 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  */
 export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
   // 1. General Use
-  starter: ["core", "json", "transactions", "text"],
-  essential: ["core", "transactions"],
+  starter: ["core", "json", "transactions", "text", "codemode"],
+  essential: ["core", "transactions", "codemode"],
   "dev-power": [
     "core",
     "schema",
@@ -285,11 +286,19 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "stats",
     "fulltext",
     "transactions",
+    "codemode",
   ],
 
   // 2. AI Workloads
-  "ai-data": ["core", "json", "docstore", "text", "fulltext"],
-  "ai-spatial": ["core", "spatial", "stats", "performance", "transactions"],
+  "ai-data": ["core", "json", "docstore", "text", "fulltext", "codemode"],
+  "ai-spatial": [
+    "core",
+    "spatial",
+    "stats",
+    "performance",
+    "transactions",
+    "codemode",
+  ],
 
   // 3. DBA Workloads
   "dba-monitor": [
@@ -298,6 +307,7 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "performance",
     "sysschema",
     "optimization",
+    "codemode",
   ],
   "dba-manage": [
     "core",
@@ -306,13 +316,21 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "replication",
     "partitioning",
     "events",
+    "codemode",
   ],
-  "dba-secure": ["core", "security", "roles", "transactions"],
+  "dba-secure": ["core", "security", "roles", "transactions", "codemode"],
 
   // 4. Base Blocks (Building Blocks)
-  "base-core": ["core", "json", "transactions", "text", "schema"],
-  "base-advanced": ["docstore", "spatial", "stats", "fulltext", "events"],
+  "base-core": ["core", "json", "transactions", "text", "schema", "codemode"],
+  "base-advanced": [
+    "docstore",
+    "spatial",
+    "stats",
+    "fulltext",
+    "events",
+    "codemode",
+  ],
 
   // 5. Ecosystem
-  ecosystem: ["router", "proxysql", "shell", "cluster"],
+  ecosystem: ["router", "proxysql", "shell", "cluster", "codemode"],
 };

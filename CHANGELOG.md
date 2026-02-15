@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Code Mode (`mysql_execute_code`)** — New sandboxed code execution tool enabling LLM agents to compose multi-step MySQL workflows as JavaScript/TypeScript code. Provides the `mysql.*` API namespace with 22 groups (168+ methods) including `mysql.core`, `mysql.json`, `mysql.transactions`, `mysql.spatial`, `mysql.stats`, and more. Features VM-based isolation, security validation, rate limiting, automatic transaction cleanup, and comprehensive help/introspection via `mysql.help()`. Requires `admin` scope.
 - **`--server-host` CLI Option / `MCP_HOST` Environment Variable** — Configurable host binding for HTTP/SSE transport. Defaults to `localhost`. Set to `0.0.0.0` for containerized deployments where the server must accept connections from outside the container. Precedence: CLI flag > environment variable > default.
 
 ### Security
