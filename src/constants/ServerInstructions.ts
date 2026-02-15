@@ -284,6 +284,19 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`. Returns \`{ success: false, error, hint }\` for duplicate object conflicts.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use \`ddlOnly: true\` (schemas) or \`all: false\` (tables) to skip restricted metadata.
 - **Error handling**: All shell tools return \`{ success: false, error }\` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a \`hint\` field with actionable remediation guidance.
+
+## Code Mode (\`mysql_execute_code\`)
+
+- **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the \`mysql.*\` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.
+- **When to use**: Prefer Code Mode when a task requires 3+ sequential tool calls, conditional branching based on query results, data transformation between steps, or aggregation across multiple tables.
+- **API namespace**: The \`mysql\` object exposes 24 groups matching the tool groups: \`mysql.core\`, \`mysql.json\`, \`mysql.transactions\`, \`mysql.text\`, \`mysql.fulltext\`, \`mysql.performance\`, \`mysql.optimization\`, \`mysql.admin\`, \`mysql.monitoring\`, \`mysql.backup\`, \`mysql.replication\`, \`mysql.partitioning\`, \`mysql.schema\`, \`mysql.shell\`, \`mysql.events\`, \`mysql.sysschema\`, \`mysql.stats\`, \`mysql.spatial\`, \`mysql.security\`, \`mysql.roles\`, \`mysql.docstore\`, \`mysql.cluster\`, \`mysql.proxysql\`, \`mysql.router\`.
+- **Method naming**: Tool names map to methods by stripping the prefix: \`mysql_read_query\` → \`mysql.core.readQuery(sql)\`, \`mysql_json_extract\` → \`mysql.json.extract({...})\`.
+- **Positional shorthand**: Common tools accept positional arguments: \`mysql.core.readQuery("SELECT 1")\` instead of \`mysql.core.readQuery({ query: "SELECT 1" })\`.
+- **Help**: Call \`mysql.help()\` for a full API overview, or \`mysql.<group>.help()\` for group-specific methods and examples.
+- **Return value**: The last expression in the code block is returned as the result. Use \`return\` in async functions or let the final expression evaluate.
+- **Security**: Code runs in an isolated VM sandbox. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Rate-limited to prevent abuse.
+- **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
+- **Scope**: Requires \`admin\` scope.
 `;
 
 /**
