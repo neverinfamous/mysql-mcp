@@ -53,6 +53,8 @@ function sanitizeTimerRows(
       if (!isNaN(numValue) && numValue > MAX_TIMER_MS) {
         sanitized[field] = -1;
         hasOverflow = true;
+      } else if (!isNaN(numValue)) {
+        sanitized[field] = numValue;
       }
     }
     if (hasOverflow) {

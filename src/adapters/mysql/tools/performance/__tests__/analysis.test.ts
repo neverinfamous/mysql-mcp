@@ -386,6 +386,34 @@ describe("Performance Analysis Tools", () => {
       expect(result.slowQueries[0]["total_time_ms"]).toBe(5000);
       expect(result.slowQueries[0]["overflow"]).toBeUndefined();
     });
+
+    it("should convert string-typed timer values to numbers", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            query: "SELECT * FROM users",
+            executions: 5,
+            avg_time_ms: "209241.7573",
+            total_time_ms: "1046208.7865",
+            rows_examined: 100,
+            rows_sent: 10,
+          },
+        ]),
+      );
+
+      const tool = createSlowQueriesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 10 }, mockContext)) as {
+        slowQueries: Record<string, unknown>[];
+      };
+
+      expect(result.slowQueries[0]["avg_time_ms"]).toBe(209241.7573);
+      expect(typeof result.slowQueries[0]["avg_time_ms"]).toBe("number");
+      expect(result.slowQueries[0]["total_time_ms"]).toBe(1046208.7865);
+      expect(typeof result.slowQueries[0]["total_time_ms"]).toBe("number");
+      expect(result.slowQueries[0]["overflow"]).toBeUndefined();
+    });
   });
 
   describe("createQueryStatsTool", () => {
@@ -481,6 +509,38 @@ describe("Performance Analysis Tools", () => {
       expect(result.queries[0]["avg_time_ms"]).toBe(250);
       expect(result.queries[0]["max_time_ms"]).toBe(800);
       expect(result.queries[0]["total_time_ms"]).toBe(2500);
+      expect(result.queries[0]["overflow"]).toBeUndefined();
+    });
+
+    it("should convert string-typed timer values to numbers", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            database_name: "testdb",
+            query_text: "SELECT * FROM users",
+            execution_count: 5,
+            avg_time_ms: "209241.7573",
+            max_time_ms: "412000.5000",
+            total_time_ms: "1046208.7865",
+            total_rows_examined: 100,
+            total_rows_sent: 10,
+            first_seen: "2026-01-01",
+            last_seen: "2026-02-16",
+          },
+        ]),
+      );
+
+      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        queries: Record<string, unknown>[];
+      };
+
+      expect(result.queries[0]["avg_time_ms"]).toBe(209241.7573);
+      expect(typeof result.queries[0]["avg_time_ms"]).toBe("number");
+      expect(result.queries[0]["max_time_ms"]).toBe(412000.5);
+      expect(typeof result.queries[0]["max_time_ms"]).toBe("number");
+      expect(result.queries[0]["total_time_ms"]).toBe(1046208.7865);
+      expect(typeof result.queries[0]["total_time_ms"]).toBe("number");
       expect(result.queries[0]["overflow"]).toBeUndefined();
     });
   });
