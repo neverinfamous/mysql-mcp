@@ -12,9 +12,13 @@ import type {
 } from "../../../../types/index.js";
 import {
   JsonExtractSchema,
+  JsonExtractSchemaBase,
   JsonSetSchema,
+  JsonSetSchemaBase,
   JsonContainsSchema,
+  JsonContainsSchemaBase,
   JsonKeysSchema,
+  JsonKeysSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
 import {
@@ -57,7 +61,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Extract values from JSON columns using JSON path expressions.",
     group: "json",
-    inputSchema: JsonExtractSchema,
+    inputSchema: JsonExtractSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -100,7 +104,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL JSON Set",
     description: "Set or update values in JSON columns at specified paths.",
     group: "json",
-    inputSchema: JsonSetSchema,
+    inputSchema: JsonSetSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -286,7 +290,7 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL JSON Contains",
     description: "Find rows where JSON column contains a specified value.",
     group: "json",
-    inputSchema: JsonContainsSchema,
+    inputSchema: JsonContainsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -332,7 +336,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL JSON Keys",
     description: "Get the keys of a JSON object at the specified path.",
     group: "json",
-    inputSchema: JsonKeysSchema,
+    inputSchema: JsonKeysSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

@@ -9,9 +9,13 @@ import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   PartitionInfoSchema,
+  PartitionInfoSchemaBase,
   AddPartitionSchema,
+  AddPartitionSchemaBase,
   DropPartitionSchema,
+  DropPartitionSchemaBase,
   ReorganizePartitionSchema,
+  ReorganizePartitionSchemaBase,
 } from "../types.js";
 
 /**
@@ -32,7 +36,7 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Partition Info",
     description: "Get partition information for a table.",
     group: "partitioning",
-    inputSchema: PartitionInfoSchema,
+    inputSchema: PartitionInfoSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -99,7 +103,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Add Partition",
     description: "Add a new partition to a partitioned table.",
     group: "partitioning",
-    inputSchema: AddPartitionSchema,
+    inputSchema: AddPartitionSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -171,7 +175,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Drop a partition from a partitioned table. Warning: This deletes all data in the partition!",
     group: "partitioning",
-    inputSchema: DropPartitionSchema,
+    inputSchema: DropPartitionSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -225,7 +229,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Reorganize Partition",
     description: "Reorganize partitions by splitting or merging them.",
     group: "partitioning",
-    inputSchema: ReorganizePartitionSchema,
+    inputSchema: ReorganizePartitionSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

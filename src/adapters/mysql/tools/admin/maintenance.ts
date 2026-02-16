@@ -12,9 +12,13 @@ import type {
 } from "../../../../types/index.js";
 import {
   OptimizeTableSchema,
+  OptimizeTableSchemaBase,
   AnalyzeTableSchema,
+  AnalyzeTableSchemaBase,
   CheckTableSchema,
+  CheckTableSchemaBase,
   FlushTablesSchema,
+  FlushTablesSchemaBase,
   KillQuerySchema,
 } from "../../types.js";
 import { z } from "zod";
@@ -25,7 +29,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Optimize Table",
     description: "Optimize tables to reclaim unused space and defragment data.",
     group: "admin",
-    inputSchema: OptimizeTableSchema,
+    inputSchema: OptimizeTableSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -47,7 +51,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Analyze tables to update index statistics for the query optimizer.",
     group: "admin",
-    inputSchema: AnalyzeTableSchema,
+    inputSchema: AnalyzeTableSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -68,7 +72,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Check Table",
     description: "Check tables for errors.",
     group: "admin",
-    inputSchema: CheckTableSchema,
+    inputSchema: CheckTableSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -125,7 +129,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Flush Tables",
     description: "Flush tables to ensure data is written to disk.",
     group: "admin",
-    inputSchema: FlushTablesSchema,
+    inputSchema: FlushTablesSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

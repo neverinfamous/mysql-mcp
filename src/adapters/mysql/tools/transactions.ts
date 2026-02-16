@@ -10,8 +10,11 @@ import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   TransactionBeginSchema,
   TransactionIdSchema,
+  TransactionIdSchemaBase,
   TransactionSavepointSchema,
+  TransactionSavepointSchemaBase,
   TransactionExecuteSchema,
+  TransactionExecuteSchemaBase,
 } from "../types.js";
 
 /**
@@ -66,7 +69,7 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Commit Transaction",
     description: "Commit a transaction, making all changes permanent.",
     group: "transactions",
-    inputSchema: TransactionIdSchema,
+    inputSchema: TransactionIdSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -97,7 +100,7 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Rollback Transaction",
     description: "Rollback a transaction, undoing all changes.",
     group: "transactions",
-    inputSchema: TransactionIdSchema,
+    inputSchema: TransactionIdSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -129,7 +132,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create a savepoint within a transaction for partial rollback.",
     group: "transactions",
-    inputSchema: TransactionSavepointSchema,
+    inputSchema: TransactionSavepointSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -172,7 +175,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Release Savepoint",
     description: "Release a savepoint, removing it without rolling back.",
     group: "transactions",
-    inputSchema: TransactionSavepointSchema,
+    inputSchema: TransactionSavepointSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -221,7 +224,7 @@ function createTransactionRollbackToTool(
     title: "MySQL Rollback to Savepoint",
     description: "Rollback to a savepoint, undoing changes after that point.",
     group: "transactions",
-    inputSchema: TransactionSavepointSchema,
+    inputSchema: TransactionSavepointSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -269,7 +272,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Execute multiple SQL statements atomically. All statements succeed or all are rolled back.",
     group: "transactions",
-    inputSchema: TransactionExecuteSchema,
+    inputSchema: TransactionExecuteSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -277,13 +280,6 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { statements, isolationLevel } =
         TransactionExecuteSchema.parse(params);
-
-      if (statements.length === 0) {
-        return {
-          success: false,
-          reason: "No statements provided. Pass at least one SQL statement.",
-        };
-      }
 
       const transactionId = await adapter.beginTransaction(isolationLevel);
       const connection = adapter.getTransactionConnection(transactionId);

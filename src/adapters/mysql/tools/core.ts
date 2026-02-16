@@ -9,12 +9,19 @@ import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   ReadQuerySchema,
+  ReadQuerySchemaBase,
   WriteQuerySchema,
+  WriteQuerySchemaBase,
   CreateTableSchema,
+  CreateTableSchemaBase,
   DescribeTableSchema,
+  DescribeTableSchemaBase,
   DropTableSchema,
+  DropTableSchemaBase,
   CreateIndexSchema,
+  CreateIndexSchemaBase,
   GetIndexesSchema,
+  GetIndexesSchemaBase,
   ListTablesSchema,
 } from "../types.js";
 
@@ -69,7 +76,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Execute a read-only SQL query (SELECT). Uses prepared statements for safety.",
     group: "core",
-    inputSchema: ReadQuerySchema,
+    inputSchema: ReadQuerySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -105,7 +112,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Execute a write SQL query (INSERT, UPDATE, DELETE). Uses prepared statements for safety.",
     group: "core",
-    inputSchema: WriteQuerySchema,
+    inputSchema: WriteQuerySchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -172,7 +179,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed information about a table's structure including columns, types, and constraints.",
     group: "core",
-    inputSchema: DescribeTableSchema,
+    inputSchema: DescribeTableSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -204,7 +211,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create a new table with specified columns, engine, and charset.",
     group: "core",
-    inputSchema: CreateTableSchema,
+    inputSchema: CreateTableSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -313,7 +320,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Drop Table",
     description: "Drop (delete) a table from the database.",
     group: "core",
-    inputSchema: DropTableSchema,
+    inputSchema: DropTableSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -376,7 +383,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get all indexes for a table including type, columns, and cardinality.",
     group: "core",
-    inputSchema: GetIndexesSchema,
+    inputSchema: GetIndexesSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -410,7 +417,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create an index on a table. Supports BTREE, HASH, FULLTEXT, and SPATIAL index types.",
     group: "core",
-    inputSchema: CreateIndexSchema,
+    inputSchema: CreateIndexSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,

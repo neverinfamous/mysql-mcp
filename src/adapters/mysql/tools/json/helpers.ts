@@ -10,7 +10,11 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { JsonSearchSchema, JsonValidateSchema } from "../../types.js";
+import {
+  JsonSearchSchema,
+  JsonSearchSchemaBase,
+  JsonValidateSchema,
+} from "../../types.js";
 import { z } from "zod";
 import {
   validateQualifiedIdentifier,
@@ -152,7 +156,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Search for a string value in JSON columns and return matching paths.",
     group: "json",
-    inputSchema: JsonSearchSchema,
+    inputSchema: JsonSearchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

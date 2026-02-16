@@ -12,9 +12,12 @@ import type {
 } from "../../../../types/index.js";
 import {
   ExplainSchema,
+  ExplainSchemaBase,
   SlowQuerySchema,
   IndexUsageSchema,
+  IndexUsageSchemaBase,
   TableStatsSchema,
+  TableStatsSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
 
@@ -24,7 +27,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL EXPLAIN",
     description: "Get query execution plan using EXPLAIN.",
     group: "performance",
-    inputSchema: ExplainSchema,
+    inputSchema: ExplainSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -209,7 +212,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Index Usage",
     description: "Get index usage statistics from performance_schema.",
     group: "performance",
-    inputSchema: IndexUsageSchema,
+    inputSchema: IndexUsageSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -266,7 +269,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed table statistics including size, rows, and engine info.",
     group: "performance",
-    inputSchema: TableStatsSchema,
+    inputSchema: TableStatsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

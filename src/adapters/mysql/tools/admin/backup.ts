@@ -10,7 +10,12 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ExportTableSchema, ImportDataSchema } from "../../types.js";
+import {
+  ExportTableSchema,
+  ExportTableSchemaBase,
+  ImportDataSchema,
+  ImportDataSchemaBase,
+} from "../../types.js";
 import { z } from "zod";
 import {
   validateIdentifier,
@@ -94,7 +99,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Export Table",
     description: "Export table data as SQL INSERT statements or CSV format.",
     group: "backup",
-    inputSchema: ExportTableSchema,
+    inputSchema: ExportTableSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -175,7 +180,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Import Data",
     description: "Import data into a table from an array of row objects.",
     group: "backup",
-    inputSchema: ImportDataSchema,
+    inputSchema: ImportDataSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,

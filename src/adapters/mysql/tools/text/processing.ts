@@ -12,8 +12,11 @@ import type {
 } from "../../../../types/index.js";
 import {
   RegexpMatchSchema,
+  RegexpMatchSchemaBase,
   LikeSearchSchema,
+  LikeSearchSchemaBase,
   SoundexSchema,
+  SoundexSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
 import {
@@ -29,7 +32,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL REGEXP Match",
     description: "Find rows where column matches a regular expression pattern.",
     group: "text",
-    inputSchema: RegexpMatchSchema,
+    inputSchema: RegexpMatchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -70,7 +73,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Find rows using LIKE pattern matching with % and _ wildcards.",
     group: "text",
-    inputSchema: LikeSearchSchema,
+    inputSchema: LikeSearchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -110,7 +113,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL SOUNDEX",
     description: "Find rows with phonetically similar values using SOUNDEX.",
     group: "text",
-    inputSchema: SoundexSchema,
+    inputSchema: SoundexSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
