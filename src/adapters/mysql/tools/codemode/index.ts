@@ -191,19 +191,17 @@ return results;
       // Execute in sandbox
       const result = await pool.execute(code, bindings);
 
-      // Cleanup orphaned transactions on failure
-      if (!result.success) {
-        const transactionsAfter = adapter.getActiveTransactionIds();
-        const orphanedTransactions = transactionsAfter.filter(
-          (txId: string) => !transactionsBefore.has(txId),
-        );
+      // Always cleanup orphaned transactions (uncommitted txns from any execution)
+      const transactionsAfter = adapter.getActiveTransactionIds();
+      const orphanedTransactions = transactionsAfter.filter(
+        (txId: string) => !transactionsBefore.has(txId),
+      );
 
-        for (const txId of orphanedTransactions) {
-          try {
-            await adapter.rollbackTransaction(txId);
-          } catch {
-            // Best-effort cleanup
-          }
+      for (const txId of orphanedTransactions) {
+        try {
+          await adapter.rollbackTransaction(txId);
+        } catch {
+          // Best-effort cleanup
         }
       }
 

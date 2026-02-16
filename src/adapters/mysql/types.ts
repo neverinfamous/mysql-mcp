@@ -484,11 +484,7 @@ export const TransactionExecuteSchema = z
   .transform((data) => ({
     statements: data.statements ?? data.queries ?? [],
     isolationLevel: data.isolationLevel,
-  }))
-  .refine((data) => data.statements.length > 0, {
-    message:
-      "statements (or queries alias) is required. Pass at least one SQL statement.",
-  });
+  }));
 
 // =============================================================================
 // Preprocess: JSON/Text column params (table, column, where aliases)
