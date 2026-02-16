@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Code Mode Partitioning `help()` Examples** — `mysql.partitioning.help()` listed incorrect parameter names (`name` instead of `partitionName`, `values` instead of `value`) and included SQL keywords (`LESS THAN`) in the `value` parameter for `addPartition`. Also fixed `dropPartition` example using `name` instead of `partitionName`. Updated `POSITIONAL_PARAM_MAP` to use correct parameter names (`partitionName`, `partitionType`, `value`) matching the actual Zod schemas.
+- **`mysql_reorganize_partition` Raw ZodError on Unsupported Type** — Tool threw a raw `ZodError` when called with unsupported `partitionType` values like `HASH` or `KEY` (which cannot be reorganized). Now catches the validation error and returns `{ success: false, error: "HASH/KEY partitions cannot be reorganized..." }` matching the structured error pattern.
+- **Partitioning Write Tools Missing P154 Existence Check** — `mysql_add_partition`, `mysql_drop_partition`, and `mysql_reorganize_partition` returned raw MySQL errors for nonexistent tables instead of the `{ exists: false, table }` pattern used by `mysql_partition_info` and all other tools. All three write tools now perform an `information_schema.TABLES` pre-check before executing ALTER TABLE.
+
+
 
 - **Code Mode Replication `help()` Examples** — `mysql.replication.help()` listed `replicationStatus()` and `replicationLag()` as examples, neither of which exist as methods (causing `TypeError` when called). Updated examples to use the correct method names: `slaveStatus()` and `lag()`. Also removed the broken `lag → replicationLag` alias (the canonical method name is already `lag`) and fixed `status` alias to point to `slaveStatus` instead of the nonexistent `replicationStatus`.
 

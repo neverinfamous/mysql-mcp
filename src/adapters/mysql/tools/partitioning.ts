@@ -5,6 +5,7 @@
  * 4 tools: partition_info, add_partition, drop_partition, reorganize_partition.
  */
 
+import { ZodError } from "zod";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
@@ -112,6 +113,16 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
       const { table, partitionName, partitionType, value } =
         AddPartitionSchema.parse(params);
 
+      // P154: Check if table exists
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
+
       let sql: string;
 
       switch (partitionType) {
@@ -184,6 +195,16 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, partitionName } = DropPartitionSchema.parse(params);
 
+      // P154: Check if table exists
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
+
       try {
         await adapter.executeQuery(
           `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``,
@@ -235,8 +256,30 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, fromPartitions, partitionType, toPartitions } =
-        ReorganizePartitionSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ReorganizePartitionSchema.parse(params);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return {
+            success: false,
+            error:
+              "HASH/KEY partitions cannot be reorganized. Only RANGE and LIST partition types support REORGANIZE PARTITION.",
+          };
+        }
+        throw error;
+      }
+      const { table, fromPartitions, partitionType, toPartitions } = parsed;
+
+      // P154: Check if table exists
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
 
       const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
       const toList = toPartitions
