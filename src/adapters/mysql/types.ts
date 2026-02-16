@@ -1421,7 +1421,7 @@ export const ReorganizePartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   fromPartitions: z.array(z.string()).describe("Source partition names"),
   partitionType: z
-    .enum(["RANGE", "LIST"])
+    .enum(["RANGE", "LIST", "HASH", "KEY"])
     .describe(
       "Partition type (RANGE or LIST). HASH/KEY partitions cannot be reorganized.",
     ),
