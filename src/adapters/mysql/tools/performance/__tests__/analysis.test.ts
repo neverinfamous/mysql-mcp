@@ -308,6 +308,84 @@ describe("Performance Analysis Tools", () => {
       // Code: AVG_TIMER_WAIT > ${minTime * 1000000000}
       expect(call).toContain("AVG_TIMER_WAIT > 500000000");
     });
+
+    it("should clamp overflowed timer values to -1 with overflow flag", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            query: "DROP TABLE IF EXISTS `t`",
+            executions: 3,
+            avg_time_ms: 18446743555252.1,
+            total_time_ms: 55340230665756.3,
+            rows_examined: 0,
+            rows_sent: 0,
+          },
+        ]),
+      );
+
+      const tool = createSlowQueriesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 10 }, mockContext)) as {
+        slowQueries: Record<string, unknown>[];
+      };
+
+      expect(result.slowQueries[0]["avg_time_ms"]).toBe(-1);
+      expect(result.slowQueries[0]["total_time_ms"]).toBe(-1);
+      expect(result.slowQueries[0]["overflow"]).toBe(true);
+    });
+
+    it("should clamp string-typed overflowed values (MySQL DECIMAL)", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            query: "DROP TABLE IF EXISTS `t`",
+            executions: 2,
+            avg_time_ms: "18446743555.2521",
+            total_time_ms: "18446743036.7947",
+            rows_examined: 0,
+            rows_sent: 0,
+          },
+        ]),
+      );
+
+      const tool = createSlowQueriesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 10 }, mockContext)) as {
+        slowQueries: Record<string, unknown>[];
+      };
+
+      expect(result.slowQueries[0]["avg_time_ms"]).toBe(-1);
+      expect(result.slowQueries[0]["total_time_ms"]).toBe(-1);
+      expect(result.slowQueries[0]["overflow"]).toBe(true);
+    });
+
+    it("should not add overflow flag for normal timer values", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            query: "SELECT 1",
+            executions: 10,
+            avg_time_ms: 500,
+            total_time_ms: 5000,
+            rows_examined: 0,
+            rows_sent: 10,
+          },
+        ]),
+      );
+
+      const tool = createSlowQueriesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 10 }, mockContext)) as {
+        slowQueries: Record<string, unknown>[];
+      };
+
+      expect(result.slowQueries[0]["avg_time_ms"]).toBe(500);
+      expect(result.slowQueries[0]["total_time_ms"]).toBe(5000);
+      expect(result.slowQueries[0]["overflow"]).toBeUndefined();
+    });
   });
 
   describe("createQueryStatsTool", () => {
@@ -346,6 +424,64 @@ describe("Performance Analysis Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("ORDER BY AVG_TIMER_WAIT DESC");
+    });
+
+    it("should clamp overflowed timer values to -1 with overflow flag", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            database_name: "testdb",
+            query_text: "DROP TABLE IF EXISTS `t`",
+            execution_count: 3,
+            avg_time_ms: 18446743555252.1,
+            max_time_ms: 99999999999,
+            total_time_ms: 55340230665756.3,
+            total_rows_examined: 0,
+            total_rows_sent: 0,
+            first_seen: "2026-01-01",
+            last_seen: "2026-02-16",
+          },
+        ]),
+      );
+
+      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        queries: Record<string, unknown>[];
+      };
+
+      expect(result.queries[0]["avg_time_ms"]).toBe(-1);
+      expect(result.queries[0]["max_time_ms"]).toBe(-1);
+      expect(result.queries[0]["total_time_ms"]).toBe(-1);
+      expect(result.queries[0]["overflow"]).toBe(true);
+    });
+
+    it("should not add overflow flag for normal timer values", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            database_name: "testdb",
+            query_text: "SELECT 1",
+            execution_count: 10,
+            avg_time_ms: 250,
+            max_time_ms: 800,
+            total_time_ms: 2500,
+            total_rows_examined: 0,
+            total_rows_sent: 10,
+            first_seen: "2026-01-01",
+            last_seen: "2026-02-16",
+          },
+        ]),
+      );
+
+      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        queries: Record<string, unknown>[];
+      };
+
+      expect(result.queries[0]["avg_time_ms"]).toBe(250);
+      expect(result.queries[0]["max_time_ms"]).toBe(800);
+      expect(result.queries[0]["total_time_ms"]).toBe(2500);
+      expect(result.queries[0]["overflow"]).toBeUndefined();
     });
   });
 

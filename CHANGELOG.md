@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_slow_queries` / `mysql_query_stats` Timer Overflow Detection** — Both tools returned absurdly large `avg_time_ms` / `total_time_ms` / `max_time_ms` values (e.g., ~213 days) for certain queries due to MySQL's `performance_schema` unsigned 64-bit picosecond counter wrapping. Timer values exceeding 24 hours are now clamped to `-1` with `overflow: true` on the row, signaling that the original value was a counter overflow artifact.
 - **`mysql_explain` TRADITIONAL Format Output** — Tool returned TREE format output when TRADITIONAL was requested. The handler used bare `EXPLAIN ${query}` for the TRADITIONAL case, which MySQL 8.0+ defaults to TREE format. Now explicitly uses `EXPLAIN FORMAT=TRADITIONAL ${query}` for all three formats.
 - **`mysql_explain_analyze` Missing `sql` Alias** — Tool did not accept the `sql` parameter alias for `query`, despite being documented in ServerInstructions. Replaced inline Zod schema with proper Dual-Schema pattern (`ExplainAnalyzeSchemaBase` + `ExplainAnalyzeSchema`) using `preprocessQueryOnlyParams`, matching the pattern used by `mysql_explain`.
 - **`mysql_buffer_pool_stats` Payload Reduction (P137)** — Tool returned all 32 columns from `INNODB_BUFFER_POOL_STATS` via `SELECT *`, including many zero-count rate fields. Now returns a curated subset of 23 operationally meaningful columns (pool size, free buffers, database pages, modified pages, hit rate, I/O rates, page activity).

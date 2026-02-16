@@ -23,6 +23,45 @@ import {
 } from "../../types.js";
 import { z } from "zod";
 
+/**
+ * Maximum reasonable timer value in milliseconds (24 hours).
+ * Values exceeding this threshold are timer overflow artifacts from
+ * performance_schema's unsigned 64-bit picosecond counters wrapping.
+ */
+const MAX_TIMER_MS = 86_400_000;
+
+/**
+ * Sanitize timer fields in query result rows.
+ * Overflowed values (> 24 hours) are clamped to -1 with an `overflow: true` flag.
+ */
+function sanitizeTimerRows(
+  rows: Record<string, unknown>[] | undefined,
+  timerFields: string[],
+): Record<string, unknown>[] {
+  if (!rows) return [];
+  return rows.map((row) => {
+    let hasOverflow = false;
+    const sanitized = { ...row };
+    for (const field of timerFields) {
+      const value = sanitized[field];
+      const numValue =
+        typeof value === "number"
+          ? value
+          : typeof value === "string"
+            ? parseFloat(value)
+            : NaN;
+      if (!isNaN(numValue) && numValue > MAX_TIMER_MS) {
+        sanitized[field] = -1;
+        hasOverflow = true;
+      }
+    }
+    if (hasOverflow) {
+      sanitized["overflow"] = true;
+    }
+    return sanitized;
+  });
+}
+
 export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_explain",
@@ -140,7 +179,12 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
       sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${limit}`;
 
       const result = await adapter.executeReadQuery(sql);
-      return { slowQueries: result.rows };
+      return {
+        slowQueries: sanitizeTimerRows(result.rows, [
+          "avg_time_ms",
+          "total_time_ms",
+        ]),
+      };
     },
   };
 }
@@ -193,7 +237,13 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
             `;
 
       const result = await adapter.executeReadQuery(sql);
-      return { queries: result.rows };
+      return {
+        queries: sanitizeTimerRows(result.rows, [
+          "avg_time_ms",
+          "max_time_ms",
+          "total_time_ms",
+        ]),
+      };
     },
   };
 }
