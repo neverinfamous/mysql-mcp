@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Code Mode Replication `help()` Examples** — `mysql.replication.help()` listed `replicationStatus()` and `replicationLag()` as examples, neither of which exist as methods (causing `TypeError` when called). Updated examples to use the correct method names: `slaveStatus()` and `lag()`. Also removed the broken `lag → replicationLag` alias (the canonical method name is already `lag`) and fixed `status` alias to point to `slaveStatus` instead of the nonexistent `replicationStatus`.
+
 - **`mysql_query_rewrite` / `mysql_optimizer_trace` Missing `sql` Alias** — Both tools did not accept the `sql` parameter alias for `query`, despite being documented in ServerInstructions. Replaced inline Zod schemas with proper Dual-Schema pattern (`schemaBase` + `schema`) using `preprocessQueryOnlyParams`, matching the pattern used by `mysql_explain` and `mysql_explain_analyze`.
 - **`mysql_slow_queries` / `mysql_query_stats` Timer Overflow Detection** — Both tools returned absurdly large `avg_time_ms` / `total_time_ms` / `max_time_ms` values (e.g., ~213 days) for certain queries due to MySQL's `performance_schema` unsigned 64-bit picosecond counter wrapping. Timer values exceeding 24 hours are now clamped to `-1` with `overflow: true` on the row, signaling that the original value was a counter overflow artifact.
 - **`mysql_slow_queries` / `mysql_query_stats` Timer Value Type Consistency** — Both tools returned non-overflowed timer values (`avg_time_ms`, `total_time_ms`, `max_time_ms`) as strings when MySQL's `performance_schema` returned DECIMAL-typed values, while overflow-clamped values were numbers (`-1`). All timer values are now consistently returned as numbers.

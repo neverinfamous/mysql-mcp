@@ -123,8 +123,7 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Replication: intuitive aliases
   replication: {
-    lag: "replicationLag",
-    status: "replicationStatus",
+    status: "slaveStatus",
     master: "masterStatus",
     slave: "slaveStatus",
     binlog: "binlogEvents",
@@ -323,8 +322,8 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.backup.restoreDump({ filePath: '/backups/dump.sql' })",
   ],
   replication: [
-    "mysql.replication.replicationStatus()",
-    "mysql.replication.replicationLag()",
+    "mysql.replication.slaveStatus()",
+    "mysql.replication.lag()",
     "mysql.replication.masterStatus()",
     "mysql.replication.binlogEvents({ limit: 20 })",
   ],
