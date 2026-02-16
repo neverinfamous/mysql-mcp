@@ -290,9 +290,10 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 Many tools accept **alternative parameter names** (aliases) for commonly used fields. The server normalizes these automatically—use whichever feels most natural:
 
-- **Table name**: \`table\`, \`tableName\`, or \`name\` — accepted by Core tools (\`mysql_describe_table\`, \`mysql_get_indexes\`, \`mysql_drop_table\`, \`mysql_create_index\`), Backup tools (\`mysql_export_table\`, \`mysql_import_data\`), Partitioning tools (\`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`), Performance tools (\`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_table_stats\`, \`mysql_index_usage\`), and Admin tools (\`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, \`mysql_flush_tables\`).
+- **Table name**: \`table\`, \`tableName\`, or \`name\` — accepted by Core tools (\`mysql_describe_table\`, \`mysql_get_indexes\`, \`mysql_drop_table\`, \`mysql_create_index\`), Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`), Backup tools (\`mysql_export_table\`, \`mysql_import_data\`), Partitioning tools (\`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`), Performance tools (\`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_table_stats\`, \`mysql_index_usage\`), and Admin tools (\`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, \`mysql_flush_tables\`).
 - **Query/SQL**: \`query\` or \`sql\` — accepted by \`mysql_read_query\`, \`mysql_write_query\`, \`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_query_rewrite\`, and \`mysql_optimizer_trace\`.
-- **WHERE clause**: \`where\` or \`filter\` — accepted by \`mysql_export_table\`.
+- **WHERE clause**: \`where\` or \`filter\` — accepted by \`mysql_export_table\` and Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`).
+- **Column name**: \`column\` or \`col\` — accepted by Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_collation_convert\`).
 - **Admin tables array**: Admin maintenance tools accept a singular \`table\` (or \`tableName\`/\`name\`) as an alias for the \`tables\` array parameter, automatically wrapping it in an array.
 
 ## Code Mode (\`mysql_execute_code\`)
