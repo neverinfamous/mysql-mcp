@@ -137,7 +137,13 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           jsonValue,
           id,
         ]);
-        return { success: result.rowsAffected === 1 };
+        if (result.rowsAffected === 0) {
+          return {
+            success: false,
+            reason: `No row found with ${idColumn} = ${id}`,
+          };
+        }
+        return { success: true };
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
@@ -205,12 +211,25 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { value } = JsonValidateSchema.parse(params);
 
+      // Auto-convert bare strings to JSON strings (matching other JSON tools)
+      let jsonValue = value;
+      if (typeof value === "string") {
+        try {
+          JSON.parse(value);
+        } catch {
+          jsonValue = JSON.stringify(value);
+        }
+      }
+
       try {
         const sql = `SELECT JSON_VALID(?) as is_valid`;
-        const result = await adapter.executeReadQuery(sql, [value]);
+        const result = await adapter.executeReadQuery(sql, [jsonValue]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
-        return { valid: isValid };
+        return {
+          valid: isValid,
+          ...(jsonValue !== value && { autoConverted: true }),
+        };
       } catch (error) {
         // MySQL may throw an error for severely malformed input
         // Return a structured error response instead of propagating

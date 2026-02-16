@@ -54,30 +54,6 @@ describe("JSON Helper Tools", () => {
     });
   });
 
-  describe("createJsonUpdateTool", () => {
-    it("should update JSON value by ID", async () => {
-      mockAdapter.executeWriteQuery.mockResolvedValue({
-        rowsAffected: 1,
-        insertId: 0,
-      });
-
-      const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler(
-        {
-          table: "data",
-          column: "json_col",
-          path: "$.a",
-          value: 2,
-          id: 1,
-        },
-        mockContext,
-      )) as { success: boolean };
-
-      expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
-      expect(result.success).toBe(true);
-    });
-  });
-
   describe("createJsonSearchTool", () => {
     it("should search JSON by value", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
@@ -101,6 +77,52 @@ describe("JSON Helper Tools", () => {
     });
   });
 
+  describe("createJsonUpdateTool", () => {
+    it("should update JSON value by ID", async () => {
+      mockAdapter.executeWriteQuery.mockResolvedValue({
+        rowsAffected: 1,
+        insertId: 0,
+      });
+
+      const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column: "json_col",
+          path: "$.a",
+          value: 2,
+          id: 1,
+        },
+        mockContext,
+      )) as { success: boolean };
+
+      expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
+
+    it("should return reason when no row matches the ID", async () => {
+      mockAdapter.executeWriteQuery.mockResolvedValue({
+        rowsAffected: 0,
+        insertId: 0,
+      });
+
+      const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column: "json_col",
+          path: "$.a",
+          value: 2,
+          id: 999,
+        },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("999");
+    });
+  });
+
   describe("createJsonValidateTool", () => {
     it("should validate JSON string", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
@@ -119,6 +141,30 @@ describe("JSON Helper Tools", () => {
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.valid).toBe(true);
+    });
+
+    it("should auto-convert bare strings and mark autoConverted", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ is_valid: 1 }]),
+      );
+
+      const tool = createJsonValidateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          value: "hello",
+        },
+        mockContext,
+      )) as { valid: boolean; autoConverted: boolean };
+
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      // The bare string "hello" should be auto-wrapped to "\"hello\"" before SQL
+      const sqlParam = mockAdapter.executeReadQuery.mock
+        .calls[0][1] as string[];
+      expect(sqlParam[0]).toBe('"hello"');
+      expect(result.valid).toBe(true);
+      expect(result.autoConverted).toBe(true);
     });
   });
 
