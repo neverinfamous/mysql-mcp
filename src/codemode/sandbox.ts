@@ -235,8 +235,10 @@ export class CodeModeSandbox {
     return {
       wallTimeMs: Math.round(endTime - startTime),
       cpuTimeMs: Math.round(endTime - startTime), // Approximation
-      memoryUsedMb:
+      memoryUsedMb: Math.max(
+        0,
         Math.round(((endMemory - startMemory) / (1024 * 1024)) * 100) / 100,
+      ),
     };
   }
 
