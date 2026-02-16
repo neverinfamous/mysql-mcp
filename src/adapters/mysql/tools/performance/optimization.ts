@@ -11,6 +11,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { z } from "zod";
+import { preprocessQueryOnlyParams } from "../../types.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -230,16 +231,35 @@ export function createIndexRecommendationTool(
 }
 
 export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    query: z.string().describe("SQL query to analyze for optimization"),
+  const schemaBase = z.object({
+    query: z
+      .string()
+      .optional()
+      .describe("SQL query to analyze for optimization"),
+    sql: z.string().optional().describe("Alias for query"),
   });
+
+  const schema = z
+    .preprocess(
+      preprocessQueryOnlyParams,
+      z.object({
+        query: z.string().optional(),
+        sql: z.string().optional(),
+      }),
+    )
+    .transform((data) => ({
+      query: data.query ?? data.sql ?? "",
+    }))
+    .refine((data) => data.query !== "", {
+      message: "query (or sql alias) is required",
+    });
 
   return {
     name: "mysql_query_rewrite",
     title: "MySQL Query Rewrite",
     description: "Analyze a query and suggest optimizations.",
     group: "optimization",
-    inputSchema: schema,
+    inputSchema: schemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -376,8 +396,9 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
 export function createOptimizerTraceTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    query: z.string().describe("Query to trace"),
+  const schemaBase = z.object({
+    query: z.string().optional().describe("Query to trace"),
+    sql: z.string().optional().describe("Alias for query"),
     summary: z
       .boolean()
       .optional()
@@ -386,12 +407,29 @@ export function createOptimizerTraceTool(
       ),
   });
 
+  const schema = z
+    .preprocess(
+      preprocessQueryOnlyParams,
+      z.object({
+        query: z.string().optional(),
+        sql: z.string().optional(),
+        summary: z.boolean().optional(),
+      }),
+    )
+    .transform((data) => ({
+      query: data.query ?? data.sql ?? "",
+      summary: data.summary,
+    }))
+    .refine((data) => data.query !== "", {
+      message: "query (or sql alias) is required",
+    });
+
   return {
     name: "mysql_optimizer_trace",
     title: "MySQL Optimizer Trace",
     description: "Get detailed optimizer trace for a query.",
     group: "optimization",
-    inputSchema: schema,
+    inputSchema: schemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

@@ -501,7 +501,7 @@ function preprocessJsonColumnParams(val: unknown): unknown {
   };
 }
 
-function preprocessQueryOnlyParams(val: unknown): unknown {
+export function preprocessQueryOnlyParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
   return {
