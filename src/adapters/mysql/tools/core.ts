@@ -101,10 +101,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        if (message.includes("doesn't exist")) {
-          return { success: false, error: message.replace(/^.*?:\s*/, "") };
-        }
-        throw err;
+        return { success: false, error: message.replace(/^.*?:\s*/, "") };
       }
     },
   };
@@ -144,10 +141,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        if (message.includes("doesn't exist")) {
-          return { success: false, error: message.replace(/^.*?:\s*/, "") };
-        }
-        throw err;
+        return { success: false, error: message.replace(/^.*?:\s*/, "") };
       }
     },
   };

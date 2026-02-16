@@ -198,16 +198,21 @@ describe("Handler Execution", () => {
       );
     });
 
-    it("should re-throw non-table errors in read query", async () => {
+    it("should return structured error for non-table errors in read query", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Access denied"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const result = await tool.handler(
+        { query: "SELECT * FROM users" },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler({ query: "SELECT * FROM users" }, mockContext),
-      ).rejects.toThrow("Access denied");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "Access denied",
+      );
     });
   });
 
@@ -270,16 +275,21 @@ describe("Handler Execution", () => {
       );
     });
 
-    it("should re-throw non-table errors in write query", async () => {
+    it("should return structured error for non-table errors in write query", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
         new Error("Access denied"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const result = await tool.handler(
+        { query: "INSERT INTO users VALUES (1)" },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler({ query: "INSERT INTO users VALUES (1)" }, mockContext),
-      ).rejects.toThrow("Access denied");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "Access denied",
+      );
     });
   });
 
