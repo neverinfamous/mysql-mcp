@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`mysql_read_query` / `mysql_write_query` Graceful Error Handling (P154)** — Both query tools now return `{ success: false, error }` when the query fails due to a nonexistent table (e.g., `Table 'testdb.nonexistent' doesn't exist`), instead of propagating raw MCP exceptions. Other query errors (syntax, permissions) continue to propagate normally. Matches the structured error pattern used by all other core tools.
+- **Code Mode Auto-Injection in Tool Filter Whitelist Mode** — `mysql_execute_code` is now automatically included when using raw group filters (e.g., `--tool-filter core`). Previously, only meta-group filters (e.g., `starter`, `essential`) included Code Mode, leaving it inaccessible when a raw group name was used. The auto-injection only applies in whitelist mode (filters not starting with `-`) and respects explicit exclusion via `-codemode` or `-mysql_execute_code`.
 
 ### Added
 

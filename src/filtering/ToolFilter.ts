@@ -230,6 +230,21 @@ export function parseToolFilter(
     }
   }
 
+  // Auto-inject codemode tools (mysql_execute_code) in whitelist mode only.
+  // In blacklist mode (starts with -), codemode is already in the initial set
+  // and user exclusions are respected. In whitelist mode, raw group filters
+  // (e.g., "core") would otherwise miss codemode — every meta-group includes it.
+  if (!startsWithExclude && enabledTools.size > 0) {
+    const codemodeExplicitlyExcluded = parts.some(
+      (p) => p === "-codemode" || p === "-mysql_execute_code",
+    );
+    if (!codemodeExplicitlyExcluded) {
+      for (const tool of TOOL_GROUPS.codemode) {
+        enabledTools.add(tool);
+      }
+    }
+  }
+
   return {
     raw: filterString,
     rules,

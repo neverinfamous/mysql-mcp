@@ -280,13 +280,38 @@ describe("parseToolFilter", () => {
     const config1 = parseToolFilter("+core,-mysql_read_query");
     expect(config1.enabledTools.has("mysql_read_query")).toBe(false);
     expect(config1.enabledTools.has("mysql_write_query")).toBe(true);
-    expect(config1.enabledTools.size).toBe(7); // core(8) - 1 = 7
+    expect(config1.enabledTools.size).toBe(8); // core(8) - 1 + codemode(1) = 8
   });
 
   it("should handle whitespace in filter string", () => {
     const config = parseToolFilter(" -core , +mysql_read_query ");
     expect(config.enabledTools.has("mysql_read_query")).toBe(true);
     expect(config.enabledTools.has("mysql_write_query")).toBe(false);
+  });
+
+  // Codemode auto-injection tests
+  it("should auto-inject codemode when using a raw group filter", () => {
+    const config = parseToolFilter("core");
+    expect(config.enabledTools.has("mysql_execute_code")).toBe(true);
+    expect(config.enabledTools.size).toBe(9); // core(8) + codemode(1)
+  });
+
+  it("should not inject codemode when explicitly excluded with -codemode", () => {
+    const config = parseToolFilter("core,-codemode");
+    expect(config.enabledTools.has("mysql_execute_code")).toBe(false);
+    expect(config.enabledTools.size).toBe(8); // core(8) only
+  });
+
+  it("should not inject codemode when mysql_execute_code explicitly excluded", () => {
+    const config = parseToolFilter("core,-mysql_execute_code");
+    expect(config.enabledTools.has("mysql_execute_code")).toBe(false);
+    expect(config.enabledTools.size).toBe(8); // core(8) only
+  });
+
+  it("should not inject codemode when all tools are excluded", () => {
+    const config = parseToolFilter("-all");
+    expect(config.enabledTools.size).toBe(0);
+    expect(config.enabledTools.has("mysql_execute_code")).toBe(false);
   });
 });
 
