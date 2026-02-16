@@ -88,16 +88,24 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         params: queryParams,
         transactionId,
       } = ReadQuerySchema.parse(params);
-      const result = await adapter.executeReadQuery(
-        query,
-        queryParams,
-        transactionId,
-      );
-      return {
-        rows: result.rows,
-        rowCount: result.rows?.length ?? 0,
-        executionTimeMs: result.executionTimeMs,
-      };
+      try {
+        const result = await adapter.executeReadQuery(
+          query,
+          queryParams,
+          transactionId,
+        );
+        return {
+          rows: result.rows,
+          rowCount: result.rows?.length ?? 0,
+          executionTimeMs: result.executionTimeMs,
+        };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("doesn't exist")) {
+          return { success: false, error: message.replace(/^.*?:\s*/, "") };
+        }
+        throw err;
+      }
     },
   };
 }
@@ -123,16 +131,24 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
         params: queryParams,
         transactionId,
       } = WriteQuerySchema.parse(params);
-      const result = await adapter.executeWriteQuery(
-        query,
-        queryParams,
-        transactionId,
-      );
-      return {
-        rowsAffected: result.rowsAffected,
-        lastInsertId: result.lastInsertId?.toString(),
-        executionTimeMs: result.executionTimeMs,
-      };
+      try {
+        const result = await adapter.executeWriteQuery(
+          query,
+          queryParams,
+          transactionId,
+        );
+        return {
+          rowsAffected: result.rowsAffected,
+          lastInsertId: result.lastInsertId?.toString(),
+          executionTimeMs: result.executionTimeMs,
+        };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes("doesn't exist")) {
+          return { success: false, error: message.replace(/^.*?:\s*/, "") };
+        }
+        throw err;
+      }
     },
   };
 }

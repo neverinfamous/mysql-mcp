@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`mysql_read_query` / `mysql_write_query` Graceful Error Handling (P154)** — Both query tools now return `{ success: false, error }` when the query fails due to a nonexistent table (e.g., `Table 'testdb.nonexistent' doesn't exist`), instead of propagating raw MCP exceptions. Other query errors (syntax, permissions) continue to propagate normally. Matches the structured error pattern used by all other core tools.
+
 ### Added
 
 - **Code Mode (`mysql_execute_code`)** — New sandboxed code execution tool enabling LLM agents to compose multi-step MySQL workflows as JavaScript/TypeScript code. Provides the `mysql.*` API namespace with 22 groups (168+ methods) including `mysql.core`, `mysql.json`, `mysql.transactions`, `mysql.spatial`, `mysql.stats`, and more. Features VM-based isolation, security validation, rate limiting, automatic transaction cleanup, and comprehensive help/introspection via `mysql.help()`. Requires `admin` scope.

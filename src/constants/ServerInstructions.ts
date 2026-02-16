@@ -86,6 +86,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **Prepared statements**: \`mysql_read_query\` and \`mysql_write_query\` support parameterized queries via the \`params\` array. Use \`?\` placeholders: \`query: "SELECT * FROM users WHERE id = ?", params: [123]\`.
 - **DDL statements**: DDL (e.g., \`CREATE TABLE\`, \`ALTER TABLE\`) is automatically handled via text protocol fallback in \`mysql_write_query\`.
+- **Query error handling**: \`mysql_read_query\` and \`mysql_write_query\` return \`{ success: false, error }\` when the query fails due to a nonexistent table, instead of throwing raw errors. Other query errors (syntax, permissions) propagate normally.
 - **Boolean defaults**: \`mysql_create_table\` auto-converts boolean \`default: true\` to \`1\` and \`default: false\` to \`0\` for MySQL compatibility. Alternatively, use \`TINYINT(1)\` with numeric defaults directly.
 - **Existence checks**: \`mysql_describe_table\` and \`mysql_get_indexes\` return \`{ exists: false, table: "..." }\` gracefully when the table does not exist, avoiding raw SQL errors.
 - **Create/Drop safety**: \`mysql_create_table\` returns \`{ success: false, reason }\` when the table already exists (without \`ifNotExists\`). \`mysql_drop_table\` returns \`{ success: false, reason }\` when the table does not exist (without \`ifExists\`). With \`ifExists: true\`, dropping a nonexistent table returns \`{ success: true, skipped: true, reason: "Table did not exist" }\`.
