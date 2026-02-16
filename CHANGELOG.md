@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Code Mode Partitioning `help()` Examples** — `mysql.partitioning.help()` listed incorrect parameter names (`name` instead of `partitionName`, `values` instead of `value`) and included SQL keywords (`LESS THAN`) in the `value` parameter for `addPartition`. Also fixed `dropPartition` example using `name` instead of `partitionName`. Updated `POSITIONAL_PARAM_MAP` to use correct parameter names (`partitionName`, `partitionType`, `value`) matching the actual Zod schemas.
+
 - **Code Mode Replication `help()` Examples** — `mysql.replication.help()` listed `replicationStatus()` and `replicationLag()` as examples, neither of which exist as methods (causing `TypeError` when called). Updated examples to use the correct method names: `slaveStatus()` and `lag()`. Also removed the broken `lag → replicationLag` alias (the canonical method name is already `lag`) and fixed `status` alias to point to `slaveStatus` instead of the nonexistent `replicationStatus`.
 
 - **`mysql_query_rewrite` / `mysql_optimizer_trace` Missing `sql` Alias** — Both tools did not accept the `sql` parameter alias for `query`, despite being documented in ServerInstructions. Replaced inline Zod schemas with proper Dual-Schema pattern (`schemaBase` + `schema`) using `preprocessQueryOnlyParams`, matching the pattern used by `mysql_explain` and `mysql_explain_analyze`.

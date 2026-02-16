@@ -329,8 +329,8 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   ],
   partitioning: [
     "mysql.partitioning.partitionInfo({ table: 'events' })",
-    "mysql.partitioning.addPartition({ table: 'events', name: 'p2024q1', values: 'LESS THAN (2024040100)' })",
-    "mysql.partitioning.dropPartition({ table: 'events', name: 'p2023q1' })",
+    "mysql.partitioning.addPartition({ table: 'events', partitionName: 'p2024q1', partitionType: 'RANGE', value: '2024040100' })",
+    "mysql.partitioning.dropPartition({ table: 'events', partitionName: 'p2023q1' })",
   ],
   schema: [
     "mysql.schema.listViews()",
@@ -516,8 +516,8 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   statsRegression: ["table", "xColumn", "yColumn"],
 
   // ============ PARTITIONING GROUP ============
-  addPartition: ["table", "name", "values"],
-  dropPartition: ["table", "name"],
+  addPartition: ["table", "partitionName", "partitionType", "value"],
+  dropPartition: ["table", "partitionName"],
   reorganizePartition: ["table", "partitions"],
   partitionInfo: "table",
 
