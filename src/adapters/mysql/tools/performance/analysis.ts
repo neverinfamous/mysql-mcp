@@ -13,6 +13,8 @@ import type {
 import {
   ExplainSchema,
   ExplainSchemaBase,
+  ExplainAnalyzeSchema,
+  ExplainAnalyzeSchemaBase,
   SlowQuerySchema,
   IndexUsageSchema,
   IndexUsageSchemaBase,
@@ -36,12 +38,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { query, format } = ExplainSchema.parse(params);
 
-      const sql =
-        format === "JSON"
-          ? `EXPLAIN FORMAT=JSON ${query}`
-          : format === "TREE"
-            ? `EXPLAIN FORMAT=TREE ${query}`
-            : `EXPLAIN ${query}`;
+      const sql = `EXPLAIN FORMAT=${format} ${query}`;
 
       try {
         const result = await adapter.executeReadQuery(sql);
@@ -69,24 +66,19 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
 export function createExplainAnalyzeTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    query: z.string().describe("SQL query to analyze"),
-    format: z.enum(["JSON", "TREE"]).optional().default("TREE"),
-  });
-
   return {
     name: "mysql_explain_analyze",
     title: "MySQL EXPLAIN ANALYZE",
     description:
       "Get query execution plan with actual timing using EXPLAIN ANALYZE (MySQL 8.0+). Only TREE format is supported.",
     group: "performance",
-    inputSchema: schema,
+    inputSchema: ExplainAnalyzeSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, format } = schema.parse(params);
+      const { query, format } = ExplainAnalyzeSchema.parse(params);
 
       // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
       // (requires explain_json_format_version=2 which is not widely available).
@@ -325,10 +317,17 @@ export function createBufferPoolStatsTool(
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Use SELECT * for compatibility across MySQL versions
-      // Different MySQL versions have different column sets
       const result = await adapter.executeReadQuery(
-        `SELECT * FROM information_schema.INNODB_BUFFER_POOL_STATS`,
+        `SELECT POOL_ID, POOL_SIZE, FREE_BUFFERS, DATABASE_PAGES,
+                OLD_DATABASE_PAGES, MODIFIED_DATABASE_PAGES, PENDING_DECOMPRESS,
+                PENDING_READS, PENDING_FLUSH_LRU, PENDING_FLUSH_LIST,
+                PAGES_MADE_YOUNG, PAGES_NOT_MADE_YOUNG,
+                PAGES_MADE_YOUNG_RATE, PAGES_MADE_NOT_YOUNG_RATE,
+                NUMBER_PAGES_READ, NUMBER_PAGES_CREATED, NUMBER_PAGES_WRITTEN,
+                PAGES_READ_RATE, PAGES_CREATE_RATE, PAGES_WRITTEN_RATE,
+                HIT_RATE, YOUNG_MAKE_PER_THOUSAND_GETS,
+                NOT_YOUNG_MAKE_PER_THOUSAND_GETS
+         FROM information_schema.INNODB_BUFFER_POOL_STATS`,
       );
 
       return { bufferPoolStats: result.rows };

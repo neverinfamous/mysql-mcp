@@ -963,6 +963,34 @@ export const ExplainSchema = z
     message: "query (or sql alias) is required",
   });
 
+// --- ExplainAnalyze ---
+export const ExplainAnalyzeSchemaBase = z.object({
+  query: z.string().optional().describe("SQL query to analyze"),
+  sql: z.string().optional().describe("Alias for query"),
+  format: z
+    .enum(["JSON", "TREE"])
+    .optional()
+    .default("TREE")
+    .describe("Output format"),
+});
+
+export const ExplainAnalyzeSchema = z
+  .preprocess(
+    preprocessQueryOnlyParams,
+    z.object({
+      query: z.string().optional(),
+      sql: z.string().optional(),
+      format: z.enum(["JSON", "TREE"]).optional().default("TREE"),
+    }),
+  )
+  .transform((data) => ({
+    query: data.query ?? data.sql ?? "",
+    format: data.format,
+  }))
+  .refine((data) => data.query !== "", {
+    message: "query (or sql alias) is required",
+  });
+
 // --- SlowQuery (no table/query aliases — simple passthrough) ---
 export const SlowQuerySchema = z.object({
   limit: z

@@ -61,7 +61,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "EXPLAIN SELECT * FROM users",
+        "EXPLAIN FORMAT=TRADITIONAL SELECT * FROM users",
       );
       expect(result).toHaveProperty("plan");
     });
@@ -242,6 +242,30 @@ describe("Performance Analysis Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("SQL syntax");
+    });
+
+    it("should accept sql alias for query", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            EXPLAIN:
+              "-> Table scan on users  (actual time=0.05..0.10 rows=100 loops=1)",
+          },
+        ]),
+      );
+
+      const tool = createExplainAnalyzeTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { sql: "SELECT * FROM users" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
+        "EXPLAIN ANALYZE FORMAT=TREE SELECT * FROM users",
+      );
+      expect(result).toHaveProperty("analysis");
     });
   });
 
@@ -455,9 +479,12 @@ describe("Performance Analysis Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM information_schema.INNODB_BUFFER_POOL_STATS",
-      );
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      expect(call).toContain("INNODB_BUFFER_POOL_STATS");
+      expect(call).toContain("POOL_SIZE");
+      expect(call).toContain("HIT_RATE");
+      expect(call).not.toContain("SELECT *");
       expect(result).toHaveProperty("bufferPoolStats");
     });
   });

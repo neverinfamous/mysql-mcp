@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_explain` TRADITIONAL Format Output** — Tool returned TREE format output when TRADITIONAL was requested. The handler used bare `EXPLAIN ${query}` for the TRADITIONAL case, which MySQL 8.0+ defaults to TREE format. Now explicitly uses `EXPLAIN FORMAT=TRADITIONAL ${query}` for all three formats.
+- **`mysql_explain_analyze` Missing `sql` Alias** — Tool did not accept the `sql` parameter alias for `query`, despite being documented in ServerInstructions. Replaced inline Zod schema with proper Dual-Schema pattern (`ExplainAnalyzeSchemaBase` + `ExplainAnalyzeSchema`) using `preprocessQueryOnlyParams`, matching the pattern used by `mysql_explain`.
+- **`mysql_buffer_pool_stats` Payload Reduction (P137)** — Tool returned all 32 columns from `INNODB_BUFFER_POOL_STATS` via `SELECT *`, including many zero-count rate fields. Now returns a curated subset of 23 operationally meaningful columns (pool size, free buffers, database pages, modified pages, hit rate, I/O rates, page activity).
+- **ServerInstructions Parameter Alias Accuracy** — Removed `mysql_explain` and `mysql_explain_analyze` from the table name alias list (they accept `query`/`sql`, not `table`/`tableName`/`name`).
+
 - **`mysql_json_update` Missing Reason on No-Match** — Tool returned bare `{ success: false }` without context when the target row ID did not exist. Now returns `{ success: false, reason: "No row found with <idColumn> = <id>" }` matching the descriptive error pattern used by other write tools.
 - **`mysql_json_validate` Bare-String Auto-Conversion** — Tool did not apply the auto-conversion documented for JSON tools, causing bare strings like `hello` to fail validation. Now auto-wraps bare strings as JSON strings (e.g., `"hello"`) before calling `JSON_VALID()`, matching the behavior of `mysql_json_set`, `mysql_json_update`, and other JSON write tools. Returns `autoConverted: true` when conversion was applied.
 - **`mysql_read_query` / `mysql_write_query` Uniform Structured Error Handling (P154)** — Both query tools now return `{ success: false, error }` for all query errors (nonexistent table, syntax errors, permission failures, etc.), instead of propagating raw MCP exceptions. Matches the structured error pattern used by all other core tools.
