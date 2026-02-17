@@ -211,25 +211,12 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { value } = JsonValidateSchema.parse(params);
 
-      // Auto-convert bare strings to JSON strings (matching other JSON tools)
-      let jsonValue = value;
-      if (typeof value === "string") {
-        try {
-          JSON.parse(value);
-        } catch {
-          jsonValue = JSON.stringify(value);
-        }
-      }
-
       try {
         const sql = `SELECT JSON_VALID(?) as is_valid`;
-        const result = await adapter.executeReadQuery(sql, [jsonValue]);
+        const result = await adapter.executeReadQuery(sql, [value]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
-        return {
-          valid: isValid,
-          ...(jsonValue !== value && { autoConverted: true }),
-        };
+        return { valid: isValid };
       } catch (error) {
         // MySQL may throw an error for severely malformed input
         // Return a structured error response instead of propagating

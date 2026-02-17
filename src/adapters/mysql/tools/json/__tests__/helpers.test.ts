@@ -143,9 +143,9 @@ describe("JSON Helper Tools", () => {
       expect(result.valid).toBe(true);
     });
 
-    it("should auto-convert bare strings and mark autoConverted", async () => {
+    it("should pass bare strings directly without auto-conversion", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ is_valid: 1 }]),
+        createMockQueryResult([{ is_valid: 0 }]),
       );
 
       const tool = createJsonValidateTool(
@@ -156,15 +156,14 @@ describe("JSON Helper Tools", () => {
           value: "hello",
         },
         mockContext,
-      )) as { valid: boolean; autoConverted: boolean };
+      )) as { valid: boolean };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      // The bare string "hello" should be auto-wrapped to "\"hello\"" before SQL
+      // The bare string "hello" should be passed directly, not wrapped
       const sqlParam = mockAdapter.executeReadQuery.mock
         .calls[0][1] as string[];
-      expect(sqlParam[0]).toBe('"hello"');
-      expect(result.valid).toBe(true);
-      expect(result.autoConverted).toBe(true);
+      expect(sqlParam[0]).toBe("hello");
+      expect(result.valid).toBe(false);
     });
   });
 
