@@ -62,12 +62,17 @@ require_realm = default_realm
 [rest_metadata_cache]
 require_realm = default_realm
 
+[rest_connection_pool]
+require_realm = default_realm
+
 [http_server]
 port = 8443
 ssl = 1
 ssl_cert = /path/to/router-cert.pem
 ssl_key = /path/to/router-key.pem
 \`\`\`
+
+> **Note**: \`mysql_router_pool_status\` also requires \`connection_sharing=1\` on at least one route.
 
 ## Step 4: Configure MCP Server
 

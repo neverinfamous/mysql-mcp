@@ -125,7 +125,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Self-signed certificates**: Set \`MYSQL_ROUTER_INSECURE=true\` to bypass TLS certificate verification for development/testing environments.
 - **Route names**: Use \`mysql_router_routes\` to list available routes (e.g., \`bootstrap_rw\`, \`bootstrap_ro\`).
 - **Metadata cache**: The \`metadataName\` parameter is typically \`bootstrap\` for bootstrapped routers.
-- **Connection pools**: Pool name is typically \`main\` for standard Router configurations.
+- **Connection pools**: \`mysql_router_pool_status\` requires the \`[rest_connection_pool]\` REST plugin AND \`connection_sharing=1\` on routes. Without these, the endpoint returns 404. When enabled, pool name is \`main\`.
 - **Unavailability handling**: When Router REST API is unreachable, tools return \`{ available: false, reason: "..." }\` with descriptive error message instead of throwing.
 
 ## Partitioning Tools (\`mysql_partition_*\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`)
