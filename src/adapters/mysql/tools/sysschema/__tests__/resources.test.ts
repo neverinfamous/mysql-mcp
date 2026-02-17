@@ -52,6 +52,9 @@ describe("Sys Schema Resource Tools", () => {
         tableStatistics: unknown[];
         indexStatistics: unknown[];
         autoIncrementStatus: unknown[];
+        tableStatisticsCount: number;
+        indexStatisticsCount: number;
+        autoIncrementStatusCount: number;
         schemaName: string;
       };
 
@@ -59,6 +62,9 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.tableStatistics).toHaveLength(1);
       expect(result.indexStatistics).toHaveLength(1);
       expect(result.autoIncrementStatus).toHaveLength(1);
+      expect(result.tableStatisticsCount).toBe(1);
+      expect(result.indexStatisticsCount).toBe(1);
+      expect(result.autoIncrementStatusCount).toBe(1);
       expect(result.schemaName).toBe("testdb");
     });
 
@@ -113,6 +119,9 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.tableStatistics).toEqual([]);
       expect(result.indexStatistics).toEqual([]);
       expect(result.autoIncrementStatus).toEqual([]);
+      expect(result.tableStatisticsCount).toBe(0);
+      expect(result.indexStatisticsCount).toBe(0);
+      expect(result.autoIncrementStatusCount).toBe(0);
     });
 
     it("should return exists: false for nonexistent schema (P154)", async () => {
@@ -144,9 +153,15 @@ describe("Sys Schema Resource Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as {
         schemaName: string;
+        tableStatisticsCount: number;
+        indexStatisticsCount: number;
+        autoIncrementStatusCount: number;
       };
 
       expect(result.schemaName).toBe("real_db_name");
+      expect(result.tableStatisticsCount).toBe(0);
+      expect(result.indexStatisticsCount).toBe(0);
+      expect(result.autoIncrementStatusCount).toBe(0);
       // First call should be SELECT DATABASE()
       const firstCall = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(firstCall).toContain("SELECT DATABASE()");

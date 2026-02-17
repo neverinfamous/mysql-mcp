@@ -142,6 +142,9 @@ export function createSysSchemaStatsTool(
         tableStatistics: tableStats.rows ?? [],
         indexStatistics: indexStats.rows ?? [],
         autoIncrementStatus: autoIncStats.rows ?? [],
+        tableStatisticsCount: (tableStats.rows ?? []).length,
+        indexStatisticsCount: (indexStats.rows ?? []).length,
+        autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
         schemaName: resolvedSchema,
       };
     },
