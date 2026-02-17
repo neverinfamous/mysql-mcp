@@ -845,6 +845,148 @@ export const SoundexSchema = z
     message: "column (or col alias) is required",
   });
 
+// --- Substring ---
+export const SubstringSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  column: z.string().describe("Column name"),
+  start: z.number().describe("Starting position (1-indexed)"),
+  length: z.number().optional().describe("Number of characters"),
+  where: z
+    .string()
+    .optional()
+    .describe("Additional WHERE clause for filtering"),
+  filter: z.string().optional().describe("Alias for where"),
+});
+
+export const SubstringSchema = z
+  .preprocess(
+    preprocessJsonColumnParams,
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      column: z.string(),
+      start: z.number(),
+      length: z.number().optional(),
+      where: z.string().optional(),
+      filter: z.string().optional(),
+    }),
+  )
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    column: data.column,
+    start: data.start,
+    length: data.length,
+    where: data.where ?? data.filter,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
+
+// --- Concat ---
+export const ConcatSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  columns: z.array(z.string()).describe("Columns to concatenate"),
+  separator: z
+    .string()
+    .optional()
+    .default(" ")
+    .describe("Separator between values"),
+  alias: z
+    .string()
+    .optional()
+    .default("concatenated")
+    .describe("Result column name"),
+  where: z
+    .string()
+    .optional()
+    .describe("Additional WHERE clause for filtering"),
+  filter: z.string().optional().describe("Alias for where"),
+  includeSourceColumns: z
+    .boolean()
+    .optional()
+    .default(true)
+    .describe(
+      "Include individual source columns in output (default: true). Set to false for minimal payload.",
+    ),
+});
+
+export const ConcatSchema = z
+  .preprocess(
+    preprocessJsonColumnParams,
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      columns: z.array(z.string()),
+      separator: z.string().optional().default(" "),
+      alias: z.string().optional().default("concatenated"),
+      where: z.string().optional(),
+      filter: z.string().optional(),
+      includeSourceColumns: z.boolean().optional().default(true),
+    }),
+  )
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    columns: data.columns,
+    separator: data.separator,
+    alias: data.alias,
+    where: data.where ?? data.filter,
+    includeSourceColumns: data.includeSourceColumns,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
+
+// --- CollationConvert ---
+export const CollationConvertSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  column: z.string().optional().describe("Column name"),
+  col: z.string().optional().describe("Alias for column"),
+  charset: z.string().describe("Target character set (e.g., utf8mb4)"),
+  collation: z.string().optional().describe("Target collation"),
+  where: z
+    .string()
+    .optional()
+    .describe("Additional WHERE clause for filtering"),
+  filter: z.string().optional().describe("Alias for where"),
+});
+
+export const CollationConvertSchema = z
+  .preprocess(
+    preprocessJsonColumnParams,
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      column: z.string().optional(),
+      col: z.string().optional(),
+      charset: z.string(),
+      collation: z.string().optional(),
+      where: z.string().optional(),
+      filter: z.string().optional(),
+    }),
+  )
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    column: data.column ?? data.col ?? "",
+    charset: data.charset,
+    collation: data.collation,
+    where: data.where ?? data.filter,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.column !== "", {
+    message: "column (or col alias) is required",
+  });
+
 // --- FulltextCreate ---
 export const FulltextCreateSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
