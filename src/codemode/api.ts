@@ -354,7 +354,7 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.events.schedulerStatus()",
   ],
   sysschema: [
-    "mysql.sysschema.sysSchemaStats({ table: 'users' })",
+    "mysql.sysschema.sysSchemaStats({ schema: 'testdb' })",
     "mysql.sysschema.sysStatementSummary({ limit: 10 })",
     "mysql.sysschema.sysInnodbLockWaits()",
     "mysql.sysschema.sysMemorySummary()",

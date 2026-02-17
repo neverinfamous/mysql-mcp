@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Code Mode `sysSchemaStats` Help Example** — `mysql.sysschema.help()` listed `sysSchemaStats({ table: 'users' })` as an example, but the tool accepts `schema`, not `table`. Updated to `sysSchemaStats({ schema: 'testdb' })`.
+- **`mysql_sys_memory_summary` Response Consistency** — Tool response lacked count fields, unlike other sysschema tools (e.g., `mysql_sys_innodb_lock_waits` which includes `count`). Added `globalMemoryCount` and `memoryByUserCount` to the response for response shape consistency across the sysschema group.
+
 - **`mysql_event_alter` Clause Ordering** — Tool generated invalid SQL when combining `newName` with other clauses (`comment`, `enabled`, `body`). The handler emitted clauses as `ENABLE/DISABLE → COMMENT → RENAME TO → DO`, but MySQL's `ALTER EVENT` syntax requires `RENAME TO → ENABLE/DISABLE → COMMENT → DO`. Reordered all clause generation to match the MySQL-required syntax order: `ON SCHEDULE → ON COMPLETION → RENAME TO → ENABLE/DISABLE → COMMENT → DO`.
 - **Code Mode Shell Tool Naming Inconsistency** — Shell tool methods in code mode used unprefixed-stripping names (e.g., `mysql.shell.mysqlshVersion()`, `mysql.shell.mysqlshRunScript()`) instead of following the prefix-stripping convention used by all other groups. Added `shell: "mysqlsh_"` to `groupPrefixMap` in `api.ts`, so `mysqlsh_version` → `mysql.shell.version()`, `mysqlsh_run_script` → `mysql.shell.runScript()`, etc. Also added shell `METHOD_ALIASES`, `GROUP_EXAMPLES`, and `POSITIONAL_PARAM_MAP` entries.
 - **`mysqlsh_check_upgrade` ServerInstructions Clarification** — Documentation incorrectly stated the tool fails only when `targetVersion` is lower than the server version. Clarified that it also fails when MySQL Shell's version is lower than the server version (Shell cannot analyze a server newer than itself).

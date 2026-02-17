@@ -235,11 +235,15 @@ describe("Sys Schema Resource Tools", () => {
       const result = (await tool.handler({}, mockContext)) as {
         globalMemory: unknown[];
         memoryByUser: unknown[];
+        globalMemoryCount: number;
+        memoryByUserCount: number;
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       expect(result.globalMemory).toHaveLength(1);
       expect(result.memoryByUser).toHaveLength(1);
+      expect(result.globalMemoryCount).toBe(1);
+      expect(result.memoryByUserCount).toBe(1);
     });
 
     it("should handle null rows", async () => {
@@ -255,6 +259,8 @@ describe("Sys Schema Resource Tools", () => {
 
       expect(result.globalMemory).toEqual([]);
       expect(result.memoryByUser).toEqual([]);
+      expect(result.globalMemoryCount).toBe(0);
+      expect(result.memoryByUserCount).toBe(0);
     });
   });
 });

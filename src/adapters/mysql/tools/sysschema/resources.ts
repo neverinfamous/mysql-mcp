@@ -262,6 +262,8 @@ export function createSysMemorySummaryTool(
       return {
         globalMemory: globalStats.rows ?? [],
         memoryByUser: userStats.rows ?? [],
+        globalMemoryCount: (globalStats.rows ?? []).length,
+        memoryByUserCount: (userStats.rows ?? []).length,
       };
     },
   };
