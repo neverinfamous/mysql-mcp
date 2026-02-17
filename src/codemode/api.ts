@@ -271,8 +271,8 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   json: [
     'mysql.json.extract({ table: "docs", column: "data", path: "$.user.name" })',
     'mysql.json.set({ table: "docs", column: "data", path: "$.status", value: "active", where: "id=1" })',
-    'mysql.json.contains({ table: "docs", column: "data", candidate: \'{"type": "admin"}\' })',
-    "mysql.json.merge({ base: { a: 1 }, overlay: { b: 2 } })",
+    'mysql.json.contains({ table: "docs", column: "data", value: \'{"type": "admin"}\' })',
+    "mysql.json.merge({ json1: '{\"a\": 1}', json2: '{\"b\": 2}' })",
     'mysql.json.search({ table: "docs", column: "data", searchValue: "active" })',
   ],
   text: [
@@ -435,7 +435,7 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   set: ["table", "column", "path", "value", "where"],
   insert: ["table", "column", "path", "value", "where"],
   remove: ["table", "column", "path", "where"],
-  contains: ["table", "column", "candidate"],
+  contains: ["table", "column", "value"],
   keys: ["table", "column", "where"],
   replace: ["table", "column", "path", "value", "where"],
   get: ["table", "column", "path"],
@@ -445,8 +445,8 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   stats: ["table", "column"],
   indexSuggest: ["table", "column"],
   normalize: ["table", "column"],
-  merge: ["base", "overlay"],
-  diff: ["doc1", "doc2"],
+  merge: ["json1", "json2"],
+  diff: ["json1", "json2"],
   arrayAppend: ["table", "column", "path", "value"],
 
   // ============ TEXT GROUP ============
