@@ -157,17 +157,8 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
     status: "eventStatus",
     scheduler: "schedulerStatus",
   },
-  // Stats: redundant prefix aliases
+  // Stats: intuitive aliases
   stats: {
-    statsDescriptive: "descriptive",
-    statsPercentiles: "percentiles",
-    statsCorrelation: "correlation",
-    statsRegression: "regression",
-    statsTimeSeries: "timeSeries",
-    statsDistribution: "distribution",
-    statsHistogram: "histogram",
-    statsSampling: "sampling",
-    // Intuitive aliases
     summary: "descriptive",
     percentile: "percentiles",
     movingAverage: "timeSeries",
@@ -361,8 +352,8 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   ],
   stats: [
     "mysql.stats.descriptive({ table: 'orders', column: 'amount' })",
-    "mysql.stats.percentiles({ table: 'orders', column: 'amount', percentiles: [0.5, 0.95, 0.99] })",
-    "mysql.stats.timeSeries({ table: 'metrics', timeColumn: 'ts', valueColumn: 'value', interval: '1 HOUR' })",
+    "mysql.stats.percentiles({ table: 'orders', column: 'amount', percentiles: [50, 95, 99] })",
+    "mysql.stats.timeSeries({ table: 'metrics', timeColumn: 'ts', valueColumn: 'value', interval: 'hour' })",
     "mysql.stats.histogram({ table: 'orders', column: 'amount', buckets: 10 })",
   ],
   spatial: [
@@ -753,7 +744,6 @@ function toolNameToMethodName(toolName: string, groupName: string): string {
     "router",
     "spatial",
     "security",
-    "stats",
     "roles",
     "events",
   ]);
