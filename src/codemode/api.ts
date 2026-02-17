@@ -232,18 +232,11 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Router: shorter aliases
   router: {
-    status: "routerStatus",
-    routes: "routerRoutes",
-    metadata: "routerMetadataStatus",
-    pool: "routerPoolStatus",
-    routeStatus: "routerRouteStatus",
-    routeHealth: "routerRouteHealth",
-    routeConnections: "routerRouteConnections",
-    routeDestinations: "routerRouteDestinations",
-    routeBlockedHosts: "routerRouteBlockedHosts",
-    connections: "routerRouteConnections",
-    destinations: "routerRouteDestinations",
-    blocked: "routerRouteBlockedHosts",
+    metadata: "metadataStatus",
+    pool: "poolStatus",
+    connections: "routeConnections",
+    destinations: "routeDestinations",
+    blocked: "routeBlockedHosts",
   },
   // Shell: shorter aliases
   shell: {
@@ -389,9 +382,9 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.docstore.docFind({ collection: 'products', filter: '$.name' })",
   ],
   router: [
-    "mysql.router.routerStatus()",
-    "mysql.router.routerRoutes()",
-    "mysql.router.routerRouteHealth({ routeName: 'myroute' })",
+    "mysql.router.status()",
+    "mysql.router.routes()",
+    "mysql.router.routeHealth({ routeName: 'myroute' })",
   ],
   proxysql: [
     "// ProxySQL requires external ProxySQL admin connection",
@@ -742,7 +735,7 @@ function toolNameToMethodName(toolName: string, groupName: string): string {
     "docstore",
     "transactions",
     "cluster",
-    "router",
+
     "roles",
     "events",
   ]);
