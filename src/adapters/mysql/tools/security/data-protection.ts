@@ -140,9 +140,15 @@ export function createSecurityMaskDataTool(
           break;
         }
         case "partial": {
-          // When keepFirst + keepLast covers the entire value, return unchanged
+          // When keepFirst + keepLast covers the entire value, return unchanged with warning
           if (keepFirst + keepLast >= value.length) {
-            maskedValue = value;
+            return Promise.resolve({
+              original: value,
+              masked: value,
+              type,
+              warning:
+                "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
+            });
           } else {
             const maskLength = value.length - keepFirst - keepLast;
             maskedValue =
