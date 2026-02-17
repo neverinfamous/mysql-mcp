@@ -273,19 +273,19 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         clauses.push(`ON COMPLETION ${onCompletion}`);
       }
 
+      if (newName) {
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
+          throw new Error("Invalid new event name");
+        }
+        clauses.push(`RENAME TO \`${newName}\``);
+      }
+
       if (enabled !== undefined) {
         clauses.push(enabled ? "ENABLE" : "DISABLE");
       }
 
       if (comment !== undefined) {
         clauses.push(`COMMENT '${comment.replace(/'/g, "''")}'`);
-      }
-
-      if (newName) {
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
-          throw new Error("Invalid new event name");
-        }
-        clauses.push(`RENAME TO \`${newName}\``);
       }
 
       if (body) {

@@ -147,7 +147,7 @@ describe("Handler Execution", () => {
       expect(call).toContain("RENAME TO");
     });
 
-    it("should place RENAME TO before DO body in combined alter", async () => {
+    it("should place RENAME TO before COMMENT and DO body in combined alter", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_alter")!;
@@ -163,10 +163,13 @@ describe("Handler Execution", () => {
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       const renameIndex = call.indexOf("RENAME TO");
+      const commentIndex = call.indexOf("COMMENT");
       const doIndex = call.indexOf("DO ");
       expect(renameIndex).toBeGreaterThan(-1);
+      expect(commentIndex).toBeGreaterThan(-1);
       expect(doIndex).toBeGreaterThan(-1);
-      expect(renameIndex).toBeLessThan(doIndex);
+      expect(renameIndex).toBeLessThan(commentIndex);
+      expect(commentIndex).toBeLessThan(doIndex);
     });
   });
 
