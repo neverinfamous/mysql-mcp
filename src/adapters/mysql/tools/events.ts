@@ -281,15 +281,15 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         clauses.push(`COMMENT '${comment.replace(/'/g, "''")}'`);
       }
 
-      if (body) {
-        clauses.push(`DO ${body}`);
-      }
-
       if (newName) {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
           throw new Error("Invalid new event name");
         }
         clauses.push(`RENAME TO \`${newName}\``);
+      }
+
+      if (body) {
+        clauses.push(`DO ${body}`);
       }
 
       if (clauses.length === 0) {

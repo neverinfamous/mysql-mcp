@@ -146,6 +146,28 @@ describe("Handler Execution", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("RENAME TO");
     });
+
+    it("should place RENAME TO before DO body in combined alter", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+      await tool.handler(
+        {
+          name: "old_event",
+          newName: "new_event",
+          body: "SELECT 1",
+          comment: "updated",
+        },
+        mockContext,
+      );
+
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const renameIndex = call.indexOf("RENAME TO");
+      const doIndex = call.indexOf("DO ");
+      expect(renameIndex).toBeGreaterThan(-1);
+      expect(doIndex).toBeGreaterThan(-1);
+      expect(renameIndex).toBeLessThan(doIndex);
+    });
   });
 
   describe("mysql_event_drop", () => {

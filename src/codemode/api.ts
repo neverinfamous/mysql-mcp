@@ -349,7 +349,7 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.schema.listTriggers({ table: 'orders' })",
   ],
   events: [
-    "mysql.events.eventCreate({ name: 'cleanup', schedule: 'EVERY 1 DAY', body: 'DELETE FROM logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)' })",
+    "mysql.events.eventCreate({ name: 'cleanup', schedule: { type: 'RECURRING', interval: 1, intervalUnit: 'DAY' }, body: 'DELETE FROM logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)' })",
     "mysql.events.eventList()",
     "mysql.events.schedulerStatus()",
   ],
