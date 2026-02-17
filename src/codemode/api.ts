@@ -376,7 +376,7 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   ],
   roles: [
     "mysql.roles.roleCreate({ name: 'app_reader' })",
-    "mysql.roles.roleGrant({ role: 'app_reader', privileges: 'SELECT', on: 'mydb.*' })",
+    "mysql.roles.roleGrant({ role: 'app_reader', privileges: ['SELECT'], database: 'mydb' })",
     "mysql.roles.roleAssign({ role: 'app_reader', user: 'app_user' })",
     "mysql.roles.roleList()",
   ],
