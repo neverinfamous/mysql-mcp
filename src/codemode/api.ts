@@ -90,7 +90,6 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
   optimization: {
     recommend: "indexRecommendation",
     indexAdvice: "indexRecommendation",
-    usage: "indexUsage",
     hint: "forceIndex",
     forceHint: "forceIndex",
     rewrite: "queryRewrite",
@@ -293,9 +292,9 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.performance.tableStats({ table: 'orders' })",
   ],
   optimization: [
-    "mysql.optimization.indexRecommendation({ sql: 'SELECT * FROM orders WHERE status = ?' })",
-    "mysql.optimization.indexUsage({ table: 'orders' })",
-    'mysql.optimization.forceIndex({ sql: "SELECT...", table: "orders", index: "idx_status" })',
+    "mysql.optimization.indexRecommendation({ table: 'orders' })",
+    "mysql.optimization.queryRewrite({ query: 'SELECT * FROM orders WHERE status = ?' })",
+    'mysql.optimization.forceIndex({ table: "orders", query: "SELECT * FROM orders WHERE status = ?", indexName: "idx_status" })',
   ],
   admin: [
     "mysql.admin.optimizeTable({ table: 'orders' })",
