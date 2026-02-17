@@ -170,7 +170,7 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
     addIndex: "createIndex",
     dist: "distance",
     distSphere: "distanceSphere",
-    geojson: "geojson",
+
     pointInPolygon: "contains",
   },
   // Security: intuitive aliases
@@ -742,7 +742,7 @@ function toolNameToMethodName(toolName: string, groupName: string): string {
     "transactions",
     "cluster",
     "router",
-    "spatial",
+
     "security",
     "roles",
     "events",

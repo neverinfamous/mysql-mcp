@@ -181,6 +181,12 @@ export function createSpatialCreateIndexTool(
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
           return { success: false, reason: msg };
         }
+        if (msg.includes("Duplicate key name")) {
+          return {
+            success: false,
+            reason: `Index '${idxName}' already exists on table '${table}'`,
+          };
+        }
         return { success: false, error: msg };
       }
     },
