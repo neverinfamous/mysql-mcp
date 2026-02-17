@@ -382,8 +382,8 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   ],
   docstore: [
     "mysql.docstore.docCreateCollection({ name: 'products', schema: 'mydb' })",
-    "mysql.docstore.docAdd({ collection: 'products', document: { name: 'Widget', price: 9.99 } })",
-    "mysql.docstore.docFind({ collection: 'products', filter: 'price > 5' })",
+    "mysql.docstore.docAdd({ collection: 'products', documents: [{ name: 'Widget', price: 9.99 }] })",
+    "mysql.docstore.docFind({ collection: 'products', filter: '$.name' })",
   ],
   router: [
     "mysql.router.routerStatus()",
