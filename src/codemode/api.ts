@@ -312,8 +312,8 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   backup: [
     "mysql.backup.createDump({ tables: ['users', 'orders'] })",
     "mysql.backup.exportTable({ table: 'users', format: 'csv' })",
-    "mysql.backup.importData({ table: 'users', filePath: '/data/users.csv' })",
-    "mysql.backup.restoreDump({ filePath: '/backups/dump.sql' })",
+    "mysql.backup.importData({ table: 'users', data: [{ name: 'Alice', email: 'alice@test.com' }] })",
+    "mysql.backup.restoreDump({ filename: 'backup.sql' })",
   ],
   replication: [
     "mysql.replication.slaveStatus()",
@@ -490,7 +490,7 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   createDump: "tables",
   exportTable: "table",
   importData: "table",
-  restoreDump: "filePath",
+  restoreDump: "filename",
 
   // ============ STATS GROUP ============
   descriptive: ["table", "column"],
