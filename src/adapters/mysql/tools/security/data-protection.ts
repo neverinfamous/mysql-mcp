@@ -124,7 +124,7 @@ export function createSecurityMaskDataTool(
         case "credit_card": {
           // Show first 4 and last 4
           const ccDigits = value.replace(/\D/g, "");
-          if (ccDigits.length < 8) {
+          if (ccDigits.length <= 8) {
             return Promise.resolve({
               original: value,
               masked: maskChar.repeat(value.length),

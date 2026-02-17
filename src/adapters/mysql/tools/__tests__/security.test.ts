@@ -289,6 +289,19 @@ describe("Security Tools", () => {
       expect(result.type).toBe("credit_card");
       expect(result.warning).toContain("too short");
     });
+
+    it("should fully mask 8-digit credit card values with warning", async () => {
+      const tool = tools.find((t) => t.name === "mysql_security_mask_data");
+      const result = (await tool?.handler(
+        { value: "12345678", type: "credit_card" },
+        mockContext,
+      )) as any;
+
+      expect(result.original).toBe("12345678");
+      expect(result.masked).toBe("********");
+      expect(result.type).toBe("credit_card");
+      expect(result.warning).toContain("too short");
+    });
   });
 
   describe("mysql_security_password_validate", () => {

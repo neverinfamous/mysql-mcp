@@ -742,8 +742,6 @@ function toolNameToMethodName(toolName: string, groupName: string): string {
     "transactions",
     "cluster",
     "router",
-
-    "security",
     "roles",
     "events",
   ]);
