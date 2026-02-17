@@ -253,6 +253,16 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
     destinations: "routerRouteDestinations",
     blocked: "routerRouteBlockedHosts",
   },
+  // Shell: shorter aliases
+  shell: {
+    run: "runScript",
+    script: "runScript",
+    upgrade: "checkUpgrade",
+    dump: "dumpInstance",
+    load: "loadDump",
+    export: "exportTable",
+    import: "importTable",
+  },
 };
 
 /**
@@ -396,8 +406,10 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "// See tool descriptions for connection requirements",
   ],
   shell: [
-    "// MySQL Shell tools require mysqlsh binary in PATH",
-    "// See tool descriptions for configuration options",
+    "mysql.shell.version()",
+    'mysql.shell.runScript({ script: \'print("hello")\', language: "js" })',
+    "mysql.shell.exportTable({ schema: 'mydb', table: 'users', outputPath: '/tmp/users.csv', format: 'csv' })",
+    "mysql.shell.dumpSchemas({ schemas: ['mydb'], outputDir: '/backup/mydb', dryRun: true })",
   ],
 };
 
@@ -526,6 +538,17 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   distanceSphere: ["table", "column"],
   point: ["x", "y"],
   polygon: "coordinates",
+
+  // ============ SHELL GROUP ============
+  // Note: exportTable omitted — conflicts with backup group's exportTable
+  checkUpgrade: "targetVersion",
+  runScript: ["script", "language"],
+  importTable: ["inputPath", "schema", "table"],
+  importJson: ["inputPath", "schema", "collection"],
+  dumpInstance: "outputDir",
+  dumpSchemas: ["schemas", "outputDir"],
+  dumpTables: ["schema", "tables", "outputDir"],
+  loadDump: "inputDir",
 };
 
 /**
@@ -713,6 +736,7 @@ function toolNameToMethodName(toolName: string, groupName: string): string {
     fulltext: "fulltext_",
     docstore: "doc_",
     transactions: "transaction_",
+    shell: "mysqlsh_",
     // Default: use groupName + "_"
   };
 

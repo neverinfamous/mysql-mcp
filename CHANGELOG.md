@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **`mysql_reorganize_partition` Raw ZodError on Unsupported Type** — Tool threw a raw `ZodError` when called with unsupported `partitionType` values like `HASH` or `KEY` (which cannot be reorganized). Now catches the validation error and returns `{ success: false, error: "HASH/KEY partitions cannot be reorganized..." }` matching the structured error pattern.
+- **Code Mode Shell Tool Naming Inconsistency** — Shell tool methods in code mode used unprefixed-stripping names (e.g., `mysql.shell.mysqlshVersion()`, `mysql.shell.mysqlshRunScript()`) instead of following the prefix-stripping convention used by all other groups. Added `shell: "mysqlsh_"` to `groupPrefixMap` in `api.ts`, so `mysqlsh_version` → `mysql.shell.version()`, `mysqlsh_run_script` → `mysql.shell.runScript()`, etc. Also added shell `METHOD_ALIASES`, `GROUP_EXAMPLES`, and `POSITIONAL_PARAM_MAP` entries.
+- **`mysqlsh_check_upgrade` ServerInstructions Clarification** — Documentation incorrectly stated the tool fails only when `targetVersion` is lower than the server version. Clarified that it also fails when MySQL Shell's version is lower than the server version (Shell cannot analyze a server newer than itself).
+- **`mysqlsh_load_dump` Dry Run Output** — `dryRun: true` previously returned only an opaque `result` field. Now uses `execMySQLShell` directly to capture stderr containing the dry run summary, returning it as a `dryRunOutput` field so the caller can see what schemas/tables would be loaded.
 - **Partitioning Write Tools Missing P154 Existence Check** — `mysql_add_partition`, `mysql_drop_partition`, and `mysql_reorganize_partition` returned raw MySQL errors for nonexistent tables instead of the `{ exists: false, table }` pattern used by `mysql_partition_info` and all other tools. All three write tools now perform an `information_schema.TABLES` pre-check before executing ALTER TABLE.
-
-
 
 - **Code Mode Replication `help()` Examples** — `mysql.replication.help()` listed `replicationStatus()` and `replicationLag()` as examples, neither of which exist as methods (causing `TypeError` when called). Updated examples to use the correct method names: `slaveStatus()` and `lag()`. Also removed the broken `lag → replicationLag` alias (the canonical method name is already `lag`) and fixed `status` alias to point to `slaveStatus` instead of the nonexistent `replicationStatus`.
 
