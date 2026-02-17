@@ -178,8 +178,6 @@ const METHOD_ALIASES: Record<string, Record<string, string>> = {
     ssl: "sslStatus",
     encryption: "encryptionStatus",
     firewall: "firewallStatus",
-    firewallRules: "firewallRules",
-    audit: "audit",
     privileges: "userPrivileges",
     password: "passwordValidate",
     mask: "maskData",

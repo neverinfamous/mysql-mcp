@@ -130,7 +130,7 @@ export function createSecurityMaskDataTool(
               masked: maskChar.repeat(value.length),
               type,
               warning:
-                "Value too short for credit_card format (expected at least 8 digits); fully masked instead",
+                "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
             });
           }
           maskedValue =
