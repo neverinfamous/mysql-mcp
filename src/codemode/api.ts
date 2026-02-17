@@ -357,10 +357,10 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.stats.histogram({ table: 'orders', column: 'amount', buckets: 10 })",
   ],
   spatial: [
-    "mysql.spatial.distance({ table: 'locations', column: 'geom', point: { x: 40.7, y: -74 } })",
-    "mysql.spatial.distanceSphere({ table: 'locations', column: 'geom', lat: 40.7, lng: -74 })",
-    "mysql.spatial.point({ x: 40.7, y: -74.0 })",
-    "mysql.spatial.buffer({ table: 'areas', column: 'geom', distance: 1000 })",
+    "mysql.spatial.distance({ table: 'locations', spatialColumn: 'geom', point: { longitude: -74, latitude: 40.7 } })",
+    "mysql.spatial.distanceSphere({ table: 'locations', spatialColumn: 'geom', point: { longitude: -74, latitude: 40.7 } })",
+    "mysql.spatial.point({ longitude: -74, latitude: 40.7 })",
+    "mysql.spatial.buffer({ geometry: 'POINT(-74 40.7)', distance: 1000 })",
   ],
   security: [
     "mysql.security.sslStatus()",
@@ -525,9 +525,9 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   partitionInfo: "table",
 
   // ============ SPATIAL GROUP ============
-  distance: ["table", "column"],
-  distanceSphere: ["table", "column"],
-  point: ["x", "y"],
+  distance: ["table", "spatialColumn"],
+  distanceSphere: ["table", "spatialColumn"],
+  point: ["longitude", "latitude"],
   polygon: "coordinates",
 
   // ============ SHELL GROUP ============
