@@ -210,6 +210,41 @@ describe("InnoDB Cluster Tools", () => {
       expect(result.routers[0].attributes.ROEndpoint).toBe("6447");
       expect(result.routers[0].attributes.Configuration).toBeUndefined();
     });
+
+    it("should flag stale routers when lastCheckIn is null or old", async () => {
+      const recentTime = new Date().toISOString();
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            routerId: 1,
+            routerName: "active-router",
+            address: "192.168.1.1",
+            lastCheckIn: recentTime,
+            attributes: JSON.stringify({ ROEndpoint: "6447" }),
+          },
+          {
+            routerId: 2,
+            routerName: "stale-router",
+            address: "192.168.1.2",
+            lastCheckIn: null,
+            attributes: JSON.stringify({ ROEndpoint: "6447" }),
+          },
+        ]),
+      );
+
+      const tool = createClusterRouterStatusTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { summary: false },
+        mockContext,
+      )) as any;
+
+      expect(result.routers).toHaveLength(2);
+      expect(result.routers[0].isStale).toBe(false);
+      expect(result.routers[1].isStale).toBe(true);
+      expect(result.staleCount).toBe(1);
+    });
   });
 
   describe("createClusterStatusTool - payload optimization", () => {

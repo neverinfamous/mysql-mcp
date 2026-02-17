@@ -368,9 +368,9 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.security.passwordValidate({ password: 'test123' })",
   ],
   cluster: [
-    "mysql.cluster.clusterStatus()",
-    "mysql.cluster.clusterInstances()",
-    "mysql.cluster.grStatus()",
+    "mysql.cluster.clusterStatus({ summary: true })",
+    "mysql.cluster.clusterRouterStatus({ summary: true })",
+    "mysql.cluster.clusterSwitchover()",
     "mysql.cluster.grMembers()",
     "mysql.cluster.clusterTopology()",
   ],
