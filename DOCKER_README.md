@@ -9,8 +9,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1794%20passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-94%25-green.svg)
+![Tests](https://img.shields.io/badge/Tests-1833%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-86%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -26,13 +26,13 @@
 | **18 Observability Resources** | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                |
 | **19 AI-Powered Prompts**      | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                  |
 | **OAuth 2.1 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration        |
-| **Smart Tool Filtering**       | 25 tool groups + 7 meta-groups let you stay within IDE limits while exposing exactly what you need                                                                |
+| **Smart Tool Filtering**       | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                 |
 | **HTTP Streaming Transport**   | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments                                                                      |
 | **High-Performance Pooling**   | Built-in connection pooling for efficient, concurrent database access                                                                                             |
 | **Ecosystem Integrations**     | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                             |
 | **Advanced Encryption**        | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                          |
 | **Production-Ready Security**  | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                         |
-| **Strict TypeScript**          | 100% type-safe codebase with 1794 tests and 94% coverage                                                                                                          |
+| **Strict TypeScript**          | 100% type-safe codebase with 1833 tests and 86% coverage                                                                                                          |
 | **MCP 2025-11-25 Compliant**   | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                     |
 
 ---
@@ -344,7 +344,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 2: Cluster (10 Tools for InnoDB Cluster Monitoring)
+#### Option 2: Cluster (11 Tools for InnoDB Cluster Monitoring)
 
 **Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
 
@@ -379,7 +379,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 3: Ecosystem (41 Tools for InnoDB Cluster Deployments)
+#### Option 3: Ecosystem (42 Tools for InnoDB Cluster Deployments)
 
 **Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 

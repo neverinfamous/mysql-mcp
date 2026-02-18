@@ -32,7 +32,7 @@ import { createSpatialResource } from "./spatial.js";
 import { createDocstoreResource } from "./docstore.js";
 
 /**
- * Get all MySQL resources (12 total)
+ * Get all MySQL resources (18 total)
  *
  * Core (6):
  * - mysql://schema - Full database schema
@@ -49,6 +49,14 @@ import { createDocstoreResource } from "./docstore.js";
  * - mysql://indexes - Index usage and statistics
  * - mysql://replication - Replication status and lag
  * - mysql://innodb - InnoDB buffer pool and engine metrics
+ *
+ * New (6):
+ * - mysql://events - Event Scheduler status and scheduled events
+ * - mysql://sysschema - sys schema diagnostics summary
+ * - mysql://locks - InnoDB lock contention detection
+ * - mysql://cluster - Group Replication/InnoDB Cluster status
+ * - mysql://spatial - Spatial columns and indexes
+ * - mysql://docstore - Document Store collections
  */
 export function getMySQLResources(adapter: MySQLAdapter): ResourceDefinition[] {
   return [
