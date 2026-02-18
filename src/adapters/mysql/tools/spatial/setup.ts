@@ -163,6 +163,23 @@ export function createSpatialCreateIndexTool(
           }
         }
 
+        // Check if a SPATIAL index already exists on this column (any name)
+        const existingIdx = await adapter.executeQuery(
+          `SELECT INDEX_NAME FROM information_schema.STATISTICS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? AND INDEX_TYPE = 'SPATIAL'
+           LIMIT 1`,
+          [table, column],
+        );
+
+        const existingRow = existingIdx.rows?.[0];
+        if (existingRow) {
+          const existingName = String(existingRow["INDEX_NAME"]);
+          return {
+            success: false,
+            reason: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`,
+          };
+        }
+
         await adapter.executeQuery(
           `CREATE SPATIAL INDEX \`${idxName}\` ON \`${table}\`(\`${column}\`)`,
         );

@@ -123,6 +123,7 @@ describe("Spatial Operations Tools", () => {
       expect(result).toHaveProperty("bufferWkt");
       expect(result).toHaveProperty("bufferGeoJson");
       expect(result).toHaveProperty("segments", 8);
+      expect(result).toHaveProperty("precision", 6);
     });
 
     it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
@@ -151,6 +152,34 @@ describe("Spatial Operations Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
       expect(result).toHaveProperty("segments", 4);
+      expect(result).toHaveProperty("precision", 6);
+    });
+
+    it("should pass custom precision to ST_AsGeoJSON", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([
+          {
+            buffer_wkt: "POLYGON(...)",
+            buffer_geojson: '{"type":"Polygon"}',
+          },
+        ]),
+      );
+
+      const tool = createSpatialBufferTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        {
+          geometry: "POINT(-73.9857 40.7484)",
+          distance: 1000,
+          precision: 2,
+        },
+        mockContext,
+      );
+
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(call).toContain(", 2) as buffer_geojson");
+      expect(result).toHaveProperty("precision", 2);
     });
   });
 
