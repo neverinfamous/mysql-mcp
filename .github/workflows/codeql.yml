@@ -13,14 +13,6 @@ on:
       - "package.json"
   pull_request:
     branches: ["master"]
-    paths:
-      - "**.js"
-      - "**.jsx"
-      - "**.ts"
-      - "**.tsx"
-      - "**.mjs"
-      - "**.cjs"
-      - "package.json"
   schedule:
     - cron: "0 0 * * 1"
   workflow_dispatch:

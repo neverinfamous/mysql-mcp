@@ -50,13 +50,18 @@
 #### NPM (Recommended)
 
 ```bash
-# Install globally
 npm install -g @neverinfamous/mysql-mcp
+```
 
-# Run
+Run the server:
+
+```bash
 mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+```
 
-# Or use npx without installing
+Or use npx without installing:
+
+```bash
 npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
 ```
 
@@ -116,11 +121,15 @@ mysql-mcp --mysql mysql://root:pass@localhost/db \
 
 **Start the HTTP server:**
 
-```bash
-# Local installation
-node dist/cli.js --transport http --port 3000 --server-host 0.0.0.0 --mysql mysql://user:password@localhost:3306/database
+Local installation:
 
-# Docker (expose port 3000)
+```bash
+node dist/cli.js --transport http --port 3000 --server-host 0.0.0.0 --mysql mysql://user:password@localhost:3306/database
+```
+
+Docker (expose port 3000):
+
+```bash
 docker run -p 3000:3000 writenotenow/mysql-mcp \
   --transport http \
   --port 3000 \
@@ -190,43 +199,6 @@ docker run -p 3000:3000 writenotenow/mysql-mcp \
 | **MySQL on host machine** | `host.docker.internal`    | `mysql://user:pass@host.docker.internal:3306/db` |
 | **MySQL in Docker**       | Container name or network | `mysql://user:pass@mysql-container:3306/db`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://user:pass@db.example.com:3306/db`       |
-
-### MySQL on Host Machine
-
-If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
-
-```json
-"--mysql", "mysql://user:password@host.docker.internal:3306/database"
-```
-
-### MySQL in Another Docker Container
-
-Add both containers to the same Docker network, then use the container name:
-
-```bash
-# Create network and run MySQL
-docker network create mynet
-docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:8
-# Run MCP server on same network
-docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
-  --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
-```
-
-### Remote/Cloud MySQL (RDS, Cloud SQL, etc.)
-
-Use the remote hostname directly:
-
-```json
-"--mysql", "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
-```
-
-| Provider         | Example Hostname                                 |
-| ---------------- | ------------------------------------------------ |
-| AWS RDS          | `your-instance.xxxx.us-east-1.rds.amazonaws.com` |
-| Google Cloud SQL | `project:region:instance` (via Cloud SQL Proxy)  |
-| Azure MySQL      | `your-server.mysql.database.azure.com`           |
-| PlanetScale      | `aws.connect.psdb.cloud` (SSL required)          |
-| DigitalOcean     | `your-cluster-do-user-xxx.db.ondigitalocean.com` |
 
 > **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
 
@@ -312,128 +284,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ---
 
-### Quick Start: Recommended IDE Configuration
-
-Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursorrules`, or equivalent):
-
-#### Option 1: Starter (39 Essential Tools)
-
-**Best for:** General MySQL database work - CRUD operations, schema management, and monitoring.
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "node",
-      "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "starter"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_username",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database"
-      }
-    }
-  }
-}
-```
-
-#### Option 2: Cluster (11 Tools for InnoDB Cluster Monitoring)
-
-**Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
-
-> **⚠️ Prerequisites:**
->
-> - **InnoDB Cluster** must be configured and running with Group Replication enabled
-> - Connect to a cluster node directly (e.g., `localhost:3307`) — NOT a standalone MySQL instance
-> - Use `cluster_admin` or `root` user with appropriate privileges
-> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for cluster setup instructions
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-cluster": {
-      "command": "node",
-      "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "cluster"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3307",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql"
-      }
-    }
-  }
-}
-```
-
-#### Option 3: Ecosystem (42 Tools for InnoDB Cluster Deployments)
-
-**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
-
-> **⚠️ Prerequisites:**
->
-> - **InnoDB Cluster** with MySQL Router requires the cluster to be running for Router REST API authentication (uses `metadata_cache` backend)
-> - Router REST API uses HTTPS with self-signed certificates by default — set `MYSQL_ROUTER_INSECURE=true` to bypass certificate verification
-> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`) for `mysqlsh_import_json` and `docstore` tools
-> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-ecosystem": {
-      "command": "node",
-      "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "ecosystem"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3307",
-        "MYSQL_XPORT": "6448",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "testdb",
-        "MYSQL_ROUTER_URL": "https://localhost:8443",
-        "MYSQL_ROUTER_USER": "rest_api",
-        "MYSQL_ROUTER_PASSWORD": "router_password",
-        "MYSQL_ROUTER_INSECURE": "true",
-        "PROXYSQL_HOST": "localhost",
-        "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "radmin",
-        "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
-      }
-    }
-  }
-}
-```
-
-**Customization Notes:**
-
-- Replace `/path/to/mysql-mcp/` with your actual installation path
-- Update credentials with your actual values
-- For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
-- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell 9.5\\bin\\mysqlsh.exe"`
-- **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
-- **Cluster Resource:** The `mysql://cluster` resource is only available when connected to an InnoDB Cluster node
-
-> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
+> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for IDE configuration examples and advanced usage.
 
 ---
 
@@ -448,56 +299,13 @@ For debugging or manual reference, see the source: [`src/constants/ServerInstruc
 
 ## 🤖 AI-Powered Prompts
 
-This server includes **19 intelligent prompts** for guided workflows:
-
-| Prompt                        | Description                                            |
-| ----------------------------- | ------------------------------------------------------ |
-| `mysql_query_builder`         | Construct SQL queries with security best practices     |
-| `mysql_schema_design`         | Design table schemas with indexes and relationships    |
-| `mysql_performance_analysis`  | Analyze slow queries with optimization recommendations |
-| `mysql_migration`             | Generate migration scripts with rollback options       |
-| `mysql_database_health_check` | Comprehensive database health assessment               |
-| `mysql_backup_strategy`       | Enterprise backup planning with RTO/RPO                |
-| `mysql_index_tuning`          | Index analysis and optimization workflow               |
-| `mysql_setup_router`          | MySQL Router configuration guide                       |
-| `mysql_setup_proxysql`        | ProxySQL configuration guide                           |
-| `mysql_setup_replication`     | Replication setup guide                                |
-| `mysql_setup_shell`           | MySQL Shell usage guide                                |
-| `mysql_tool_index`            | Complete tool index with categories                    |
-| `mysql_quick_query`           | Quick query execution shortcut                         |
-| `mysql_quick_schema`          | Quick schema exploration                               |
-| **`mysql_setup_events`**      | Event Scheduler setup guide                            |
-| **`mysql_sys_schema_guide`**  | sys schema usage and diagnostics                       |
-| **`mysql_setup_spatial`**     | Spatial/GIS data setup guide                           |
-| **`mysql_setup_cluster`**     | InnoDB Cluster/Group Replication guide                 |
-| **`mysql_setup_docstore`**    | Document Store / X DevAPI guide                        |
+**19 intelligent prompts** for guided workflows including query building, schema design, performance analysis, migration planning, backup strategy, index tuning, and ecosystem setup (Router, ProxySQL, Replication, Shell, Cluster, Spatial, Events, Document Store).
 
 ---
 
 ## 📊 Resources
 
-This server exposes **18 resources** for database observability:
-
-| Resource                | Description                                 |
-| ----------------------- | ------------------------------------------- |
-| `mysql://schema`        | Full database schema                        |
-| `mysql://tables`        | Table listing with metadata                 |
-| `mysql://variables`     | Server configuration variables              |
-| `mysql://status`        | Server status metrics                       |
-| `mysql://processlist`   | Active connections and queries              |
-| `mysql://pool`          | Connection pool statistics                  |
-| `mysql://capabilities`  | Server version, features, tool categories   |
-| `mysql://health`        | Comprehensive health status                 |
-| `mysql://performance`   | Query performance metrics                   |
-| `mysql://indexes`       | Index usage and statistics                  |
-| `mysql://replication`   | Replication status and lag                  |
-| `mysql://innodb`        | InnoDB buffer pool and engine metrics       |
-| **`mysql://events`**    | Event Scheduler status and scheduled events |
-| **`mysql://sysschema`** | sys schema diagnostics summary              |
-| **`mysql://locks`**     | InnoDB lock contention detection            |
-| **`mysql://cluster`**   | Group Replication/InnoDB Cluster status     |
-| **`mysql://spatial`**   | Spatial columns and indexes                 |
-| **`mysql://docstore`**  | Document Store collections                  |
+**18 real-time resources** for database observability: schema, tables, variables, status, processlist, connection pool, capabilities, health, performance, indexes, replication, InnoDB metrics, events, sys schema, locks, cluster status, spatial metadata, and document store collections.
 
 ---
 
@@ -552,20 +360,6 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 ---
 
-## Contributing
+## Contributing & Security
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
-
-## Security
-
-For security concerns, please see our [Security Policy](SECURITY.md).
-
-> **⚠️ Never commit credentials** - Store secrets in `.env` (gitignored)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Code of Conduct
-
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
+[Contributing Guidelines](CONTRIBUTING.md) • [Security Policy](SECURITY.md) • [MIT License](LICENSE) • [Code of Conduct](CODE_OF_CONDUCT.md)
