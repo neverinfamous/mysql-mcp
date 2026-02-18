@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **CVE Fix: `tar` Path Traversal (CVE-2026-26960)** — Added explicit `npm install -g tar@latest` to Dockerfile runtime stage to fix a high-severity path traversal vulnerability in npm's bundled `tar` (< 7.5.8) that allowed arbitrary file read/write via crafted hardlinks.
+
+### Changed
+
+- **Docker Scout Security Gate Hardened** — Docker Scout scan in `docker-publish.yml` now **blocks deployments** on any fixable CVE (any severity) using `--only-fixed --exit-code`. Unfixable zero-day CVEs are allowed through. Previously the scan was informational only and never failed the workflow.
+
+
 ## [2.3.0] - 2026-02-18
 
 ### Fixed
