@@ -152,6 +152,22 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         throw new Error("Invalid event name");
       }
 
+      // Pre-check event existence for informative messaging
+      if (ifNotExists) {
+        const existsCheck = await adapter.executeQuery(
+          "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
+          [name],
+        );
+        if (existsCheck.rows && existsCheck.rows.length > 0) {
+          return {
+            success: true,
+            skipped: true,
+            reason: "Event already exists",
+            eventName: name,
+          };
+        }
+      }
+
       const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
       let sql = `CREATE EVENT ${ifNotExistsClause}\`${name}\`\nON SCHEDULE `;
 

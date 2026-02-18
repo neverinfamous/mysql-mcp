@@ -376,7 +376,9 @@ describe("Event Create Advanced", () => {
   });
 
   it("should add IF NOT EXISTS clause when specified", async () => {
-    mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+    // Pre-check returns empty (event doesn't exist), then CREATE succeeds
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     const tool = tools.find((t) => t.name === "mysql_event_create")!;
     await tool.handler(
@@ -389,8 +391,35 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
     expect(call).toContain("IF NOT EXISTS");
+  });
+
+  it("should return skipped when ifNotExists is true and event already exists", async () => {
+    // Pre-check returns existing event
+    mockAdapter.executeQuery.mockResolvedValueOnce(
+      createMockQueryResult([{ EVENT_NAME: "my_event" }]),
+    );
+
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        body: "DELETE FROM temp",
+        ifNotExists: true,
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: true,
+      skipped: true,
+      reason: "Event already exists",
+      eventName: "my_event",
+    });
+    // Should only have the pre-check query, no CREATE
+    expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
   });
 
   it("should include STARTS and ENDS for recurring events", async () => {
