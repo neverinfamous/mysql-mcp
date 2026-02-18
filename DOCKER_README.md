@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-**Last Updated February 13, 2026**
+**Last Updated February 18, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -232,12 +232,26 @@ Use the remote hostname directly:
 
 ---
 
+## Code Mode: Maximum Efficiency
+
+Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+
+> [!TIP]
+> **Maximize Token Savings:** For the best results, instruct your AI agent to prefer Code Mode over individual tool calls. Add a rule like this to your agent's prompt or system configuration:
+>
+> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
+>
+> This ensures the agent batches operations into single calls instead of making many individual tool calls. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
+
+> [!NOTE]
+> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/master/src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+
+---
+
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 193 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point.
-
-> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 193 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point. Code Mode is included in all presets by default for 70-90% token savings on multi-step operations.
 
 ### What Can You Filter?
 
