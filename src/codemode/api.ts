@@ -533,6 +533,9 @@ const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   dumpSchemas: ["schemas", "outputDir"],
   dumpTables: ["schema", "tables", "outputDir"],
   loadDump: "inputDir",
+
+  // ============ SECURITY GROUP ============
+  passwordValidate: "password",
 };
 
 /**
