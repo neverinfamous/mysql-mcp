@@ -10,7 +10,13 @@ import {
 interface CapabilitiesResult {
   server: {
     version: string;
-    features: { json: boolean; fulltext: boolean; partitioning: boolean };
+    features: {
+      json: boolean;
+      fulltext: boolean;
+      partitioning: boolean;
+      replication: boolean;
+      gtid: boolean;
+    };
   };
   toolGroups: unknown[];
   metaGroups: unknown[];
@@ -62,6 +68,49 @@ describe("Capabilities Resource", () => {
     expect(result.server.features).toHaveProperty("json");
     expect(result.server.features).toHaveProperty("fulltext");
     expect(result.server.features).toHaveProperty("partitioning");
+  });
+
+  it("should detect features correctly for MySQL 9.x", async () => {
+    mockAdapter.executeQuery.mockResolvedValue(
+      createMockQueryResult([{ version: "9.6.0" }]),
+    );
+
+    const resource = createCapabilitiesResource(
+      mockAdapter as unknown as MySQLAdapter,
+    );
+    const result = (await resource.handler(
+      "mysql://capabilities",
+      mockContext,
+    )) as CapabilitiesResult;
+
+    expect(result.server.version).toBe("9.6.0");
+    expect(result.server.features.json).toBe(true);
+    expect(result.server.features.gtid).toBe(true);
+    expect(result.server.features.fulltext).toBe(true);
+    expect(result.server.features.replication).toBe(true);
+    expect(result.server.features.partitioning).toBe(true);
+  });
+
+  it("should disable version-dependent features for unknown version", async () => {
+    mockAdapter.executeQuery.mockResolvedValue(
+      createMockQueryResult([{ version: "unknown" }]),
+    );
+
+    const resource = createCapabilitiesResource(
+      mockAdapter as unknown as MySQLAdapter,
+    );
+    const result = (await resource.handler(
+      "mysql://capabilities",
+      mockContext,
+    )) as CapabilitiesResult;
+
+    expect(result.server.version).toBe("unknown");
+    expect(result.server.features.json).toBe(false);
+    expect(result.server.features.gtid).toBe(false);
+    // Always-true features remain true
+    expect(result.server.features.fulltext).toBe(true);
+    expect(result.server.features.replication).toBe(true);
+    expect(result.server.features.partitioning).toBe(true);
   });
 
   it("should have correct metadata", () => {

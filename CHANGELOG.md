@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`mysql://capabilities` Feature Flags on MySQL 9.x+** — `json` and `gtid` feature flags incorrectly reported `false` on MySQL 9.6.0 because detection used `startsWith("8.")` prefix matching, which doesn't match version strings like `"9.6.0"`. Replaced with `parseInt`-based major version comparison (`>= 8`) that handles 9.x, 10.x, and all future versions while preserving legacy 5.6/5.7 fallbacks.
+
 ## [2.3.0] - 2026-02-18
 
 ### Fixed
