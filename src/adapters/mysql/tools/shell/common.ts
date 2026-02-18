@@ -196,8 +196,24 @@ export async function execShellJS(
     }
     // Fatal dump errors
     if (stderrClean.includes("Fatal error during dump")) {
+      // Extract specific MySQL error lines (e.g., "ERROR: Unknown column 'x' in 'where clause'")
+      const errorLines = stderrClean
+        .split(/\r?\n/)
+        .filter((line) => /^ERROR:/i.test(line.trim()));
+      const specificError =
+        errorLines.length > 0
+          ? errorLines
+              .map((line) => line.trim().replace(/^ERROR:\s*/i, ""))
+              .join("; ")
+          : null;
+
+      if (specificError) {
+        throw new Error(specificError);
+      }
+
+      // Fallback: no specific error extracted, use generic message with privilege hint
       throw new Error(
-        `MySQL Shell dump failed: ${stderrClean}. ` +
+        `MySQL Shell dump failed: Fatal error during dump. ` +
           `This may be caused by missing privileges. For dumpSchemas, try excludeEvents: true. ` +
           `For dumpTables, try all: false.`,
       );
@@ -223,7 +239,23 @@ export async function execShellJS(
       }
 
       if (!parsed.success) {
-        throw new Error(parsed.error ?? "Unknown MySQL Shell error");
+        const errorMsg = parsed.error ?? "Unknown MySQL Shell error";
+
+        // For "Fatal error during dump" errors, check stderr for specific MySQL error details
+        if (errorMsg.includes("Fatal error during dump") && stderrClean) {
+          const errorLines = stderrClean
+            .split(/\r?\n/)
+            .filter((line) => /^ERROR:/i.test(line.trim()));
+
+          if (errorLines.length > 0) {
+            const specificError = errorLines
+              .map((line) => line.trim().replace(/^ERROR:\s*/i, ""))
+              .join("; ");
+            throw new Error(specificError);
+          }
+        }
+
+        throw new Error(errorMsg);
       }
       return parsed.result;
     }
