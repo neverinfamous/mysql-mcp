@@ -50,7 +50,11 @@ RUN apk upgrade --no-cache
 # - CVE-2025-5889: brace-expansion <= 2.0.1
 # - CVE-2026-26960: tar < 7.5.8
 RUN npm install -g npm@latest && \
-    cd /usr/local/lib/node_modules/npm && npm install tar@latest && \
+    rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
+    npm pack tar@latest --pack-destination /tmp && \
+    mkdir -p /usr/local/lib/node_modules/npm/node_modules/tar && \
+    tar -xzf /tmp/tar-*.tgz -C /usr/local/lib/node_modules/npm/node_modules/tar --strip-components=1 && \
+    rm /tmp/tar-*.tgz && \
     npm cache clean --force
 
 # Create non-root user for security
