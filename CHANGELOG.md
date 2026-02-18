@@ -7,13 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **`mysql://capabilities` Feature Flags on MySQL 9.x+** — `json` and `gtid` feature flags incorrectly reported `false` on MySQL 9.6.0 because detection used `startsWith("8.")` prefix matching, which doesn't match version strings like `"9.6.0"`. Replaced with `parseInt`-based major version comparison (`>= 8`) that handles 9.x, 10.x, and all future versions while preserving legacy 5.6/5.7 fallbacks.
-
 ## [2.3.0] - 2026-02-18
 
 ### Fixed
+
+- **`mysql://capabilities` Feature Flags on MySQL 9.x+** — `json` and `gtid` feature flags incorrectly reported `false` on MySQL 9.6.0 because detection used `startsWith("8.")` prefix matching, which doesn't match version strings like `"9.6.0"`. Replaced with `parseInt`-based major version comparison (`>= 8`) that handles 9.x, 10.x, and all future versions while preserving legacy 5.6/5.7 fallbacks.
 
 - **README / DOCKER_README Documentation Audit** — Corrected multiple stale numerical claims across both READMEs: meta-group/shortcut count (7→11), ecosystem Option 3 tool count (41→42), cluster Option 2 tool count (10→11, reflects codemode auto-injection), test badge (1794→1833), coverage badge (94%→86%), test runtime (~62s→~80s), and branch coverage (~81%→~72%). Also fixed stale JSDoc comments in `prompts/index.ts` (14→19 total) and `resources/index.ts` (12→18 total) to match actual function return counts.
 
