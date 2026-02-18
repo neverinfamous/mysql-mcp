@@ -11,7 +11,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1833%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-1835%20passing-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-86%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
