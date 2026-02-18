@@ -222,6 +222,21 @@ describe("Performance Optimization Tools", () => {
         "Table 'testdb.nonexistent' doesn't exist",
       );
     });
+
+    it("should accept sql alias for query parameter", async () => {
+      const tool = createQueryRewriteTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { sql: "SELECT * FROM users" },
+        mockContext,
+      )) as { originalQuery: string; suggestions: string[] };
+
+      expect(result.originalQuery).toBe("SELECT * FROM users");
+      expect(result.suggestions).toContain(
+        "Consider selecting only needed columns instead of SELECT *",
+      );
+    });
   });
 
   describe("createForceIndexTool", () => {
@@ -418,6 +433,26 @@ describe("Performance Optimization Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         'SET optimizer_trace="enabled=off"',
       );
+    });
+
+    it("should accept sql alias for query parameter", async () => {
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([])) // The query
+        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: "{}" }])); // The trace
+
+      const tool = createOptimizerTraceTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler(
+        { sql: "SELECT * FROM users" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeReadQuery).toHaveBeenNthCalledWith(
+        1,
+        "SELECT * FROM users",
+      );
+      expect(result).toHaveProperty("trace");
     });
   });
 });

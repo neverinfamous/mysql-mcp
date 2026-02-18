@@ -65,9 +65,9 @@ describe("Performance Tests", () => {
       expect(cachedCallTime.avg).toBeLessThan(0.5);
     });
 
-    it("should return consistent count of 192 tools", () => {
+    it("should return consistent count of 193 tools", () => {
       const tools = getAllToolNames();
-      expect(tools).toHaveLength(192);
+      expect(tools).toHaveLength(193);
     });
   });
 
@@ -147,25 +147,25 @@ describe("Performance Tests", () => {
 
     it("should correctly filter to expected tool counts", () => {
       const starterConfig = parseToolFilter("starter");
-      expect(starterConfig.enabledTools.size).toBe(38);
+      expect(starterConfig.enabledTools.size).toBe(39);
 
       const aiDataConfig = parseToolFilter("ai-data");
-      expect(aiDataConfig.enabledTools.size).toBe(45);
+      expect(aiDataConfig.enabledTools.size).toBe(46);
 
       const dbaMonitorConfig = parseToolFilter("dba-monitor");
-      expect(dbaMonitorConfig.enabledTools.size).toBe(35);
+      expect(dbaMonitorConfig.enabledTools.size).toBe(36);
 
       const dbaSecureConfig = parseToolFilter("dba-secure");
-      expect(dbaSecureConfig.enabledTools.size).toBe(32);
+      expect(dbaSecureConfig.enabledTools.size).toBe(33);
 
       const devPowerConfig = parseToolFilter("dev-power");
-      expect(devPowerConfig.enabledTools.size).toBe(46);
+      expect(devPowerConfig.enabledTools.size).toBe(47);
     });
 
     describe("filterTools performance", () => {
       const mockHandler = async () => ({ result: "ok" });
 
-      it("should filter 191 tools efficiently", () => {
+      it("should filter 193 tools efficiently", () => {
         // Create mock tools matching all tool names
         const allToolNames = getAllToolNames();
         const mockTools: ToolDefinition[] = allToolNames.map((name) => ({
@@ -187,7 +187,7 @@ describe("Performance Tests", () => {
 
         // Verify correct filtering
         const filtered = filterTools(mockTools, config);
-        expect(filtered).toHaveLength(38);
+        expect(filtered).toHaveLength(39);
       });
     });
 
@@ -198,7 +198,7 @@ describe("Performance Tests", () => {
 
         // First call builds the cache
         const firstCall = adapter.getToolDefinitions();
-        expect(firstCall).toHaveLength(192);
+        expect(firstCall).toHaveLength(193);
 
         // Subsequent calls should return same reference (cached)
         const secondCall = adapter.getToolDefinitions();
@@ -213,7 +213,7 @@ describe("Performance Tests", () => {
         expect(timing.avg).toBeLessThan(0.5);
       });
 
-      it("should return consistent tool count of 192 regardless of filter default", () => {
+      it("should return consistent tool count of 193 regardless of filter default", () => {
         const adapter = new MySQLAdapter();
 
         // getToolDefinitions returns ALL definitions available in the adapter,
@@ -221,7 +221,7 @@ describe("Performance Tests", () => {
         // Wait, MySQLAdapter.getToolDefinitions() returns all tools?
         // Yes, checking the implementation... it usually does.
         const tools = adapter.getToolDefinitions();
-        expect(tools).toHaveLength(192);
+        expect(tools).toHaveLength(193);
       });
     });
   });

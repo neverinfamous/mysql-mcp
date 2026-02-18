@@ -123,7 +123,7 @@ describe("JSON Core Handler Execution", () => {
         {
           table: "users",
           column: "metadata",
-          candidate: { key: "value" },
+          value: { key: "value" },
         },
         mockContext,
       );

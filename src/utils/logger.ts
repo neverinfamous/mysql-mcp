@@ -39,7 +39,8 @@ export type LogModule =
   | "ROUTER" // MySQL Router
   | "PROXYSQL" // ProxySQL
   | "SHELL" // MySQL Shell
-  | "CLI"; // Command line interface
+  | "CLI" // Command line interface
+  | "CODEMODE"; // Code Mode sandbox execution
 
 /**
  * Structured log context following MCP logging standards

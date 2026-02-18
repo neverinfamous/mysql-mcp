@@ -73,6 +73,7 @@ export const TOOL_GROUP_SCOPES: Record<ToolGroup, StandardScope> = {
   cluster: SCOPES.READ,
   roles: SCOPES.ADMIN,
   docstore: SCOPES.WRITE,
+  codemode: SCOPES.ADMIN,
 };
 
 // =============================================================================

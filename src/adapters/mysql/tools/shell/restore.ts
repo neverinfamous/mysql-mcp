@@ -94,11 +94,74 @@ export function createShellLoadDumpTool(): ToolDefinition {
       }
 
       try {
+        if (dryRun) {
+          // For dry runs, use execMySQLShell directly to capture stderr
+          // where MySQL Shell outputs the summary of what would be loaded
+          const config = getShellConfig();
+          const dryRunJsCode = `
+            var __result__;
+            try {
+                __result__ = (function() { ${jsCode} })();
+                print(JSON.stringify({ success: true, result: __result__ }));
+            } catch (e) {
+                print(JSON.stringify({ success: false, error: e.message }));
+            }
+          `;
+          const rawResult = await execMySQLShell(
+            ["--uri", config.connectionUri, "--js", "-e", dryRunJsCode],
+            { timeout: 3600000 },
+          );
+
+          // Parse stderr for dry run summary, filtering out common warnings
+          const stderrClean = rawResult.stderr
+            .replace(
+              /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
+              "",
+            )
+            .trim();
+
+          // Check for errors in the JSON output
+          const lines = rawResult.stdout.trim().split("\n");
+          for (let i = lines.length - 1; i >= 0; i--) {
+            const line = lines[i];
+            if (!line) continue;
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith("{")) {
+              let parsed: {
+                success: boolean;
+                result?: unknown;
+                error?: string;
+              };
+              try {
+                parsed = JSON.parse(trimmedLine) as {
+                  success: boolean;
+                  result?: unknown;
+                  error?: string;
+                };
+              } catch {
+                continue;
+              }
+              if (!parsed.success) {
+                throw new Error(parsed.error ?? "Unknown MySQL Shell error");
+              }
+              break;
+            }
+          }
+
+          return {
+            success: true,
+            inputDir,
+            dryRun: true,
+            localInfileEnabled: updateServerSettings,
+            dryRunOutput: stderrClean || undefined,
+          };
+        }
+
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
           inputDir,
-          dryRun: dryRun ?? false,
+          dryRun: false,
           localInfileEnabled: updateServerSettings,
           result,
         };

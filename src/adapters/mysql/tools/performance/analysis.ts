@@ -12,11 +12,57 @@ import type {
 } from "../../../../types/index.js";
 import {
   ExplainSchema,
+  ExplainSchemaBase,
+  ExplainAnalyzeSchema,
+  ExplainAnalyzeSchemaBase,
   SlowQuerySchema,
   IndexUsageSchema,
+  IndexUsageSchemaBase,
   TableStatsSchema,
+  TableStatsSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
+
+/**
+ * Maximum reasonable timer value in milliseconds (24 hours).
+ * Values exceeding this threshold are timer overflow artifacts from
+ * performance_schema's unsigned 64-bit picosecond counters wrapping.
+ */
+const MAX_TIMER_MS = 86_400_000;
+
+/**
+ * Sanitize timer fields in query result rows.
+ * Overflowed values (> 24 hours) are clamped to -1 with an `overflow: true` flag.
+ */
+function sanitizeTimerRows(
+  rows: Record<string, unknown>[] | undefined,
+  timerFields: string[],
+): Record<string, unknown>[] {
+  if (!rows) return [];
+  return rows.map((row) => {
+    let hasOverflow = false;
+    const sanitized = { ...row };
+    for (const field of timerFields) {
+      const value = sanitized[field];
+      const numValue =
+        typeof value === "number"
+          ? value
+          : typeof value === "string"
+            ? parseFloat(value)
+            : NaN;
+      if (!isNaN(numValue) && numValue > MAX_TIMER_MS) {
+        sanitized[field] = -1;
+        hasOverflow = true;
+      } else if (!isNaN(numValue)) {
+        sanitized[field] = numValue;
+      }
+    }
+    if (hasOverflow) {
+      sanitized["overflow"] = true;
+    }
+    return sanitized;
+  });
+}
 
 export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -24,7 +70,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL EXPLAIN",
     description: "Get query execution plan using EXPLAIN.",
     group: "performance",
-    inputSchema: ExplainSchema,
+    inputSchema: ExplainSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -33,12 +79,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { query, format } = ExplainSchema.parse(params);
 
-      const sql =
-        format === "JSON"
-          ? `EXPLAIN FORMAT=JSON ${query}`
-          : format === "TREE"
-            ? `EXPLAIN FORMAT=TREE ${query}`
-            : `EXPLAIN ${query}`;
+      const sql = `EXPLAIN FORMAT=${format} ${query}`;
 
       try {
         const result = await adapter.executeReadQuery(sql);
@@ -66,24 +107,19 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
 export function createExplainAnalyzeTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    query: z.string().describe("SQL query to analyze"),
-    format: z.enum(["JSON", "TREE"]).optional().default("TREE"),
-  });
-
   return {
     name: "mysql_explain_analyze",
     title: "MySQL EXPLAIN ANALYZE",
     description:
       "Get query execution plan with actual timing using EXPLAIN ANALYZE (MySQL 8.0+). Only TREE format is supported.",
     group: "performance",
-    inputSchema: schema,
+    inputSchema: ExplainAnalyzeSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, format } = schema.parse(params);
+      const { query, format } = ExplainAnalyzeSchema.parse(params);
 
       // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
       // (requires explain_json_format_version=2 which is not widely available).
@@ -145,7 +181,12 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
       sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${limit}`;
 
       const result = await adapter.executeReadQuery(sql);
-      return { slowQueries: result.rows };
+      return {
+        slowQueries: sanitizeTimerRows(result.rows, [
+          "avg_time_ms",
+          "total_time_ms",
+        ]),
+      };
     },
   };
 }
@@ -198,7 +239,13 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
             `;
 
       const result = await adapter.executeReadQuery(sql);
-      return { queries: result.rows };
+      return {
+        queries: sanitizeTimerRows(result.rows, [
+          "avg_time_ms",
+          "max_time_ms",
+          "total_time_ms",
+        ]),
+      };
     },
   };
 }
@@ -209,7 +256,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Index Usage",
     description: "Get index usage statistics from performance_schema.",
     group: "performance",
-    inputSchema: IndexUsageSchema,
+    inputSchema: IndexUsageSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -266,7 +313,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed table statistics including size, rows, and engine info.",
     group: "performance",
-    inputSchema: TableStatsSchema,
+    inputSchema: TableStatsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -322,10 +369,17 @@ export function createBufferPoolStatsTool(
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Use SELECT * for compatibility across MySQL versions
-      // Different MySQL versions have different column sets
       const result = await adapter.executeReadQuery(
-        `SELECT * FROM information_schema.INNODB_BUFFER_POOL_STATS`,
+        `SELECT POOL_ID, POOL_SIZE, FREE_BUFFERS, DATABASE_PAGES,
+                OLD_DATABASE_PAGES, MODIFIED_DATABASE_PAGES, PENDING_DECOMPRESS,
+                PENDING_READS, PENDING_FLUSH_LRU, PENDING_FLUSH_LIST,
+                PAGES_MADE_YOUNG, PAGES_NOT_MADE_YOUNG,
+                PAGES_MADE_YOUNG_RATE, PAGES_MADE_NOT_YOUNG_RATE,
+                NUMBER_PAGES_READ, NUMBER_PAGES_CREATED, NUMBER_PAGES_WRITTEN,
+                PAGES_READ_RATE, PAGES_CREATE_RATE, PAGES_WRITTEN_RATE,
+                HIT_RATE, YOUNG_MAKE_PER_THOUSAND_GETS,
+                NOT_YOUNG_MAKE_PER_THOUSAND_GETS
+         FROM information_schema.INNODB_BUFFER_POOL_STATS`,
       );
 
       return { bufferPoolStats: result.rows };

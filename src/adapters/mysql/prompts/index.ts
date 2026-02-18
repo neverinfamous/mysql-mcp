@@ -31,7 +31,7 @@ import { createSetupClusterPrompt } from "./clusterSetup.js";
 import { createSetupDocstorePrompt } from "./docstoreSetup.js";
 
 /**
- * Get all MySQL prompts (14 total)
+ * Get all MySQL prompts (19 total)
  *
  * Core (7):
  * - mysql_tool_index - Lazy hydration tool index
@@ -50,6 +50,13 @@ import { createSetupDocstorePrompt } from "./docstoreSetup.js";
  * - mysql_setup_proxysql - ProxySQL configuration
  * - mysql_setup_replication - Replication setup guide
  * - mysql_setup_shell - MySQL Shell usage guide
+ *
+ * New (5):
+ * - mysql_setup_events - Event Scheduler setup guide
+ * - mysql_sys_schema_guide - sys schema usage and diagnostics
+ * - mysql_setup_spatial - Spatial/GIS data setup guide
+ * - mysql_setup_cluster - InnoDB Cluster/Group Replication guide
+ * - mysql_setup_docstore - Document Store / X DevAPI guide
  */
 export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
   // Get tool definitions for generating indexes

@@ -12,10 +12,18 @@ import type {
 } from "../../../../types/index.js";
 import {
   RegexpMatchSchema,
+  RegexpMatchSchemaBase,
   LikeSearchSchema,
+  LikeSearchSchemaBase,
   SoundexSchema,
+  SoundexSchemaBase,
+  SubstringSchema,
+  SubstringSchemaBase,
+  ConcatSchema,
+  ConcatSchemaBase,
+  CollationConvertSchema,
+  CollationConvertSchemaBase,
 } from "../../types.js";
-import { z } from "zod";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
@@ -29,7 +37,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL REGEXP Match",
     description: "Find rows where column matches a regular expression pattern.",
     group: "text",
-    inputSchema: RegexpMatchSchema,
+    inputSchema: RegexpMatchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -70,7 +78,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Find rows using LIKE pattern matching with % and _ wildcards.",
     group: "text",
-    inputSchema: LikeSearchSchema,
+    inputSchema: LikeSearchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -110,7 +118,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL SOUNDEX",
     description: "Find rows with phonetically similar values using SOUNDEX.",
     group: "text",
-    inputSchema: SoundexSchema,
+    inputSchema: SoundexSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -145,27 +153,20 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    start: z.number().describe("Starting position (1-indexed)"),
-    length: z.number().optional().describe("Number of characters"),
-    where: z.string().optional(),
-  });
-
   return {
     name: "mysql_substring",
     title: "MySQL SUBSTRING",
     description: "Extract substrings from column values.",
     group: "text",
-    inputSchema: schema,
+    inputSchema: SubstringSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, start, length, where } = schema.parse(params);
+      const { table, column, start, length, where } =
+        SubstringSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -201,35 +202,12 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    columns: z.array(z.string()).describe("Columns to concatenate"),
-    separator: z
-      .string()
-      .optional()
-      .default(" ")
-      .describe("Separator between values"),
-    alias: z
-      .string()
-      .optional()
-      .default("concatenated")
-      .describe("Result column name"),
-    where: z.string().optional(),
-    includeSourceColumns: z
-      .boolean()
-      .optional()
-      .default(true)
-      .describe(
-        "Include individual source columns in output (default: true). Set to false for minimal payload.",
-      ),
-  });
-
   return {
     name: "mysql_concat",
     title: "MySQL CONCAT",
     description: "Concatenate multiple columns with an optional separator.",
     group: "text",
-    inputSchema: schema,
+    inputSchema: ConcatSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -237,7 +215,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, columns, separator, alias, where, includeSourceColumns } =
-        schema.parse(params);
+        ConcatSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -278,28 +256,21 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
 export function createCollationConvertTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    charset: z.string().describe("Target character set (e.g., utf8mb4)"),
-    collation: z.string().optional().describe("Target collation"),
-    where: z.string().optional(),
-  });
-
   return {
     name: "mysql_collation_convert",
     title: "MySQL Collation Convert",
     description:
       "Convert column values to a different character set or collation.",
     group: "text",
-    inputSchema: schema,
+    inputSchema: CollationConvertSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, charset, collation, where } = schema.parse(params);
+      const { table, column, charset, collation, where } =
+        CollationConvertSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");

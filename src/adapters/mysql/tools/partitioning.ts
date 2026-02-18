@@ -5,13 +5,18 @@
  * 4 tools: partition_info, add_partition, drop_partition, reorganize_partition.
  */
 
+import { ZodError } from "zod";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   PartitionInfoSchema,
+  PartitionInfoSchemaBase,
   AddPartitionSchema,
+  AddPartitionSchemaBase,
   DropPartitionSchema,
+  DropPartitionSchemaBase,
   ReorganizePartitionSchema,
+  ReorganizePartitionSchemaBase,
 } from "../types.js";
 
 /**
@@ -32,7 +37,7 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Partition Info",
     description: "Get partition information for a table.",
     group: "partitioning",
-    inputSchema: PartitionInfoSchema,
+    inputSchema: PartitionInfoSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -99,7 +104,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Add Partition",
     description: "Add a new partition to a partitioned table.",
     group: "partitioning",
-    inputSchema: AddPartitionSchema,
+    inputSchema: AddPartitionSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -107,6 +112,16 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, partitionName, partitionType, value } =
         AddPartitionSchema.parse(params);
+
+      // P154: Check if table exists
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
 
       let sql: string;
 
@@ -171,7 +186,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Drop a partition from a partitioned table. Warning: This deletes all data in the partition!",
     group: "partitioning",
-    inputSchema: DropPartitionSchema,
+    inputSchema: DropPartitionSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -179,6 +194,16 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, partitionName } = DropPartitionSchema.parse(params);
+
+      // P154: Check if table exists
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
 
       try {
         await adapter.executeQuery(
@@ -225,14 +250,36 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Reorganize Partition",
     description: "Reorganize partitions by splitting or merging them.",
     group: "partitioning",
-    inputSchema: ReorganizePartitionSchema,
+    inputSchema: ReorganizePartitionSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, fromPartitions, partitionType, toPartitions } =
-        ReorganizePartitionSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ReorganizePartitionSchema.parse(params);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return {
+            success: false,
+            error:
+              "HASH/KEY partitions cannot be reorganized. Only RANGE and LIST partition types support REORGANIZE PARTITION.",
+          };
+        }
+        throw error;
+      }
+      const { table, fromPartitions, partitionType, toPartitions } = parsed;
+
+      // P154: Check if table exists
+      const tableCheck = await adapter.executeQuery(
+        `SELECT TABLE_NAME FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+        [table],
+      );
+      if (!tableCheck.rows || tableCheck.rows.length === 0) {
+        return { exists: false, table };
+      }
 
       const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
       const toList = toPartitions

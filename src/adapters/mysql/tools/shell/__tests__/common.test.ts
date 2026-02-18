@@ -184,4 +184,50 @@ describe("execShellJS", () => {
 
     await expect(promise).rejects.toThrow("Fatal Error");
   });
+
+  it("should extract specific ERROR lines from Fatal error during dump stderr", async () => {
+    const promise = execShellJS("bad");
+
+    mockChild.stderr.emit(
+      "data",
+      Buffer.from(
+        "ERROR: Unknown column 'invalid_col' in 'where clause'\nWhile 'Dumping data': Fatal error during dump",
+      ),
+    );
+    mockChild.emit("close", 1);
+
+    await expect(promise).rejects.toThrow(
+      "Unknown column 'invalid_col' in 'where clause'",
+    );
+  });
+
+  it("should fall back to generic message when Fatal error during dump has no ERROR lines", async () => {
+    const promise = execShellJS("bad");
+
+    mockChild.stderr.emit("data", Buffer.from("Fatal error during dump"));
+    mockChild.emit("close", 1);
+
+    await expect(promise).rejects.toThrow(
+      "MySQL Shell dump failed: Fatal error during dump",
+    );
+  });
+
+  it("should extract specific ERROR lines from stderr when JSON reports Fatal error during dump", async () => {
+    const promise = execShellJS("bad");
+
+    const jsonOutput = JSON.stringify({
+      success: false,
+      error: "While 'Dumping data': Fatal error during dump",
+    });
+    mockChild.stderr.emit(
+      "data",
+      Buffer.from("ERROR: Unknown column 'bad_col' in 'where clause'"),
+    );
+    mockChild.stdout.emit("data", Buffer.from(jsonOutput));
+    mockChild.emit("close", 0);
+
+    await expect(promise).rejects.toThrow(
+      "Unknown column 'bad_col' in 'where clause'",
+    );
+  });
 });

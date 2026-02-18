@@ -142,6 +142,9 @@ export function createSysSchemaStatsTool(
         tableStatistics: tableStats.rows ?? [],
         indexStatistics: indexStats.rows ?? [],
         autoIncrementStatus: autoIncStats.rows ?? [],
+        tableStatisticsCount: (tableStats.rows ?? []).length,
+        indexStatisticsCount: (indexStats.rows ?? []).length,
+        autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
         schemaName: resolvedSchema,
       };
     },
@@ -262,6 +265,8 @@ export function createSysMemorySummaryTool(
       return {
         globalMemory: globalStats.rows ?? [],
         memoryByUser: userStats.rows ?? [],
+        globalMemoryCount: (globalStats.rows ?? []).length,
+        memoryByUserCount: (userStats.rows ?? []).length,
       };
     },
   };

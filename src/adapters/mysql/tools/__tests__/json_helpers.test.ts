@@ -72,19 +72,61 @@ describe("JSON Helper Handler Execution", () => {
   });
 
   describe("mysql_json_validate", () => {
-    it("should validate JSON value", async () => {
+    it("should validate valid JSON", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ is_valid: 1 }]),
       );
 
       const tool = tools.find((t) => t.name === "mysql_json_validate")!;
-      const result = await tool.handler(
+      const result = (await tool.handler(
         { value: '{"name":"test"}' },
         mockContext,
-      );
+      )) as { valid: boolean };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result).toBeDefined();
+      expect(result.valid).toBe(true);
+    });
+
+    it("should return valid: false for malformed JSON", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ is_valid: 0 }]),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_json_validate")!;
+      const result = (await tool.handler(
+        { value: '{"broken": true' },
+        mockContext,
+      )) as { valid: boolean };
+
+      expect(result.valid).toBe(false);
+    });
+
+    it("should return valid: false for bare strings", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ is_valid: 0 }]),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_json_validate")!;
+      const result = (await tool.handler({ value: "hello" }, mockContext)) as {
+        valid: boolean;
+      };
+
+      expect(result.valid).toBe(false);
+    });
+
+    it("should return structured error on MySQL failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Validation query failed"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_json_validate")!;
+      const result = (await tool.handler(
+        { value: "\x00invalid" },
+        mockContext,
+      )) as { valid: boolean; error: string };
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("Validation query failed");
     });
   });
 

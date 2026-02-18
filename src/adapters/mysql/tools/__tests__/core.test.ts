@@ -180,6 +180,40 @@ describe("Handler Execution", () => {
         "txn-123",
       );
     });
+
+    it("should return structured error for nonexistent table", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const result = await tool.handler(
+        { query: "SELECT * FROM nonexistent" },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "doesn't exist",
+      );
+    });
+
+    it("should return structured error for non-table errors in read query", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const result = await tool.handler(
+        { query: "SELECT * FROM users" },
+        mockContext,
+      );
+
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "Access denied",
+      );
+    });
   });
 
   describe("mysql_write_query", () => {
@@ -221,6 +255,40 @@ describe("Handler Execution", () => {
         "INSERT INTO users VALUES (1)",
         undefined,
         "txn-456",
+      );
+    });
+
+    it("should return structured error for nonexistent table", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(
+        new Error("Table 'testdb.nonexistent' doesn't exist"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const result = await tool.handler(
+        { query: "INSERT INTO nonexistent (id) VALUES (1)" },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "doesn't exist",
+      );
+    });
+
+    it("should return structured error for non-table errors in write query", async () => {
+      mockAdapter.executeWriteQuery.mockRejectedValue(
+        new Error("Access denied"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const result = await tool.handler(
+        { query: "INSERT INTO users VALUES (1)" },
+        mockContext,
+      );
+
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "Access denied",
       );
     });
   });

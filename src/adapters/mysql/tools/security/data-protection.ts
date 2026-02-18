@@ -124,13 +124,13 @@ export function createSecurityMaskDataTool(
         case "credit_card": {
           // Show first 4 and last 4
           const ccDigits = value.replace(/\D/g, "");
-          if (ccDigits.length < 8) {
+          if (ccDigits.length <= 8) {
             return Promise.resolve({
               original: value,
               masked: maskChar.repeat(value.length),
               type,
               warning:
-                "Value too short for credit_card format (expected at least 8 digits); fully masked instead",
+                "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
             });
           }
           maskedValue =
@@ -140,9 +140,15 @@ export function createSecurityMaskDataTool(
           break;
         }
         case "partial": {
-          // When keepFirst + keepLast covers the entire value, return unchanged
+          // When keepFirst + keepLast covers the entire value, return unchanged with warning
           if (keepFirst + keepLast >= value.length) {
-            maskedValue = value;
+            return Promise.resolve({
+              original: value,
+              masked: value,
+              type,
+              warning:
+                "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
+            });
           } else {
             const maskLength = value.length - keepFirst - keepLast;
             maskedValue =

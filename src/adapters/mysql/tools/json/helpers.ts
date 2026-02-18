@@ -10,7 +10,11 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { JsonSearchSchema, JsonValidateSchema } from "../../types.js";
+import {
+  JsonSearchSchema,
+  JsonSearchSchemaBase,
+  JsonValidateSchema,
+} from "../../types.js";
 import { z } from "zod";
 import {
   validateQualifiedIdentifier,
@@ -133,7 +137,13 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           jsonValue,
           id,
         ]);
-        return { success: result.rowsAffected === 1 };
+        if (result.rowsAffected === 0) {
+          return {
+            success: false,
+            reason: `No row found with ${idColumn} = ${id}`,
+          };
+        }
+        return { success: true };
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
@@ -152,7 +162,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Search for a string value in JSON columns and return matching paths.",
     group: "json",
-    inputSchema: JsonSearchSchema,
+    inputSchema: JsonSearchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

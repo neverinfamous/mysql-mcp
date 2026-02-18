@@ -60,6 +60,15 @@ const BufferSchema = z.object({
     .describe(
       "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
     ),
+  precision: z
+    .number()
+    .int()
+    .min(0)
+    .max(15)
+    .default(6)
+    .describe(
+      "Decimal precision for GeoJSON output coordinates (default: 6, ~0.11m accuracy). Lower values reduce payload size.",
+    ),
 });
 
 const TransformSchema = z.object({
@@ -152,7 +161,8 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { geometry, distance, srid, segments } = BufferSchema.parse(params);
+      const { geometry, distance, srid, segments, precision } =
+        BufferSchema.parse(params);
 
       try {
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
@@ -164,7 +174,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(
           `SELECT 
                     ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause})) as buffer_wkt,
-                    ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause})) as buffer_geojson`,
+                    ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), ${String(precision)}) as buffer_geojson`,
           [geometry, distance, geometry, distance],
         );
 
@@ -175,6 +185,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           bufferDistance: distance,
           segments,
           segmentsApplied: !isGeographic,
+          precision,
           srid,
         };
       } catch (error) {

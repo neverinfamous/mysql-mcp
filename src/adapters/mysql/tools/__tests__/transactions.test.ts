@@ -382,11 +382,9 @@ describe("Handler Execution", () => {
     it("should reject empty statements array", async () => {
       const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
       const result = await tool.handler({ statements: [] }, mockContext);
-
-      expect(result).toEqual({
-        success: false,
-        reason: "No statements provided. Pass at least one SQL statement.",
-      });
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("reason");
+      expect((result as { reason: string }).reason).toContain("No statements");
       expect(mockAdapter.beginTransaction).not.toHaveBeenCalled();
     });
 

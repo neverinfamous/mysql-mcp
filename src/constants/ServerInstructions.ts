@@ -86,6 +86,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **Prepared statements**: \`mysql_read_query\` and \`mysql_write_query\` support parameterized queries via the \`params\` array. Use \`?\` placeholders: \`query: "SELECT * FROM users WHERE id = ?", params: [123]\`.
 - **DDL statements**: DDL (e.g., \`CREATE TABLE\`, \`ALTER TABLE\`) is automatically handled via text protocol fallback in \`mysql_write_query\`.
+- **Query error handling**: \`mysql_read_query\` and \`mysql_write_query\` return \`{ success: false, error }\` for all query errors (nonexistent table, syntax, permissions, etc.), instead of throwing raw errors.
 - **Boolean defaults**: \`mysql_create_table\` auto-converts boolean \`default: true\` to \`1\` and \`default: false\` to \`0\` for MySQL compatibility. Alternatively, use \`TINYINT(1)\` with numeric defaults directly.
 - **Existence checks**: \`mysql_describe_table\` and \`mysql_get_indexes\` return \`{ exists: false, table: "..." }\` gracefully when the table does not exist, avoiding raw SQL errors.
 - **Create/Drop safety**: \`mysql_create_table\` returns \`{ success: false, reason }\` when the table already exists (without \`ifNotExists\`). \`mysql_drop_table\` returns \`{ success: false, reason }\` when the table does not exist (without \`ifExists\`). With \`ifExists: true\`, dropping a nonexistent table returns \`{ success: true, skipped: true, reason: "Table did not exist" }\`.
@@ -115,8 +116,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Cluster status**: \`mysql_cluster_status\` returns cluster metadata. Use \`summary: true\` for condensed output without Router configuration schemas. Returns \`isInnoDBCluster: false\` if not in a cluster.
 - **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role.
 - **Topology**: \`mysql_cluster_topology\` returns a structured \`topology\` object (with \`primary\`, \`secondaries\`, \`recovering\`, \`offline\` arrays) and a \`visualization\` string grouping members by role.
-- **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return only essential router info without full configuration blobs.
-- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and provides target recommendations. Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.
+- **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return routerId, routerName, address, version, lastCheckIn, roPort, rwPort, and localCluster. Each router includes \`isStale\` (true if lastCheckIn is null or >1 hour old). The response includes \`staleCount\` for quick filtering.
+- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.
 
 ## MySQL Router Tools (\`mysql_router_*\`)
 
@@ -124,7 +125,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Self-signed certificates**: Set \`MYSQL_ROUTER_INSECURE=true\` to bypass TLS certificate verification for development/testing environments.
 - **Route names**: Use \`mysql_router_routes\` to list available routes (e.g., \`bootstrap_rw\`, \`bootstrap_ro\`).
 - **Metadata cache**: The \`metadataName\` parameter is typically \`bootstrap\` for bootstrapped routers.
-- **Connection pools**: Pool name is typically \`main\` for standard Router configurations.
+- **Connection pools**: \`mysql_router_pool_status\` requires the \`[rest_connection_pool]\` REST plugin AND \`connection_sharing=1\` on routes. Without these, the endpoint returns 404. When enabled, pool name is \`main\`.
 - **Unavailability handling**: When Router REST API is unreachable, tools return \`{ available: false, reason: "..." }\` with descriptive error message instead of throwing.
 
 ## Partitioning Tools (\`mysql_partition_*\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`)
@@ -167,7 +168,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **EXPLAIN formats**: \`mysql_explain\` supports JSON (default), TREE, and TRADITIONAL formats.
 - **EXPLAIN ANALYZE**: \`mysql_explain_analyze\` shows actual execution times (MySQL 8.0+). Only TREE format is supported; JSON format returns \`{ supported: false, reason }\`.
-- **Performance schema**: \`mysql_slow_queries\`, \`mysql_query_stats\`, and \`mysql_index_usage\` require \`performance_schema\` enabled. \`mysql_slow_queries\` and \`mysql_query_stats\` truncate query digests to 200 characters for payload efficiency.
+- **Performance schema**: \`mysql_slow_queries\`, \`mysql_query_stats\`, and \`mysql_index_usage\` require \`performance_schema\` enabled. \`mysql_slow_queries\` and \`mysql_query_stats\` truncate query digests to 200 characters for payload efficiency. Timer values exceeding 24 hours are clamped to \`-1\` with \`overflow: true\` on the row (indicates a \`performance_schema\` counter overflow artifact, not a real value).
 - **Index usage**: \`mysql_index_usage\` filters to the current database by default. Use \`table\` parameter to filter further. Use \`limit\` (default: 10) to cap results. Returns \`{ exists: false, table }\` when the specified table does not exist.
 - **Table stats**: \`mysql_table_stats\` returns \`{ exists: false, table: "..." }\` gracefully when the table does not exist.
 - **Server-level tools**: \`mysql_slow_queries\`, \`mysql_query_stats\`, \`mysql_buffer_pool_stats\`, and \`mysql_thread_stats\` query server-level \`performance_schema\` metadata. They do not take a table parameter and return empty results when no data is available. No table existence checks apply.
@@ -234,8 +235,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **I/O analysis**: \`mysql_sys_io_summary\` supports \`table\` (default), \`file\`, and \`global\` types for I/O breakdown (default \`limit: 20\`).
 - **Wait events**: \`mysql_sys_wait_summary\` supports \`global\` (default), \`by_host\`, \`by_user\`, and \`by_instance\` types for wait analysis. The \`by_instance\` type queries \`performance_schema\` directly (no sys view exists) and returns \`event\`, \`total\`, \`total_latency\`, and \`avg_latency\` columns with formatted latencies.
 - **Lock contention**: \`mysql_sys_innodb_lock_waits\` shows active lock waits. Returns \`hasContention: false\` when none.
-- **Memory usage**: \`mysql_sys_memory_summary\` returns \`globalMemory\` (by event type) and \`memoryByUser\` arrays. The \`limit\` parameter (default 10) applies to both arrays.
-- **Schema stats**: \`mysql_sys_schema_stats\` returns 3 arrays: \`tableStatistics\` (DML and I/O per table), \`indexStatistics\` (per-index usage), and \`autoIncrementStatus\` (usage ratios). Filter by \`schema\` (defaults to current database). Returns \`{ exists: false, schema }\` when the specified schema does not exist. The \`limit\` parameter (default 10) applies per array.
+- **Memory usage**: \`mysql_sys_memory_summary\` returns \`globalMemory\` (by event type) and \`memoryByUser\` arrays with corresponding \`globalMemoryCount\` and \`memoryByUserCount\` fields. The \`limit\` parameter (default 10) applies to both arrays.
+- **Schema stats**: \`mysql_sys_schema_stats\` returns 3 arrays: \`tableStatistics\` (DML and I/O per table), \`indexStatistics\` (per-index usage), and \`autoIncrementStatus\` (usage ratios), each with a corresponding count field (\`tableStatisticsCount\`, \`indexStatisticsCount\`, \`autoIncrementStatusCount\`). Filter by \`schema\` (defaults to current database). Returns \`{ exists: false, schema }\` when the specified schema does not exist. The \`limit\` parameter (default 10) applies per array.
 
 ## Stats Tools (\`mysql_stats_*\`)
 
@@ -254,7 +255,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **SSL status**: \`mysql_security_ssl_status\` returns SSL/TLS connection status, cipher, certificate paths, and session statistics.
 - **Encryption status**: \`mysql_security_encryption_status\` checks TDE availability, keyring plugins, encrypted tablespaces, and encryption settings.
 - **Password validation**: \`mysql_security_password_validate\` uses MySQL \`validate_password\` component to check password strength (0-100 scale). Returns \`available: false\` if component not installed.
-- **Data masking**: \`mysql_security_mask_data\` masks sensitive data. Types: \`email\` (preserves domain), \`phone\` (shows last 4), \`ssn\` (shows last 4), \`credit_card\` (shows first/last 4), \`partial\` (uses \`keepFirst\`/\`keepLast\`). Credit card masking requires at least 8 digits; shorter values are fully masked with a \`warning\` field.
+- **Data masking**: \`mysql_security_mask_data\` masks sensitive data. Types: \`email\` (preserves domain), \`phone\` (shows last 4), \`ssn\` (shows last 4), \`credit_card\` (shows first/last 4), \`partial\` (uses \`keepFirst\`/\`keepLast\`). Credit card masking requires more than 8 digits; values with 8 or fewer digits are fully masked with a \`warning\` field.
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Returns \`{ exists: false, user }\` for nonexistent users (P154). Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps \`globalPrivileges\` at 10 entries and includes \`totalGlobalPrivileges\` for the full count.
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope. Returns \`{ exists: false, schema }\` for nonexistent schemas (P154).
 - **Enterprise features**: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
@@ -275,15 +276,38 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **Prerequisites**: MySQL Shell must be installed and accessible via \`MYSQLSH_PATH\` environment variable or system PATH.
 - **Version check**: \`mysqlsh_version\` verifies MySQL Shell availability before running other shell tools.
-- **Upgrade checking**: \`mysqlsh_check_upgrade\` analyzes MySQL server for upgrade compatibility issues. Returns \`errorCount\`, \`warningCount\`, and \`noticeCount\` summary with full JSON report. **Note**: Returns \`{ success: false, error }\` when \`targetVersion\` is lower than the current server version (no downgrade analysis is possible).
+- **Upgrade checking**: \`mysqlsh_check_upgrade\` analyzes MySQL server for upgrade compatibility issues. Returns \`errorCount\`, \`warningCount\`, and \`noticeCount\` summary with full JSON report. **Note**: Returns \`{ success: false, error }\` when MySQL Shell's version is lower than the current server version—Shell cannot analyze a server newer than itself. Also fails when \`targetVersion\` is lower than the current server version (no downgrade analysis).
 - **Script execution**: \`mysqlsh_run_script\` supports JavaScript (\`js\`), Python (\`py\`), and SQL (\`sql\`) languages with full access to MySQL Shell APIs. SQL scripts support comments and multi-statement syntax.
 - **Table export**: \`mysqlsh_export_table\` uses \`util.exportTable()\` for CSV or TSV export. Use \`where\` parameter for filtered exports. Returns structured error for privilege issues.
 - **Parallel import**: \`mysqlsh_import_table\` uses \`util.importTable()\` for high-performance parallel import. **Important**: For CSV files, explicitly set \`fieldsTerminatedBy: ","\` as the delimiter is not auto-detected. Requires \`local_infile\` enabled on server (use \`updateServerSettings: true\` to auto-enable). Use \`skipRows: 1\` to skip header row. The \`columns\` parameter maps input fields **by position** to the specified table columns. **Note**: On InnoDB Cluster (Group Replication), target tables must have a PRIMARY KEY.
 - **JSON import**: \`mysqlsh_import_json\` uses \`util.importJson()\` for document import. Supports both NDJSON (one JSON object per line) and multi-line JSON objects. **Does NOT support JSON arrays.** **Requires X Protocol (port 33060)**.
 - **Dump utilities**: \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\` create compressed parallel dumps. Use \`dryRun: true\` to preview. All dump tools return structured error messages for privilege issues with actionable guidance.
-- **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`. Returns \`{ success: false, error, hint }\` for duplicate object conflicts.
+- **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`. Use \`dryRun: true\` to preview what would be loaded without applying changes. Returns \`{ success: false, error, hint }\` for duplicate object conflicts.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use \`ddlOnly: true\` (schemas) or \`all: false\` (tables) to skip restricted metadata.
 - **Error handling**: All shell tools return \`{ success: false, error }\` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a \`hint\` field with actionable remediation guidance.
+
+## Parameter Aliases
+
+Many tools accept **alternative parameter names** (aliases) for commonly used fields. The server normalizes these automatically—use whichever feels most natural:
+
+- **Table name**: \`table\`, \`tableName\`, or \`name\` — accepted by Core tools (\`mysql_describe_table\`, \`mysql_get_indexes\`, \`mysql_drop_table\`, \`mysql_create_index\`), Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`), Backup tools (\`mysql_export_table\`, \`mysql_import_data\`), Partitioning tools (\`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`), Performance tools (\`mysql_table_stats\`, \`mysql_index_usage\`), and Admin tools (\`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, \`mysql_flush_tables\`).
+- **Query/SQL**: \`query\` or \`sql\` — accepted by \`mysql_read_query\`, \`mysql_write_query\`, \`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_query_rewrite\`, and \`mysql_optimizer_trace\`.
+- **WHERE clause**: \`where\` or \`filter\` — accepted by \`mysql_export_table\` and Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`).
+- **Column name**: \`column\` or \`col\` — accepted by Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_collation_convert\`).
+- **Admin tables array**: Admin maintenance tools accept a singular \`table\` (or \`tableName\`/\`name\`) as an alias for the \`tables\` array parameter, automatically wrapping it in an array.
+
+## Code Mode (\`mysql_execute_code\`)
+
+- **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the \`mysql.*\` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.
+- **When to use**: Prefer Code Mode when a task requires 3+ sequential tool calls, conditional branching based on query results, data transformation between steps, or aggregation across multiple tables.
+- **API namespace**: The \`mysql\` object exposes 24 groups matching the tool groups: \`mysql.core\`, \`mysql.json\`, \`mysql.transactions\`, \`mysql.text\`, \`mysql.fulltext\`, \`mysql.performance\`, \`mysql.optimization\`, \`mysql.admin\`, \`mysql.monitoring\`, \`mysql.backup\`, \`mysql.replication\`, \`mysql.partitioning\`, \`mysql.schema\`, \`mysql.shell\`, \`mysql.events\`, \`mysql.sysschema\`, \`mysql.stats\`, \`mysql.spatial\`, \`mysql.security\`, \`mysql.roles\`, \`mysql.docstore\`, \`mysql.cluster\`, \`mysql.proxysql\`, \`mysql.router\`.
+- **Method naming**: Tool names map to methods by stripping the prefix: \`mysql_read_query\` → \`mysql.core.readQuery(sql)\`, \`mysql_json_extract\` → \`mysql.json.extract({...})\`, \`mysqlsh_version\` → \`mysql.shell.version()\`.
+- **Positional shorthand**: Common tools accept positional arguments: \`mysql.core.readQuery("SELECT 1")\` instead of \`mysql.core.readQuery({ query: "SELECT 1" })\`.
+- **Help**: Call \`mysql.help()\` for a full API overview, or \`mysql.<group>.help()\` for group-specific methods and examples.
+- **Return value**: The last expression in the code block is returned as the result. Use \`return\` in async functions or let the final expression evaluate.
+- **Security**: Code runs in an isolated VM sandbox. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Rate-limited to prevent abuse.
+- **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
+- **Scope**: Requires \`admin\` scope.
 `;
 
 /**

@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-**Last Updated February 13, 2026**
+**Last Updated February 18, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -11,8 +11,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1794%20passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-94%25-green.svg)
+![Tests](https://img.shields.io/badge/Tests-1835%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-86%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -24,17 +24,17 @@
 
 | Feature                        | Description                                                                                                                                                       |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **192 Specialized Tools**      | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
+| **193 Specialized Tools**      | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
 | **18 Observability Resources** | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                |
 | **19 AI-Powered Prompts**      | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                  |
 | **OAuth 2.1 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration        |
-| **Smart Tool Filtering**       | 24 tool groups + 7 meta-groups let you stay within IDE limits while exposing exactly what you need                                                                |
+| **Smart Tool Filtering**       | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                 |
 | **HTTP Streaming Transport**   | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments                                                                      |
 | **High-Performance Pooling**   | Built-in connection pooling for efficient, concurrent database access                                                                                             |
 | **Ecosystem Integrations**     | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                             |
 | **Advanced Encryption**        | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                          |
 | **Production-Ready Security**  | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                         |
-| **Strict TypeScript**          | 100% type-safe codebase with 1794 tests and 94% coverage                                                                                                          |
+| **Strict TypeScript**          | 100% type-safe codebase with 1833 tests and 86% coverage                                                                                                          |
 | **MCP 2025-11-25 Compliant**   | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                     |
 
 ---
@@ -234,12 +234,26 @@ Use the remote hostname directly:
 
 ---
 
+## Code Mode: Maximum Efficiency
+
+Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+
+> [!TIP]
+> **Maximize Token Savings:** For the best results, instruct your AI agent to prefer Code Mode over individual tool calls. Add a rule like this to your agent's prompt or system configuration:
+>
+> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
+>
+> This ensures the agent batches operations into single calls instead of making many individual tool calls. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
+
+> [!NOTE]
+> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+
+---
+
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (38 tools) as a starting point.
-
-> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 193 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point. Code Mode is included in all presets by default for 70-90% token savings on multi-step operations.
 
 ### What Can You Filter?
 
@@ -247,28 +261,28 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Filter Pattern   | Example                     | Tools | Description               |
 | ---------------- | --------------------------- | ----- | ------------------------- |
-| Shortcut only    | `starter`                   | 38    | Use a predefined bundle   |
+| Shortcut only    | `starter`                   | 39    | Use a predefined bundle   |
 | Groups only      | `core,json,transactions`    | 32    | Combine individual groups |
-| Shortcut + Group | `starter,spatial`           | 50    | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table` | 37    | Remove specific tools     |
+| Shortcut + Group | `starter,spatial`           | 51    | Extend a shortcut         |
+| Shortcut - Tool  | `starter,-mysql_drop_table` | 38    | Remove specific tools     |
 
 ### Shortcuts (Predefined Bundles)
 
-| Shortcut        | Tools  | Use Case           | What's Included                                          |
-| --------------- | ------ | ------------------ | -------------------------------------------------------- |
-| `starter`       | **38** | 🌟 **Recommended** | core, json, transactions, text                           |
-| `essential`     | 15     | Minimal footprint  | core, transactions                                       |
-| `dev-power`     | 46     | Power Developer    | core, schema, performance, stats, fulltext, transactions |
-| `ai-data`       | 45     | AI Data Analyst    | core, json, docstore, text, fulltext                     |
-| `ai-spatial`    | 43     | AI Spatial Analyst | core, spatial, stats, performance, transactions          |
-| `dba-monitor`   | 35     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization   |
-| `dba-manage`    | 33     | DBA Management     | core, admin, backup, replication, partitioning, events   |
-| `dba-secure`    | 32     | DBA Security       | core, security, roles, transactions                      |
-| `base-core`     | 48     | Base Ops           | core, json, transactions, text, schema                   |
-| `base-advanced` | 40     | Advanced Features  | docstore, spatial, stats, fulltext, events               |
-| `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell                         |
+| Shortcut        | Tools  | Use Case           | What's Included                                                    |
+| --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
+| `starter`       | **39** | 🌟 **Recommended** | core, json, transactions, text, codemode                           |
+| `essential`     | 16     | Minimal footprint  | core, transactions, codemode                                       |
+| `dev-power`     | 47     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
+| `ai-data`       | 46     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
+| `ai-spatial`    | 44     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
+| `dba-monitor`   | 36     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
+| `dba-manage`    | 34     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
+| `dba-secure`    | 33     | DBA Security       | core, security, roles, transactions, codemode                      |
+| `base-core`     | 49     | Base Ops           | core, json, transactions, text, schema, codemode                   |
+| `base-advanced` | 41     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
+| `ecosystem`     | 42     | External Tools     | cluster, proxysql, router, shell, codemode                         |
 
-### Tool Groups (24 Available)
+### Tool Groups (25 Available)
 
 | Group          | Tools | Description                              |
 | -------------- | ----- | ---------------------------------------- |
@@ -296,6 +310,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `cluster`      | 10    | Group Replication, InnoDB Cluster        |
 | `proxysql`     | 12    | ProxySQL management                      |
 | `router`       | 9     | MySQL Router REST API                    |
+| `codemode`     | 1     | Sandboxed code execution                 |
 
 ---
 
@@ -303,7 +318,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursorrules`, or equivalent):
 
-#### Option 1: Starter (38 Essential Tools)
+#### Option 1: Starter (39 Essential Tools)
 
 **Best for:** General MySQL database work - CRUD operations, schema management, and monitoring.
 
@@ -331,7 +346,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 2: Cluster (10 Tools for InnoDB Cluster Monitoring)
+#### Option 2: Cluster (11 Tools for InnoDB Cluster Monitoring)
 
 **Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
 
@@ -366,7 +381,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 3: Ecosystem (41 Tools for InnoDB Cluster Deployments)
+#### Option 3: Ecosystem (42 Tools for InnoDB Cluster Deployments)
 
 **Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 
@@ -569,7 +584,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 192 tools, 18 resources, and 19 prompts interactively.
+Open **http://localhost:6274** to browse all 193 tools, 18 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 
@@ -589,7 +604,7 @@ npx @modelcontextprotocol/inspector --cli node dist/cli.js \
 
 ### Unit Testing
 
-The project maintains high test coverage (~94%) using Vitest.
+The project maintains high test coverage (~86%) using Vitest.
 
 ```bash
 # Run tests
@@ -604,16 +619,16 @@ npm run test:coverage
 - Centralized mock factories in `src/__tests__/mocks/`
 - All 101 test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
-- ~62 second total runtime
+- ~80 second total runtime
 
 **Test Coverage:**
 
 | Component       | Coverage | Notes                 |
 | --------------- | -------- | --------------------- |
-| **Global**      | **94%+** | Statement coverage    |
+| **Global**      | **86%+** | Statement coverage    |
 | MySQLAdapter    | 93%+     | Adapter logic covered |
-| Branch Coverage | ~81%     | High branch coverage  |
-| Tools (All)     | 98%+     | 1794 tests passing    |
+| Branch Coverage | ~72%     | High branch coverage  |
+| Tools (All)     | 98%+     | 1833 tests passing    |
 
 ---
 

@@ -115,11 +115,12 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_create_index", () => {
     it("should create a spatial index", async () => {
-      // First call returns column info (NOT NULL column), second call is the index creation
+      // First call: column info (NOT NULL), second: no existing index, third: CREATE
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
           createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
         )
+        .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
@@ -132,8 +133,8 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
+      const call = mockAdapter.executeQuery.mock.calls[2][0] as string;
       expect(call).toContain("SPATIAL INDEX");
       expect(result).toHaveProperty("success", true);
     });
@@ -162,13 +163,18 @@ describe("Handler Execution", () => {
       });
     });
 
-    it("should handle index creation errors gracefully", async () => {
-      // First call returns column info, second call fails
+    it("should return structured reason for duplicate index", async () => {
+      // First call: column info, second: no existing index, third: fails with duplicate key
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
           createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
         )
-        .mockRejectedValueOnce(new Error("Index already exists"));
+        .mockResolvedValueOnce(createMockQueryResult([]))
+        .mockRejectedValueOnce(
+          new Error(
+            "Query failed: Execute failed: Duplicate key name 'idx_locations_geom'",
+          ),
+        );
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
       const result = await tool.handler(
@@ -182,7 +188,33 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        error: "Index already exists",
+        reason:
+          "Index 'idx_locations_geom' already exists on table 'locations'",
+      });
+    });
+
+    it("should handle other index creation errors gracefully", async () => {
+      // First call: column info, second: no existing index, third: fails with generic error
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+        )
+        .mockResolvedValueOnce(createMockQueryResult([]))
+        .mockRejectedValueOnce(new Error("Some other MySQL error"));
+
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const result = await tool.handler(
+        {
+          table: "locations",
+          column: "geom",
+          indexName: "idx_locations_geom",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Some other MySQL error",
       });
     });
   });

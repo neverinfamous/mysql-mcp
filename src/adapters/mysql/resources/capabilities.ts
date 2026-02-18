@@ -37,16 +37,18 @@ export function createCapabilitiesResource(
       const version =
         (versionResult.rows?.[0]?.["version"] as string) ?? "unknown";
 
-      // Get available features
+      // Parse major version for feature detection (handles 8.x, 9.x, 10.x+)
+      const majorVersion = parseInt(version.split(".")[0] ?? "0", 10) || 0;
+
       const features = {
-        json: version.startsWith("5.7") || version.startsWith("8."),
+        json: majorVersion >= 8 || version.startsWith("5.7"),
         fulltext: true,
         partitioning: true,
         replication: true,
         gtid:
+          majorVersion >= 8 ||
           version.startsWith("5.6") ||
-          version.startsWith("5.7") ||
-          version.startsWith("8."),
+          version.startsWith("5.7"),
       };
 
       // Get tool groups and meta-groups info

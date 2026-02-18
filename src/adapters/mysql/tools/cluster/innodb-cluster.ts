@@ -353,6 +353,14 @@ export function createClusterRouterStatusTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { summary } = SummarySchema.parse(params);
 
+      // Compute staleness: null lastCheckIn or >1 hour old
+      const computeStale = (lastCheckIn: unknown): boolean => {
+        if (lastCheckIn == null) return true;
+        const checkInTime = new Date(lastCheckIn as string).getTime();
+        if (isNaN(checkInTime)) return true;
+        return Date.now() - checkInTime > 3_600_000; // 1 hour
+      };
+
       try {
         // Summary mode: return only essential router info
         if (summary) {
@@ -369,9 +377,16 @@ export function createClusterRouterStatusTool(
                       FROM mysql_innodb_cluster_metadata.routers
                   `);
 
+          const routers = (result.rows ?? []).map((r) => ({
+            ...r,
+            isStale: computeStale(r["lastCheckIn"]),
+          }));
+          const staleCount = routers.filter((r) => r.isStale).length;
+
           return {
-            routers: result.rows ?? [],
-            count: result.rows?.length ?? 0,
+            routers,
+            count: routers.length,
+            staleCount,
           };
         }
 
@@ -388,6 +403,7 @@ export function createClusterRouterStatusTool(
                 `);
 
         const routers = (result.rows ?? []).map((r) => {
+          let processed = r;
           if (r["attributes"] != null) {
             try {
               const attrs =
@@ -395,17 +411,22 @@ export function createClusterRouterStatusTool(
                   ? (JSON.parse(r["attributes"]) as Record<string, unknown>)
                   : (r["attributes"] as Record<string, unknown>);
               delete attrs["Configuration"];
-              return { ...r, attributes: attrs };
+              processed = { ...r, attributes: attrs };
             } catch {
-              return r;
+              // Keep original if parsing fails
             }
           }
-          return r;
+          return {
+            ...processed,
+            isStale: computeStale(processed["lastCheckIn"]),
+          };
         });
+        const staleCount = routers.filter((r) => r.isStale).length;
 
         return {
           routers,
           count: routers.length,
+          staleCount,
         };
       } catch {
         return {

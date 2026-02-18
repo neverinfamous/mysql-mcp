@@ -87,11 +87,12 @@ describe("Spatial Tools Handlers", () => {
 
     it("should generate default index name if not provided", async () => {
       const tool = findTool("mysql_spatial_create_index")!;
-      // First call returns column info (NOT NULL), second call is index creation
+      // First call: column info (NOT NULL), second: no existing index, third: CREATE
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
           createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
         )
+        .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const result = await tool.handler(
@@ -102,14 +103,43 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
-        2,
+        3,
         expect.stringContaining(
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
       );
       expect(result).toHaveProperty("indexName", "idx_spatial_users_location");
+    });
+
+    it("should detect existing spatial index on same column", async () => {
+      const tool = findTool("mysql_spatial_create_index")!;
+      // First call: column info (NOT NULL)
+      // Second call: existing spatial index found
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+        )
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ INDEX_NAME: "idx_existing_geom" }]),
+        );
+
+      const result = await tool.handler(
+        {
+          table: "locations",
+          column: "geom",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        reason:
+          "Spatial index 'idx_existing_geom' already exists on column 'geom' of table 'locations'",
+      });
+      // Should have called: 1) column check, 2) existing index check — NOT the CREATE
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -475,6 +505,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect((result as any).segmentsApplied).toBe(false);
       expect((result as any).segments).toBe(4);
+      expect((result as any).precision).toBe(6);
     });
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
@@ -501,6 +532,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect((result as any).segmentsApplied).toBe(true);
       expect((result as any).segments).toBe(4);
+      expect((result as any).precision).toBe(6);
     });
   });
 });

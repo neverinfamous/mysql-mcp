@@ -10,7 +10,12 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { FulltextCreateSchema, FulltextSearchSchema } from "../../types.js";
+import {
+  FulltextCreateSchema,
+  FulltextCreateSchemaBase,
+  FulltextSearchSchema,
+  FulltextSearchSchemaBase,
+} from "../../types.js";
 import { z } from "zod";
 import {
   validateIdentifier,
@@ -75,7 +80,7 @@ export function createFulltextCreateTool(
     description:
       "Create a FULLTEXT index on specified columns for fast text search.",
     group: "fulltext",
-    inputSchema: FulltextCreateSchema,
+    inputSchema: FulltextCreateSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -156,7 +161,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
   };
 }
 
-const FulltextSearchWithTruncateSchema = FulltextSearchSchema.extend({
+const FulltextSearchWithTruncateSchema = FulltextSearchSchemaBase.extend({
   maxLength: z
     .number()
     .optional()
@@ -180,8 +185,11 @@ export function createFulltextSearchTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query, mode, maxLength } =
-        FulltextSearchWithTruncateSchema.parse(params);
+      const parsed = FulltextSearchSchema.parse(params);
+      const { table, columns, query, mode } = parsed;
+      const maxLength = (params as Record<string, unknown>)["maxLength"] as
+        | number
+        | undefined;
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
