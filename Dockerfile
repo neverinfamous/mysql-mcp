@@ -48,9 +48,12 @@ RUN apk upgrade --no-cache
 # - CVE-2024-21538: cross-spawn < 7.0.5
 # - CVE-2025-64756: glob < 10.5.0
 # - CVE-2025-5889: brace-expansion <= 2.0.1
-# - CVE-2026-26960: tar < 7.5.8
+# - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy)
 RUN npm install -g npm@latest && \
     npm install -g tar@latest && \
+    rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
+    cp -r /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/tar && \
+    npm uninstall -g tar && \
     npm cache clean --force
 
 # Create non-root user for security
