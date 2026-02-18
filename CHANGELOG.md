@@ -73,13 +73,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - **`mysqlsh_run_script` Secure Temporary File Handling (CodeQL)** — Replaced insecure `os.tmpdir()` + manual filename pattern with `fs.mkdtemp()` for SQL script temp files. The previous approach created predictable files in the shared OS temp directory, flagged by CodeQL as `js/insecure-temporary-file`. Now creates a unique temporary directory with restrictive permissions via `mkdtemp`, writes the script inside it, and recursively removes the directory after execution.
+- **CVE Fix: `ajv` ReDoS via `$data` Option (GHSA-2g4f-4pwh-qvx6)** — Overrode transitive dependency `ajv` (via `@modelcontextprotocol/sdk` → `ajv-formats`) from 8.17.1 to 8.18.0 to fix a ReDoS vulnerability when the `$data` option accepts runtime regex patterns via JSON Pointer.
 - **CVE Fix: `qs` ArrayLimit Bypass (GHSA-w7fw-mjwx-w883)** — Updated transitive dependency `qs` (via `express` → `@modelcontextprotocol/sdk`) from 6.14.1 to 6.14.2 to fix an arrayLimit bypass in comma parsing that allows denial of service.
 
 ### Dependencies
 
+- Bumped `@eslint/js` from `^9.39.2` to `^10.0.1`
 - Bumped `@types/node` from `^25.2.2` to `^25.2.3`
-- Bumped `mysql2` from `^3.16.3` to `^3.17.1`
-- Bumped `typescript-eslint` from `^8.54.0` to `^8.55.0`
+- Bumped `eslint` from `^9.39.2` to `^10.0.0`
+- Bumped `mysql2` from `^3.16.3` to `^3.17.2`
+- Bumped `typescript-eslint` from `^8.54.0` to `^8.56.0`
 
 ## [2.2.0] - 2026-02-08
 
