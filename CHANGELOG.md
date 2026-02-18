@@ -7,14 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-02-18
+
 ### Security
 
-- **CVE Fix: `tar` Path Traversal (CVE-2026-26960)** — Added explicit `npm install -g tar@latest` to Dockerfile runtime stage to fix a high-severity path traversal vulnerability in npm's bundled `tar` (< 7.5.8) that allowed arbitrary file read/write via crafted hardlinks.
+- **CVE Fix: `tar` Path Traversal (CVE-2026-26960)** — Patched npm's bundled `tar` (< 7.5.8) in the Dockerfile runtime stage to fix a high-severity path traversal vulnerability that allowed arbitrary file read/write via crafted hardlinks.
 
 ### Changed
 
 - **Docker Scout Security Gate Hardened** — Docker Scout scan in `docker-publish.yml` now **blocks deployments** on any fixable CVE (any severity) using `--only-fixed --exit-code`. Unfixable zero-day CVEs are allowed through. Previously the scan was informational only and never failed the workflow.
-
+- **CodeQL Workflow PR Trigger** — Removed `paths` filter from `pull_request` trigger in `codeql.yml` so the `analyze (javascript-typescript)` required check always runs on PRs. The existing `check-files` step handles skipping analysis for non-code PRs.
 
 ## [2.3.0] - 2026-02-18
 
