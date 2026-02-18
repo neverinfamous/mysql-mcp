@@ -52,13 +52,18 @@
 #### NPM (Recommended)
 
 ```bash
-# Install globally
 npm install -g @neverinfamous/mysql-mcp
+```
 
-# Run
+Run the server:
+
+```bash
 mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+```
 
-# Or use npx without installing
+Or use npx without installing:
+
+```bash
 npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
 ```
 
@@ -118,11 +123,15 @@ mysql-mcp --mysql mysql://root:pass@localhost/db \
 
 **Start the HTTP server:**
 
-```bash
-# Local installation
-node dist/cli.js --transport http --port 3000 --server-host 0.0.0.0 --mysql mysql://user:password@localhost:3306/database
+Local installation:
 
-# Docker (expose port 3000)
+```bash
+node dist/cli.js --transport http --port 3000 --server-host 0.0.0.0 --mysql mysql://user:password@localhost:3306/database
+```
+
+Docker (expose port 3000):
+
+```bash
 docker run -p 3000:3000 writenotenow/mysql-mcp \
   --transport http \
   --port 3000 \
@@ -205,11 +214,16 @@ If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 
 Add both containers to the same Docker network, then use the container name:
 
+Create a network and run MySQL:
+
 ```bash
-# Create network and run MySQL
 docker network create mynet
 docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:8
-# Run MCP server on same network
+```
+
+Run MCP server on the same network:
+
+```bash
 docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
   --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
 ```
@@ -574,11 +588,15 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 Use [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to visually test and debug mysql-mcp:
 
-```bash
-# Build the server first
-npm run build
+Build the server first:
 
-# Launch Inspector with mysql-mcp
+```bash
+npm run build
+```
+
+Launch Inspector with mysql-mcp:
+
+```bash
 npx @modelcontextprotocol/inspector node dist/cli.js \
   --transport stdio \
   --mysql mysql://user:password@localhost:3306/database
@@ -588,13 +606,17 @@ Open **http://localhost:6274** to browse all 193 tools, 18 resources, and 19 pro
 
 **CLI mode for scripting:**
 
+List all tools:
+
 ```bash
-# List all tools
 npx @modelcontextprotocol/inspector --cli node dist/cli.js \
   --transport stdio --mysql mysql://... \
   --method tools/list
+```
 
-# Call a specific tool
+Call a specific tool:
+
+```bash
 npx @modelcontextprotocol/inspector --cli node dist/cli.js \
   --transport stdio --mysql mysql://... \
   --method tools/call --tool-name mysql_list_tables
@@ -607,10 +629,12 @@ npx @modelcontextprotocol/inspector --cli node dist/cli.js \
 The project maintains high test coverage (~86%) using Vitest.
 
 ```bash
-# Run tests
 npm test
+```
 
-# Run coverage report
+Run coverage report:
+
+```bash
 npm run test:coverage
 ```
 
