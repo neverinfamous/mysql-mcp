@@ -18,24 +18,25 @@
 
 ## The Most Comprehensive MySQL MCP Server Available
 
-**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Built for developers who demand enterprise-grade features without sacrificing ease of use.
+**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities** and **deterministic error handling**. Built for developers who demand enterprise-grade features without sacrificing ease of use.
 
 ### 🎯 What Sets Us Apart
 
-| Feature                        | Description                                                                                                                                                       |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **193 Specialized Tools**      | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management |
-| **18 Observability Resources** | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                |
-| **19 AI-Powered Prompts**      | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                  |
-| **OAuth 2.1 + Access Control** | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration        |
-| **Smart Tool Filtering**       | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                 |
-| **HTTP Streaming Transport**   | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments                                                                      |
-| **High-Performance Pooling**   | Built-in connection pooling for efficient, concurrent database access                                                                                             |
-| **Ecosystem Integrations**     | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                             |
-| **Advanced Encryption**        | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                          |
-| **Production-Ready Security**  | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                         |
-| **Strict TypeScript**          | 100% type-safe codebase with 1833 tests and 86% coverage                                                                                                          |
-| **MCP 2025-11-25 Compliant**   | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                     |
+| Feature                          | Description                                                                                                                                                                                    |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **193 Specialized Tools**        | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                              |
+| **18 Observability Resources**   | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                             |
+| **19 AI-Powered Prompts**        | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                               |
+| **OAuth 2.1 + Access Control**   | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                     |
+| **Smart Tool Filtering**         | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                              |
+| **HTTP Streaming Transport**     | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments                                                                                                   |
+| **High-Performance Pooling**     | Built-in connection pooling for efficient, concurrent database access                                                                                                                          |
+| **Ecosystem Integrations**       | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                                                          |
+| **Advanced Encryption**          | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                       |
+| **Deterministic Error Handling** | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes |
+| **Production-Ready Security**    | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                      |
+| **Strict TypeScript**            | 100% type-safe codebase with 1833 tests and 86% coverage                                                                                                                                       |
+| **MCP 2025-11-25 Compliant**     | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                  |
 
 ---
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **README.md / DOCKER_README.md "Deterministic Error Handling"** — Added "deterministic error handling" to the introduction blurbs and a new "Deterministic Error Handling" row to the "What Sets Us Apart" feature table in both READMEs, highlighting structured `{success, error}` responses across all tools
+
 ## [2.3.1] - 2026-02-18
 
 ### Security
