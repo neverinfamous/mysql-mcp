@@ -1929,7 +1929,6 @@ export const ShowStatusSchema = z.object({
   limit: z
     .number()
     .int()
-    .positive()
     .optional()
     .describe(
       "Maximum number of variables to return (default: 100). Set higher to see all.",
@@ -1946,7 +1945,6 @@ export const ShowVariablesSchema = z.object({
   limit: z
     .number()
     .int()
-    .positive()
     .optional()
     .describe(
       "Maximum number of variables to return (default: 100). Set higher to see all.",

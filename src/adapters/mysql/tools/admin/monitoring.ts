@@ -66,6 +66,12 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowStatusSchema.parse(params);
+        if (limit !== undefined && limit < 1) {
+          return {
+            success: false as const,
+            error: "limit must be a positive integer",
+          };
+        }
         const effectiveLimit = limit ?? 100;
 
         let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
@@ -139,6 +145,12 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
+        if (limit !== undefined && limit < 1) {
+          return {
+            success: false as const,
+            error: "limit must be a positive integer",
+          };
+        }
         const effectiveLimit = limit ?? 100;
 
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
