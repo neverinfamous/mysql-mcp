@@ -1970,7 +1970,6 @@ export const ExportTableSchemaBase = z.object({
   limit: z
     .number()
     .int()
-    .positive()
     .optional()
     .default(100)
     .describe(
