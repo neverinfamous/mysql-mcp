@@ -492,13 +492,172 @@ describe("Admin Maintenance Tools", () => {
       });
     });
 
-    it("should rethrow non-thread-id errors", async () => {
+    it("should return structured error for non-thread-id errors", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
-      await expect(
-        tool.handler({ processId: 123 }, mockContext),
-      ).rejects.toThrow("Connection lost");
+      const result = await tool.handler({ processId: 123 }, mockContext);
+
+      expect(result).toEqual({ success: false, error: "Connection lost" });
+    });
+  });
+
+  describe("DDL handler error handling", () => {
+    it("mysql_optimize_table should return structured error on adapter failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table storage engine mismatch"),
+      );
+
+      const tool = createOptimizeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({ tables: ["users"] }, mockContext);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Table storage engine mismatch",
+      });
+    });
+
+    it("mysql_optimize_table should return structured error on empty tables", async () => {
+      const tool = createOptimizeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({}, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+    });
+
+    it("mysql_analyze_table should return structured error on adapter failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Access denied for user"),
+      );
+
+      const tool = createAnalyzeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({ tables: ["products"] }, mockContext);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Access denied for user",
+      });
+    });
+
+    it("mysql_analyze_table should return structured error on empty tables", async () => {
+      const tool = createAnalyzeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({}, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+    });
+
+    it("mysql_check_table should return structured error on adapter failure", async () => {
+      mockAdapter.rawQuery.mockRejectedValue(
+        new Error("Lock wait timeout exceeded"),
+      );
+
+      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler({ tables: ["orders"] }, mockContext);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Lock wait timeout exceeded",
+      });
+    });
+
+    it("mysql_check_table should return structured error on empty tables", async () => {
+      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler({}, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+    });
+
+    it("mysql_repair_table should return structured error on adapter failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Table is read only"),
+      );
+
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({ tables: ["broken"] }, mockContext);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Table is read only",
+      });
+    });
+
+    it("mysql_repair_table should return structured error on empty tables", async () => {
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({}, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+    });
+  });
+
+  describe("repair_table alias support", () => {
+    it("should accept table alias (singular string)", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await tool.handler({ table: "users" }, mockContext);
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "REPAIR TABLE `users`",
+      );
+    });
+
+    it("should accept tableName alias", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await tool.handler({ tableName: "orders" }, mockContext);
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "REPAIR TABLE `orders`",
+      );
+    });
+
+    it("should accept name alias", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await tool.handler({ name: "products" }, mockContext);
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "REPAIR TABLE `products`",
+      );
+    });
+
+    it("should prefer tables array over aliases", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createRepairTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await tool.handler(
+        { tables: ["t1", "t2"], table: "ignored" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "REPAIR TABLE `t1`, `t2`",
+      );
     });
   });
 

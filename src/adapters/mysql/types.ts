@@ -1844,6 +1844,38 @@ export const CheckTableSchema = z
     message: "tables (or table/tableName/name alias) is required",
   });
 
+// --- RepairTable ---
+export const RepairTableSchemaBase = z.object({
+  tables: z.array(z.string()).optional().describe("Table names to repair"),
+  table: z.string().optional().describe("Single table name (alias for tables)"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  quick: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Quick repair (MyISAM only)"),
+});
+
+export const RepairTableSchema = z
+  .preprocess(
+    preprocessAdminTableParams,
+    z.object({
+      tables: z.array(z.string()).optional(),
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      quick: z.boolean().optional().default(false),
+    }),
+  )
+  .transform((data) => ({
+    tables: data.tables ?? [],
+    quick: data.quick,
+  }))
+  .refine((data) => data.tables.length > 0, {
+    message: "tables (or table/tableName/name alias) is required",
+  });
+
 // --- FlushTables ---
 export const FlushTablesSchemaBase = z.object({
   tables: z

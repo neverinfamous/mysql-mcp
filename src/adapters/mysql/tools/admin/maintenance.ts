@@ -17,11 +17,12 @@ import {
   AnalyzeTableSchemaBase,
   CheckTableSchema,
   CheckTableSchemaBase,
+  RepairTableSchema,
+  RepairTableSchemaBase,
   FlushTablesSchema,
   FlushTablesSchemaBase,
   KillQuerySchema,
 } from "../../types.js";
-import { z } from "zod";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -36,10 +37,17 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { tables } = OptimizeTableSchema.parse(params);
-      const tableList = tables.map((t) => `\`${t}\``).join(", ");
-      const result = await adapter.executeQuery(`OPTIMIZE TABLE ${tableList}`);
-      return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+      try {
+        const { tables } = OptimizeTableSchema.parse(params);
+        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const result = await adapter.executeQuery(
+          `OPTIMIZE TABLE ${tableList}`,
+        );
+        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -58,10 +66,15 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { tables } = AnalyzeTableSchema.parse(params);
-      const tableList = tables.map((t) => `\`${t}\``).join(", ");
-      const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
-      return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+      try {
+        const { tables } = AnalyzeTableSchema.parse(params);
+        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
+        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -79,46 +92,51 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { tables, option } = CheckTableSchema.parse(params);
-      const tableList = tables.map((t) => `\`${t}\``).join(", ");
-      const optionClause = option ? ` ${option}` : "";
-      // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
-      const result = await adapter.rawQuery(
-        `CHECK TABLE ${tableList}${optionClause}`,
-      );
-      return {
-        results: result.rows ?? [],
-        rowCount: result.rows?.length ?? 0,
-      };
+      try {
+        const { tables, option } = CheckTableSchema.parse(params);
+        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const optionClause = option ? ` ${option}` : "";
+        // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
+        const result = await adapter.rawQuery(
+          `CHECK TABLE ${tableList}${optionClause}`,
+        );
+        return {
+          results: result.rows ?? [],
+          rowCount: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
 
 export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    tables: z.array(z.string()),
-    quick: z.boolean().optional().default(false),
-  });
-
   return {
     name: "mysql_repair_table",
     title: "MySQL Repair Table",
     description: "Repair corrupted tables (MyISAM only).",
     group: "admin",
-    inputSchema: schema,
+    inputSchema: RepairTableSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { tables, quick } = schema.parse(params);
-      const tableList = tables.map((t) => `\`${t}\``).join(", ");
-      const quickClause = quick ? " QUICK" : "";
-      const result = await adapter.executeQuery(
-        `REPAIR TABLE ${tableList}${quickClause}`,
-      );
-      return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+      try {
+        const { tables, quick } = RepairTableSchema.parse(params);
+        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const quickClause = quick ? " QUICK" : "";
+        const result = await adapter.executeQuery(
+          `REPAIR TABLE ${tableList}${quickClause}`,
+        );
+        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -203,7 +221,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Process ID ${processId} not found`,
           };
         }
-        throw error;
+        return { success: false, error: message };
       }
     },
   };
