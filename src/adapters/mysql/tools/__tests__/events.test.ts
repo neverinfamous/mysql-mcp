@@ -483,49 +483,55 @@ describe("Event Create Advanced", () => {
     expect(call).toContain("DISABLE");
   });
 
-  it("should throw error for invalid event name", async () => {
+  it("should return structured error for invalid event name", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_create")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "123-invalid",
-          schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
-          body: "SELECT 1",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid event name");
+    const result = await tool.handler(
+      {
+        name: "123-invalid",
+        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid event name" });
   });
 
-  it("should throw error when executeAt is missing for ONE TIME events", async () => {
+  it("should return structured error when executeAt is missing for ONE TIME events", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_create")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "bad_event",
-          schedule: { type: "ONE TIME" },
-          body: "SELECT 1",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("executeAt is required");
+    const result = await tool.handler(
+      {
+        name: "bad_event",
+        schedule: { type: "ONE TIME" },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "executeAt is required for ONE TIME events",
+    });
   });
 
-  it("should throw error when interval is missing for RECURRING events", async () => {
+  it("should return structured error when interval is missing for RECURRING events", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_create")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "bad_recurring",
-          schedule: { type: "RECURRING" },
-          body: "SELECT 1",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("interval and intervalUnit are required");
+    const result = await tool.handler(
+      {
+        name: "bad_recurring",
+        schedule: { type: "RECURRING" },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "interval and intervalUnit are required for RECURRING events",
+    });
   });
 });
 
@@ -629,73 +635,82 @@ describe("Event Alter Advanced", () => {
     expect(call).toContain("COMMENT 'Updated comment'");
   });
 
-  it("should throw error for invalid event name", async () => {
+  it("should return structured error for invalid event name", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_alter")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "invalid-name",
-          enabled: true,
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid event name");
+    const result = await tool.handler(
+      {
+        name: "invalid-name",
+        enabled: true,
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid event name" });
   });
 
-  it("should throw error for invalid new event name", async () => {
+  it("should return structured error for invalid new event name", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_alter")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "valid_name",
-          newName: "123-invalid",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid new event name");
+    const result = await tool.handler(
+      {
+        name: "valid_name",
+        newName: "123-invalid",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid new event name" });
   });
 
-  it("should throw error when no modifications specified", async () => {
+  it("should return structured error when no modifications specified", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_alter")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "my_event",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("No modifications specified");
+    const result = await tool.handler(
+      {
+        name: "my_event",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "No modifications specified",
+    });
   });
 
-  it("should throw error when executeAt missing for ONE TIME alter", async () => {
+  it("should return structured error when executeAt missing for ONE TIME alter", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_alter")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "my_event",
-          schedule: { type: "ONE TIME" },
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("executeAt is required");
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "ONE TIME" },
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "executeAt is required for ONE TIME events",
+    });
   });
 
-  it("should throw error when interval missing for RECURRING alter", async () => {
+  it("should return structured error when interval missing for RECURRING alter", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_alter")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "my_event",
-          schedule: { type: "RECURRING" },
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("interval and intervalUnit are required");
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "RECURRING" },
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "interval and intervalUnit are required for RECURRING events",
+    });
   });
 });
 
@@ -711,17 +726,17 @@ describe("Event Drop Advanced", () => {
     mockContext = createMockRequestContext();
   });
 
-  it("should throw error for invalid event name", async () => {
+  it("should return structured error for invalid event name", async () => {
     const tool = tools.find((t) => t.name === "mysql_event_drop")!;
 
-    await expect(
-      tool.handler(
-        {
-          name: "invalid-event-name",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid event name");
+    const result = await tool.handler(
+      {
+        name: "invalid-event-name",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid event name" });
   });
 
   it("should drop without IF EXISTS when ifExists is false", async () => {
@@ -771,7 +786,7 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toEqual({
       success: false,
-      reason: "Event 'my_event' already exists",
+      error: "Event already exists",
     });
   });
 
@@ -792,7 +807,7 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toEqual({
       success: false,
-      reason: "Event 'ghost_event' does not exist",
+      error: "Event does not exist",
     });
   });
 
@@ -813,23 +828,23 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toEqual({
       success: false,
-      reason: "Event 'ghost_event' does not exist",
+      error: "Event does not exist",
     });
   });
 
-  it("should rethrow unexpected errors from create", async () => {
+  it("should return structured error for unexpected errors from create", async () => {
     mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
     const tool = tools.find((t) => t.name === "mysql_event_create")!;
-    await expect(
-      tool.handler(
-        {
-          name: "my_event",
-          schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
-          body: "SELECT 1",
-        },
-        mockContext,
-      ),
-    ).rejects.toThrow("Connection lost");
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({ success: false, error: "Connection lost" });
   });
 });

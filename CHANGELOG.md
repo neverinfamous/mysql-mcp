@@ -77,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Events Tool Raw Error Leaks (`mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`)** — All three write handlers had validation throws (`"Invalid event name"`, `"executeAt is required..."`, `"No modifications specified"`) and catch-all re-throws that leaked as raw MCP exceptions. Wrapped all handler bodies in top-level `try/catch` returning `{ success: false, error }`, matching the pattern used by schema, core, and admin tools
 - **Events Tool Error Field Normalization (`reason` → `error`)** — All three event write tools returned `{ success: false, reason }` for known error cases (duplicate event, nonexistent event). Changed to `{ success: false, error }`, reserving `reason` exclusively for informational `{ success: true, skipped: true }` responses. Updated ServerInstructions to match
+- **Events Test Alignment** — Updated 13 tests in `events.test.ts` to match the new structured-return behavior: replaced `.rejects.toThrow()` assertions with `expect(result).toEqual({ success: false, error })`, and updated `reason` field references to `error` in graceful-error-handling tests
 
 ### Infrastructure
 
