@@ -5,6 +5,7 @@
  * 4 tools: export, import, dump, restore.
  */
 
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -16,11 +17,20 @@ import {
   ImportDataSchema,
   ImportDataSchemaBase,
 } from "../../types.js";
-import { z } from "zod";
 import {
   validateIdentifier,
   validateWhereClause,
 } from "../../../../utils/validators.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from MySQL error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
+}
 
 /**
  * Format a value for MySQL export.
@@ -105,71 +115,79 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, format, where, limit } = ExportTableSchema.parse(params);
-
-      // Validate inputs for SQL injection prevention
-      validateIdentifier(table, "table");
-      if (where) {
-        validateWhereClause(where);
-      }
-
-      // Get table data
-      let sql = `SELECT * FROM \`${table}\``;
-      if (where) {
-        sql += ` WHERE ${where}`;
-      }
-      if (limit !== undefined) {
-        sql += ` LIMIT ${limit}`;
-      }
-
-      let rows: Record<string, unknown>[];
       try {
-        const result = await adapter.executeReadQuery(sql);
-        rows = result.rows ?? [];
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
-        }
-        return { success: false, error: msg };
-      }
+        const { table, format, where, limit } = ExportTableSchema.parse(params);
 
-      if (format === "CSV") {
-        if (rows.length === 0) {
-          return { csv: "", rowCount: 0 };
+        // Validate inputs for SQL injection prevention
+        validateIdentifier(table, "table");
+        if (where) {
+          validateWhereClause(where);
         }
 
-        const firstRow = rows[0];
-        if (!firstRow) {
-          return { csv: "", rowCount: 0 };
+        // Get table data
+        let sql = `SELECT * FROM \`${table}\``;
+        if (where) {
+          sql += ` WHERE ${where}`;
+        }
+        if (limit !== undefined) {
+          sql += ` LIMIT ${limit}`;
         }
 
-        const headers = Object.keys(firstRow);
-        const csvLines = [headers.join(",")];
+        let rows: Record<string, unknown>[];
+        try {
+          const result = await adapter.executeReadQuery(sql);
+          rows = result.rows ?? [];
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg.includes("doesn't exist")) {
+            return { exists: false, table };
+          }
+          return { success: false, error: stripErrorPrefix(msg) };
+        }
+
+        if (format === "CSV") {
+          if (rows.length === 0) {
+            return { csv: "", rowCount: 0 };
+          }
+
+          const firstRow = rows[0];
+          if (!firstRow) {
+            return { csv: "", rowCount: 0 };
+          }
+
+          const headers = Object.keys(firstRow);
+          const csvLines = [headers.join(",")];
+
+          for (const row of rows) {
+            const values = headers.map((h) => formatForCSV(row[h]));
+            csvLines.push(values.join(","));
+          }
+
+          return { csv: csvLines.join("\n"), rowCount: rows.length };
+        }
+
+        // SQL format
+        const insertStatements: string[] = [];
 
         for (const row of rows) {
-          const values = headers.map((h) => formatForCSV(row[h]));
-          csvLines.push(values.join(","));
+          const columns = Object.keys(row)
+            .map((c) => `\`${c}\``)
+            .join(", ");
+          const values = Object.values(row).map(formatForMySQL).join(", ");
+
+          insertStatements.push(
+            `INSERT INTO \`${table}\` (${columns}) VALUES (${values});`,
+          );
         }
 
-        return { csv: csvLines.join("\n"), rowCount: rows.length };
+        return { sql: insertStatements.join("\n"), rowCount: rows.length };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      // SQL format
-      const insertStatements: string[] = [];
-
-      for (const row of rows) {
-        const columns = Object.keys(row)
-          .map((c) => `\`${c}\``)
-          .join(", ");
-        const values = Object.values(row).map(formatForMySQL).join(", ");
-
-        insertStatements.push(
-          `INSERT INTO \`${table}\` (${columns}) VALUES (${values});`,
-        );
-      }
-
-      return { sql: insertStatements.join("\n"), rowCount: rows.length };
     },
   };
 }
@@ -186,62 +204,70 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, data } = ImportDataSchema.parse(params);
-
-      // Validate table name for SQL injection prevention
-      validateIdentifier(table, "table");
-
-      if (data.length === 0) {
-        return { success: true, rowsInserted: 0 };
-      }
-
-      // Validate all column names upfront (throws for SQL injection - must not be caught)
-      for (const row of data) {
-        for (const colName of Object.keys(row)) {
-          validateIdentifier(colName, "column");
-        }
-      }
-
-      let totalInserted = 0;
-
       try {
-        for (const row of data) {
-          const columns = Object.keys(row)
-            .map((c) => `\`${c}\``)
-            .join(", ");
-          const placeholders = Object.keys(row)
-            .map(() => "?")
-            .join(", ");
-          const values = Object.values(row);
+        const { table, data } = ImportDataSchema.parse(params);
 
-          const sql = `INSERT INTO \`${table}\` (${columns}) VALUES (${placeholders})`;
-          await adapter.executeWriteQuery(sql, values);
-          totalInserted++;
+        // Validate table name for SQL injection prevention
+        validateIdentifier(table, "table");
+
+        if (data.length === 0) {
+          return { success: true, rowsInserted: 0 };
         }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        // Graceful handling for missing table (P154)
-        if (errorMessage.includes("doesn't exist")) {
-          return { exists: false, table };
+
+        // Validate all column names upfront (throws for SQL injection - must not be caught)
+        for (const row of data) {
+          for (const colName of Object.keys(row)) {
+            validateIdentifier(colName, "column");
+          }
         }
-        // Graceful handling for duplicate key violations
-        if (errorMessage.includes("Duplicate entry")) {
+
+        let totalInserted = 0;
+
+        try {
+          for (const row of data) {
+            const columns = Object.keys(row)
+              .map((c) => `\`${c}\``)
+              .join(", ");
+            const placeholders = Object.keys(row)
+              .map(() => "?")
+              .join(", ");
+            const values = Object.values(row);
+
+            const sql = `INSERT INTO \`${table}\` (${columns}) VALUES (${placeholders})`;
+            await adapter.executeWriteQuery(sql, values);
+            totalInserted++;
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          // Graceful handling for missing table (P154)
+          if (errorMessage.includes("doesn't exist")) {
+            return { exists: false, table };
+          }
+          // Graceful handling for duplicate key violations
+          if (errorMessage.includes("Duplicate entry")) {
+            return {
+              success: false,
+              error: stripErrorPrefix(errorMessage),
+              rowsInserted: totalInserted,
+            };
+          }
+          // Catch-all for other MySQL errors (unknown column, data truncation, etc.)
           return {
             success: false,
-            error: errorMessage,
+            error: stripErrorPrefix(errorMessage),
             rowsInserted: totalInserted,
           };
         }
-        // Catch-all for other MySQL errors (unknown column, data truncation, etc.)
-        return {
-          success: false,
-          error: errorMessage,
-          rowsInserted: totalInserted,
-        };
-      }
 
-      return { success: true, rowsInserted: totalInserted };
+        return { success: true, rowsInserted: totalInserted };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -277,43 +303,51 @@ export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { database, tables, noData, singleTransaction } =
-        schema.parse(params);
+      try {
+        const { database, tables, noData, singleTransaction } =
+          schema.parse(params);
 
-      // Get current database if not specified
-      let dbName = database;
-      if (!dbName) {
-        const result = await adapter.executeReadQuery(
-          "SELECT DATABASE() as db",
-        );
-        const dbValue = result.rows?.[0]?.["db"];
-        if (typeof dbValue === "string") {
-          dbName = dbValue;
-        } else {
-          dbName = "";
+        // Get current database if not specified
+        let dbName = database;
+        if (!dbName) {
+          const result = await adapter.executeReadQuery(
+            "SELECT DATABASE() as db",
+          );
+          const dbValue = result.rows?.[0]?.["db"];
+          if (typeof dbValue === "string") {
+            dbName = dbValue;
+          } else {
+            dbName = "";
+          }
         }
+
+        let command = `mysqldump -u [username] -p ${dbName}`;
+
+        if (tables && tables.length > 0) {
+          command += ` ${tables.join(" ")}`;
+        }
+
+        if (noData) {
+          command += " --no-data";
+        }
+
+        if (singleTransaction) {
+          command += " --single-transaction";
+        }
+
+        command += " > backup.sql";
+
+        return {
+          command,
+          note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      let command = `mysqldump -u [username] -p ${dbName}`;
-
-      if (tables && tables.length > 0) {
-        command += ` ${tables.join(" ")}`;
-      }
-
-      if (noData) {
-        command += " --no-data";
-      }
-
-      if (singleTransaction) {
-        command += " --single-transaction";
-      }
-
-      command += " > backup.sql";
-
-      return {
-        command,
-        note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-      };
     },
   };
 }
@@ -336,27 +370,35 @@ export function createRestoreDumpTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { database, filename } = schema.parse(params);
+      try {
+        const { database, filename } = schema.parse(params);
 
-      let dbName = database;
-      if (!dbName) {
-        const result = await adapter.executeReadQuery(
-          "SELECT DATABASE() as db",
-        );
-        const dbValue = result.rows?.[0]?.["db"];
-        if (typeof dbValue === "string") {
-          dbName = dbValue;
-        } else {
-          dbName = "";
+        let dbName = database;
+        if (!dbName) {
+          const result = await adapter.executeReadQuery(
+            "SELECT DATABASE() as db",
+          );
+          const dbValue = result.rows?.[0]?.["db"];
+          if (typeof dbValue === "string") {
+            dbName = dbValue;
+          } else {
+            dbName = "";
+          }
         }
+
+        const command = `mysql -u [username] -p ${dbName} < ${filename}`;
+
+        return {
+          command,
+          note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      const command = `mysql -u [username] -p ${dbName} < ${filename}`;
-
-      return {
-        command,
-        note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-      };
     },
   };
 }

@@ -28,94 +28,100 @@ describe("Security: SQL Injection Prevention", () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: "users; DROP TABLE users",
-            format: "SQL",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await exportTool.handler(
+        {
+          table: "users; DROP TABLE users",
+          format: "SQL",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject table name starting with number", async () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: "123users",
-            format: "SQL",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await exportTool.handler(
+        {
+          table: "123users",
+          format: "SQL",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject WHERE clause with stacked queries", async () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: "users",
-            format: "SQL",
-            where: "1=1; DROP TABLE users",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("dangerous SQL patterns");
+      const result = (await exportTool.handler(
+        {
+          table: "users",
+          format: "SQL",
+          where: "1=1; DROP TABLE users",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("dangerous SQL patterns");
     });
 
     it("should reject WHERE clause with UNION attack", async () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: "users",
-            format: "SQL",
-            where: "1=1 UNION SELECT password FROM admin",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("dangerous SQL patterns");
+      const result = (await exportTool.handler(
+        {
+          table: "users",
+          format: "SQL",
+          where: "1=1 UNION SELECT password FROM admin",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("dangerous SQL patterns");
     });
 
     it("should reject WHERE clause with timing attack (SLEEP)", async () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: "users",
-            format: "SQL",
-            where: "1=1 AND SLEEP(5)",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("dangerous SQL patterns");
+      const result = (await exportTool.handler(
+        {
+          table: "users",
+          format: "SQL",
+          where: "1=1 AND SLEEP(5)",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("dangerous SQL patterns");
     });
 
     it("should reject WHERE clause with unbalanced quotes", async () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: "users",
-            format: "SQL",
-            where: "id = 1 OR '1'='1",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("unbalanced");
+      const result = (await exportTool.handler(
+        {
+          table: "users",
+          format: "SQL",
+          where: "id = 1 OR '1'='1",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("unbalanced");
     });
 
     it("should accept valid table and WHERE", async () => {
@@ -142,30 +148,32 @@ describe("Security: SQL Injection Prevention", () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const importTool = tools.find((t) => t.name === "mysql_import_data")!;
 
-      await expect(
-        importTool.handler(
-          {
-            table: "users`; DROP TABLE users; --",
-            data: [{ id: 1, name: "test" }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await importTool.handler(
+        {
+          table: "users`; DROP TABLE users; --",
+          data: [{ id: 1, name: "test" }],
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject column name with injection", async () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const importTool = tools.find((t) => t.name === "mysql_import_data")!;
 
-      await expect(
-        importTool.handler(
-          {
-            table: "users",
-            data: [{ "id; DROP TABLE": 1 }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await importTool.handler(
+        {
+          table: "users",
+          data: [{ "id; DROP TABLE": 1 }],
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
   });
 

@@ -30,15 +30,16 @@ describe("Security: Validation Flow Integration", () => {
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       // Malicious input should be rejected BEFORE any database call
-      await expect(
-        exportTool.handler(
-          {
-            table: "users'; DROP TABLE users; --",
-            format: "SQL",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow();
+      const result = (await exportTool.handler(
+        {
+          table: "users'; DROP TABLE users; --",
+          format: "SQL",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
 
       // Verify NO database query was executed
       expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
@@ -94,23 +95,19 @@ describe("Security: Validation Flow Integration", () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      try {
-        await exportTool.handler(
-          {
-            table: "admin'; SELECT * FROM secrets; --",
-            format: "SQL",
-          },
-          mockContext,
-        );
-        expect.fail("Should have thrown");
-      } catch (error) {
-        // Error should indicate invalid input but not reveal regex pattern
-        expect(error).toBeInstanceOf(ValidationError);
-        const message = (error as Error).message;
-        expect(message).not.toContain("regex");
-        expect(message).not.toContain("/^[a-zA-Z");
-        expect(message).not.toContain("secrets"); // Shouldn't echo user input
-      }
+      const result = (await exportTool.handler(
+        {
+          table: "admin'; SELECT * FROM secrets; --",
+          format: "SQL",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      // Error should indicate invalid input but not reveal regex pattern
+      expect(result.error).not.toContain("regex");
+      expect(result.error).not.toContain("/^[a-zA-Z");
+      expect(result.error).not.toContain("secrets"); // Shouldn't echo user input
     });
 
     it("should not expose database schema information in errors", async () => {
@@ -141,21 +138,18 @@ describe("Security: Validation Flow Integration", () => {
       const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
-      try {
-        await exportTool.handler(
-          {
-            table: "123invalid",
-            format: "SQL",
-          },
-          mockContext,
-        );
-        expect.fail("Should have thrown");
-      } catch (error) {
-        const message = (error as Error).message;
-        // Error should be helpful but not technical
-        expect(message).toContain("table");
-        expect(message).not.toContain("IDENTIFIER_PATTERN");
-      }
+      const result = (await exportTool.handler(
+        {
+          table: "123invalid",
+          format: "SQL",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      // Error should be helpful but not technical
+      expect(result.error).toContain("table");
+      expect(result.error).not.toContain("IDENTIFIER_PATTERN");
     });
   });
 
@@ -174,16 +168,19 @@ describe("Security: Validation Flow Integration", () => {
       )!;
       const jsonTool = jsonTools.find((t) => t.name === "mysql_json_extract")!;
 
-      await expect(
-        exportTool.handler(
-          {
-            table: maliciousTable,
-            format: "SQL",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      // Backup tools return structured errors (caught by try/catch)
+      const exportResult = (await exportTool.handler(
+        {
+          table: maliciousTable,
+          format: "SQL",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
 
+      expect(exportResult.success).toBe(false);
+      expect(exportResult.error).toContain("Invalid table name");
+
+      // JSON tools still throw (different error handling pattern)
       await expect(
         jsonTool.handler(
           {

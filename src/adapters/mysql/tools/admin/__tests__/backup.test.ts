@@ -172,12 +172,13 @@ describe("Admin Backup Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
 
-      await expect(
-        tool.handler(
-          { table: "users; DROP TABLE users;--", format: "SQL" },
-          mockContext,
-        ),
-      ).rejects.toThrow();
+      const result = (await tool.handler(
+        { table: "users; DROP TABLE users;--", format: "SQL" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should validate WHERE clause for SQL injection", async () => {
@@ -185,16 +186,17 @@ describe("Admin Backup Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
 
-      await expect(
-        tool.handler(
-          {
-            table: "users",
-            format: "SQL",
-            where: "1=1; DELETE FROM users;--",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow();
+      const result = (await tool.handler(
+        {
+          table: "users",
+          format: "SQL",
+          where: "1=1; DELETE FROM users;--",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("dangerous SQL patterns");
     });
 
     it("should return exists: false for non-existent table", async () => {
@@ -248,6 +250,19 @@ describe("Admin Backup Tools", () => {
 
       expect(result.sql).toContain("(`id`, `email`, `created_at`)");
       expect(result.sql).toContain("VALUES");
+    });
+
+    it("should return structured error for Zod validation failures", async () => {
+      const tool = createExportTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", limit: -1 },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 
@@ -324,15 +339,16 @@ describe("Admin Backup Tools", () => {
     it("should validate table name for SQL injection", async () => {
       const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
 
-      await expect(
-        tool.handler(
-          {
-            table: "users; DROP TABLE users;--",
-            data: [{ name: "test" }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow();
+      const result = (await tool.handler(
+        {
+          table: "users; DROP TABLE users;--",
+          data: [{ name: "test" }],
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should handle various data types", async () => {
@@ -425,6 +441,17 @@ describe("Admin Backup Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain("Unknown column");
       expect(result.rowsInserted).toBe(0);
+    });
+
+    it("should return structured error for Zod validation failures", async () => {
+      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { data: [{ name: "test" }] },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 
@@ -544,6 +571,21 @@ describe("Admin Backup Tools", () => {
 
       expect(result.command).toBeDefined();
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Connection lost"),
+      );
+
+      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Connection lost");
+    });
   });
 
   describe("createRestoreDumpTool", () => {
@@ -635,6 +677,23 @@ describe("Admin Backup Tools", () => {
       )) as { command: string };
 
       expect(result.command).toBeDefined();
+    });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Connection lost"),
+      );
+
+      const tool = createRestoreDumpTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Connection lost");
     });
   });
 });
