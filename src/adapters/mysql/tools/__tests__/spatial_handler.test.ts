@@ -22,28 +22,38 @@ describe("Spatial Tools Handlers", () => {
   const findTool = (name: string) => tools.find((t) => t.name === name);
 
   describe("mysql_spatial_create_column", () => {
-    it("should validate table and column names", async () => {
+    it("should return structured error for invalid table name", async () => {
       const tool = findTool("mysql_spatial_create_column")!;
 
-      await expect(
-        tool.handler(
-          {
-            table: "invalid table",
-            column: "geom",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = await tool.handler(
+        {
+          table: "invalid table",
+          column: "geom",
+        },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler(
-          {
-            table: "users",
-            column: "invalid-column",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid table name",
+      });
+    });
+
+    it("should return structured error for invalid column name", async () => {
+      const tool = findTool("mysql_spatial_create_column")!;
+
+      const result = await tool.handler(
+        {
+          table: "users",
+          column: "invalid-column",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid column name",
+      });
     });
 
     it("should execute ALTER TABLE with correct types", async () => {
@@ -70,19 +80,22 @@ describe("Spatial Tools Handlers", () => {
   });
 
   describe("mysql_spatial_create_index", () => {
-    it("should validate identifiers", async () => {
+    it("should return structured error for invalid identifiers", async () => {
       const tool = findTool("mysql_spatial_create_index")!;
 
-      await expect(
-        tool.handler(
-          {
-            table: "users",
-            column: "location",
-            indexName: "bad-index",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid index name");
+      const result = await tool.handler(
+        {
+          table: "users",
+          column: "location",
+          indexName: "bad-index",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid index name",
+      });
     });
 
     it("should generate default index name if not provided", async () => {
@@ -224,12 +237,15 @@ describe("Spatial Tools Handlers", () => {
       expect((result as any).wkt).toBe("POINT(1 1)");
     });
 
-    it("should throw if both inputs are missing (zod refinement)", async () => {
+    it("should return structured error if both inputs are missing (zod refinement)", async () => {
       const tool = findTool("mysql_spatial_geojson")!;
-      // Note: Zod error comes from parse, which happens inside handler but Zod throws it.
-      // We can check if it throws "Either geometry or geoJson must be provided"
-      // Actually Zod throws ZodError, but our tool catches? No handler doesn't catch.
-      await expect(tool.handler({}, mockContext)).rejects.toThrow();
+      const result = await tool.handler({}, mockContext);
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining(
+          "Either geometry or geoJson must be provided",
+        ),
+      });
     });
   });
 

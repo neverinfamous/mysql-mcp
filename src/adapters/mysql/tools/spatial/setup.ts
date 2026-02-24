@@ -5,12 +5,40 @@
  * 2 tools: column creation and index creation.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from MySQL error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
+}
+
+/** Safely extract a string field from raw params for error context */
+function paramStr(params: unknown, key: string): string {
+  if (
+    params !== null &&
+    params !== undefined &&
+    typeof params === "object" &&
+    key in params
+  ) {
+    const val = (params as Record<string, unknown>)[key];
+    return typeof val === "string" ? val : "";
+  }
+  return "";
+}
 
 // =============================================================================
 // Zod Schemas
@@ -65,18 +93,18 @@ export function createSpatialCreateColumnTool(
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, type, srid, nullable } =
-        SpatialColumnSchema.parse(params);
-
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error("Invalid column name");
-      }
-
       try {
+        const { table, column, type, srid, nullable } =
+          SpatialColumnSchema.parse(params);
+
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
         const nullClause = nullable ? "" : " NOT NULL";
         const sridClause = srid ? ` SRID ${String(srid)}` : "";
 
@@ -93,17 +121,22 @@ export function createSpatialCreateColumnTool(
           nullable,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { exists: false, table: paramStr(params, "table") };
         }
         if (msg.includes("Duplicate column name")) {
+          const col = paramStr(params, "column");
+          const tbl = paramStr(params, "table");
           return {
             success: false,
-            error: `Column '${column}' already exists on table '${table}'`,
+            error: `Column '${col}' already exists on table '${tbl}'`,
           };
         }
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -127,22 +160,22 @@ export function createSpatialCreateIndexTool(
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, indexName } = SpatialIndexSchema.parse(params);
-
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error("Invalid column name");
-      }
-
-      const idxName = indexName ?? `idx_spatial_${table}_${column}`;
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
-        throw new Error("Invalid index name");
-      }
-
       try {
+        const { table, column, indexName } = SpatialIndexSchema.parse(params);
+
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
+        const idxName = indexName ?? `idx_spatial_${table}_${column}`;
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
+          return { success: false, error: "Invalid index name" };
+        }
+
         // Check if column is nullable - SPATIAL indexes require NOT NULL
         const colInfo = await adapter.executeQuery(
           `SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
@@ -155,11 +188,13 @@ export function createSpatialCreateIndexTool(
           const isNullable = colRow["IS_NULLABLE"] === "YES";
           const dataType = String(colRow["DATA_TYPE"]).toUpperCase();
           if (isNullable) {
-            throw new Error(
-              `Cannot create SPATIAL index on nullable column '${column}'. ` +
+            return {
+              success: false,
+              error:
+                `Cannot create SPATIAL index on nullable column '${column}'. ` +
                 `Alter the column to NOT NULL first: ` +
                 `ALTER TABLE \`${table}\` MODIFY \`${column}\` ${dataType} NOT NULL`,
-            );
+            };
           }
         }
 
@@ -191,20 +226,27 @@ export function createSpatialCreateIndexTool(
           indexName: idxName,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
+        const tbl = paramStr(params, "table");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { exists: false, table: tbl };
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
-          return { success: false, error: msg };
+          return { success: false, error: stripErrorPrefix(msg) };
         }
+        const idxFromParams = paramStr(params, "indexName");
+        const idx =
+          idxFromParams || `idx_spatial_${tbl}_${paramStr(params, "column")}`;
         if (msg.includes("Duplicate key name")) {
           return {
             success: false,
-            error: `Index '${idxName}' already exists on table '${table}'`,
+            error: `Index '${idx}' already exists on table '${tbl}'`,
           };
         }
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };

@@ -5,12 +5,40 @@
  * 4 tools: distance, distance_sphere, contains, within.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from MySQL error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
+}
+
+/** Safely extract a string field from raw params for error context */
+function paramStr(params: unknown, key: string): string {
+  if (
+    params !== null &&
+    params !== undefined &&
+    typeof params === "object" &&
+    key in params
+  ) {
+    const val = (params as Record<string, unknown>)[key];
+    return typeof val === "string" ? val : "";
+  }
+  return "";
+}
 
 // =============================================================================
 // Zod Schemas
@@ -71,18 +99,18 @@ export function createSpatialDistanceTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, spatialColumn, point, maxDistance, limit, srid } =
-        DistanceSchema.parse(params);
-
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-        throw new Error("Invalid column name");
-      }
-
       try {
+        const { table, spatialColumn, point, maxDistance, limit, srid } =
+          DistanceSchema.parse(params);
+
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
 
@@ -108,11 +136,14 @@ export function createSpatialDistanceTool(
           referencePoint: point,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -137,18 +168,18 @@ export function createSpatialDistanceSphereTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, spatialColumn, point, maxDistance, limit, srid } =
-        DistanceSchema.parse(params);
-
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-        throw new Error("Invalid column name");
-      }
-
       try {
+        const { table, spatialColumn, point, maxDistance, limit, srid } =
+          DistanceSchema.parse(params);
+
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
 
@@ -175,11 +206,14 @@ export function createSpatialDistanceSphereTool(
           unit: "meters",
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -204,18 +238,18 @@ export function createSpatialContainsTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, spatialColumn, polygon, limit, srid } =
-        ContainsSchema.parse(params);
-
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-        throw new Error("Invalid column name");
-      }
-
       try {
+        const { table, spatialColumn, polygon, limit, srid } =
+          ContainsSchema.parse(params);
+
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
         const query = `
                 SELECT *
                 FROM \`${table}\`
@@ -229,11 +263,14 @@ export function createSpatialContainsTool(
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -255,18 +292,18 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, spatialColumn, geometry, limit, srid } =
-        WithinSchema.parse(params);
-
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-        throw new Error("Invalid column name");
-      }
-
       try {
+        const { table, spatialColumn, geometry, limit, srid } =
+          WithinSchema.parse(params);
+
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
         const query = `
                 SELECT *
                 FROM \`${table}\`
@@ -280,11 +317,14 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };

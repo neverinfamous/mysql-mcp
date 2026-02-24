@@ -467,11 +467,13 @@ describe("Handler Execution", () => {
 
     it("should handle logic fallback (coverage)", async () => {
       const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
-      try {
-        await tool.handler({ geometry: "" }, mockContext);
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
+      // geometry: "" passes Zod refine (string is defined) but is falsy,
+      // so handler falls through to the structured error return
+      const result = await tool.handler({ geometry: "" }, mockContext);
+      expect(result).toEqual({
+        success: false,
+        error: "Either geometry or geoJson must be provided",
+      });
     });
   });
 });

@@ -6,12 +6,21 @@
  * 5 tools total.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Schemas
@@ -90,9 +99,8 @@ export function createDescriptiveStatsTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, where } = DescriptiveStatsSchema.parse(params);
-
       try {
+        const { table, column, where } = DescriptiveStatsSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
@@ -175,6 +183,9 @@ export function createDescriptiveStatsTool(
           sum: stats?.["sum"] ?? null,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
@@ -203,10 +214,9 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, percentiles, where } =
-        PercentilesSchema.parse(params);
-
       try {
+        const { table, column, percentiles, where } =
+          PercentilesSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
@@ -255,6 +265,9 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           percentiles: percentileResults,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
@@ -284,16 +297,18 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, buckets, where } =
-        DistributionSchema.parse(params);
-
       try {
+        const { table, column, buckets, where } =
+          DistributionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return { success: false, error: "Invalid column name" };
+        }
+        if (buckets < 1) {
+          return { success: false, error: "buckets must be at least 1" };
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -360,6 +375,9 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           maxValue: maxVal,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
@@ -391,50 +409,51 @@ export function createTimeSeriesToolStats(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        table,
-        valueColumn,
-        timeColumn,
-        interval,
-        aggregation,
-        where,
-        limit,
-      } = TimeSeriesSchema.parse(params);
+      try {
+        const {
+          table,
+          valueColumn,
+          timeColumn,
+          interval,
+          aggregation,
+          where,
+          limit,
+        } = TimeSeriesSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        return { success: false, error: "Invalid table name" };
-      }
-      if (
-        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
-        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
-      ) {
-        return { success: false, error: "Invalid column name" };
-      }
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (
+          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
+          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
+        ) {
+          return { success: false, error: "Invalid column name" };
+        }
 
-      let dateFormat: string;
-      switch (interval) {
-        case "minute":
-          dateFormat = "%Y-%m-%d %H:%i:00";
-          break;
-        case "hour":
-          dateFormat = "%Y-%m-%d %H:00:00";
-          break;
-        case "day":
-          dateFormat = "%Y-%m-%d";
-          break;
-        case "week":
-          dateFormat = "%x-W%v";
-          break;
-        case "month":
-          dateFormat = "%Y-%m";
-          break;
-      }
+        let dateFormat: string;
+        switch (interval) {
+          case "minute":
+            dateFormat = "%Y-%m-%d %H:%i:00";
+            break;
+          case "hour":
+            dateFormat = "%Y-%m-%d %H:00:00";
+            break;
+          case "day":
+            dateFormat = "%Y-%m-%d";
+            break;
+          case "week":
+            dateFormat = "%x-W%v";
+            break;
+          case "month":
+            dateFormat = "%Y-%m";
+            break;
+        }
 
-      const whereClause = where ? `WHERE ${where}` : "";
-      const aggFunc = aggregation.toUpperCase();
+        const whereClause = where ? `WHERE ${where}` : "";
+        const aggFunc = aggregation.toUpperCase();
 
-      const query = `
+        const query = `
                 SELECT 
                     DATE_FORMAT(\`${timeColumn}\`, '${dateFormat}') as period,
                     ${aggFunc}(\`${valueColumn}\`) as value,
@@ -447,8 +466,6 @@ export function createTimeSeriesToolStats(
                 ORDER BY period DESC
                 LIMIT ${String(limit)}
             `;
-
-      try {
         const result = await adapter.executeQuery(query);
 
         return {
@@ -460,6 +477,9 @@ export function createTimeSeriesToolStats(
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
@@ -488,55 +508,54 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: false, // Random results
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, sampleSize, columns, seed, where } =
-        SamplingSchema.parse(params);
+      try {
+        const { table, sampleSize, columns, seed, where } =
+          SamplingSchema.parse(params);
 
-      // Validate table name
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        return { success: false, error: "Invalid table name" };
-      }
+        // Validate table name
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
 
-      // Validate column names if provided
-      if (columns) {
-        for (const c of columns) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
-            return { success: false, error: `Invalid column name: ${c}` };
+        // Validate column names if provided
+        if (columns) {
+          for (const c of columns) {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
+              return { success: false, error: `Invalid column name: ${c}` };
+            }
           }
         }
-      }
 
-      const columnList =
-        columns !== undefined && columns.length > 0
-          ? columns
+        const columnList =
+          columns !== undefined && columns.length > 0
+            ? columns
               .map((c) => {
                 return `\`${c}\``;
               })
               .join(", ")
-          : "*";
+            : "*";
 
-      const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE ${where}` : "";
 
-      // If seed is provided, use it for reproducibility
-      let query: string;
-      if (seed !== undefined) {
-        query = `
+        // If seed is provided, use it for reproducibility
+        let query: string;
+        if (seed !== undefined) {
+          query = `
                     SELECT ${columnList}
                     FROM \`${table}\`
                     ${whereClause}
                     ORDER BY RAND(${String(seed)})
                     LIMIT ${String(sampleSize)}
                 `;
-      } else {
-        query = `
+        } else {
+          query = `
                     SELECT ${columnList}
                     FROM \`${table}\`
                     ${whereClause}
                     ORDER BY RAND()
                     LIMIT ${String(sampleSize)}
                 `;
-      }
-
-      try {
+        }
         const result = await adapter.executeQuery(query);
 
         return {
@@ -546,6 +565,9 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
           seed: seed ?? null,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");

@@ -5,7 +5,7 @@
  * 4 tools: intersection, buffer, transform, geojson.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,6 +15,16 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from MySQL error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
+}
 
 /**
  * Parse GeoJSON result from MySQL.
@@ -55,10 +65,9 @@ const BufferSchema = z.object({
   segments: z
     .number()
     .int()
-    .min(1)
     .default(8)
     .describe(
-      "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
+      "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Must be >= 1. Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
     ),
   precision: z
     .number()
@@ -77,19 +86,19 @@ const TransformSchema = z.object({
   toSrid: z.number().describe("Target SRID"),
 });
 
-const GeoJSONSchema = z
-  .object({
-    geometry: z
-      .string()
-      .optional()
-      .describe("WKT geometry to convert to GeoJSON"),
-    geoJson: z.string().optional().describe("GeoJSON to convert to WKT"),
-    srid: z.number().default(4326).describe("SRID for conversion"),
-  })
-  .refine(
-    (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),
-    "Either geometry or geoJson must be provided, but not both",
-  );
+const GeoJSONSchemaBase = z.object({
+  geometry: z
+    .string()
+    .optional()
+    .describe("WKT geometry to convert to GeoJSON"),
+  geoJson: z.string().optional().describe("GeoJSON to convert to WKT"),
+  srid: z.number().default(4326).describe("SRID for conversion"),
+});
+
+const GeoJSONSchema = GeoJSONSchemaBase.refine(
+  (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),
+  "Either geometry or geoJson must be provided, but not both",
+);
 
 /**
  * Calculate intersection of two geometries
@@ -109,9 +118,9 @@ export function createSpatialIntersectionTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { geometry1, geometry2, srid } = IntersectionSchema.parse(params);
-
       try {
+        const { geometry1, geometry2, srid } = IntersectionSchema.parse(params);
+
         const result = await adapter.executeQuery(
           `SELECT 
                     ST_Intersects(
@@ -138,8 +147,11 @@ export function createSpatialIntersectionTool(
           ),
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -161,10 +173,15 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { geometry, distance, srid, segments, precision } =
-        BufferSchema.parse(params);
-
       try {
+        const { geometry, distance, srid, segments, precision } =
+          BufferSchema.parse(params);
+
+        // Handler-level validation for segments (replaces schema .min(1))
+        if (segments < 1) {
+          return { success: false, error: "segments must be >= 1" };
+        }
+
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
         // Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm.
         const isGeographic = srid !== 0;
@@ -189,8 +206,11 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           srid,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -215,9 +235,9 @@ export function createSpatialTransformTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { geometry, fromSrid, toSrid } = TransformSchema.parse(params);
-
       try {
+        const { geometry, fromSrid, toSrid } = TransformSchema.parse(params);
+
         const result = await adapter.executeQuery(
           `SELECT 
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_wkt,
@@ -234,8 +254,11 @@ export function createSpatialTransformTool(
           toSrid,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -252,16 +275,16 @@ export function createSpatialGeoJSONTool(
     title: "MySQL GeoJSON Conversion",
     description: "Convert geometry between WKT and GeoJSON formats.",
     group: "spatial",
-    inputSchema: GeoJSONSchema,
+    inputSchema: GeoJSONSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { geometry, geoJson, srid } = GeoJSONSchema.parse(params);
-
       try {
+        const { geometry, geoJson, srid } = GeoJSONSchema.parse(params);
+
         if (geometry) {
           // Convert WKT to GeoJSON
           const result = await adapter.executeQuery(
@@ -290,10 +313,16 @@ export function createSpatialGeoJSONTool(
           };
         }
 
-        throw new Error("Either geometry or geoJson must be provided");
+        return {
+          success: false,
+          error: "Either geometry or geoJson must be provided",
+        };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };

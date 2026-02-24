@@ -5,7 +5,7 @@
  * 2 tools: point and polygon creation.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,6 +15,16 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from MySQL error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
+}
 
 /**
  * Parse GeoJSON result from MySQL.
@@ -73,9 +83,9 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { longitude, latitude, srid } = PointSchema.parse(params);
-
       try {
+        const { longitude, latitude, srid } = PointSchema.parse(params);
+
         const result = await adapter.executeQuery(
           `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as wkt,
                         ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as geoJson`,
@@ -90,8 +100,11 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
           latitude,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
@@ -115,9 +128,9 @@ export function createSpatialPolygonTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { coordinates, srid } = PolygonSchema.parse(params);
-
       try {
+        const { coordinates, srid } = PolygonSchema.parse(params);
+
         // Build WKT polygon
         const rings = coordinates.map(
           (ring) =>
@@ -144,8 +157,11 @@ export function createSpatialPolygonTool(
           srid,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        return { success: false, error: stripErrorPrefix(msg) };
       }
     },
   };
