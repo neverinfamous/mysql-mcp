@@ -16,6 +16,7 @@ import {
   ExplainAnalyzeSchema,
   ExplainAnalyzeSchemaBase,
   SlowQuerySchema,
+  QueryStatsSchema,
   IndexUsageSchema,
   IndexUsageSchemaBase,
   TableStatsSchema,
@@ -163,7 +164,8 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { limit, minTime } = SlowQuerySchema.parse(params);
 
-      let sql = `
+      try {
+        let sql = `
                 SELECT 
                     LEFT(DIGEST_TEXT, 200) as query,
                     COUNT_STAR as executions,
@@ -174,53 +176,50 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.events_statements_summary_by_digest
             `;
 
-      if (minTime !== undefined) {
-        sql += ` WHERE AVG_TIMER_WAIT > ${minTime * 1000000000}`;
+        if (minTime !== undefined) {
+          sql += ` WHERE AVG_TIMER_WAIT > ${minTime * 1000000000000}`;
+        }
+
+        sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${limit}`;
+
+        const result = await adapter.executeReadQuery(sql);
+        return {
+          slowQueries: sanitizeTimerRows(result.rows, [
+            "avg_time_ms",
+            "total_time_ms",
+          ]),
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       }
-
-      sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${limit}`;
-
-      const result = await adapter.executeReadQuery(sql);
-      return {
-        slowQueries: sanitizeTimerRows(result.rows, [
-          "avg_time_ms",
-          "total_time_ms",
-        ]),
-      };
     },
   };
 }
 
 export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    orderBy: z
-      .enum(["total_time", "avg_time", "executions"])
-      .optional()
-      .default("total_time"),
-    limit: z.number().optional().default(10),
-  });
-
   return {
     name: "mysql_query_stats",
     title: "MySQL Query Stats",
     description: "Get query statistics from performance_schema.",
     group: "performance",
-    inputSchema: schema,
+    inputSchema: QueryStatsSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { orderBy, limit } = schema.parse(params);
+      const { orderBy, limit } = QueryStatsSchema.parse(params);
 
-      const orderColumn = {
-        total_time: "SUM_TIMER_WAIT",
-        avg_time: "AVG_TIMER_WAIT",
-        executions: "COUNT_STAR",
-      }[orderBy];
+      try {
+        const orderColumn = {
+          total_time: "SUM_TIMER_WAIT",
+          avg_time: "AVG_TIMER_WAIT",
+          executions: "COUNT_STAR",
+        }[orderBy];
 
-      const sql = `
+        const sql = `
                 SELECT 
                     SCHEMA_NAME as database_name,
                     LEFT(DIGEST_TEXT, 200) as query_text,
@@ -238,14 +237,18 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 LIMIT ${limit}
             `;
 
-      const result = await adapter.executeReadQuery(sql);
-      return {
-        queries: sanitizeTimerRows(result.rows, [
-          "avg_time_ms",
-          "max_time_ms",
-          "total_time_ms",
-        ]),
-      };
+        const result = await adapter.executeReadQuery(sql);
+        return {
+          queries: sanitizeTimerRows(result.rows, [
+            "avg_time_ms",
+            "max_time_ms",
+            "total_time_ms",
+          ]),
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -369,8 +372,9 @@ export function createBufferPoolStatsTool(
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await adapter.executeReadQuery(
-        `SELECT POOL_ID, POOL_SIZE, FREE_BUFFERS, DATABASE_PAGES,
+      try {
+        const result = await adapter.executeReadQuery(
+          `SELECT POOL_ID, POOL_SIZE, FREE_BUFFERS, DATABASE_PAGES,
                 OLD_DATABASE_PAGES, MODIFIED_DATABASE_PAGES, PENDING_DECOMPRESS,
                 PENDING_READS, PENDING_FLUSH_LRU, PENDING_FLUSH_LIST,
                 PAGES_MADE_YOUNG, PAGES_NOT_MADE_YOUNG,
@@ -380,9 +384,13 @@ export function createBufferPoolStatsTool(
                 HIT_RATE, YOUNG_MAKE_PER_THOUSAND_GETS,
                 NOT_YOUNG_MAKE_PER_THOUSAND_GETS
          FROM information_schema.INNODB_BUFFER_POOL_STATS`,
-      );
+        );
 
-      return { bufferPoolStats: result.rows };
+        return { bufferPoolStats: result.rows };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -402,7 +410,8 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await adapter.executeReadQuery(`
+      try {
+        const result = await adapter.executeReadQuery(`
                 SELECT 
                     THREAD_ID,
                     NAME,
@@ -420,7 +429,11 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY PROCESSLIST_TIME DESC
             `);
 
-      return { threads: result.rows };
+        return { threads: result.rows };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }

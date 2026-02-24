@@ -301,12 +301,9 @@ describe("Performance Analysis Tools", () => {
       );
       await tool.handler({ limit: 10, minTime: 0.5 }, mockContext);
 
+      // 0.5 sec = 500,000,000,000 picoseconds (AVG_TIMER_WAIT is in picoseconds)
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      // 0.5 sec = 500,000,000 picoseconds? No, performance_schema uses picoseconds usually,
-      // the code multiplies by 1,000,000,000 (10^9), suggesting nanoseconds or something.
-      // Wait, TIMER_WAIT is usually picoseconds (10^-12). 10^9 conversion suggests seconds?
-      // Code: AVG_TIMER_WAIT > ${minTime * 1000000000}
-      expect(call).toContain("AVG_TIMER_WAIT > 500000000");
+      expect(call).toContain("AVG_TIMER_WAIT > 500000000000");
     });
 
     it("should clamp overflowed timer values to -1 with overflow flag", async () => {
@@ -413,6 +410,23 @@ describe("Performance Analysis Tools", () => {
       expect(result.slowQueries[0]["total_time_ms"]).toBe(1046208.7865);
       expect(typeof result.slowQueries[0]["total_time_ms"]).toBe("number");
       expect(result.slowQueries[0]["overflow"]).toBeUndefined();
+    });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied for performance_schema"),
+      );
+
+      const tool = createSlowQueriesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 10 }, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
     });
   });
 
@@ -542,6 +556,21 @@ describe("Performance Analysis Tools", () => {
       expect(result.queries[0]["total_time_ms"]).toBe(1046208.7865);
       expect(typeof result.queries[0]["total_time_ms"]).toBe("number");
       expect(result.queries[0]["overflow"]).toBeUndefined();
+    });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied for performance_schema"),
+      );
+
+      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
     });
   });
 
@@ -683,6 +712,23 @@ describe("Performance Analysis Tools", () => {
       expect(call).not.toContain("SELECT *");
       expect(result).toHaveProperty("bufferPoolStats");
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied for information_schema"),
+      );
+
+      const tool = createBufferPoolStatsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
+    });
   });
 
   describe("createThreadStatsTool", () => {
@@ -712,6 +758,23 @@ describe("Performance Analysis Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("performance_schema.threads");
       expect(result).toHaveProperty("threads");
+    });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied for performance_schema"),
+      );
+
+      const tool = createThreadStatsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
     });
   });
 });

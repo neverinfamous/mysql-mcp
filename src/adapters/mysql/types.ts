@@ -1628,6 +1628,20 @@ export const SlowQuerySchema = z.object({
   minTime: z.number().optional().describe("Minimum query time in seconds"),
 });
 
+// --- QueryStats (no table/query aliases — simple passthrough) ---
+export const QueryStatsSchema = z.object({
+  orderBy: z
+    .enum(["total_time", "avg_time", "executions"])
+    .optional()
+    .default("total_time")
+    .describe("Order results by metric"),
+  limit: z
+    .number()
+    .optional()
+    .default(10)
+    .describe("Maximum number of queries to return"),
+});
+
 // --- IndexUsage ---
 export const IndexUsageSchemaBase = z.object({
   table: z.string().optional().describe("Filter by table name"),
