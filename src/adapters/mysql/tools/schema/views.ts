@@ -105,7 +105,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(name, "view");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        return { success: false, reason: message };
+        return { success: false, error: message };
       }
 
       const fullViewName = escapeQualifiedTable(name);
@@ -125,12 +125,12 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("already exists")) {
           return {
             success: false,
-            reason: `View '${name}' already exists`,
+            error: `View '${name}' already exists`,
           };
         }
         return {
           success: false,
-          reason: message
+          error: message
             .replace(/^Query failed:\s*/i, "")
             .replace(/^Execute failed:\s*/i, ""),
         };

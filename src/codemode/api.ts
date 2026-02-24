@@ -328,7 +328,7 @@ const GROUP_EXAMPLES: Record<string, string[]> = {
   ],
   schema: [
     "mysql.schema.listViews()",
-    "mysql.schema.createView({ name: 'active_users', sql: 'SELECT * FROM users WHERE active = 1' })",
+    "mysql.schema.createView({ name: 'active_users', definition: 'SELECT * FROM users WHERE active = 1' })",
     "mysql.schema.listFunctions()",
     "mysql.schema.listTriggers({ table: 'orders' })",
   ],

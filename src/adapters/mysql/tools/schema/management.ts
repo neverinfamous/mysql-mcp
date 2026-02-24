@@ -126,7 +126,7 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("database exists")) {
           return {
             success: false,
-            reason: `Schema '${name}' already exists`,
+            error: `Schema '${name}' already exists`,
           };
         }
         return {
@@ -203,7 +203,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         ) {
           return {
             success: false,
-            reason: `Schema '${name}' does not exist`,
+            error: `Schema '${name}' does not exist`,
           };
         }
         return {
