@@ -15,12 +15,19 @@ import {
   JsonExtractSchemaBase,
   JsonSetSchema,
   JsonSetSchemaBase,
+  JsonInsertSchema,
+  JsonInsertSchemaBase,
+  JsonReplaceSchema,
+  JsonReplaceSchemaBase,
+  JsonRemoveSchema,
+  JsonRemoveSchemaBase,
   JsonContainsSchema,
   JsonContainsSchemaBase,
   JsonKeysSchema,
   JsonKeysSchemaBase,
+  JsonArrayAppendSchema,
+  JsonArrayAppendSchemaBase,
 } from "../../types.js";
-import { z } from "zod";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
@@ -136,27 +143,20 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    path: z.string(),
-    value: z.unknown(),
-    where: z.string(),
-  });
-
   return {
     name: "mysql_json_insert",
     title: "MySQL JSON Insert",
     description:
       "Insert values into JSON columns only if the path does not exist.",
     group: "json",
-    inputSchema: schema,
+    inputSchema: JsonInsertSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } = schema.parse(params);
+      const { table, column, path, value, where } =
+        JsonInsertSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -197,26 +197,19 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    path: z.string(),
-    value: z.unknown(),
-    where: z.string(),
-  });
-
   return {
     name: "mysql_json_replace",
     title: "MySQL JSON Replace",
     description: "Replace values in JSON columns only if the path exists.",
     group: "json",
-    inputSchema: schema,
+    inputSchema: JsonReplaceSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } = schema.parse(params);
+      const { table, column, path, value, where } =
+        JsonReplaceSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -242,25 +235,18 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    paths: z.array(z.string()),
-    where: z.string(),
-  });
-
   return {
     name: "mysql_json_remove",
     title: "MySQL JSON Remove",
     description: "Remove values from JSON columns at specified paths.",
     group: "json",
-    inputSchema: schema,
+    inputSchema: JsonRemoveSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, paths, where } = schema.parse(params);
+      const { table, column, paths, where } = JsonRemoveSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -369,26 +355,19 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 export function createJsonArrayAppendTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    path: z.string(),
-    value: z.unknown(),
-    where: z.string(),
-  });
-
   return {
     name: "mysql_json_array_append",
     title: "MySQL JSON Array Append",
     description: "Append a value to a JSON array at the specified path.",
     group: "json",
-    inputSchema: schema,
+    inputSchema: JsonArrayAppendSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } = schema.parse(params);
+      const { table, column, path, value, where } =
+        JsonArrayAppendSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");

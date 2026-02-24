@@ -14,8 +14,11 @@ import {
   JsonSearchSchema,
   JsonSearchSchemaBase,
   JsonValidateSchema,
+  JsonGetSchema,
+  JsonGetSchemaBase,
+  JsonUpdateSchema,
+  JsonUpdateSchemaBase,
 } from "../../types.js";
-import { z } from "zod";
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
@@ -26,27 +29,19 @@ import {
  * Export all JSON helper tool creation functions
  */
 export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    path: z.string(),
-    id: z.union([z.string(), z.number()]),
-    idColumn: z.string().default("id"),
-  });
-
   return {
     name: "mysql_json_get",
     title: "MySQL JSON Get",
     description: "Simple JSON value extraction by row ID.",
     group: "json",
-    inputSchema: schema,
+    inputSchema: JsonGetSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, id, idColumn } = schema.parse(params);
+      const { table, column, path, id, idColumn } = JsonGetSchema.parse(params);
 
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
@@ -88,27 +83,19 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    column: z.string(),
-    path: z.string(),
-    value: z.unknown(),
-    id: z.union([z.string(), z.number()]),
-    idColumn: z.string().default("id"),
-  });
-
   return {
     name: "mysql_json_update",
     title: "MySQL JSON Update",
     description: "Simple JSON value update by row ID.",
     group: "json",
-    inputSchema: schema,
+    inputSchema: JsonUpdateSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, id, idColumn } = schema.parse(params);
+      const { table, column, path, value, id, idColumn } =
+        JsonUpdateSchema.parse(params);
 
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
@@ -220,8 +207,9 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (error) {
         // MySQL may throw an error for severely malformed input
         // Return a structured error response instead of propagating
-        const message =
+        let message =
           error instanceof Error ? error.message : "Unknown validation error";
+        message = message.replace(/^(Execute failed:\s*)+/i, "");
         return { valid: false, error: message };
       }
     },

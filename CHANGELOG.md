@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved
+
+- **JSON Tool Split Schema Migration** — Migrated 9 JSON tools (`json_insert`, `json_replace`, `json_remove`, `json_array_append`, `json_get`, `json_update`, `json_normalize`, `json_stats`, `json_index_suggest`) from inline Zod schemas to the Dual-Schema pattern in `types.ts`. All 9 tools now support parameter aliases (`tableName`/`name` for `table`, `col` for `column`, `filter` for `where`), matching the 5 tools (`json_extract`, `json_set`, `json_contains`, `json_keys`, `json_search`) that already supported aliases
+- **`mysql_json_validate` Error Clarity** — Stripped verbose `Execute failed: ` prefix from error messages returned when MySQL throws on severely malformed JSON input. Error responses now show only the meaningful MySQL error text
+- **ServerInstructions JSON Documentation** — Added missing documentation for mandatory `where` parameter on JSON write tools (`json_set`, `json_insert`, `json_replace`, `json_remove`, `json_array_append`) and documented that `json_remove` accepts a `paths` array instead of a single `path` string
+
 ### Fixed
 
 - **`mysql_json_update` Error Field Normalization** — Tool returned `{ success: false, reason: "No row found..." }` when no matching row existed, violating the convention where `reason` is reserved for informational `{ success: true, skipped: true }` contexts. Changed to `{ success: false, error: "No row found..." }` for consistency with all other tools

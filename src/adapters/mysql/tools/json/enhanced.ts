@@ -12,15 +12,20 @@ import type {
 } from "../../../../types/index.js";
 import { z } from "zod";
 import {
+  JsonNormalizeSchema,
+  JsonNormalizeSchemaBase,
+  JsonStatsSchema,
+  JsonStatsSchemaBase,
+  JsonIndexSuggestSchema,
+  JsonIndexSuggestSchemaBase,
+} from "../../types.js";
+import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
   validateIdentifier,
 } from "../../../../utils/validators.js";
 
-// =============================================================================
-// Schemas
-// =============================================================================
-
+// Schemas for json_merge and json_diff (no table/column — no aliases needed)
 const JsonMergeSchema = z.object({
   json1: z.string().describe("First JSON document"),
   json2: z.string().describe("Second JSON document"),
@@ -33,26 +38,6 @@ const JsonMergeSchema = z.object({
 const JsonDiffSchema = z.object({
   json1: z.string().describe("First JSON document"),
   json2: z.string().describe("Second JSON document"),
-});
-
-const JsonNormalizeSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("JSON column name"),
-  where: z.string().optional().describe("WHERE clause"),
-  limit: z.number().default(100).describe("Maximum rows to process"),
-});
-
-const JsonStatsSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("JSON column name"),
-  where: z.string().optional().describe("Optional WHERE clause"),
-  sampleSize: z.number().default(1000).describe("Sample size for statistics"),
-});
-
-const JsonIndexSuggestSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("JSON column name"),
-  sampleSize: z.number().default(100).describe("Sample size to analyze"),
 });
 
 // =============================================================================
@@ -232,7 +217,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Normalize JSON column structure by extracting all unique keys across documents.",
     group: "json",
-    inputSchema: JsonNormalizeSchema,
+    inputSchema: JsonNormalizeSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -306,7 +291,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Analyze statistics for a JSON column including depth, size, and key frequency.",
     group: "json",
-    inputSchema: JsonStatsSchema,
+    inputSchema: JsonStatsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -378,7 +363,7 @@ export function createJsonIndexSuggestTool(
     description:
       "Suggest functional indexes for frequently accessed JSON paths.",
     group: "json",
-    inputSchema: JsonIndexSuggestSchema,
+    inputSchema: JsonIndexSuggestSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
