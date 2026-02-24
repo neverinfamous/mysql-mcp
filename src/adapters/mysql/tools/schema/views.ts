@@ -101,7 +101,12 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
       const { name, definition, orReplace, algorithm, checkOption } =
         CreateViewSchema.parse(params);
 
-      validateQualifiedIdentifier(name, "view");
+      try {
+        validateQualifiedIdentifier(name, "view");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        return { success: false, reason: message };
+      }
 
       const fullViewName = escapeQualifiedTable(name);
 
@@ -125,7 +130,9 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return {
           success: false,
-          reason: message,
+          reason: message
+            .replace(/^Query failed:\s*/i, "")
+            .replace(/^Execute failed:\s*/i, ""),
         };
       }
     },

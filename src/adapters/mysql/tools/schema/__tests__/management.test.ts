@@ -78,13 +78,43 @@ describe("Schema Management Tools", () => {
       expect(result).toHaveProperty("success", true);
     });
 
-    it("should reject invalid schema names", async () => {
+    it("should return structured error for invalid schema names", async () => {
       const tool = createCreateSchemaTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler({ name: "invalid-name" }, mockContext),
-      ).rejects.toThrow("Invalid schema name");
+      const result = (await tool.handler(
+        { name: "invalid-name" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Invalid schema name");
+    });
+
+    it("should return structured error for invalid charset", async () => {
+      const tool = createCreateSchemaTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { name: "valid_db", charset: "bad; DROP DATABASE" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid charset");
+    });
+
+    it("should return structured error for invalid collation", async () => {
+      const tool = createCreateSchemaTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { name: "valid_db", collation: "bad; DROP DATABASE" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid collation");
     });
 
     it("should use custom charset and collation", async () => {
@@ -172,28 +202,33 @@ describe("Schema Management Tools", () => {
       expect(result).toHaveProperty("success", true);
     });
 
-    it("should fail if attempting to drop system schema", async () => {
+    it("should return structured error for system schemas", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
 
-      await expect(
-        tool.handler({ name: "mysql" }, mockContext),
-      ).rejects.toThrow("Cannot drop system schema");
-      await expect(
-        tool.handler({ name: "information_schema" }, mockContext),
-      ).rejects.toThrow("Cannot drop system schema");
-      await expect(
-        tool.handler({ name: "performance_schema" }, mockContext),
-      ).rejects.toThrow("Cannot drop system schema");
-      await expect(tool.handler({ name: "sys" }, mockContext)).rejects.toThrow(
-        "Cannot drop system schema",
-      );
+      for (const name of [
+        "mysql",
+        "information_schema",
+        "performance_schema",
+        "sys",
+      ]) {
+        const result = (await tool.handler({ name }, mockContext)) as {
+          success: boolean;
+          error: string;
+        };
+        expect(result.success).toBe(false);
+        expect(result.error).toBe("Cannot drop system schema");
+      }
     });
 
-    it("should reject invalid schema names", async () => {
+    it("should return structured error for invalid schema names", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
-      await expect(
-        tool.handler({ name: "invalid-db" }, mockContext),
-      ).rejects.toThrow("Invalid schema name");
+      const result = (await tool.handler(
+        { name: "invalid-db" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Invalid schema name");
     });
 
     it("should drop schema without IF EXISTS if requested", async () => {

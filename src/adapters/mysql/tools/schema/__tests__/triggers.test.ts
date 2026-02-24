@@ -51,18 +51,39 @@ describe("Schema Trigger Tools", () => {
       expect(result.schema).toBe("nonexistent_db");
     });
 
+    it("should return exists false for nonexistent table", async () => {
+      // Table existence check returns empty
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = createListTriggersTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "nonexistent_table" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(false);
+      expect(result.table).toBe("nonexistent_table");
+    });
+
     it("should filter by table when provided", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      // Table existence check returns a row
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ TABLE_NAME: "users" }]),
+      );
+      // Triggers query returns empty
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListTriggersTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ table: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(call).toContain("EVENT_OBJECT_TABLE = ?");
-      const params = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
       expect(params).toContain("users");
     });
   });

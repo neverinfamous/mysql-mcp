@@ -10,7 +10,6 @@ const ListObjectsSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
-  type: z.enum(["PROCEDURE", "FUNCTION"]).optional().describe("Filter by type"),
 });
 
 /**

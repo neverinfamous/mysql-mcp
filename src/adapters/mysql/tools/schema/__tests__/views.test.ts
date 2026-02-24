@@ -85,17 +85,18 @@ describe("Schema View Tools", () => {
       expect(call).toContain("OR REPLACE");
     });
 
-    it("should validate view name", async () => {
+    it("should return structured error for invalid view name", async () => {
       const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
-      await expect(
-        tool.handler(
-          {
-            name: "invalid-name",
-            definition: "SELECT 1",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid view name");
+      const result = (await tool.handler(
+        {
+          name: "invalid-name",
+          definition: "SELECT 1",
+        },
+        mockContext,
+      )) as { success: boolean; reason: string };
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toContain("Invalid view name");
     });
 
     it("should include WITH CHECK OPTION when specified", async () => {

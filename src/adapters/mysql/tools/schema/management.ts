@@ -88,9 +88,15 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       const { name, charset, collation, ifNotExists } =
         CreateSchemaSchema.parse(params);
 
-      // Validate schema name
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        throw new Error("Invalid schema name");
+        return { success: false, error: "Invalid schema name" };
+      }
+
+      if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
+        return { success: false, error: `Invalid charset: ${charset}` };
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
+        return { success: false, error: `Invalid collation: ${collation}` };
       }
 
       // Pre-check: detect no-op when ifNotExists is true
@@ -123,7 +129,12 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             reason: `Schema '${name}' already exists`,
           };
         }
-        throw err;
+        return {
+          success: false,
+          error: message
+            .replace(/^Query failed:\s*/i, "")
+            .replace(/^Execute failed:\s*/i, ""),
+        };
       }
     },
   };
@@ -148,12 +159,10 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { name, ifExists } = DropSchemaSchema.parse(params);
 
-      // Validate schema name
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        throw new Error("Invalid schema name");
+        return { success: false, error: "Invalid schema name" };
       }
 
-      // Protect system schemas
       const systemSchemas = [
         "mysql",
         "information_schema",
@@ -161,7 +170,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         "sys",
       ];
       if (systemSchemas.includes(name.toLowerCase())) {
-        throw new Error("Cannot drop system schema");
+        return { success: false, error: "Cannot drop system schema" };
       }
 
       // Pre-check: detect no-op when ifExists is true
@@ -197,7 +206,12 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             reason: `Schema '${name}' does not exist`,
           };
         }
-        throw err;
+        return {
+          success: false,
+          error: message
+            .replace(/^Query failed:\s*/i, "")
+            .replace(/^Execute failed:\s*/i, ""),
+        };
       }
     },
   };

@@ -42,6 +42,17 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
+      // P154: Table existence check when explicitly provided
+      if (table) {
+        const tableCheck = await adapter.executeQuery(
+          "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?",
+          [schema ?? null, table],
+        );
+        if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          return { exists: false, table };
+        }
+      }
+
       let query = `
                 SELECT 
                     TRIGGER_NAME as name,
