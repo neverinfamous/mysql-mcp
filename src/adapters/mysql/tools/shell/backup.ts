@@ -4,6 +4,7 @@
  * Tools for creating database dumps using MySQL Shell.
  */
 
+import { ZodError } from "zod";
 import type {
   ToolDefinition,
   RequestContext,
@@ -14,6 +15,11 @@ import {
   ShellDumpTablesInputSchema,
 } from "../../types/shell-types.js";
 import { escapeForJS, execShellJS } from "./common.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 /**
  * Dump entire MySQL instance
@@ -126,47 +132,47 @@ export function createShellDumpSchemasTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        schemas,
-        outputDir,
-        threads,
-        compression,
-        dryRun,
-        includeTables,
-        excludeTables,
-        ddlOnly,
-      } = ShellDumpSchemasInputSchema.parse(params);
-
-      const escapedPath = outputDir.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (compression && compression !== "zstd") {
-        options.push(`compression: "${compression}"`);
-      }
-      if (dryRun) {
-        options.push("dryRun: true");
-      }
-      if (includeTables && includeTables.length > 0) {
-        options.push(`includeTables: ${JSON.stringify(includeTables)}`);
-      }
-      if (excludeTables && excludeTables.length > 0) {
-        options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
-      }
-      // ddlOnly mode disables all metadata that requires extra privileges
-      if (ddlOnly) {
-        options.push("events: false");
-        options.push("triggers: false");
-        options.push("routines: false");
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-      const jsCode = `return util.dumpSchemas(${JSON.stringify(schemas)}, "${escapedPath}"${optionsStr});`;
-
       try {
+        const {
+          schemas,
+          outputDir,
+          threads,
+          compression,
+          dryRun,
+          includeTables,
+          excludeTables,
+          ddlOnly,
+        } = ShellDumpSchemasInputSchema.parse(params);
+
+        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (compression && compression !== "zstd") {
+          options.push(`compression: "${compression}"`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
+        }
+        if (includeTables && includeTables.length > 0) {
+          options.push(`includeTables: ${JSON.stringify(includeTables)}`);
+        }
+        if (excludeTables && excludeTables.length > 0) {
+          options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
+        }
+        // ddlOnly mode disables all metadata that requires extra privileges
+        if (ddlOnly) {
+          options.push("events: false");
+          options.push("triggers: false");
+          options.push("routines: false");
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+        const jsCode = `return util.dumpSchemas(${JSON.stringify(schemas)}, "${escapedPath}"${optionsStr});`;
+
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
@@ -177,6 +183,9 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           result,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
@@ -186,13 +195,11 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         ) {
           return {
             success: false,
-            schemas,
-            outputDir,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
             hint: "Set ddlOnly: true to skip events, triggers, and routines.",
           };
         }
-        return { success: false, schemas, outputDir, error: errorMessage };
+        return { success: false, error: errorMessage };
       }
     },
   };
@@ -215,34 +222,36 @@ export function createShellDumpTablesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema, tables, outputDir, threads, compression, where, all } =
-        ShellDumpTablesInputSchema.parse(params);
-
-      const escapedPath = outputDir.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (compression && compression !== "zstd") {
-        options.push(`compression: "${compression}"`);
-      }
-      if (where && Object.keys(where).length > 0) {
-        const whereEntries = Object.entries(where)
-          .map(([tbl, cond]) => `"${escapeForJS(tbl)}": "${escapeForJS(cond)}"`)
-          .join(", ");
-        options.push(`where: { ${whereEntries} }`);
-      }
-      // When all is explicitly false, disable triggers/routines dumping
-      if (!all) {
-        options.push("triggers: false");
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-      const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
-
       try {
+        const { schema, tables, outputDir, threads, compression, where, all } =
+          ShellDumpTablesInputSchema.parse(params);
+
+        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (compression && compression !== "zstd") {
+          options.push(`compression: "${compression}"`);
+        }
+        if (where && Object.keys(where).length > 0) {
+          const whereEntries = Object.entries(where)
+            .map(
+              ([tbl, cond]) => `"${escapeForJS(tbl)}": "${escapeForJS(cond)}"`,
+            )
+            .join(", ");
+          options.push(`where: { ${whereEntries} }`);
+        }
+        // When all is explicitly false, disable triggers/routines dumping
+        if (!all) {
+          options.push("triggers: false");
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+        const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
+
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
@@ -253,6 +262,9 @@ export function createShellDumpTablesTool(): ToolDefinition {
           result,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
 
@@ -269,9 +281,6 @@ export function createShellDumpTablesTool(): ToolDefinition {
 
           return {
             success: false,
-            schema,
-            tables,
-            outputDir,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
             hint:
               specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
@@ -284,9 +293,6 @@ export function createShellDumpTablesTool(): ToolDefinition {
         if (errorMessage.includes("Fatal error during dump")) {
           return {
             success: false,
-            schema,
-            tables,
-            outputDir,
             error: errorMessage.includes("Writing schema metadata")
               ? `Dump failed while writing schema metadata: ${errorMessage}.`
               : `Dump failed: ${errorMessage}.`,
@@ -296,9 +302,6 @@ export function createShellDumpTablesTool(): ToolDefinition {
 
         return {
           success: false,
-          schema,
-          tables,
-          outputDir,
           error: errorMessage,
         };
       }

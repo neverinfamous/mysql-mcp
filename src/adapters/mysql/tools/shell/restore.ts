@@ -7,6 +7,7 @@
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
+import { ZodError } from "zod";
 import type {
   ToolDefinition,
   RequestContext,
@@ -16,6 +17,11 @@ import {
   ShellRunScriptInputSchema,
 } from "../../types/shell-types.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 /**
  * Load dump to instance
@@ -210,59 +216,67 @@ export function createShellRunScriptTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { script, language, timeout } =
-        ShellRunScriptInputSchema.parse(params);
-      const config = getShellConfig();
+      try {
+        const { script, language, timeout } =
+          ShellRunScriptInputSchema.parse(params);
+        const config = getShellConfig();
 
-      // Build command based on language
-      let langFlag: string;
-      switch (language) {
-        case "js":
-          langFlag = "--js";
-          break;
-        case "py":
-          langFlag = "--py";
-          break;
-        case "sql":
-          langFlag = "--sql";
-          break;
-      }
-
-      let result;
-      // SQL scripts with comments or multi-line content break when passed via -e
-      // Use --file approach for SQL to properly handle all syntax
-      if (language === "sql") {
-        // Create a secure temp directory via mkdtemp (restrictive permissions,
-        // unique path) to avoid CodeQL js/insecure-temporary-file alert.
-        const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
-        const tempFile = join(tempDir, "script.sql");
-        try {
-          await fs.writeFile(tempFile, script, "utf8");
-          const args = [
-            "--uri",
-            config.connectionUri,
-            langFlag,
-            "--file",
-            tempFile,
-          ];
-          result = await execMySQLShell(args, { timeout });
-        } finally {
-          // Cleanup temp directory and its contents
-          await fs.rm(tempDir, { recursive: true }).catch(() => void 0);
+        // Build command based on language
+        let langFlag: string;
+        switch (language) {
+          case "js":
+            langFlag = "--js";
+            break;
+          case "py":
+            langFlag = "--py";
+            break;
+          case "sql":
+            langFlag = "--sql";
+            break;
         }
-      } else {
-        // JS and Python work fine with -e
-        const args = ["--uri", config.connectionUri, langFlag, "-e", script];
-        result = await execMySQLShell(args, { timeout });
-      }
 
-      return {
-        success: result.exitCode === 0,
-        language,
-        exitCode: result.exitCode,
-        stdout: result.stdout,
-        stderr: result.stderr,
-      };
+        let result;
+        // SQL scripts with comments or multi-line content break when passed via -e
+        // Use --file approach for SQL to properly handle all syntax
+        if (language === "sql") {
+          // Create a secure temp directory via mkdtemp (restrictive permissions,
+          // unique path) to avoid CodeQL js/insecure-temporary-file alert.
+          const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
+          const tempFile = join(tempDir, "script.sql");
+          try {
+            await fs.writeFile(tempFile, script, "utf8");
+            const args = [
+              "--uri",
+              config.connectionUri,
+              langFlag,
+              "--file",
+              tempFile,
+            ];
+            result = await execMySQLShell(args, { timeout });
+          } finally {
+            // Cleanup temp directory and its contents
+            await fs.rm(tempDir, { recursive: true }).catch(() => void 0);
+          }
+        } else {
+          // JS and Python work fine with -e
+          const args = ["--uri", config.connectionUri, langFlag, "-e", script];
+          result = await execMySQLShell(args, { timeout });
+        }
+
+        return {
+          success: result.exitCode === 0,
+          language,
+          exitCode: result.exitCode,
+          stdout: result.stdout,
+          stderr: result.stderr,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
