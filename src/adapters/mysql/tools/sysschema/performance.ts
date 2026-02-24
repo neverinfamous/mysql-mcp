@@ -25,33 +25,35 @@ function formatZodError(error: ZodError): string {
 // Zod Schemas
 // =============================================================================
 
+const VALID_ORDER_BY = [
+  "total_latency",
+  "exec_count",
+  "avg_latency",
+  "rows_sent",
+  "rows_examined",
+] as const;
+
 const StatementSummarySchema = z.object({
-  orderBy: z
-    .enum([
-      "total_latency",
-      "exec_count",
-      "avg_latency",
-      "rows_sent",
-      "rows_examined",
-    ])
-    .default("total_latency")
-    .describe("Order results by"),
+  orderBy: z.string().default("total_latency").describe("Order results by"),
   limit: z.number().default(20).describe("Maximum number of results"),
 });
+
+const VALID_WAIT_TYPES = [
+  "global",
+  "by_host",
+  "by_user",
+  "by_instance",
+] as const;
 
 const WaitSummarySchema = z.object({
-  type: z
-    .enum(["global", "by_host", "by_user", "by_instance"])
-    .default("global")
-    .describe("Type of wait summary"),
+  type: z.string().default("global").describe("Type of wait summary"),
   limit: z.number().default(20).describe("Maximum number of results"),
 });
 
+const VALID_IO_TYPES = ["file", "table", "global"] as const;
+
 const IOSummarySchema = z.object({
-  type: z
-    .enum(["file", "table", "global"])
-    .default("table")
-    .describe("Type of I/O summary"),
+  type: z.string().default("table").describe("Type of I/O summary"),
   limit: z.number().default(20).describe("Maximum number of results"),
 });
 
@@ -76,6 +78,15 @@ export function createSysStatementSummaryTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { orderBy, limit } = StatementSummarySchema.parse(params);
+
+        if (
+          !VALID_ORDER_BY.includes(orderBy as (typeof VALID_ORDER_BY)[number])
+        ) {
+          return {
+            success: false,
+            error: `Invalid orderBy: '${orderBy}' — expected one of: ${VALID_ORDER_BY.join(", ")}`,
+          };
+        }
 
         const query = `
                 SELECT 
@@ -133,6 +144,15 @@ export function createSysWaitSummaryTool(
       try {
         const { type, limit } = WaitSummarySchema.parse(params);
 
+        if (
+          !VALID_WAIT_TYPES.includes(type as (typeof VALID_WAIT_TYPES)[number])
+        ) {
+          return {
+            success: false,
+            error: `Invalid type: '${type}' — expected one of: ${VALID_WAIT_TYPES.join(", ")}`,
+          };
+        }
+
         let query: string;
 
         switch (type) {
@@ -186,6 +206,8 @@ export function createSysWaitSummaryTool(
                         LIMIT ${String(limit)}
                     `;
             break;
+          default:
+            throw new Error(`Unexpected type: ${type}`);
         }
 
         const result = await adapter.executeQuery(query);
@@ -224,6 +246,13 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { type, limit } = IOSummarySchema.parse(params);
+
+        if (!VALID_IO_TYPES.includes(type as (typeof VALID_IO_TYPES)[number])) {
+          return {
+            success: false,
+            error: `Invalid type: '${type}' — expected one of: ${VALID_IO_TYPES.join(", ")}`,
+          };
+        }
 
         let query: string;
 
@@ -275,6 +304,8 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         LIMIT ${String(limit)}
                     `;
             break;
+          default:
+            throw new Error(`Unexpected type: ${type}`);
         }
 
         const result = await adapter.executeQuery(query);

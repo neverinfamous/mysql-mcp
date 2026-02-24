@@ -67,6 +67,21 @@ describe("Sys Schema Performance Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ORDER BY exec_count DESC");
     });
+
+    it("should return structured error for invalid orderBy", async () => {
+      const tool = createSysStatementSummaryTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { orderBy: "invalid_order" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid orderBy");
+      expect(result.error).toContain("invalid_order");
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
   });
 
   describe("createSysWaitSummaryTool", () => {
@@ -130,6 +145,21 @@ describe("Sys Schema Performance Tools", () => {
       expect(call).toContain("AS avg_latency");
       expect(call).toContain("AS total");
     });
+
+    it("should return structured error for invalid type", async () => {
+      const tool = createSysWaitSummaryTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { type: "invalid_type" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid type");
+      expect(result.error).toContain("invalid_type");
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
   });
 
   describe("createSysIOSummaryTool", () => {
@@ -178,6 +208,21 @@ describe("Sys Schema Performance Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("sys.io_global_by_wait_by_latency");
       expect(call).toContain("event_name");
+    });
+
+    it("should return structured error for invalid type", async () => {
+      const tool = createSysIOSummaryTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { type: "invalid_type" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid type");
+      expect(result.error).toContain("invalid_type");
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
   });
 });
