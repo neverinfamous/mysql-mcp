@@ -53,14 +53,8 @@ const TimeSeriesSchema = z.object({
   table: z.string().describe("Table name"),
   valueColumn: z.string().describe("Numeric column for values"),
   timeColumn: z.string().describe("Timestamp/datetime column"),
-  interval: z
-    .string()
-    .default("day")
-    .describe("Aggregation interval"),
-  aggregation: z
-    .string()
-    .default("avg")
-    .describe("Aggregation function"),
+  interval: z.string().default("day").describe("Aggregation interval"),
+  aggregation: z.string().default("avg").describe("Aggregation function"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
   limit: z.number().default(100).describe("Maximum number of data points"),
 });
@@ -446,13 +440,7 @@ export function createTimeSeriesToolStats(
           return { success: false, error: "Invalid column name" };
         }
 
-        const validIntervals = [
-          "minute",
-          "hour",
-          "day",
-          "week",
-          "month",
-        ];
+        const validIntervals = ["minute", "hour", "day", "week", "month"];
         if (!validIntervals.includes(interval)) {
           return {
             success: false,
@@ -484,6 +472,8 @@ export function createTimeSeriesToolStats(
           case "month":
             dateFormat = "%Y-%m";
             break;
+          default:
+            dateFormat = "%Y-%m-%d";
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -574,10 +564,10 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const columnList =
           columns !== undefined && columns.length > 0
             ? columns
-              .map((c) => {
-                return `\`${c}\``;
-              })
-              .join(", ")
+                .map((c) => {
+                  return `\`${c}\``;
+                })
+                .join(", ")
             : "*";
 
         const whereClause = where ? `WHERE ${where}` : "";
