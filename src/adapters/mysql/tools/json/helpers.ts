@@ -140,7 +140,7 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         if (result.rowsAffected === 0) {
           return {
             success: false,
-            reason: `No row found with ${idColumn} = ${id}`,
+            error: `No row found with ${idColumn} = ${id}`,
           };
         }
         return { success: true };
@@ -176,7 +176,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
 
       try {
-        const sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
+        const sql = `SELECT id, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
 
         const result = await adapter.executeReadQuery(sql, [
           mode,

@@ -341,20 +341,20 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const row = result.rows?.[0];
 
         return {
-          totalSampled: row?.["total_rows"],
-          nullCount: row?.["null_count"],
+          totalSampled: Number(row?.["total_rows"] ?? 0),
+          nullCount: Number(row?.["null_count"] ?? 0),
           length: {
-            avg: row?.["avg_length"],
-            max: row?.["max_length"],
-            min: row?.["min_length"],
+            avg: Number(row?.["avg_length"] ?? 0),
+            max: Number(row?.["max_length"] ?? 0),
+            min: Number(row?.["min_length"] ?? 0),
           },
           depth: {
-            avg: row?.["avg_depth"],
-            max: row?.["max_depth"],
+            avg: Number(row?.["avg_depth"] ?? 0),
+            max: Number(row?.["max_depth"] ?? 0),
           },
           sizeBytes: {
-            avg: row?.["avg_size_bytes"],
-            max: row?.["max_size_bytes"],
+            avg: Number(row?.["avg_size_bytes"] ?? 0),
+            max: Number(row?.["max_size_bytes"] ?? 0),
           },
           sampleSize,
         };

@@ -72,7 +72,7 @@ describe("JSON Helper Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_SEARCH");
-      expect(call).toContain("SELECT id, `json_col`");
+      expect(call).toContain("SELECT id, JSON_SEARCH");
       expect(call).not.toContain("SELECT *");
     });
   });
@@ -116,10 +116,10 @@ describe("JSON Helper Tools", () => {
           id: 999,
         },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("999");
+      expect(result.error).toContain("999");
     });
   });
 

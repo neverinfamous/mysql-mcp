@@ -351,7 +351,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
       try {
         const jsonPath = path ?? "$";
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)}`;
+        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} HAVING json_keys IS NOT NULL`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
         return { rows: result.rows };
