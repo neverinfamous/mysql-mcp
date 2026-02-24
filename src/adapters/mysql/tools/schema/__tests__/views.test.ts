@@ -93,10 +93,10 @@ describe("Schema View Tools", () => {
           definition: "SELECT 1",
         },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("Invalid view name");
+      expect(result.error).toContain("Invalid view name");
     });
 
     it("should include WITH CHECK OPTION when specified", async () => {
@@ -128,10 +128,10 @@ describe("Schema View Tools", () => {
           definition: "SELECT 1",
         },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("already exists");
+      expect(result.error).toContain("already exists");
     });
 
     it("should return success false for invalid SQL definition", async () => {
@@ -146,10 +146,10 @@ describe("Schema View Tools", () => {
           definition: "SELECT * FROM nonexistent_table",
         },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("doesn't exist");
+      expect(result.error).toContain("doesn't exist");
     });
   });
 });

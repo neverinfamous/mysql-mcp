@@ -299,6 +299,20 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain("Table not found");
     });
+
+    it("should return structured error for empty schemas array", async () => {
+      const tool = createShellDumpSchemasTool();
+      const result = (await tool.handler(
+        {
+          schemas: [],
+          outputDir: "/backup",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("At least one schema name is required");
+    });
   });
 
   describe("mysqlsh_dump_tables", () => {
@@ -453,6 +467,21 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Connection timeout");
+    });
+
+    it("should return structured error for empty tables array", async () => {
+      const tool = createShellDumpTablesTool();
+      const result = (await tool.handler(
+        {
+          schema: "s",
+          tables: [],
+          outputDir: "/o",
+        },
+        mockContext,
+      )) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("At least one table name is required");
     });
   });
 });

@@ -150,10 +150,10 @@ describe("Schema Management Tools", () => {
       const result = (await tool.handler(
         { name: "existing_db", ifNotExists: false },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("already exists");
+      expect(result.error).toContain("already exists");
     });
 
     it("should return skipped when schema already exists with ifNotExists", async () => {
@@ -250,10 +250,10 @@ describe("Schema Management Tools", () => {
       const result = (await tool.handler(
         { name: "gone_db", ifExists: false },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("does not exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return skipped when schema does not exist with ifExists", async () => {

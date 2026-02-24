@@ -184,7 +184,7 @@ export const ShellDumpInstanceInputSchema = z
 
 export const ShellDumpSchemasInputSchema = z
   .object({
-    schemas: z.array(z.string()).min(1).describe("Schema names to dump"),
+    schemas: z.array(z.string()).describe("Schema names to dump"),
     outputDir: z.string().describe("Output directory for dump"),
     threads: z
       .number()
@@ -223,7 +223,7 @@ export const ShellDumpSchemasInputSchema = z
 export const ShellDumpTablesInputSchema = z
   .object({
     schema: z.string().describe("Schema containing tables"),
-    tables: z.array(z.string()).min(1).describe("Table names to dump"),
+    tables: z.array(z.string()).describe("Table names to dump"),
     outputDir: z.string().describe("Output directory for dump"),
     threads: z
       .number()

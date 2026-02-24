@@ -144,6 +144,13 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           ddlOnly,
         } = ShellDumpSchemasInputSchema.parse(params);
 
+        if (schemas.length === 0) {
+          return {
+            success: false,
+            error: "At least one schema name is required",
+          };
+        }
+
         const escapedPath = outputDir.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
@@ -225,6 +232,13 @@ export function createShellDumpTablesTool(): ToolDefinition {
       try {
         const { schema, tables, outputDir, threads, compression, where, all } =
           ShellDumpTablesInputSchema.parse(params);
+
+        if (tables.length === 0) {
+          return {
+            success: false,
+            error: "At least one table name is required",
+          };
+        }
 
         const escapedPath = outputDir.replace(/\\/g, "\\\\");
 
