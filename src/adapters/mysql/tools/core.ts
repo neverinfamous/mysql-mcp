@@ -347,10 +347,10 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.includes("already exists")) {
           return {
             success: false,
-            reason: `Table '${name}' already exists`,
+            error: `Table '${name}' already exists`,
           };
         }
-        return { success: false, reason: message };
+        return { success: false, error: message };
       }
 
       return { success: true, tableName: name };
@@ -378,7 +378,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
       // Validate table name
       if (!isValidId(table)) {
-        return { success: false, reason: "Invalid table name" };
+        return { success: false, error: "Invalid table name" };
       }
 
       // Pre-check existence for skipped indicator when ifExists is true
@@ -400,10 +400,10 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.includes("Unknown table")) {
           return {
             success: false,
-            reason: `Table '${table}' does not exist`,
+            error: `Table '${table}' does not exist`,
           };
         }
-        return { success: false, reason: message };
+        return { success: false, error: message };
       }
 
       if (tableAbsent) {
@@ -475,10 +475,10 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
       // Validate names
       if (!VALID_INDEX_NAME_PATTERN.test(name)) {
-        return { success: false, reason: "Invalid index name" };
+        return { success: false, error: "Invalid index name" };
       }
       if (!isValidId(table)) {
-        return { success: false, reason: "Invalid table name" };
+        return { success: false, error: "Invalid table name" };
       }
 
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
@@ -514,7 +514,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.includes("Duplicate key name")) {
           return {
             success: false,
-            reason: `Index '${name}' already exists on table '${table}'`,
+            error: `Index '${name}' already exists on table '${table}'`,
           };
         }
         // Distinguish column errors from table errors
@@ -522,7 +522,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
           const colMatch = /Key column '([^']+)'/.exec(message);
           return {
             success: false,
-            reason: colMatch
+            error: colMatch
               ? `Column '${colMatch[1]}' does not exist in table '${table}'`
               : `Column does not exist in table '${table}'`,
           };
@@ -530,7 +530,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.includes("doesn't exist")) {
           return { exists: false, table };
         }
-        return { success: false, reason: message };
+        return { success: false, error: message };
       }
 
       // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)

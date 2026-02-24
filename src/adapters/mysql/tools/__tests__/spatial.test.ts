@@ -140,7 +140,7 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for nullable columns", async () => {
-      // Column is nullable - should return { success: false, reason }
+      // Column is nullable - should return { success: false, error }
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ IS_NULLABLE: "YES", DATA_TYPE: "point" }]),
       );
@@ -157,13 +157,13 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        reason: expect.stringContaining(
+        error: expect.stringContaining(
           "Cannot create SPATIAL index on nullable column",
         ),
       });
     });
 
-    it("should return structured reason for duplicate index", async () => {
+    it("should return structured error for duplicate index", async () => {
       // First call: column info, second: no existing index, third: fails with duplicate key
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
@@ -188,8 +188,7 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        reason:
-          "Index 'idx_locations_geom' already exists on table 'locations'",
+        error: "Index 'idx_locations_geom' already exists on table 'locations'",
       });
     });
 

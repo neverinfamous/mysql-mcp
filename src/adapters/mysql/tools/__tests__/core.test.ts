@@ -469,7 +469,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty(
-        "reason",
+        "error",
         "Table 'test_table' already exists",
       );
     });
@@ -487,7 +487,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toContain(
+      expect((result as Record<string, unknown>).error).toContain(
         "Access denied",
       );
     });
@@ -543,7 +543,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ table: "invalid-name" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toBe(
+      expect((result as Record<string, unknown>).error).toBe(
         "Invalid table name",
       );
     });
@@ -571,7 +571,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty(
-        "reason",
+        "error",
         "Table 'nonexistent' does not exist",
       );
     });
@@ -601,7 +601,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toContain(
+      expect((result as Record<string, unknown>).error).toContain(
         "Access denied",
       );
     });
@@ -683,7 +683,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toBe(
+      expect((result as Record<string, unknown>).error).toBe(
         "Invalid index name",
       );
     });
@@ -700,7 +700,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toBe(
+      expect((result as Record<string, unknown>).error).toBe(
         "Invalid table name",
       );
     });
@@ -760,7 +760,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty(
-        "reason",
+        "error",
         "Index 'idx_existing' already exists on table 'users'",
       );
     });
@@ -798,7 +798,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toContain(
+      expect((result as Record<string, unknown>).error).toContain(
         "Access denied",
       );
     });
@@ -819,7 +819,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).reason).toContain(
+      expect((result as Record<string, unknown>).error).toContain(
         "Column 'nonexistent_col' does not exist",
       );
       // Should NOT return exists: false (table exists, column doesn't)

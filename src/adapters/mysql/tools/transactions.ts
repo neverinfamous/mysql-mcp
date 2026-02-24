@@ -85,7 +85,7 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, reason: msg };
+        return { success: false, error: msg };
       }
     },
   };
@@ -116,7 +116,7 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, reason: msg };
+        return { success: false, error: msg };
       }
     },
   };
@@ -145,13 +145,13 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
       if (!connection) {
         return {
           success: false,
-          reason: `Transaction not found: ${transactionId}`,
+          error: `Transaction not found: ${transactionId}`,
         };
       }
 
       // Validate savepoint name
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-        return { success: false, reason: "Invalid savepoint name" };
+        return { success: false, error: "Invalid savepoint name" };
       }
 
       try {
@@ -160,7 +160,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, transactionId, savepoint };
       } catch (error) {
         const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, reason: msg };
+        return { success: false, error: msg };
       }
     },
   };
@@ -188,12 +188,12 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
       if (!connection) {
         return {
           success: false,
-          reason: `Transaction not found: ${transactionId}`,
+          error: `Transaction not found: ${transactionId}`,
         };
       }
 
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-        return { success: false, reason: "Invalid savepoint name" };
+        return { success: false, error: "Invalid savepoint name" };
       }
 
       try {
@@ -207,7 +207,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, reason: msg };
+        return { success: false, error: msg };
       }
     },
   };
@@ -237,12 +237,12 @@ function createTransactionRollbackToTool(
       if (!connection) {
         return {
           success: false,
-          reason: `Transaction not found: ${transactionId}`,
+          error: `Transaction not found: ${transactionId}`,
         };
       }
 
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-        return { success: false, reason: "Invalid savepoint name" };
+        return { success: false, error: "Invalid savepoint name" };
       }
 
       try {
@@ -256,7 +256,7 @@ function createTransactionRollbackToTool(
         };
       } catch (error) {
         const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, reason: msg };
+        return { success: false, error: msg };
       }
     },
   };
@@ -284,7 +284,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       if (statements.length === 0) {
         return {
           success: false,
-          reason:
+          error:
             "No statements provided. Pass at least one SQL statement in statements (or queries alias).",
         };
       }
@@ -334,7 +334,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = String(error instanceof Error ? error.message : error);
         return {
           success: false,
-          reason: `Transaction failed and was rolled back: ${msg}`,
+          error: `Transaction failed and was rolled back: ${msg}`,
           rolledBack: true,
         };
       }

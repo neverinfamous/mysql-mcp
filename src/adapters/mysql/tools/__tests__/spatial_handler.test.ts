@@ -135,7 +135,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toEqual({
         success: false,
-        reason:
+        error:
           "Spatial index 'idx_existing_geom' already exists on column 'geom' of table 'locations'",
       });
       // Should have called: 1) column check, 2) existing index check — NOT the CREATE
@@ -461,7 +461,7 @@ describe("Spatial Tools Handlers", () => {
       });
     });
 
-    it("should return { success: false, reason } for duplicate column (create_column)", async () => {
+    it("should return { success: false, error } for duplicate column (create_column)", async () => {
       const tool = findTool("mysql_spatial_create_column")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
         new Error("Duplicate column name 'location'"),
@@ -477,7 +477,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toEqual({
         success: false,
-        reason: "Column 'location' already exists on table 'users'",
+        error: "Column 'location' already exists on table 'users'",
       });
     });
 

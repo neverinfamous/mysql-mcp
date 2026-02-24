@@ -100,7 +100,7 @@ export function createSpatialCreateColumnTool(
         if (msg.includes("Duplicate column name")) {
           return {
             success: false,
-            reason: `Column '${column}' already exists on table '${table}'`,
+            error: `Column '${column}' already exists on table '${table}'`,
           };
         }
         return { success: false, error: msg };
@@ -176,7 +176,7 @@ export function createSpatialCreateIndexTool(
           const existingName = String(existingRow["INDEX_NAME"]);
           return {
             success: false,
-            reason: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`,
+            error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`,
           };
         }
 
@@ -196,12 +196,12 @@ export function createSpatialCreateIndexTool(
           return { exists: false, table };
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
-          return { success: false, reason: msg };
+          return { success: false, error: msg };
         }
         if (msg.includes("Duplicate key name")) {
           return {
             success: false,
-            reason: `Index '${idxName}' already exists on table '${table}'`,
+            error: `Index '${idxName}' already exists on table '${table}'`,
           };
         }
         return { success: false, error: msg };

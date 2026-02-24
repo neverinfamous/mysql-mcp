@@ -168,8 +168,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ transactionId: "gone" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("reason");
-      expect((result as { reason: string }).reason).toContain(
+      expect(result).toHaveProperty("error");
+      expect((result as { error: string }).error).toContain(
         "Transaction not found",
       );
     });
@@ -197,8 +197,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ transactionId: "gone" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("reason");
-      expect((result as { reason: string }).reason).toContain(
+      expect(result).toHaveProperty("error");
+      expect((result as { error: string }).error).toContain(
         "Transaction not found",
       );
     });
@@ -237,7 +237,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("reason", "Invalid savepoint name");
+      expect(result).toHaveProperty("error", "Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -256,7 +256,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as { reason: string }).reason).toContain(
+      expect((result as { error: string }).error).toContain(
         "Transaction not found",
       );
     });
@@ -292,7 +292,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("reason", "Invalid savepoint name");
+      expect(result).toHaveProperty("error", "Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -311,7 +311,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as { reason: string }).reason).toContain(
+      expect((result as { error: string }).error).toContain(
         "Transaction not found",
       );
     });
@@ -351,7 +351,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("reason", "Invalid savepoint name");
+      expect(result).toHaveProperty("error", "Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -372,7 +372,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as { reason: string }).reason).toContain(
+      expect((result as { error: string }).error).toContain(
         "Transaction not found",
       );
     });
@@ -383,8 +383,8 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
       const result = await tool.handler({ statements: [] }, mockContext);
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("reason");
-      expect((result as { reason: string }).reason).toContain("No statements");
+      expect(result).toHaveProperty("error");
+      expect((result as { error: string }).error).toContain("No statements");
       expect(mockAdapter.beginTransaction).not.toHaveBeenCalled();
     });
 
@@ -473,7 +473,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.rollbackTransaction).toHaveBeenCalled();
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty("rolledBack", true);
-      expect((result as { reason: string }).reason).toContain(
+      expect((result as { error: string }).error).toContain(
         "Transaction failed and was rolled back",
       );
     });
