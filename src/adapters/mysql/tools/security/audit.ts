@@ -4,12 +4,29 @@
  * Tools for security auditing, firewall monitoring, and compliance.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg
+    .replace(/^Query failed:\s*/i, "")
+    .replace(/^Execute failed:\s*/i, "")
+    .trim();
+}
 
 // =============================================================================
 // Zod Schemas
@@ -54,11 +71,10 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit, user, eventType, startTime } =
-        AuditLogSchema.parse(params);
-
       // First check if audit log table exists
       try {
+        const { limit, user, eventType, startTime } =
+          AuditLogSchema.parse(params);
         const checkResult = await adapter.executeQuery(`
                     SELECT TABLE_NAME 
                     FROM information_schema.TABLES 
@@ -136,7 +152,10 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           events: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-      } catch {
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         return {
           available: false,
           message:
@@ -203,11 +222,15 @@ export function createSecurityFirewallStatusTool(
           plugins: pluginResult.rows,
           configuration: variables,
         };
-      } catch {
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
         return {
           installed: false,
           message: "Firewall plugin check failed",
-          suggestion: "Ensure you have privileges to view plugin information",
+          suggestion: stripErrorPrefix(message),
         };
       }
     },
@@ -232,9 +255,8 @@ export function createSecurityFirewallRulesTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { user, mode } = FirewallRulesSchema.parse(params);
-
       try {
+        const { user, mode } = FirewallRulesSchema.parse(params);
         // Get firewall users
         let usersQuery = `
                     SELECT USERHOST, MODE
@@ -280,7 +302,10 @@ export function createSecurityFirewallRulesTool(
           userCount: usersResult.rows?.length ?? 0,
           ruleCount: rulesResult.rows?.length ?? 0,
         };
-      } catch {
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         return {
           available: false,
           message:

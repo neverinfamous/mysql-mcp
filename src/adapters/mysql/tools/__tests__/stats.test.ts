@@ -900,3 +900,63 @@ describe("Stats Nonexistent Table Handling", () => {
     expect(result.error).toContain("Unknown column");
   });
 });
+
+describe("Stats Zod Validation Guards", () => {
+  let tools: ReturnType<typeof getStatsTools>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    const mockAdapter = createMockMySQLAdapter();
+    tools = getStatsTools(mockAdapter as unknown as MySQLAdapter);
+    mockContext = createMockRequestContext();
+  });
+
+  it("mysql_stats_time_series returns structured error for invalid interval", async () => {
+    const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+    const result = (await tool.handler(
+      {
+        table: "sales",
+        valueColumn: "amount",
+        timeColumn: "created_at",
+        interval: "invalid_interval",
+      },
+      mockContext,
+    )) as { success: boolean; error: string };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Invalid interval");
+    expect(result.error).toContain("invalid_interval");
+  });
+
+  it("mysql_stats_time_series returns structured error for invalid aggregation", async () => {
+    const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+    const result = (await tool.handler(
+      {
+        table: "sales",
+        valueColumn: "amount",
+        timeColumn: "created_at",
+        aggregation: "invalid_agg",
+      },
+      mockContext,
+    )) as { success: boolean; error: string };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Invalid aggregation");
+    expect(result.error).toContain("invalid_agg");
+  });
+
+  it("mysql_stats_sampling returns structured error for negative sampleSize", async () => {
+    const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+    const result = (await tool.handler(
+      {
+        table: "users",
+        sampleSize: -1,
+      },
+      mockContext,
+    )) as { success: boolean; error: string };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("sampleSize");
+  });
+});

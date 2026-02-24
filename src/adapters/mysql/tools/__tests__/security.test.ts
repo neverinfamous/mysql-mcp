@@ -788,4 +788,93 @@ describe("Security Tools", () => {
       expect(result.encryptionSettings).toEqual({ "": "invalid" });
     });
   });
+
+  describe("Error handling (try/catch wrapping)", () => {
+    it("mysql_security_ssl_status should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
+      const result = (await tool?.handler({}, mockContext)) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Access denied");
+    });
+
+    it("mysql_security_encryption_status should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Query failed: Execute failed: Access denied"),
+      );
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_encryption_status",
+      );
+      const result = (await tool?.handler({}, mockContext)) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Access denied");
+    });
+
+    it("mysql_security_user_privileges should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Query failed: Access denied to mysql.user"),
+      );
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_user_privileges",
+      );
+      const result = (await tool?.handler({}, mockContext)) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Access denied to mysql.user");
+    });
+
+    it("mysql_security_sensitive_tables should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Execute failed: Connection lost"),
+      );
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_sensitive_tables",
+      );
+      const result = (await tool?.handler({}, mockContext)) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection lost");
+    });
+
+    it("mysql_security_user_privileges should use backtick-quoted identifiers in SHOW GRANTS", async () => {
+      // Setup: one user returned
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            User: "test_user",
+            Host: "localhost",
+            plugin: "caching_sha2_password",
+            account_locked: "N",
+          },
+        ]),
+      );
+      // SHOW GRANTS
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            "Grants for test_user@localhost":
+              "GRANT USAGE ON *.* TO `test_user`@`localhost`",
+          },
+        ]),
+      );
+      // Role edges
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find(
+        (t) => t.name === "mysql_security_user_privileges",
+      );
+      await tool?.handler({}, mockContext);
+
+      // The SHOW GRANTS call is the second call (index 1)
+      const grantsCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(grantsCall).toContain("`test_user`@`localhost`");
+      expect(grantsCall).not.toContain("'test_user'@'localhost'");
+    });
+  });
 });

@@ -54,11 +54,11 @@ const TimeSeriesSchema = z.object({
   valueColumn: z.string().describe("Numeric column for values"),
   timeColumn: z.string().describe("Timestamp/datetime column"),
   interval: z
-    .enum(["minute", "hour", "day", "week", "month"])
+    .string()
     .default("day")
     .describe("Aggregation interval"),
   aggregation: z
-    .enum(["avg", "sum", "count", "min", "max"])
+    .string()
     .default("avg")
     .describe("Aggregation function"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
@@ -446,6 +446,27 @@ export function createTimeSeriesToolStats(
           return { success: false, error: "Invalid column name" };
         }
 
+        const validIntervals = [
+          "minute",
+          "hour",
+          "day",
+          "week",
+          "month",
+        ];
+        if (!validIntervals.includes(interval)) {
+          return {
+            success: false,
+            error: `Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`,
+          };
+        }
+        const validAggregations = ["avg", "sum", "count", "min", "max"];
+        if (!validAggregations.includes(aggregation)) {
+          return {
+            success: false,
+            error: `Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`,
+          };
+        }
+
         let dateFormat: string;
         switch (interval) {
           case "minute":
@@ -532,6 +553,10 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, sampleSize, columns, seed, where } =
           SamplingSchema.parse(params);
 
+        if (sampleSize < 0) {
+          return { success: false, error: "sampleSize must be >= 0" };
+        }
+
         // Validate table name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
@@ -549,10 +574,10 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const columnList =
           columns !== undefined && columns.length > 0
             ? columns
-                .map((c) => {
-                  return `\`${c}\``;
-                })
-                .join(", ")
+              .map((c) => {
+                return `\`${c}\``;
+              })
+              .join(", ")
             : "*";
 
         const whereClause = where ? `WHERE ${where}` : "";

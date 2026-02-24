@@ -4,12 +4,29 @@
  * Tools for data masking, privilege management, and sensitive data identification.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+/** Strip verbose adapter prefixes from error messages */
+function stripErrorPrefix(msg: string): string {
+  return msg
+    .replace(/^Query failed:\s*/i, "")
+    .replace(/^Execute failed:\s*/i, "")
+    .trim();
+}
 
 // =============================================================================
 // Zod Schemas
@@ -85,84 +102,99 @@ export function createSecurityMaskDataTool(
       idempotentHint: true,
     },
     handler: (params: unknown, _context: RequestContext): Promise<unknown> => {
-      const { value, type, keepFirst, keepLast, maskChar } =
-        MaskDataSchema.parse(params);
+      try {
+        const { value, type, keepFirst, keepLast, maskChar } =
+          MaskDataSchema.parse(params);
 
-      let maskedValue: string;
+        let maskedValue: string;
 
-      switch (type) {
-        case "email": {
-          const atIndex = value.indexOf("@");
-          if (atIndex > 0) {
-            const localPart = value.substring(0, atIndex);
-            const domain = value.substring(atIndex);
-            const maskedLocal =
-              localPart.length > 2
-                ? localPart[0] +
-                  maskChar.repeat(localPart.length - 2) +
-                  localPart[localPart.length - 1]
-                : maskChar.repeat(localPart.length);
-            maskedValue = maskedLocal + domain;
-          } else {
-            maskedValue = maskChar.repeat(value.length);
+        switch (type) {
+          case "email": {
+            const atIndex = value.indexOf("@");
+            if (atIndex > 0) {
+              const localPart = value.substring(0, atIndex);
+              const domain = value.substring(atIndex);
+              const maskedLocal =
+                localPart.length > 2
+                  ? localPart[0] +
+                    maskChar.repeat(localPart.length - 2) +
+                    localPart[localPart.length - 1]
+                  : maskChar.repeat(localPart.length);
+              maskedValue = maskedLocal + domain;
+            } else {
+              maskedValue = maskChar.repeat(value.length);
+            }
+            break;
           }
-          break;
-        }
-        case "phone": {
-          // Keep last 4 digits, mask rest
-          const digits = value.replace(/\D/g, "");
-          maskedValue =
-            maskChar.repeat(Math.max(0, digits.length - 4)) + digits.slice(-4);
-          break;
-        }
-        case "ssn": {
-          // Show only last 4
-          const ssnDigits = value.replace(/\D/g, "");
-          maskedValue = `${maskChar}${maskChar}${maskChar}-${maskChar}${maskChar}-${ssnDigits.slice(-4)}`;
-          break;
-        }
-        case "credit_card": {
-          // Show first 4 and last 4
-          const ccDigits = value.replace(/\D/g, "");
-          if (ccDigits.length <= 8) {
-            return Promise.resolve({
-              original: value,
-              masked: maskChar.repeat(value.length),
-              type,
-              warning:
-                "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
-            });
-          }
-          maskedValue =
-            ccDigits.slice(0, 4) +
-            maskChar.repeat(Math.max(0, ccDigits.length - 8)) +
-            ccDigits.slice(-4);
-          break;
-        }
-        case "partial": {
-          // When keepFirst + keepLast covers the entire value, return unchanged with warning
-          if (keepFirst + keepLast >= value.length) {
-            return Promise.resolve({
-              original: value,
-              masked: value,
-              type,
-              warning:
-                "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
-            });
-          } else {
-            const maskLength = value.length - keepFirst - keepLast;
+          case "phone": {
+            // Keep last 4 digits, mask rest
+            const digits = value.replace(/\D/g, "");
             maskedValue =
-              value.slice(0, keepFirst) +
-              maskChar.repeat(maskLength) +
-              (keepLast > 0 ? value.slice(-keepLast) : "");
+              maskChar.repeat(Math.max(0, digits.length - 4)) +
+              digits.slice(-4);
+            break;
           }
-          break;
+          case "ssn": {
+            // Show only last 4
+            const ssnDigits = value.replace(/\D/g, "");
+            maskedValue = `${maskChar}${maskChar}${maskChar}-${maskChar}${maskChar}-${ssnDigits.slice(-4)}`;
+            break;
+          }
+          case "credit_card": {
+            // Show first 4 and last 4
+            const ccDigits = value.replace(/\D/g, "");
+            if (ccDigits.length <= 8) {
+              return Promise.resolve({
+                original: value,
+                masked: maskChar.repeat(value.length),
+                type,
+                warning:
+                  "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
+              });
+            }
+            maskedValue =
+              ccDigits.slice(0, 4) +
+              maskChar.repeat(Math.max(0, ccDigits.length - 8)) +
+              ccDigits.slice(-4);
+            break;
+          }
+          case "partial": {
+            // When keepFirst + keepLast covers the entire value, return unchanged with warning
+            if (keepFirst + keepLast >= value.length) {
+              return Promise.resolve({
+                original: value,
+                masked: value,
+                type,
+                warning:
+                  "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
+              });
+            } else {
+              const maskLength = value.length - keepFirst - keepLast;
+              maskedValue =
+                value.slice(0, keepFirst) +
+                maskChar.repeat(maskLength) +
+                (keepLast > 0 ? value.slice(-keepLast) : "");
+            }
+            break;
+          }
+          default:
+            maskedValue = maskChar.repeat(value.length);
         }
-        default:
-          maskedValue = maskChar.repeat(value.length);
-      }
 
-      return Promise.resolve({ original: value, masked: maskedValue, type });
+        return Promise.resolve({ original: value, masked: maskedValue, type });
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return Promise.resolve({
+            success: false,
+            error: formatZodError(error),
+          });
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return Promise.resolve({
+          success: false,
+          error: stripErrorPrefix(message),
+        });
+      }
     },
   };
 }
@@ -185,22 +217,23 @@ export function createSecurityUserPrivilegesTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { user, host, includeRoles, summary } =
-        UserPrivilegesSchema.parse(params);
+      try {
+        const { user, host, includeRoles, summary } =
+          UserPrivilegesSchema.parse(params);
 
-      // P154: User existence check when explicitly provided
-      if (user) {
-        const userCheck = await adapter.executeQuery(
-          "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
-          [user],
-        );
-        if (!userCheck.rows || userCheck.rows.length === 0) {
-          return { exists: false, user };
+        // P154: User existence check when explicitly provided
+        if (user) {
+          const userCheck = await adapter.executeQuery(
+            "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
+            [user],
+          );
+          if (!userCheck.rows || userCheck.rows.length === 0) {
+            return { exists: false, user };
+          }
         }
-      }
 
-      // Get users
-      let usersQuery = `
+        // Get users
+        let usersQuery = `
                 SELECT User, Host, 
                        plugin as authPlugin,
                        account_locked as accountLocked,
@@ -211,117 +244,124 @@ export function createSecurityUserPrivilegesTool(
                 FROM mysql.user
             `;
 
-      const conditions: string[] = [];
-      const queryParams: unknown[] = [];
+        const conditions: string[] = [];
+        const queryParams: unknown[] = [];
 
-      if (user) {
-        conditions.push("User = ?");
-        queryParams.push(user);
-      }
-      if (host !== "%") {
-        conditions.push("Host = ?");
-        queryParams.push(host);
-      }
+        if (user) {
+          conditions.push("User = ?");
+          queryParams.push(user);
+        }
+        if (host !== "%") {
+          conditions.push("Host = ?");
+          queryParams.push(host);
+        }
 
-      if (conditions.length > 0) {
-        usersQuery += " WHERE " + conditions.join(" AND ");
-      }
+        if (conditions.length > 0) {
+          usersQuery += " WHERE " + conditions.join(" AND ");
+        }
 
-      const usersResult = await adapter.executeQuery(usersQuery, queryParams);
+        const usersResult = await adapter.executeQuery(usersQuery, queryParams);
 
-      // For each user, get their grants
-      const userPrivileges = [];
-      for (const userRow of usersResult.rows ?? []) {
-        const u = userRow;
-        const userName = u["User"] as string;
-        const userHost = u["Host"] as string;
+        // For each user, get their grants
+        const userPrivileges = [];
+        for (const userRow of usersResult.rows ?? []) {
+          const u = userRow;
+          const userName = u["User"] as string;
+          const userHost = u["Host"] as string;
 
-        const grantsResult = await adapter.executeQuery(
-          `SHOW GRANTS FOR '${userName}'@'${userHost}'`,
-        );
+          const grantsResult = await adapter.executeQuery(
+            `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
+          );
 
-        const grants = (grantsResult.rows ?? []).map((r) => {
-          const values = Object.values(r);
-          return values[0] as string;
-        });
+          const grants = (grantsResult.rows ?? []).map((r) => {
+            const values = Object.values(r);
+            return values[0] as string;
+          });
 
-        let roles: string[] = [];
-        if (includeRoles) {
-          try {
-            const rolesResult = await adapter.executeQuery(
-              `
+          let roles: string[] = [];
+          if (includeRoles) {
+            try {
+              const rolesResult = await adapter.executeQuery(
+                `
                             SELECT FROM_USER, FROM_HOST
                             FROM mysql.role_edges
                             WHERE TO_USER = ? AND TO_HOST = ?
                         `,
-              [userName, userHost],
-            );
+                [userName, userHost],
+              );
 
-            roles = (rolesResult.rows ?? []).map((r) => {
-              const role = r;
-              return `${role["FROM_USER"] as string}@${role["FROM_HOST"] as string}`;
+              roles = (rolesResult.rows ?? []).map((r) => {
+                const role = r;
+                return `${role["FROM_USER"] as string}@${role["FROM_HOST"] as string}`;
+              });
+            } catch {
+              // Role edges table might not exist in older versions
+            }
+          }
+
+          if (summary) {
+            // Extract global privileges from GRANT statements
+            const globalPrivileges: string[] = [];
+            let hasAllPrivileges = false;
+            let hasWithGrantOption = false;
+
+            for (const grant of grants) {
+              // Check for ALL PRIVILEGES
+              if (grant.includes("ALL PRIVILEGES")) {
+                hasAllPrivileges = true;
+              }
+              // Check for WITH GRANT OPTION
+              if (grant.includes("WITH GRANT OPTION")) {
+                hasWithGrantOption = true;
+              }
+              // Extract specific privileges from global grants (ON *.*)
+              const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
+              const globalMatch = globalPattern.exec(grant);
+              if (globalMatch?.[1]) {
+                const privs = globalMatch[1].split(",").map((p) => p.trim());
+                globalPrivileges.push(...privs);
+              }
+            }
+
+            const deduped = [...new Set(globalPrivileges)];
+            userPrivileges.push({
+              user: userName,
+              host: userHost,
+              authPlugin: u["authPlugin"],
+              accountLocked: u["accountLocked"] === "Y",
+              passwordExpired: u["passwordExpired"] === "Y",
+              grantCount: grants.length,
+              roleCount: roles.length,
+              hasAllPrivileges,
+              hasWithGrantOption,
+              globalPrivileges: deduped.slice(0, 10),
+              totalGlobalPrivileges: deduped.length,
             });
-          } catch {
-            // Role edges table might not exist in older versions
+          } else {
+            userPrivileges.push({
+              user: userName,
+              host: userHost,
+              authPlugin: u["authPlugin"],
+              accountLocked: u["accountLocked"] === "Y",
+              passwordExpired: u["passwordExpired"] === "Y",
+              grants,
+              roles,
+            });
           }
         }
 
-        if (summary) {
-          // Extract global privileges from GRANT statements
-          const globalPrivileges: string[] = [];
-          let hasAllPrivileges = false;
-          let hasWithGrantOption = false;
-
-          for (const grant of grants) {
-            // Check for ALL PRIVILEGES
-            if (grant.includes("ALL PRIVILEGES")) {
-              hasAllPrivileges = true;
-            }
-            // Check for WITH GRANT OPTION
-            if (grant.includes("WITH GRANT OPTION")) {
-              hasWithGrantOption = true;
-            }
-            // Extract specific privileges from global grants (ON *.*)
-            const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
-            const globalMatch = globalPattern.exec(grant);
-            if (globalMatch?.[1]) {
-              const privs = globalMatch[1].split(",").map((p) => p.trim());
-              globalPrivileges.push(...privs);
-            }
-          }
-
-          const deduped = [...new Set(globalPrivileges)];
-          userPrivileges.push({
-            user: userName,
-            host: userHost,
-            authPlugin: u["authPlugin"],
-            accountLocked: u["accountLocked"] === "Y",
-            passwordExpired: u["passwordExpired"] === "Y",
-            grantCount: grants.length,
-            roleCount: roles.length,
-            hasAllPrivileges,
-            hasWithGrantOption,
-            globalPrivileges: deduped.slice(0, 10),
-            totalGlobalPrivileges: deduped.length,
-          });
-        } else {
-          userPrivileges.push({
-            user: userName,
-            host: userHost,
-            authPlugin: u["authPlugin"],
-            accountLocked: u["accountLocked"] === "Y",
-            passwordExpired: u["passwordExpired"] === "Y",
-            grants,
-            roles,
-          });
+        return {
+          users: userPrivileges,
+          count: userPrivileges.length,
+          summary,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
         }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: stripErrorPrefix(message) };
       }
-
-      return {
-        users: userPrivileges,
-        count: userPrivileges.length,
-        summary,
-      };
     },
   };
 }
@@ -344,32 +384,33 @@ export function createSecuritySensitiveTablesTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema, patterns } = SensitiveTablesSchema.parse(params);
+      try {
+        const { schema, patterns } = SensitiveTablesSchema.parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
         }
-      }
 
-      // Build pattern conditions
-      const patternConditions = patterns
-        .map(() => "COLUMN_NAME LIKE ?")
-        .join(" OR ");
-      const patternParams = patterns.map((p) => `%${p}%`);
+        // Build pattern conditions
+        const patternConditions = patterns
+          .map(() => "COLUMN_NAME LIKE ?")
+          .join(" OR ");
+        const patternParams = patterns.map((p) => `%${p}%`);
 
-      // Build schema condition - use explicit schema if provided, otherwise DATABASE()
-      const schemaCondition = schema
-        ? "TABLE_SCHEMA = ?"
-        : "TABLE_SCHEMA = DATABASE()";
-      const schemaParams = schema ? [schema] : [];
+        // Build schema condition - use explicit schema if provided, otherwise DATABASE()
+        const schemaCondition = schema
+          ? "TABLE_SCHEMA = ?"
+          : "TABLE_SCHEMA = DATABASE()";
+        const schemaParams = schema ? [schema] : [];
 
-      const query = `
+        const query = `
                 SELECT 
                     TABLE_NAME as tableName,
                     COLUMN_NAME as columnName,
@@ -383,36 +424,43 @@ export function createSecuritySensitiveTablesTool(
                 ORDER BY TABLE_NAME, COLUMN_NAME
             `;
 
-      const result = await adapter.executeQuery(query, [
-        ...schemaParams,
-        ...patternParams,
-      ]);
+        const result = await adapter.executeQuery(query, [
+          ...schemaParams,
+          ...patternParams,
+        ]);
 
-      // Group by table
-      const tableMap = new Map<string, Record<string, unknown>[]>();
-      for (const row of result.rows ?? []) {
-        const r = row;
-        const tableName = r["tableName"] as string;
-        if (!tableMap.has(tableName)) {
-          tableMap.set(tableName, []);
+        // Group by table
+        const tableMap = new Map<string, Record<string, unknown>[]>();
+        for (const row of result.rows ?? []) {
+          const r = row;
+          const tableName = r["tableName"] as string;
+          if (!tableMap.has(tableName)) {
+            tableMap.set(tableName, []);
+          }
+          tableMap.get(tableName)?.push(r);
         }
-        tableMap.get(tableName)?.push(r);
+
+        const sensitiveItems = Array.from(tableMap.entries()).map(
+          ([table, columns]) => ({
+            table,
+            sensitiveColumns: columns,
+            columnCount: columns.length,
+          }),
+        );
+
+        return {
+          sensitiveTables: sensitiveItems,
+          tableCount: sensitiveItems.length,
+          totalSensitiveColumns: result.rows?.length ?? 0,
+          patternsUsed: patterns,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: stripErrorPrefix(message) };
       }
-
-      const sensitiveItems = Array.from(tableMap.entries()).map(
-        ([table, columns]) => ({
-          table,
-          sensitiveColumns: columns,
-          columnCount: columns.length,
-        }),
-      );
-
-      return {
-        sensitiveTables: sensitiveItems,
-        tableCount: sensitiveItems.length,
-        totalSensitiveColumns: result.rows?.length ?? 0,
-        patternsUsed: patterns,
-      };
     },
   };
 }
