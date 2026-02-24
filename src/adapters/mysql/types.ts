@@ -1901,6 +1901,15 @@ export const FlushTablesSchema = z
     tables: data.tables,
   }));
 
+export const KillQuerySchemaBase = z.object({
+  processId: z.number().describe("Process ID to kill"),
+  connection: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Kill connection instead of query"),
+});
+
 export const KillQuerySchema = z.object({
   processId: z.number().describe("Process ID to kill"),
   connection: z

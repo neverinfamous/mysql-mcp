@@ -23,6 +23,7 @@ import {
   FlushTablesSchema,
   FlushTablesSchemaBase,
   KillQuerySchema,
+  KillQuerySchemaBase,
 } from "../../types.js";
 
 /** Extract human-readable messages from a ZodError instead of raw JSON array */
@@ -227,7 +228,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Kill Query",
     description: "Kill a running query or connection.",
     group: "admin",
-    inputSchema: KillQuerySchema,
+    inputSchema: KillQuerySchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

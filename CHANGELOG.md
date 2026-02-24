@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improved
 
 - **JSON Tool Split Schema Migration** — Migrated 9 JSON tools (`json_insert`, `json_replace`, `json_remove`, `json_array_append`, `json_get`, `json_update`, `json_normalize`, `json_stats`, `json_index_suggest`) from inline Zod schemas to the Dual-Schema pattern in `types.ts`. All 9 tools now support parameter aliases (`tableName`/`name` for `table`, `col` for `column`, `filter` for `where`), matching the 5 tools (`json_extract`, `json_set`, `json_contains`, `json_keys`, `json_search`) that already supported aliases
+- **`mysql_kill_query` Split Schema Consistency** — Added `KillQuerySchemaBase` to align with the Dual-Schema pattern used by all other admin tools. `inputSchema` now uses `KillQuerySchemaBase` (visible to MCP clients) while handler parsing continues to use `KillQuerySchema`. No functional change — ensures consistent architecture across the admin group
 - **`mysql_json_validate` Error Clarity** — Stripped verbose `Execute failed: ` prefix from error messages returned when MySQL throws on severely malformed JSON input. Error responses now show only the meaningful MySQL error text
 - **`mysql_json_validate` Error Prefix Expansion** — Expanded error prefix stripping regex to also remove `Query failed: ` prefix, which was still leaking through on certain MySQL driver error paths. Both `Query failed:` and `Execute failed:` prefixes are now stripped
 
