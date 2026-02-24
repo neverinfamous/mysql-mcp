@@ -48,8 +48,8 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return { status: result.rows?.[0] };
         } catch (e) {
           return {
-            error: "Binary logging may not be enabled",
-            details: String(e),
+            success: false,
+            error: `Binary logging may not be enabled: ${String(e)}`,
           };
         }
       }
@@ -113,6 +113,11 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { logFile, position, limit } = BinlogEventsSchema.parse(params);
+
+      // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
+      if (limit === 0) {
+        return { events: [] };
+      }
 
       // Resolve effective log file: use provided or fetch current from master status
       let effectiveLogFile = logFile;
@@ -185,26 +190,33 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Get GTID executed
-      const executedResult = await adapter.executeQuery(
-        "SELECT @@global.gtid_executed as gtid_executed",
-      );
+      try {
+        // Get GTID executed
+        const executedResult = await adapter.executeQuery(
+          "SELECT @@global.gtid_executed as gtid_executed",
+        );
 
-      // Get GTID purged
-      const purgedResult = await adapter.executeQuery(
-        "SELECT @@global.gtid_purged as gtid_purged",
-      );
+        // Get GTID purged
+        const purgedResult = await adapter.executeQuery(
+          "SELECT @@global.gtid_purged as gtid_purged",
+        );
 
-      // Get GTID mode
-      const modeResult = await adapter.executeQuery(
-        "SELECT @@global.gtid_mode as gtid_mode",
-      );
+        // Get GTID mode
+        const modeResult = await adapter.executeQuery(
+          "SELECT @@global.gtid_mode as gtid_mode",
+        );
 
-      return {
-        gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
-        gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
-        gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
-      };
+        return {
+          gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
+          gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
+          gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+        };
+      } catch (e) {
+        return {
+          success: false,
+          error: `Failed to retrieve GTID status: ${String(e)}`,
+        };
+      }
     },
   };
 }

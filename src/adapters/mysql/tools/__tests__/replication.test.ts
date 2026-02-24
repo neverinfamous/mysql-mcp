@@ -204,6 +204,21 @@ describe("Replication Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("GTID not supported"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_gtid_status")!;
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Failed to retrieve GTID status");
+    });
   });
 
   describe("mysql_replication_lag", () => {
@@ -710,14 +725,18 @@ describe("Replication Fallback Handling", () => {
       expect(result).toHaveProperty("status");
     });
 
-    it("should return error when binary logging is disabled", async () => {
+    it("should return structured error when binary logging is disabled", async () => {
       mockAdapter.executeQuery
         .mockRejectedValueOnce(new Error("Unknown command"))
         .mockRejectedValueOnce(new Error("Binary logging not enabled"));
 
       const tool = tools.find((t) => t.name === "mysql_master_status")!;
-      const result = (await tool.handler({}, mockContext)) as { error: string };
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
 
+      expect(result.success).toBe(false);
       expect(result.error).toContain("Binary logging");
     });
   });
@@ -809,6 +828,20 @@ describe("Replication Fallback Handling", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Failed to read binlog events");
+    });
+  });
+
+  describe("mysql_binlog_events limit:0 guard", () => {
+    it("should return empty events for limit: 0 without querying MySQL", async () => {
+      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const result = (await tool.handler(
+        { logFile: "mysql-bin.000001", limit: 0 },
+        mockContext,
+      )) as { events: unknown[] };
+
+      expect(result.events).toEqual([]);
+      // Should NOT have called executeQuery — guard returns before any SQL
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
   });
 
