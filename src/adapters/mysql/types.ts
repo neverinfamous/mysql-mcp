@@ -1442,6 +1442,119 @@ export const FulltextSearchSchema = z
     message: "query (or sql alias) is required",
   });
 
+// --- FulltextDrop ---
+export const FulltextDropSchemaBase = z.object({
+  table: z.string().optional().describe("Table containing the index"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  indexName: z
+    .string()
+    .optional()
+    .describe("Name of the FULLTEXT index to drop"),
+});
+
+export const FulltextDropSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      indexName: z.string().optional(),
+    }),
+  )
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    indexName: data.indexName ?? "",
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.indexName !== "", {
+    message: "indexName is required",
+  });
+
+// --- FulltextBoolean ---
+export const FulltextBooleanSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  columns: z.array(z.string()).optional().describe("Columns to search"),
+  query: z
+    .string()
+    .optional()
+    .describe("Boolean search query with +, -, *, etc."),
+  maxLength: z
+    .number()
+    .optional()
+    .describe(
+      "Optional max characters per text column in results. Truncates with '...' if exceeded.",
+    ),
+});
+
+export const FulltextBooleanSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      columns: z.array(z.string()).optional(),
+      query: z.string().optional(),
+      maxLength: z.number().optional(),
+    }),
+  )
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    columns: data.columns ?? [],
+    query: data.query ?? "",
+    maxLength: data.maxLength,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.query !== "", { message: "query is required" });
+
+// --- FulltextExpand ---
+export const FulltextExpandSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  columns: z.array(z.string()).optional().describe("Columns to search"),
+  query: z.string().optional().describe("Search query to expand"),
+  maxLength: z
+    .number()
+    .optional()
+    .describe(
+      "Optional max characters per text column in results. Truncates with '...' if exceeded.",
+    ),
+});
+
+export const FulltextExpandSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      columns: z.array(z.string()).optional(),
+      query: z.string().optional(),
+      maxLength: z.number().optional(),
+    }),
+  )
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    columns: data.columns ?? [],
+    query: data.query ?? "",
+    maxLength: data.maxLength,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.query !== "", { message: "query is required" });
+
 // =============================================================================
 // Performance Schemas
 // =============================================================================

@@ -93,14 +93,14 @@ describe("Text Fulltext Tools", () => {
           indexName: "ft_idx",
         },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("already exists");
-      expect(result.reason).toContain("ft_idx");
+      expect(result.error).toContain("already exists");
+      expect(result.error).toContain("ft_idx");
     });
 
-    it("should rethrow non-duplicate errors", async () => {
+    it("should return structured error for non-duplicate errors", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Connection refused"),
       );
@@ -108,12 +108,36 @@ describe("Text Fulltext Tools", () => {
       const tool = createFulltextCreateTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          { table: "articles", columns: ["title"], indexName: "ft_idx" },
-          mockContext,
-        ),
-      ).rejects.toThrow("Connection refused");
+      const result = (await tool.handler(
+        { table: "articles", columns: ["title"], indexName: "ft_idx" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Connection refused");
+    });
+
+    it("should return structured error for nonexistent column", async () => {
+      const colError = new Error(
+        "Key column 'nonexistent_col' doesn't exist in table",
+      );
+      (colError as Error & { errno?: number }).errno = 1072;
+      mockAdapter.executeQuery.mockRejectedValue(colError);
+
+      const tool = createFulltextCreateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          table: "articles",
+          columns: ["nonexistent_col"],
+          indexName: "ft_idx",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Key column");
     });
 
     it("should return exists:false for nonexistent table", async () => {
@@ -170,22 +194,26 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "articles", indexName: "ft_nonexistent" },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.reason).toContain("does not exist");
-      expect(result.reason).toContain("ft_nonexistent");
+      expect(result.error).toContain("does not exist");
+      expect(result.error).toContain("ft_nonexistent");
     });
 
-    it("should rethrow non-drop errors", async () => {
+    it("should return structured error for non-drop errors", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createFulltextDropTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler({ table: "articles", indexName: "ft_idx" }, mockContext),
-      ).rejects.toThrow("Access denied");
+      const result = (await tool.handler(
+        { table: "articles", indexName: "ft_idx" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
     });
 
     it("should return exists:false for nonexistent table", async () => {

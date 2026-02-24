@@ -15,7 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ServerInstructions JSON Documentation** — Added missing documentation for mandatory `where` parameter on JSON write tools (`json_set`, `json_insert`, `json_replace`, `json_remove`, `json_array_append`) and documented that `json_remove` accepts a `paths` array instead of a single `path` string
 
+- **Fulltext Tool Split Schema Migration** — Migrated 3 fulltext tools (`mysql_fulltext_drop`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) from inline Zod schemas to the Dual-Schema pattern in `types.ts`. All 3 tools now support parameter aliases (`tableName`/`name` for `table`), matching the 2 tools (`mysql_fulltext_create`, `mysql_fulltext_search`) that already supported aliases
+
 ### Fixed
+
+- **`mysql_fulltext_create` / `mysql_fulltext_drop` Error Field Normalization** — Both tools returned `{ success: false, reason }` for duplicate index and nonexistent index errors, violating the convention where `reason` is reserved for informational `{ success: true, skipped: true }` contexts. Changed to `{ success: false, error }` for consistency with all other tools
+- **`mysql_fulltext_create` Column Error Misclassification (P154)** — Tool returned `{ exists: false, table }` for nonexistent columns, incorrectly indicating the table didn't exist. Now distinguishes `ER_KEY_COLUMN_DOES_NOT_EXITS` (errno 1072, "Key column 'X' doesn't exist") from generic "doesn't exist" errors, returning `{ success: false, error }` for invalid columns while preserving `{ exists: false, table }` only for genuinely missing tables
+- **`mysql_fulltext_create` / `mysql_fulltext_drop` Raw Error Leaks** — Both tools had catch-all code paths that threw raw JavaScript exceptions instead of returning structured `{ success: false, error }` responses. All `throw` statements replaced with structured returns
 
 - **`mysql_json_get` Nonexistent Row Detection** — Tool returned `{ value: null }` for both nonexistent rows and existing rows with null JSON paths, making them indistinguishable. Now returns `{ value: null, rowFound: false }` when the target row ID does not exist, while existing rows with null paths continue to return `{ value: null }` without the `rowFound` field
 - **`mysql_json_keys` Missing `count` Field** — Tool response lacked a `count` field, unlike other read tools (`json_search`, `json_contains`) which include it. Added `count` to the response for consistency

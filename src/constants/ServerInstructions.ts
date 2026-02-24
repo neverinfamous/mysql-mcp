@@ -65,7 +65,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 ## Fulltext Search (\`mysql_fulltext_*\`)
 
-- **Index management**: \`mysql_fulltext_create\` creates a FULLTEXT index (returns \`{ success: false, reason }\` if index already exists), \`mysql_fulltext_drop\` removes it (returns \`{ success: false, reason }\` if index does not exist).
+- **Index management**: \`mysql_fulltext_create\` creates a FULLTEXT index (returns \`{ success: false, error }\` if index already exists), \`mysql_fulltext_drop\` removes it (returns \`{ success: false, error }\` if index does not exist).
 - **Search modes**: \`mysql_fulltext_search\` supports NATURAL (default), BOOLEAN, and EXPANSION modes.
 - **Boolean operators** (\`mysql_fulltext_boolean\`): \`+word\` (required), \`-word\` (excluded), \`word*\` (prefix wildcard), \`>word\`/\`<word\` (relevance weighting).
 - **Query expansion** (\`mysql_fulltext_expand\`): Finds related terms - may return more rows than exact match.

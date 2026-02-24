@@ -15,6 +15,12 @@ import {
   FulltextCreateSchemaBase,
   FulltextSearchSchema,
   FulltextSearchSchemaBase,
+  FulltextDropSchema,
+  FulltextDropSchemaBase,
+  FulltextBooleanSchema,
+  FulltextBooleanSchemaBase,
+  FulltextExpandSchema,
+  FulltextExpandSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
 import {
@@ -99,14 +105,22 @@ export function createFulltextCreateTool(
         if (isDuplicateKeyError(err)) {
           return {
             success: false,
-            reason: `Index '${name}' already exists on table '${table}'`,
+            error: `Index '${name}' already exists on table '${table}'`,
           };
         }
         const msg = err instanceof Error ? err.message : String(err);
+        // Distinguish column-not-found (errno 1072) from table-not-found
+        if (
+          (err as Error & { errno?: number }).errno === 1072 ||
+          msg.includes("Key column") ||
+          msg.includes("Column '")
+        ) {
+          return { success: false, error: msg };
+        }
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
-        throw err;
+        return { success: false, error: msg };
       }
 
       return { success: true, indexName: name, columns };
@@ -114,18 +128,13 @@ export function createFulltextCreateTool(
   };
 }
 
-const FulltextDropSchema = z.object({
-  table: z.string().describe("Table containing the index"),
-  indexName: z.string().describe("Name of the FULLTEXT index to drop"),
-});
-
 export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_fulltext_drop",
     title: "MySQL Drop FULLTEXT Index",
     description: "Drop a FULLTEXT index from a table.",
     group: "fulltext",
-    inputSchema: FulltextDropSchema,
+    inputSchema: FulltextDropSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -146,14 +155,14 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
         if (isCantDropKeyError(err)) {
           return {
             success: false,
-            reason: `Index '${indexName}' does not exist on table '${table}'`,
+            error: `Index '${indexName}' does not exist on table '${table}'`,
           };
         }
         const msg = err instanceof Error ? err.message : String(err);
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
-        throw err;
+        return { success: false, error: msg };
       }
 
       return { success: true, indexName, table };
@@ -232,32 +241,21 @@ export function createFulltextSearchTool(
 export function createFulltextBooleanTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    columns: z.array(z.string()),
-    query: z.string().describe("Boolean search query with +, -, *, etc."),
-    maxLength: z
-      .number()
-      .optional()
-      .describe(
-        "Optional max characters per text column in results. Truncates with '...' if exceeded.",
-      ),
-  });
-
   return {
     name: "mysql_fulltext_boolean",
     title: "MySQL FULLTEXT Boolean",
     description:
       "Perform FULLTEXT search in BOOLEAN MODE with operators (+, -, *, etc.).",
     group: "fulltext",
-    inputSchema: schema,
+    inputSchema: FulltextBooleanSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query, maxLength } = schema.parse(params);
+      const { table, columns, query, maxLength } =
+        FulltextBooleanSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
@@ -289,32 +287,21 @@ export function createFulltextBooleanTool(
 export function createFulltextExpandTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    columns: z.array(z.string()),
-    query: z.string().describe("Search query to expand"),
-    maxLength: z
-      .number()
-      .optional()
-      .describe(
-        "Optional max characters per text column in results. Truncates with '...' if exceeded.",
-      ),
-  });
-
   return {
     name: "mysql_fulltext_expand",
     title: "MySQL FULLTEXT Expand",
     description:
       "Perform FULLTEXT search WITH QUERY EXPANSION for finding related terms.",
     group: "fulltext",
-    inputSchema: schema,
+    inputSchema: FulltextExpandSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query, maxLength } = schema.parse(params);
+      const { table, columns, query, maxLength } =
+        FulltextExpandSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
