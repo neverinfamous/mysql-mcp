@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ServerInstructions Schema Documentation** — Updated `mysql_create_schema`, `mysql_drop_schema`, and `mysql_create_view` error response documentation from `{ success: false, reason }` to `{ success: false, error }` matching the corrected handler behavior. Added missing documentation for `mysql_list_triggers` optional `table` parameter with P154 behavior (`{ exists: false, table }` for nonexistent tables)
 
+- **ServerInstructions Events Documentation** — Added missing `includeDisabled` parameter documentation for `mysql_event_list`. Updated error response field from `{ success: false, reason }` to `{ success: false, error }` in the "Graceful error handling" bullet
+
 ### Fixed
 
 - **Schema Tool Raw Error Leaks (`mysql_create_schema`, `mysql_drop_schema`)** — `mysql_create_schema` threw raw `Error("Invalid schema name")` for invalid names, leaking as an MCP exception instead of returning `{ success: false, error }`. `mysql_drop_schema` had two raw throws: `Error("Invalid schema name")` and `Error("Cannot drop system schema")`. Both catch-all code paths also rethrew raw MySQL errors. All `throw` statements replaced with structured `{ success: false, error }` returns
@@ -72,6 +74,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_list_tables` Nonexistent Database (P154)** — Tool returned an empty `{ tables: [], count: 0 }` for nonexistent `database` parameter values, indistinguishable from a valid empty database. Now pre-checks database existence via `information_schema.SCHEMATA` and returns `{ exists: false, database, message }` when the database does not exist
 - **`mysql_create_table` `ifNotExists` Skipped Indicator** — With `ifNotExists: true`, creating a table that already exists returned `{ success: true, tableName }` with no indication the operation was a no-op. Now pre-checks table existence and returns `{ success: true, skipped: true, tableName, reason: "Table already exists" }`, matching the pattern used by `mysql_drop_table`, `mysql_event_create`, `mysql_create_schema`, and other create tools
 - **Error Field Normalization (`reason` → `error`)** — Standardized all `{ success: false }` error responses to use `error` as the field name instead of `reason`. Applied across `core.ts` (8 instances), `transactions.ts` (13 instances), and `spatial/setup.ts` (4 instances). The `reason` field is now reserved exclusively for informational `{ success: true, skipped: true, reason: "..." }` responses. Updated ServerInstructions and test-tools-prompt to reflect the new convention
+
+- **Events Tool Raw Error Leaks (`mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`)** — All three write handlers had validation throws (`"Invalid event name"`, `"executeAt is required..."`, `"No modifications specified"`) and catch-all re-throws that leaked as raw MCP exceptions. Wrapped all handler bodies in top-level `try/catch` returning `{ success: false, error }`, matching the pattern used by schema, core, and admin tools
+- **Events Tool Error Field Normalization (`reason` → `error`)** — All three event write tools returned `{ success: false, reason }` for known error cases (duplicate event, nonexistent event). Changed to `{ success: false, error }`, reserving `reason` exclusively for informational `{ success: true, skipped: true }` responses. Updated ServerInstructions to match
 
 ### Infrastructure
 

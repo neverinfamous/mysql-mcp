@@ -137,92 +137,91 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        name,
-        schedule,
-        body,
-        onCompletion,
-        enabled,
-        comment,
-        ifNotExists,
-      } = EventCreateSchema.parse(params);
-
-      // Validate event name
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        throw new Error("Invalid event name");
-      }
-
-      // Pre-check event existence for informative messaging
-      if (ifNotExists) {
-        const existsCheck = await adapter.executeQuery(
-          "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
-          [name],
-        );
-        if (existsCheck.rows && existsCheck.rows.length > 0) {
-          return {
-            success: true,
-            skipped: true,
-            reason: "Event already exists",
-            eventName: name,
-          };
-        }
-      }
-
-      const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
-      let sql = `CREATE EVENT ${ifNotExistsClause}\`${name}\`\nON SCHEDULE `;
-
-      // Build schedule clause
-      if (schedule.type === "ONE TIME") {
-        if (!schedule.executeAt) {
-          throw new Error("executeAt is required for ONE TIME events");
-        }
-        sql += `AT '${schedule.executeAt}'`;
-      } else {
-        if (
-          schedule.interval === undefined ||
-          schedule.interval === null ||
-          schedule.intervalUnit === undefined ||
-          schedule.intervalUnit === null
-        ) {
-          throw new Error(
-            "interval and intervalUnit are required for RECURRING events",
-          );
-        }
-        sql += `EVERY ${String(schedule.interval)} ${schedule.intervalUnit}`;
-        if (schedule.starts) {
-          sql += ` STARTS '${schedule.starts}'`;
-        }
-        if (schedule.ends) {
-          sql += ` ENDS '${schedule.ends}'`;
-        }
-      }
-
-      sql += `\nON COMPLETION ${onCompletion}`;
-
-      if (!enabled) {
-        sql += "\nDISABLE";
-      } else {
-        sql += "\nENABLE";
-      }
-
-      if (comment) {
-        sql += `\nCOMMENT '${comment.replace(/'/g, "''")}'`;
-      }
-
-      sql += `\nDO ${body}`;
-
       try {
+        const {
+          name,
+          schedule,
+          body,
+          onCompletion,
+          enabled,
+          comment,
+          ifNotExists,
+        } = EventCreateSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return { success: false, error: "Invalid event name" };
+        }
+
+        if (ifNotExists) {
+          const existsCheck = await adapter.executeQuery(
+            "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
+            [name],
+          );
+          if (existsCheck.rows && existsCheck.rows.length > 0) {
+            return {
+              success: true,
+              skipped: true,
+              reason: "Event already exists",
+              eventName: name,
+            };
+          }
+        }
+
+        const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
+        let sql = `CREATE EVENT ${ifNotExistsClause}\`${name}\`\nON SCHEDULE `;
+
+        if (schedule.type === "ONE TIME") {
+          if (!schedule.executeAt) {
+            return {
+              success: false,
+              error: "executeAt is required for ONE TIME events",
+            };
+          }
+          sql += `AT '${schedule.executeAt}'`;
+        } else {
+          if (
+            schedule.interval === undefined ||
+            schedule.interval === null ||
+            schedule.intervalUnit === undefined ||
+            schedule.intervalUnit === null
+          ) {
+            return {
+              success: false,
+              error:
+                "interval and intervalUnit are required for RECURRING events",
+            };
+          }
+          sql += `EVERY ${String(schedule.interval)} ${schedule.intervalUnit}`;
+          if (schedule.starts) {
+            sql += ` STARTS '${schedule.starts}'`;
+          }
+          if (schedule.ends) {
+            sql += ` ENDS '${schedule.ends}'`;
+          }
+        }
+
+        sql += `\nON COMPLETION ${onCompletion}`;
+
+        if (!enabled) {
+          sql += "\nDISABLE";
+        } else {
+          sql += "\nENABLE";
+        }
+
+        if (comment) {
+          sql += `\nCOMMENT '${comment.replace(/'/g, "''")}'`;
+        }
+
+        sql += `\nDO ${body}`;
+
         await adapter.executeQuery(sql);
         return { success: true, eventName: name };
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("already exists")) {
-          return {
-            success: false,
-            reason: `Event '${name}' already exists`,
-          };
+          return { success: false, error: "Event already exists" };
         }
-        throw error;
+        return { success: false, error: message };
       }
     },
   };
@@ -244,88 +243,95 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, newName, schedule, body, onCompletion, enabled, comment } =
-        EventAlterSchema.parse(params);
-
-      // Validate event name
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        throw new Error("Invalid event name");
-      }
-
-      let sql = `ALTER EVENT \`${name}\``;
-      const clauses: string[] = [];
-
-      // Build schedule clause if provided
-      if (schedule?.type) {
-        let scheduleClause = "ON SCHEDULE ";
-        if (schedule.type === "ONE TIME") {
-          if (!schedule.executeAt) {
-            throw new Error("executeAt is required for ONE TIME events");
-          }
-          scheduleClause += `AT '${schedule.executeAt}'`;
-        } else {
-          if (
-            schedule.interval === undefined ||
-            schedule.interval === null ||
-            schedule.intervalUnit === undefined ||
-            schedule.intervalUnit === null
-          ) {
-            throw new Error(
-              "interval and intervalUnit are required for RECURRING events",
-            );
-          }
-          scheduleClause += `EVERY ${String(schedule.interval)} ${schedule.intervalUnit}`;
-          if (schedule.starts) {
-            scheduleClause += ` STARTS '${schedule.starts}'`;
-          }
-          if (schedule.ends) {
-            scheduleClause += ` ENDS '${schedule.ends}'`;
-          }
-        }
-        clauses.push(scheduleClause);
-      }
-
-      if (onCompletion) {
-        clauses.push(`ON COMPLETION ${onCompletion}`);
-      }
-
-      if (newName) {
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
-          throw new Error("Invalid new event name");
-        }
-        clauses.push(`RENAME TO \`${newName}\``);
-      }
-
-      if (enabled !== undefined) {
-        clauses.push(enabled ? "ENABLE" : "DISABLE");
-      }
-
-      if (comment !== undefined) {
-        clauses.push(`COMMENT '${comment.replace(/'/g, "''")}'`);
-      }
-
-      if (body) {
-        clauses.push(`DO ${body}`);
-      }
-
-      if (clauses.length === 0) {
-        throw new Error("No modifications specified");
-      }
-
-      sql += "\n" + clauses.join("\n");
-
       try {
+        const {
+          name,
+          newName,
+          schedule,
+          body,
+          onCompletion,
+          enabled,
+          comment,
+        } = EventAlterSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return { success: false, error: "Invalid event name" };
+        }
+
+        let sql = `ALTER EVENT \`${name}\``;
+        const clauses: string[] = [];
+
+        if (schedule?.type) {
+          let scheduleClause = "ON SCHEDULE ";
+          if (schedule.type === "ONE TIME") {
+            if (!schedule.executeAt) {
+              return {
+                success: false,
+                error: "executeAt is required for ONE TIME events",
+              };
+            }
+            scheduleClause += `AT '${schedule.executeAt}'`;
+          } else {
+            if (
+              schedule.interval === undefined ||
+              schedule.interval === null ||
+              schedule.intervalUnit === undefined ||
+              schedule.intervalUnit === null
+            ) {
+              return {
+                success: false,
+                error:
+                  "interval and intervalUnit are required for RECURRING events",
+              };
+            }
+            scheduleClause += `EVERY ${String(schedule.interval)} ${schedule.intervalUnit}`;
+            if (schedule.starts) {
+              scheduleClause += ` STARTS '${schedule.starts}'`;
+            }
+            if (schedule.ends) {
+              scheduleClause += ` ENDS '${schedule.ends}'`;
+            }
+          }
+          clauses.push(scheduleClause);
+        }
+
+        if (onCompletion) {
+          clauses.push(`ON COMPLETION ${onCompletion}`);
+        }
+
+        if (newName) {
+          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
+            return { success: false, error: "Invalid new event name" };
+          }
+          clauses.push(`RENAME TO \`${newName}\``);
+        }
+
+        if (enabled !== undefined) {
+          clauses.push(enabled ? "ENABLE" : "DISABLE");
+        }
+
+        if (comment !== undefined) {
+          clauses.push(`COMMENT '${comment.replace(/'/g, "''")}'`);
+        }
+
+        if (body) {
+          clauses.push(`DO ${body}`);
+        }
+
+        if (clauses.length === 0) {
+          return { success: false, error: "No modifications specified" };
+        }
+
+        sql += "\n" + clauses.join("\n");
+
         await adapter.executeQuery(sql);
         return { success: true, eventName: newName ?? name };
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return {
-            success: false,
-            reason: `Event '${name}' does not exist`,
-          };
+          return { success: false, error: "Event does not exist" };
         }
-        throw error;
+        return { success: false, error: message };
       }
     },
   };
@@ -347,43 +353,38 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
       destructiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, ifExists } = EventDropSchema.parse(params);
-
-      // Validate event name
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        throw new Error("Invalid event name");
-      }
-
-      // Pre-check event existence for informative messaging
-      if (ifExists) {
-        const existsCheck = await adapter.executeQuery(
-          "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
-          [name],
-        );
-        if (!existsCheck.rows || existsCheck.rows.length === 0) {
-          return {
-            success: true,
-            skipped: true,
-            reason: "Event did not exist",
-            eventName: name,
-          };
-        }
-      }
-
-      const ifExistsClause = ifExists ? "IF EXISTS " : "";
-
       try {
+        const { name, ifExists } = EventDropSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return { success: false, error: "Invalid event name" };
+        }
+
+        if (ifExists) {
+          const existsCheck = await adapter.executeQuery(
+            "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
+            [name],
+          );
+          if (!existsCheck.rows || existsCheck.rows.length === 0) {
+            return {
+              success: true,
+              skipped: true,
+              reason: "Event did not exist",
+              eventName: name,
+            };
+          }
+        }
+
+        const ifExistsClause = ifExists ? "IF EXISTS " : "";
+
         await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
         return { success: true, eventName: name };
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return {
-            success: false,
-            reason: `Event '${name}' does not exist`,
-          };
+          return { success: false, error: "Event does not exist" };
         }
-        throw error;
+        return { success: false, error: message };
       }
     },
   };
