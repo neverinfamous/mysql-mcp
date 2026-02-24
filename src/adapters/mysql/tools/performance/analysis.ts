@@ -266,22 +266,23 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, limit } = IndexUsageSchema.parse(params);
+      try {
+        const { table, limit } = IndexUsageSchema.parse(params);
 
-      // P154: Check table existence when a specific table is requested
-      if (table) {
-        const check = await adapter.executeReadQuery(
-          `SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
-        );
-        if (!check.rows || check.rows.length === 0) {
-          return { exists: false, table };
+        // P154: Check table existence when a specific table is requested
+        if (table) {
+          const check = await adapter.executeReadQuery(
+            `SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+            [table],
+          );
+          if (!check.rows || check.rows.length === 0) {
+            return { exists: false, table };
+          }
         }
-      }
 
-      // Always filter to current database to avoid returning thousands of
-      // MySQL internal indexes with zero counts
-      let sql = `
+        // Always filter to current database to avoid returning thousands of
+        // MySQL internal indexes with zero counts
+        let sql = `
                 SELECT 
                     object_schema as database_name,
                     object_name as table_name,
@@ -297,14 +298,21 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
                   AND object_schema = DATABASE()
             `;
 
-      if (table) {
-        sql += ` AND object_name = ?`;
+        if (table) {
+          sql += ` AND object_name = ?`;
+        }
+
+        sql += ` ORDER BY count_read + count_write DESC LIMIT ${limit}`;
+
+        const result = await adapter.executeReadQuery(
+          sql,
+          table ? [table] : [],
+        );
+        return { indexUsage: result.rows };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       }
-
-      sql += ` ORDER BY count_read + count_write DESC LIMIT ${limit}`;
-
-      const result = await adapter.executeReadQuery(sql, table ? [table] : []);
-      return { indexUsage: result.rows };
     },
   };
 }
@@ -323,9 +331,10 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table } = TableStatsSchema.parse(params);
+      try {
+        const { table } = TableStatsSchema.parse(params);
 
-      const sql = `
+        const sql = `
                 SELECT 
                     TABLE_NAME as table_name,
                     ENGINE as engine,
@@ -344,13 +353,17 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
                   AND TABLE_NAME = ?
             `;
 
-      const result = await adapter.executeReadQuery(sql, [table]);
+        const result = await adapter.executeReadQuery(sql, [table]);
 
-      if (!result.rows || result.rows.length === 0) {
-        return { exists: false, table };
+        if (!result.rows || result.rows.length === 0) {
+          return { exists: false, table };
+        }
+
+        return { stats: result.rows[0] };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       }
-
-      return { stats: result.rows[0] };
     },
   };
 }

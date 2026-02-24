@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_index_usage` / `mysql_table_stats` Raw Error Leaks** — Both tools lacked `try/catch` around their main query execution, causing raw MySQL errors to propagate as MCP exceptions when `performance_schema` or `information_schema` queries failed. Both now return `{ success: false, error }` matching the structured error pattern used by the other 6 performance tools
 - **`mysql_slow_queries` `minTime` Unit Conversion** — The `minTime` parameter (documented as seconds) used a multiplier of 10⁹ (nanoseconds) when comparing against `AVG_TIMER_WAIT`, which is measured in picoseconds (10⁻¹²). This made the filter 1000× too lenient: `minTime: 100` filtered at 100 milliseconds instead of 100 seconds. Corrected multiplier to 10¹²
 - **Performance Server-Level Tools Raw Error Leaks** — `mysql_slow_queries`, `mysql_query_stats`, `mysql_buffer_pool_stats`, and `mysql_thread_stats` called `executeReadQuery()` without `try/catch`, causing raw MySQL errors to propagate as MCP exceptions when `performance_schema` was unavailable or queries failed. All 4 tools now return `{ success: false, error }` matching the structured error pattern used by `mysql_explain` and `mysql_explain_analyze`
 - **`mysql_query_stats` Schema Extraction** — Moved inline Zod schema from `analysis.ts` to `QueryStatsSchema` in `types.ts` for consistency with other performance tool schemas (`SlowQuerySchema`, `IndexUsageSchema`, `TableStatsSchema`)

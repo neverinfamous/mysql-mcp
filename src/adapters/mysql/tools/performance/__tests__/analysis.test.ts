@@ -638,6 +638,21 @@ describe("Performance Analysis Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("LIMIT 10");
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied for performance_schema"),
+      );
+
+      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
+    });
   });
 
   describe("createTableStatsTool", () => {
@@ -678,6 +693,21 @@ describe("Performance Analysis Tools", () => {
 
       expect(result.exists).toBe(false);
       expect(result.table).toBe("nonexistent");
+    });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Access denied for information_schema"),
+      );
+
+      const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({ table: "users" }, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Access denied");
     });
   });
 
