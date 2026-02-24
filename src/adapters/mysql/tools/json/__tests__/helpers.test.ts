@@ -52,6 +52,24 @@ describe("JSON Helper Tools", () => {
       // Value is parsed from JSON string
       expect(result.value).toEqual({ a: 1 });
     });
+
+    it("should return rowFound: false for nonexistent row", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column: "json_col",
+          path: "$.a",
+          id: 999,
+        },
+        mockContext,
+      )) as { value: null; rowFound: boolean };
+
+      expect(result.value).toBeNull();
+      expect(result.rowFound).toBe(false);
+    });
   });
 
   describe("createJsonSearchTool", () => {
@@ -164,6 +182,27 @@ describe("JSON Helper Tools", () => {
         .calls[0][1] as string[];
       expect(sqlParam[0]).toBe("hello");
       expect(result.valid).toBe(false);
+    });
+
+    it("should strip Query failed and Execute failed prefixes from errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error(
+          'Query failed: Execute failed: Invalid JSON text in argument 1 to function cast_as_json: "Missing a name" at position 1.',
+        ),
+      );
+
+      const tool = createJsonValidateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
+        valid: boolean;
+        error: string;
+      };
+
+      expect(result.valid).toBe(false);
+      expect(result.error).not.toContain("Query failed");
+      expect(result.error).not.toContain("Execute failed");
+      expect(result.error).toContain("Invalid JSON text");
     });
   });
 

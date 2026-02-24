@@ -340,7 +340,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} HAVING json_keys IS NOT NULL`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
-        return { rows: result.rows };
+        return { rows: result.rows, count: result.rows?.length ?? 0 };
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {

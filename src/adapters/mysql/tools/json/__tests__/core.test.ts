@@ -299,6 +299,26 @@ describe("JSON Core Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_KEYS");
     });
+
+    it("should include count in response", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { json_keys: '["a", "b"]' },
+          { json_keys: '["c"]' },
+        ]),
+      );
+
+      const tool = createJsonKeysTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column: "json_col",
+        },
+        mockContext,
+      )) as { rows: unknown[]; count: number };
+
+      expect(result.count).toBe(2);
+    });
   });
 
   describe("createJsonArrayAppendTool", () => {

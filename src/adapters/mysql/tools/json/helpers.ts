@@ -51,6 +51,11 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
         const result = await adapter.executeReadQuery(sql, [path, id]);
 
+        // No rows = row ID doesn't exist (distinct from null JSON path)
+        if (!result.rows || result.rows.length === 0) {
+          return { value: null, rowFound: false };
+        }
+
         const rawValue = result.rows?.[0]?.["value"];
         // Parse JSON value for consistency with mysql_json_extract
         // Return null for missing paths, parse objects/arrays, return primitives as-is
@@ -209,7 +214,10 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         // Return a structured error response instead of propagating
         let message =
           error instanceof Error ? error.message : "Unknown validation error";
-        message = message.replace(/^(Execute failed:\s*)+/i, "");
+        message = message.replace(
+          /^(Query failed:\s*|Execute failed:\s*)+/i,
+          "",
+        );
         return { valid: false, error: message };
       }
     },

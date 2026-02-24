@@ -11,9 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **JSON Tool Split Schema Migration** — Migrated 9 JSON tools (`json_insert`, `json_replace`, `json_remove`, `json_array_append`, `json_get`, `json_update`, `json_normalize`, `json_stats`, `json_index_suggest`) from inline Zod schemas to the Dual-Schema pattern in `types.ts`. All 9 tools now support parameter aliases (`tableName`/`name` for `table`, `col` for `column`, `filter` for `where`), matching the 5 tools (`json_extract`, `json_set`, `json_contains`, `json_keys`, `json_search`) that already supported aliases
 - **`mysql_json_validate` Error Clarity** — Stripped verbose `Execute failed: ` prefix from error messages returned when MySQL throws on severely malformed JSON input. Error responses now show only the meaningful MySQL error text
+- **`mysql_json_validate` Error Prefix Expansion** — Expanded error prefix stripping regex to also remove `Query failed: ` prefix, which was still leaking through on certain MySQL driver error paths. Both `Query failed:` and `Execute failed:` prefixes are now stripped
+
 - **ServerInstructions JSON Documentation** — Added missing documentation for mandatory `where` parameter on JSON write tools (`json_set`, `json_insert`, `json_replace`, `json_remove`, `json_array_append`) and documented that `json_remove` accepts a `paths` array instead of a single `path` string
 
 ### Fixed
+
+- **`mysql_json_get` Nonexistent Row Detection** — Tool returned `{ value: null }` for both nonexistent rows and existing rows with null JSON paths, making them indistinguishable. Now returns `{ value: null, rowFound: false }` when the target row ID does not exist, while existing rows with null paths continue to return `{ value: null }` without the `rowFound` field
+- **`mysql_json_keys` Missing `count` Field** — Tool response lacked a `count` field, unlike other read tools (`json_search`, `json_contains`) which include it. Added `count` to the response for consistency
 
 - **`mysql_json_update` Error Field Normalization** — Tool returned `{ success: false, reason: "No row found..." }` when no matching row existed, violating the convention where `reason` is reserved for informational `{ success: true, skipped: true }` contexts. Changed to `{ success: false, error: "No row found..." }` for consistency with all other tools
 - **`mysql_json_keys` Null Row Filtering** — Tool returned `{ json_keys: null }` rows for records where the queried JSON path didn't exist, inflating response payloads with useless entries. Added `HAVING json_keys IS NOT NULL` to filter these out
