@@ -10,8 +10,14 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  IndexRecommendationSchema,
+  IndexRecommendationSchemaBase,
+  ForceIndexSchema,
+  ForceIndexSchemaBase,
+  preprocessQueryOnlyParams,
+} from "../../types.js";
 import { z } from "zod";
-import { preprocessQueryOnlyParams } from "../../types.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -153,79 +159,80 @@ function extractTraceSummary(
 export function createIndexRecommendationTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    table: z.string().describe("Table to analyze for missing indexes"),
-  });
-
   return {
     name: "mysql_index_recommendation",
     title: "MySQL Index Recommendation",
     description:
       "Analyze table and suggest potentially missing indexes based on query patterns.",
     group: "optimization",
-    inputSchema: schema,
+    inputSchema: IndexRecommendationSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table } = schema.parse(params);
+      try {
+        const { table } = IndexRecommendationSchema.parse(params);
 
-      // Get columns
-      const columns = await adapter.describeTable(table);
+        // Get columns
+        const columns = await adapter.describeTable(table);
 
-      // Graceful handling for non-existent tables (P154)
-      if (!columns.columns || columns.columns.length === 0) {
-        return { exists: false, table };
-      }
-
-      // Get existing indexes
-      const indexes = await adapter.getTableIndexes(table);
-      const indexedColumns = new Set(indexes.flatMap((i) => i.columns));
-
-      // Analyze which columns might benefit from indexing
-      const recommendations: { column: string; reason: string }[] = [];
-
-      for (const col of columns.columns) {
-        if (indexedColumns.has(col.name)) continue;
-
-        // Suggest indexes for common patterns
-        if (col.name.endsWith("_id") || col.name === "id") {
-          recommendations.push({
-            column: col.name,
-            reason: "Foreign key or ID column often benefits from indexing",
-          });
-        } else if (
-          ["created_at", "updated_at", "date", "timestamp"].some((s) =>
-            col.name.includes(s),
-          )
-        ) {
-          recommendations.push({
-            column: col.name,
-            reason: "Timestamp columns often used in range queries",
-          });
-        } else if (
-          col.name === "status" ||
-          col.name === "type" ||
-          col.name === "category"
-        ) {
-          recommendations.push({
-            column: col.name,
-            reason: "Status/type columns often used in filtering",
-          });
+        // Graceful handling for non-existent tables (P154)
+        if (!columns.columns || columns.columns.length === 0) {
+          return { exists: false, table };
         }
-      }
 
-      return {
-        exists: true,
-        table,
-        existingIndexes: indexes.map((i) => ({
-          name: i.name,
-          columns: i.columns,
-        })),
-        recommendations,
-      };
+        // Get existing indexes
+        const indexes = await adapter.getTableIndexes(table);
+        const indexedColumns = new Set(indexes.flatMap((i) => i.columns));
+
+        // Analyze which columns might benefit from indexing
+        const recommendations: { column: string; reason: string }[] = [];
+
+        for (const col of columns.columns) {
+          if (indexedColumns.has(col.name)) continue;
+
+          // Suggest indexes for common patterns
+          if (col.name.endsWith("_id") || col.name === "id") {
+            recommendations.push({
+              column: col.name,
+              reason: "Foreign key or ID column often benefits from indexing",
+            });
+          } else if (
+            ["created_at", "updated_at", "date", "timestamp"].some((s) =>
+              col.name.includes(s),
+            )
+          ) {
+            recommendations.push({
+              column: col.name,
+              reason: "Timestamp columns often used in range queries",
+            });
+          } else if (
+            col.name === "status" ||
+            col.name === "type" ||
+            col.name === "category"
+          ) {
+            recommendations.push({
+              column: col.name,
+              reason: "Status/type columns often used in filtering",
+            });
+          }
+        }
+
+        return {
+          exists: true,
+          table,
+          existingIndexes: indexes.map((i) => ({
+            name: i.name,
+            columns: i.columns,
+          })),
+          recommendations,
+        };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -266,129 +273,138 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query } = schema.parse(params);
+      try {
+        const { query } = schema.parse(params);
 
-      const suggestions: string[] = [];
-      const upperQuery = query.toUpperCase();
+        const suggestions: string[] = [];
+        const upperQuery = query.toUpperCase();
 
-      // Basic query analysis
-      if (upperQuery.includes("SELECT *")) {
-        suggestions.push(
-          "Consider selecting only needed columns instead of SELECT *",
-        );
-      }
-
-      if (!upperQuery.includes("LIMIT") && upperQuery.includes("SELECT")) {
-        suggestions.push("Consider adding LIMIT to prevent large result sets");
-      }
-
-      if (upperQuery.includes("LIKE") && query.includes("%")) {
-        if (query.includes("LIKE '%")) {
+        // Basic query analysis
+        if (upperQuery.includes("SELECT *")) {
           suggestions.push(
-            "Leading wildcard in LIKE prevents index usage; consider FULLTEXT search",
+            "Consider selecting only needed columns instead of SELECT *",
           );
         }
-      }
 
-      // Check for OR in WHERE clause (not ORDER BY, FOR, etc.)
-      const wherePattern = /WHERE\s+(.+?)(?:ORDER BY|GROUP BY|LIMIT|$)/is;
-      const whereMatch = wherePattern.exec(upperQuery);
-      const whereClause = whereMatch?.[1];
-      if (whereClause && /\bOR\b/i.test(whereClause)) {
-        suggestions.push(
-          "OR conditions may prevent index usage; consider UNION instead",
-        );
-      }
+        if (!upperQuery.includes("LIMIT") && upperQuery.includes("SELECT")) {
+          suggestions.push(
+            "Consider adding LIMIT to prevent large result sets",
+          );
+        }
 
-      if (upperQuery.includes("ORDER BY") && !upperQuery.includes("LIMIT")) {
-        suggestions.push("ORDER BY without LIMIT may cause full table sort");
-      }
-
-      if (upperQuery.includes("NOT IN") || upperQuery.includes("NOT EXISTS")) {
-        suggestions.push(
-          "NOT IN/NOT EXISTS can be slow; consider LEFT JOIN with NULL check",
-        );
-      }
-
-      // Get EXPLAIN for the query
-      let explainResult: unknown = null;
-      let explainError: string | undefined;
-      try {
-        const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
-        const result = await adapter.executeReadQuery(explainSql);
-        if (result.rows?.[0]) {
-          const explainStr = result.rows[0]["EXPLAIN"];
-          if (typeof explainStr === "string") {
-            explainResult = JSON.parse(explainStr) as unknown;
+        if (upperQuery.includes("LIKE") && query.includes("%")) {
+          if (query.includes("LIKE '%")) {
+            suggestions.push(
+              "Leading wildcard in LIKE prevents index usage; consider FULLTEXT search",
+            );
           }
         }
-      } catch (err: unknown) {
-        explainError =
-          err instanceof Error ? err.message : "Failed to generate EXPLAIN";
+
+        // Check for OR in WHERE clause (not ORDER BY, FOR, etc.)
+        const wherePattern = /WHERE\s+(.+?)(?:ORDER BY|GROUP BY|LIMIT|$)/is;
+        const whereMatch = wherePattern.exec(upperQuery);
+        const whereClause = whereMatch?.[1];
+        if (whereClause && /\bOR\b/i.test(whereClause)) {
+          suggestions.push(
+            "OR conditions may prevent index usage; consider UNION instead",
+          );
+        }
+
+        if (upperQuery.includes("ORDER BY") && !upperQuery.includes("LIMIT")) {
+          suggestions.push("ORDER BY without LIMIT may cause full table sort");
+        }
+
+        if (
+          upperQuery.includes("NOT IN") ||
+          upperQuery.includes("NOT EXISTS")
+        ) {
+          suggestions.push(
+            "NOT IN/NOT EXISTS can be slow; consider LEFT JOIN with NULL check",
+          );
+        }
+
+        // Get EXPLAIN for the query
+        let explainResult: unknown = null;
+        let explainError: string | undefined;
+        try {
+          const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
+          const result = await adapter.executeReadQuery(explainSql);
+          if (result.rows?.[0]) {
+            const explainStr = result.rows[0]["EXPLAIN"];
+            if (typeof explainStr === "string") {
+              explainResult = JSON.parse(explainStr) as unknown;
+            }
+          }
+        } catch (err: unknown) {
+          explainError =
+            err instanceof Error ? err.message : "Failed to generate EXPLAIN";
+        }
+
+        const response: Record<string, unknown> = {
+          originalQuery: query,
+          suggestions,
+          explainPlan: explainResult,
+        };
+
+        if (explainError) {
+          response["explainError"] = explainError;
+        }
+
+        return response;
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       }
-
-      const response: Record<string, unknown> = {
-        originalQuery: query,
-        suggestions,
-        explainPlan: explainResult,
-      };
-
-      if (explainError) {
-        response["explainError"] = explainError;
-      }
-
-      return response;
     },
   };
 }
 
 export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    table: z.string(),
-    query: z.string().describe("Original query"),
-    indexName: z.string().describe("Index name to force"),
-  });
-
   return {
     name: "mysql_force_index",
     title: "MySQL Force Index",
     description: "Generate a query with FORCE INDEX hint.",
     group: "optimization",
-    inputSchema: schema,
+    inputSchema: ForceIndexSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, query, indexName } = schema.parse(params);
+      try {
+        const { table, query, indexName } = ForceIndexSchema.parse(params);
 
-      // P154: Check table existence first
-      const tableInfo = await adapter.describeTable(table);
-      if (!tableInfo.columns || tableInfo.columns.length === 0) {
-        return { exists: false, table };
+        // P154: Check table existence first
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns || tableInfo.columns.length === 0) {
+          return { exists: false, table };
+        }
+
+        // Simple replacement - insert FORCE INDEX after table name
+        const rewritten = query.replace(
+          new RegExp(`FROM\\s+\`?${table}\`?`, "i"),
+          `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
+        );
+
+        const response: Record<string, unknown> = {
+          originalQuery: query,
+          rewrittenQuery: rewritten,
+          hint: `FORCE INDEX (\`${indexName}\`)`,
+        };
+
+        // Validate index existence and warn if not found
+        const indexes = await adapter.getTableIndexes(table);
+        if (!indexes.some((idx) => idx.name === indexName)) {
+          response["warning"] =
+            `Index '${indexName}' not found on table '${table}'`;
+        }
+
+        return response;
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       }
-
-      // Simple replacement - insert FORCE INDEX after table name
-      const rewritten = query.replace(
-        new RegExp(`FROM\\s+\`?${table}\`?`, "i"),
-        `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
-      );
-
-      const response: Record<string, unknown> = {
-        originalQuery: query,
-        rewrittenQuery: rewritten,
-        hint: `FORCE INDEX (\`${indexName}\`)`,
-      };
-
-      // Validate index existence and warn if not found
-      const indexes = await adapter.getTableIndexes(table);
-      if (!indexes.some((idx) => idx.name === indexName)) {
-        response["warning"] =
-          `Index '${indexName}' not found on table '${table}'`;
-      }
-
-      return response;
     },
   };
 }
@@ -464,6 +480,9 @@ export function createOptimizerTraceTool(
         }
 
         return { trace: traceResult.rows };
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        return { success: false, error: msg };
       } finally {
         // Disable optimizer trace
         await adapter.executeQuery('SET optimizer_trace="enabled=off"');

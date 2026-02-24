@@ -454,5 +454,135 @@ describe("Performance Optimization Tools", () => {
       );
       expect(result).toHaveProperty("trace");
     });
+
+    it("should return structured error when trace fetch fails", async () => {
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([])) // The query succeeds
+        .mockRejectedValueOnce(new Error("Access denied for OPTIMIZER_TRACE")); // The trace fetch fails
+
+      const tool = createOptimizerTraceTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { query: "SELECT * FROM users" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Access denied for OPTIMIZER_TRACE");
+
+      // Verify optimizer trace is still disabled in finally block
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        'SET optimizer_trace="enabled=off"',
+      );
+    });
+  });
+
+  describe("alias support", () => {
+    it("mysql_index_recommendation should accept tableName alias", async () => {
+      const mockTableInfo = createMockTableInfo("orders");
+      mockTableInfo.columns = [
+        { name: "id", type: "int", nullable: false, primaryKey: true },
+      ];
+      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        {
+          name: "PRIMARY",
+          tableName: "orders",
+          columns: ["id"],
+          unique: true,
+          type: "BTREE",
+        },
+      ]);
+
+      const tool = createIndexRecommendationTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { tableName: "orders" },
+        mockContext,
+      )) as { exists: boolean; table: string };
+
+      expect(result.exists).toBe(true);
+      expect(result.table).toBe("orders");
+      expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
+    });
+
+    it("mysql_force_index should accept tableName alias", async () => {
+      const mockTableInfo = createMockTableInfo("users");
+      mockTableInfo.columns = [
+        { name: "id", type: "int", nullable: false, primaryKey: true },
+      ];
+      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        {
+          name: "idx_name",
+          tableName: "users",
+          columns: ["name"],
+          unique: false,
+          type: "BTREE",
+        },
+      ]);
+
+      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          tableName: "users",
+          query: "SELECT * FROM users WHERE name = 'test'",
+          indexName: "idx_name",
+        },
+        mockContext,
+      )) as { rewrittenQuery: string };
+
+      expect(result.rewrittenQuery).toContain("FORCE INDEX");
+      expect(mockAdapter.describeTable).toHaveBeenCalledWith("users");
+    });
+  });
+
+  describe("try/catch error handling", () => {
+    it("mysql_index_recommendation should return structured error on adapter throw", async () => {
+      mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
+
+      const tool = createIndexRecommendationTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ table: "users" }, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection lost");
+    });
+
+    it("mysql_force_index should return structured error on adapter throw", async () => {
+      mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
+
+      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          table: "users",
+          query: "SELECT * FROM users",
+          indexName: "idx_name",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection lost");
+    });
+
+    it("mysql_query_rewrite should return structured error on parse failure", async () => {
+      const tool = createQueryRewriteTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
   });
 });

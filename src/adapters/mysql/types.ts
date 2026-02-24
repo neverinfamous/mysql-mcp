@@ -1694,6 +1694,48 @@ export const TableStatsSchema = z
     message: "table (or tableName/name alias) is required",
   });
 
+// --- IndexRecommendation ---
+
+// Base schema for MCP visibility
+export const IndexRecommendationSchemaBase = z.object({
+  table: z.string().optional().describe("Table to analyze for missing indexes"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+});
+
+// Transformed schema for handler parsing
+export const IndexRecommendationSchema = z
+  .preprocess(preprocessTableParams, IndexRecommendationSchemaBase)
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
+
+// --- ForceIndex ---
+
+// Base schema for MCP visibility
+export const ForceIndexSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  query: z.string().describe("Original query"),
+  indexName: z.string().describe("Index name to force"),
+});
+
+// Transformed schema for handler parsing
+export const ForceIndexSchema = z
+  .preprocess(preprocessTableParams, ForceIndexSchemaBase)
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    query: data.query,
+    indexName: data.indexName,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
+
 // =============================================================================
 // Preprocess: Admin table params (normalizes singular 'table' to 'tables' array)
 // =============================================================================
