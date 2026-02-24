@@ -81,6 +81,21 @@ describe("Admin Monitoring Tools", () => {
       expect(result).toHaveProperty("processes");
       expect((result as { processes: unknown[] }).processes).toEqual([]);
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
+
+      const tool = createShowProcesslistTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection lost");
+    });
   });
 
   describe("createShowStatusTool", () => {
@@ -226,6 +241,33 @@ describe("Admin Monitoring Tools", () => {
         "[REDACTED]",
       );
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.rawQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Access denied");
+    });
+
+    it("should return structured error on Zod validation failure", async () => {
+      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { limit: "not-a-number" },
+        mockContext,
+      )) as {
+        success: false;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
   });
 
   describe("createShowVariablesTool", () => {
@@ -327,6 +369,21 @@ describe("Admin Monitoring Tools", () => {
       expect(result.totalAvailable).toBe(200);
       expect(result.limited).toBe(true);
     });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.rawQuery.mockRejectedValue(new Error("Connection refused"));
+
+      const tool = createShowVariablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection refused");
+    });
   });
 
   describe("createInnodbStatusTool", () => {
@@ -372,6 +429,23 @@ describe("Admin Monitoring Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(result).toHaveProperty("status");
+    });
+
+    it("should return structured error on query failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("PROCESS privilege required"),
+      );
+
+      const tool = createInnodbStatusTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("PROCESS privilege required");
     });
   });
 
@@ -473,12 +547,16 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.getPool = vi.fn().mockReturnValue(undefined);
 
       const tool = createPoolStatsTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({}, mockContext)) as { error: string };
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
 
+      expect(result.success).toBe(false);
       expect(result.error).toBe("Pool not available");
     });
 
-    it("should handle pool error", async () => {
+    it("should return structured error on pool error", async () => {
       const mockPool = {
         getStats: vi.fn().mockImplementation(() => {
           throw new Error("Pool error");
@@ -487,7 +565,13 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.getPool = vi.fn().mockReturnValue(mockPool);
 
       const tool = createPoolStatsTool(mockAdapter as unknown as MySQLAdapter);
-      await expect(tool.handler({}, mockContext)).rejects.toThrow("Pool error");
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Pool error");
     });
   });
 
@@ -586,14 +670,19 @@ describe("Admin Monitoring Tools", () => {
       expect(result.activeConnections).toBeUndefined();
     });
 
-    it("should mark unhealthy on connection failure", async () => {
+    it("should return structured error on connection failure", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
       const tool = createServerHealthTool(
         mockAdapter as unknown as MySQLAdapter,
       );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: false;
+        error: string;
+      };
 
-      await expect(tool.handler({}, mockContext)).rejects.toThrow();
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection lost");
     });
   });
 });
