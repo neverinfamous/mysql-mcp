@@ -221,7 +221,11 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("already exists")) {
           return { success: false, error: "Event already exists" };
         }
-        return { success: false, error: message };
+        const cleaned = message.replace(
+          /^(Query failed: )?(Execute failed: )?/i,
+          "",
+        );
+        return { success: false, error: cleaned };
       }
     },
   };
@@ -331,7 +335,11 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("unknown event")) {
           return { success: false, error: "Event does not exist" };
         }
-        return { success: false, error: message };
+        const cleaned = message.replace(
+          /^(Query failed: )?(Execute failed: )?/i,
+          "",
+        );
+        return { success: false, error: cleaned };
       }
     },
   };
@@ -407,20 +415,21 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema, includeDisabled } = EventListSchema.parse(params);
+      try {
+        const { schema, includeDisabled } = EventListSchema.parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
         }
-      }
 
-      let query = `
+        let query = `
                 SELECT 
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
@@ -439,19 +448,23 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE EVENT_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-      const queryParams: unknown[] = [schema ?? null];
+        const queryParams: unknown[] = [schema ?? null];
 
-      if (!includeDisabled) {
-        query += " AND STATUS = 'ENABLED'";
+        if (!includeDisabled) {
+          query += " AND STATUS = 'ENABLED'";
+        }
+
+        query += " ORDER BY EVENT_NAME";
+
+        const result = await adapter.executeQuery(query, queryParams);
+        return {
+          events: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      query += " ORDER BY EVENT_NAME";
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        events: result.rows,
-        count: result.rows?.length ?? 0,
-      };
     },
   };
 }
@@ -473,20 +486,21 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, schema } = EventStatusSchema.parse(params);
+      try {
+        const { name, schema } = EventStatusSchema.parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
         }
-      }
 
-      const query = `
+        const query = `
                 SELECT 
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
@@ -510,13 +524,20 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
                   AND EVENT_NAME = ?
             `;
 
-      const result = await adapter.executeQuery(query, [schema ?? null, name]);
+        const result = await adapter.executeQuery(query, [
+          schema ?? null,
+          name,
+        ]);
 
-      if (!result.rows || result.rows.length === 0) {
-        return { exists: false, name };
+        if (!result.rows || result.rows.length === 0) {
+          return { exists: false, name };
+        }
+
+        return result.rows[0];
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      return result.rows[0];
     },
   };
 }
@@ -537,13 +558,14 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Get scheduler status
-      const statusResult = await adapter.executeQuery(
-        "SHOW VARIABLES LIKE 'event_scheduler'",
-      );
+      try {
+        // Get scheduler status
+        const statusResult = await adapter.executeQuery(
+          "SHOW VARIABLES LIKE 'event_scheduler'",
+        );
 
-      // Get event counts by status
-      const countResult = await adapter.executeQuery(`
+        // Get event counts by status
+        const countResult = await adapter.executeQuery(`
                 SELECT 
                     STATUS as status,
                     COUNT(*) as count
@@ -551,8 +573,8 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
                 GROUP BY STATUS
             `);
 
-      // Get recently executed events
-      const recentResult = await adapter.executeQuery(`
+        // Get recently executed events
+        const recentResult = await adapter.executeQuery(`
                 SELECT 
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
@@ -563,14 +585,18 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
                 LIMIT 10
             `);
 
-      const schedulerStatus = statusResult.rows?.[0];
+        const schedulerStatus = statusResult.rows?.[0];
 
-      return {
-        schedulerEnabled: schedulerStatus?.["Value"] === "ON",
-        schedulerStatus: schedulerStatus?.["Value"] ?? "UNKNOWN",
-        eventCounts: countResult.rows ?? [],
-        recentlyExecuted: recentResult.rows ?? [],
-      };
+        return {
+          schedulerEnabled: schedulerStatus?.["Value"] === "ON",
+          schedulerStatus: schedulerStatus?.["Value"] ?? "UNKNOWN",
+          eventCounts: countResult.rows ?? [],
+          recentlyExecuted: recentResult.rows ?? [],
+        };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }

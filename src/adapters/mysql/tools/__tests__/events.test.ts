@@ -847,4 +847,69 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toEqual({ success: false, error: "Connection lost" });
   });
+
+  it("should strip error prefix from create error messages", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(
+      new Error(
+        "Query failed: Execute failed: You have an error in your SQL syntax",
+      ),
+    );
+
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        body: "SELECTT * FROMM",
+      },
+      mockContext,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "You have an error in your SQL syntax",
+    });
+  });
+
+  it("should return structured error when event_list query fails", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(
+      new Error("Connection lost during query"),
+    );
+
+    const tool = tools.find((t) => t.name === "mysql_event_list")!;
+    const result = await tool.handler({}, mockContext);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Connection lost during query",
+    });
+  });
+
+  it("should return structured error when event_status query fails", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(
+      new Error("Connection lost during query"),
+    );
+
+    const tool = tools.find((t) => t.name === "mysql_event_status")!;
+    const result = await tool.handler({ name: "test_event" }, mockContext);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Connection lost during query",
+    });
+  });
+
+  it("should return structured error when scheduler_status query fails", async () => {
+    mockAdapter.executeQuery.mockRejectedValue(
+      new Error("Connection lost during query"),
+    );
+
+    const tool = tools.find((t) => t.name === "mysql_scheduler_status")!;
+    const result = await tool.handler({}, mockContext);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Connection lost during query",
+    });
+  });
 });
