@@ -1,0 +1,18 @@
+# Auto-detect text files and normalize line endings to LF in the repo
+* text=auto eol=lf
+
+# Explicitly mark shell scripts as LF (safety net)
+*.sh text eol=lf
+
+# Dockerfile must be LF
+Dockerfile text eol=lf
+
+# Keep Windows scripts as CRLF
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary files - no line ending conversion
+*.png binary
+*.jpg binary
+*.ico binary

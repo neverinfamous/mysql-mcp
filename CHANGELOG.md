@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Infrastructure
+
+- **`.gitattributes` Line Ending Normalization** — Added `.gitattributes` to enforce LF line endings in the repository (`* text=auto eol=lf`), with explicit CRLF exceptions for Windows-only scripts (`.ps1`, `.cmd`, `.bat`). Prevents cross-platform line ending corruption from contributors with differing `core.autocrlf` settings
+
 ### Documentation
 
 - **README.md / DOCKER_README.md "Deterministic Error Handling"** — Added "deterministic error handling" to the introduction blurbs and a new "Deterministic Error Handling" row to the "What Sets Us Apart" feature table in both READMEs, highlighting structured `{success, error}` responses across all tools
