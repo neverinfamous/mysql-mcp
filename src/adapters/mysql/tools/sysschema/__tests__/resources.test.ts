@@ -124,7 +124,7 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.autoIncrementStatusCount).toBe(0);
     });
 
-    it("should return exists: false for nonexistent schema (P154)", async () => {
+    it("should return structured error for nonexistent schema (P154)", async () => {
       // Mock schema existence check returning empty
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -134,9 +134,12 @@ describe("Sys Schema Resource Tools", () => {
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
-      )) as { exists: boolean; schema: string };
+      )) as { success: boolean; error: string };
 
-      expect(result).toEqual({ exists: false, schema: "nonexistent_db" });
+      expect(result).toEqual({
+        success: false,
+        error: "Schema 'nonexistent_db' does not exist",
+      });
       // Should only call the schema check, not the 3 stats queries
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });

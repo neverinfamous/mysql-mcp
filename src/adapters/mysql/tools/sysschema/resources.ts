@@ -5,12 +5,21 @@
  * 3 tools: schema_stats, innodb_lock_waits, memory_summary.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Zod Schemas
@@ -45,35 +54,41 @@ export function createSysSchemaStatsTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema, limit } = z
-        .object({
-          schema: z.string().optional(),
-          limit: z.number().default(10),
-        })
-        .parse(params);
+      try {
+        const { schema, limit } = z
+          .object({
+            schema: z.string().optional(),
+            limit: z.number().default(10),
+          })
+          .parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return {
+              success: false,
+              error: `Schema '${schema}' does not exist`,
+            };
+          }
         }
-      }
 
-      // Resolve actual database name for response
-      let resolvedSchema = schema;
-      if (!resolvedSchema) {
-        const dbResult = await adapter.executeQuery("SELECT DATABASE() as db");
-        const rows = dbResult.rows ?? [];
-        const dbRow = rows[0] as Record<string, unknown> | undefined;
-        resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
-      }
+        // Resolve actual database name for response
+        let resolvedSchema = schema;
+        if (!resolvedSchema) {
+          const dbResult = await adapter.executeQuery(
+            "SELECT DATABASE() as db",
+          );
+          const rows = dbResult.rows ?? [];
+          const dbRow = rows[0] as Record<string, unknown> | undefined;
+          resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
+        }
 
-      // Get table statistics
-      const tableStatsQuery = `
+        // Get table statistics
+        const tableStatsQuery = `
                 SELECT 
                     table_schema,
                     table_name,
@@ -97,8 +112,8 @@ export function createSysSchemaStatsTool(
                 LIMIT ${String(limit)}
             `;
 
-      // Get index statistics
-      const indexStatsQuery = `
+        // Get index statistics
+        const indexStatsQuery = `
                 SELECT 
                     table_schema,
                     table_name,
@@ -117,8 +132,8 @@ export function createSysSchemaStatsTool(
                 LIMIT ${String(limit)}
             `;
 
-      // Get auto-increment status
-      const autoIncQuery = `
+        // Get auto-increment status
+        const autoIncQuery = `
                 SELECT 
                     table_schema,
                     table_name,
@@ -132,21 +147,28 @@ export function createSysSchemaStatsTool(
                 LIMIT ${String(limit)}
             `;
 
-      const [tableStats, indexStats, autoIncStats] = await Promise.all([
-        adapter.executeQuery(tableStatsQuery, [schema ?? null]),
-        adapter.executeQuery(indexStatsQuery, [schema ?? null]),
-        adapter.executeQuery(autoIncQuery, [schema ?? null]),
-      ]);
+        const [tableStats, indexStats, autoIncStats] = await Promise.all([
+          adapter.executeQuery(tableStatsQuery, [schema ?? null]),
+          adapter.executeQuery(indexStatsQuery, [schema ?? null]),
+          adapter.executeQuery(autoIncQuery, [schema ?? null]),
+        ]);
 
-      return {
-        tableStatistics: tableStats.rows ?? [],
-        indexStatistics: indexStats.rows ?? [],
-        autoIncrementStatus: autoIncStats.rows ?? [],
-        tableStatisticsCount: (tableStats.rows ?? []).length,
-        indexStatisticsCount: (indexStats.rows ?? []).length,
-        autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
-        schemaName: resolvedSchema,
-      };
+        return {
+          tableStatistics: tableStats.rows ?? [],
+          indexStatistics: indexStats.rows ?? [],
+          autoIncrementStatus: autoIncStats.rows ?? [],
+          tableStatisticsCount: (tableStats.rows ?? []).length,
+          indexStatisticsCount: (indexStats.rows ?? []).length,
+          autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
+          schemaName: resolvedSchema,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -170,9 +192,10 @@ export function createSysInnoDBLockWaitsTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit } = LimitSchema.parse(params);
+      try {
+        const { limit } = LimitSchema.parse(params);
 
-      const query = `
+        const query = `
                 SELECT 
                     wait_started,
                     wait_age,
@@ -198,12 +221,19 @@ export function createSysInnoDBLockWaitsTool(
                 LIMIT ${String(limit)}
             `;
 
-      const result = await adapter.executeQuery(query);
-      return {
-        lockWaits: result.rows,
-        count: result.rows?.length ?? 0,
-        hasContention: (result.rows?.length ?? 0) > 0,
-      };
+        const result = await adapter.executeQuery(query);
+        return {
+          lockWaits: result.rows,
+          count: result.rows?.length ?? 0,
+          hasContention: (result.rows?.length ?? 0) > 0,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -226,10 +256,11 @@ export function createSysMemorySummaryTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit } = LimitSchema.parse(params);
+      try {
+        const { limit } = LimitSchema.parse(params);
 
-      // Global memory summary
-      const globalQuery = `
+        // Global memory summary
+        const globalQuery = `
                 SELECT 
                     event_name,
                     current_count,
@@ -243,8 +274,8 @@ export function createSysMemorySummaryTool(
                 LIMIT ${String(limit)}
             `;
 
-      // Memory by user
-      const userQuery = `
+        // Memory by user
+        const userQuery = `
                 SELECT 
                     user,
                     current_count_used,
@@ -257,17 +288,24 @@ export function createSysMemorySummaryTool(
                 LIMIT ${String(limit)}
             `;
 
-      const [globalStats, userStats] = await Promise.all([
-        adapter.executeQuery(globalQuery),
-        adapter.executeQuery(userQuery),
-      ]);
+        const [globalStats, userStats] = await Promise.all([
+          adapter.executeQuery(globalQuery),
+          adapter.executeQuery(userQuery),
+        ]);
 
-      return {
-        globalMemory: globalStats.rows ?? [],
-        memoryByUser: userStats.rows ?? [],
-        globalMemoryCount: (globalStats.rows ?? []).length,
-        memoryByUserCount: (userStats.rows ?? []).length,
-      };
+        return {
+          globalMemory: globalStats.rows ?? [],
+          memoryByUser: userStats.rows ?? [],
+          globalMemoryCount: (globalStats.rows ?? []).length,
+          memoryByUserCount: (userStats.rows ?? []).length,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }

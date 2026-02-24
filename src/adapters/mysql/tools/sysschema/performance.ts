@@ -5,12 +5,21 @@
  * 3 tools: statement_summary, wait_summary, io_summary.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Zod Schemas
@@ -65,9 +74,10 @@ export function createSysStatementSummaryTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { orderBy, limit } = StatementSummarySchema.parse(params);
+      try {
+        const { orderBy, limit } = StatementSummarySchema.parse(params);
 
-      const query = `
+        const query = `
                 SELECT 
                     query,
                     db,
@@ -84,12 +94,19 @@ export function createSysStatementSummaryTool(
                 LIMIT ${String(limit)}
             `;
 
-      const result = await adapter.executeQuery(query);
-      return {
-        statements: result.rows,
-        orderedBy: orderBy,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query);
+        return {
+          statements: result.rows,
+          orderedBy: orderBy,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -113,13 +130,14 @@ export function createSysWaitSummaryTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { type, limit } = WaitSummarySchema.parse(params);
+      try {
+        const { type, limit } = WaitSummarySchema.parse(params);
 
-      let query: string;
+        let query: string;
 
-      switch (type) {
-        case "global":
-          query = `
+        switch (type) {
+          case "global":
+            query = `
                         SELECT 
                             events,
                             total,
@@ -129,9 +147,9 @@ export function createSysWaitSummaryTool(
                         ORDER BY total_latency DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-        case "by_host":
-          query = `
+            break;
+          case "by_host":
+            query = `
                         SELECT 
                             host,
                             event,
@@ -142,9 +160,9 @@ export function createSysWaitSummaryTool(
                         ORDER BY total_latency DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-        case "by_user":
-          query = `
+            break;
+          case "by_user":
+            query = `
                         SELECT 
                             user,
                             event,
@@ -155,9 +173,9 @@ export function createSysWaitSummaryTool(
                         ORDER BY total_latency DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-        case "by_instance":
-          query = `
+            break;
+          case "by_instance":
+            query = `
                         SELECT 
                             event_name AS event,
                             count_star AS total,
@@ -167,15 +185,22 @@ export function createSysWaitSummaryTool(
                         ORDER BY sum_timer_wait DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-      }
+            break;
+        }
 
-      const result = await adapter.executeQuery(query);
-      return {
-        waits: result.rows,
-        type,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query);
+        return {
+          waits: result.rows,
+          type,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -197,13 +222,14 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { type, limit } = IOSummarySchema.parse(params);
+      try {
+        const { type, limit } = IOSummarySchema.parse(params);
 
-      let query: string;
+        let query: string;
 
-      switch (type) {
-        case "file":
-          query = `
+        switch (type) {
+          case "file":
+            query = `
                         SELECT 
                             file,
                             count_read,
@@ -218,9 +244,9 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         ORDER BY total DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-        case "table":
-          query = `
+            break;
+          case "table":
+            query = `
                         SELECT 
                             table_schema,
                             table_name,
@@ -236,9 +262,9 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-        case "global":
-          query = `
+            break;
+          case "global":
+            query = `
                         SELECT 
                             event_name,
                             total,
@@ -248,15 +274,22 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         ORDER BY total_latency DESC
                         LIMIT ${String(limit)}
                     `;
-          break;
-      }
+            break;
+        }
 
-      const result = await adapter.executeQuery(query);
-      return {
-        ioStats: result.rows,
-        type,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query);
+        return {
+          ioStats: result.rows,
+          type,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
+      }
     },
   };
 }

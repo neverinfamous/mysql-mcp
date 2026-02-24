@@ -5,12 +5,21 @@
  * 2 tools: user_summary, host_summary.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Zod Schemas
@@ -45,9 +54,10 @@ export function createSysUserSummaryTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { user, limit } = UserSummarySchema.parse(params);
+      try {
+        const { user, limit } = UserSummarySchema.parse(params);
 
-      let query = `
+        let query = `
                 SELECT 
                     user,
                     statements,
@@ -61,19 +71,26 @@ export function createSysUserSummaryTool(
                 FROM sys.user_summary
             `;
 
-      const queryParams: unknown[] = [];
-      if (user) {
-        query += " WHERE user = ?";
-        queryParams.push(user);
+        const queryParams: unknown[] = [];
+        if (user) {
+          query += " WHERE user = ?";
+          queryParams.push(user);
+        }
+
+        query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
+
+        const result = await adapter.executeQuery(query, queryParams);
+        return {
+          users: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        users: result.rows,
-        count: result.rows?.length ?? 0,
-      };
     },
   };
 }
@@ -96,9 +113,10 @@ export function createSysHostSummaryTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { host, limit } = HostSummarySchema.parse(params);
+      try {
+        const { host, limit } = HostSummarySchema.parse(params);
 
-      let query = `
+        let query = `
                 SELECT 
                     host,
                     statements,
@@ -112,19 +130,26 @@ export function createSysHostSummaryTool(
                 FROM sys.host_summary
             `;
 
-      const queryParams: unknown[] = [];
-      if (host) {
-        query += " WHERE host = ?";
-        queryParams.push(host);
+        const queryParams: unknown[] = [];
+        if (host) {
+          query += " WHERE host = ?";
+          queryParams.push(host);
+        }
+
+        query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
+
+        const result = await adapter.executeQuery(query, queryParams);
+        return {
+          hosts: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        hosts: result.rows,
-        count: result.rows?.length ?? 0,
-      };
     },
   };
 }
