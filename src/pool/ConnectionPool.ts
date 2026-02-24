@@ -189,7 +189,10 @@ export class ConnectionPool {
     this.stats.totalQueries++;
 
     try {
-      const result = await this.pool.execute(sql, params);
+      const result = await this.pool.execute(
+        sql,
+        params as (string | number | null)[],
+      );
       return result as [T, mysql.FieldPacket[]];
     } catch (error) {
       const err = error as Error & { code?: string };

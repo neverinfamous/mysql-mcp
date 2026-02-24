@@ -269,13 +269,19 @@ export class MySQLAdapter extends DatabaseAdapter {
     const startTime = Date.now();
 
     try {
-      const [results, fields] = await connection.execute(sql, params);
+      const [results, fields] = await connection.execute(
+        sql,
+        params as (string | number | null)[],
+      );
       return this.processExecutionResult(results, fields, startTime);
     } catch (error) {
       if (this.isUnsupportedPreparedStatementError(error)) {
         // Fallback to text protocol
         try {
-          const [results, fields] = await connection.query(sql, params);
+          const [results, fields] = await connection.query(
+            sql,
+            params as (string | number | null)[],
+          );
           return this.processExecutionResult(results, fields, startTime);
         } catch (fallbackError) {
           const err = fallbackError as Error;

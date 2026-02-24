@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **README.md / DOCKER_README.md "Deterministic Error Handling"** — Added "deterministic error handling" to the introduction blurbs and a new "Deterministic Error Handling" row to the "What Sets Us Apart" feature table in both READMEs, highlighting structured `{success, error}` responses across all tools
 
+### Security
+
+- **CVE Fix: `hono` Timing Comparison Hardening (GHSA-gq3j-xvxp-8hrf)** — Updated transitive dependency `hono` to ≥4.11.10 via `npm audit fix` to add timing comparison hardening in `basicAuth` and `bearerAuth` middleware, preventing timing-based credential leakage
+
+### Changed
+
+- **`mysql2` 3.18.0 Type Compatibility** — Adjusted `MySQLAdapter.executeOnConnection()` and `ConnectionPool.execute()` to satisfy mysql2 3.18.0's stricter `QueryValues` type constraint on `execute()` and `query()` parameter signatures
+
+### Dependencies
+
+- `@modelcontextprotocol/sdk`: 1.26.0 → 1.27.0
+- `@types/node`: 25.2.3 → 25.3.0
+- `eslint`: 10.0.0 → 10.0.2
+- `mysql2`: 3.17.2 → 3.18.0
+- `typescript-eslint`: 8.56.0 → 8.56.1
+
 ## [2.3.1] - 2026-02-18
 
 ### Security
