@@ -533,6 +533,68 @@ describe("Event Create Advanced", () => {
       error: "interval and intervalUnit are required for RECURRING events",
     });
   });
+
+  it("should return structured error for invalid schedule type on create", async () => {
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "INVALID_TYPE" },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain(
+      "Invalid schedule type",
+    );
+  });
+
+  it("should return structured error for invalid onCompletion on create", async () => {
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        body: "SELECT 1",
+        onCompletion: "INVALID_VALUE",
+      },
+      mockContext,
+    );
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain(
+      "Invalid onCompletion",
+    );
+  });
+
+  it("should return structured error for invalid intervalUnit on create", async () => {
+    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: {
+          type: "RECURRING",
+          interval: 1,
+          intervalUnit: "INVALID_UNIT",
+        },
+        body: "SELECT 1",
+      },
+      mockContext,
+    );
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain(
+      "Invalid intervalUnit",
+    );
+  });
 });
 
 describe("Event Alter Advanced", () => {
@@ -711,6 +773,42 @@ describe("Event Alter Advanced", () => {
       success: false,
       error: "interval and intervalUnit are required for RECURRING events",
     });
+  });
+
+  it("should return structured error for invalid onCompletion on alter", async () => {
+    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        onCompletion: "INVALID_VALUE",
+      },
+      mockContext,
+    );
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain(
+      "Invalid onCompletion",
+    );
+  });
+
+  it("should return structured error for invalid schedule type on alter", async () => {
+    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+
+    const result = await tool.handler(
+      {
+        name: "my_event",
+        schedule: { type: "INVALID_TYPE" },
+      },
+      mockContext,
+    );
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
+    expect((result as { error: string }).error).toContain(
+      "Invalid schedule type",
+    );
   });
 });
 

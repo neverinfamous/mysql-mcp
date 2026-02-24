@@ -5,9 +5,14 @@
  * 6 tools total.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Zod Schemas
@@ -17,7 +22,7 @@ const EventCreateSchema = z.object({
   name: z.string().describe("Event name"),
   schedule: z
     .object({
-      type: z.enum(["ONE TIME", "RECURRING"]).describe("Event schedule type"),
+      type: z.string().describe("Event schedule type"),
       executeAt: z
         .string()
         .optional()
@@ -26,16 +31,7 @@ const EventCreateSchema = z.object({
         ),
       interval: z.number().optional().describe("For RECURRING: interval value"),
       intervalUnit: z
-        .enum([
-          "YEAR",
-          "QUARTER",
-          "MONTH",
-          "DAY",
-          "HOUR",
-          "MINUTE",
-          "WEEK",
-          "SECOND",
-        ])
+        .string()
         .optional()
         .describe("For RECURRING: interval unit"),
       starts: z.string().optional().describe("For RECURRING: start timestamp"),
@@ -44,7 +40,7 @@ const EventCreateSchema = z.object({
     .describe("Event schedule configuration"),
   body: z.string().describe("SQL statement(s) to execute"),
   onCompletion: z
-    .enum(["PRESERVE", "NOT PRESERVE"])
+    .string()
     .default("NOT PRESERVE")
     .describe("What to do after event completes"),
   enabled: z.boolean().default(true).describe("Whether event is enabled"),
@@ -57,28 +53,17 @@ const EventAlterSchema = z.object({
   newName: z.string().optional().describe("New event name (for rename)"),
   schedule: z
     .object({
-      type: z.enum(["ONE TIME", "RECURRING"]).optional(),
+      type: z.string().optional(),
       executeAt: z.string().optional(),
       interval: z.number().optional(),
-      intervalUnit: z
-        .enum([
-          "YEAR",
-          "QUARTER",
-          "MONTH",
-          "DAY",
-          "HOUR",
-          "MINUTE",
-          "WEEK",
-          "SECOND",
-        ])
-        .optional(),
+      intervalUnit: z.string().optional(),
       starts: z.string().optional(),
       ends: z.string().optional(),
     })
     .optional()
     .describe("New schedule configuration"),
   body: z.string().optional().describe("New SQL statement(s)"),
-  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).optional(),
+  onCompletion: z.string().optional(),
   enabled: z.boolean().optional().describe("Enable or disable event"),
   comment: z.string().optional(),
 });
@@ -152,6 +137,23 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: false, error: "Invalid event name" };
         }
 
+        // Validate enum fields at handler level
+        const validScheduleTypes = ["ONE TIME", "RECURRING"];
+        if (!validScheduleTypes.includes(schedule.type)) {
+          return {
+            success: false,
+            error: `Invalid schedule type: '${schedule.type}' — expected one of: ${validScheduleTypes.join(", ")}`,
+          };
+        }
+
+        const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
+        if (!validOnCompletion.includes(onCompletion)) {
+          return {
+            success: false,
+            error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
+          };
+        }
+
         if (ifNotExists) {
           const existsCheck = await adapter.executeQuery(
             "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
@@ -191,6 +193,23 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
                 "interval and intervalUnit are required for RECURRING events",
             };
           }
+
+          const validUnits = [
+            "YEAR",
+            "QUARTER",
+            "MONTH",
+            "DAY",
+            "HOUR",
+            "MINUTE",
+            "WEEK",
+            "SECOND",
+          ];
+          if (!validUnits.includes(schedule.intervalUnit)) {
+            return {
+              success: false,
+              error: `Invalid intervalUnit: '${schedule.intervalUnit}' — expected one of: ${validUnits.join(", ")}`,
+            };
+          }
           sql += `EVERY ${String(schedule.interval)} ${schedule.intervalUnit}`;
           if (schedule.starts) {
             sql += ` STARTS '${schedule.starts}'`;
@@ -217,6 +236,9 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(sql);
         return { success: true, eventName: name };
       } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("already exists")) {
           return { success: false, error: "Event already exists" };
@@ -262,10 +284,30 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: false, error: "Invalid event name" };
         }
 
+        // Validate enum fields at handler level
+        if (onCompletion !== undefined) {
+          const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
+          if (!validOnCompletion.includes(onCompletion)) {
+            return {
+              success: false,
+              error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
+            };
+          }
+        }
+
         let sql = `ALTER EVENT \`${name}\``;
         const clauses: string[] = [];
 
         if (schedule?.type) {
+          // Validate schedule.type
+          const validScheduleTypes = ["ONE TIME", "RECURRING"];
+          if (!validScheduleTypes.includes(schedule.type)) {
+            return {
+              success: false,
+              error: `Invalid schedule type: '${schedule.type}' — expected one of: ${validScheduleTypes.join(", ")}`,
+            };
+          }
+
           let scheduleClause = "ON SCHEDULE ";
           if (schedule.type === "ONE TIME") {
             if (!schedule.executeAt) {
@@ -286,6 +328,23 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
                 success: false,
                 error:
                   "interval and intervalUnit are required for RECURRING events",
+              };
+            }
+
+            const validUnits = [
+              "YEAR",
+              "QUARTER",
+              "MONTH",
+              "DAY",
+              "HOUR",
+              "MINUTE",
+              "WEEK",
+              "SECOND",
+            ];
+            if (!validUnits.includes(schedule.intervalUnit)) {
+              return {
+                success: false,
+                error: `Invalid intervalUnit: '${schedule.intervalUnit}' — expected one of: ${validUnits.join(", ")}`,
               };
             }
             scheduleClause += `EVERY ${String(schedule.interval)} ${schedule.intervalUnit}`;
@@ -331,6 +390,9 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(sql);
         return { success: true, eventName: newName ?? name };
       } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
           return { success: false, error: "Event does not exist" };
@@ -388,6 +450,9 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
         return { success: true, eventName: name };
       } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
           return { success: false, error: "Event does not exist" };
@@ -462,6 +527,9 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
@@ -535,6 +603,9 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         return result.rows[0];
       } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
@@ -594,6 +665,9 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
           recentlyExecuted: recentResult.rows ?? [],
         };
       } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
