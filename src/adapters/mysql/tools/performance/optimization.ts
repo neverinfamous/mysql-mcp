@@ -466,8 +466,11 @@ export function createOptimizerTraceTool(
         try {
           await adapter.executeReadQuery(query);
         } catch (err: unknown) {
-          const errorMsg =
+          const rawMsg =
             err instanceof Error ? err.message : "Query execution failed";
+          const errorMsg = rawMsg
+            .replace(/^Query failed:\s*/i, "")
+            .replace(/^Execute failed:\s*/i, "");
           if (summary) {
             return { query, decisions: [], error: errorMsg };
           }

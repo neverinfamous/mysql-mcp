@@ -435,6 +435,27 @@ describe("Performance Optimization Tools", () => {
       );
     });
 
+    it("should strip adapter prefix from query execution error", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error(
+          "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
+        ),
+      );
+
+      const tool = createOptimizerTraceTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+
+      const result = (await tool.handler(
+        { query: "SELECT * FROM ghost" },
+        mockContext,
+      )) as { query: string; trace: null; error: string };
+
+      expect(result.query).toBe("SELECT * FROM ghost");
+      expect(result.trace).toBeNull();
+      expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
+    });
+
     it("should accept sql alias for query parameter", async () => {
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([])) // The query
