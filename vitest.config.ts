@@ -5,6 +5,8 @@ export default defineConfig({
     globals: true,
     include: ["src/**/*.test.ts"],
     exclude: ["node_modules", "dist"],
+    reporters: ["default", "json"],
+    outputFile: "test-results.json",
     testTimeout: 10000,
     hookTimeout: 10000,
     coverage: {

@@ -300,6 +300,16 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.listTables).toHaveBeenCalled();
     });
+
+    it("should return exists: false for nonexistent database", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_list_tables")!;
+      const result = await tool.handler({ database: "fake_db" }, mockContext);
+
+      expect(result).toHaveProperty("exists", false);
+      expect(result).toHaveProperty("database", "fake_db");
+    });
   });
 
   describe("mysql_describe_table", () => {
@@ -380,6 +390,7 @@ describe("Handler Execution", () => {
     });
 
     it("should handle IF NOT EXISTS clause", async () => {
+      mockAdapter.describeTable.mockResolvedValue({ columns: [] });
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
       const tool = tools.find((t) => t.name === "mysql_create_table")!;
@@ -463,20 +474,44 @@ describe("Handler Execution", () => {
       );
     });
 
-    it("should re-throw non-existence errors in create table", async () => {
+    it("should return structured error for non-existence errors in create table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const result = await tool.handler(
+        {
+          name: "test_table",
+          columns: [{ name: "id", type: "INT" }],
+        },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler(
-          {
-            name: "test_table",
-            columns: [{ name: "id", type: "INT" }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Access denied");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toContain(
+        "Access denied",
+      );
+    });
+
+    it("should return skipped indicator when ifNotExists is true and table exists", async () => {
+      mockAdapter.describeTable.mockResolvedValue({
+        columns: [{ name: "id", type: "int" }],
+      });
+
+      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const result = await tool.handler(
+        {
+          name: "existing_table",
+          columns: [{ name: "id", type: "INT" }],
+          ifNotExists: true,
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", true);
+      expect(result).toHaveProperty("skipped", true);
+      expect(result).toHaveProperty("reason", "Table already exists");
+      // Should NOT call executeQuery since it short-circuits
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
   });
 
@@ -503,12 +538,14 @@ describe("Handler Execution", () => {
       expect(sqlCall).toContain("IF EXISTS");
     });
 
-    it("should reject invalid table names", async () => {
+    it("should return structured error for invalid table names", async () => {
       const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const result = await tool.handler({ table: "invalid-name" }, mockContext);
 
-      await expect(
-        tool.handler({ table: "invalid-name" }, mockContext),
-      ).rejects.toThrow("Invalid table name");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toBe(
+        "Invalid table name",
+      );
     });
 
     it("should handle qualified table names", async () => {
@@ -554,14 +591,19 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("reason", "Table did not exist");
     });
 
-    it("should re-throw non-existence errors in drop table", async () => {
+    it("should return structured error for non-existence errors in drop table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const result = await tool.handler(
+        { table: "some_table", ifExists: false },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler({ table: "some_table", ifExists: false }, mockContext),
-      ).rejects.toThrow("Access denied");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toContain(
+        "Access denied",
+      );
     });
   });
 
@@ -629,34 +671,38 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
-    it("should reject invalid index names", async () => {
+    it("should return structured error for invalid index names", async () => {
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "invalid-name",
+          table: "users",
+          columns: ["email"],
+        },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler(
-          {
-            name: "invalid-name",
-            table: "users",
-            columns: ["email"],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid index name");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toBe(
+        "Invalid index name",
+      );
     });
 
-    it("should reject invalid table names", async () => {
+    it("should return structured error for invalid table names", async () => {
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "valid_name",
+          table: "invalid-table",
+          columns: ["email"],
+        },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler(
-          {
-            name: "valid_name",
-            table: "invalid-table",
-            columns: ["email"],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toBe(
+        "Invalid table name",
+      );
     });
 
     it("should handle qualified table names", async () => {
@@ -738,21 +784,46 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("table", "nonexistent");
     });
 
-    it("should re-throw non-index errors in create index", async () => {
+    it("should return structured error for non-index errors in create index", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "idx_test",
+          table: "users",
+          columns: ["email"],
+        },
+        mockContext,
+      );
 
-      await expect(
-        tool.handler(
-          {
-            name: "idx_test",
-            table: "users",
-            columns: ["email"],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Access denied");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toContain(
+        "Access denied",
+      );
+    });
+
+    it("should return column-specific error for invalid column names", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Key column 'nonexistent_col' doesn't exist in table"),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const result = await tool.handler(
+        {
+          name: "idx_test",
+          table: "users",
+          columns: ["nonexistent_col"],
+        },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).reason).toContain(
+        "Column 'nonexistent_col' does not exist",
+      );
+      // Should NOT return exists: false (table exists, column doesn't)
+      expect(result).not.toHaveProperty("exists", false);
     });
   });
 });

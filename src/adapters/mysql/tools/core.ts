@@ -164,17 +164,38 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { database } = ListTablesSchema.parse(params);
-      const tables = await adapter.listTables(database);
-      return {
-        tables: tables.map((t) => ({
-          name: t.name,
-          type: t.type,
-          engine: t.engine,
-          rowCount: t.rowCount,
-          comment: t.comment,
-        })),
-        count: tables.length,
-      };
+
+      // P154: Pre-check database existence when explicitly provided
+      if (database) {
+        const dbCheck = await adapter.executeReadQuery(
+          `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+          [database],
+        );
+        if (!dbCheck.rows || dbCheck.rows.length === 0) {
+          return {
+            exists: false,
+            database,
+            message: `Database '${database}' does not exist`,
+          };
+        }
+      }
+
+      try {
+        const tables = await adapter.listTables(database);
+        return {
+          tables: tables.map((t) => ({
+            name: t.name,
+            type: t.type,
+            engine: t.engine,
+            rowCount: t.rowCount,
+            comment: t.comment,
+          })),
+          count: tables.length,
+        };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        return { success: false, error: message };
+      }
     },
   };
 }
@@ -229,6 +250,22 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { name, columns, engine, charset, collate, comment, ifNotExists } =
         CreateTableSchema.parse(params);
+
+      // Pre-check existence for skipped indicator when ifNotExists is true
+      if (ifNotExists) {
+        const checkName = name.includes(".")
+          ? (name.split(".")[1] ?? name)
+          : name;
+        const tableInfo = await adapter.describeTable(checkName);
+        if (tableInfo.columns && tableInfo.columns.length > 0) {
+          return {
+            success: true,
+            skipped: true,
+            tableName: name,
+            reason: "Table already exists",
+          };
+        }
+      }
 
       // Build column definitions
       const columnDefs = columns.map((col) => {
@@ -313,7 +350,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
             reason: `Table '${name}' already exists`,
           };
         }
-        throw err;
+        return { success: false, reason: message };
       }
 
       return { success: true, tableName: name };
@@ -341,7 +378,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
       // Validate table name
       if (!isValidId(table)) {
-        throw new Error("Invalid table name");
+        return { success: false, reason: "Invalid table name" };
       }
 
       // Pre-check existence for skipped indicator when ifExists is true
@@ -366,7 +403,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
             reason: `Table '${table}' does not exist`,
           };
         }
-        throw err;
+        return { success: false, reason: message };
       }
 
       if (tableAbsent) {
@@ -438,11 +475,10 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
       // Validate names
       if (!VALID_INDEX_NAME_PATTERN.test(name)) {
-        // Index names usually don't have schema prefix
-        throw new Error("Invalid index name");
+        return { success: false, reason: "Invalid index name" };
       }
       if (!isValidId(table)) {
-        throw new Error("Invalid table name");
+        return { success: false, reason: "Invalid table name" };
       }
 
       const columnList = columns.map((c) => `\`${c}\``).join(", ");
@@ -481,10 +517,20 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
             reason: `Index '${name}' already exists on table '${table}'`,
           };
         }
+        // Distinguish column errors from table errors
+        if (message.includes("Key column")) {
+          const colMatch = /Key column '([^']+)'/.exec(message);
+          return {
+            success: false,
+            reason: colMatch
+              ? `Column '${colMatch[1]}' does not exist in table '${table}'`
+              : `Column does not exist in table '${table}'`,
+          };
+        }
         if (message.includes("doesn't exist")) {
           return { exists: false, table };
         }
-        throw err;
+        return { success: false, reason: message };
       }
 
       // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)

@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`mysql_create_index` Column Error Misclassification (P154)** — Tool previously returned `{ exists: false, table }` for nonexistent columns, incorrectly indicating the table didn't exist. Now distinguishes `ER_BAD_FIELD_ERROR` ("Key column 'X' doesn't exist") from `ER_NO_SUCH_TABLE` ("Table 'X' doesn't exist"), returning `{ success: false, reason: "Column 'X' does not exist in table 'Y'" }` for invalid columns while preserving `{ exists: false, table }` only for genuinely missing tables
+- **`mysql_create_index` / `mysql_create_table` / `mysql_drop_table` Raw Error Leaks** — All three tools had code paths that threw raw JavaScript exceptions instead of returning structured `{ success: false, reason }` responses (validation errors for invalid names, catch-all errors for unexpected failures). All `throw` statements replaced with structured returns
+- **`mysql_list_tables` Nonexistent Database (P154)** — Tool returned an empty `{ tables: [], count: 0 }` for nonexistent `database` parameter values, indistinguishable from a valid empty database. Now pre-checks database existence via `information_schema.SCHEMATA` and returns `{ exists: false, database, message }` when the database does not exist
+- **`mysql_create_table` `ifNotExists` Skipped Indicator** — With `ifNotExists: true`, creating a table that already exists returned `{ success: true, tableName }` with no indication the operation was a no-op. Now pre-checks table existence and returns `{ success: true, skipped: true, tableName, reason: "Table already exists" }`, matching the pattern used by `mysql_drop_table`, `mysql_event_create`, `mysql_create_schema`, and other create tools
+
 ### Infrastructure
 
 - **`.gitattributes` Line Ending Normalization** — Added `.gitattributes` to enforce LF line endings in the repository (`* text=auto eol=lf`), with explicit CRLF exceptions for Windows-only scripts (`.ps1`, `.cmd`, `.bat`). Prevents cross-platform line ending corruption from contributors with differing `core.autocrlf` settings
+- **Vitest JSON Reporter** — Added JSON reporter to `vitest.config.ts` outputting `test-results.json` for reliable agent consumption of test results. Added `test-results.json` to both `.gitignore` and `.dockerignore`
 
 ### Documentation
 
