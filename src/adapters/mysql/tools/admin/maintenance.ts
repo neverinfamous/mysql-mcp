@@ -5,6 +5,7 @@
  * 6 tools: optimize, analyze, check, repair, flush, kill.
  */
 
+import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -23,6 +24,11 @@ import {
   FlushTablesSchemaBase,
   KillQuerySchema,
 } from "../../types.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -45,6 +51,9 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
@@ -72,6 +81,9 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
@@ -105,6 +117,9 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           rowCount: result.rows?.length ?? 0,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
@@ -134,6 +149,9 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { success: false, error: message };
       }
@@ -154,43 +172,51 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { tables } = FlushTablesSchema.parse(params);
+      try {
+        const { tables } = FlushTablesSchema.parse(params);
 
-      if (tables && tables.length > 0) {
-        // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
-        const placeholders = tables.map(() => "?").join(", ");
-        const checkResult = await adapter.executeReadQuery(
-          `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (${placeholders})`,
-          tables,
-        );
-        const foundTables = new Set(
-          (checkResult.rows ?? []).map(
-            (r: Record<string, unknown>) => r["TABLE_NAME"] as string,
-          ),
-        );
-        const notFound = tables.filter((t) => !foundTables.has(t));
+        if (tables && tables.length > 0) {
+          // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
+          const placeholders = tables.map(() => "?").join(", ");
+          const checkResult = await adapter.executeReadQuery(
+            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (${placeholders})`,
+            tables,
+          );
+          const foundTables = new Set(
+            (checkResult.rows ?? []).map(
+              (r: Record<string, unknown>) => r["TABLE_NAME"] as string,
+            ),
+          );
+          const notFound = tables.filter((t) => !foundTables.has(t));
 
-        if (notFound.length > 0) {
-          // Flush valid tables before reporting missing ones
-          const validTables = tables.filter((t) => foundTables.has(t));
-          if (validTables.length > 0) {
-            const validList = validTables.map((t) => `\`${t}\``).join(", ");
-            await adapter.executeQuery(`FLUSH TABLES ${validList}`);
+          if (notFound.length > 0) {
+            // Flush valid tables before reporting missing ones
+            const validTables = tables.filter((t) => foundTables.has(t));
+            if (validTables.length > 0) {
+              const validList = validTables.map((t) => `\`${t}\``).join(", ");
+              await adapter.executeQuery(`FLUSH TABLES ${validList}`);
+            }
+            return {
+              success: false,
+              notFound,
+              flushed: validTables,
+            };
           }
-          return {
-            success: false,
-            notFound,
-            flushed: validTables,
-          };
+
+          const tableList = tables.map((t) => `\`${t}\``).join(", ");
+          await adapter.executeQuery(`FLUSH TABLES ${tableList}`);
+        } else {
+          await adapter.executeQuery("FLUSH TABLES");
         }
 
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        await adapter.executeQuery(`FLUSH TABLES ${tableList}`);
-      } else {
-        await adapter.executeQuery("FLUSH TABLES");
+        return { success: true };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, error: message };
       }
-
-      return { success: true };
     },
   };
 }
@@ -208,17 +234,20 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
       destructiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { processId, connection } = KillQuerySchema.parse(params);
-      const killType = connection ? "CONNECTION" : "QUERY";
       try {
+        const { processId, connection } = KillQuerySchema.parse(params);
+        const killType = connection ? "CONNECTION" : "QUERY";
         await adapter.executeQuery(`KILL ${killType} ${processId}`);
         return { success: true, killed: processId, type: killType };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {
           return {
             success: false,
-            error: `Process ID ${processId} not found`,
+            error: `Process ID ${/\d+/.exec(message)?.[0] ?? "unknown"} not found`,
           };
         }
         return { success: false, error: message };

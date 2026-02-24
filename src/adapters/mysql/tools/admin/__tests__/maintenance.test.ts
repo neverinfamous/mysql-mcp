@@ -791,5 +791,68 @@ describe("Admin Maintenance Tools", () => {
         "FLUSH TABLES `users`, `orders`",
       );
     });
+
+    it("should return structured error on Zod validation failure", async () => {
+      const tool = createFlushTablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      // Pass invalid type for tables (number instead of array)
+      const result = await tool.handler(
+        { tables: 12345 as unknown },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+      // Should NOT throw — should return structured response
+      expect(typeof (result as { error: string }).error).toBe("string");
+    });
+
+    it("should return structured error on adapter failure", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Access denied; you need the RELOAD privilege"),
+      );
+
+      const tool = createFlushTablesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = await tool.handler({}, mockContext);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Access denied; you need the RELOAD privilege",
+      });
+    });
+  });
+
+  describe("kill_query Zod validation", () => {
+    it("should return structured error when processId is missing", async () => {
+      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      // Pass empty params — processId is required
+      const result = await tool.handler({}, mockContext);
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+      expect(typeof (result as { error: string }).error).toBe("string");
+    });
+  });
+
+  describe("Zod error human-readability", () => {
+    it("should return human-readable error messages, not raw JSON arrays", async () => {
+      const tool = createOptimizeTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      // Empty params triggers Zod validation error
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      // The error should NOT be a raw JSON array string (starting with "[{")
+      expect(result.error).not.toMatch(/^\s*\[/);
+      // Should be a clean human-readable message
+      expect(result.error).toBeTruthy();
+    });
   });
 });
