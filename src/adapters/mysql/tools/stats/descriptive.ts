@@ -190,7 +190,12 @@ export function createDescriptiveStatsTool(
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
@@ -272,7 +277,12 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
@@ -382,7 +392,12 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
@@ -484,7 +499,12 @@ export function createTimeSeriesToolStats(
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
@@ -529,10 +549,10 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const columnList =
           columns !== undefined && columns.length > 0
             ? columns
-              .map((c) => {
-                return `\`${c}\``;
-              })
-              .join(", ")
+                .map((c) => {
+                  return `\`${c}\``;
+                })
+                .join(", ")
             : "*";
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -572,7 +592,12 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
