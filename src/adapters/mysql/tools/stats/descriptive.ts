@@ -92,17 +92,17 @@ export function createDescriptiveStatsTool(
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, column, where } = DescriptiveStatsSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error("Invalid column name");
-      }
-
-      const whereClause = where ? `WHERE ${where}` : "";
-
       try {
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
+        const whereClause = where ? `WHERE ${where}` : "";
+
         // Get basic count for median calculation
         const countResult = await adapter.executeQuery(
           `SELECT COUNT(*) as count FROM \`${table}\` ${whereClause}`,
@@ -175,7 +175,9 @@ export function createDescriptiveStatsTool(
           sum: stats?.["sum"] ?? null,
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
@@ -204,17 +206,17 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
       const { table, column, percentiles, where } =
         PercentilesSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error("Invalid column name");
-      }
-
-      const whereClause = where ? `WHERE ${where}` : "";
-
       try {
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
+        const whereClause = where ? `WHERE ${where}` : "";
+
         // Get total count
         const countResult = await adapter.executeQuery(
           `SELECT COUNT(*) as cnt FROM \`${table}\` ${whereClause}`,
@@ -253,7 +255,9 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           percentiles: percentileResults,
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
@@ -283,17 +287,17 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
       const { table, column, buckets, where } =
         DistributionSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error("Invalid column name");
-      }
-
-      const whereClause = where ? `WHERE ${where}` : "";
-
       try {
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return { success: false, error: "Invalid column name" };
+        }
+
+        const whereClause = where ? `WHERE ${where}` : "";
+
         // Get min/max for bucket calculation
         const rangeResult = await adapter.executeQuery(
           `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val FROM \`${table}\` ${whereClause}`,
@@ -356,7 +360,9 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           maxValue: maxVal,
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
@@ -397,13 +403,13 @@ export function createTimeSeriesToolStats(
 
       // Validate identifiers
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
+        return { success: false, error: "Invalid table name" };
       }
       if (
         !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
         !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
       ) {
-        throw new Error("Invalid column name");
+        return { success: false, error: "Invalid column name" };
       }
 
       let dateFormat: string;
@@ -454,7 +460,9 @@ export function createTimeSeriesToolStats(
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
@@ -485,17 +493,22 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
 
       // Validate table name
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
+        return { success: false, error: "Invalid table name" };
       }
 
       // Validate column names if provided
+      if (columns) {
+        for (const c of columns) {
+          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
+            return { success: false, error: `Invalid column name: ${c}` };
+          }
+        }
+      }
+
       const columnList =
         columns !== undefined && columns.length > 0
           ? columns
               .map((c) => {
-                if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
-                  throw new Error(`Invalid column name: ${c}`);
-                }
                 return `\`${c}\``;
               })
               .join(", ")
@@ -533,7 +546,9 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
           seed: seed ?? null,
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }

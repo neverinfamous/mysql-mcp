@@ -67,16 +67,17 @@ describe("Comparative Stats Tools", () => {
     });
 
     it("should validate inputs", async () => {
-      await expect(
-        correlationTool.handler(
-          {
-            table: "bad;table",
-            column1: "x",
-            column2: "y",
-          },
-          {} as any,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result: any = await correlationTool.handler(
+        {
+          table: "bad;table",
+          column1: "x",
+          column2: "y",
+        },
+        {} as any,
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
   });
 
@@ -95,6 +96,7 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
+      expect(result.success).toBe(false);
       expect(result.error).toContain("Insufficient data");
     });
 

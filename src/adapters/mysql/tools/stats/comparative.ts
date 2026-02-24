@@ -67,21 +67,22 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
       const { table, column1, column2, where } =
         CorrelationSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (
-        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
-        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
-      ) {
-        throw new Error("Invalid column name");
-      }
+      try {
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (
+          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
+          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
+        ) {
+          return { success: false, error: "Invalid column name" };
+        }
 
-      const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE ${where}` : "";
 
-      // Calculate Pearson correlation coefficient
-      const query = `
+        // Calculate Pearson correlation coefficient
+        const query = `
                 SELECT 
                     (COUNT(*) * SUM(\`${column1}\` * \`${column2}\`) - SUM(\`${column1}\`) * SUM(\`${column2}\`)) /
                     (SQRT(COUNT(*) * SUM(\`${column1}\` * \`${column1}\`) - SUM(\`${column1}\`) * SUM(\`${column1}\`)) *
@@ -96,7 +97,6 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
                 ${whereClause}
             `;
 
-      try {
         const result = await adapter.executeQuery(query);
         const stats = result.rows?.[0];
 
@@ -127,7 +127,9 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           },
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
@@ -156,21 +158,22 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, xColumn, yColumn, where } = RegressionSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (
-        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
-        !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
-      ) {
-        throw new Error("Invalid column name");
-      }
+      try {
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (
+          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
+          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
+        ) {
+          return { success: false, error: "Invalid column name" };
+        }
 
-      const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE ${where}` : "";
 
-      // Simpler approach for MySQL
-      const statsQuery = `
+        // Simpler approach for MySQL
+        const statsQuery = `
                 SELECT 
                     COUNT(*) as n,
                     AVG(\`${xColumn}\`) as avg_x,
@@ -184,12 +187,12 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                 ${whereClause}
             `;
 
-      try {
         const result = await adapter.executeQuery(statsQuery);
         const stats = result.rows?.[0];
 
         if (!stats || (stats["n"] as number) < 2) {
           return {
+            success: false,
             error: "Insufficient data points for regression (need at least 2)",
             sampleSize: stats?.["n"] ?? 0,
           };
@@ -229,7 +232,9 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                 : "Poor fit",
         };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
           return { exists: false, table };
         }
@@ -256,51 +261,52 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       const { table, column, buckets, update } = HistogramSchema.parse(params);
 
-      // Validate identifiers
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-        throw new Error("Invalid table name");
-      }
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error("Invalid column name");
-      }
+      try {
+        // Validate identifiers
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          return { success: false, error: "Invalid table name" };
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return { success: false, error: "Invalid column name" };
+        }
 
-      // Check if table exists (P154)
-      const tableCheck = await adapter.executeQuery(
-        `SELECT TABLE_NAME FROM information_schema.TABLES
+        // Check if table exists (P154)
+        const tableCheck = await adapter.executeQuery(
+          `SELECT TABLE_NAME FROM information_schema.TABLES
          WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-        [table],
-      );
-
-      if (!tableCheck.rows || tableCheck.rows.length === 0) {
-        return { exists: false, table };
-      }
-
-      // Check if column exists on the table
-      const columnCheck = await adapter.executeQuery(
-        `SELECT COLUMN_NAME FROM information_schema.COLUMNS
-         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-        [table, column],
-      );
-
-      if (!columnCheck.rows || columnCheck.rows.length === 0) {
-        return {
-          exists: false,
-          table,
-          column,
-          message: `Column '${column}' does not exist on table '${table}'`,
-        };
-      }
-
-      if (update) {
-        // Create or update histogram
-        const numBuckets = Math.min(buckets, 1024);
-        await adapter.executeQuery(
-          `ANALYZE TABLE \`${table}\` UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
+          [table],
         );
-      }
 
-      // Get histogram info from information_schema
-      const histogramQuery = `
+        if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          return { exists: false, table };
+        }
+
+        // Check if column exists on the table
+        const columnCheck = await adapter.executeQuery(
+          `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          [table, column],
+        );
+
+        if (!columnCheck.rows || columnCheck.rows.length === 0) {
+          return {
+            exists: false,
+            table,
+            column,
+            message: `Column '${column}' does not exist on table '${table}'`,
+          };
+        }
+
+        if (update) {
+          // Create or update histogram
+          const numBuckets = Math.min(buckets, 1024);
+          await adapter.executeQuery(
+            `ANALYZE TABLE \`${table}\` UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
+          );
+        }
+
+        // Get histogram info from information_schema
+        const histogramQuery = `
                 SELECT 
                     SCHEMA_NAME as schemaName,
                     TABLE_NAME as tableName,
@@ -316,31 +322,40 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
                   AND SCHEMA_NAME = DATABASE()
             `;
 
-      const result = await adapter.executeQuery(histogramQuery, [
-        table,
-        column,
-      ]);
-
-      if (!result.rows || result.rows.length === 0) {
-        return {
-          exists: false,
-          message: update
-            ? "Histogram created but not yet visible in metadata"
-            : "No histogram exists for this column",
+        const result = await adapter.executeQuery(histogramQuery, [
           table,
           column,
-        };
-      }
+        ]);
 
-      const histogramRow = result.rows[0];
-      if (!histogramRow) {
-        return { exists: false, table, column };
+        if (!result.rows || result.rows.length === 0) {
+          return {
+            exists: false,
+            message: update
+              ? "Histogram created but not yet visible in metadata"
+              : "No histogram exists for this column",
+            table,
+            column,
+          };
+        }
+
+        const histogramRow = result.rows[0];
+        if (!histogramRow) {
+          return { exists: false, table, column };
+        }
+        return {
+          exists: true,
+          ...histogramRow,
+          updated: update,
+        };
+      } catch (error) {
+        const msg = (error instanceof Error ? error.message : String(error))
+          .replace(/^Query failed: /, "")
+          .replace(/^Execute failed: /, "");
+        if (msg.includes("doesn't exist")) {
+          return { exists: false, table };
+        }
+        return { success: false, error: msg };
       }
-      return {
-        exists: true,
-        ...histogramRow,
-        updated: update,
-      };
     },
   };
 }

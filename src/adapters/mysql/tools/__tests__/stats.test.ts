@@ -421,56 +421,60 @@ describe("Stats Validation Errors", () => {
   describe("mysql_stats_descriptive", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-invalid",
-            column: "total",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-invalid",
+          column: "total",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
-      await expect(
-        tool.handler(
-          {
-            table: "orders",
-            column: "123-bad",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "orders",
+          column: "123-bad",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
   });
 
   describe("mysql_stats_percentiles", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-invalid",
-            column: "amount",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-invalid",
+          column: "amount",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
-      await expect(
-        tool.handler(
-          {
-            table: "orders",
-            column: "bad-col",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "orders",
+          column: "bad-col",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
 
     it("should return empty percentiles when table is empty", async () => {
@@ -494,58 +498,62 @@ describe("Stats Validation Errors", () => {
   describe("mysql_stats_correlation", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-bad",
-            column1: "x",
-            column2: "y",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-bad",
+          column1: "x",
+          column2: "y",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column names", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
-      await expect(
-        tool.handler(
-          {
-            table: "data",
-            column1: "bad-col",
-            column2: "y",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "data",
+          column1: "bad-col",
+          column2: "y",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
   });
 
   describe("mysql_stats_distribution", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-bad",
-            column: "amount",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-bad",
+          column: "amount",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
-      await expect(
-        tool.handler(
-          {
-            table: "orders",
-            column: "bad-col",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "orders",
+          column: "bad-col",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
 
     it("should handle same min/max values", async () => {
@@ -569,30 +577,32 @@ describe("Stats Validation Errors", () => {
   describe("mysql_stats_time_series", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-bad",
-            valueColumn: "amount",
-            timeColumn: "created_at",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-bad",
+          valueColumn: "amount",
+          timeColumn: "created_at",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column names", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
-      await expect(
-        tool.handler(
-          {
-            table: "sales",
-            valueColumn: "bad-col",
-            timeColumn: "created_at",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "sales",
+          valueColumn: "bad-col",
+          timeColumn: "created_at",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
 
     it("should use different interval formats", async () => {
@@ -618,30 +628,32 @@ describe("Stats Validation Errors", () => {
   describe("mysql_stats_regression", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-bad",
-            xColumn: "x",
-            yColumn: "y",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-bad",
+          xColumn: "x",
+          yColumn: "y",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column names", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
-      await expect(
-        tool.handler(
-          {
-            table: "data",
-            xColumn: "bad-x",
-            yColumn: "y",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "data",
+          xColumn: "bad-x",
+          yColumn: "y",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
 
     it("should return error for insufficient data points", async () => {
@@ -663,8 +675,9 @@ describe("Stats Validation Errors", () => {
           yColumn: "y",
         },
         mockContext,
-      )) as { error: string };
+      )) as { success: boolean; error: string };
 
+      expect(result.success).toBe(false);
       expect(result.error).toContain("Insufficient");
     });
   });
@@ -672,29 +685,31 @@ describe("Stats Validation Errors", () => {
   describe("mysql_stats_sampling", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-bad",
-            sampleSize: 10,
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-bad",
+          sampleSize: 10,
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column names", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
-      await expect(
-        tool.handler(
-          {
-            table: "users",
-            sampleSize: 10,
-            columns: ["valid", "bad-column"],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "users",
+          sampleSize: 10,
+          columns: ["valid", "bad-column"],
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
 
     it("should use seed for reproducibility", async () => {
@@ -718,28 +733,30 @@ describe("Stats Validation Errors", () => {
   describe("mysql_stats_histogram", () => {
     it("should reject invalid table name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
-      await expect(
-        tool.handler(
-          {
-            table: "123-bad",
-            column: "amount",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = (await tool.handler(
+        {
+          table: "123-bad",
+          column: "amount",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid table name");
     });
 
     it("should reject invalid column name", async () => {
       const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
-      await expect(
-        tool.handler(
-          {
-            table: "orders",
-            column: "bad-col",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = (await tool.handler(
+        {
+          table: "orders",
+          column: "bad-col",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid column name");
     });
   });
 });
