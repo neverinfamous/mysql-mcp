@@ -336,8 +336,11 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             }
           }
         } catch (err: unknown) {
-          explainError =
+          const rawMsg =
             err instanceof Error ? err.message : "Failed to generate EXPLAIN";
+          explainError = rawMsg
+            .replace(/^Query failed:\s*/i, "")
+            .replace(/^Execute failed:\s*/i, "");
         }
 
         const response: Record<string, unknown> = {
@@ -451,12 +454,14 @@ export function createOptimizerTraceTool(
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, summary } = schema.parse(params);
-
-      // Enable optimizer trace
-      await adapter.executeQuery('SET optimizer_trace="enabled=on"');
-
+      let tracingEnabled = false;
       try {
+        const { query, summary } = schema.parse(params);
+
+        // Enable optimizer trace
+        await adapter.executeQuery('SET optimizer_trace="enabled=on"');
+        tracingEnabled = true;
+
         // Execute the query (may fail for nonexistent tables, etc.)
         try {
           await adapter.executeReadQuery(query);
@@ -484,8 +489,10 @@ export function createOptimizerTraceTool(
         const msg = error instanceof Error ? error.message : String(error);
         return { success: false, error: msg };
       } finally {
-        // Disable optimizer trace
-        await adapter.executeQuery('SET optimizer_trace="enabled=off"');
+        if (tracingEnabled) {
+          // Disable optimizer trace
+          await adapter.executeQuery('SET optimizer_trace="enabled=off"');
+        }
       }
     },
   };

@@ -584,5 +584,41 @@ describe("Performance Optimization Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
+
+    it("mysql_optimizer_trace should return structured error on missing query", async () => {
+      const tool = createOptimizerTraceTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      // Verify optimizer trace was never enabled (parse failed before SET)
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalledWith(
+        'SET optimizer_trace="enabled=on"',
+      );
+    });
+
+    it("mysql_query_rewrite should strip adapter prefix from explainError", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error(
+          "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
+        ),
+      );
+
+      const tool = createQueryRewriteTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { query: "SELECT * FROM ghost" },
+        mockContext,
+      )) as { explainPlan: unknown; explainError: string };
+
+      expect(result.explainPlan).toBeNull();
+      expect(result.explainError).toBe("Table 'testdb.ghost' doesn't exist");
+    });
   });
 });
