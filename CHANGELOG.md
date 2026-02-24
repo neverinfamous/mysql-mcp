@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ServerInstructions Events Documentation** — Added missing `includeDisabled` parameter documentation for `mysql_event_list`. Updated error response field from `{ success: false, reason }` to `{ success: false, error }` in the "Graceful error handling" bullet
 
+- **ServerInstructions Sysschema Documentation** — Corrected `mysql_sys_schema_stats` error response documentation from `{ exists: false, schema }` to `{ success: false, error }`, matching the actual handler implementation which returns `{ success: false, error: "Schema 'X' does not exist" }`
+
 ### Fixed
 
 - **Sysschema Tool Raw Error Leaks** — All 8 sysschema tools (`mysql_sys_user_summary`, `mysql_sys_host_summary`, `mysql_sys_statement_summary`, `mysql_sys_wait_summary`, `mysql_sys_io_summary`, `mysql_sys_innodb_lock_waits`, `mysql_sys_schema_stats`, `mysql_sys_memory_summary`) lacked `try/catch` around handler logic, causing raw Zod validation errors and MySQL exceptions to propagate as MCP errors. All 8 tools now return `{ success: false, error }` matching the structured error pattern used by all other tool groups
