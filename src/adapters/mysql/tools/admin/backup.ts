@@ -116,7 +116,8 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, format, where, limit } = ExportTableSchema.parse(params);
+        const { table, format, where, limit, batch } =
+          ExportTableSchema.parse(params);
 
         // Validate inputs for SQL injection prevention
         validateIdentifier(table, "table");
@@ -167,16 +168,23 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // SQL format
+        const firstRow = rows[0];
+        if (!firstRow) {
+          return { sql: "", rowCount: 0 };
+        }
+
+        const columns = Object.keys(firstRow)
+          .map((c) => `\`${c}\``)
+          .join(", ");
         const insertStatements: string[] = [];
 
-        for (const row of rows) {
-          const columns = Object.keys(row)
-            .map((c) => `\`${c}\``)
-            .join(", ");
-          const values = Object.values(row).map(formatForMySQL).join(", ");
-
+        for (let i = 0; i < rows.length; i += batch) {
+          const chunk = rows.slice(i, i + batch);
+          const valueGroups = chunk.map(
+            (row) => `(${Object.values(row).map(formatForMySQL).join(", ")})`,
+          );
           insertStatements.push(
-            `INSERT INTO \`${table}\` (${columns}) VALUES (${values});`,
+            `INSERT INTO \`${table}\` (${columns}) VALUES ${valueGroups.join(", ")};`,
           );
         }
 

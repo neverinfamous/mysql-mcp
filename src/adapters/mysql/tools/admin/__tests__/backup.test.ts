@@ -277,6 +277,80 @@ describe("Admin Backup Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
+
+    it("should batch rows into multi-row INSERT statements", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { id: 1, name: "Alice" },
+          { id: 2, name: "Bob" },
+          { id: 3, name: "Charlie" },
+          { id: 4, name: "Diana" },
+        ]),
+      );
+
+      const tool = createExportTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", format: "SQL", batch: 2 },
+        mockContext,
+      )) as { sql: string; rowCount: number };
+
+      expect(result.rowCount).toBe(4);
+      const statements = result.sql.split("\n");
+      expect(statements).toHaveLength(2);
+      // Each statement should have 2 value groups
+      expect(statements[0]).toContain("VALUES (1, 'Alice'), (2, 'Bob')");
+      expect(statements[1]).toContain("VALUES (3, 'Charlie'), (4, 'Diana')");
+    });
+
+    it("should handle batch larger than row count", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { id: 1, name: "Alice" },
+          { id: 2, name: "Bob" },
+          { id: 3, name: "Charlie" },
+        ]),
+      );
+
+      const tool = createExportTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", format: "SQL", batch: 10 },
+        mockContext,
+      )) as { sql: string; rowCount: number };
+
+      expect(result.rowCount).toBe(3);
+      const statements = result.sql.split("\n");
+      expect(statements).toHaveLength(1);
+      expect(statements[0]).toContain(
+        "VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie')",
+      );
+    });
+
+    it("should default to batch: 1 producing individual INSERT statements", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { id: 1, name: "Alice" },
+          { id: 2, name: "Bob" },
+        ]),
+      );
+
+      const tool = createExportTableTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", format: "SQL" },
+        mockContext,
+      )) as { sql: string; rowCount: number };
+
+      expect(result.rowCount).toBe(2);
+      const statements = result.sql.split("\n");
+      expect(statements).toHaveLength(2);
+      expect(statements[0]).toContain("VALUES (1, 'Alice');");
+      expect(statements[1]).toContain("VALUES (2, 'Bob');");
+    });
   });
 
   describe("createImportDataTool", () => {

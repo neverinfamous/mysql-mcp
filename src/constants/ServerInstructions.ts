@@ -78,6 +78,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
 - **Default limit**: \`mysql_export_table\` returns at most 100 rows by default. Use \`limit\` parameter to override.
+- **Batched INSERT**: Use \`batch\` parameter (default: 1) to group rows into multi-row INSERT statements for smaller payloads. Example: \`batch: 50\` produces \`INSERT INTO ... VALUES (...), (...), ...\` with up to 50 rows per statement.
 - **WHERE filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
 - **CSV and JSON columns**: CSV export escapes JSON columns with double-quote encoding—valid but complex. Consider SQL format for JSON-heavy tables.
 - **Export error handling**: \`mysql_export_table\` returns \`{ exists: false, table }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., invalid WHERE clause, unknown column). No raw exceptions are thrown.

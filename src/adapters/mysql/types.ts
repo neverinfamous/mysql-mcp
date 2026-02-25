@@ -1985,6 +1985,15 @@ export const ExportTableSchemaBase = z.object({
     .describe(
       "Maximum number of rows to export (default: 100). Set higher to export more rows.",
     ),
+  batch: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(1)
+    .describe(
+      "Rows per INSERT statement (default: 1). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
+    ),
 });
 
 export const ExportTableSchema = z
@@ -1998,6 +2007,7 @@ export const ExportTableSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       limit: z.number().int().positive().optional().default(100),
+      batch: z.number().int().positive().optional().default(1),
     }),
   )
   .transform((data) => ({
@@ -2005,6 +2015,7 @@ export const ExportTableSchema = z
     format: data.format,
     where: data.where ?? data.filter,
     limit: data.limit,
+    batch: data.batch,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",

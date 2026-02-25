@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`mysql_export_table` Batch Parameter** — New optional `batch` parameter (default: 1) groups rows into multi-row `INSERT INTO ... VALUES (...), (...), ...` statements, reducing payload size by ~40-50% for large exports. Example: `batch: 50` produces one INSERT statement per 50 rows instead of one per row
+
 ### Fixed
 
 - **`mysql_check_table` Zod Enum Validation Leak** — The `option` parameter used `z.enum()` on `CheckTableSchemaBase`, causing invalid option values (e.g., `"INVALID_OPTION"`) to be rejected at the MCP framework level with a raw `-32602` Zod validation error before the handler's `try/catch` could intercept. Widened to `z.string()` on the Base schema while keeping `z.enum()` on the handler-parsed `CheckTableSchema`, so invalid values are caught inside `try/catch` and returned as `{ success: false, error }`
