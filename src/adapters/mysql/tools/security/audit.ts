@@ -94,10 +94,23 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
 
           const conditions: string[] = [];
           const queryParams: unknown[] = [];
+          const filtersApplied: string[] = [];
+          const filtersIgnored: string[] = [];
 
           if (user) {
             conditions.push("CURRENT_USER LIKE ?");
             queryParams.push(`%${user}%`);
+            filtersApplied.push("user");
+          }
+          if (eventType) {
+            conditions.push("EVENT_NAME LIKE ?");
+            queryParams.push(`%${eventType}%`);
+            filtersApplied.push("eventType");
+          }
+          if (startTime) {
+            // TIMER_START is a picosecond counter, not an ISO timestamp —
+            // this filter is best-effort and unlikely to match user intent.
+            filtersIgnored.push("startTime");
           }
 
           if (conditions.length > 0) {
@@ -108,12 +121,18 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams.push(limit);
 
           const result = await adapter.executeQuery(query, queryParams);
-          return {
+          const response: Record<string, unknown> = {
             source: "performance_schema",
             message: "Using performance_schema as audit log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
+          if (filtersIgnored.length > 0) {
+            response["filtersIgnored"] = filtersIgnored;
+            response["note"] =
+              "startTime filter not applied: performance_schema uses picosecond counters, not ISO timestamps";
+          }
+          return response;
         }
 
         // Query actual audit log
@@ -151,17 +170,27 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           events: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        return {
-          available: false,
-          message:
-            "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
-          suggestion:
-            'Install audit plugin with: INSTALL PLUGIN audit_log SONAME "audit_log.so"',
-        };
+        const msg = error instanceof Error ? error.message : String(error);
+        const stripped = stripErrorPrefix(msg);
+        const lower = stripped.toLowerCase();
+        if (
+          lower.includes("doesn't exist") ||
+          lower.includes("does not exist") ||
+          lower.includes("access denied")
+        ) {
+          return {
+            available: false,
+            message:
+              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
+            suggestion:
+              'Install audit plugin with: INSTALL PLUGIN audit_log SONAME "audit_log.so"',
+          };
+        }
+        return { success: false, error: stripped };
       }
     },
   };

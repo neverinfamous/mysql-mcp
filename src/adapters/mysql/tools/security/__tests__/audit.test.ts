@@ -140,6 +140,64 @@ describe("Security Audit Tools", () => {
       expect(queryParams[0]).toContain("test_user");
     });
 
+    it("should apply eventType filter in fallback mode", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // No audit log
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = createSecurityAuditTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      await tool.handler(
+        {
+          limit: 10,
+          eventType: "CONNECT",
+        },
+        mockContext,
+      );
+
+      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const queryParams = mockAdapter.executeQuery.mock.calls[1][1] as any[];
+
+      expect(queryCall).toContain("EVENT_NAME LIKE ?");
+      expect(queryParams[0]).toContain("CONNECT");
+    });
+
+    it("should include filtersIgnored when startTime used in fallback mode", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // No audit log
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = createSecurityAuditTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        {
+          limit: 10,
+          startTime: "2023-01-01",
+        },
+        mockContext,
+      )) as { filtersIgnored?: string[]; note?: string };
+
+      expect(result.filtersIgnored).toEqual(["startTime"]);
+      expect(result.note).toContain("picosecond");
+    });
+
+    it("should return structured error for non-audit failures", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Connection lost to host"),
+      );
+
+      const tool = createSecurityAuditTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connection lost to host");
+    });
+
     it("should handle error when checking audit log", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 

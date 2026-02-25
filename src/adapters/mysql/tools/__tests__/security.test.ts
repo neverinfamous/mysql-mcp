@@ -101,8 +101,8 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_audit");
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("Audit logging is not enabled");
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Connect error");
     });
   });
 
