@@ -24,6 +24,14 @@ import {
   GetIndexesSchemaBase,
   ListTablesSchema,
 } from "../types.js";
+import { ZodError } from "zod";
+
+/**
+ * Extract human-readable messages from a ZodError instead of raw JSON array
+ */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -83,11 +91,15 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        query,
-        params: queryParams,
-        transactionId,
-      } = ReadQuerySchema.parse(params);
+      let parsed;
+      try {
+        parsed = ReadQuerySchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { query, params: queryParams, transactionId } = parsed;
       try {
         const result = await adapter.executeReadQuery(
           query,
@@ -123,11 +135,15 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        query,
-        params: queryParams,
-        transactionId,
-      } = WriteQuerySchema.parse(params);
+      let parsed;
+      try {
+        parsed = WriteQuerySchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { query, params: queryParams, transactionId } = parsed;
       try {
         const result = await adapter.executeWriteQuery(
           query,
@@ -163,7 +179,15 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { database } = ListTablesSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListTablesSchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { database } = parsed;
 
       // P154: Pre-check database existence when explicitly provided
       if (database) {
@@ -217,7 +241,15 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table } = DescribeTableSchema.parse(params);
+      let parsed;
+      try {
+        parsed = DescribeTableSchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { table } = parsed;
       const tableInfo = await adapter.describeTable(table);
       // Graceful handling for non-existent tables
       if (!tableInfo.columns || tableInfo.columns.length === 0) {
@@ -248,8 +280,16 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      let parsed;
+      try {
+        parsed = CreateTableSchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
       const { name, columns, engine, charset, collate, comment, ifNotExists } =
-        CreateTableSchema.parse(params);
+        parsed;
 
       // Pre-check existence for skipped indicator when ifNotExists is true
       if (ifNotExists) {
@@ -375,7 +415,15 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
       destructiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, ifExists } = DropTableSchema.parse(params);
+      let parsed;
+      try {
+        parsed = DropTableSchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { table, ifExists } = parsed;
 
       // Validate table name
       if (!isValidId(table)) {
@@ -440,7 +488,15 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table } = GetIndexesSchema.parse(params);
+      let parsed;
+      try {
+        parsed = GetIndexesSchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { table } = parsed;
       // First check if table exists by describing it
       const tableInfo = await adapter.describeTable(table);
       if (!tableInfo.columns || tableInfo.columns.length === 0) {
@@ -473,8 +529,15 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, table, columns, unique, type, ifNotExists } =
-        CreateIndexSchema.parse(params);
+      let parsed;
+      try {
+        parsed = CreateIndexSchema.parse(params);
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        throw err;
+      }
+      const { name, table, columns, unique, type, ifNotExists } = parsed;
 
       // Validate names
       if (!VALID_INDEX_NAME_PATTERN.test(name)) {

@@ -323,7 +323,7 @@ export const DropTableSchemaBase = z.object({
   ifExists: z
     .boolean()
     .optional()
-    .default(true)
+    .default(false)
     .describe("Add IF EXISTS clause"),
 });
 
@@ -397,6 +397,12 @@ export const GetIndexesSchema = z
 
 // --- TransactionBegin ---
 
+// Base schema for MCP visibility
+export const TransactionBeginSchemaBase = z.object({
+  isolationLevel: z.string().optional().describe("Transaction isolation level"),
+});
+
+// Transformed schema for handler parsing
 export const TransactionBeginSchema = z.preprocess(
   defaultToEmpty,
   z.object({
@@ -467,24 +473,31 @@ export const TransactionExecuteSchemaBase = z.object({
     .optional()
     .describe("SQL statements to execute atomically"),
   queries: z.array(z.string()).optional().describe("Alias for statements"),
-  isolationLevel: z
-    .enum([
-      "READ UNCOMMITTED",
-      "READ COMMITTED",
-      "REPEATABLE READ",
-      "SERIALIZABLE",
-    ])
-    .optional()
-    .describe("Transaction isolation level"),
+  isolationLevel: z.string().optional().describe("Transaction isolation level"),
 });
 
-// Transformed schema for handler parsing
 export const TransactionExecuteSchema = z
   .preprocess(preprocessTransactionExecuteParams, TransactionExecuteSchemaBase)
   .transform((data) => ({
     statements: data.statements ?? data.queries ?? [],
     isolationLevel: data.isolationLevel,
-  }));
+  }))
+  .refine(
+    (data) => {
+      if (!data.isolationLevel) return true;
+      const validLevels = [
+        "READ UNCOMMITTED",
+        "READ COMMITTED",
+        "REPEATABLE READ",
+        "SERIALIZABLE",
+      ];
+      return validLevels.includes(data.isolationLevel);
+    },
+    {
+      message:
+        "Invalid isolationLevel. Expected one of: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE",
+    },
+  );
 
 // =============================================================================
 // Preprocess: JSON/Text column params (table, column, where aliases)

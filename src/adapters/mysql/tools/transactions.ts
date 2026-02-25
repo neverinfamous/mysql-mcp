@@ -9,6 +9,7 @@ import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   TransactionBeginSchema,
+  TransactionBeginSchemaBase,
   TransactionIdSchema,
   TransactionIdSchemaBase,
   TransactionSavepointSchema,
@@ -42,20 +43,25 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Begin a new transaction with optional isolation level. Returns a transaction ID for subsequent operations.",
     group: "transactions",
-    inputSchema: TransactionBeginSchema,
+    inputSchema: TransactionBeginSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { isolationLevel } = TransactionBeginSchema.parse(params);
-      const transactionId = await adapter.beginTransaction(isolationLevel);
-      return {
-        transactionId,
-        isolationLevel: isolationLevel ?? "REPEATABLE READ (default)",
-        message:
-          "Transaction started. Use transactionId for commit/rollback operations.",
-      };
+      try {
+        const { isolationLevel } = TransactionBeginSchema.parse(params);
+        const transactionId = await adapter.beginTransaction(isolationLevel);
+        return {
+          transactionId,
+          isolationLevel: isolationLevel ?? "REPEATABLE READ (default)",
+          message:
+            "Transaction started. Use transactionId for commit/rollback operations.",
+        };
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, error: msg };
+      }
     },
   };
 }
@@ -278,8 +284,15 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { statements, isolationLevel } =
-        TransactionExecuteSchema.parse(params);
+      let parsedParams;
+      try {
+        parsedParams = TransactionExecuteSchema.parse(params);
+      } catch (error) {
+        const msg = String(error instanceof Error ? error.message : error);
+        return { success: false, error: msg };
+      }
+
+      const { statements, isolationLevel } = parsedParams;
 
       if (statements.length === 0) {
         return {

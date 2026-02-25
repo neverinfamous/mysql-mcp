@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Core Tool Zod Validation Leaks (8 Tools)** — \`mysql_read_query\`, \`mysql_write_query\`, \`mysql_list_tables\`, \`mysql_describe_table\`, \`mysql_create_table\`, \`mysql_drop_table\`, \`mysql_get_indexes\`, and \`mysql_create_index\` called \`Schema.parse(params)\` outside their \`try/catch\` blocks, causing raw Zod validation errors to propagate as MCP exceptions when missing required parameters or invalid types were passed. Moved all \`parse()\` calls inside \`try/catch\` with \`ZodError\` detection and human-readable error formatting, matching the pattern used by all other tool groups.
+- **\`mysql_drop_table\` Default Behavior** — The \`ifExists\` parameter in \`DropTableSchemaBase\` defaulted to \`true\`, contradicting the documented behavior and generic SQL defaults where it should be false unless explicitly requested. Changed the default value to \`false\`.
+
 ### Security
 
 - **Worker Sandbox API Bridge (Critical)** — The `CODEMODE_ISOLATION=worker` mode spawned a Worker thread but the `mysql.*` API bindings were non-functional — `serializeBindings()` stripped all functions to method name arrays, and `worker-script.ts` set `mysql: {}` (empty object). Implemented a `MessagePort`-based RPC bridge: the main thread listens on `port1` for `{ id, group, method, args }` requests and dispatches to real `MySQLAdapter` methods; the worker builds async proxy stubs via `buildMysqlProxy()` that send RPC requests through `port2` and await responses. Changed default sandbox mode from `vm` to `worker` for stronger V8 isolate separation. Readonly enforcement, `resourceLimits` memory caps, and timeout mechanisms remain fully functional

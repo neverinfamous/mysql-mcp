@@ -555,7 +555,7 @@ describe("Handler Execution", () => {
       await tool.handler({ table: "db.table" }, mockContext);
 
       const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
-      expect(sqlCall).toContain("DROP TABLE IF EXISTS `db`.`table`");
+      expect(sqlCall).toContain("DROP TABLE `db`.`table`");
     });
 
     it("should return graceful error when table does not exist", async () => {
