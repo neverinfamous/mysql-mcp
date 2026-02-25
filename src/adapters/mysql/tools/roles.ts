@@ -212,7 +212,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { role } = RoleGrantsSchema.parse(params);
 
           // Validate role identifier before interpolation
-          validateIdentifier(role, "column");
+          validateIdentifier(role, "role");
 
           // Check if role exists first (roles are locked accounts with empty auth string)
           const checkResult = await adapter.executeQuery(
@@ -337,7 +337,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             RoleAssignSchema.parse(params);
 
           // Validate all interpolated identifiers
-          validateIdentifier(role, "column");
+          validateIdentifier(role, "role");
           validateMySQLUserHost(user, "user");
           validateMySQLUserHost(host, "host");
 
@@ -443,7 +443,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           // Validate before interpolation (role/user/host already validated by earlier checks
           // but validate user/host explicitly for this rawQuery)
-          validateIdentifier(role, "column");
+          validateIdentifier(role, "role");
           validateMySQLUserHost(user, "user");
           validateMySQLUserHost(host, "host");
 
