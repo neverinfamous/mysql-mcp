@@ -177,7 +177,9 @@ describe("Handler Execution", () => {
     });
 
     it("should support ifNotExists parameter", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([])) // checkCollectionExists → false
+        .mockResolvedValue(createMockQueryResult([])); // CREATE TABLE succeeds
 
       const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
       await tool.handler(
@@ -185,8 +187,30 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("CREATE TABLE IF NOT EXISTS");
+      const calls = mockAdapter.executeQuery.mock.calls;
+      const createCall = calls[calls.length - 1][0] as string;
+      expect(createCall).toContain("CREATE TABLE IF NOT EXISTS");
+    });
+
+    it("should return skipped when collection already exists with ifNotExists", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ "1": 1 }]), // checkCollectionExists → true
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const result = await tool.handler(
+        { name: "my_collection", ifNotExists: true },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        skipped: true,
+        collection: "my_collection",
+        reason: "Collection already exists",
+      });
+      // Should NOT have called CREATE TABLE
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
     it("should not use IF NOT EXISTS by default", async () => {
@@ -839,7 +863,7 @@ describe("Handler Execution", () => {
     });
 
     it("should return graceful response when collection does not exist", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // collection does not exist
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // collection does not exist (no schema → skip schema check)
 
       const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
       const result = (await tool.handler(
@@ -850,6 +874,22 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("exists", false);
       expect(result).toHaveProperty("collection", "nonexistent");
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
+      const result = await tool.handler(
+        { collection: "users", schema: "nonexistent_schema" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
     });
   });
 });

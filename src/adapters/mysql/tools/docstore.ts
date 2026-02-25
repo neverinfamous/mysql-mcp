@@ -235,6 +235,24 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
             return { success: false, error: "Invalid schema name" };
 
           const tableRef = escapeTableRef(name, schema);
+
+          // Pre-check existence when ifNotExists is true so we can report accurately
+          if (ifNotExists) {
+            const alreadyExists = await checkCollectionExists(
+              adapter,
+              name,
+              schema,
+            );
+            if (alreadyExists) {
+              return {
+                success: true,
+                skipped: true,
+                collection: name,
+                reason: "Collection already exists",
+              };
+            }
+          }
+
           const createClause = ifNotExists
             ? "CREATE TABLE IF NOT EXISTS"
             : "CREATE TABLE";
@@ -577,6 +595,17 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { collection, schema } = CollectionInfoSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
+
+          // Pre-check schema existence when explicitly provided
+          if (schema) {
+            const schemaCheck = await adapter.executeQuery(
+              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+              [schema],
+            );
+            if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+              return { exists: false, schema };
+            }
+          }
 
           // Check if collection exists
           const existsCheck = await adapter.executeQuery(
