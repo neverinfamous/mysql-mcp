@@ -297,9 +297,13 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
 
+        let warning: string | undefined;
         if (update) {
           // Create or update histogram
           const numBuckets = Math.min(buckets, 1024);
+          if (buckets > 1024) {
+            warning = `Requested ${buckets} buckets; clamped to max 1024`;
+          }
           await adapter.executeQuery(
             `ANALYZE TABLE \`${table}\` UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
           );
@@ -346,6 +350,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           exists: true,
           ...histogramRow,
           updated: update,
+          ...(warning && { warning }),
         };
       } catch (error) {
         const msg = (error instanceof Error ? error.message : String(error))

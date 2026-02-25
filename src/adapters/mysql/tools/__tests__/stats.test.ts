@@ -380,6 +380,29 @@ describe("Handler Execution", () => {
       expect(calls.some((c) => c.includes("ANALYZE TABLE"))).toBe(true);
     });
 
+    it("should include warning when buckets exceed 1024", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ TABLE_NAME: "orders" }]),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const result = (await tool.handler(
+        { table: "orders", column: "total", update: true, buckets: 2000 },
+        mockContext,
+      )) as { warning?: string };
+
+      // Verify ANALYZE TABLE used clamped value
+      const calls = mockAdapter.executeQuery.mock.calls.map(
+        (c) => c[0] as string,
+      );
+      const analyzeCall = calls.find((c) => c.includes("ANALYZE TABLE"));
+      expect(analyzeCall).toContain("1024 BUCKETS");
+
+      expect(result.warning).toBe(
+        "Requested 2000 buckets; clamped to max 1024",
+      );
+    });
+
     it("should return histogram metadata when exists", async () => {
       mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([

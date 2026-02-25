@@ -108,11 +108,13 @@ describe("Handler Execution", () => {
       expect(call).toContain("CREATE ROLE 'test_role'");
     });
 
-    it("should reject invalid role names", async () => {
+    it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
-      await expect(
-        tool.handler({ name: "invalid-role" }, mockContext),
-      ).rejects.toThrow("Invalid role name");
+      const result = await tool.handler(
+        { name: "invalid-role" },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid role name" });
     });
 
     it("should return skipped when ifNotExists and role already exists", async () => {
@@ -170,14 +172,13 @@ describe("Handler Execution", () => {
       );
     });
 
-    it("should reject invalid role names", async () => {
+    it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_grant")!;
-      await expect(
-        tool.handler(
-          { role: "invalid-role", privileges: ["SELECT"] },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid role name");
+      const result = await tool.handler(
+        { role: "invalid-role", privileges: ["SELECT"] },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid role name" });
     });
   });
 
@@ -218,7 +219,7 @@ describe("Handler Execution", () => {
         role: "test_role",
         user: "testuser",
         host: "localhost",
-        reason:
+        error:
           "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
       });
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
@@ -249,11 +250,13 @@ describe("Handler Execution", () => {
       expect(call).toContain("DROP ROLE 'test_role'");
     });
 
-    it("should reject invalid role names", async () => {
+    it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
-      await expect(
-        tool.handler({ name: "invalid-role" }, mockContext),
-      ).rejects.toThrow("Invalid role name");
+      const result = await tool.handler(
+        { name: "invalid-role" },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid role name" });
     });
 
     it("should return skipped when ifExists and role does not exist", async () => {
@@ -367,7 +370,7 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        reason: "Role 'test_role' already exists",
+        error: "Role 'test_role' already exists",
       });
     });
   });
@@ -386,7 +389,7 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        reason: "Role 'test_role' does not exist",
+        error: "Role 'test_role' does not exist",
       });
     });
   });
