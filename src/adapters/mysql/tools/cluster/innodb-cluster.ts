@@ -16,6 +16,10 @@ import type {
 // Schemas
 // =============================================================================
 
+const LimitSchemaBase = z.object({
+  limit: z.number().optional().describe("Maximum number of results"),
+});
+
 const LimitSchema = z.object({
   limit: z
     .number()
@@ -168,7 +172,7 @@ export function createClusterInstancesTool(
     title: "MySQL Cluster Instances",
     description: "List all instances in the InnoDB Cluster.",
     group: "cluster",
-    inputSchema: LimitSchema,
+    inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -605,6 +609,7 @@ export function createClusterSwitchoverTool(
         };
       } catch (error) {
         return {
+          currentPrimary: null,
           candidates: [],
           canSwitchover: false,
           error: error instanceof Error ? error.message : String(error),
