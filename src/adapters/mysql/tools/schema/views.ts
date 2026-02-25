@@ -119,6 +119,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
 
       try {
         await adapter.executeQuery(sql);
+        adapter.clearSchemaCache();
         return { success: true, viewName: name };
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);

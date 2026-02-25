@@ -196,6 +196,9 @@ export function createMockMySQLAdapter(): Partial<MySQLAdapter> & {
 
     // Pool access
     getPool: vi.fn().mockReturnValue(null),
+
+    // Schema cache invalidation
+    clearSchemaCache: vi.fn(),
   };
 }
 

@@ -219,6 +219,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`mysql2` 3.18.0 Type Compatibility** — Adjusted `MySQLAdapter.executeOnConnection()` and `ConnectionPool.execute()` to satisfy mysql2 3.18.0's stricter `QueryValues` type constraint on `execute()` and `query()` parameter signatures
 
+### Performance
+
+- **Cache Invalidation After DDL Operations** — Added `clearSchemaCache()` call to 14 DDL tool handlers across 7 files (`core.ts`, `docstore.ts`, `schema/views.ts`, `spatial/setup.ts`, `text/fulltext.ts`, `partitioning.ts`) to prevent stale metadata from being served during the cache TTL window after CREATE/DROP/ALTER operations. Previously, DDL operations would succeed but `describeTable`/`listTables`/`getSchema` could return outdated metadata for up to 30 seconds
+- **`SchemaManager.describeTable()` Parallelized** — The two independent `information_schema` queries (COLUMNS + TABLES) in `describeTable()` are now executed concurrently via `Promise.all()` instead of sequentially, reducing latency on cache misses
+- **Resource Handler Parallelization** — Parallelized independent queries in 8 resource handlers using `Promise.all()`: `innodb.ts` (3 queries), `sysschema.ts` (3 queries), `spatial.ts` (2 queries), `locks.ts` (2 queries), `events.ts` (2 queries), `docstore.ts` (2 queries), `indexes.ts` (3 queries), `performance.ts` (2 queries). Previously all queries were executed sequentially
+- **Test Suite Parallelism** — Increased `vitest.config.ts` `maxWorkers` from 1 to 4, reducing total test suite duration from ~66s to ~37s (44% faster). Import time (previously 39% of total) now benefits from parallel module loading
+
 ### Dependencies
 
 - `@modelcontextprotocol/sdk`: 1.26.0 → 1.27.0

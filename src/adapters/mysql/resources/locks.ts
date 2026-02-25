@@ -20,8 +20,10 @@ export function createLocksResource(adapter: MySQLAdapter): ResourceDefinition {
     },
     handler: async (_uri: string, _context: RequestContext) => {
       try {
-        // Get current lock waits from performance_schema
-        const lockWaitsResult = await adapter.executeQuery(`
+        // Performance optimization: run both independent queries in parallel
+        const [lockWaitsResult, lockStatusResult] = await Promise.all([
+          // Get current lock waits from performance_schema
+          adapter.executeQuery(`
                     SELECT 
                         r.trx_id AS waiting_trx_id,
                         r.trx_mysql_thread_id AS waiting_thread,
@@ -34,12 +36,12 @@ export function createLocksResource(adapter: MySQLAdapter): ResourceDefinition {
                     JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTION_ID
                     JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID
                     LIMIT 20
-                `);
-
-        // Get global lock status
-        const lockStatusResult = await adapter.executeQuery(`
+                `),
+          // Get global lock status
+          adapter.executeQuery(`
                     SHOW STATUS LIKE 'Innodb_row_lock%'
-                `);
+                `),
+        ]);
 
         const lockStats: Record<string, unknown> = {};
         for (const row of lockStatusResult.rows ?? []) {

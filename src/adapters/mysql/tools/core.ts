@@ -353,6 +353,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: false, error: message };
       }
 
+      adapter.clearSchemaCache();
       return { success: true, tableName: name };
     },
   };
@@ -405,6 +406,8 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return { success: false, error: message };
       }
+
+      adapter.clearSchemaCache();
 
       if (tableAbsent) {
         return {
@@ -532,6 +535,8 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return { success: false, error: message };
       }
+
+      adapter.clearSchemaCache();
 
       // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)
       if (type === "HASH") {

@@ -123,6 +123,7 @@ export function createSpatialCreateColumnTool(
           `ALTER TABLE ${escapeQualifiedTable(table)} ADD COLUMN \`${column}\` ${upperType}${sridClause}${nullClause}`,
         );
 
+        adapter.clearSchemaCache();
         return {
           success: true,
           table,
@@ -238,6 +239,7 @@ export function createSpatialCreateIndexTool(
           `CREATE SPATIAL INDEX \`${idxName}\` ON ${escapeQualifiedTable(table)}(\`${column}\`)`,
         );
 
+        adapter.clearSchemaCache();
         return {
           success: true,
           table,

@@ -23,10 +23,30 @@ export function createInnodbResource(
       priority: 0.7,
     },
     handler: async (_uri: string, _context: RequestContext) => {
-      // Get buffer pool status
-      const bufferPoolResult = await adapter.executeQuery(`
+      // Performance optimization: run all three independent queries in parallel
+      const [bufferPoolResult, configResult, opsResult] = await Promise.all([
+        // Get buffer pool status
+        adapter.executeQuery(`
                 SHOW GLOBAL STATUS WHERE Variable_name LIKE 'Innodb_buffer_pool%'
-            `);
+            `),
+        // Get buffer pool size configuration
+        adapter.executeQuery(`
+                SHOW GLOBAL VARIABLES WHERE Variable_name IN (
+                    'innodb_buffer_pool_size', 'innodb_buffer_pool_instances',
+                    'innodb_log_file_size', 'innodb_log_files_in_group',
+                    'innodb_flush_log_at_trx_commit', 'innodb_file_per_table'
+                )
+            `),
+        // Get row operations
+        adapter.executeQuery(`
+                SHOW GLOBAL STATUS WHERE Variable_name IN (
+                    'Innodb_rows_read', 'Innodb_rows_inserted', 
+                    'Innodb_rows_updated', 'Innodb_rows_deleted',
+                    'Innodb_data_reads', 'Innodb_data_writes',
+                    'Innodb_os_log_written', 'Innodb_log_writes'
+                )
+            `),
+      ]);
 
       const bufferPool: Record<string, number> = {};
       for (const row of bufferPoolResult.rows ?? []) {
@@ -36,29 +56,10 @@ export function createInnodbResource(
         );
       }
 
-      // Get buffer pool size configuration
-      const configResult = await adapter.executeQuery(`
-                SHOW GLOBAL VARIABLES WHERE Variable_name IN (
-                    'innodb_buffer_pool_size', 'innodb_buffer_pool_instances',
-                    'innodb_log_file_size', 'innodb_log_files_in_group',
-                    'innodb_flush_log_at_trx_commit', 'innodb_file_per_table'
-                )
-            `);
-
       const config: Record<string, string> = {};
       for (const row of configResult.rows ?? []) {
         config[row["Variable_name"] as string] = row["Value"] as string;
       }
-
-      // Get row operations
-      const opsResult = await adapter.executeQuery(`
-                SHOW GLOBAL STATUS WHERE Variable_name IN (
-                    'Innodb_rows_read', 'Innodb_rows_inserted', 
-                    'Innodb_rows_updated', 'Innodb_rows_deleted',
-                    'Innodb_data_reads', 'Innodb_data_writes',
-                    'Innodb_os_log_written', 'Innodb_log_writes'
-                )
-            `);
 
       const operations: Record<string, number> = {};
       for (const row of opsResult.rows ?? []) {

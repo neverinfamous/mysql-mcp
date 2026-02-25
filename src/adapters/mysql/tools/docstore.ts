@@ -289,6 +289,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
           return { success: true, collection: name };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
@@ -339,6 +340,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           await adapter.executeQuery(
             `DROP TABLE ${ifExists ? "IF EXISTS " : ""}${tableRef}`,
           );
+          adapter.clearSchemaCache();
           return { success: true, collection: name };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
@@ -595,6 +597,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
             `CREATE ${uniqueClause}INDEX \`${name}\` ON ${tableRef} (${cols})`,
           );
 
+          adapter.clearSchemaCache();
           return { success: true, index: name };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {

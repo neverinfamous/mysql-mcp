@@ -22,15 +22,14 @@ export function createDocstoreResource(
     },
     handler: async (_uri: string, _context: RequestContext) => {
       try {
-        // Check if X Plugin is enabled
-        const pluginResult = await adapter.executeQuery(
-          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'mysqlx'",
-        );
-        const pluginRow = pluginResult.rows?.[0];
-        const xPluginEnabled = pluginRow?.["PLUGIN_STATUS"] === "ACTIVE";
-
-        // Get collections (tables with _id column and doc JSON column)
-        const collectionsResult = await adapter.executeQuery(`
+        // Performance optimization: run both independent queries in parallel
+        const [pluginResult, collectionsResult] = await Promise.all([
+          // Check if X Plugin is enabled
+          adapter.executeQuery(
+            "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'mysqlx'",
+          ),
+          // Get collections (tables with _id column and doc JSON column)
+          adapter.executeQuery(`
                     SELECT 
                         t.TABLE_NAME as collection_name,
                         t.TABLE_ROWS as row_count,
@@ -51,7 +50,11 @@ export function createDocstoreResource(
                             AND c2.COLUMN_NAME = '_id'
                       )
                     ORDER BY t.TABLE_NAME
-                `);
+                `),
+        ]);
+
+        const pluginRow = pluginResult.rows?.[0];
+        const xPluginEnabled = pluginRow?.["PLUGIN_STATUS"] === "ACTIVE";
 
         return {
           xPluginEnabled,

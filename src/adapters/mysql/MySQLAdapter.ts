@@ -551,6 +551,15 @@ export class MySQLAdapter extends DatabaseAdapter {
   }
 
   /**
+   * Clear the schema metadata cache.
+   * Should be called after any DDL operation (CREATE/DROP/ALTER TABLE, INDEX, VIEW)
+   * to prevent stale metadata from being served during the cache TTL window.
+   */
+  clearSchemaCache(): void {
+    this.schemaManager.clearCache();
+  }
+
+  /**
    * Get IDs of all active transactions (for Code Mode cleanup)
    */
   getActiveTransactionIds(): string[] {

@@ -146,6 +146,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
 
       try {
         await adapter.executeQuery(sql);
+        adapter.clearSchemaCache();
         return { success: true, table, partitionName };
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
@@ -210,6 +211,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``,
         );
 
+        adapter.clearSchemaCache();
         return {
           success: true,
           table,
@@ -296,6 +298,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
 
       try {
         await adapter.executeQuery(sql);
+        adapter.clearSchemaCache();
         return {
           success: true,
           table,

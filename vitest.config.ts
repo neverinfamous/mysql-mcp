@@ -22,7 +22,7 @@ export default defineConfig({
     },
     // Pool configuration for single-worker execution (Vitest 4 format)
     pool: "forks",
-    maxWorkers: 1,
+    maxWorkers: 4,
     isolate: true,
   },
 });

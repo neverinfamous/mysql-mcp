@@ -21,17 +21,12 @@ export function createEventsResource(
       priority: 0.6,
     },
     handler: async (_uri: string, _context: RequestContext) => {
-      // Get scheduler status
-      const schedulerResult = await adapter.executeQuery(
-        "SHOW VARIABLES LIKE 'event_scheduler'",
-      );
-      const schedulerRow = schedulerResult.rows?.[0];
-      const schedulerVal = schedulerRow?.["Value"];
-      const schedulerStatus =
-        typeof schedulerVal === "string" ? schedulerVal : "OFF";
-
-      // Get all events
-      const eventsResult = await adapter.executeQuery(`
+      // Performance optimization: run both independent queries in parallel
+      const [schedulerResult, eventsResult] = await Promise.all([
+        // Get scheduler status
+        adapter.executeQuery("SHOW VARIABLES LIKE 'event_scheduler'"),
+        // Get all events
+        adapter.executeQuery(`
                 SELECT 
                     EVENT_SCHEMA as schema_name,
                     EVENT_NAME as name,
@@ -43,7 +38,12 @@ export function createEventsResource(
                     LAST_EXECUTED as last_executed
                 FROM information_schema.EVENTS
                 ORDER BY EVENT_SCHEMA, EVENT_NAME
-            `);
+            `),
+      ]);
+      const schedulerRow = schedulerResult.rows?.[0];
+      const schedulerVal = schedulerRow?.["Value"];
+      const schedulerStatus =
+        typeof schedulerVal === "string" ? schedulerVal : "OFF";
 
       return {
         schedulerEnabled: schedulerStatus === "ON",

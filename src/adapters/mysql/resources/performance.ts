@@ -23,8 +23,9 @@ export function createPerformanceResource(
       priority: 0.8,
     },
     handler: async (_uri: string, _context: RequestContext) => {
-      // Get performance-related status variables
-      const statusResult = await adapter.executeQuery(`
+      // Performance optimization: run both queries in parallel
+      // The performance_schema query may fail, but we handle that gracefully
+      const statusPromise = adapter.executeQuery(`
                 SHOW GLOBAL STATUS WHERE Variable_name IN (
                     'Queries', 'Questions', 'Slow_queries',
                     'Select_full_join', 'Select_range_check', 'Select_scan',
@@ -35,18 +36,9 @@ export function createPerformanceResource(
                 )
             `);
 
-      const status: Record<string, number> = {};
-      for (const row of statusResult.rows ?? []) {
-        status[row["Variable_name"] as string] = parseInt(
-          row["Value"] as string,
-          10,
-        );
-      }
-
-      // Get performance schema if available (MySQL 5.6+)
-      let topQueries: unknown[] = [];
-      try {
-        const perfResult = await adapter.executeQuery(`
+      const perfPromise = adapter
+        .executeQuery(
+          `
                     SELECT 
                         DIGEST_TEXT as query_pattern,
                         COUNT_STAR as execution_count,
@@ -59,11 +51,24 @@ export function createPerformanceResource(
                     WHERE DIGEST_TEXT IS NOT NULL
                     ORDER BY SUM_TIMER_WAIT DESC
                     LIMIT 10
-                `);
-        topQueries = perfResult.rows ?? [];
-      } catch {
-        // Performance schema may not be available
+                `,
+        )
+        .catch(() => ({ rows: [] as Record<string, unknown>[] }));
+
+      const [statusResult, perfResult] = await Promise.all([
+        statusPromise,
+        perfPromise,
+      ]);
+
+      const status: Record<string, number> = {};
+      for (const row of statusResult.rows ?? []) {
+        status[row["Variable_name"] as string] = parseInt(
+          row["Value"] as string,
+          10,
+        );
       }
+
+      const topQueries = perfResult.rows ?? [];
 
       // Calculate derived metrics
       const tmpTablesCreated = status["Created_tmp_tables"] ?? 0;

@@ -123,6 +123,7 @@ export function createFulltextCreateTool(
         return { success: false, error: msg };
       }
 
+      adapter.clearSchemaCache();
       return { success: true, indexName: name, columns };
     },
   };
@@ -165,6 +166,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: false, error: msg };
       }
 
+      adapter.clearSchemaCache();
       return { success: true, indexName, table };
     },
   };

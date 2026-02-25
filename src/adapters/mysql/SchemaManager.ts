@@ -201,9 +201,10 @@ export class SchemaManager {
       : "TABLE_SCHEMA = DATABASE()";
     const params = schemaName ? [schemaName, shortTableName] : [shortTableName];
 
-    // Get column information
-    const columnsResult = await this.executor.executeQuery(
-      `
+    // Performance optimization: run column and table queries in parallel
+    const [columnsResult, tableResult] = await Promise.all([
+      this.executor.executeQuery(
+        `
             SELECT 
                 COLUMN_NAME as name,
                 DATA_TYPE as type,
@@ -219,8 +220,23 @@ export class SchemaManager {
               AND TABLE_NAME = ?
             ORDER BY ORDINAL_POSITION
         `,
-      params,
-    );
+        params,
+      ),
+      this.executor.executeQuery(
+        `
+            SELECT 
+                TABLE_TYPE as type,
+                ENGINE as engine,
+                TABLE_ROWS as rowCount,
+                TABLE_COLLATION as collation,
+                TABLE_COMMENT as comment
+            FROM information_schema.TABLES
+            WHERE ${schemaClause}
+              AND TABLE_NAME = ?
+        `,
+        params,
+      ),
+    ]);
 
     const columns: ColumnInfo[] = (columnsResult.rows ?? []).map((row) => ({
       name: row["name"] as string,
@@ -233,22 +249,6 @@ export class SchemaManager {
       collation: row["collation"] as string | undefined,
       comment: row["comment"] as string | undefined,
     }));
-
-    // Get table info
-    const tableResult = await this.executor.executeQuery(
-      `
-            SELECT 
-                TABLE_TYPE as type,
-                ENGINE as engine,
-                TABLE_ROWS as rowCount,
-                TABLE_COLLATION as collation,
-                TABLE_COMMENT as comment
-            FROM information_schema.TABLES
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-        `,
-      params,
-    );
 
     const tableRow = tableResult.rows?.[0];
 

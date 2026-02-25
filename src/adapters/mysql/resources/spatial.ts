@@ -21,8 +21,10 @@ export function createSpatialResource(
       priority: 0.5,
     },
     handler: async (_uri: string, _context: RequestContext) => {
-      // Get spatial columns
-      const columnsResult = await adapter.executeQuery(`
+      // Performance optimization: run both independent queries in parallel
+      const [columnsResult, indexesResult] = await Promise.all([
+        // Get spatial columns
+        adapter.executeQuery(`
                 SELECT 
                     TABLE_SCHEMA as schema_name,
                     TABLE_NAME as table_name,
@@ -34,10 +36,9 @@ export function createSpatialResource(
                                    'multipoint', 'multilinestring', 'multipolygon', 'geometrycollection')
                   AND TABLE_SCHEMA = DATABASE()
                 ORDER BY TABLE_NAME, COLUMN_NAME
-            `);
-
-      // Get spatial indexes
-      const indexesResult = await adapter.executeQuery(`
+            `),
+        // Get spatial indexes
+        adapter.executeQuery(`
                 SELECT 
                     TABLE_NAME as table_name,
                     INDEX_NAME as index_name,
@@ -46,7 +47,8 @@ export function createSpatialResource(
                 WHERE INDEX_TYPE = 'SPATIAL'
                   AND TABLE_SCHEMA = DATABASE()
                 ORDER BY TABLE_NAME, INDEX_NAME
-            `);
+            `),
+      ]);
 
       return {
         spatialColumnCount: columnsResult.rows?.length ?? 0,

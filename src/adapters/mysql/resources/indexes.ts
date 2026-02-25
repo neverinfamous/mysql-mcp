@@ -32,7 +32,7 @@ export function createIndexesResource(
         return { error: "No database selected" };
       }
 
-      // Get index statistics
+      // Get index statistics (required)
       const indexResult = await adapter.executeQuery(
         `
                 SELECT 
@@ -50,11 +50,15 @@ export function createIndexesResource(
         [database],
       );
 
-      // Try to get index usage from performance_schema if available
+      // Performance optimization: run unused + duplicate queries in parallel
+      // Both are optional — they may fail on older MySQL versions
       let unusedIndexes: unknown[] = [];
+      let duplicateIndexes: unknown[] = [];
+
       try {
-        const unusedResult = await adapter.executeQuery(
-          `
+        const [unusedResult, dupResult] = await Promise.all([
+          adapter.executeQuery(
+            `
                     SELECT 
                         object_schema as schema_name,
                         object_name as table_name,
@@ -65,18 +69,10 @@ export function createIndexesResource(
                       AND index_name != 'PRIMARY'
                       AND count_star = 0
                 `,
-          [database],
-        );
-        unusedIndexes = unusedResult.rows ?? [];
-      } catch {
-        // Performance schema may not be available
-      }
-
-      // Get duplicate/redundant indexes
-      let duplicateIndexes: unknown[] = [];
-      try {
-        const dupResult = await adapter.executeQuery(
-          `
+            [database],
+          ),
+          adapter.executeQuery(
+            `
                     SELECT 
                         a.TABLE_NAME as table_name,
                         a.INDEX_NAME as redundant_index,
@@ -94,11 +90,13 @@ export function createIndexesResource(
                       AND (a.INDEX_NAME != 'PRIMARY' AND b.INDEX_NAME != 'PRIMARY')
                     GROUP BY a.TABLE_NAME, a.INDEX_NAME, a.COLUMN_NAME, b.INDEX_NAME
                 `,
-          [database],
-        );
+            [database],
+          ),
+        ]);
+        unusedIndexes = unusedResult.rows ?? [];
         duplicateIndexes = dupResult.rows ?? [];
       } catch {
-        // May fail on older MySQL versions
+        // Performance schema may not be available on older MySQL versions
       }
 
       return {
