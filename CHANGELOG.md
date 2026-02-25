@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`mysql_check_table` Zod Enum Validation Leak** — The `option` parameter used `z.enum()` on `CheckTableSchemaBase`, causing invalid option values (e.g., `"INVALID_OPTION"`) to be rejected at the MCP framework level with a raw `-32602` Zod validation error before the handler's `try/catch` could intercept. Widened to `z.string()` on the Base schema while keeping `z.enum()` on the handler-parsed `CheckTableSchema`, so invalid values are caught inside `try/catch` and returned as `{ success: false, error }`
+
 - **`mysql_flush_tables` Missing `error` Field on Nonexistent Tables** — When called with nonexistent tables, the response returned `{ success: false, notFound, flushed }` without the standard `error` field required by the error consistency convention. Added `error: "Tables not found: ..."` to the response, matching the `{ success: false, error }` pattern used by all other tools. The `notFound` and `flushed` arrays remain as additional context
 
 - **`mysql_json_index_suggest` DDL for Qualified Table Names** — Generated `indexDdl` wrapped qualified table names in a single backtick pair (`` `schema.table` ``) instead of properly escaping each part (`` `schema`.`table` ``), producing invalid MySQL syntax. The index name also included the schema prefix (e.g., `idx_schema.table_key`), which is invalid as an unquoted identifier. Fixed by using `escapeQualifiedTable()` for the `ALTER TABLE` clause and extracting just the table basename for the index name

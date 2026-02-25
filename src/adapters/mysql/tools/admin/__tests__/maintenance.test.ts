@@ -241,6 +241,18 @@ describe("Admin Maintenance Tools", () => {
       expect(result.results).toEqual([]);
       expect(result.rowCount).toBe(0);
     });
+
+    it("should return structured error for invalid option value", async () => {
+      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const result = await tool.handler(
+        { tables: ["users"], option: "INVALID_OPTION" },
+        mockContext,
+      );
+
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+      expect(typeof (result as { error: string }).error).toBe("string");
+    });
   });
 
   describe("createRepairTableTool", () => {

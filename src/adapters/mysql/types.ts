@@ -1830,10 +1830,7 @@ export const CheckTableSchemaBase = z.object({
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  option: z
-    .enum(["QUICK", "FAST", "MEDIUM", "EXTENDED", "CHANGED"])
-    .optional()
-    .describe("Check option"),
+  option: z.string().optional().describe("Check option"),
 });
 
 export const CheckTableSchema = z
