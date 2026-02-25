@@ -18,7 +18,7 @@
 
 ## The Most Comprehensive MySQL MCP Server Available
 
-**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities** and **deterministic error handling**. Built for developers who demand enterprise-grade features without sacrificing ease of use.
+**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**, **deterministic error handling**, and **process-isolated sandboxed code execution**. Built for developers who demand enterprise-grade features without sacrificing ease of use.
 
 ### 🎯 What Sets Us Apart
 
@@ -35,6 +35,7 @@
 | **Advanced Encryption**          | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                       |
 | **Deterministic Error Handling** | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes |
 | **Production-Ready Security**    | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                      |
+| **Worker Sandbox Isolation**     | Code Mode executes in a separate V8 isolate via `worker_threads` with a `MessagePort` RPC bridge, enforced memory limits, readonly mode, and hard timeouts                                     |
 | **Strict TypeScript**            | 100% type-safe codebase with 1956 tests and 86% coverage                                                                                                                                       |
 | **MCP 2025-11-25 Compliant**     | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                  |
 
@@ -252,6 +253,15 @@ Use the remote hostname directly:
 ## Code Mode: Maximum Efficiency
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+
+Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
+
+- **Process-level isolation** — user code runs in a separate V8 instance with enforced heap limits
+- **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
+- **Hard timeouts** — worker termination if execution exceeds the configured limit
+- **Full API access** — all 24 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+
+Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
 
 > [!TIP]
 > **Maximize Token Savings:** For the best results, instruct your AI agent to prefer Code Mode over individual tool calls. Add a rule like this to your agent's prompt or system configuration:
