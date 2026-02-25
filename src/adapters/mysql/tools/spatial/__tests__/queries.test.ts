@@ -97,32 +97,38 @@ describe("Spatial Queries Tools", () => {
       const tool = createSpatialDistanceTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          {
-            table: "invalid; drop table",
-            spatialColumn: "geom",
-            point: { longitude: 0, latitude: 0 },
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = await tool.handler(
+        {
+          table: "invalid; drop table",
+          spatialColumn: "geom",
+          point: { longitude: 0, latitude: 0 },
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining("Invalid table name"),
+      });
     });
 
     it("should validate column name", async () => {
       const tool = createSpatialDistanceTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          {
-            table: "valid_table",
-            spatialColumn: "invalid column",
-            point: { longitude: 0, latitude: 0 },
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = await tool.handler(
+        {
+          table: "valid_table",
+          spatialColumn: "invalid column",
+          point: { longitude: 0, latitude: 0 },
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid column name",
+      });
     });
 
     it("should handle undefined rows result", async () => {
@@ -200,17 +206,19 @@ describe("Spatial Queries Tools", () => {
       const tool = createSpatialDistanceSphereTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          {
-            table: "invalid",
-            spatialColumn: "bad-column", // Hyphens not allowed by simple regex maybe?
-            // Regex is /^[a-zA-Z_][a-zA-Z0-9_]*$/ so hyphen is invalid
-            point: { longitude: 0, latitude: 0 },
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = await tool.handler(
+        {
+          table: "invalid",
+          spatialColumn: "bad-column",
+          point: { longitude: 0, latitude: 0 },
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid column name",
+      });
     });
   });
 
@@ -267,16 +275,19 @@ describe("Spatial Queries Tools", () => {
       const tool = createSpatialContainsTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          {
-            table: "bad-table",
-            spatialColumn: "boundary",
-            polygon: "P",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid table name");
+      const result = await tool.handler(
+        {
+          table: "bad-table",
+          spatialColumn: "boundary",
+          polygon: "P",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining("Invalid table name"),
+      });
     });
   });
 
@@ -333,16 +344,19 @@ describe("Spatial Queries Tools", () => {
       const tool = createSpatialWithinTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          {
-            table: "t",
-            spatialColumn: "bad col",
-            geometry: "P",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid column name");
+      const result = await tool.handler(
+        {
+          table: "t",
+          spatialColumn: "bad col",
+          geometry: "P",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Invalid column name",
+      });
     });
   });
 });

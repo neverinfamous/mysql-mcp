@@ -131,9 +131,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation CREATE ROLE failed")) {
+            const rawName = (params as Record<string, string>)["name"];
+            const roleName = rawName ?? "unknown";
             return {
               success: false,
-              error: `Role '${(params as Record<string, unknown>).name ?? "unknown"}' already exists`,
+              error: `Role '${roleName}' already exists`,
             };
           }
           return { success: false, error: stripErrorPrefix(message) };
@@ -186,9 +188,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation DROP ROLE failed")) {
+            const rawName = (params as Record<string, string>)["name"];
+            const roleName = rawName ?? "unknown";
             return {
               success: false,
-              error: `Role '${(params as Record<string, unknown>).name ?? "unknown"}' does not exist`,
+              error: `Role '${roleName}' does not exist`,
             };
           }
           return { success: false, error: stripErrorPrefix(message) };
@@ -307,10 +311,15 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
-          return {
-            success: false,
-            error: stripErrorPrefix(message),
-          };
+          const cleanMsg = stripErrorPrefix(message);
+          // Include role context for table/db-level errors when role was parsed
+          const roleName = (params as Record<string, unknown>)["role"] as
+            | string
+            | undefined;
+          if (roleName) {
+            return { success: false, role: roleName, error: cleanMsg };
+          }
+          return { success: false, error: cleanMsg };
         }
       },
     },
@@ -363,10 +372,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.includes("Unknown authorization ID")) {
             return {
               success: false,
-              role: (params as Record<string, unknown>).role as string,
-              user: (params as Record<string, unknown>).user as string,
+              role: (params as Record<string, unknown>)["role"] as string,
+              user: (params as Record<string, unknown>)["user"] as string,
               host:
-                ((params as Record<string, unknown>).host as string) ?? "%",
+                ((params as Record<string, unknown>)["host"] as string) ?? "%",
               error: "User does not exist",
             };
           }
@@ -448,10 +457,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.includes("Unknown authorization ID")) {
             return {
               success: false,
-              role: (params as Record<string, unknown>).role as string,
-              user: (params as Record<string, unknown>).user as string,
+              role: (params as Record<string, unknown>)["role"] as string,
+              user: (params as Record<string, unknown>)["user"] as string,
               host:
-                ((params as Record<string, unknown>).host as string) ?? "%",
+                ((params as Record<string, unknown>)["host"] as string) ?? "%",
               error: "User does not exist",
             };
           }

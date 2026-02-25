@@ -110,10 +110,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
-      const result = await tool.handler(
-        { name: "invalid-role" },
-        mockContext,
-      );
+      const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual({ success: false, error: "Invalid role name" });
     });
 
@@ -252,10 +249,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
-      const result = await tool.handler(
-        { name: "invalid-role" },
-        mockContext,
-      );
+      const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual({ success: false, error: "Invalid role name" });
     });
 

@@ -35,7 +35,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toEqual({
         success: false,
-        error: "Invalid table name",
+        error: expect.stringContaining("Invalid table name"),
       });
     });
 

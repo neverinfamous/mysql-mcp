@@ -272,29 +272,37 @@ describe("Spatial Operations Tools", () => {
       expect(result.wkt).toBe("POINT(10 20)");
     });
 
-    it("should throw if neither geometry nor geoJson provided", async () => {
+    it("should return structured error if neither geometry nor geoJson provided", async () => {
       const tool = createSpatialGeoJSONTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      // Use type assertion or casting to bypass TS error for invalid input in test
-      // Zod parser will catch it, or refiner.
-      // Wait, Zod schema has refine check.
-      await expect(tool.handler({}, mockContext)).rejects.toThrow();
+      const result = await tool.handler({}, mockContext);
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining(
+          "Either geometry or geoJson must be provided",
+        ),
+      });
     });
 
-    it("should throw if both geometry and geoJson provided", async () => {
+    it("should return structured error if both geometry and geoJson provided", async () => {
       const tool = createSpatialGeoJSONTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      await expect(
-        tool.handler(
-          {
-            geometry: "POINT(0 0)",
-            geoJson: "{}",
-          },
-          mockContext,
+      const result = await tool.handler(
+        {
+          geometry: "POINT(0 0)",
+          geoJson: "{}",
+        },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining(
+          "Either geometry or geoJson must be provided",
         ),
-      ).rejects.toThrow();
+      });
     });
   });
 });
