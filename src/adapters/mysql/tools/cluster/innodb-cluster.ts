@@ -5,7 +5,7 @@
  * 5 tools total: status, instances, topology, router status, switchover.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -17,7 +17,7 @@ import type {
 // =============================================================================
 
 const LimitSchema = z.object({
-  limit: z.number().default(100).describe("Maximum number of results"),
+  limit: z.number().min(0).default(100).describe("Maximum number of results"),
 });
 
 const SummarySchema = z.object({
@@ -48,8 +48,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { summary } = SummarySchema.parse(params);
       try {
+        const { summary } = SummarySchema.parse(params);
         // Check for cluster metadata schema
         const schemaCheck = await adapter.executeQuery(`
                     SELECT SCHEMA_NAME
@@ -140,7 +140,12 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           isInnoDBCluster: false,
           message:
             "Unable to query cluster metadata. Ensure InnoDB Cluster is properly configured.",
-          error: error instanceof Error ? error.message : String(error),
+          error:
+            error instanceof ZodError
+              ? error.issues.map((i) => i.message).join(", ")
+              : error instanceof Error
+                ? error.message
+                : String(error),
         };
       }
     },
@@ -165,7 +170,21 @@ export function createClusterInstancesTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit } = LimitSchema.parse(params);
+      let limit: number;
+      try {
+        ({ limit } = LimitSchema.parse(params));
+      } catch (error) {
+        return {
+          instances: [],
+          count: 0,
+          error:
+            error instanceof ZodError
+              ? error.issues.map((i) => i.message).join(", ")
+              : error instanceof Error
+                ? error.message
+                : String(error),
+        };
+      }
 
       try {
         const result = await adapter.executeQuery(`
@@ -190,7 +209,8 @@ export function createClusterInstancesTool(
         };
       } catch {
         // Fallback to GR members
-        const grResult = await adapter.executeQuery(`
+        try {
+          const grResult = await adapter.executeQuery(`
                     SELECT 
                         MEMBER_ID as serverUuid,
                         CONCAT(MEMBER_HOST, ':', MEMBER_PORT) as address,
@@ -201,11 +221,21 @@ export function createClusterInstancesTool(
                     LIMIT ${String(limit)}
                 `);
 
-        return {
-          source: "group_replication",
-          instances: grResult.rows ?? [],
-          count: grResult.rows?.length ?? 0,
-        };
+          return {
+            source: "group_replication",
+            instances: grResult.rows ?? [],
+            count: grResult.rows?.length ?? 0,
+          };
+        } catch (fallbackError) {
+          return {
+            instances: [],
+            count: 0,
+            error:
+              fallbackError instanceof Error
+                ? fallbackError.message
+                : String(fallbackError),
+          };
+        }
       }
     },
   };
@@ -366,8 +396,6 @@ export function createClusterRouterStatusTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { summary } = SummarySchema.parse(params);
-
       // Compute staleness: null lastCheckIn or >1 hour old
       const computeStale = (lastCheckIn: unknown): boolean => {
         if (lastCheckIn == null) return true;
@@ -377,6 +405,7 @@ export function createClusterRouterStatusTool(
       };
 
       try {
+        const { summary } = SummarySchema.parse(params);
         // Summary mode: return only essential router info
         if (summary) {
           const result = await adapter.executeQuery(`
@@ -443,13 +472,19 @@ export function createClusterRouterStatusTool(
           count: routers.length,
           staleCount,
         };
-      } catch {
+      } catch (error) {
         return {
           available: false,
           message:
             "Router metadata not available. Ensure InnoDB Cluster is configured.",
           suggestion:
             "Use mysql_router_status tool if connecting directly to Router REST API.",
+          error:
+            error instanceof ZodError
+              ? error.issues.map((i) => i.message).join(", ")
+              : error instanceof Error
+                ? error.message
+                : String(error),
         };
       }
     },

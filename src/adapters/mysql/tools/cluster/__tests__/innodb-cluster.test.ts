@@ -470,4 +470,54 @@ describe("InnoDB Cluster Tools", () => {
       expect(result.error).toBe("Access denied");
     });
   });
+
+  describe("Zod validation leak prevention", () => {
+    it("cluster_status should return structured error for invalid summary type", async () => {
+      const tool = createClusterStatusTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { summary: "yes" },
+        mockContext,
+      )) as any;
+
+      expect(result.isInnoDBCluster).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error).toContain("expected boolean");
+    });
+
+    it("cluster_instances should return structured error for invalid limit type", async () => {
+      const tool = createClusterInstancesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: "abc" }, mockContext)) as any;
+
+      expect(result.instances).toEqual([]);
+      expect(result.count).toBe(0);
+      expect(result.error).toBeDefined();
+      expect(result.error).toContain("expected number");
+    });
+
+    it("cluster_instances should return structured error for negative limit", async () => {
+      const tool = createClusterInstancesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: -5 }, mockContext)) as any;
+
+      expect(result.instances).toEqual([]);
+      expect(result.count).toBe(0);
+      expect(result.error).toBeDefined();
+    });
+
+    it("cluster_router_status should return structured error for invalid summary type", async () => {
+      const tool = createClusterRouterStatusTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ summary: 123 }, mockContext)) as any;
+
+      expect(result.available).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error).toContain("expected boolean");
+    });
+  });
 });
