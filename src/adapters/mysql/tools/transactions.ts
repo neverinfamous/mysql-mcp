@@ -7,6 +7,7 @@
 
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { ZodError } from "zod";
 import {
   TransactionBeginSchema,
   TransactionBeginSchemaBase,
@@ -17,6 +18,11 @@ import {
   TransactionExecuteSchema,
   TransactionExecuteSchemaBase,
 } from "../types.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 /**
  * Get all transaction tools
@@ -59,6 +65,9 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
             "Transaction started. Use transactionId for commit/rollback operations.",
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = String(error instanceof Error ? error.message : error);
         return { success: false, error: msg };
       }
@@ -288,6 +297,9 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         parsedParams = TransactionExecuteSchema.parse(params);
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = String(error instanceof Error ? error.message : error);
         return { success: false, error: msg };
       }
