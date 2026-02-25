@@ -312,7 +312,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "MySQL MCP Server: 193 tools, Code Mode, Tool Filtering, Connection Pooling, HTTP/SSE & OAuth 2.1"
+          short-description: "MySQL MCP Server: 192 tools, Code Mode, Tool Filtering, Connection Pooling, HTTP/SSE & OAuth 2.1"
 
       - name: Deployment Summary
         if: github.ref == 'refs/heads/master'

@@ -475,7 +475,7 @@ describe("Error Handling", () => {
 
     expect(result).toEqual({
       available: false,
-      reason: "Router API error: 401 Unauthorized",
+      error: "Router API error: 401 Unauthorized",
     });
   });
 
@@ -511,7 +511,7 @@ describe("Error Handling", () => {
 
     expect(result).toEqual({
       available: false,
-      reason: "Router API error: 404 Not Found",
+      error: "Router API error: 404 Not Found",
     });
   });
 
@@ -535,7 +535,7 @@ describe("Error Handling", () => {
 
     expect(result).toEqual({
       available: false,
-      reason: "Router API request failed: Network error",
+      error: "Router API request failed: Network error",
     });
   });
 
@@ -561,8 +561,35 @@ describe("Error Handling", () => {
 
     expect(result).toEqual({
       available: false,
-      reason: expect.stringContaining("Connection refused"),
+      error: expect.stringContaining("Connection refused"),
     });
+  });
+});
+
+describe("Zod Validation Error Handling", () => {
+  let tools: ReturnType<typeof getRouterTools>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    mockContext = createMockRequestContext();
+  });
+
+  it("should return structured error for invalid routeName type", async () => {
+    const tool = tools.find((t) => t.name === "mysql_router_route_status")!;
+    const result = await tool.handler({ routeName: 123 }, mockContext);
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
+  });
+
+  it("should return structured error for invalid metadataName type", async () => {
+    const tool = tools.find((t) => t.name === "mysql_router_metadata_status")!;
+    const result = await tool.handler({ metadataName: true }, mockContext);
+
+    expect(result).toHaveProperty("success", false);
+    expect(result).toHaveProperty("error");
   });
 });
 

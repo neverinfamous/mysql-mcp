@@ -15,12 +15,22 @@ import type {
 } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import https from "node:https";
+import { ZodError } from "zod";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
   MetadataNameInputSchema,
   ConnectionPoolNameInputSchema,
 } from "../types/router-types.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Router HTTP Client Helper
@@ -31,7 +41,7 @@ import {
  */
 interface RouterUnavailableResponse {
   available: false;
-  reason: string;
+  error: string;
 }
 
 /**
@@ -173,7 +183,7 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
     const data = (await routerFetch(path)) as T;
     return { success: true, data };
   } catch (error) {
-    const reason =
+    const msg =
       error instanceof Error
         ? error.message
         : "Unknown error connecting to Router API";
@@ -181,7 +191,7 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
       success: false,
       response: {
         available: false,
-        reason,
+        error: msg,
       },
     };
   }
@@ -294,18 +304,28 @@ function createRouterRouteStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/routes/${encodeURIComponent(routeName)}/status`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { routeName } = RouteNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/routes/${encodeURIComponent(routeName)}/status`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          routeName,
+          status: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        routeName,
-        status: result.data,
-      };
     },
   };
 }
@@ -328,18 +348,28 @@ function createRouterRouteHealthTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/routes/${encodeURIComponent(routeName)}/health`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { routeName } = RouteNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/routes/${encodeURIComponent(routeName)}/health`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          routeName,
+          health: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        routeName,
-        health: result.data,
-      };
     },
   };
 }
@@ -362,18 +392,28 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/routes/${encodeURIComponent(routeName)}/connections`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { routeName } = RouteNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/routes/${encodeURIComponent(routeName)}/connections`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          routeName,
+          connections: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        routeName,
-        connections: result.data,
-      };
     },
   };
 }
@@ -396,18 +436,28 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/routes/${encodeURIComponent(routeName)}/destinations`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { routeName } = RouteNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/routes/${encodeURIComponent(routeName)}/destinations`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          routeName,
+          destinations: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        routeName,
-        destinations: result.data,
-      };
     },
   };
 }
@@ -430,18 +480,28 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { routeName } = RouteNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/routes/${encodeURIComponent(routeName)}/blockedHosts`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { routeName } = RouteNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/routes/${encodeURIComponent(routeName)}/blockedHosts`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          routeName,
+          blockedHosts: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        routeName,
-        blockedHosts: result.data,
-      };
     },
   };
 }
@@ -468,18 +528,28 @@ function createRouterMetadataStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { metadataName } = MetadataNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/metadata/${encodeURIComponent(metadataName)}/status`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { metadataName } = MetadataNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/metadata/${encodeURIComponent(metadataName)}/status`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          metadataName,
+          status: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        metadataName,
-        status: result.data,
-      };
     },
   };
 }
@@ -506,18 +576,28 @@ function createRouterPoolStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { poolName } = ConnectionPoolNameInputSchema.parse(params);
-      const result = await safeRouterFetch<unknown>(
-        `/connection_pool/${encodeURIComponent(poolName)}/status`,
-      );
-      if (!result.success) {
-        return result.response;
+      try {
+        const { poolName } = ConnectionPoolNameInputSchema.parse(params);
+        const result = await safeRouterFetch<unknown>(
+          `/connection_pool/${encodeURIComponent(poolName)}/status`,
+        );
+        if (!result.success) {
+          return result.response;
+        }
+        return {
+          success: true,
+          poolName,
+          status: result.data,
+        };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        return {
+          available: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return {
-        success: true,
-        poolName,
-        status: result.data,
-      };
     },
   };
 }
