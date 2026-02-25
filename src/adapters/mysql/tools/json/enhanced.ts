@@ -444,7 +444,7 @@ export function createJsonIndexSuggestTool(
               path: `$.${key}`,
               type: valueType ?? "UNKNOWN",
               cardinality,
-              indexDdl: `ALTER TABLE \`${table}\` ADD INDEX idx_${table}_${key} ((CAST(JSON_EXTRACT(\`${column}\`, '$.${key}') AS ${dataType})));`,
+              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${key} ((CAST(JSON_EXTRACT(\`${column}\`, '$.${key}') AS ${dataType})));`,
             });
           }
         }

@@ -506,67 +506,99 @@ describe("JSON Enhanced Tools", () => {
 
       expect(result.suggestions).toHaveLength(5);
     });
-  });
 
-  describe("P154 Graceful Error Handling", () => {
-    const tableError = new Error("Table 'testdb.nonexistent' doesn't exist");
+    it("should produce valid DDL for qualified table names", async () => {
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ key_name: "email" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ value_type: "STRING", cardinality: 50 }]),
+        );
 
-    it("json_normalize should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(tableError);
-      const tool = createJsonNormalizeTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc" },
-        mockContext,
-      );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
-    });
-
-    it("json_stats should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(tableError);
-      const tool = createJsonStatsTool(mockAdapter as unknown as MySQLAdapter);
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc" },
-        mockContext,
-      );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
-    });
-
-    it("json_index_suggest should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(tableError);
       const tool = createJsonIndexSuggestTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc" },
+      const result = (await tool.handler(
+        {
+          table: "mydb.users",
+          column: "data",
+        },
         mockContext,
+      )) as { suggestions: { indexDdl: string }[] };
+
+      expect(result.suggestions).toHaveLength(1);
+      // Table reference should be properly escaped as `mydb`.`users`
+      expect(result.suggestions[0].indexDdl).toContain(
+        "ALTER TABLE `mydb`.`users`",
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      // Index name should use only the table basename (no schema prefix)
+      expect(result.suggestions[0].indexDdl).toContain("idx_users_email");
+      expect(result.suggestions[0].indexDdl).not.toContain("idx_mydb.users");
     });
 
-    it("json_merge should return success: false for invalid input", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Invalid JSON text"),
-      );
-      const tool = createJsonMergeTool(mockAdapter as unknown as MySQLAdapter);
-      const result = await tool.handler(
-        { json1: "not-json", json2: "{}" },
-        mockContext,
-      );
-      expect(result).toEqual({ success: false, error: "Invalid JSON text" });
-    });
+    describe("P154 Graceful Error Handling", () => {
+      const tableError = new Error("Table 'testdb.nonexistent' doesn't exist");
 
-    it("json_diff should return success: false for invalid input", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Invalid JSON text"),
-      );
-      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
-      const result = await tool.handler(
-        { json1: "not-json", json2: "{}" },
-        mockContext,
-      );
-      expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+      it("json_normalize should return exists: false for nonexistent table", async () => {
+        mockAdapter.executeQuery.mockRejectedValue(tableError);
+        const tool = createJsonNormalizeTool(
+          mockAdapter as unknown as MySQLAdapter,
+        );
+        const result = await tool.handler(
+          { table: "nonexistent", column: "doc" },
+          mockContext,
+        );
+        expect(result).toEqual({ exists: false, table: "nonexistent" });
+      });
+
+      it("json_stats should return exists: false for nonexistent table", async () => {
+        mockAdapter.executeQuery.mockRejectedValue(tableError);
+        const tool = createJsonStatsTool(
+          mockAdapter as unknown as MySQLAdapter,
+        );
+        const result = await tool.handler(
+          { table: "nonexistent", column: "doc" },
+          mockContext,
+        );
+        expect(result).toEqual({ exists: false, table: "nonexistent" });
+      });
+
+      it("json_index_suggest should return exists: false for nonexistent table", async () => {
+        mockAdapter.executeQuery.mockRejectedValue(tableError);
+        const tool = createJsonIndexSuggestTool(
+          mockAdapter as unknown as MySQLAdapter,
+        );
+        const result = await tool.handler(
+          { table: "nonexistent", column: "doc" },
+          mockContext,
+        );
+        expect(result).toEqual({ exists: false, table: "nonexistent" });
+      });
+
+      it("json_merge should return success: false for invalid input", async () => {
+        mockAdapter.executeReadQuery.mockRejectedValue(
+          new Error("Invalid JSON text"),
+        );
+        const tool = createJsonMergeTool(
+          mockAdapter as unknown as MySQLAdapter,
+        );
+        const result = await tool.handler(
+          { json1: "not-json", json2: "{}" },
+          mockContext,
+        );
+        expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+      });
+
+      it("json_diff should return success: false for invalid input", async () => {
+        mockAdapter.executeReadQuery.mockRejectedValue(
+          new Error("Invalid JSON text"),
+        );
+        const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+        const result = await tool.handler(
+          { json1: "not-json", json2: "{}" },
+          mockContext,
+        );
+        expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+      });
     });
   });
 });
