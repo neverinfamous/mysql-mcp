@@ -83,13 +83,15 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           // Try performance_schema alternative
           let query = `
                         SELECT 
-                            EVENT_NAME as event,
-                            OBJECT_TYPE as objectType,
-                            OBJECT_NAME as objectName,
-                            CURRENT_USER as user,
-                            HOST as host,
-                            TIMER_START as startTime
-                        FROM performance_schema.events_statements_history
+                            e.EVENT_NAME as event,
+                            e.OBJECT_TYPE as objectType,
+                            e.OBJECT_NAME as objectName,
+                            t.PROCESSLIST_USER as user,
+                            t.PROCESSLIST_HOST as host,
+                            e.TIMER_START as startTime
+                        FROM performance_schema.events_statements_history e
+                        JOIN performance_schema.threads t
+                          ON e.THREAD_ID = t.THREAD_ID
                     `;
 
           const conditions: string[] = [];
@@ -98,7 +100,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const filtersIgnored: string[] = [];
 
           if (user) {
-            conditions.push("CURRENT_USER LIKE ?");
+            conditions.push("t.PROCESSLIST_USER LIKE ?");
             queryParams.push(`%${user}%`);
             filtersApplied.push("user");
           }

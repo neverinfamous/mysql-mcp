@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`mysql_security_audit` Fallback Filter Gap** — `eventType` and `startTime` parameters were silently ignored in the `performance_schema` fallback branch (when `mysql.audit_log` table is unavailable). `eventType` now generates an `EVENT_NAME LIKE ?` condition. `startTime` is documented as inapplicable (performance_schema uses picosecond counters, not ISO timestamps) and a `filtersIgnored`/`note` field is included in the response when it cannot be applied
 - **`mysql_security_audit` Generic Catch-Block Error** — Catch block returned `{available: false, message: "Audit logging is not enabled..."}` for all exceptions, including non-audit failures (connection loss, permission denied, etc.). Now inspects the error message: audit-related errors (table doesn't exist, access denied) still return the `{available: false}` response, while all other errors return `{success: false, error}` matching the structured error convention used across all other tools
+- **`mysql_security_audit` Performance Schema Query Column Mismatch** — The `performance_schema.events_statements_history` fallback query referenced `HOST` (nonexistent column) and `CURRENT_USER` (MySQL function returning current session user, not the statement's author), causing `Unknown column 'HOST'` errors. Fixed by JOINing with `performance_schema.threads` for `PROCESSLIST_USER`/`PROCESSLIST_HOST`, providing accurate per-statement user and host information
 
 ### Improved
 

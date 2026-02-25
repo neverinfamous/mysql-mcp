@@ -136,7 +136,7 @@ describe("Security Audit Tools", () => {
       const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
       const queryParams = mockAdapter.executeQuery.mock.calls[1][1] as any[];
 
-      expect(queryCall).toContain("CURRENT_USER LIKE ?");
+      expect(queryCall).toContain("t.PROCESSLIST_USER LIKE ?");
       expect(queryParams[0]).toContain("test_user");
     });
 
