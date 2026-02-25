@@ -143,9 +143,8 @@ describe("Handler Execution", () => {
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
 
-      await expect(
-        tool.handler({ name: "invalid-name" }, mockContext),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler({ name: "invalid-name" }, mockContext);
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should add validation when specified", async () => {
@@ -194,7 +193,8 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "my_collection" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("CREATE TABLE `my_collection`");
+      expect(call).toContain("CREATE TABLE");
+      expect(call).toContain("`my_collection`");
       expect(call).not.toContain("IF NOT EXISTS");
     });
 
@@ -207,11 +207,11 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { name: "my_collection" },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty(
-        "reason",
+        "error",
         "Collection 'my_collection' already exists",
       );
     });
@@ -260,9 +260,8 @@ describe("Handler Execution", () => {
 
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
-      await expect(
-        tool.handler({ name: "bad;drop table users" }, mockContext),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler({ name: "bad;drop table users" }, mockContext);
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should return graceful error when collection does not exist", async () => {
@@ -274,11 +273,11 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { name: "nonexistent", ifExists: false },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty(
-        "reason",
+        "error",
         "Collection 'nonexistent' does not exist",
       );
     });
@@ -386,9 +385,8 @@ describe("Handler Execution", () => {
 
     it("should validate collection name", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_find")!;
-      await expect(
-        tool.handler({ collection: "invalid-name; --" }, mockContext),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler({ collection: "invalid-name; --" }, mockContext);
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -454,15 +452,14 @@ describe("Handler Execution", () => {
 
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_add")!;
-      await expect(
-        tool.handler(
-          {
-            collection: "invalid-name",
-            documents: [{ name: "test" }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler(
+        {
+          collection: "invalid-name",
+          documents: [{ name: "test" }],
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -546,32 +543,30 @@ describe("Handler Execution", () => {
       expect(call).toContain("UPDATE `users` SET");
     });
 
-    it("should throw if no modifications specified", async () => {
+    it("should return error if no modifications specified", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
 
-      await expect(
-        tool.handler(
-          {
-            collection: "users",
-            filter: "$.active",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("No modifications specified");
+      const result = await tool.handler(
+        {
+          collection: "users",
+          filter: "$.active",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "No modifications specified" });
     });
 
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
-      await expect(
-        tool.handler(
-          {
-            collection: "invalid-name",
-            filter: "$.id",
-            set: { a: 1 },
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler(
+        {
+          collection: "invalid-name",
+          filter: "$.id",
+          set: { a: 1 },
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -617,15 +612,14 @@ describe("Handler Execution", () => {
 
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
-      await expect(
-        tool.handler(
-          {
-            collection: "invalid-name",
-            filter: "$.id",
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler(
+        {
+          collection: "invalid-name",
+          filter: "$.id",
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -719,30 +713,28 @@ describe("Handler Execution", () => {
 
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
-      await expect(
-        tool.handler(
-          {
-            collection: "invalid-name",
-            name: "index",
-            fields: [{ path: "email", type: "TEXT" }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler(
+        {
+          collection: "invalid-name",
+          name: "index",
+          fields: [{ path: "email", type: "TEXT" }],
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should reject invalid index names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
-      await expect(
-        tool.handler(
-          {
-            collection: "valid_coll",
-            name: "invalid-index",
-            fields: [{ path: "email", type: "TEXT" }],
-          },
-          mockContext,
-        ),
-      ).rejects.toThrow("Invalid index name");
+      const result = await tool.handler(
+        {
+          collection: "valid_coll",
+          name: "invalid-index",
+          fields: [{ path: "email", type: "TEXT" }],
+        },
+        mockContext,
+      );
+      expect(result).toEqual({ success: false, error: "Invalid index name" });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -776,10 +768,10 @@ describe("Handler Execution", () => {
           fields: [{ path: "email", type: "TEXT" }],
         },
         mockContext,
-      )) as { success: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
       expect(result).toHaveProperty("success", false);
-      expect(result.reason).toContain("already exist");
+      expect(result.error).toContain("already exist");
     });
   });
 
@@ -806,9 +798,8 @@ describe("Handler Execution", () => {
 
     it("should reject invalid collection names", async () => {
       const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
-      await expect(
-        tool.handler({ collection: "invalid-nam$" }, mockContext),
-      ).rejects.toThrow("Invalid collection name");
+      const result = await tool.handler({ collection: "invalid-nam$" }, mockContext);
+      expect(result).toEqual({ success: false, error: "Invalid collection name" });
     });
 
     it("should return graceful response when collection does not exist", async () => {

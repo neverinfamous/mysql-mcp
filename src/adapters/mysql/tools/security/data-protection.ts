@@ -34,9 +34,7 @@ function stripErrorPrefix(msg: string): string {
 
 const MaskDataSchema = z.object({
   value: z.string().describe("Value to mask"),
-  type: z
-    .enum(["email", "phone", "ssn", "credit_card", "partial"])
-    .describe("Masking type"),
+  type: z.string().describe("Masking type"),
   keepFirst: z.number().default(0).describe("Characters to keep from start"),
   keepLast: z.number().default(0).describe("Characters to keep from end"),
   maskChar: z.string().default("*").describe("Character to use for masking"),
@@ -105,6 +103,20 @@ export function createSecurityMaskDataTool(
       try {
         const { value, type, keepFirst, keepLast, maskChar } =
           MaskDataSchema.parse(params);
+
+        const validTypes = [
+          "email",
+          "phone",
+          "ssn",
+          "credit_card",
+          "partial",
+        ] as const;
+        if (!validTypes.includes(type as (typeof validTypes)[number])) {
+          return Promise.resolve({
+            success: false,
+            error: `Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`,
+          });
+        }
 
         let maskedValue: string;
 

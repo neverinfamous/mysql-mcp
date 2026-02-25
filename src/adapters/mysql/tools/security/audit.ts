@@ -44,10 +44,7 @@ const AuditLogSchema = z.object({
 
 const FirewallRulesSchema = z.object({
   user: z.string().optional().describe("Filter by username"),
-  mode: z
-    .enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"])
-    .optional()
-    .describe("Filter by mode"),
+  mode: z.string().optional().describe("Filter by mode"),
 });
 
 // =============================================================================
@@ -107,7 +104,8 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
             query += " WHERE " + conditions.join(" AND ");
           }
 
-          query += ` ORDER BY TIMER_START DESC LIMIT ${String(limit)}`;
+          query += " ORDER BY TIMER_START DESC LIMIT ?";
+          queryParams.push(limit);
 
           const result = await adapter.executeQuery(query, queryParams);
           return {
@@ -144,7 +142,8 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           query += " WHERE " + conditions.join(" AND ");
         }
 
-        query += ` ORDER BY timestamp DESC LIMIT ${String(limit)}`;
+        query += " ORDER BY timestamp DESC LIMIT ?";
+        queryParams.push(limit);
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
@@ -257,6 +256,19 @@ export function createSecurityFirewallRulesTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, mode } = FirewallRulesSchema.parse(params);
+
+        const validModes = [
+          "RECORDING",
+          "PROTECTING",
+          "DETECTING",
+          "OFF",
+        ] as const;
+        if (mode && !validModes.includes(mode as (typeof validModes)[number])) {
+          return {
+            success: false,
+            error: `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,
+          };
+        }
         // Get firewall users
         let usersQuery = `
                     SELECT USERHOST, MODE
