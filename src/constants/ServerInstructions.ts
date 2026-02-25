@@ -119,10 +119,10 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 - **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (\`mysql_innodb_cluster_metadata\`) must exist.
 - **Cluster status**: \`mysql_cluster_status\` returns cluster metadata. Use \`summary: true\` for condensed output without Router configuration schemas. Returns \`isInnoDBCluster: false\` if not in a cluster.
-- **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role. Accepts \`limit\` parameter (default: 100, min: 0) to cap the number of results.
+- **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role. Accepts \`limit\` parameter (default: 100, must be a non-negative integer).
 - **Topology**: \`mysql_cluster_topology\` returns a structured \`topology\` object (with \`primary\`, \`secondaries\`, \`recovering\`, \`offline\` arrays) and a \`visualization\` string grouping members by role.
 - **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return routerId, routerName, address, version, lastCheckIn, roPort, rwPort, and localCluster. Each router includes \`isStale\` (true if lastCheckIn is null or >1 hour old). The response includes \`staleCount\` for quick filtering.
-- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field. Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.
+- **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.
 
 ## MySQL Router Tools (\`mysql_router_*\`)
 

@@ -17,7 +17,12 @@ import type {
 // =============================================================================
 
 const LimitSchema = z.object({
-  limit: z.number().min(0).default(100).describe("Maximum number of results"),
+  limit: z
+    .number()
+    .int()
+    .min(0)
+    .default(100)
+    .describe("Maximum number of results"),
 });
 
 const SummarySchema = z.object({
@@ -187,8 +192,8 @@ export function createClusterInstancesTool(
       }
 
       try {
-        const result = await adapter.executeQuery(`
-                    SELECT 
+        const result = await adapter.executeQuery(
+          `SELECT 
                         i.instance_id as instanceId,
                         i.cluster_id as clusterId,
                         i.address,
@@ -200,8 +205,9 @@ export function createClusterInstancesTool(
                     FROM mysql_innodb_cluster_metadata.instances i
                     LEFT JOIN performance_schema.replication_group_members m
                         ON i.mysql_server_uuid = m.MEMBER_ID
-                    LIMIT ${String(limit)}
-                `);
+                    LIMIT ?`,
+          [limit],
+        );
 
         return {
           instances: result.rows ?? [],
@@ -210,16 +216,17 @@ export function createClusterInstancesTool(
       } catch {
         // Fallback to GR members
         try {
-          const grResult = await adapter.executeQuery(`
-                    SELECT 
+          const grResult = await adapter.executeQuery(
+            `SELECT 
                         MEMBER_ID as serverUuid,
                         CONCAT(MEMBER_HOST, ':', MEMBER_PORT) as address,
                         MEMBER_STATE as memberState,
                         MEMBER_ROLE as memberRole,
                         MEMBER_VERSION as version
                     FROM performance_schema.replication_group_members
-                    LIMIT ${String(limit)}
-                `);
+                    LIMIT ?`,
+            [limit],
+          );
 
           return {
             source: "group_replication",
@@ -574,7 +581,7 @@ export function createClusterSwitchoverTool(
 
         const firstCandidate = candidates[0];
         return {
-          currentPrimary: members.find((m) => m["role"] === "PRIMARY"),
+          currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
           candidates,
           recommendedTarget:
             candidates.length > 0 &&

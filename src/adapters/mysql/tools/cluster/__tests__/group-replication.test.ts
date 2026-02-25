@@ -279,7 +279,9 @@ describe("Group Replication Tools - Error Handling", () => {
 
     const result = (await tool.handler({}, {} as any)) as any;
 
-    expect(result.success).toBe(false);
+    expect(result.configuration).toEqual({});
+    expect(result.memberQueues).toEqual([]);
+    expect(result.isThrottling).toBe(false);
     expect(result.error).toBe("Timeout");
   });
 });

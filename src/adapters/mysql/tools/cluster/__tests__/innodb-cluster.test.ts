@@ -388,9 +388,34 @@ describe("InnoDB Cluster Tools", () => {
 
       expect(result.canSwitchover).toBe(false);
       expect(result.candidates).toHaveLength(0);
+      expect(result.currentPrimary).toBeDefined();
       expect(result.warning).toBe(
         "No online secondaries available for switchover.",
       );
+    });
+
+    it("should return currentPrimary as null when no primary exists", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          {
+            memberId: "uuid1",
+            host: "node1",
+            port: 3306,
+            state: "OFFLINE",
+            role: "SECONDARY",
+            version: "9.2.0",
+            txQueue: 0,
+            applierQueue: 0,
+          },
+        ]),
+      );
+
+      const tool = createClusterSwitchoverTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.currentPrimary).toBeNull();
     });
 
     it("should recommend good switchover candidate", async () => {
@@ -503,6 +528,17 @@ describe("InnoDB Cluster Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ limit: -5 }, mockContext)) as any;
+
+      expect(result.instances).toEqual([]);
+      expect(result.count).toBe(0);
+      expect(result.error).toBeDefined();
+    });
+
+    it("cluster_instances should return structured error for float limit", async () => {
+      const tool = createClusterInstancesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 0.5 }, mockContext)) as any;
 
       expect(result.instances).toEqual([]);
       expect(result.count).toBe(0);

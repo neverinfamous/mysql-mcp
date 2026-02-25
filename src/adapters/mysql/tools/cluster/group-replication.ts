@@ -388,7 +388,9 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         return {
-          success: false,
+          configuration: {},
+          memberQueues: [],
+          isThrottling: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
