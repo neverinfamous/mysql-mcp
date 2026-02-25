@@ -205,15 +205,15 @@ export function createClusterInstancesTool(
                     FROM mysql_innodb_cluster_metadata.instances i
                     LEFT JOIN performance_schema.replication_group_members m
                         ON i.mysql_server_uuid = m.MEMBER_ID
-                    LIMIT ?`,
-          [limit],
+                    LIMIT ${String(limit)}`,
+          [],
         );
 
         return {
           instances: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-      } catch {
+      } catch (primaryError) {
         // Fallback to GR members
         try {
           const grResult = await adapter.executeQuery(
@@ -224,8 +224,8 @@ export function createClusterInstancesTool(
                         MEMBER_ROLE as memberRole,
                         MEMBER_VERSION as version
                     FROM performance_schema.replication_group_members
-                    LIMIT ?`,
-            [limit],
+                    LIMIT ${String(limit)}`,
+            [],
           );
 
           return {
@@ -241,6 +241,10 @@ export function createClusterInstancesTool(
               fallbackError instanceof Error
                 ? fallbackError.message
                 : String(fallbackError),
+            primaryError:
+              primaryError instanceof Error
+                ? primaryError.message
+                : String(primaryError),
           };
         }
       }

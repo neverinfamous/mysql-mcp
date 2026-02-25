@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`mysql_cluster_instances` Prepared Statement Incompatibility** — Both the primary InnoDB Cluster metadata query and the Group Replication fallback query used `LIMIT ?` parameterized placeholders, which are incompatible with `performance_schema` and `mysql_innodb_cluster_metadata` tables in the `mysql2` prepared statement protocol (`Incorrect arguments to mysqld_stmt_execute`). Changed to string-interpolated `LIMIT ${String(limit)}` (safe: value is Zod-validated as `z.number().int().min(0)`), matching the pattern used by `mysql_security_audit` for `performance_schema` queries
+- **`mysql_cluster_instances` Fallback Error Context Lost** — When the primary InnoDB Cluster metadata query fails and the GR fallback query also fails, only the fallback error was returned, discarding the primary error (often the actual root cause). Now includes `primaryError` field in the error response for complete diagnostic context
+
+### Improved
+
+- **ServerInstructions Cluster Instances Documentation** — Documented `mysql_cluster_instances` fallback behavior from InnoDB Cluster metadata to Group Replication member data, and the `source: "group_replication"` field present in fallback responses
+
 ### Security
 
 - **`mysql_doc_find` Filter SQL Injection Fix** — The `filter` parameter was interpolated directly into the SQL query (`WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`), allowing arbitrary SQL injection via crafted filter values (e.g., `$') IS NOT NULL OR 1=1 -- `). Added `JSON_PATH_RE` validation regex that rejects any filter containing characters outside the valid JSON path set (`$`, `.`, `[`, `]`, `*`, alphanumeric, underscore). Invalid paths now return `{ success: false, error: "Invalid JSON path filter: ..." }` instead of executing

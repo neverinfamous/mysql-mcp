@@ -125,6 +125,22 @@ describe("InnoDB Cluster Tools", () => {
   });
 
   describe("createClusterInstancesTool", () => {
+    it("should include primaryError when both queries fail", async () => {
+      mockAdapter.executeQuery
+        .mockRejectedValueOnce(new Error("Metadata query failed")) // Primary fails
+        .mockRejectedValueOnce(new Error("GR query also failed")); // Fallback fails
+
+      const tool = createClusterInstancesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ limit: 10 }, mockContext)) as any;
+
+      expect(result.instances).toEqual([]);
+      expect(result.count).toBe(0);
+      expect(result.error).toBe("GR query also failed");
+      expect(result.primaryError).toBe("Metadata query failed");
+    });
+
     it("should fallback to GR members when InnoDB Cluster metadata query fails", async () => {
       mockAdapter.executeQuery
         .mockRejectedValueOnce(new Error("Table not found")) // First query fails
