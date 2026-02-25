@@ -100,6 +100,10 @@ export class WorkerSandbox {
             apiBindings: this.serializeBindings(apiBindings),
             timeout: this.options.timeoutMs,
           },
+          resourceLimits: {
+            maxOldGenerationSizeMb: this.options.memoryLimitMb,
+            maxYoungGenerationSizeMb: Math.ceil(this.options.memoryLimitMb / 4),
+          },
         });
 
         // Set hard timeout (will kill worker)

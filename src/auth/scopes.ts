@@ -48,7 +48,7 @@ export const ALL_SCOPES = [
  * Map tool groups to required minimum scopes
  */
 export const TOOL_GROUP_SCOPES: Record<ToolGroup, StandardScope> = {
-  core: SCOPES.READ,
+  core: SCOPES.WRITE,
   json: SCOPES.READ,
   text: SCOPES.READ,
   fulltext: SCOPES.READ,

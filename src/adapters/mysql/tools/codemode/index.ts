@@ -68,7 +68,7 @@ let securityManager: CodeModeSecurityManager | null = null;
 function getIsolationMode(): SandboxMode {
   const envMode = process.env["CODEMODE_ISOLATION"];
   if (envMode === "worker") return "worker";
-  return "vm"; // Default
+  return "vm"; // Default: worker mode API bridge is incomplete (mysql bindings not serialized)
 }
 
 /**
@@ -162,8 +162,8 @@ return results;
         };
       }
 
-      // Create mysql API bindings
-      const mysqlApi = createMysqlApi(adapter);
+      // Create mysql API bindings (readonly filtering applied when readonly: true)
+      const mysqlApi = createMysqlApi(adapter, readonly);
       const bindings = mysqlApi.createSandboxBindings();
 
       // Validate bindings are populated

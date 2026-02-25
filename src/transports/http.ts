@@ -250,6 +250,18 @@ export class HttpTransport {
       "Content-Security-Policy",
       "default-src 'none'; frame-ancestors 'none'",
     );
+    // HSTS - enforce HTTPS for 2 years (applied when behind TLS-terminating proxy)
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=63072000; includeSubDomains",
+    );
+    // Prevent referrer leakage
+    res.setHeader("Referrer-Policy", "no-referrer");
+    // Restrict browser features
+    res.setHeader(
+      "Permissions-Policy",
+      "camera=(), microphone=(), geolocation=()",
+    );
   }
 
   /**

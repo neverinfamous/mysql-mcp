@@ -88,12 +88,12 @@ describe("hasAllScopes", () => {
 
 describe("getScopeForToolGroup", () => {
   it("should return read for query tools", () => {
-    expect(getScopeForToolGroup("core")).toBe(SCOPES.READ);
     expect(getScopeForToolGroup("json")).toBe(SCOPES.READ);
     expect(getScopeForToolGroup("text")).toBe(SCOPES.READ);
   });
 
-  it("should return write for transaction tools", () => {
+  it("should return write for core and transaction tools", () => {
+    expect(getScopeForToolGroup("core")).toBe(SCOPES.WRITE);
     expect(getScopeForToolGroup("transactions")).toBe(SCOPES.WRITE);
   });
 

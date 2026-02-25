@@ -364,7 +364,7 @@ describe("HttpTransport", () => {
       );
     });
 
-    it("should set all 5 security headers", () => {
+    it("should set all 8 security headers", () => {
       const mockRes = {
         setHeader: vi.fn(),
       } as unknown as ServerResponse;
@@ -375,8 +375,20 @@ describe("HttpTransport", () => {
         }
       ).setSecurityHeaders(mockRes);
 
-      // Verify exactly 5 headers were set
-      expect(mockRes.setHeader).toHaveBeenCalledTimes(5);
+      // Verify exactly 8 headers were set (5 original + 3 new: HSTS, Referrer-Policy, Permissions-Policy)
+      expect(mockRes.setHeader).toHaveBeenCalledTimes(8);
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        "Strict-Transport-Security",
+        "max-age=63072000; includeSubDomains",
+      );
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        "Referrer-Policy",
+        "no-referrer",
+      );
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        "Permissions-Policy",
+        "camera=(), microphone=(), geolocation=()",
+      );
     });
   });
 });

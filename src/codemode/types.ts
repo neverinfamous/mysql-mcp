@@ -119,6 +119,8 @@ export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
     /\bFunction\s*\(/, // No Function constructor
     /\b__proto__\b/, // No prototype pollution
     /\bconstructor\.constructor/, // No constructor chaining
+    /\[['"]constructor['"]\]/i, // No bracket-notation constructor access
+    /\bReflect\s*\.\s*construct/i, // No Reflect.construct bypass
     /\bchild_process/, // No child processes
     /\bfs\./, // No filesystem
     /\bnet\./, // No networking

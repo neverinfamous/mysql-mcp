@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Code Mode Readonly Enforcement (Critical)** — The `readonly: true` flag on `mysql_execute_code` was accepted but never enforced — write tools (`writeQuery`, `dropTable`, `createTable`, `createIndex`) executed normally. Readonly mode now replaces write-oriented tool groups (`transactions`, `admin`, `backup`, `partitioning`, `roles`, `events`, `shell`) with stubs returning `{ success: false, error }`, and blocks individual write methods in mixed groups (`core`, `docstore`, `schema`, `json`, `fulltext`, `spatial`) with descriptive error messages
+- **Worker Memory Limits Enforced (Critical)** — `WorkerSandbox` now passes `resourceLimits` (`maxOldGenerationSizeMb`, `maxYoungGenerationSizeMb`) to the `Worker` constructor, enforcing V8 heap limits. Previously, `memoryLimitMb` in sandbox options was accepted but ignored
+- **Core Tool Group Scope Mapping (High)** — Fixed `core` tool group OAuth scope from `READ` → `WRITE`. The `core` group contains `writeQuery`, `dropTable`, `createTable`, and `createIndex`, which are write/DDL operations. A `READ`-scoped OAuth client could previously execute arbitrary write operations through `core` tools
+- **HTTP Security Headers (Medium)** — Added `Strict-Transport-Security` (2-year max-age), `Referrer-Policy` (no-referrer), and `Permissions-Policy` (camera/microphone/geolocation denied) to all HTTP transport responses, complementing existing CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, and Cache-Control headers
+- **Sandbox Blocked Pattern Hardening (Medium)** — Added detection for bracket-notation constructor access (`['constructor']`) and `Reflect.construct` bypass vectors, closing two confirmed regex blocklist gaps in Code Mode security validation
+
 ### Fixed
 
 - **Router 404 Response Differentiation** — All 9 router tools returned `{ available: false, error }` for both "Router is down" (ECONNREFUSED, timeout, TLS, 401/500) and "route/metadata/pool not found" (404) scenarios, making them indistinguishable. `routerFetch` now attaches `statusCode` to thrown errors and `safeRouterFetch` detects 404 responses, returning `{ success: false, error }` (standard error convention) instead of `{ available: false }` (reserved for actual connectivity failures)

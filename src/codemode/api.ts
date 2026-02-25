@@ -785,8 +785,11 @@ export class MysqlApi {
   readonly docstore: GroupApiRecord;
 
   private readonly toolsByGroup: Map<string, ToolDefinition[]>;
+  private readonly isReadonly: boolean;
 
-  constructor(adapter: MySQLAdapter) {
+  constructor(adapter: MySQLAdapter, readonly?: boolean) {
+    this.isReadonly = readonly ?? false;
+
     // Get all tool definitions and group them
     const allTools = adapter.getToolDefinitions();
     this.toolsByGroup = this.groupTools(allTools);
@@ -979,6 +982,42 @@ export class MysqlApi {
   createSandboxBindings(): Record<string, unknown> {
     const bindings: Record<string, unknown> = {};
 
+    // Groups that are entirely write-oriented (excluded when readonly)
+    const writeOnlyGroups = new Set([
+      "transactions",
+      "admin",
+      "backup",
+      "partitioning",
+      "roles",
+      "events",
+      "shell",
+    ]);
+
+    // Methods within mixed groups that perform writes (excluded when readonly)
+    const writeMethods: Record<string, Set<string>> = {
+      core: new Set(["writeQuery", "dropTable", "createTable", "createIndex"]),
+      docstore: new Set([
+        "docAdd",
+        "docModify",
+        "docRemove",
+        "docCreateCollection",
+        "docDropCollection",
+        "docCreateIndex",
+      ]),
+      schema: new Set(["createSchema", "dropSchema", "createView"]),
+      json: new Set([
+        "set",
+        "insert",
+        "remove",
+        "replace",
+        "update",
+        "merge",
+        "arrayAppend",
+      ]),
+      fulltext: new Set(["fulltextCreate", "fulltextDrop"]),
+      spatial: new Set(["createColumn", "createIndex"]),
+    };
+
     const groupNames = [
       "core",
       "transactions",
@@ -1007,7 +1046,30 @@ export class MysqlApi {
     ] as const;
 
     for (const groupName of groupNames) {
+      // Skip entire write-only groups when readonly
+      if (this.isReadonly && writeOnlyGroups.has(groupName)) {
+        const blockedStub = (): { success: false; error: string } => ({
+          success: false,
+          error: `Readonly mode: the '${groupName}' group is not available in readonly mode`,
+        });
+        const groupApi = this[groupName];
+        const stubbed: Record<string, unknown> = {};
+        for (const method of Object.keys(groupApi)) {
+          stubbed[method] = blockedStub;
+        }
+        stubbed["help"] = () => ({
+          methods: Object.keys(groupApi),
+          readonly: true,
+          note: `All methods in '${groupName}' are blocked in readonly mode`,
+        });
+        bindings[groupName] = stubbed;
+        continue;
+      }
+
       const groupApi = this[groupName];
+      const groupWriteMethods = this.isReadonly
+        ? (writeMethods[groupName] ?? new Set<string>())
+        : new Set<string>();
       const allMethodNames = Object.keys(groupApi);
 
       // Separate canonical methods from aliases for structured help output
@@ -1025,9 +1087,28 @@ export class MysqlApi {
         return !lowerAlias.startsWith(lowerGroupName);
       });
 
+      // Build the group API, replacing write methods with stubs when readonly
+      const filteredApi: Record<string, unknown> = {};
+      for (const method of allMethodNames) {
+        // Check if this method (or its canonical target) is a write method
+        const canonicalTarget = aliases[method] ?? method;
+        const isWrite =
+          groupWriteMethods.has(method) ||
+          groupWriteMethods.has(canonicalTarget);
+
+        if (isWrite) {
+          filteredApi[method] = (): { success: false; error: string } => ({
+            success: false,
+            error: `Readonly mode: '${groupName}.${method}()' is a write operation and cannot be used when readonly is true`,
+          });
+        } else {
+          filteredApi[method] = groupApi[method];
+        }
+      }
+
       // Add all methods plus a 'help' property that lists them
       bindings[groupName] = {
-        ...groupApi,
+        ...filteredApi,
         help: () => ({
           methods: canonicalMethodNames,
           methodAliases: usefulAliases,
@@ -1219,6 +1300,9 @@ export class MysqlApi {
 /**
  * Create a MysqlApi instance for an adapter
  */
-export function createMysqlApi(adapter: MySQLAdapter): MysqlApi {
-  return new MysqlApi(adapter);
+export function createMysqlApi(
+  adapter: MySQLAdapter,
+  readonly?: boolean,
+): MysqlApi {
+  return new MysqlApi(adapter, readonly);
 }
