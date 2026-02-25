@@ -7,10 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **`mysql_doc_find` Filter SQL Injection Fix** — The `filter` parameter was interpolated directly into the SQL query (`WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`), allowing arbitrary SQL injection via crafted filter values (e.g., `$') IS NOT NULL OR 1=1 -- `). Added `JSON_PATH_RE` validation regex that rejects any filter containing characters outside the valid JSON path set (`$`, `.`, `[`, `]`, `*`, alphanumeric, underscore). Invalid paths now return `{ success: false, error: "Invalid JSON path filter: ..." }` instead of executing
+- **`parseDocFilter` Field Name Validation Hardening** — Added explicit `IDENTIFIER_RE` validation for field names extracted from `field=value` filter patterns as defense-in-depth. While the existing regex already limited field names to identifier characters, the explicit check ensures future regex changes cannot introduce injection surfaces
+
+### Improved
+
+- **Docstore Schema Parameter (5 Tools)** — `mysql_doc_add`, `mysql_doc_find`, `mysql_doc_modify`, `mysql_doc_remove`, and `mysql_doc_create_index` now accept an optional `schema` parameter for cross-database collection access. Previously these 5 tools hardcoded `DATABASE()` for collection existence checks and query execution, making collections created in non-default databases invisible. All 5 tools now pass `schema` to `checkCollectionExists()` and use `escapeTableRef()` for qualified table references (`` `schema`.`collection` ``)
+- **ServerInstructions Docstore Schema Documentation** — Updated docstore section to document the new `schema` parameter on all 5 tools, added `mysql_doc_collection_info` to the schema existence check documentation, and documented `mysql_doc_find` JSON path validation behavior
+
 ### Fixed
 
 - **`mysql_cluster_instances` Float Limit Acceptance** — `LimitSchema` used `z.number().min(0)` without `.int()`, allowing float values like `0.5` to pass Zod validation but cause a MySQL syntax error (`near '0.5'`). Added `.int()` constraint so non-integer limits are rejected with a structured error response
-- **`mysql_cluster_instances` SQL Injection Surface** — Both the primary InnoDB Cluster metadata query and the Group Replication fallback query used string interpolation for the `LIMIT` clause (`` LIMIT ${String(limit)} ``). While Zod validates `limit` as a non-negative integer, this violates the parameterized query pattern used by all other tools. Changed to `LIMIT ?` with `[limit]` parameter array for defense-in-depth
+- **`mysql_cluster_instances` SQL Injection Surface** — Both the primary InnoDB Cluster metadata query and the Group Replication fallback query used string interpolation for the `LIMIT` clause (`LIMIT ${String(limit)}`). While Zod validates `limit` as a non-negative integer, this violates the parameterized query pattern used by all other tools. Changed to `LIMIT ?` with `[limit]` parameter array for defense-in-depth
 - **`mysql_cluster_switchover` `currentPrimary` Field Disappearing from JSON** — When no primary exists (GR offline), `members.find()` returns `undefined`, which JSON serialization silently drops — making the `currentPrimary` field absent from the response instead of explicitly `null`. Added `?? null` fallback so the field is always present
 - **`mysql_gr_flow_control` Inconsistent Error Shape** — The `gr_flow_control` catch block returned `{ success: false, error }` while all other 4 GR tools return domain-specific defaults with an `error` field (`{ enabled: false }`, `{ members: [], count: 0 }`, `{ hasPrimary: false }`, `{ memberStats: [], gtid: {...} }`). Changed to return `{ configuration: {}, memberQueues: [], isThrottling: false, error }` for consistency
 

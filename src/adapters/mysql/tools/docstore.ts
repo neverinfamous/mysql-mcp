@@ -11,6 +11,10 @@ import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 
 const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
+// Valid JSON path: $, $.field, $.field.sub, $.field[0], $[0], $[*]
+const JSON_PATH_RE =
+  /^(\$)((\.([a-zA-Z_][a-zA-Z0-9_]*))|((\[\d+\])|(\[\*\])))*$/;
+
 const ListCollectionsSchema = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
 });
@@ -42,6 +46,7 @@ const DropCollectionSchema = z.object({
 
 const FindSchema = z.object({
   collection: z.string(),
+  schema: z.string().optional(),
   filter: z.string().optional().describe("JSON path expression filter"),
   fields: z.array(z.string()).optional(),
   limit: z.number().default(100),
@@ -50,6 +55,7 @@ const FindSchema = z.object({
 
 const AddDocSchema = z.object({
   collection: z.string(),
+  schema: z.string().optional(),
   documents: z
     .array(z.record(z.string(), z.unknown()))
     .describe("Documents to add"),
@@ -57,6 +63,7 @@ const AddDocSchema = z.object({
 
 const ModifyDocSchema = z.object({
   collection: z.string(),
+  schema: z.string().optional(),
   filter: z
     .string()
     .describe(
@@ -68,6 +75,7 @@ const ModifyDocSchema = z.object({
 
 const RemoveDocSchema = z.object({
   collection: z.string(),
+  schema: z.string().optional(),
   filter: z
     .string()
     .describe(
@@ -91,7 +99,14 @@ function parseDocFilter(filter: string): { where: string; params: unknown[] } {
   // Check for simple field=value pattern
   const eqMatch = /^([a-zA-Z_][a-zA-Z0-9_]*)=(.+)$/.exec(filter);
   if (eqMatch) {
-    const [, field, value] = eqMatch;
+    const field = eqMatch[1] ?? "";
+    const value = eqMatch[2] ?? "";
+    // Defense-in-depth: validate field name against identifier regex
+    if (!IDENTIFIER_RE.test(field)) {
+      throw new Error(
+        `Invalid field name in filter: "${field}". Field names must be valid identifiers.`,
+      );
+    }
     // Try to parse as number
     const numVal = Number(value);
     if (!isNaN(numVal)) {
@@ -117,6 +132,7 @@ function parseDocFilter(filter: string): { where: string; params: unknown[] } {
 
 const CreateDocIndexSchema = z.object({
   collection: z.string(),
+  schema: z.string().optional(),
   name: z.string(),
   fields: z.array(
     z.object({
@@ -350,18 +366,15 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { collection, filter, fields, limit, offset } =
+          const { collection, schema, filter, fields, limit, offset } =
             FindSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return { success: false, error: "Invalid schema name" };
 
           // Check if collection exists
-          const tableCheck = await adapter.executeQuery(
-            `SELECT 1 FROM information_schema.TABLES 
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-            [collection],
-          );
-          if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          if (!(await checkCollectionExists(adapter, collection, schema))) {
             return {
               exists: false,
               collection,
@@ -380,9 +393,17 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
               ") as doc";
           }
 
-          let query = `SELECT ${selectClause} FROM \`${collection}\``;
-          if (filter)
+          const tableRef = escapeTableRef(collection, schema);
+          let query = `SELECT ${selectClause} FROM ${tableRef}`;
+          if (filter) {
+            if (!JSON_PATH_RE.test(filter)) {
+              return {
+                success: false,
+                error: `Invalid JSON path filter: "${filter}". Use a valid JSON path like $.field or $.field.sub`,
+              };
+            }
             query += ` WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`;
+          }
           query += ` LIMIT ${String(limit)} OFFSET ${String(offset)}`;
 
           const result = await adapter.executeQuery(query);
@@ -414,19 +435,22 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { collection, documents } = AddDocSchema.parse(params);
+          const { collection, schema, documents } = AddDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return { success: false, error: "Invalid schema name" };
 
-          if (!(await checkCollectionExists(adapter, collection))) {
+          if (!(await checkCollectionExists(adapter, collection, schema))) {
             return { exists: false, collection };
           }
 
+          const tableRef = escapeTableRef(collection, schema);
           let inserted = 0;
           for (const doc of documents) {
             doc["_id"] ??= crypto.randomUUID().replace(/-/g, "");
             await adapter.executeQuery(
-              `INSERT INTO \`${collection}\` (doc) VALUES (?)`,
+              `INSERT INTO ${tableRef} (doc) VALUES (?)`,
               [JSON.stringify(doc)],
             );
             inserted++;
@@ -452,12 +476,14 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { collection, filter, set, unset } =
+          const { collection, schema, filter, set, unset } =
             ModifyDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return { success: false, error: "Invalid schema name" };
 
-          if (!(await checkCollectionExists(adapter, collection))) {
+          if (!(await checkCollectionExists(adapter, collection, schema))) {
             return { exists: false, collection };
           }
 
@@ -479,7 +505,8 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
             return { success: false, error: "No modifications specified" };
 
           const { where, params: whereParams } = parseDocFilter(filter);
-          const query = `UPDATE \`${collection}\` SET ${updates.join(", ")} WHERE ${where}`;
+          const tableRef = escapeTableRef(collection, schema);
+          const query = `UPDATE ${tableRef} SET ${updates.join(", ")} WHERE ${where}`;
           const result = await adapter.executeQuery(query, whereParams);
           return { success: true, modified: result.rowsAffected ?? 0 };
         } catch (error: unknown) {
@@ -502,16 +529,19 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false, destructiveHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { collection, filter } = RemoveDocSchema.parse(params);
+          const { collection, schema, filter } = RemoveDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return { success: false, error: "Invalid schema name" };
 
-          if (!(await checkCollectionExists(adapter, collection))) {
+          if (!(await checkCollectionExists(adapter, collection, schema))) {
             return { exists: false, collection };
           }
 
           const { where, params: whereParams } = parseDocFilter(filter);
-          const query = `DELETE FROM \`${collection}\` WHERE ${where}`;
+          const tableRef = escapeTableRef(collection, schema);
+          const query = `DELETE FROM ${tableRef} WHERE ${where}`;
           const result = await adapter.executeQuery(query, whereParams);
           return { success: true, removed: result.rowsAffected ?? 0 };
         } catch (error: unknown) {
@@ -534,22 +564,25 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { collection, name, fields, unique } =
+          const { collection, schema, name, fields, unique } =
             CreateDocIndexSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return { success: false, error: "Invalid schema name" };
           if (!IDENTIFIER_RE.test(name))
             return { success: false, error: "Invalid index name" };
 
-          if (!(await checkCollectionExists(adapter, collection))) {
+          if (!(await checkCollectionExists(adapter, collection, schema))) {
             return { exists: false, collection };
           }
 
+          const tableRef = escapeTableRef(collection, schema);
           for (const field of fields) {
             const colName = `_idx_${field.path.replace(/\./g, "_")}`;
             const cast = field.type === "TEXT" ? "CHAR(255)" : field.type;
             await adapter.executeQuery(
-              `ALTER TABLE \`${collection}\` ADD COLUMN \`${colName}\` ${cast} 
+              `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast} 
                            GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field.path}'))) STORED`,
             );
           }
@@ -559,7 +592,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
             .join(", ");
           const uniqueClause = unique ? "UNIQUE " : "";
           await adapter.executeQuery(
-            `CREATE ${uniqueClause}INDEX \`${name}\` ON \`${collection}\` (${cols})`,
+            `CREATE ${uniqueClause}INDEX \`${name}\` ON ${tableRef} (${cols})`,
           );
 
           return { success: true, index: name };
