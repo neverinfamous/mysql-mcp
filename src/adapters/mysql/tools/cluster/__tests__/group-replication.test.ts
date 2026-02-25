@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import {
   createGRStatusTool,
+  createGRMembersTool,
+  createGRPrimaryTool,
+  createGRTransactionsTool,
   createGRFlowControlTool,
 } from "../group-replication.js";
 import { MySQLAdapter } from "../../../MySQLAdapter.js";
@@ -214,5 +217,69 @@ describe("Group Replication Tools", () => {
       expect(result.isThrottling).toBe(true);
       expect(result.recommendation).toContain("Flow control is active");
     });
+  });
+});
+
+describe("Group Replication Tools - Error Handling", () => {
+  let mockAdapter: MySQLAdapter;
+  let mockExecuteQuery: Mock;
+
+  beforeEach(() => {
+    mockExecuteQuery = vi.fn();
+    mockAdapter = {
+      executeQuery: mockExecuteQuery,
+    } as unknown as MySQLAdapter;
+  });
+
+  it("mysql_gr_status should return structured error when query fails", async () => {
+    const tool = createGRStatusTool(mockAdapter);
+    mockExecuteQuery.mockRejectedValue(new Error("Connection refused"));
+
+    const result = (await tool.handler({}, {} as any)) as any;
+
+    expect(result.enabled).toBe(false);
+    expect(result.error).toBe("Connection refused");
+  });
+
+  it("mysql_gr_members should return structured error when query fails", async () => {
+    const tool = createGRMembersTool(mockAdapter);
+    mockExecuteQuery.mockRejectedValue(new Error("Access denied"));
+
+    const result = (await tool.handler({}, {} as any)) as any;
+
+    expect(result.members).toEqual([]);
+    expect(result.count).toBe(0);
+    expect(result.error).toBe("Access denied");
+  });
+
+  it("mysql_gr_primary should return structured error when query fails", async () => {
+    const tool = createGRPrimaryTool(mockAdapter);
+    mockExecuteQuery.mockRejectedValue(new Error("Connection lost"));
+
+    const result = (await tool.handler({}, {} as any)) as any;
+
+    expect(result.hasPrimary).toBe(false);
+    expect(result.error).toBe("Connection lost");
+  });
+
+  it("mysql_gr_transactions should return structured error when query fails", async () => {
+    const tool = createGRTransactionsTool(mockAdapter);
+    mockExecuteQuery.mockRejectedValue(new Error("Permission denied"));
+
+    const result = (await tool.handler({}, {} as any)) as any;
+
+    expect(result.memberStats).toEqual([]);
+    expect(result.gtid).toEqual({ executed: "", purged: "" });
+    expect(result.error).toBe("Permission denied");
+  });
+
+  it("mysql_gr_flow_control should return structured error when query fails", async () => {
+    const tool = createGRFlowControlTool(mockAdapter);
+    mockExecuteQuery.mockRejectedValue(new Error("Timeout"));
+
+    const result = (await tool.handler({}, {} as any)) as any;
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Timeout");
   });
 });

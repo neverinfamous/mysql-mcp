@@ -431,4 +431,43 @@ describe("InnoDB Cluster Tools", () => {
       expect(result.warning).toBeUndefined();
     });
   });
+
+  describe("createClusterTopologyTool - error handling", () => {
+    it("should return structured error when first query fails", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Connection refused"),
+      );
+
+      const tool = createClusterTopologyTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.topology).toEqual({
+        primary: [],
+        secondaries: [],
+        recovering: [],
+        offline: [],
+      });
+      expect(result.visualization).toBe("");
+      expect(result.totalMembers).toBe(0);
+      expect(result.onlineMembers).toBe(0);
+      expect(result.error).toBe("Connection refused");
+    });
+  });
+
+  describe("createClusterSwitchoverTool - error handling", () => {
+    it("should return structured error when query fails", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = createClusterSwitchoverTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as any;
+
+      expect(result.candidates).toEqual([]);
+      expect(result.canSwitchover).toBe(false);
+      expect(result.error).toBe("Access denied");
+    });
+  });
 });

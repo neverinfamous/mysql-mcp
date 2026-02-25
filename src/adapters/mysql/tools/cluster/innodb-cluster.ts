@@ -229,8 +229,9 @@ export function createClusterTopologyTool(
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Get all GR members
-      const membersResult = await adapter.executeQuery(`
+      try {
+        // Get all GR members
+        const membersResult = await adapter.executeQuery(`
                 SELECT 
                     MEMBER_ID as id,
                     MEMBER_HOST as host,
@@ -242,93 +243,107 @@ export function createClusterTopologyTool(
                 ORDER BY MEMBER_ROLE DESC, MEMBER_HOST
             `);
 
-      const members = membersResult.rows ?? [];
-      const grMemberIds = new Set(
-        members.map((m) => m["id"] as string).filter(Boolean),
-      );
+        const members = membersResult.rows ?? [];
+        const grMemberIds = new Set(
+          members.map((m) => m["id"] as string).filter(Boolean),
+        );
 
-      // Cross-reference with cluster metadata for offline instances
-      let metadataOffline: Record<string, unknown>[] = [];
-      try {
-        const metaResult = await adapter.executeQuery(`
+        // Cross-reference with cluster metadata for offline instances
+        let metadataOffline: Record<string, unknown>[] = [];
+        try {
+          const metaResult = await adapter.executeQuery(`
                   SELECT 
                       mysql_server_uuid as id,
                       SUBSTRING_INDEX(address, ':', 1) as host,
                       CAST(SUBSTRING_INDEX(address, ':', -1) AS UNSIGNED) as port
                   FROM mysql_innodb_cluster_metadata.instances
               `);
-        if (metaResult.rows) {
-          metadataOffline = metaResult.rows
-            .filter((i) => !grMemberIds.has(i["id"] as string))
-            .map((i) => ({
-              id: i["id"],
-              host: i["host"],
-              port: i["port"],
-              state: "OFFLINE",
-              role: "NONE",
-              version: null,
-              source: "metadata",
-            }));
+          if (metaResult.rows) {
+            metadataOffline = metaResult.rows
+              .filter((i) => !grMemberIds.has(i["id"] as string))
+              .map((i) => ({
+                id: i["id"],
+                host: i["host"],
+                port: i["port"],
+                state: "OFFLINE",
+                role: "NONE",
+                version: null,
+                source: "metadata",
+              }));
+          }
+        } catch {
+          // Cluster metadata not available; skip
         }
-      } catch {
-        // Cluster metadata not available; skip
-      }
 
-      // Build topology representation
-      const topology = {
-        primary: members.filter((m) => m["role"] === "PRIMARY"),
-        secondaries: members.filter((m) => m["role"] === "SECONDARY"),
-        recovering: members.filter((m) => m["state"] === "RECOVERING"),
-        offline: [
-          ...members.filter(
-            (m) => m["state"] !== "ONLINE" && m["state"] !== "RECOVERING",
-          ),
-          ...metadataOffline,
-        ],
-      };
+        // Build topology representation
+        const topology = {
+          primary: members.filter((m) => m["role"] === "PRIMARY"),
+          secondaries: members.filter((m) => m["role"] === "SECONDARY"),
+          recovering: members.filter((m) => m["state"] === "RECOVERING"),
+          offline: [
+            ...members.filter(
+              (m) => m["state"] !== "ONLINE" && m["state"] !== "RECOVERING",
+            ),
+            ...metadataOffline,
+          ],
+        };
 
-      // Generate ASCII visualization
-      let ascii = "=== MySQL Cluster Topology ===\n\n";
+        // Generate ASCII visualization
+        let ascii = "=== MySQL Cluster Topology ===\n\n";
 
-      if (topology.primary.length > 0) {
-        ascii += "  PRIMARY:\n";
-        for (const p of topology.primary) {
-          const pm = p;
-          ascii += `    ★ ${pm["host"] as string}:${String(pm["port"])} (${pm["state"] as string})\n`;
+        if (topology.primary.length > 0) {
+          ascii += "  PRIMARY:\n";
+          for (const p of topology.primary) {
+            const pm = p;
+            ascii += `    ★ ${pm["host"] as string}:${String(pm["port"])} (${pm["state"] as string})\n`;
+          }
         }
-      }
 
-      if (topology.secondaries.length > 0) {
-        ascii += "\n  SECONDARY:\n";
-        for (const s of topology.secondaries) {
-          const sm = s;
-          ascii += `    ○ ${sm["host"] as string}:${String(sm["port"])} (${sm["state"] as string})\n`;
+        if (topology.secondaries.length > 0) {
+          ascii += "\n  SECONDARY:\n";
+          for (const s of topology.secondaries) {
+            const sm = s;
+            ascii += `    ○ ${sm["host"] as string}:${String(sm["port"])} (${sm["state"] as string})\n`;
+          }
         }
-      }
 
-      if (topology.recovering.length > 0) {
-        ascii += "\n  RECOVERING:\n";
-        for (const r of topology.recovering) {
-          const rm = r;
-          ascii += `    ⟳ ${rm["host"] as string}:${String(rm["port"])}\n`;
+        if (topology.recovering.length > 0) {
+          ascii += "\n  RECOVERING:\n";
+          for (const r of topology.recovering) {
+            const rm = r;
+            ascii += `    ⟳ ${rm["host"] as string}:${String(rm["port"])}\n`;
+          }
         }
-      }
 
-      if (topology.offline.length > 0) {
-        ascii += "\n  OFFLINE/ERROR:\n";
-        for (const o of topology.offline) {
-          const om = o;
-          ascii += `    ✗ ${om["host"] as string}:${String(om["port"])} (${om["state"] as string})\n`;
+        if (topology.offline.length > 0) {
+          ascii += "\n  OFFLINE/ERROR:\n";
+          for (const o of topology.offline) {
+            const om = o;
+            ascii += `    ✗ ${om["host"] as string}:${String(om["port"])} (${om["state"] as string})\n`;
+          }
         }
-      }
 
-      const allMembers = members.length + metadataOffline.length;
-      return {
-        topology,
-        visualization: ascii,
-        totalMembers: allMembers,
-        onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
-      };
+        const allMembers = members.length + metadataOffline.length;
+        return {
+          topology,
+          visualization: ascii,
+          totalMembers: allMembers,
+          onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
+        };
+      } catch (error) {
+        return {
+          topology: {
+            primary: [],
+            secondaries: [],
+            recovering: [],
+            offline: [],
+          },
+          visualization: "",
+          totalMembers: 0,
+          onlineMembers: 0,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -460,8 +475,9 @@ export function createClusterSwitchoverTool(
       idempotentHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Get current members status
-      const membersResult = await adapter.executeQuery(`
+      try {
+        // Get current members status
+        const membersResult = await adapter.executeQuery(`
                 SELECT 
                     m.MEMBER_ID as memberId,
                     m.MEMBER_HOST as host,
@@ -476,71 +492,78 @@ export function createClusterSwitchoverTool(
                     ON m.MEMBER_ID = s.MEMBER_ID
             `);
 
-      const members = membersResult.rows ?? [];
-      const onlineSecondaries = members.filter((m) => {
-        const member = m;
-        return member["state"] === "ONLINE" && member["role"] === "SECONDARY";
-      });
+        const members = membersResult.rows ?? [];
+        const onlineSecondaries = members.filter((m) => {
+          const member = m;
+          return member["state"] === "ONLINE" && member["role"] === "SECONDARY";
+        });
 
-      // Analyze each secondary for switchover suitability
-      const candidates = onlineSecondaries.map((s) => {
-        const sec = s;
-        const txQueue = (sec["txQueue"] as number) ?? 0;
-        const applierQueue = (sec["applierQueue"] as number) ?? 0;
-        const totalQueue = txQueue + applierQueue;
+        // Analyze each secondary for switchover suitability
+        const candidates = onlineSecondaries.map((s) => {
+          const sec = s;
+          const txQueue = (sec["txQueue"] as number) ?? 0;
+          const applierQueue = (sec["applierQueue"] as number) ?? 0;
+          const totalQueue = txQueue + applierQueue;
 
-        let suitability: "GOOD" | "ACCEPTABLE" | "NOT_RECOMMENDED";
-        let reason: string;
+          let suitability: "GOOD" | "ACCEPTABLE" | "NOT_RECOMMENDED";
+          let reason: string;
 
-        if (totalQueue === 0) {
-          suitability = "GOOD";
-          reason = "Fully synchronized";
-        } else if (totalQueue < 100) {
-          suitability = "ACCEPTABLE";
-          reason = `Minor lag: ${String(totalQueue)} transactions pending`;
-        } else {
-          suitability = "NOT_RECOMMENDED";
-          reason = `Significant lag: ${String(totalQueue)} transactions pending`;
-        }
+          if (totalQueue === 0) {
+            suitability = "GOOD";
+            reason = "Fully synchronized";
+          } else if (totalQueue < 100) {
+            suitability = "ACCEPTABLE";
+            reason = `Minor lag: ${String(totalQueue)} transactions pending`;
+          } else {
+            suitability = "NOT_RECOMMENDED";
+            reason = `Significant lag: ${String(totalQueue)} transactions pending`;
+          }
 
+          return {
+            memberId: sec["memberId"],
+            host: sec["host"],
+            port: sec["port"],
+            version: sec["version"],
+            txQueue,
+            applierQueue,
+            suitability,
+            reason,
+          };
+        });
+
+        // Sort by suitability
+        candidates.sort((a, b) => {
+          const order = { GOOD: 0, ACCEPTABLE: 1, NOT_RECOMMENDED: 2 };
+          return order[a.suitability] - order[b.suitability];
+        });
+
+        const firstCandidate = candidates[0];
         return {
-          memberId: sec["memberId"],
-          host: sec["host"],
-          port: sec["port"],
-          version: sec["version"],
-          txQueue,
-          applierQueue,
-          suitability,
-          reason,
+          currentPrimary: members.find((m) => m["role"] === "PRIMARY"),
+          candidates,
+          recommendedTarget:
+            candidates.length > 0 &&
+            firstCandidate &&
+            firstCandidate.suitability !== "NOT_RECOMMENDED"
+              ? firstCandidate
+              : null,
+          canSwitchover: candidates.some(
+            (c) => c.suitability !== "NOT_RECOMMENDED",
+          ),
+          warning:
+            onlineSecondaries.length === 0
+              ? "No online secondaries available for switchover."
+              : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
+                ? "All secondaries have significant replication lag. Switchover not recommended."
+                : undefined,
         };
-      });
-
-      // Sort by suitability
-      candidates.sort((a, b) => {
-        const order = { GOOD: 0, ACCEPTABLE: 1, NOT_RECOMMENDED: 2 };
-        return order[a.suitability] - order[b.suitability];
-      });
-
-      const firstCandidate = candidates[0];
-      return {
-        currentPrimary: members.find((m) => m["role"] === "PRIMARY"),
-        candidates,
-        recommendedTarget:
-          candidates.length > 0 &&
-          firstCandidate &&
-          firstCandidate.suitability !== "NOT_RECOMMENDED"
-            ? firstCandidate
-            : null,
-        canSwitchover: candidates.some(
-          (c) => c.suitability !== "NOT_RECOMMENDED",
-        ),
-        warning:
-          onlineSecondaries.length === 0
-            ? "No online secondaries available for switchover."
-            : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
-              ? "All secondaries have significant replication lag. Switchover not recommended."
-              : undefined,
-      };
+      } catch (error) {
+        return {
+          candidates: [],
+          canSwitchover: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
