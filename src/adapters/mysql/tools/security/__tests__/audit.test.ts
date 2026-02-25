@@ -134,10 +134,8 @@ describe("Security Audit Tools", () => {
       );
 
       const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      const queryParams = mockAdapter.executeQuery.mock.calls[1][1] as any[];
 
-      expect(queryCall).toContain("t.PROCESSLIST_USER LIKE ?");
-      expect(queryParams[0]).toContain("test_user");
+      expect(queryCall).toContain("t.PROCESSLIST_USER LIKE '%test_user%'");
     });
 
     it("should apply eventType filter in fallback mode", async () => {
@@ -156,10 +154,8 @@ describe("Security Audit Tools", () => {
       );
 
       const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      const queryParams = mockAdapter.executeQuery.mock.calls[1][1] as any[];
 
-      expect(queryCall).toContain("EVENT_NAME LIKE ?");
-      expect(queryParams[0]).toContain("CONNECT");
+      expect(queryCall).toContain("e.EVENT_NAME LIKE '%CONNECT%'");
     });
 
     it("should include filtersIgnored when startTime used in fallback mode", async () => {

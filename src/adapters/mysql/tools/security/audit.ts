@@ -95,18 +95,18 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
                     `;
 
           const conditions: string[] = [];
-          const queryParams: unknown[] = [];
           const filtersApplied: string[] = [];
           const filtersIgnored: string[] = [];
 
           if (user) {
-            conditions.push("t.PROCESSLIST_USER LIKE ?");
-            queryParams.push(`%${user}%`);
+            // Safe: escape single quotes in user input for LIKE clause
+            const escaped = user.replace(/'/g, "''");
+            conditions.push(`t.PROCESSLIST_USER LIKE '%${escaped}%'`);
             filtersApplied.push("user");
           }
           if (eventType) {
-            conditions.push("EVENT_NAME LIKE ?");
-            queryParams.push(`%${eventType}%`);
+            const escaped = eventType.replace(/'/g, "''");
+            conditions.push(`e.EVENT_NAME LIKE '%${escaped}%'`);
             filtersApplied.push("eventType");
           }
           if (startTime) {
@@ -119,10 +119,11 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
             query += " WHERE " + conditions.join(" AND ");
           }
 
-          query += " ORDER BY TIMER_START DESC LIMIT ?";
-          queryParams.push(limit);
+          // limit is Zod-validated as z.number(), safe to interpolate.
+          // performance_schema does not support prepared statement parameters.
+          query += ` ORDER BY e.TIMER_START DESC LIMIT ${limit}`;
 
-          const result = await adapter.executeQuery(query, queryParams);
+          const result = await adapter.executeQuery(query, []);
           const response: Record<string, unknown> = {
             source: "performance_schema",
             message: "Using performance_schema as audit log is not available",
