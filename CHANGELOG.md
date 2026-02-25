@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Router 404 Response Differentiation** — All 9 router tools returned `{ available: false, error }` for both "Router is down" (ECONNREFUSED, timeout, TLS, 401/500) and "route/metadata/pool not found" (404) scenarios, making them indistinguishable. `routerFetch` now attaches `statusCode` to thrown errors and `safeRouterFetch` detects 404 responses, returning `{ success: false, error }` (standard error convention) instead of `{ available: false }` (reserved for actual connectivity failures)
+- **`ConnectionPoolStatusSchema` Field Mismatch** — Schema defined `reusedConnections` which never appeared in actual Router REST API responses. Replaced with `stashedServerConnections` to match the real API response shape (`idleServerConnections` + `stashedServerConnections`)
+- **`safeRouterFetch` Stale JSDoc** — Docstring referenced `{ available: false, reason }` but implementation uses `{ available: false, error }` (corrected during the earlier `reason` → `error` normalization)
+
+### Improved
+
+- **ServerInstructions Router Error Documentation** — Updated unavailability handling documentation to describe both error shapes: `{ available: false, error }` for connectivity failures and `{ success: false, error }` for 404 (nonexistent route/metadata/pool)
+
+### Fixed
+
 - **ProxySQL Split Schema Validation Leaks** — 5 ProxySQL tools (`proxysql_servers`, `proxysql_connection_pool`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_global_variables`) used strict Zod schemas as `inputSchema`, causing the MCP framework to reject invalid inputs (negative `hostgroup_id`, negative/float `limit`) with raw `-32602` errors before the handler's `try/catch` could format them. Applied Split Schema pattern: permissive Base schemas for MCP framework visibility, strict schemas for handler-level parsing. All validation failures now return `{ success: false, error }` structured responses
 - **Router Tool Error Field Normalization (`reason` → `error`)** — All 9 router tools returned `{ available: false, reason }` for unavailability/error responses, violating the convention where `reason` is reserved for informational `{ success: true, skipped: true }` contexts. Renamed to `{ available: false, error }` for consistency with all other tool groups
 - **Router Tool Zod Validation Leaks (7 Handlers)** — `mysql_router_route_status`, `mysql_router_route_health`, `mysql_router_route_connections`, `mysql_router_route_destinations`, `mysql_router_route_blocked_hosts`, `mysql_router_metadata_status`, and `mysql_router_pool_status` called `Schema.parse(params)` outside their `try/catch` blocks, causing raw Zod validation errors to propagate as MCP exceptions when invalid parameter types were passed (e.g., `routeName: 123`). Moved all `parse()` calls inside `try/catch` with `ZodError` detection and human-readable error formatting, matching the pattern used by all other tool groups

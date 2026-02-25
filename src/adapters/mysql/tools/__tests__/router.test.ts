@@ -510,7 +510,7 @@ describe("Error Handling", () => {
     );
 
     expect(result).toEqual({
-      available: false,
+      success: false,
       error: "Router API error: 404 Not Found",
     });
   });

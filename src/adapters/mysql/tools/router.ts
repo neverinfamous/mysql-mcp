@@ -130,11 +130,11 @@ async function routerFetch(
             reject(new Error(`Invalid JSON response: ${data}`));
           }
         } else {
-          reject(
-            new Error(
-              `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}`,
-            ),
+          const err = new Error(
+            `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}`,
           );
+          (err as Error & { statusCode: number }).statusCode = statusCode;
+          reject(err);
         }
       });
     });
@@ -176,7 +176,8 @@ async function routerFetch(
 
 /**
  * Safe wrapper for routerFetch that returns graceful responses instead of throwing.
- * Returns { success: true, data } on success or { success: false, response: { available: false, reason } } on failure.
+ * Returns { success: true, data } on success or { success: false, response: { available: false, error } } on failure.
+ * 404 responses (nonexistent route/metadata/pool) return { success: false, error } matching the standard error convention.
  */
 async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
   try {
@@ -187,6 +188,21 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
       error instanceof Error
         ? error.message
         : "Unknown error connecting to Router API";
+    // 404 = valid Router response for nonexistent route/metadata/pool
+    // Return { success: false, error } instead of { available: false } to
+    // distinguish "not found" from "Router is down"
+    if (
+      error instanceof Error &&
+      (error as Error & { statusCode?: number }).statusCode === 404
+    ) {
+      return {
+        success: false,
+        response: {
+          success: false,
+          error: msg,
+        } as unknown as RouterUnavailableResponse,
+      };
+    }
     return {
       success: false,
       response: {

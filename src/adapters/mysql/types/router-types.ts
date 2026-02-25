@@ -104,7 +104,7 @@ export type MetadataStatus = z.infer<typeof MetadataStatusSchema>;
 // =============================================================================
 
 export const ConnectionPoolStatusSchema = z.object({
-  reusedConnections: z.number().optional(),
+  stashedServerConnections: z.number().optional(),
   idleServerConnections: z.number().optional(),
 });
 
