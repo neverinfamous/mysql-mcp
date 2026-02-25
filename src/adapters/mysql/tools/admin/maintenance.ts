@@ -199,6 +199,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
             }
             return {
               success: false,
+              error: `Tables not found: ${notFound.join(", ")}`,
               notFound,
               flushed: validTables,
             };

@@ -740,6 +740,7 @@ describe("Admin Maintenance Tools", () => {
 
       expect(result).toEqual({
         success: false,
+        error: "Tables not found: nonexistent_xyz",
         notFound: ["nonexistent_xyz"],
         flushed: ["users"],
       });
@@ -762,6 +763,7 @@ describe("Admin Maintenance Tools", () => {
 
       expect(result).toEqual({
         success: false,
+        error: "Tables not found: nonexistent_a, nonexistent_b",
         notFound: ["nonexistent_a", "nonexistent_b"],
         flushed: [],
       });
