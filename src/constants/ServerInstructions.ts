@@ -276,7 +276,7 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Query analysis**: \`proxysql_query_rules\` lists routing rules; \`proxysql_query_digest\` shows top queries by execution count.
 - **Admin commands**: \`proxysql_commands\` executes LOAD/SAVE for users, servers, query rules, variables, and FLUSH operations.
 - **Memory/Process**: \`proxysql_memory_stats\` shows memory allocation; \`proxysql_process_list\` shows active client sessions.
-- **Error handling**: ProxySQL tools propagate connection errors when the admin interface is unreachable. All read tools return structured responses with \`success: true\` and appropriate data arrays.
+- **Error handling**: All ProxySQL tools return \`{ success: false, error }\` for connection failures, query errors, and invalid parameters instead of throwing raw exceptions. \`hostgroup_id\` must be an integer. \`limit\` must be a non-negative integer.
 
 ## MySQL Shell Tools (\`mysqlsh_*\`)
 

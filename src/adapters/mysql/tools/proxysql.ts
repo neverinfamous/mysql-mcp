@@ -9,6 +9,7 @@
  */
 
 import mysql from "mysql2/promise";
+import { z } from "zod";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import {
@@ -133,42 +134,55 @@ function createProxySQLStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { summary } = ProxySQLStatusInputSchema.parse(params);
-      const rows = await proxySQLQuery("SELECT * FROM stats_mysql_global");
+      try {
+        const { summary } = ProxySQLStatusInputSchema.parse(params);
+        const rows = await proxySQLQuery("SELECT * FROM stats_mysql_global");
 
-      if (summary) {
-        // Key metrics for summary mode
-        const keyMetrics = [
-          "ProxySQL_Uptime",
-          "Questions",
-          "Slow_queries",
-          "Active_Transactions",
-          "Client_Connections_connected",
-          "Client_Connections_created",
-          "Server_Connections_connected",
-          "Server_Connections_created",
-          "Query_Cache_Entries",
-          "Query_Cache_Memory_bytes",
-          "mysql_backend_buffers_bytes",
-          "mysql_frontend_buffers_bytes",
-        ];
-        const filteredRows = rows.filter((row) =>
-          keyMetrics.includes(row["Variable_Name"] as string),
-        );
+        if (summary) {
+          // Key metrics for summary mode
+          const keyMetrics = [
+            "ProxySQL_Uptime",
+            "Questions",
+            "Slow_queries",
+            "Active_Transactions",
+            "Client_Connections_connected",
+            "Client_Connections_created",
+            "Server_Connections_connected",
+            "Server_Connections_created",
+            "Query_Cache_Entries",
+            "Query_Cache_Memory_bytes",
+            "mysql_backend_buffers_bytes",
+            "mysql_frontend_buffers_bytes",
+          ];
+          const filteredRows = rows.filter((row) =>
+            keyMetrics.includes(row["Variable_Name"] as string),
+          );
+          return {
+            success: true,
+            summary: true,
+            stats: filteredRows,
+            totalVarsAvailable: rows.length,
+          };
+        }
+
         return {
           success: true,
-          summary: true,
-          stats: filteredRows,
+          summary: false,
+          stats: rows,
           totalVarsAvailable: rows.length,
         };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-
-      return {
-        success: true,
-        summary: false,
-        stats: rows,
-        totalVarsAvailable: rows.length,
-      };
     },
   };
 }
@@ -191,47 +205,60 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { summary } = ProxySQLStatusInputSchema.parse(params);
-      const [versionRow] = await proxySQLQuery(
-        "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
-      );
-      const adminVars = await proxySQLQuery(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%'",
-      );
-
-      // Redact sensitive admin variables (passwords, credentials)
-      const redactedVars = redactSensitiveVariables(adminVars);
-
-      if (summary) {
-        // Key admin variables for summary mode
-        const keyAdminVars = [
-          "admin-version",
-          "admin-read_only",
-          "admin-cluster_username",
-          "admin-mysql_ifaces",
-          "admin-restapi_enabled",
-          "admin-web_enabled",
-          "admin-stats_mysql_connection_pool",
-        ];
-        const filteredVars = redactedVars.filter((row) =>
-          keyAdminVars.includes(row["variable_name"] as string),
+      try {
+        const { summary } = ProxySQLStatusInputSchema.parse(params);
+        const [versionRow] = await proxySQLQuery(
+          "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
         );
+        const adminVars = await proxySQLQuery(
+          "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%'",
+        );
+
+        // Redact sensitive admin variables (passwords, credentials)
+        const redactedVars = redactSensitiveVariables(adminVars);
+
+        if (summary) {
+          // Key admin variables for summary mode
+          const keyAdminVars = [
+            "admin-version",
+            "admin-read_only",
+            "admin-cluster_username",
+            "admin-mysql_ifaces",
+            "admin-restapi_enabled",
+            "admin-web_enabled",
+            "admin-stats_mysql_connection_pool",
+          ];
+          const filteredVars = redactedVars.filter((row) =>
+            keyAdminVars.includes(row["variable_name"] as string),
+          );
+          return {
+            success: true,
+            summary: true,
+            version: versionRow?.["variable_value"] ?? "unknown",
+            adminVariables: filteredVars,
+            totalAdminVarsAvailable: redactedVars.length,
+          };
+        }
+
         return {
           success: true,
-          summary: true,
+          summary: false,
           version: versionRow?.["variable_value"] ?? "unknown",
-          adminVariables: filteredVars,
+          adminVariables: redactedVars,
           totalAdminVarsAvailable: redactedVars.length,
         };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-
-      return {
-        success: true,
-        summary: false,
-        version: versionRow?.["variable_value"] ?? "unknown",
-        adminVariables: redactedVars,
-        totalAdminVarsAvailable: redactedVars.length,
-      };
     },
   };
 }
@@ -258,17 +285,30 @@ function createProxySQLServersTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
-      let sql = "SELECT * FROM mysql_servers";
-      if (hostgroup_id !== undefined) {
-        sql += ` WHERE hostgroup_id = ${hostgroup_id}`;
+      try {
+        const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
+        let sql = "SELECT * FROM mysql_servers";
+        if (hostgroup_id !== undefined) {
+          sql += ` WHERE hostgroup_id = ${hostgroup_id}`;
+        }
+        const rows = await proxySQLQuery(sql);
+        return {
+          success: true,
+          servers: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      const rows = await proxySQLQuery(sql);
-      return {
-        success: true,
-        servers: rows,
-        count: rows.length,
-      };
     },
   };
 }
@@ -291,14 +331,27 @@ function createProxySQLHostgroupsTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const rows = await proxySQLQuery(
-        "SELECT * FROM stats_mysql_connection_pool",
-      );
-      return {
-        success: true,
-        hostgroups: rows,
-        count: rows.length,
-      };
+      try {
+        const rows = await proxySQLQuery(
+          "SELECT * FROM stats_mysql_connection_pool",
+        );
+        return {
+          success: true,
+          hostgroups: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -325,16 +378,29 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit } = ProxySQLLimitInputSchema.parse(params);
-      const maxRows = limit ?? 100;
-      const rows = await proxySQLQuery(
-        `SELECT * FROM mysql_query_rules LIMIT ${maxRows}`,
-      );
-      return {
-        success: true,
-        queryRules: rows,
-        count: rows.length,
-      };
+      try {
+        const { limit } = ProxySQLLimitInputSchema.parse(params);
+        const maxRows = limit ?? 100;
+        const rows = await proxySQLQuery(
+          `SELECT * FROM mysql_query_rules LIMIT ${maxRows}`,
+        );
+        return {
+          success: true,
+          queryRules: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -357,16 +423,29 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit } = ProxySQLLimitInputSchema.parse(params);
-      const maxRows = limit ?? 50;
-      const rows = await proxySQLQuery(
-        `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
-      );
-      return {
-        success: true,
-        queryDigests: rows,
-        count: rows.length,
-      };
+      try {
+        const { limit } = ProxySQLLimitInputSchema.parse(params);
+        const maxRows = limit ?? 50;
+        const rows = await proxySQLQuery(
+          `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
+        );
+        return {
+          success: true,
+          queryDigests: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -393,17 +472,30 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
-      let sql = "SELECT * FROM stats_mysql_connection_pool";
-      if (hostgroup_id !== undefined) {
-        sql += ` WHERE hostgroup = ${hostgroup_id}`;
+      try {
+        const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
+        let sql = "SELECT * FROM stats_mysql_connection_pool";
+        if (hostgroup_id !== undefined) {
+          sql += ` WHERE hostgroup = ${hostgroup_id}`;
+        }
+        const rows = await proxySQLQuery(sql);
+        return {
+          success: true,
+          connectionPools: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      const rows = await proxySQLQuery(sql);
-      return {
-        success: true,
-        connectionPools: rows,
-        count: rows.length,
-      };
     },
   };
 }
@@ -430,15 +522,28 @@ function createProxySQLUsersTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Don't expose passwords, select specific columns
-      const rows = await proxySQLQuery(
-        "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users",
-      );
-      return {
-        success: true,
-        users: rows,
-        count: rows.length,
-      };
+      try {
+        // Don't expose passwords, select specific columns
+        const rows = await proxySQLQuery(
+          "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users",
+        );
+        return {
+          success: true,
+          users: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -465,47 +570,60 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { prefix, like, limit } =
-        ProxySQLVariableFilterSchema.parse(params);
-      const conditions: string[] = [];
+      try {
+        const { prefix, like, limit } =
+          ProxySQLVariableFilterSchema.parse(params);
+        const conditions: string[] = [];
 
-      // Apply prefix filter
-      if (prefix === "mysql") {
-        conditions.push("variable_name LIKE 'mysql-%'");
-      } else if (prefix === "admin") {
-        conditions.push("variable_name LIKE 'admin-%'");
+        // Apply prefix filter
+        if (prefix === "mysql") {
+          conditions.push("variable_name LIKE 'mysql-%'");
+        } else if (prefix === "admin") {
+          conditions.push("variable_name LIKE 'admin-%'");
+        }
+
+        // Apply like pattern filter (sanitize input)
+        if (like) {
+          const sanitizedLike = like.replace(/'/g, "''");
+          conditions.push(`variable_name LIKE '${sanitizedLike}'`);
+        }
+
+        const whereClause =
+          conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "";
+
+        // Get total count (without LIMIT) for truncation awareness
+        const countRows = await proxySQLQuery(
+          `SELECT COUNT(*) AS cnt FROM global_variables${whereClause}`,
+        );
+        const countRow = countRows[0] ?? { cnt: 0 };
+        const totalVarsAvailable = Number(countRow["cnt"]);
+
+        const maxRows = limit ?? 50;
+        const rows = await proxySQLQuery(
+          `SELECT * FROM global_variables${whereClause} LIMIT ${maxRows}`,
+        );
+
+        // Redact sensitive credential values (passwords, credentials)
+        const redactedRows = redactSensitiveVariables(rows);
+
+        return {
+          success: true,
+          variables: redactedRows,
+          count: redactedRows.length,
+          totalVarsAvailable,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-
-      // Apply like pattern filter (sanitize input)
-      if (like) {
-        const sanitizedLike = like.replace(/'/g, "''");
-        conditions.push(`variable_name LIKE '${sanitizedLike}'`);
-      }
-
-      const whereClause =
-        conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "";
-
-      // Get total count (without LIMIT) for truncation awareness
-      const countRows = await proxySQLQuery(
-        `SELECT COUNT(*) AS cnt FROM global_variables${whereClause}`,
-      );
-      const countRow = countRows[0] ?? { cnt: 0 };
-      const totalVarsAvailable = Number(countRow["cnt"]);
-
-      const maxRows = limit ?? 50;
-      const rows = await proxySQLQuery(
-        `SELECT * FROM global_variables${whereClause} LIMIT ${maxRows}`,
-      );
-
-      // Redact sensitive credential values (passwords, credentials)
-      const redactedRows = redactSensitiveVariables(rows);
-
-      return {
-        success: true,
-        variables: redactedRows,
-        count: redactedRows.length,
-        totalVarsAvailable,
-      };
     },
   };
 }
@@ -532,12 +650,25 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const rows = await proxySQLQuery("SELECT * FROM stats_memory_metrics");
-      return {
-        success: true,
-        memoryStats: rows,
-        count: rows.length,
-      };
+      try {
+        const rows = await proxySQLQuery("SELECT * FROM stats_memory_metrics");
+        return {
+          success: true,
+          memoryStats: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -563,13 +694,26 @@ function createProxySQLCommandsTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { command } = ProxySQLCommandInputSchema.parse(params);
-      await proxySQLQuery(command);
-      return {
-        success: true,
-        command,
-        message: `Command executed: ${command}`,
-      };
+      try {
+        const { command } = ProxySQLCommandInputSchema.parse(params);
+        await proxySQLQuery(command);
+        return {
+          success: true,
+          command,
+          message: `Command executed: ${command}`,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }
@@ -596,12 +740,27 @@ function createProxySQLProcessListTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const rows = await proxySQLQuery("SELECT * FROM stats_mysql_processlist");
-      return {
-        success: true,
-        processes: rows,
-        count: rows.length,
-      };
+      try {
+        const rows = await proxySQLQuery(
+          "SELECT * FROM stats_mysql_processlist",
+        );
+        return {
+          success: true,
+          processes: rows,
+          count: rows.length,
+        };
+      } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.issues.map((i) => i.message).join("; "),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }

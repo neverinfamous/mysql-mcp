@@ -633,26 +633,83 @@ describe("Connection Error Handling", () => {
     mockContext = createMockRequestContext();
   });
 
-  it("should propagate connection errors", async () => {
+  it("should return structured error on connection failure", async () => {
     mockCreateConnection.mockRejectedValue(new Error("Connection refused"));
 
     const tool = tools.find((t) => t.name === "proxysql_status")!;
+    const result = (await tool.handler({}, mockContext)) as {
+      success: boolean;
+      error: string;
+    };
 
-    await expect(tool.handler({}, mockContext)).rejects.toThrow(
-      "Connection refused",
-    );
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Connection refused");
   });
 
-  it("should propagate query errors", async () => {
+  it("should return structured error on query failure", async () => {
     mockCreateConnection.mockResolvedValue({
       query: vi.fn().mockRejectedValue(new Error("Access denied")),
       end: mockEnd,
     });
 
     const tool = tools.find((t) => t.name === "proxysql_status")!;
+    const result = (await tool.handler({}, mockContext)) as {
+      success: boolean;
+      error: string;
+    };
 
-    await expect(tool.handler({}, mockContext)).rejects.toThrow(
-      "Access denied",
-    );
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Access denied");
   });
+});
+
+describe("Crash Tests (all 12 handlers)", () => {
+  let tools: ReturnType<typeof getProxySQLTools>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    tools = getProxySQLTools(
+      createMockMySQLAdapter() as unknown as MySQLAdapter,
+    );
+    mockContext = createMockRequestContext();
+
+    // All tools will fail on query
+    mockCreateConnection.mockResolvedValue({
+      query: vi.fn().mockRejectedValue(new Error("ProxySQL unavailable")),
+      end: mockEnd,
+    });
+  });
+
+  const toolNames = [
+    "proxysql_status",
+    "proxysql_runtime_status",
+    "proxysql_servers",
+    "proxysql_hostgroups",
+    "proxysql_query_rules",
+    "proxysql_query_digest",
+    "proxysql_connection_pool",
+    "proxysql_users",
+    "proxysql_global_variables",
+    "proxysql_memory_stats",
+    "proxysql_commands",
+    "proxysql_process_list",
+  ];
+
+  for (const toolName of toolNames) {
+    it(`${toolName} should return { success: false, error } on query failure`, async () => {
+      const tool = tools.find((t) => t.name === toolName)!;
+      const params =
+        toolName === "proxysql_commands"
+          ? { command: "LOAD MYSQL USERS TO RUNTIME" }
+          : {};
+      const result = (await tool.handler(params, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("ProxySQL unavailable");
+    });
+  }
 });

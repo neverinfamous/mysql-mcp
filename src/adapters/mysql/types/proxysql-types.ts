@@ -174,12 +174,14 @@ export const ProxySQLStatusInputSchema = z.object({
 export const ProxySQLLimitInputSchema = z.object({
   limit: z
     .number()
+    .int()
+    .min(0)
     .optional()
     .describe("Maximum number of results to return (default: 100)"),
 });
 
 export const ProxySQLHostgroupInputSchema = z.object({
-  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID"),
+  hostgroup_id: z.number().int().optional().describe("Filter by hostgroup ID"),
 });
 
 export const ProxySQLVariableFilterSchema = z.object({
@@ -195,6 +197,8 @@ export const ProxySQLVariableFilterSchema = z.object({
     ),
   limit: z
     .number()
+    .int()
+    .min(0)
     .optional()
     .describe("Maximum number of variables to return (default: 50)"),
 });
