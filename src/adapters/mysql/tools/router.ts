@@ -338,7 +338,7 @@ function createRouterRouteStatusTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -382,7 +382,7 @@ function createRouterRouteHealthTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -426,7 +426,7 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -470,7 +470,7 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -514,7 +514,7 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -562,7 +562,7 @@ function createRouterMetadataStatusTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -610,7 +610,7 @@ function createRouterPoolStatusTool(): ToolDefinition {
           return { success: false, error: formatZodError(error) };
         }
         return {
-          available: false,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }
