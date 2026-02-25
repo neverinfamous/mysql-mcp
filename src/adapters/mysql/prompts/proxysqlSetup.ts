@@ -82,7 +82,7 @@ PROXYSQL_PASSWORD=admin
 Use ProxySQL tools to verify:
 - \`proxysql_status\` - Check ProxySQL is running
 - \`proxysql_servers\` - List configured servers
-- \`proxysql_hostgroups\` - View hostgroup configuration
+- \`proxysql_connection_pool\` - View connection pool stats (filterable by hostgroup_id)
 - \`proxysql_query_rules\` - Review routing rules
 - \`proxysql_query_digest\` - Analyze query patterns
 

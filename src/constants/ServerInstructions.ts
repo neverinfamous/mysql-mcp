@@ -272,11 +272,11 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Status monitoring**: \`proxysql_status\` returns global status variables. Use \`summary: true\` for key metrics only (uptime, queries, connections). Both modes include \`summary\` (boolean) and \`totalVarsAvailable\` (count of all available status variables) for response clarity.
 - **Global variables**: \`proxysql_global_variables\` supports \`prefix\` filter (\`mysql\`, \`admin\`, or \`all\`) and \`like\` pattern for variable name matching. Use \`limit\` (default: 50) to control payload size. Response includes \`totalVarsAvailable\` count for truncation awareness. Variables containing passwords or credentials are automatically redacted.
 - **Runtime status**: \`proxysql_runtime_status\` returns version and admin variables. Use \`summary: true\` for condensed output (version, read_only, cluster, interfaces). Sensitive variables (passwords, credentials) are automatically redacted. Both modes include \`totalAdminVarsAvailable\` count.
-- **Backend servers**: \`proxysql_servers\` and \`proxysql_connection_pool\` show backend MySQL server configurations and connection pool stats. Filter with \`hostgroup_id\`. Nonexistent \`hostgroup_id\` values return empty arrays (\`count: 0\`) gracefully.
+- **Backend servers**: \`proxysql_servers\` shows backend MySQL server configurations. \`proxysql_connection_pool\` shows connection pool stats per server. Both support \`hostgroup_id\` filter. Nonexistent \`hostgroup_id\` values return empty arrays (\`count: 0\`) gracefully.
 - **Query analysis**: \`proxysql_query_rules\` lists routing rules; \`proxysql_query_digest\` shows top queries by execution count.
 - **Admin commands**: \`proxysql_commands\` executes LOAD/SAVE for users, servers, query rules, variables, and FLUSH operations.
 - **Memory/Process**: \`proxysql_memory_stats\` shows memory allocation; \`proxysql_process_list\` shows active client sessions.
-- **Error handling**: All ProxySQL tools return \`{ success: false, error }\` for connection failures, query errors, and invalid parameters instead of throwing raw exceptions. \`hostgroup_id\` must be an integer. \`limit\` must be a non-negative integer.
+- **Error handling**: All ProxySQL tools return \`{ success: false, error }\` for connection failures, query errors, and invalid parameters instead of throwing raw exceptions. \`hostgroup_id\` must be a non-negative integer. \`limit\` must be a non-negative integer.
 
 ## MySQL Shell Tools (\`mysqlsh_*\`)
 

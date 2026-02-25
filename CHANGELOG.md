@@ -9,15 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **ProxySQL Tool Raw Error Leaks (All 12 Tools)** — All 12 ProxySQL tools (`proxysql_status`, `proxysql_runtime_status`, `proxysql_servers`, `proxysql_hostgroups`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_connection_pool`, `proxysql_users`, `proxysql_global_variables`, `proxysql_memory_stats`, `proxysql_commands`, `proxysql_process_list`) lacked `try/catch` around handler logic, causing raw Zod validation errors and connection/query errors to propagate as MCP exceptions. All 12 tools now return `{ success: false, error }` matching the structured error pattern used by all other tool groups
+- **Redundant `proxysql_hostgroups` Tool Removed** — `proxysql_hostgroups` and `proxysql_connection_pool` both queried `SELECT * FROM stats_mysql_connection_pool` with identical response shapes, making `proxysql_hostgroups` completely redundant. Removed `proxysql_hostgroups` — use `proxysql_connection_pool` (which supports `hostgroup_id` filtering) instead. ProxySQL tool count: 12 → 11, total tools: 193 → 192
+- **ProxySQL `hostgroup_id` Negative Value Acceptance** — `ProxySQLHostgroupInputSchema` used `z.number().int().optional()` without `.nonnegative()`, allowing negative `hostgroup_id` values (e.g., `-1`) to silently return empty results. Added `.nonnegative()` so negative values are rejected at the Zod validation level with structured `{ success: false, error }` responses
+
+### Improved
+
+- **ServerInstructions ProxySQL Documentation** — Updated backend servers documentation to reflect removal of `proxysql_hostgroups` and document that `hostgroup_id` must be a non-negative integer
+
 - **ProxySQL `limit` Float and Negative Acceptance** — `ProxySQLLimitInputSchema` and `ProxySQLVariableFilterSchema` used `z.number().optional()` without `.int()` or `.min(0)`, allowing float values (e.g., `1.5`) and negative limits (e.g., `-5`) to pass validation and be interpolated into SQL. Added `.int().min(0)` to both schemas so non-integer and negative limits are rejected at the Zod validation level with structured error responses
 - **ProxySQL `hostgroup_id` Float Acceptance** — `ProxySQLHostgroupInputSchema` used `z.number().optional()` without `.int()`, allowing float values like `1.5` to be interpolated into SQL `WHERE hostgroup_id = 1.5`. Added `.int()` so non-integer hostgroup IDs are rejected at validation
 
 ### Improved
 
 - **ServerInstructions ProxySQL Error Documentation** — Updated ProxySQL error handling documentation from "propagate connection errors" to document that all 12 tools return `{ success: false, error }` for connection failures, query errors, and invalid parameters. Added `hostgroup_id` integer-only and `limit` non-negative integer constraints
-
-
 
 - **`mysql_cluster_instances` Prepared Statement Incompatibility** — Both the primary InnoDB Cluster metadata query and the Group Replication fallback query used `LIMIT ?` parameterized placeholders, which are incompatible with `performance_schema` and `mysql_innodb_cluster_metadata` tables in the `mysql2` prepared statement protocol (`Incorrect arguments to mysqld_stmt_execute`). Changed to string-interpolated `LIMIT ${String(limit)}` (safe: value is Zod-validated as `z.number().int().min(0)`), matching the pattern used by `mysql_security_audit` for `performance_schema` queries
 - **`mysql_cluster_instances` Fallback Error Context Lost** — When the primary InnoDB Cluster metadata query fails and the GR fallback query also fails, only the fallback error was returned, discarding the primary error (often the actual root cause). Now includes `primaryError` field in the error response for complete diagnostic context

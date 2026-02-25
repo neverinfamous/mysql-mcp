@@ -34,8 +34,8 @@ describe("getProxySQLTools", () => {
     );
   });
 
-  it("should return 12 proxysql tools", () => {
-    expect(tools).toHaveLength(12);
+  it("should return 11 proxysql tools", () => {
+    expect(tools).toHaveLength(11);
   });
 
   it("should have proxysql group for all tools", () => {
@@ -60,7 +60,6 @@ describe("getProxySQLTools", () => {
     const toolNames = tools.map((t) => t.name);
     expect(toolNames).toContain("proxysql_status");
     expect(toolNames).toContain("proxysql_servers");
-    expect(toolNames).toContain("proxysql_hostgroups");
     expect(toolNames).toContain("proxysql_query_rules");
     expect(toolNames).toContain("proxysql_query_digest");
     expect(toolNames).toContain("proxysql_connection_pool");
@@ -313,26 +312,16 @@ describe("Handler Execution", () => {
       );
       expect(result).toHaveProperty("count", 1);
     });
-  });
 
-  describe("proxysql_hostgroups", () => {
-    it("should return connection pool stats", async () => {
-      const mockPools = [
-        { hostgroup: 1, srv_host: "mysql1", ConnUsed: 5, ConnFree: 10 },
-      ];
-      mockQuery.mockResolvedValue([mockPools]);
+    it("should return structured error for negative hostgroup_id", async () => {
+      const tool = tools.find((t) => t.name === "proxysql_servers")!;
+      const result = (await tool.handler(
+        { hostgroup_id: -1 },
+        mockContext,
+      )) as { success: boolean; error: string };
 
-      const tool = tools.find((t) => t.name === "proxysql_hostgroups")!;
-      const result = await tool.handler({}, mockContext);
-
-      expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM stats_mysql_connection_pool",
-      );
-      expect(result).toEqual({
-        success: true,
-        hostgroups: mockPools,
-        count: 1,
-      });
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 
@@ -685,7 +674,6 @@ describe("Crash Tests (all 12 handlers)", () => {
     "proxysql_status",
     "proxysql_runtime_status",
     "proxysql_servers",
-    "proxysql_hostgroups",
     "proxysql_query_rules",
     "proxysql_query_digest",
     "proxysql_connection_pool",

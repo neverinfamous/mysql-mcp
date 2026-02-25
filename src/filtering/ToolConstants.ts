@@ -131,7 +131,6 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
   proxysql: [
     "proxysql_status",
     "proxysql_servers",
-    "proxysql_hostgroups",
     "proxysql_query_rules",
     "proxysql_query_digest",
     "proxysql_connection_pool",
@@ -273,7 +272,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  *   dba-secure:    33 (core:8 + security:9 + roles:8 + transactions:7 + codemode:1)
  *   base-core:     49 (core:8 + json:17 + transactions:7 + text:6 + schema:10 + codemode:1)
  *   base-advanced: 41 (docstore:9 + spatial:12 + stats:8 + fulltext:5 + events:6 + codemode:1)
- *   ecosystem:     42 (router:9 + proxysql:12 + shell:10 + cluster:10 + codemode:1)
+ *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */
 export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
   // 1. General Use

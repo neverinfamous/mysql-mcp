@@ -2,7 +2,7 @@
  * ProxySQL Management Tools
  *
  * Tools for monitoring and managing ProxySQL via its MySQL-protocol admin interface.
- * 12 tools total.
+ * 11 tools total.
  *
  * ProxySQL admin interface documentation:
  * https://proxysql.com/documentation/ProxySQL-Admin-Interface/
@@ -99,7 +99,6 @@ export function getProxySQLTools(_adapter: MySQLAdapter): ToolDefinition[] {
   return [
     createProxySQLStatusTool(),
     createProxySQLServersTool(),
-    createProxySQLHostgroupsTool(),
     createProxySQLQueryRulesTool(),
     createProxySQLQueryDigestTool(),
     createProxySQLConnectionPoolTool(),
@@ -295,49 +294,6 @@ function createProxySQLServersTool(): ToolDefinition {
         return {
           success: true,
           servers: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof z.ZodError) {
-          return {
-            success: false,
-            error: error.issues.map((i) => i.message).join("; "),
-          };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
-      }
-    },
-  };
-}
-
-/**
- * List hostgroup configurations and connection pool stats
- */
-function createProxySQLHostgroupsTool(): ToolDefinition {
-  return {
-    name: "proxysql_hostgroups",
-    title: "ProxySQL Hostgroups",
-    description:
-      "List hostgroup configurations with connection pool statistics. Shows connections used/free, query counts, and latency.",
-    group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
-    requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-      openWorldHint: true,
-    },
-    handler: async (_params: unknown, _context: RequestContext) => {
-      try {
-        const rows = await proxySQLQuery(
-          "SELECT * FROM stats_mysql_connection_pool",
-        );
-        return {
-          success: true,
-          hostgroups: rows,
           count: rows.length,
         };
       } catch (error: unknown) {

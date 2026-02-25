@@ -65,9 +65,9 @@ describe("Performance Tests", () => {
       expect(cachedCallTime.avg).toBeLessThan(0.5);
     });
 
-    it("should return consistent count of 193 tools", () => {
+    it("should return consistent count of 192 tools", () => {
       const tools = getAllToolNames();
-      expect(tools).toHaveLength(193);
+      expect(tools).toHaveLength(192);
     });
   });
 
@@ -165,7 +165,7 @@ describe("Performance Tests", () => {
     describe("filterTools performance", () => {
       const mockHandler = async () => ({ result: "ok" });
 
-      it("should filter 193 tools efficiently", () => {
+      it("should filter 192 tools efficiently", () => {
         // Create mock tools matching all tool names
         const allToolNames = getAllToolNames();
         const mockTools: ToolDefinition[] = allToolNames.map((name) => ({
@@ -198,7 +198,7 @@ describe("Performance Tests", () => {
 
         // First call builds the cache
         const firstCall = adapter.getToolDefinitions();
-        expect(firstCall).toHaveLength(193);
+        expect(firstCall).toHaveLength(192);
 
         // Subsequent calls should return same reference (cached)
         const secondCall = adapter.getToolDefinitions();
@@ -213,7 +213,7 @@ describe("Performance Tests", () => {
         expect(timing.avg).toBeLessThan(0.5);
       });
 
-      it("should return consistent tool count of 193 regardless of filter default", () => {
+      it("should return consistent tool count of 192 regardless of filter default", () => {
         const adapter = new MySQLAdapter();
 
         // getToolDefinitions returns ALL definitions available in the adapter,
@@ -221,7 +221,7 @@ describe("Performance Tests", () => {
         // Wait, MySQLAdapter.getToolDefinitions() returns all tools?
         // Yes, checking the implementation... it usually does.
         const tools = adapter.getToolDefinitions();
-        expect(tools).toHaveLength(193);
+        expect(tools).toHaveLength(192);
       });
     });
   });

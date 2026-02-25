@@ -181,7 +181,12 @@ export const ProxySQLLimitInputSchema = z.object({
 });
 
 export const ProxySQLHostgroupInputSchema = z.object({
-  hostgroup_id: z.number().int().optional().describe("Filter by hostgroup ID"),
+  hostgroup_id: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Filter by hostgroup ID"),
 });
 
 export const ProxySQLVariableFilterSchema = z.object({
