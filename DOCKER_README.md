@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-**Last Updated February 24, 2026**
+**Last Updated February 25, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -22,7 +22,7 @@
 
 | Feature                          | Description                                                                                                                                                                                    |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **193 Specialized Tools**        | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                              |
+| **192 Specialized Tools**        | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                              |
 | **18 Observability Resources**   | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                             |
 | **19 AI-Powered Prompts**        | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                               |
 | **OAuth 2.1 + Access Control**   | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                     |
@@ -224,7 +224,7 @@ Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 193 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point. Code Mode is included in all presets by default for 70-90% token savings on multi-step operations.
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point. Code Mode is included in all presets by default for 70-90% token savings on multi-step operations.
 
 ### What Can You Filter?
 
@@ -251,7 +251,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `dba-secure`    | 33     | DBA Security       | core, security, roles, transactions, codemode                      |
 | `base-core`     | 49     | Base Ops           | core, json, transactions, text, schema, codemode                   |
 | `base-advanced` | 41     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
-| `ecosystem`     | 42     | External Tools     | cluster, proxysql, router, shell, codemode                         |
+| `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell, codemode                         |
 
 ### Tool Groups (25 Available)
 
@@ -279,7 +279,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `roles`        | 8     | MySQL 8.0 role management                |
 | `docstore`     | 9     | Document Store collections               |
 | `cluster`      | 10    | Group Replication, InnoDB Cluster        |
-| `proxysql`     | 12    | ProxySQL management                      |
+| `proxysql`     | 11    | ProxySQL management                      |
 | `router`       | 9     | MySQL Router REST API                    |
 | `codemode`     | 1     | Sandboxed code execution                 |
 
