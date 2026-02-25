@@ -1,4 +1,9 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -29,7 +34,16 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, schema } = ListTriggersSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListTriggersSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { table, schema } = parsed;
 
       // P154: Schema existence check when explicitly provided
       if (schema) {

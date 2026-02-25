@@ -151,5 +151,36 @@ describe("Schema View Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
     });
+    it("should return structured error for invalid algorithm", async () => {
+      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          name: "test_view",
+          definition: "SELECT 1",
+          algorithm: "INVALID",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
+
+    it("should return structured error for invalid checkOption", async () => {
+      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          name: "test_view",
+          definition: "SELECT 1",
+          checkOption: "BAD",
+        },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
   });
 });

@@ -162,5 +162,18 @@ describe("Schema Constraint Tools", () => {
       // Should only call once (existence check), not the main query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
+    it("should return structured error for invalid constraint type", async () => {
+      const tool = createListConstraintsTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", type: "INVALID_TYPE" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
   });
 });

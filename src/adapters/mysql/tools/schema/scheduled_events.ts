@@ -1,9 +1,22 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+const ListEventsSchemaBase = z.object({
+  schema: z
+    .string()
+    .optional()
+    .describe("Schema name (defaults to current database)"),
+  status: z.string().optional().describe("Filter by status"),
+});
 
 const ListEventsSchema = z.object({
   schema: z
@@ -26,14 +39,23 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all scheduled events with execution status and schedule info.",
     group: "schema",
-    inputSchema: ListEventsSchema,
+    inputSchema: ListEventsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema, status } = ListEventsSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListEventsSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { schema, status } = parsed;
 
       // P154: Schema existence check when explicitly provided
       if (schema) {

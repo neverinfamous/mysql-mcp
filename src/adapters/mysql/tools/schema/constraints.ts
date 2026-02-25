@@ -1,9 +1,19 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
+
+const ListConstraintsSchemaBase = z.object({
+  table: z.string().describe("Table name"),
+  type: z.string().optional().describe("Filter by constraint type"),
+});
 
 const ListConstraintsSchema = z.object({
   table: z.string().describe("Table name"),
@@ -25,14 +35,23 @@ export function createListConstraintsTool(
     description:
       "List all constraints (primary key, foreign key, unique, check) for a table.",
     group: "schema",
-    inputSchema: ListConstraintsSchema,
+    inputSchema: ListConstraintsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, type } = ListConstraintsSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListConstraintsSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { table, type } = parsed;
 
       const parts = table.split(".");
       let schemaName: string | null = null;

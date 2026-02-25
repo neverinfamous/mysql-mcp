@@ -1,4 +1,9 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -30,7 +35,16 @@ export function createListStoredProceduresTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema } = ListObjectsSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListObjectsSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { schema } = parsed;
 
       // P154: Schema existence check when explicitly provided
       if (schema) {
@@ -96,7 +110,16 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema } = ListObjectsSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListObjectsSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { schema } = parsed;
 
       // P154: Schema existence check when explicitly provided
       if (schema) {

@@ -59,5 +59,16 @@ describe("Schema Event Tools", () => {
       const params = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
       expect(params).toContain("ENABLED");
     });
+    it("should return structured error for invalid status", async () => {
+      const tool = createListEventsTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { status: "INVALID_STATUS" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
   });
 });

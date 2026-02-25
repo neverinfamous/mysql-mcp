@@ -1,4 +1,9 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -41,7 +46,16 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { pattern } = ListSchemasSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListSchemasSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { pattern } = parsed;
 
       let query = `
                 SELECT 
@@ -85,8 +99,16 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, charset, collation, ifNotExists } =
-        CreateSchemaSchema.parse(params);
+      let parsed;
+      try {
+        parsed = CreateSchemaSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { name, charset, collation, ifNotExists } = parsed;
 
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
         return { success: false, error: "Invalid schema name" };
@@ -157,7 +179,16 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       destructiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, ifExists } = DropSchemaSchema.parse(params);
+      let parsed;
+      try {
+        parsed = DropSchemaSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { name, ifExists } = parsed;
 
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
         return { success: false, error: "Invalid schema name" };

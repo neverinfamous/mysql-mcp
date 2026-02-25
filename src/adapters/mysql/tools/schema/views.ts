@@ -1,4 +1,9 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -14,6 +19,14 @@ const ListViewsSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+});
+
+const CreateViewSchemaBase = z.object({
+  name: z.string().describe("View name"),
+  definition: z.string().describe("SELECT statement defining the view"),
+  orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
+  algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
+  checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
 });
 
 const CreateViewSchema = z.object({
@@ -47,7 +60,16 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema } = ListViewsSchema.parse(params);
+      let parsed;
+      try {
+        parsed = ListViewsSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { schema } = parsed;
 
       // P154: Schema existence check when explicitly provided
       if (schema) {
@@ -92,14 +114,22 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create or replace a view with specified algorithm and check option.",
     group: "schema",
-    inputSchema: CreateViewSchema,
+    inputSchema: CreateViewSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { name, definition, orReplace, algorithm, checkOption } =
-        CreateViewSchema.parse(params);
+      let parsed;
+      try {
+        parsed = CreateViewSchema.parse(params);
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
+        throw error;
+      }
+      const { name, definition, orReplace, algorithm, checkOption } = parsed;
 
       try {
         validateQualifiedIdentifier(name, "view");
