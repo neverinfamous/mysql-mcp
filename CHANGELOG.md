@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **ProxySQL Split Schema Validation Leaks** — 5 ProxySQL tools (`proxysql_servers`, `proxysql_connection_pool`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_global_variables`) used strict Zod schemas as `inputSchema`, causing the MCP framework to reject invalid inputs (negative `hostgroup_id`, negative/float `limit`) with raw `-32602` errors before the handler's `try/catch` could format them. Applied Split Schema pattern: permissive Base schemas for MCP framework visibility, strict schemas for handler-level parsing. All validation failures now return `{ success: false, error }` structured responses
+
+### Security
+
+- **ProxySQL Numeric Interpolation Hardening** — Added `Math.max(0, Math.floor())` defense-in-depth for all 5 SQL-interpolated numeric parameters (`hostgroup_id`, `limit`) across `proxysql_servers`, `proxysql_connection_pool`, `proxysql_query_rules`, `proxysql_query_digest`, and `proxysql_global_variables`. Zod validates first, but coercion prevents any bypass from reaching SQL
+- **ProxySQL `like` Pattern Validation** — `proxysql_global_variables` `like` parameter previously only applied single-quote escaping, leaving a potential SQL injection surface. Added `LIKE_SAFE_RE` regex validation that rejects patterns containing characters outside `[a-zA-Z0-9_%\-. *]` with a structured error before any SQL interpolation
+
+### Improved
+
+- **ProxySQL `formatZodError` Consistency** — Replaced inline `error.issues.map(i => i.message).join("; ")` in all 11 ProxySQL handler catch blocks with centralized `formatZodError()` helper, matching the pattern used across all other tool groups
+- **ServerInstructions ProxySQL Documentation** — Documented `like` pattern safe character set validation, `hostgroup_id` non-negative integer constraint, and `limit` non-negative integer constraint for query analysis tools
+
+### Fixed
+
 - **Redundant `proxysql_hostgroups` Tool Removed** — `proxysql_hostgroups` and `proxysql_connection_pool` both queried `SELECT * FROM stats_mysql_connection_pool` with identical response shapes, making `proxysql_hostgroups` completely redundant. Removed `proxysql_hostgroups` — use `proxysql_connection_pool` (which supports `hostgroup_id` filtering) instead. ProxySQL tool count: 12 → 11, total tools: 193 → 192
 - **ProxySQL `hostgroup_id` Negative Value Acceptance** — `ProxySQLHostgroupInputSchema` used `z.number().int().optional()` without `.nonnegative()`, allowing negative `hostgroup_id` values (e.g., `-1`) to silently return empty results. Added `.nonnegative()` so negative values are rejected at the Zod validation level with structured `{ success: false, error }` responses
 

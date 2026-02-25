@@ -349,6 +349,17 @@ describe("Handler Execution", () => {
         "SELECT * FROM mysql_query_rules LIMIT 10",
       );
     });
+
+    it("should return structured error for negative limit", async () => {
+      const tool = tools.find((t) => t.name === "proxysql_query_rules")!;
+      const result = (await tool.handler({ limit: -1 }, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
   });
 
   describe("proxysql_query_digest", () => {
@@ -382,6 +393,17 @@ describe("Handler Execution", () => {
         expect.stringContaining("LIMIT 25"),
       );
     });
+
+    it("should return structured error for negative limit", async () => {
+      const tool = tools.find((t) => t.name === "proxysql_query_digest")!;
+      const result = (await tool.handler({ limit: -1 }, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
   });
 
   describe("proxysql_connection_pool", () => {
@@ -407,6 +429,17 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM stats_mysql_connection_pool WHERE hostgroup = 2",
       );
+    });
+
+    it("should return structured error for negative hostgroup_id", async () => {
+      const tool = tools.find((t) => t.name === "proxysql_connection_pool")!;
+      const result = (await tool.handler(
+        { hostgroup_id: -1 },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 
@@ -545,6 +578,28 @@ describe("Handler Execution", () => {
 
       // totalVarsAvailable should reflect total count
       expect(result.totalVarsAvailable).toBe(4);
+    });
+
+    it("should return structured error for negative limit", async () => {
+      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const result = (await tool.handler({ limit: -1 }, mockContext)) as {
+        success: boolean;
+        error: string;
+      };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it("should return structured error for unsafe like pattern", async () => {
+      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const result = (await tool.handler(
+        { like: "'; DROP TABLE --" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid like pattern");
     });
   });
 

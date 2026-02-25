@@ -171,6 +171,13 @@ export const ProxySQLStatusInputSchema = z.object({
     ),
 });
 
+export const ProxySQLLimitInputSchemaBase = z.object({
+  limit: z
+    .number()
+    .optional()
+    .describe("Maximum number of results to return (default: 100)"),
+});
+
 export const ProxySQLLimitInputSchema = z.object({
   limit: z
     .number()
@@ -180,6 +187,10 @@ export const ProxySQLLimitInputSchema = z.object({
     .describe("Maximum number of results to return (default: 100)"),
 });
 
+export const ProxySQLHostgroupInputSchemaBase = z.object({
+  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID"),
+});
+
 export const ProxySQLHostgroupInputSchema = z.object({
   hostgroup_id: z
     .number()
@@ -187,6 +198,23 @@ export const ProxySQLHostgroupInputSchema = z.object({
     .nonnegative()
     .optional()
     .describe("Filter by hostgroup ID"),
+});
+
+export const ProxySQLVariableFilterSchemaBase = z.object({
+  prefix: z
+    .enum(["mysql", "admin", "all"])
+    .optional()
+    .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
+  like: z
+    .string()
+    .optional()
+    .describe(
+      "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
+    ),
+  limit: z
+    .number()
+    .optional()
+    .describe("Maximum number of variables to return (default: 50)"),
 });
 
 export const ProxySQLVariableFilterSchema = z.object({
