@@ -282,8 +282,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false, destructiveHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { name, schema, ifExists } =
-            DropCollectionSchema.parse(params);
+          const { name, schema, ifExists } = DropCollectionSchema.parse(params);
           if (!IDENTIFIER_RE.test(name))
             return { success: false, error: "Invalid collection name" };
           if (schema && !IDENTIFIER_RE.test(schema))
@@ -293,11 +292,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           // Pre-check existence when ifExists is true so we can report accurately
           if (ifExists) {
-            const exists = await checkCollectionExists(
-              adapter,
-              name,
-              schema,
-            );
+            const exists = await checkCollectionExists(adapter, name, schema);
             if (!exists) {
               return {
                 success: true,

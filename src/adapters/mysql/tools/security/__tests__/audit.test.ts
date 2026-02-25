@@ -85,7 +85,7 @@ describe("Security Audit Tools", () => {
       expect(queryCall).toContain("user LIKE ?");
       expect(queryCall).toContain("event_type = ?");
       expect(queryCall).toContain("timestamp >= ?");
-      expect(queryParams).toHaveLength(3);
+      expect(queryParams).toHaveLength(4);
     });
 
     it("should fallback to performance_schema if audit_log is missing", async () => {

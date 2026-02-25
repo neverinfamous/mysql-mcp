@@ -48,11 +48,11 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 
 ## Document Store (\`mysql_doc_*\`)
 
-- **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, reason }\` if collection already exists (without \`ifNotExists\`).
-- **Collection drop**: \`mysql_doc_drop_collection\` removes a collection. Returns \`{ success: false, reason }\` if collection does not exist (without \`ifExists\`). With \`ifExists: true\` (default), returns \`{ success: true, message: "Collection did not exist" }\` when the collection was already absent.
+- **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
+- **Collection drop**: \`mysql_doc_drop_collection\` removes a collection. Returns \`{ success: false, error }\` if collection does not exist (without \`ifExists\`). With \`ifExists: true\` (default), returns \`{ success: true, message: "Collection did not exist" }\` when the collection was already absent. Accepts optional \`schema\` parameter to target a specific database.
 - **Collection detection**: Tools identify document collections as tables containing a \`doc JSON\` column with an \`_id\` field. Manually created JSON tables may appear in collection listings.
 - **Nonexistent collection handling**: \`mysql_doc_collection_info\`, \`mysql_doc_add\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, and \`mysql_doc_create_index\` return \`{ exists: false, collection }\` when the target collection does not exist.
-- **Index creation**: \`mysql_doc_create_index\` returns \`{ success: false, reason }\` if the index or its generated columns already exist.
+- **Index creation**: \`mysql_doc_create_index\` returns \`{ success: false, error }\` if the index or its generated columns already exist.
 - **Filter Syntax** (for \`mysql_doc_modify\`, \`mysql_doc_remove\`):
   - **By _id**: Pass the 32-character hex _id directly: \`filter: "686dd247b9724bcfa08ce6f1efed8b77"\`
   - **By field value**: Use \`field=value\` format: \`filter: "name=Alice"\` or \`filter: "age=30"\`
