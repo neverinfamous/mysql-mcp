@@ -52,7 +52,7 @@ export interface SandboxModeInfo {
 }
 
 // Default mode (module-level state)
-let defaultMode: SandboxMode = "vm";
+let defaultMode: SandboxMode = "worker";
 
 /**
  * Set the default sandbox mode

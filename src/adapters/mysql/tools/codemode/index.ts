@@ -13,6 +13,7 @@ import type {
 } from "../../../../types/index.js";
 import {
   createSandboxPool,
+  getDefaultSandboxMode,
   type ISandboxPool,
   type SandboxMode,
 } from "../../../../codemode/sandbox-factory.js";
@@ -68,7 +69,8 @@ let securityManager: CodeModeSecurityManager | null = null;
 function getIsolationMode(): SandboxMode {
   const envMode = process.env["CODEMODE_ISOLATION"];
   if (envMode === "worker") return "worker";
-  return "vm"; // Default: worker mode API bridge is incomplete (mysql bindings not serialized)
+  if (envMode === "vm") return "vm";
+  return getDefaultSandboxMode();
 }
 
 /**

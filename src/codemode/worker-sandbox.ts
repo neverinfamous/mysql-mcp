@@ -10,9 +10,10 @@
  * - Hard timeout enforcement (worker termination)
  * - Isolated memory space
  * - Clean process state on each execution
+ * - MessagePort-based RPC bridge for mysql.* API calls
  */
 
-import { Worker } from "node:worker_threads";
+import { Worker, MessageChannel } from "node:worker_threads";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { logger } from "../utils/logger.js";
@@ -23,6 +24,7 @@ import {
   type PoolOptions,
   type SandboxResult,
   type ExecutionMetrics,
+  type RpcRequest,
 } from "./types.js";
 
 // Get directory for worker script
@@ -72,11 +74,16 @@ export class WorkerSandbox {
       let worker: Worker | null = null;
       let timeoutId: NodeJS.Timeout | null = null;
       let resolved = false;
+      let rpcChannel: MessageChannel | null = null;
 
       const cleanup = (): void => {
         if (timeoutId) {
           clearTimeout(timeoutId);
           timeoutId = null;
+        }
+        if (rpcChannel) {
+          rpcChannel.port1.close();
+          rpcChannel = null;
         }
         if (worker) {
           worker.terminate().catch((): void => {
@@ -94,12 +101,56 @@ export class WorkerSandbox {
       };
 
       try {
+        // Create MessageChannel for RPC bridge
+        rpcChannel = new MessageChannel();
+        const serialized = this.serializeBindings(apiBindings);
+
+        // Set up RPC listener on main thread side (port1)
+        rpcChannel.port1.on("message", (msg: RpcRequest) => {
+          const { id, group, method, args } = msg;
+          void (async () => {
+            try {
+              const groupApi = apiBindings[group];
+              if (
+                typeof groupApi !== "object" ||
+                groupApi === null ||
+                typeof groupApi === "function"
+              ) {
+                rpcChannel?.port1.postMessage({
+                  id,
+                  error: `Unknown API group: '${group}'`,
+                });
+                return;
+              }
+              const fn = (groupApi as Record<string, unknown>)[method];
+              if (typeof fn !== "function") {
+                rpcChannel?.port1.postMessage({
+                  id,
+                  error: `Unknown method: '${group}.${method}'`,
+                });
+                return;
+              }
+              const result = await (
+                fn as (...a: unknown[]) => Promise<unknown>
+              )(...args);
+              rpcChannel?.port1.postMessage({ id, result });
+            } catch (error) {
+              rpcChannel?.port1.postMessage({
+                id,
+                error: error instanceof Error ? error.message : String(error),
+              });
+            }
+          })();
+        });
+
         worker = new Worker(WORKER_SCRIPT_PATH, {
           workerData: {
             code,
-            apiBindings: this.serializeBindings(apiBindings),
+            apiBindings: serialized,
             timeout: this.options.timeoutMs,
+            rpcPort: rpcChannel.port2,
           },
+          transferList: [rpcChannel.port2],
           resourceLimits: {
             maxOldGenerationSizeMb: this.options.memoryLimitMb,
             maxYoungGenerationSizeMb: Math.ceil(this.options.memoryLimitMb / 4),
@@ -198,18 +249,30 @@ export class WorkerSandbox {
   }
 
   /**
-   * Serialize API bindings for worker transfer
-   * We can't transfer functions directly, so we send method names
+   * Serialize API bindings for worker transfer.
+   * Sends group → method name arrays so the worker can build RPC proxy stubs.
+   * Top-level function keys (aliases like readQuery, help) are collected under "_topLevel".
    */
   private serializeBindings(
     bindings: Record<string, unknown>,
   ): Record<string, string[]> {
     const serialized: Record<string, string[]> = {};
-    for (const [group, methods] of Object.entries(bindings)) {
-      if (typeof methods === "object" && methods !== null) {
-        serialized[group] = Object.keys(methods);
+    const topLevel: string[] = [];
+
+    for (const [key, value] of Object.entries(bindings)) {
+      if (typeof value === "object" && value !== null) {
+        // Group object — extract method names
+        serialized[key] = Object.keys(value);
+      } else if (typeof value === "function") {
+        // Top-level alias (e.g., readQuery, help)
+        topLevel.push(key);
       }
     }
+
+    if (topLevel.length > 0) {
+      serialized["_topLevel"] = topLevel;
+    }
+
     return serialized;
   }
 
