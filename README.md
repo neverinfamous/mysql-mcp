@@ -11,7 +11,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1835%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-1956%20passing-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-86%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
@@ -35,7 +35,7 @@
 | **Advanced Encryption**          | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                       |
 | **Deterministic Error Handling** | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes |
 | **Production-Ready Security**    | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                      |
-| **Strict TypeScript**            | 100% type-safe codebase with 1833 tests and 86% coverage                                                                                                                                       |
+| **Strict TypeScript**            | 100% type-safe codebase with 1956 tests and 86% coverage                                                                                                                                       |
 | **MCP 2025-11-25 Compliant**     | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                  |
 
 ---
@@ -277,7 +277,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | Filter Pattern   | Example                     | Tools | Description               |
 | ---------------- | --------------------------- | ----- | ------------------------- |
 | Shortcut only    | `starter`                   | 39    | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`    | 32    | Combine individual groups |
+| Groups only      | `core,json,transactions`    | 33    | Combine individual groups |
 | Shortcut + Group | `starter,spatial`           | 51    | Extend a shortcut         |
 | Shortcut - Tool  | `starter,-mysql_drop_table` | 38    | Remove specific tools     |
 
@@ -653,7 +653,7 @@ npm run test:coverage
 | **Global**      | **86%+** | Statement coverage    |
 | MySQLAdapter    | 93%+     | Adapter logic covered |
 | Branch Coverage | ~72%     | High branch coverage  |
-| Tools (All)     | 98%+     | 1833 tests passing    |
+| Tools (All)     | 98%+     | 1956 tests passing    |
 
 ---
 
