@@ -843,6 +843,19 @@ describe("Replication Fallback Handling", () => {
       // Should NOT have called executeQuery — guard returns before any SQL
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
+
+    it("should return structured error for negative limit", async () => {
+      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const result = (await tool.handler(
+        { logFile: "mysql-bin.000001", limit: -1 },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      // Should NOT have called executeQuery — Zod rejects before any SQL
+      expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
+    });
   });
 
   describe("mysql_replication_lag fallback", () => {

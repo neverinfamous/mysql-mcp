@@ -2053,11 +2053,24 @@ export const ImportDataSchema = z
 // Replication Schemas
 // =============================================================================
 
+export const BinlogEventsSchemaBase = z.object({
+  logFile: z.string().optional().describe("Binlog file name"),
+  position: z.number().optional().describe("Starting position"),
+  limit: z
+    .number()
+    .optional()
+    .default(20)
+    .describe(
+      "Maximum events to return (default: 20). Set higher for more events.",
+    ),
+});
+
 export const BinlogEventsSchema = z.object({
   logFile: z.string().optional().describe("Binlog file name"),
   position: z.number().optional().describe("Starting position"),
   limit: z
     .number()
+    .nonnegative()
     .optional()
     .default(20)
     .describe(

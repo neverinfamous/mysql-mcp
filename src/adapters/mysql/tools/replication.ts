@@ -7,7 +7,7 @@
 
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { BinlogEventsSchema } from "../types.js";
+import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../types.js";
 import { z } from "zod";
 
 /**
@@ -105,70 +105,85 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "View binary log events for point-in-time recovery or replication debugging.",
     group: "replication",
-    inputSchema: BinlogEventsSchema,
+    inputSchema: BinlogEventsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { logFile, position, limit } = BinlogEventsSchema.parse(params);
-
-      // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
-      if (limit === 0) {
-        return { events: [] };
-      }
-
-      // Resolve effective log file: use provided or fetch current from master status
-      let effectiveLogFile = logFile;
-      if (!effectiveLogFile) {
-        try {
-          let masterResult;
-          try {
-            masterResult = await adapter.executeQuery("SHOW BINARY LOG STATUS");
-          } catch {
-            masterResult = await adapter.executeQuery("SHOW MASTER STATUS");
-          }
-          const currentFile = masterResult.rows?.[0]?.["File"] as
-            | string
-            | undefined;
-          if (currentFile) {
-            effectiveLogFile = currentFile;
-          }
-        } catch {
-          // Binary logging may not be enabled; fall through to default behavior
-        }
-      }
-
-      let sql = "SHOW BINLOG EVENTS";
-      const parts: string[] = [];
-
-      if (effectiveLogFile) {
-        parts.push(`IN '${effectiveLogFile}'`);
-      }
-      if (position != null) {
-        parts.push(`FROM ${position}`);
-      }
-      parts.push(`LIMIT ${limit}`);
-
-      sql += " " + parts.join(" ");
-
       try {
-        const result = await adapter.executeQuery(sql);
-        return { events: result.rows };
-      } catch (e) {
-        const message = String(e);
-        const targetFile = effectiveLogFile || logFile;
-        if (targetFile && message.includes("Could not find target log")) {
+        const { logFile, position, limit } = BinlogEventsSchema.parse(params);
+
+        // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
+        if (limit === 0) {
+          return { events: [] };
+        }
+
+        // Resolve effective log file: use provided or fetch current from master status
+        let effectiveLogFile = logFile;
+        if (!effectiveLogFile) {
+          try {
+            let masterResult;
+            try {
+              masterResult = await adapter.executeQuery(
+                "SHOW BINARY LOG STATUS",
+              );
+            } catch {
+              masterResult = await adapter.executeQuery("SHOW MASTER STATUS");
+            }
+            const currentFile = masterResult.rows?.[0]?.["File"] as
+              | string
+              | undefined;
+            if (currentFile) {
+              effectiveLogFile = currentFile;
+            }
+          } catch {
+            // Binary logging may not be enabled; fall through to default behavior
+          }
+        }
+
+        let sql = "SHOW BINLOG EVENTS";
+        const parts: string[] = [];
+
+        if (effectiveLogFile) {
+          parts.push(`IN '${effectiveLogFile}'`);
+        }
+        if (position != null) {
+          parts.push(`FROM ${position}`);
+        }
+        parts.push(`LIMIT ${limit}`);
+
+        sql += " " + parts.join(" ");
+
+        try {
+          const result = await adapter.executeQuery(sql);
+          return { events: result.rows };
+        } catch (e) {
+          const message = String(e);
+          const targetFile = effectiveLogFile || logFile;
+          if (targetFile && message.includes("Could not find target log")) {
+            return {
+              success: false,
+              logFile: targetFile,
+              error: `Binlog file '${targetFile}' not found`,
+            };
+          }
           return {
             success: false,
-            logFile: targetFile,
-            error: `Binlog file '${targetFile}' not found`,
+            error: `Failed to read binlog events: ${message}`,
+          };
+        }
+      } catch (e) {
+        if (e instanceof z.ZodError) {
+          return {
+            success: false,
+            error: e.issues.map((i) => i.message).join("; "),
           };
         }
         return {
           success: false,
-          error: `Failed to read binlog events: ${message}`,
+          error: `Failed to read binlog events: ${String(e)}`,
         };
       }
     },

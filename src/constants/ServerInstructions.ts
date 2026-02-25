@@ -62,7 +62,6 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Schema existence**: \`mysql_doc_list_collections\` and \`mysql_doc_collection_info\` return \`{ exists: false, schema }\` when a nonexistent schema is explicitly provided, matching the P154 pattern used by schema introspection and event tools.
 - **Find Filters** (\`mysql_doc_find\`): The filter parameter checks for field existence using JSON path only (e.g., \`$.address.zip\`). The path must be a valid JSON path (\`$\`, \`$.field\`, \`$.field.sub\`, \`$.field[0]\`); invalid paths return \`{ success: false, error }\`. Does NOT support \`_id\` or \`field=value\` formats. Accepts optional \`schema\` parameter. Returns \`{ exists: false, collection, documents: [], count: 0 }\` gracefully if the collection does not exist.
 
-
 ## Fulltext Search (\`mysql_fulltext_*\`)
 
 - **Index management**: \`mysql_fulltext_create\` creates a FULLTEXT index (returns \`{ success: false, error }\` if index already exists), \`mysql_fulltext_drop\` removes it (returns \`{ success: false, error }\` if index does not exist).
@@ -72,7 +71,6 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Column matching**: MATCH column list must exactly match the columns of an existing FULLTEXT index. Searching a subset of indexed columns will fail.
 - **Output**: Tools return only \`id\`, searched column(s), and \`relevance\` score. Use \`maxLength\` parameter to truncate long text columns in results (e.g., \`maxLength: 200\` truncates values over 200 characters with \`...\`).
 - **Error handling**: All fulltext tools return \`{ exists: false, table }\` for nonexistent tables. Search tools (\`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`) also return \`{ success: false, error }\` for other query errors (e.g., FULLTEXT index column mismatch). No raw MySQL errors are thrown.
-
 
 ## Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
 
