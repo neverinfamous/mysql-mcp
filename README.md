@@ -89,6 +89,61 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 ---
 
+## Code Mode: Maximum Efficiency
+
+Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+
+Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
+
+- **Process-level isolation** — user code runs in a separate V8 instance with enforced heap limits
+- **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
+- **Hard timeouts** — worker termination if execution exceeds the configured limit
+- **Full API access** — all 24 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+
+Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
+
+### ⚡ Code Mode Only (Maximum Token Savings)
+
+If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 192 tools' worth of capability through the `mysql.*` API:
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/mysql-mcp/dist/cli.js",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "codemode"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "your_user",
+        "MYSQL_PASSWORD": "your_password",
+        "MYSQL_DATABASE": "your_database"
+      }
+    }
+  }
+}
+```
+
+This exposes just `mysql_execute_code`. The agent writes JavaScript against the typed `mysql.*` SDK — composing queries, chaining operations across all 24 tool groups, and returning exactly the data it needs — in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/) pioneered by Cloudflare for their entire API: fixed token cost regardless of how many capabilities exist.
+
+> [!TIP]
+> **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
+>
+> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
+>
+> For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
+
+> [!NOTE]
+> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+
+---
+
 ## ⚡ MCP Client Configuration
 
 ### HTTP/SSE Server Usage (Advanced)
@@ -247,31 +302,6 @@ Use the remote hostname directly:
 | DigitalOcean     | `your-cluster-do-user-xxx.db.ondigitalocean.com` |
 
 > **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
-
----
-
-## Code Mode: Maximum Efficiency
-
-Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
-
-Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
-
-- **Process-level isolation** — user code runs in a separate V8 instance with enforced heap limits
-- **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — worker termination if execution exceeds the configured limit
-- **Full API access** — all 24 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
-
-Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
-
-> [!TIP]
-> **Maximize Token Savings:** For the best results, instruct your AI agent to prefer Code Mode over individual tool calls. Add a rule like this to your agent's prompt or system configuration:
->
-> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
->
-> This ensures the agent batches operations into single calls instead of making many individual tool calls. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
-
-> [!NOTE]
-> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
 
 ---
 
