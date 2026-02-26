@@ -104,6 +104,17 @@ describe("Security Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe("Connect error");
     });
+
+    it("should include error field in access-denied response", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = tools.find((t) => t.name === "mysql_security_audit");
+      const result = (await tool?.handler({}, mockContext)) as any;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Audit logging is not enabled");
+      expect(result.available).toBe(false);
+    });
   });
 
   describe("mysql_security_firewall_rules", () => {
@@ -155,6 +166,7 @@ describe("Security Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.available).toBe(false);
+      expect(result.error).toContain("Firewall tables not accessible");
     });
   });
 
@@ -204,6 +216,7 @@ describe("Security Tools", () => {
       expect(result.success).toBe(false);
       expect(result.installed).toBe(false);
       expect(result.message).toBe("Firewall plugin check failed");
+      expect(result.error).toContain("Firewall plugin check failed");
     });
   });
 

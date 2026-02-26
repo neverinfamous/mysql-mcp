@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Security Tool Error-Field Consistency (3 Handlers)** — Three security tool error paths (`mysql_security_audit` access-denied, `mysql_security_firewall_status` plugin check failure, `mysql_security_firewall_rules` table access error) returned `{ success: false, message }` without the standard `error` field, making them inconsistent with the `{ success: false, error }` convention used across all other tools. Added `error` field to all three responses (keeping `message` for backward compatibility)
 - **`mysql_security_ssl_status` Empty Cipher Default** — The `str()` helper in `encryption.ts` treated empty strings as valid, so `currentCipher` returned `""` instead of `"None"` when SSL was disabled (MySQL returns `Ssl_cipher: ""`). Changed `str()` to treat empty strings as absent, activating the `"None"` default. Same fix applies to `sslVersion` (`"N/A"` default) and `requireSecureTransport` (`"OFF"` default)
 - **Security Tool Catch-Block Error Shape Consistency** — Three catch blocks in `audit.ts` returned domain-specific shapes (`{ available: false }`, `{ installed: false }`) without `success: false`, making them inconsistent with the `{ success: false, error }` convention used across all other tools. Added `success: false` to `mysql_security_audit` (audit-related errors), `mysql_security_firewall_rules` (table access errors), and `mysql_security_firewall_status` (plugin check failures)
 

@@ -188,6 +188,8 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           return {
             success: false,
             available: false,
+            error:
+              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
             message:
               "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
             suggestion:
@@ -262,6 +264,7 @@ export function createSecurityFirewallStatusTool(
         return {
           success: false,
           installed: false,
+          error: `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
           message: "Firewall plugin check failed",
           suggestion: stripErrorPrefix(message),
         };
@@ -355,6 +358,8 @@ export function createSecurityFirewallRulesTool(
         return {
           success: false,
           available: false,
+          error:
+            "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
           message:
             "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
         };
