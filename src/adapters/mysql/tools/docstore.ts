@@ -228,9 +228,12 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
                     FROM information_schema.TABLES
                     WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
                       AND TABLE_NAME IN (
-                          SELECT TABLE_NAME FROM information_schema.COLUMNS
-                          WHERE COLUMN_NAME = 'doc' AND DATA_TYPE = 'json'
-                            AND TABLE_SCHEMA = COALESCE(?, DATABASE())
+                          SELECT c1.TABLE_NAME FROM information_schema.COLUMNS c1
+                          JOIN information_schema.COLUMNS c2
+                            ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
+                          WHERE c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
+                            AND c2.COLUMN_NAME = '_id'
+                            AND c1.TABLE_SCHEMA = COALESCE(?, DATABASE())
                       )`;
           const result = await adapter.executeQuery(query, [
             schema ?? null,
