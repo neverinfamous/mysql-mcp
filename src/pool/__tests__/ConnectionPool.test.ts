@@ -105,7 +105,7 @@ describe("ConnectionPool", () => {
 
     it("should execute queries after initialization", async () => {
       await pool.initialize();
-      const [rows, _fields] = await pool.query("SELECT 1");
+      const [rows] = await pool.query("SELECT 1");
       expect(rows).toBeDefined();
     });
 
@@ -127,7 +127,7 @@ describe("ConnectionPool", () => {
 
     it("should execute prepared statements after initialization", async () => {
       await pool.initialize();
-      const [rows, _fields] = await pool.execute("SELECT ?", [1]);
+      const [rows] = await pool.execute("SELECT ?", [1]);
       expect(rows).toBeDefined();
     });
 
@@ -151,7 +151,7 @@ describe("ConnectionPool", () => {
 
     it("should track active connections", async () => {
       await pool.initialize();
-      const _conn = await pool.getConnection();
+      await pool.getConnection();
       const stats = pool.getStats();
       expect(stats.active).toBe(1);
     });
