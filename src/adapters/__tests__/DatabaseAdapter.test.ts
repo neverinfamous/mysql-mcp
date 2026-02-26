@@ -466,6 +466,19 @@ describe("DatabaseAdapter", () => {
           expect.any(Function),
         );
       });
+
+      it("should not pass argsSchema for prompts without arguments", () => {
+        adapter.registerPrompts(mockServer as never);
+
+        expect(mockServer.registerPrompt).toHaveBeenCalledWith(
+          "test_prompt",
+          expect.objectContaining({
+            description: "A test prompt",
+            argsSchema: undefined,
+          }),
+          expect.any(Function),
+        );
+      });
     });
 
     describe("handler execution", () => {

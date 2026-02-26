@@ -322,11 +322,12 @@ export abstract class DatabaseAdapter {
    * Register a single prompt with the MCP server
    */
   protected registerPrompt(server: McpServer, prompt: PromptDefinition): void {
-    // Build Zod schema from prompt.arguments definitions
-    const zodShape: Record<string, z.ZodType> = {};
-    if (prompt.arguments) {
+    // Build Zod schema from prompt.arguments definitions (only if arguments exist)
+    let argsSchema: Record<string, z.ZodType> | undefined;
+    if (prompt.arguments && prompt.arguments.length > 0) {
+      argsSchema = {};
       for (const arg of prompt.arguments) {
-        zodShape[arg.name] = arg.required
+        argsSchema[arg.name] = arg.required
           ? z.string().describe(arg.description)
           : z.string().optional().describe(arg.description);
       }
@@ -336,7 +337,7 @@ export abstract class DatabaseAdapter {
       prompt.name,
       {
         description: prompt.description,
-        argsSchema: zodShape,
+        argsSchema,
       },
       async (providedArgs) => {
         const context = this.createContext();
