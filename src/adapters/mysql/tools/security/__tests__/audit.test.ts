@@ -206,6 +206,22 @@ describe("Security Audit Tools", () => {
 
       expect(result.available).toBe(false);
     });
+
+    it("should not include duplicated message field in error response", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
+
+      const tool = createSecurityAuditTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as Record<
+        string,
+        unknown
+      >;
+
+      expect(result.success).toBe(false);
+      expect(result).toHaveProperty("error");
+      expect(result).not.toHaveProperty("message");
+    });
   });
 
   describe("createSecurityFirewallStatusTool", () => {
@@ -288,6 +304,22 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.available).toBe(false);
+    });
+
+    it("should not include duplicated message field in error response", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Table missing"));
+
+      const tool = createSecurityFirewallRulesTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({}, mockContext)) as Record<
+        string,
+        unknown
+      >;
+
+      expect(result.success).toBe(false);
+      expect(result).toHaveProperty("error");
+      expect(result).not.toHaveProperty("message");
     });
   });
 });

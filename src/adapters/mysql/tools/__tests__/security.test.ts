@@ -215,7 +215,6 @@ describe("Security Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.installed).toBe(false);
-      expect(result.message).toBe("Firewall plugin check failed");
       expect(result.error).toContain("Firewall plugin check failed");
     });
   });
