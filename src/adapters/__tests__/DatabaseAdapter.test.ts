@@ -370,7 +370,22 @@ describe("DatabaseAdapter", () => {
       mockServer = {
         registerTool: vi.fn(),
         registerResource: vi.fn(),
-        registerPrompt: vi.fn(),
+        // Return a RegisteredPrompt-like object so `registered.argsSchema`
+        // is accessible for schema patching in DatabaseAdapter.registerPrompt()
+        registerPrompt: vi.fn().mockImplementation((_name, config, _cb) => {
+          // Mimic SDK: if argsSchema is provided, create a z.object() from it.
+          // Use a mock with _zod.run so the patching code doesn't crash.
+          let argsSchema: unknown = undefined;
+          if (config?.argsSchema) {
+            argsSchema = {
+              _zod: {
+                def: { type: "object", shape: config.argsSchema },
+                run: vi.fn((ctx: { value: unknown }) => ctx),
+              },
+            };
+          }
+          return { argsSchema };
+        }),
       };
     });
 
@@ -438,7 +453,7 @@ describe("DatabaseAdapter", () => {
         );
       });
 
-      it("should not pass argsSchema for prompts with arguments (prevents Zod rejecting undefined)", () => {
+      it("should pass argsSchema for prompts with arguments so SDK advertises them", () => {
         const promptWithArgs: PromptDefinition = {
           name: "arg_prompt",
           description: "desc",
@@ -454,16 +469,13 @@ describe("DatabaseAdapter", () => {
         ]);
         adapter.registerPrompts(mockServer as never);
 
-        // argsSchema must be undefined — the SDK wraps it into z.object()
-        // which rejects undefined input from MCP clients
-        expect(mockServer.registerPrompt).toHaveBeenCalledWith(
-          "arg_prompt",
-          expect.objectContaining({
-            description: "desc",
-            argsSchema: undefined,
-          }),
-          expect.any(Function),
-        );
+        // argsSchema must be a Zod raw shape so the SDK can:
+        // 1. Advertise arguments in prompts/list
+        // 2. Validate arguments in prompts/get
+        const calledConfig = mockServer.registerPrompt.mock.calls[0][1];
+        expect(calledConfig.argsSchema).toBeDefined();
+        expect(calledConfig.argsSchema).toHaveProperty("required_arg");
+        expect(calledConfig.argsSchema).toHaveProperty("optional_arg");
       });
 
       it("should not pass argsSchema for prompts without arguments", () => {
@@ -479,7 +491,7 @@ describe("DatabaseAdapter", () => {
         );
       });
 
-      it("should not pass argsSchema for prompts with all-optional arguments", () => {
+      it("should pass argsSchema for prompts with all-optional arguments", () => {
         const allOptionalPrompt: PromptDefinition = {
           name: "all_optional_prompt",
           description: "All optional args",
@@ -495,16 +507,12 @@ describe("DatabaseAdapter", () => {
         ]);
         adapter.registerPrompts(mockServer as never);
 
-        // argsSchema must be undefined — the SDK wraps it into z.object()
-        // which rejects undefined input from MCP clients
-        expect(mockServer.registerPrompt).toHaveBeenCalledWith(
-          "all_optional_prompt",
-          expect.objectContaining({
-            description: "All optional args",
-            argsSchema: undefined,
-          }),
-          expect.any(Function),
-        );
+        // argsSchema must be a Zod raw shape (even when all optional)
+        // so the SDK advertises arguments in prompts/list
+        const calledConfig = mockServer.registerPrompt.mock.calls[0][1];
+        expect(calledConfig.argsSchema).toBeDefined();
+        expect(calledConfig.argsSchema).toHaveProperty("opt_a");
+        expect(calledConfig.argsSchema).toHaveProperty("opt_b");
       });
 
       it("should return guide message when required args are missing", async () => {

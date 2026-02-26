@@ -7,7 +7,7 @@
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { logger } from "../utils/logger.js";
-import type { z } from "zod";
+import { z } from "zod";
 import type {
   DatabaseType,
   DatabaseConfig,
@@ -322,16 +322,23 @@ export abstract class DatabaseAdapter {
    * Register a single prompt with the MCP server
    */
   protected registerPrompt(server: McpServer, prompt: PromptDefinition): void {
-    // Do NOT pass argsSchema to the SDK. The SDK wraps any non-undefined
-    // argsSchema into z.object({...}) and validates request.params.arguments
-    // against it. When MCP clients call prompts/get without arguments,
-    // request.params.arguments is undefined, and z.object().safeParse(undefined)
-    // always fails — regardless of whether individual fields are .optional().
-    // Required-arg enforcement is done in the handler wrapper below,
-    // returning a helpful guide message instead of a Zod crash.
-    const argsSchema = undefined;
+    // Build a Zod raw shape from prompt.arguments so the SDK can
+    // advertise argument metadata in prompts/list via promptArgumentsFromSchema().
+    //
+    // ALL fields are .optional() because the SDK validates BEFORE our handler
+    // runs. If required fields used z.string() (non-optional), clients that
+    // invoke prompts without filling in required args would get a raw Zod
+    // error instead of our graceful guide message. Required-ness is enforced
+    // by the handler-level missing-arg check below.
+    let argsSchema: Record<string, z.ZodType> | undefined;
+    if (prompt.arguments && prompt.arguments.length > 0) {
+      argsSchema = {};
+      for (const arg of prompt.arguments) {
+        argsSchema[arg.name] = z.string().optional().describe(arg.description);
+      }
+    }
 
-    server.registerPrompt(
+    const registered = server.registerPrompt(
       prompt.name,
       {
         description: prompt.description,
@@ -383,6 +390,24 @@ export abstract class DatabaseAdapter {
         };
       },
     );
+
+    // Patch the SDK's stored Zod object schema to accept `undefined` input.
+    // The SDK's prompts/get handler calls safeParseAsync(argsSchema, args)
+    // where args may be `undefined` when clients omit them. Zod v4's
+    // z.object().safeParse(undefined) rejects — but we need it to succeed
+    // (coercing to {}) so our handler-level required-arg check can provide
+    // a graceful guide message instead of a raw Zod crash.
+    // The metadata (shape, type) is preserved for promptArgumentsFromSchema().
+    if (registered.argsSchema) {
+      const schema = registered.argsSchema as unknown as {
+        _zod: { run: (ctx: { value: unknown }) => unknown };
+      };
+      const originalRun = schema._zod.run.bind(schema._zod);
+      schema._zod.run = (ctx: { value: unknown }) => {
+        ctx.value ??= {};
+        return originalRun(ctx);
+      };
+    }
   }
 
   // =========================================================================
