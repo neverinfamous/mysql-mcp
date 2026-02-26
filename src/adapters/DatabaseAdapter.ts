@@ -7,7 +7,7 @@
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { logger } from "../utils/logger.js";
-import { z } from "zod";
+import type { z } from "zod";
 import type {
   DatabaseType,
   DatabaseConfig,
@@ -322,19 +322,14 @@ export abstract class DatabaseAdapter {
    * Register a single prompt with the MCP server
    */
   protected registerPrompt(server: McpServer, prompt: PromptDefinition): void {
-    // Build Zod schema from prompt.arguments definitions.
-    // All args are registered as optional in the SDK schema so that
-    // Zod's z.object() accepts undefined input when MCP clients call
-    // prompts/get without arguments. Required-arg enforcement is done
-    // in the handler wrapper below — returning a helpful guide message
-    // instead of a Zod crash when required args are missing.
-    let argsSchema: Record<string, z.ZodType> | undefined;
-    if (prompt.arguments && prompt.arguments.length > 0) {
-      argsSchema = {};
-      for (const arg of prompt.arguments) {
-        argsSchema[arg.name] = z.string().optional().describe(arg.description);
-      }
-    }
+    // Do NOT pass argsSchema to the SDK. The SDK wraps any non-undefined
+    // argsSchema into z.object({...}) and validates request.params.arguments
+    // against it. When MCP clients call prompts/get without arguments,
+    // request.params.arguments is undefined, and z.object().safeParse(undefined)
+    // always fails — regardless of whether individual fields are .optional().
+    // Required-arg enforcement is done in the handler wrapper below,
+    // returning a helpful guide message instead of a Zod crash.
+    const argsSchema = undefined;
 
     server.registerPrompt(
       prompt.name,

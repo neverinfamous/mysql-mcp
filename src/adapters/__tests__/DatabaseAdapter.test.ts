@@ -438,7 +438,7 @@ describe("DatabaseAdapter", () => {
         );
       });
 
-      it("should handle prompts with arguments (all optional in SDK schema)", () => {
+      it("should not pass argsSchema for prompts with arguments (prevents Zod rejecting undefined)", () => {
         const promptWithArgs: PromptDefinition = {
           name: "arg_prompt",
           description: "desc",
@@ -454,15 +454,13 @@ describe("DatabaseAdapter", () => {
         ]);
         adapter.registerPrompts(mockServer as never);
 
-        // All args are optional in the SDK schema to prevent Zod rejecting undefined
+        // argsSchema must be undefined — the SDK wraps it into z.object()
+        // which rejects undefined input from MCP clients
         expect(mockServer.registerPrompt).toHaveBeenCalledWith(
           "arg_prompt",
           expect.objectContaining({
             description: "desc",
-            argsSchema: expect.objectContaining({
-              required_arg: expect.anything(),
-              optional_arg: expect.anything(),
-            }),
+            argsSchema: undefined,
           }),
           expect.any(Function),
         );
@@ -481,7 +479,7 @@ describe("DatabaseAdapter", () => {
         );
       });
 
-      it("should pass argsSchema for prompts with all-optional arguments", () => {
+      it("should not pass argsSchema for prompts with all-optional arguments", () => {
         const allOptionalPrompt: PromptDefinition = {
           name: "all_optional_prompt",
           description: "All optional args",
@@ -497,16 +495,13 @@ describe("DatabaseAdapter", () => {
         ]);
         adapter.registerPrompts(mockServer as never);
 
-        // All-optional prompts now also get argsSchema (all fields optional)
-        // so the SDK can still list arguments in prompts/list
+        // argsSchema must be undefined — the SDK wraps it into z.object()
+        // which rejects undefined input from MCP clients
         expect(mockServer.registerPrompt).toHaveBeenCalledWith(
           "all_optional_prompt",
           expect.objectContaining({
             description: "All optional args",
-            argsSchema: expect.objectContaining({
-              opt_a: expect.anything(),
-              opt_b: expect.anything(),
-            }),
+            argsSchema: undefined,
           }),
           expect.any(Function),
         );
