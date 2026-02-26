@@ -153,6 +153,7 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
+      expect(result.success).toBe(false);
       expect(result.available).toBe(false);
     });
   });
@@ -200,6 +201,7 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
+      expect(result.success).toBe(false);
       expect(result.installed).toBe(false);
       expect(result.message).toBe("Firewall plugin check failed");
     });
@@ -500,6 +502,27 @@ describe("Security Tools", () => {
 
       expect(result.sslEnabled).toBe(false);
       expect(result.currentCipher).toBe("None");
+    });
+
+    it("should return 'None' for empty cipher string", async () => {
+      // Status with empty Ssl_cipher (SSL disabled but variable present)
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([
+          { Variable_name: "Ssl_cipher", Value: "" },
+          { Variable_name: "Ssl_version", Value: "" },
+        ]),
+      );
+      // Variables
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      // Connection
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
+      const result = (await tool?.handler({}, mockContext)) as any;
+
+      expect(result.sslEnabled).toBe(false);
+      expect(result.currentCipher).toBe("None");
+      expect(result.sslVersion).toBe("N/A");
     });
   });
 

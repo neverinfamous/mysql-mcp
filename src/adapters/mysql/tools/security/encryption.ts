@@ -93,7 +93,7 @@ export function createSecuritySSLStatusTool(
 
         // Helper to safely extract string values
         const str = (val: unknown, defaultVal = ""): string =>
-          typeof val === "string" ? val : defaultVal;
+          typeof val === "string" && val !== "" ? val : defaultVal;
 
         return {
           sslEnabled: str(status["Ssl_cipher"]) !== "",
