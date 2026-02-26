@@ -2,7 +2,7 @@ name: "CodeQL Analysis"
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
     paths:
       - "**.js"
       - "**.jsx"
@@ -12,7 +12,7 @@ on:
       - "**.cjs"
       - "package.json"
   pull_request:
-    branches: ["master"]
+    branches: ["main"]
   schedule:
     - cron: "0 0 * * 1"
   workflow_dispatch:
