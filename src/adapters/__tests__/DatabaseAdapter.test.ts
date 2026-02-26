@@ -438,7 +438,7 @@ describe("DatabaseAdapter", () => {
         );
       });
 
-      it("should handle prompts with arguments", () => {
+      it("should handle prompts with arguments (all optional in SDK schema)", () => {
         const promptWithArgs: PromptDefinition = {
           name: "arg_prompt",
           description: "desc",
@@ -454,6 +454,7 @@ describe("DatabaseAdapter", () => {
         ]);
         adapter.registerPrompts(mockServer as never);
 
+        // All args are optional in the SDK schema to prevent Zod rejecting undefined
         expect(mockServer.registerPrompt).toHaveBeenCalledWith(
           "arg_prompt",
           expect.objectContaining({
@@ -480,7 +481,7 @@ describe("DatabaseAdapter", () => {
         );
       });
 
-      it("should not pass argsSchema for prompts with all-optional arguments", () => {
+      it("should pass argsSchema for prompts with all-optional arguments", () => {
         const allOptionalPrompt: PromptDefinition = {
           name: "all_optional_prompt",
           description: "All optional args",
@@ -496,13 +497,51 @@ describe("DatabaseAdapter", () => {
         ]);
         adapter.registerPrompts(mockServer as never);
 
+        // All-optional prompts now also get argsSchema (all fields optional)
+        // so the SDK can still list arguments in prompts/list
         expect(mockServer.registerPrompt).toHaveBeenCalledWith(
           "all_optional_prompt",
           expect.objectContaining({
             description: "All optional args",
-            argsSchema: undefined,
+            argsSchema: expect.objectContaining({
+              opt_a: expect.anything(),
+              opt_b: expect.anything(),
+            }),
           }),
           expect.any(Function),
+        );
+      });
+
+      it("should return guide message when required args are missing", async () => {
+        const promptWithRequired: PromptDefinition = {
+          name: "required_prompt",
+          description: "Needs args",
+          arguments: [
+            { name: "operation", description: "The operation", required: true },
+            { name: "note", description: "A note", required: false },
+          ],
+          handler: async () => "should not reach",
+        };
+
+        vi.spyOn(adapter, "getPromptDefinitions").mockReturnValue([
+          promptWithRequired,
+        ]);
+        adapter.registerPrompts(mockServer as never);
+
+        // Call handler with no args (simulates MCP client sending undefined)
+        const handler = mockServer.registerPrompt.mock.calls[0][2] as Function;
+        const result = await handler({});
+
+        // Should return a guide message, not the handler output
+        expect(result.messages[0].content.text).toContain("required_prompt");
+        expect(result.messages[0].content.text).toContain(
+          "**operation** (required)",
+        );
+        expect(result.messages[0].content.text).toContain(
+          "**note** (optional)",
+        );
+        expect(result.messages[0].content.text).toContain(
+          "Please provide the required arguments",
         );
       });
     });

@@ -323,20 +323,16 @@ export abstract class DatabaseAdapter {
    */
   protected registerPrompt(server: McpServer, prompt: PromptDefinition): void {
     // Build Zod schema from prompt.arguments definitions.
-    // Only create a schema when at least one argument is required.
-    // When all arguments are optional, the MCP client may send undefined
-    // (no args), which Zod's z.object() rejects. Skipping the schema
-    // lets the SDK accept undefined args; handlers use ?? fallbacks.
+    // All args are registered as optional in the SDK schema so that
+    // Zod's z.object() accepts undefined input when MCP clients call
+    // prompts/get without arguments. Required-arg enforcement is done
+    // in the handler wrapper below — returning a helpful guide message
+    // instead of a Zod crash when required args are missing.
     let argsSchema: Record<string, z.ZodType> | undefined;
     if (prompt.arguments && prompt.arguments.length > 0) {
-      const hasRequiredArgs = prompt.arguments.some((arg) => arg.required);
-      if (hasRequiredArgs) {
-        argsSchema = {};
-        for (const arg of prompt.arguments) {
-          argsSchema[arg.name] = arg.required
-            ? z.string().describe(arg.description)
-            : z.string().optional().describe(arg.description);
-        }
+      argsSchema = {};
+      for (const arg of prompt.arguments) {
+        argsSchema[arg.name] = z.string().optional().describe(arg.description);
       }
     }
 
@@ -349,7 +345,32 @@ export abstract class DatabaseAdapter {
       async (providedArgs) => {
         const context = this.createContext();
         // Cast args to Record<string, string> for handler compatibility
-        const args = providedArgs as Record<string, string>;
+        const args = (providedArgs ?? {}) as Record<string, string>;
+
+        // Check for missing required arguments
+        const requiredArgs = prompt.arguments?.filter((a) => a.required) ?? [];
+        const missingArgs = requiredArgs.filter((a) => !args[a.name]);
+        if (missingArgs.length > 0) {
+          // Return a helpful guide listing expected arguments
+          const argList = (prompt.arguments ?? [])
+            .map(
+              (a) =>
+                `- **${a.name}**${a.required ? " (required)" : " (optional)"}: ${a.description}`,
+            )
+            .join("\n");
+          return {
+            messages: [
+              {
+                role: "user" as const,
+                content: {
+                  type: "text" as const,
+                  text: `# ${prompt.name}\n\n${prompt.description}\n\n## Arguments\n\n${argList}\n\nPlease provide the required arguments to use this prompt.`,
+                },
+              },
+            ],
+          };
+        }
+
         const result = await prompt.handler(args, context);
         return {
           messages: [
