@@ -256,31 +256,21 @@ function createSchemaDesignPrompt(): PromptDefinition {
     ],
     handler: (args: Record<string, string>, _context: RequestContext) => {
       return Promise.resolve(`
-You are a MySQL database architect. Design a schema for: ${args["entity"]}
+Design a MySQL schema for: ${args["entity"]}
 
 ${args["requirements"] ? `Requirements: ${args["requirements"]}` : ""}
 
-Please provide:
-1. CREATE TABLE statement with:
-   - Appropriate data types
-   - Primary key
-   - Indexes for common queries
-   - Foreign key relationships if applicable
-   - Engine: InnoDB (for transactions)
-   - Charset: utf8mb4 (for full Unicode support)
+Provide a CREATE TABLE statement with:
+- Appropriate data types
+- Primary key
+- Indexes for common queries
+- Foreign key relationships if applicable
+- Engine: InnoDB (for transactions)
+- Charset: utf8mb4 (for full Unicode support)
 
-2. Explanation of design choices
+Follow these conventions: underscore_case columns, created_at/updated_at timestamps, UNSIGNED for positive integers, JSON columns where appropriate.
 
-3. Sample INSERT statements
-
-4. Common SELECT queries with indexes
-
-Best practices to follow:
-- Use underscore_case for column names
-- Include created_at and updated_at timestamps
-- Use UNSIGNED for positive-only integers
-- Consider JSON columns for flexible data
-- Add appropriate indexes based on query patterns
+Briefly explain key design decisions.
 `);
     },
   };
