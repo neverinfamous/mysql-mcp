@@ -242,6 +242,25 @@ describe("Handler Execution", () => {
         "Collection 'my_collection' already exists",
       );
     });
+
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error(
+          "Query failed: Execute failed: Unknown database 'fake_schema'",
+        ),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const result = await tool.handler(
+        { name: "my_collection", schema: "fake_schema" },
+        mockContext,
+      );
+
+      expect(result).toEqual({
+        exists: false,
+        schema: "fake_schema",
+      });
+    });
   });
 
   describe("mysql_doc_drop_collection", () => {
@@ -314,6 +333,22 @@ describe("Handler Execution", () => {
         "Collection 'nonexistent' does not exist",
       );
     });
+
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const result = await tool.handler(
+        { name: "users", schema: "nonexistent_schema" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
+    });
   });
 
   describe("mysql_doc_find", () => {
@@ -379,6 +414,9 @@ describe("Handler Execution", () => {
 
     it("should use schema parameter for collection lookup", async () => {
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
+        ) // schema exists
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -388,14 +426,20 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      // Existence check should include schema
+      // First call: schema existence check
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
+        expect.stringContaining("SCHEMATA"),
+        ["otherdb"],
+      );
+      // Second call: collection existence check with schema
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        2,
         expect.any(String),
         ["otherdb", "my_coll"],
       );
       // Query should use qualified table ref
-      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const queryCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
       expect(queryCall).toContain("`otherdb`.`my_coll`");
     });
 
@@ -503,6 +547,22 @@ describe("Handler Execution", () => {
       expect(result).not.toHaveProperty("error");
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
+
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const result = await tool.handler(
+        { collection: "users", schema: "nonexistent_schema" },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
+    });
   });
 
   describe("mysql_doc_add", () => {
@@ -577,8 +637,31 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const result = await tool.handler(
+        {
+          collection: "users",
+          schema: "nonexistent_schema",
+          documents: [{ name: "test" }],
+        },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
+    });
+
     it("should use schema parameter for collection lookup", async () => {
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
+        ) // schema exists
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
@@ -592,14 +675,20 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      // Existence check should include schema
+      // First call: schema existence check
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
+        expect.stringContaining("SCHEMATA"),
+        ["otherdb"],
+      );
+      // Second call: collection existence check with schema
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        2,
         expect.any(String),
         ["otherdb", "my_coll"],
       );
       // Insert should use qualified table ref
-      const insertCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const insertCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
       expect(insertCall).toContain("`otherdb`.`my_coll`");
     });
   });
@@ -717,8 +806,32 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const result = await tool.handler(
+        {
+          collection: "users",
+          schema: "nonexistent_schema",
+          filter: "$.name",
+          set: { status: "active" },
+        },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
+    });
+
     it("should use schema parameter for collection lookup", async () => {
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
+        ) // schema exists
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
@@ -733,7 +846,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const updateCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const updateCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
       expect(updateCall).toContain("`otherdb`.`my_coll`");
     });
   });
@@ -792,8 +905,31 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
+      const result = await tool.handler(
+        {
+          collection: "users",
+          schema: "nonexistent_schema",
+          filter: "$.id",
+        },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
+    });
+
     it("should use schema parameter for collection lookup", async () => {
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
+        ) // schema exists
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 1));
 
@@ -807,7 +943,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const deleteCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const deleteCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
       expect(deleteCall).toContain("`otherdb`.`my_coll`");
     });
   });
@@ -930,8 +1066,32 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
+    it("should return exists: false for nonexistent schema", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // schema does not exist
+
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const result = await tool.handler(
+        {
+          collection: "users",
+          schema: "nonexistent_schema",
+          name: "idx_test",
+          fields: [{ path: "email", type: "TEXT" }],
+        },
+        mockContext,
+      );
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        exists: false,
+        schema: "nonexistent_schema",
+      });
+    });
+
     it("should use schema parameter for collection lookup", async () => {
       mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
+        ) // schema exists
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
@@ -947,9 +1107,9 @@ describe("Handler Execution", () => {
       );
 
       // ALTER TABLE and CREATE INDEX should use qualified table ref
-      const alterCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const alterCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
       expect(alterCall).toContain("`otherdb`.`my_coll`");
-      const indexCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const indexCall = mockAdapter.executeQuery.mock.calls[3][0] as string;
       expect(indexCall).toContain("`otherdb`.`my_coll`");
     });
 

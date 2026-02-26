@@ -153,18 +153,35 @@ const CollectionInfoSchema = z.object({
 
 /**
  * Check if a collection (table) exists in the specified (or current) database.
+ * Returns a discriminated result distinguishing schema-not-found from collection-not-found.
  */
 async function checkCollectionExists(
   adapter: MySQLAdapter,
   collection: string,
   schema?: string,
-): Promise<boolean> {
+): Promise<
+  | { exists: true }
+  | { exists: false; reason: "schema" | "collection"; name: string }
+> {
+  // When schema is explicitly provided, check schema existence first
+  if (schema) {
+    const schemaCheck = await adapter.executeQuery(
+      "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+      [schema],
+    );
+    if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+      return { exists: false, reason: "schema", name: schema };
+    }
+  }
   const result = await adapter.executeQuery(
     `SELECT 1 FROM information_schema.TABLES
      WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
     [schema ?? null, collection],
   );
-  return (result.rows?.length ?? 0) > 0;
+  if ((result.rows?.length ?? 0) > 0) {
+    return { exists: true };
+  }
+  return { exists: false, reason: "collection", name: collection };
 }
 
 /**
@@ -254,18 +271,18 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           // Pre-check existence when ifNotExists is true so we can report accurately
           if (ifNotExists) {
-            const alreadyExists = await checkCollectionExists(
-              adapter,
-              name,
-              schema,
-            );
-            if (alreadyExists) {
+            const check = await checkCollectionExists(adapter, name, schema);
+            if (check.exists) {
               return {
                 success: true,
                 skipped: true,
                 collection: name,
                 reason: "Collection already exists",
               };
+            }
+            // If schema doesn't exist, report it even with ifNotExists
+            if (check.reason === "schema") {
+              return { exists: false, schema: check.name };
             }
           }
 
@@ -297,6 +314,12 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           const message =
             error instanceof Error ? error.message : String(error);
+          if (message.toLowerCase().includes("unknown database")) {
+            return {
+              exists: false,
+              schema: (params as { schema?: string })?.schema ?? "unknown",
+            };
+          }
           if (message.toLowerCase().includes("already exists")) {
             return {
               success: false,
@@ -325,10 +348,21 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           const tableRef = escapeTableRef(name, schema);
 
+          // P154: Schema existence check when explicitly provided
+          if (schema) {
+            const schemaCheck = await adapter.executeQuery(
+              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+              [schema],
+            );
+            if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+              return { exists: false, schema };
+            }
+          }
+
           // Pre-check existence when ifExists is true so we can report accurately
           if (ifExists) {
-            const exists = await checkCollectionExists(adapter, name, schema);
-            if (!exists) {
+            const check = await checkCollectionExists(adapter, name, schema);
+            if (!check.exists) {
               return {
                 success: true,
                 collection: name,
@@ -375,8 +409,16 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             return { success: false, error: "Invalid schema name" };
 
-          // Check if collection exists
-          if (!(await checkCollectionExists(adapter, collection, schema))) {
+          // Check if collection exists (with schema detection)
+          const findCheck = await checkCollectionExists(
+            adapter,
+            collection,
+            schema,
+          );
+          if (!findCheck.exists) {
+            if (findCheck.reason === "schema") {
+              return { exists: false, schema: findCheck.name };
+            }
             return {
               exists: false,
               collection,
@@ -443,8 +485,15 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             return { success: false, error: "Invalid schema name" };
 
-          if (!(await checkCollectionExists(adapter, collection, schema))) {
-            return { exists: false, collection };
+          const addCheck = await checkCollectionExists(
+            adapter,
+            collection,
+            schema,
+          );
+          if (!addCheck.exists) {
+            return addCheck.reason === "schema"
+              ? { exists: false, schema: addCheck.name }
+              : { exists: false, collection };
           }
 
           const tableRef = escapeTableRef(collection, schema);
@@ -485,8 +534,15 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             return { success: false, error: "Invalid schema name" };
 
-          if (!(await checkCollectionExists(adapter, collection, schema))) {
-            return { exists: false, collection };
+          const modCheck = await checkCollectionExists(
+            adapter,
+            collection,
+            schema,
+          );
+          if (!modCheck.exists) {
+            return modCheck.reason === "schema"
+              ? { exists: false, schema: modCheck.name }
+              : { exists: false, collection };
           }
 
           const updates: string[] = [];
@@ -537,8 +593,15 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             return { success: false, error: "Invalid schema name" };
 
-          if (!(await checkCollectionExists(adapter, collection, schema))) {
-            return { exists: false, collection };
+          const rmCheck = await checkCollectionExists(
+            adapter,
+            collection,
+            schema,
+          );
+          if (!rmCheck.exists) {
+            return rmCheck.reason === "schema"
+              ? { exists: false, schema: rmCheck.name }
+              : { exists: false, collection };
           }
 
           const { where, params: whereParams } = parseDocFilter(filter);
@@ -575,8 +638,15 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!IDENTIFIER_RE.test(name))
             return { success: false, error: "Invalid index name" };
 
-          if (!(await checkCollectionExists(adapter, collection, schema))) {
-            return { exists: false, collection };
+          const idxCheck = await checkCollectionExists(
+            adapter,
+            collection,
+            schema,
+          );
+          if (!idxCheck.exists) {
+            return idxCheck.reason === "schema"
+              ? { exists: false, schema: idxCheck.name }
+              : { exists: false, collection };
           }
 
           const tableRef = escapeTableRef(collection, schema);
@@ -632,25 +702,16 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!IDENTIFIER_RE.test(collection))
             return { success: false, error: "Invalid collection name" };
 
-          // Pre-check schema existence when explicitly provided
-          if (schema) {
-            const schemaCheck = await adapter.executeQuery(
-              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-              [schema],
-            );
-            if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return { exists: false, schema };
-            }
-          }
-
-          // Check if collection exists
-          const existsCheck = await adapter.executeQuery(
-            `SELECT 1 FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
-            [schema ?? null, collection],
+          // Check collection existence (with schema detection)
+          const infoCheck = await checkCollectionExists(
+            adapter,
+            collection,
+            schema,
           );
-          if (!existsCheck.rows || existsCheck.rows.length === 0) {
-            return { exists: false, collection };
+          if (!infoCheck.exists) {
+            return infoCheck.reason === "schema"
+              ? { exists: false, schema: infoCheck.name }
+              : { exists: false, collection };
           }
 
           // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
