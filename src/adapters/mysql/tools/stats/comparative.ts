@@ -5,12 +5,21 @@
  * 3 tools total.
  */
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+/** Extract human-readable messages from a ZodError instead of raw JSON array */
+function formatZodError(error: ZodError): string {
+  return error.issues.map((i) => i.message).join("; ");
+}
 
 // =============================================================================
 // Schemas
@@ -64,10 +73,9 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column1, column2, where } =
-        CorrelationSchema.parse(params);
-
       try {
+        const { table, column1, column2, where } =
+          CorrelationSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
@@ -127,11 +135,19 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           },
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
@@ -156,9 +172,9 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, xColumn, yColumn, where } = RegressionSchema.parse(params);
-
       try {
+        const { table, xColumn, yColumn, where } =
+          RegressionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
@@ -232,11 +248,19 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                 : "Poor fit",
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }
@@ -259,9 +283,9 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false, // Can update histogram
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, buckets, update } = HistogramSchema.parse(params);
-
       try {
+        const { table, column, buckets, update } =
+          HistogramSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
@@ -353,11 +377,19 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           ...(warning && { warning }),
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return { success: false, error: formatZodError(error) };
+        }
         const msg = (error instanceof Error ? error.message : String(error))
           .replace(/^Query failed: /, "")
           .replace(/^Execute failed: /, "");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return {
+            exists: false,
+            table:
+              ((params as Record<string, unknown>)?.["table"] as string) ??
+              "unknown",
+          };
         }
         return { success: false, error: msg };
       }

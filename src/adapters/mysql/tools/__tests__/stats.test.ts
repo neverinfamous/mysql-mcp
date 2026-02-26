@@ -982,4 +982,37 @@ describe("Stats Zod Validation Guards", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("sampleSize");
   });
+
+  it("mysql_stats_correlation returns structured error for missing required fields", async () => {
+    const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+    const result = (await tool.handler({}, mockContext)) as {
+      success: boolean;
+      error: string;
+    };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it("mysql_stats_regression returns structured error for missing required fields", async () => {
+    const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+    const result = (await tool.handler({}, mockContext)) as {
+      success: boolean;
+      error: string;
+    };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it("mysql_stats_histogram returns structured error for missing required fields", async () => {
+    const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+    const result = (await tool.handler({}, mockContext)) as {
+      success: boolean;
+      error: string;
+    };
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+  });
 });
