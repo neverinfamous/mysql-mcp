@@ -263,7 +263,8 @@ const BASE_INSTRUCTIONS = `# mysql-mcp Usage Instructions
 - **Data masking**: \`mysql_security_mask_data\` masks sensitive data. Types: \`email\` (preserves domain), \`phone\` (shows last 4), \`ssn\` (shows last 4), \`credit_card\` (shows first/last 4), \`partial\` (uses \`keepFirst\`/\`keepLast\`). Credit card masking requires more than 8 digits; values with 8 or fewer digits are fully masked with a \`warning\` field.
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Returns \`{ exists: false, user }\` for nonexistent users (P154). Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps \`globalPrivileges\` at 10 entries and includes \`totalGlobalPrivileges\` for the full count.
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope. Returns \`{ exists: false, schema }\` for nonexistent schemas (P154).
-- **Enterprise features**: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
+- **Enterprise features**: \`mysql_security_firewall_status\` and \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
+- **Audit fallback**: \`mysql_security_audit\` falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`). Default limit is 20.
 
 ## ProxySQL Tools (\`mysql_proxysql_*\`)
 

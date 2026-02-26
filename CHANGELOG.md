@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`mysql_export_table` Batch Parameter** — New optional `batch` parameter (default: 1) groups rows into multi-row `INSERT INTO ... VALUES (...), (...), ...` statements, reducing payload size by ~40-50% for large exports. Example: `batch: 50` produces one INSERT statement per 50 rows instead of one per row
 
+### Improved
+
+- **`mysql_security_audit` Default Limit Reduction** — Reduced default `limit` from 100 to 20 (matching `mysql_binlog_events`), preventing ~18KB payloads of repetitive `performance_schema` events on default calls
+- **`mysql_security_audit` `eventType` Description Accuracy** — Updated parameter description from misleading `"CONNECT"`, `"QUERY"` examples to accurate `performance_schema` event names (`"Execute"`, `"Ping"`, `"begin"`), and documented LIKE matching behavior
+- **ServerInstructions Audit Fallback Documentation** — Split the security enterprise features bullet to separately document `mysql_security_audit` fallback behavior: `performance_schema` fallback mode, `startTime` filter limitations, `eventType` LIKE matching, and default limit
+
 ### Fixed
 
 - **Security Tool Error-Field Consistency (3 Handlers)** — Three security tool error paths (`mysql_security_audit` access-denied, `mysql_security_firewall_status` plugin check failure, `mysql_security_firewall_rules` table access error) returned `{ success: false, message }` without the standard `error` field, making them inconsistent with the `{ success: false, error }` convention used across all other tools. Added `error` field to all three responses (keeping `message` for backward compatibility)

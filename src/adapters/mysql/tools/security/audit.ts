@@ -33,12 +33,14 @@ function stripErrorPrefix(msg: string): string {
 // ============================================================================
 
 const AuditLogSchema = z.object({
-  limit: z.number().default(100).describe("Maximum number of records"),
+  limit: z.number().default(20).describe("Maximum number of records"),
   user: z.string().optional().describe("Filter by username"),
   eventType: z
     .string()
     .optional()
-    .describe('Filter by event type (e.g., "CONNECT", "QUERY")'),
+    .describe(
+      'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
+    ),
   startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
 });
 
