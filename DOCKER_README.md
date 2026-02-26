@@ -9,8 +9,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-1956%20passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/Coverage-86%25-green.svg)
+![Tests](https://img.shields.io/badge/Tests-2169%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -34,7 +34,7 @@
 | **Deterministic Error Handling** | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes |
 | **Production-Ready Security**    | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                      |
 | **Worker Sandbox Isolation**     | Code Mode executes in a separate V8 isolate via `worker_threads` with a `MessagePort` RPC bridge, enforced memory limits, readonly mode, and hard timeouts                                     |
-| **Strict TypeScript**            | 100% type-safe codebase with 1956 tests and 86% coverage                                                                                                                                       |
+| **Strict TypeScript**            | 100% type-safe codebase with 2169 tests and 90% coverage                                                                                                                                       |
 | **MCP 2025-11-25 Compliant**     | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                  |
 
 ---
