@@ -4,7 +4,7 @@ on:
   push:
     tags: ["v*"]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 env:
   REGISTRY: docker.io
@@ -240,7 +240,7 @@ jobs:
       deployments: write
 
     environment:
-      name: ${{ github.ref == 'refs/heads/master' && 'production' || '' }}
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 
     steps:
@@ -303,7 +303,7 @@ jobs:
 
       # Update Docker Hub description
       - name: Update Docker Hub Description
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: peter-evans/dockerhub-description@v5
         continue-on-error: true
         timeout-minutes: 5
@@ -315,7 +315,7 @@ jobs:
           short-description: "MySQL MCP Server: 192 tools, Code Mode, Tool Filtering, Connection Pooling, HTTP/SSE & OAuth 2.1"
 
       - name: Deployment Summary
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           echo "✅ Successfully published Docker images to production"
           echo "🐳 Registry: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"

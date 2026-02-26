@@ -12,7 +12,7 @@
 ![Tests](https://img.shields.io/badge/Tests-2169%20passing-brightgreen.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen.svg)
 
-**[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/master/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/master/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
+**[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## The Most Comprehensive MySQL MCP Server Available
 
@@ -138,7 +138,7 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 > For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
 
 > [!NOTE]
-> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/master/src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
+> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/main/src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
 
 ---
 
@@ -373,7 +373,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
-> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses and `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See [`ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/master/src/constants/ServerInstructions.ts) for per-tool details.
+> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses and `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See [`ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/main/src/constants/ServerInstructions.ts) for per-tool details.
 
 ---
 
