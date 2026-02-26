@@ -322,14 +322,21 @@ export abstract class DatabaseAdapter {
    * Register a single prompt with the MCP server
    */
   protected registerPrompt(server: McpServer, prompt: PromptDefinition): void {
-    // Build Zod schema from prompt.arguments definitions (only if arguments exist)
+    // Build Zod schema from prompt.arguments definitions.
+    // Only create a schema when at least one argument is required.
+    // When all arguments are optional, the MCP client may send undefined
+    // (no args), which Zod's z.object() rejects. Skipping the schema
+    // lets the SDK accept undefined args; handlers use ?? fallbacks.
     let argsSchema: Record<string, z.ZodType> | undefined;
     if (prompt.arguments && prompt.arguments.length > 0) {
-      argsSchema = {};
-      for (const arg of prompt.arguments) {
-        argsSchema[arg.name] = arg.required
-          ? z.string().describe(arg.description)
-          : z.string().optional().describe(arg.description);
+      const hasRequiredArgs = prompt.arguments.some((arg) => arg.required);
+      if (hasRequiredArgs) {
+        argsSchema = {};
+        for (const arg of prompt.arguments) {
+          argsSchema[arg.name] = arg.required
+            ? z.string().describe(arg.description)
+            : z.string().optional().describe(arg.description);
+        }
       }
     }
 

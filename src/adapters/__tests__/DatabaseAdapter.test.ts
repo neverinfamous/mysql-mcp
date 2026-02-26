@@ -479,6 +479,32 @@ describe("DatabaseAdapter", () => {
           expect.any(Function),
         );
       });
+
+      it("should not pass argsSchema for prompts with all-optional arguments", () => {
+        const allOptionalPrompt: PromptDefinition = {
+          name: "all_optional_prompt",
+          description: "All optional args",
+          arguments: [
+            { name: "opt_a", description: "optional a", required: false },
+            { name: "opt_b", description: "optional b", required: false },
+          ],
+          handler: async () => "result",
+        };
+
+        vi.spyOn(adapter, "getPromptDefinitions").mockReturnValue([
+          allOptionalPrompt,
+        ]);
+        adapter.registerPrompts(mockServer as never);
+
+        expect(mockServer.registerPrompt).toHaveBeenCalledWith(
+          "all_optional_prompt",
+          expect.objectContaining({
+            description: "All optional args",
+            argsSchema: undefined,
+          }),
+          expect.any(Function),
+        );
+      });
     });
 
     describe("handler execution", () => {
