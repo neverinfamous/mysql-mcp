@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.2] - 2026-02-27
 
+### Documentation
+
+- **README.md / DOCKER_README.md Code Mode Promotion** — Enhanced the opening descriptions and the "What Sets Us Apart" feature table to explicitly highlight Code Mode as a revolutionary token-saving feature.
+
 ### Fixed
 
 - **ESLint test coverage** — Added ESLint config block for test files to catch unused imports/variables; fixed 16 pre-existing errors across 8 test files
