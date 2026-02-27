@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - **CVE Fix: `minimatch` ReDoS (GHSA-23c5-xmqv-rm74)** — Updated transitive dependency `minimatch` (via `eslint`, `typescript-eslint`) from 10.2.2 to 10.2.4 via `npm audit fix` to fix a high-severity ReDoS vulnerability caused by combinatorial backtracking in `matchOne()`
+- **CVE Fix: `minimatch` ReDoS (CVE-2026-27904)** — Patched npm's bundled `minimatch` (<10.2.3) in the Dockerfile runtime stage to fix a high-severity ReDoS vulnerability (CVSS 7.5). Uses the same global-install-and-copy pattern as the `tar` CVE fix
 
 ### Dependencies
 
