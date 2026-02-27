@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ESLint test coverage** — Added ESLint config block for test files to catch unused imports/variables; fixed 16 pre-existing errors across 8 test files
 - **Docker Hub description update** — Fixed `docker-publish.yml` conditionals to match tag pushes instead of branch pushes
 
+### Security
+
+- **CVE Fix: `minimatch` ReDoS (GHSA-23c5-xmqv-rm74)** — Updated transitive dependency `minimatch` (via `eslint`, `typescript-eslint`) from 10.2.2 to 10.2.4 via `npm audit fix` to fix a high-severity ReDoS vulnerability caused by combinatorial backtracking in `matchOne()`
+
+### Dependencies
+
+- `@types/node`: 25.3.1 → 25.3.2
+- `minimatch`: 10.2.2 → 10.2.4 (transitive, via `npm audit fix`)
+- `mysql2`: 3.18.1 → 3.18.2
+
 ## [3.0.1] - 2026-02-26
 
 ### Fixed
