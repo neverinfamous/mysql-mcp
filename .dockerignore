@@ -3,6 +3,14 @@ node_modules/
 
 # Build outputs (rebuilt in Docker)
 dist/
+build/
+out/
+*.tsbuildinfo
+
+# Node and OS temp files
+.npm/
+.eslintcache/
+.nyc_output/
 
 # Git
 .git/
@@ -11,8 +19,10 @@ dist/
 # IDE and editor
 .vscode/
 .idea/
+.gemini/
 *.swp
 *.swo
+*~
 
 # Documentation (not needed in image)
 *.md
@@ -23,15 +33,46 @@ docs/
 .env
 .env.*
 !.env.example
+.dev.vars
 *.log
 
-# Test files
+# Local config files with secrets
+config/*.local.json
+config/secrets/
+
+# Database / MySQL files
+*.sql
+*.dump
+*.pem
+*.key
+*.pwd
+
+# Local Server & Cluster Setup
+mysqlrouter.conf
+router-cluster.conf
+router-data/
+cluster-config/
+innodb-cluster.yml
+proxysql.cnf
+test-server/
+
+# Keycloak (development server)
+keycloak-*/
+keycloak/
+
+# MCP Registry tokens
+.mcpregistry_github_token
+.mcpregistry_registry_token
+
+# Test files & configs
 tests/
 __tests__/
 *.test.ts
 *.spec.ts
 coverage/
 test-results.json
+eslint.config.js
+vitest.config.ts
 
 # GitHub
 .github/
