@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
-import {
-  createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 import {
   createShellExportTableTool,
   createShellImportTableTool,
@@ -15,13 +12,11 @@ vi.mock("child_process", () => ({
 }));
 
 describe("Shell Data Transfer Tools", () => {
-  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
   let mockSpawn: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockAdapter = createMockMySQLAdapter();
     mockContext = createMockRequestContext();
     mockSpawn = child_process.spawn as any;
   });

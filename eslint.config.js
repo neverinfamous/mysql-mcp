@@ -4,14 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [
-      "dist",
-      "node_modules",
-      ".wrangler",
-      "**/__tests__/**",
-      "**/*.test.ts",
-      "**/*.spec.ts",
-    ],
+    ignores: ["dist", "node_modules", ".wrangler"],
   },
   // Main source configuration
   {
@@ -21,6 +14,7 @@ export default tseslint.config(
       ...tseslint.configs.stylisticTypeChecked,
     ],
     files: ["src/**/*.ts"],
+    ignores: ["**/__tests__/**", "**/*.test.ts", "**/*.spec.ts"],
     languageOptions: {
       ecmaVersion: 2022,
       globals: {
@@ -117,6 +111,32 @@ export default tseslint.config(
       // Prevent console.log() which writes to stdout and corrupts MCP stdio transport
       // Only stderr output (error, warn) is safe for MCP servers
       "no-console": ["error", { allow: ["error", "warn"] }],
+    },
+  },
+  // Test file configuration - catches unused imports/vars but relaxes
+  // type-safety rules that conflict with test patterns (mocks, any casts)
+  {
+    files: ["src/**/__tests__/**/*.ts", "src/**/*.test.ts", "src/**/*.spec.ts"],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      // Core quality rules that should apply to tests
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
+      // Relax type-safety rules for test patterns (mocks, any casts, assertions)
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
     },
   },
 );

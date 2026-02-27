@@ -32,13 +32,13 @@ vi.mock("../../transports/http.js", () => ({
 // Mock OAuth dependencies
 vi.mock("../auth/OAuthResourceServer.js", () => ({
   OAuthResourceServer: class MockOAuthResourceServer {
-    constructor(config: any) {}
+    constructor(_config: any) {}
   },
 }));
 
 vi.mock("../auth/TokenValidator.js", () => ({
   TokenValidator: class MockTokenValidator {
-    constructor(config: any) {}
+    constructor(_config: any) {}
   },
 }));
 

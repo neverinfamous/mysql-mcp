@@ -532,7 +532,11 @@ describe("DatabaseAdapter", () => {
         adapter.registerPrompts(mockServer as never);
 
         // Call handler with no args (simulates MCP client sending undefined)
-        const handler = mockServer.registerPrompt.mock.calls[0][2] as Function;
+        const handler = mockServer.registerPrompt.mock.calls[0][2] as (
+          args: Record<string, string>,
+        ) => Promise<{
+          messages: { role: string; content: { text: string } }[];
+        }>;
         const result = await handler({});
 
         // Should return a guide message, not the handler output
@@ -553,7 +557,9 @@ describe("DatabaseAdapter", () => {
       it("should execute tool handler when called", async () => {
         adapter.registerTools(mockServer as never, new Set(["test_tool"]));
         // registerTool now takes 3 args: name, options, handler
-        const handler = mockServer.registerTool.mock.calls[0][2] as Function;
+        const handler = mockServer.registerTool.mock.calls[0][2] as (
+          args: Record<string, unknown>,
+        ) => Promise<unknown>;
 
         const result = await handler({});
         expect(result).toEqual({
@@ -565,8 +571,9 @@ describe("DatabaseAdapter", () => {
 
       it("should execute resource handler when called", async () => {
         adapter.registerResources(mockServer as never);
-        const handler = mockServer.registerResource.mock
-          .calls[0][3] as Function;
+        const handler = mockServer.registerResource.mock.calls[0][3] as (
+          uri: URL,
+        ) => Promise<unknown>;
 
         const result = await handler(new URL("mysql://test"));
         expect(result).toEqual({
@@ -583,7 +590,11 @@ describe("DatabaseAdapter", () => {
       it("should execute prompt handler when called", async () => {
         adapter.registerPrompts(mockServer as never);
         // registerPrompt takes 3 args: name, options, handler
-        const handler = mockServer.registerPrompt.mock.calls[0][2] as Function;
+        const handler = mockServer.registerPrompt.mock.calls[0][2] as (
+          args: Record<string, string>,
+        ) => Promise<{
+          messages: { role: string; content: { type: string; text: string } }[];
+        }>;
 
         const result = await handler({});
         expect(result).toEqual({

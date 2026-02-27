@@ -31,9 +31,9 @@ describe("Spatial Resource", () => {
     const result = await resource.handler("mysql://spatial", mockContext);
 
     expect(result).toBeDefined();
-    // @ts-ignore
+    // @ts-expect-error - accessing parsed result properties
     expect(result.spatialColumns).toHaveLength(1);
-    // @ts-ignore
+    // @ts-expect-error - accessing parsed result properties
     expect(result.spatialIndexCount).toBe(0);
   });
 
