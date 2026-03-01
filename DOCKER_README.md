@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-**Last Updated February 26, 2026**
+**Last Updated February 28, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -96,7 +96,7 @@ Code executes in a **worker-thread sandbox** — a separate V8 isolate with its 
 - **Process-level isolation** — user code runs in a separate V8 instance with enforced heap limits
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - **Hard timeouts** — worker termination if execution exceeds the configured limit
-- **Full API access** — all 24 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+- **Full API access** — all 25 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
 Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
 
@@ -128,7 +128,7 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
 }
 ```
 
-This exposes just `mysql_execute_code`. The agent writes JavaScript against the typed `mysql.*` SDK — composing queries, chaining operations across all 24 tool groups, and returning exactly the data it needs — in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/) pioneered by Cloudflare for their entire API: fixed token cost regardless of how many capabilities exist.
+This exposes just `mysql_execute_code`. The agent writes JavaScript against the typed `mysql.*` SDK — composing queries, chaining operations across all 25 tool groups, and returning exactly the data it needs — in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/) pioneered by Cloudflare for their entire API: fixed token cost regardless of how many capabilities exist.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
@@ -295,8 +295,11 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Tool Groups (25 Available)
 
+> Tool counts include Code Mode (`mysql_execute_code`) which is added to all groups by default.
+
 | Group          | Tools | Description                              |
 | -------------- | ----- | ---------------------------------------- |
+| `codemode`     | 1     | Sandboxed code execution                 |
 | `core`         | 8     | Read/write queries, tables, indexes      |
 | `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints      |
 | `json`         | 17    | JSON functions, merge, diff, stats       |
@@ -321,7 +324,6 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `cluster`      | 10    | Group Replication, InnoDB Cluster        |
 | `proxysql`     | 11    | ProxySQL management                      |
 | `router`       | 9     | MySQL Router REST API                    |
-| `codemode`     | 1     | Sandboxed code execution                 |
 
 ---
 
