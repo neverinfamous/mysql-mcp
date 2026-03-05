@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **HTTP Transport Server Crash on Reconnect (Critical)** — `void this.server.connect(sseTransport)` in `McpServer.startTransport()` called `connect()` without first calling `close()`, causing an "Already connected" crash on subsequent connections. Fixed with `close()`-before-`connect()` pattern
+- **HTTP Transport `transport.start()` Method Does Not Exist (Critical)** — `handleSSERequest()` called `transport.start()` on `StreamableHTTPServerTransport`, which has no `start()` method. Replaced with proper session-based initialization
+- **HTTP Transport No Session Management** — Single `this.transport` field was overwritten on each connection, making it impossible to route `/messages` to the correct session. Replaced with `Map<string, Transport>` session map
+- **HTTP Transport No Legacy SSE Support** — `/sse` and `/messages` routes existed but incorrectly used `StreamableHTTPServerTransport` instead of `SSEServerTransport`. Implemented proper `SSEServerTransport` for backward compatibility with MCP 2024-11-05 clients
+- **HTTP Transport No Body Size Enforcement** — No limit on request body size, allowing memory exhaustion. Added two-layer enforcement: Content-Length header check + streaming byte tracking
+- **HTTP Transport No Rate Limiting** — No per-IP request throttling. Added configurable sliding-window rate limiting with deterministic cleanup
+- **HTTP Transport `onConnect` Sync-Only** — Callback signature was synchronous, preventing `await` on reconnection logic. Changed to `(transport: Transport) => void | Promise<void>`
+
+### Added
+
+- **Dual HTTP Transport** — HTTP transport now supports both Streamable HTTP (`/mcp` endpoint, MCP protocol 2025-03-26) and Legacy SSE (`/sse` + `/messages` endpoints, MCP protocol 2024-11-05) simultaneously. Includes session management, cross-protocol guards, CORS, security headers, HSTS opt-in, OAuth integration, and health endpoint
+- **HTTP Transport Security Headers** — All HTTP responses now include `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control`, `Content-Security-Policy`, and `Permissions-Policy` headers. Optional HSTS for HTTPS deployments
+
 ### Dependencies
 
 - `@types/node`: 25.3.2 → 25.3.3

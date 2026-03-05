@@ -179,7 +179,7 @@ export class McpServer {
         const { createHttpTransport } = await import("../transports/http.js");
         const port = this.config.port ?? 3000;
 
-        const transport = createHttpTransport(
+        const httpTransport = createHttpTransport(
           {
             port,
             host: this.config.host ?? "localhost",
@@ -192,14 +192,18 @@ export class McpServer {
                 }
               : {}),
           },
-          (sseTransport) => {
-            logger.info("New SSE connection");
-            void this.server.connect(sseTransport);
+          async (mcpTransport) => {
+            logger.info("New client connection");
+            const server = this.server;
+            if (server.isConnected()) {
+              await server.close();
+            }
+            await server.connect(mcpTransport);
           },
         );
 
-        await transport.start();
-        this.activeTransport = transport;
+        await httpTransport.start();
+        this.activeTransport = httpTransport;
         break;
       }
       default:

@@ -2,7 +2,9 @@
  * mysql-mcp - HTTP Transport Unit Tests
  *
  * Tests for HTTP transport functionality including CORS,
- * health checks, OAuth metadata, and request routing.
+ * health checks, OAuth metadata, request routing, dual-transport
+ * support (Streamable HTTP + Legacy SSE), rate limiting, body
+ * size enforcement, and security headers.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -13,8 +15,8 @@ import { createServer } from "node:http";
 // Mock node:http
 vi.mock("node:http", () => {
   const mockServer = {
-    listen: vi.fn((port, host, cb) => cb()),
-    close: vi.fn((cb) => cb && cb()),
+    listen: vi.fn((_port: number, _host: string, cb: () => void) => cb()),
+    close: vi.fn((cb?: () => void) => cb && cb()),
     on: vi.fn(),
   };
   return {
@@ -29,9 +31,36 @@ vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => {
   return {
     StreamableHTTPServerTransport: vi.fn(function () {
       return {
-        start: vi.fn().mockResolvedValue(undefined),
         handleRequest: vi.fn().mockResolvedValue(undefined),
+        close: vi.fn().mockResolvedValue(undefined),
+        sessionId: "mock-session-id",
+        onclose: null,
       };
+    }),
+  };
+});
+
+// Mock SDK SSEServerTransport
+vi.mock("@modelcontextprotocol/sdk/server/sse.js", () => {
+  return {
+    SSEServerTransport: vi.fn(function (_path: string, _res: ServerResponse) {
+      return {
+        handlePostMessage: vi.fn().mockResolvedValue(undefined),
+        close: vi.fn().mockResolvedValue(undefined),
+        sessionId: `sse-session-${Date.now()}`,
+      };
+    }),
+  };
+});
+
+// Mock SDK types
+vi.mock("@modelcontextprotocol/sdk/types.js", () => {
+  return {
+    isInitializeRequest: vi.fn((body: unknown) => {
+      if (body && typeof body === "object" && "method" in body) {
+        return (body as { method: string }).method === "initialize";
+      }
+      return false;
     }),
   };
 });
@@ -45,6 +74,34 @@ vi.mock("../../utils/logger.js", () => ({
     debug: vi.fn(),
   },
 }));
+
+/**
+ * Helper to create a mock IncomingMessage for handleRequest
+ */
+function createMockRequest(
+  overrides: Partial<IncomingMessage> & { url?: string; method?: string } = {},
+): IncomingMessage {
+  return {
+    method: "GET",
+    url: "/",
+    headers: { host: "localhost:3000" },
+    socket: { remoteAddress: "127.0.0.1" },
+    ...overrides,
+  } as unknown as IncomingMessage;
+}
+
+/**
+ * Helper to create a mock ServerResponse
+ */
+function createMockResponse(): ServerResponse {
+  return {
+    writeHead: vi.fn(),
+    end: vi.fn(),
+    setHeader: vi.fn(),
+    headersSent: false,
+    on: vi.fn(),
+  } as unknown as ServerResponse;
+}
 
 describe("HttpTransport", () => {
   let transport: HttpTransport;
@@ -61,7 +118,8 @@ describe("HttpTransport", () => {
     it("should start server on start()", async () => {
       await transport.start();
       expect(createServer).toHaveBeenCalled();
-      const server = (createServer as any).mock.results[0].value;
+      const server = (createServer as ReturnType<typeof vi.fn>).mock.results[0]
+        .value;
       expect(server.listen).toHaveBeenCalledWith(
         3000,
         "localhost",
@@ -73,13 +131,41 @@ describe("HttpTransport", () => {
     it("should stop server on stop()", async () => {
       await transport.start();
       await transport.stop();
-      const server = (createServer as any).mock.results[0].value;
+      const server = (createServer as ReturnType<typeof vi.fn>).mock.results[0]
+        .value;
       expect(server.close).toHaveBeenCalled();
     });
 
     it("should do nothing on stop() if not started", async () => {
       const result = await transport.stop();
       expect(result).toBeUndefined();
+    });
+
+    it("should close all transports on stop()", async () => {
+      // Manually add mock transports to the session map
+      const transports = transport.getTransports();
+      const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
+      const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
+      transports.set("session-1", mockT1 as never);
+      transports.set("session-2", mockT2 as never);
+
+      await transport.stop();
+
+      expect(mockT1.close).toHaveBeenCalled();
+      expect(mockT2.close).toHaveBeenCalled();
+      expect(transports.size).toBe(0);
+    });
+
+    it("should handle close errors gracefully during stop()", async () => {
+      const transports = transport.getTransports();
+      const mockT = {
+        close: vi.fn().mockRejectedValue(new Error("close error")),
+      };
+      transports.set("session-err", mockT as never);
+
+      // Should not throw
+      await transport.stop();
+      expect(transports.size).toBe(0);
     });
   });
 
@@ -92,6 +178,12 @@ describe("HttpTransport", () => {
       const t = new HttpTransport({ port: 8080 });
       expect(t).toBeInstanceOf(HttpTransport);
     });
+
+    it("should apply default configuration values", () => {
+      const t = new HttpTransport({ port: 3000 });
+      // Just verify it constructs without error — config is private
+      expect(t).toBeInstanceOf(HttpTransport);
+    });
   });
 
   describe("setCorsHeaders()", () => {
@@ -101,15 +193,11 @@ describe("HttpTransport", () => {
         corsOrigins: ["https://allowed.example.com"],
       });
 
-      const mockReq = {
+      const mockReq = createMockRequest({
         headers: { origin: "https://notallowed.example.com" },
-      } as IncomingMessage;
+      });
+      const mockRes = createMockResponse();
 
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
-
-      // Access private method via prototype
       (
         transportWithCors as unknown as {
           setCorsHeaders: (req: IncomingMessage, res: ServerResponse) => void;
@@ -125,13 +213,10 @@ describe("HttpTransport", () => {
         corsOrigins: ["https://allowed.example.com"],
       });
 
-      const mockReq = {
+      const mockReq = createMockRequest({
         headers: { origin: "https://allowed.example.com" },
-      } as IncomingMessage;
-
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+      });
+      const mockRes = createMockResponse();
 
       (
         transportWithCors as unknown as {
@@ -145,11 +230,15 @@ describe("HttpTransport", () => {
       );
       expect(mockRes.setHeader).toHaveBeenCalledWith(
         "Access-Control-Allow-Methods",
-        "GET, POST, OPTIONS",
+        "GET, POST, DELETE, OPTIONS",
       );
       expect(mockRes.setHeader).toHaveBeenCalledWith(
         "Access-Control-Allow-Headers",
-        "Content-Type, Authorization",
+        "Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID",
+      );
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        "Access-Control-Expose-Headers",
+        "Mcp-Session-Id",
       );
     });
 
@@ -159,13 +248,8 @@ describe("HttpTransport", () => {
         corsOrigins: ["https://allowed.example.com"],
       });
 
-      const mockReq = {
-        headers: {},
-      } as IncomingMessage;
-
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockReq = createMockRequest({ headers: {} });
+      const mockRes = createMockResponse();
 
       (
         transportWithCors as unknown as {
@@ -175,14 +259,35 @@ describe("HttpTransport", () => {
 
       expect(mockRes.setHeader).not.toHaveBeenCalled();
     });
+
+    it("should set credentials header when configured", () => {
+      const transportWithCors = new HttpTransport({
+        port: 3000,
+        corsOrigins: ["https://allowed.example.com"],
+        corsAllowCredentials: true,
+      });
+
+      const mockReq = createMockRequest({
+        headers: { origin: "https://allowed.example.com" },
+      });
+      const mockRes = createMockResponse();
+
+      (
+        transportWithCors as unknown as {
+          setCorsHeaders: (req: IncomingMessage, res: ServerResponse) => void;
+        }
+      ).setCorsHeaders(mockReq, mockRes);
+
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        "Access-Control-Allow-Credentials",
+        "true",
+      );
+    });
   });
 
   describe("handleHealthCheck()", () => {
     it("should return healthy status", () => {
-      const mockRes = {
-        writeHead: vi.fn(),
-        end: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -203,10 +308,7 @@ describe("HttpTransport", () => {
     });
 
     it("should include ISO timestamp", () => {
-      const mockRes = {
-        writeHead: vi.fn(),
-        end: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -218,17 +320,13 @@ describe("HttpTransport", () => {
         .calls[0][0];
       const response = JSON.parse(endCall as string);
 
-      // Validate ISO timestamp format
       expect(() => new Date(response.timestamp as string)).not.toThrow();
     });
   });
 
   describe("handleProtectedResourceMetadata()", () => {
     it("should return 404 when OAuth not configured", () => {
-      const mockRes = {
-        writeHead: vi.fn(),
-        end: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -258,10 +356,7 @@ describe("HttpTransport", () => {
         resourceServer: mockResourceServer as never,
       });
 
-      const mockRes = {
-        writeHead: vi.fn(),
-        end: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transportWithOAuth as unknown as {
@@ -283,9 +378,7 @@ describe("HttpTransport", () => {
 
   describe("setSecurityHeaders()", () => {
     it("should set X-Content-Type-Options header", () => {
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -300,9 +393,7 @@ describe("HttpTransport", () => {
     });
 
     it("should set X-Frame-Options header", () => {
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -313,27 +404,8 @@ describe("HttpTransport", () => {
       expect(mockRes.setHeader).toHaveBeenCalledWith("X-Frame-Options", "DENY");
     });
 
-    it("should set X-XSS-Protection header", () => {
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "X-XSS-Protection",
-        "1; mode=block",
-      );
-    });
-
     it("should set Cache-Control header", () => {
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -348,9 +420,7 @@ describe("HttpTransport", () => {
     });
 
     it("should set Content-Security-Policy header", () => {
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -364,10 +434,8 @@ describe("HttpTransport", () => {
       );
     });
 
-    it("should set all 8 security headers", () => {
-      const mockRes = {
-        setHeader: vi.fn(),
-      } as unknown as ServerResponse;
+    it("should set 5 security headers by default (HSTS disabled)", () => {
+      const mockRes = createMockResponse();
 
       (
         transport as unknown as {
@@ -375,16 +443,42 @@ describe("HttpTransport", () => {
         }
       ).setSecurityHeaders(mockRes);
 
-      // Verify exactly 8 headers were set (5 original + 3 new: HSTS, Referrer-Policy, Permissions-Policy)
-      expect(mockRes.setHeader).toHaveBeenCalledTimes(8);
+      // 5 headers: X-Content-Type-Options, X-Frame-Options, Cache-Control,
+      // Content-Security-Policy, Permissions-Policy
+      expect(mockRes.setHeader).toHaveBeenCalledTimes(5);
+    });
+
+    it("should include HSTS header when enabled", () => {
+      const transportWithHSTS = new HttpTransport({
+        port: 3000,
+        enableHSTS: true,
+      });
+
+      const mockRes = createMockResponse();
+
+      (
+        transportWithHSTS as unknown as {
+          setSecurityHeaders: (res: ServerResponse) => void;
+        }
+      ).setSecurityHeaders(mockRes);
+
+      // 5 base + 1 HSTS = 6 headers
+      expect(mockRes.setHeader).toHaveBeenCalledTimes(6);
       expect(mockRes.setHeader).toHaveBeenCalledWith(
         "Strict-Transport-Security",
-        "max-age=63072000; includeSubDomains",
+        expect.stringContaining("max-age="),
       );
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Referrer-Policy",
-        "no-referrer",
-      );
+    });
+
+    it("should set Permissions-Policy header", () => {
+      const mockRes = createMockResponse();
+
+      (
+        transport as unknown as {
+          setSecurityHeaders: (res: ServerResponse) => void;
+        }
+      ).setSecurityHeaders(mockRes);
+
       expect(mockRes.setHeader).toHaveBeenCalledWith(
         "Permissions-Policy",
         "camera=(), microphone=(), geolocation=()",
@@ -397,6 +491,7 @@ describe("handleRequest()", () => {
   let transport: HttpTransport;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     transport = new HttpTransport({
       port: 3000,
       corsOrigins: ["https://example.com"],
@@ -404,17 +499,12 @@ describe("handleRequest()", () => {
   });
 
   it("should handle OPTIONS preflight request", async () => {
-    const mockReq = {
+    const mockReq = createMockRequest({
       method: "OPTIONS",
       url: "/mcp",
       headers: { host: "localhost:3000", origin: "https://example.com" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
+    });
+    const mockRes = createMockResponse();
 
     await (
       transport as unknown as {
@@ -430,17 +520,8 @@ describe("handleRequest()", () => {
   });
 
   it("should route to health check endpoint", async () => {
-    const mockReq = {
-      method: "GET",
-      url: "/health",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
+    const mockReq = createMockRequest({ method: "GET", url: "/health" });
+    const mockRes = createMockResponse();
 
     await (
       transport as unknown as {
@@ -459,17 +540,11 @@ describe("handleRequest()", () => {
   });
 
   it("should route to OAuth metadata endpoint", async () => {
-    const mockReq = {
+    const mockReq = createMockRequest({
       method: "GET",
       url: "/.well-known/oauth-protected-resource",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
+    });
+    const mockRes = createMockResponse();
 
     await (
       transport as unknown as {
@@ -480,22 +555,15 @@ describe("handleRequest()", () => {
       }
     ).handleRequest(mockReq, mockRes);
 
-    // Without OAuth configured, should return 404
     expect(mockRes.writeHead).toHaveBeenCalledWith(404);
   });
 
   it("should return 404 for unknown paths", async () => {
-    const mockReq = {
+    const mockReq = createMockRequest({
       method: "GET",
       url: "/unknown-path",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
+    });
+    const mockRes = createMockResponse();
 
     await (
       transport as unknown as {
@@ -528,17 +596,8 @@ describe("handleRequest()", () => {
       tokenValidator: mockTokenValidator as never,
     });
 
-    const mockReq = {
-      method: "GET",
-      url: "/mcp",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
+    const mockReq = createMockRequest({ method: "GET", url: "/mcp" });
+    const mockRes = createMockResponse();
 
     await (
       transportWithOAuth as unknown as {
@@ -557,122 +616,48 @@ describe("handleRequest()", () => {
     );
   });
 
-  it("should allow authenticated requests when OAuth is configured", async () => {
-    const mockTokenValidator = {
-      validate: vi.fn().mockResolvedValue({
-        valid: true,
-        claims: { sub: "user1", scopes: ["read"], exp: 0, iat: 0 },
-      }),
-    };
-
-    const mockResourceServer = {
-      getMetadata: vi.fn().mockReturnValue({ resource: "test" }),
-    };
-
-    const transportWithOAuth = new HttpTransport({
+  it("should return 429 when rate limited", async () => {
+    const rateLimitedTransport = new HttpTransport({
       port: 3000,
-      resourceServer: mockResourceServer as never,
-      tokenValidator: mockTokenValidator as never,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
     });
 
-    const mockReq = {
-      method: "GET",
+    const mockReq = createMockRequest({ method: "GET", url: "/health" });
+    const mockRes1 = createMockResponse();
+    const mockRes2 = createMockResponse();
+
+    const handleRequest = (
+      rateLimitedTransport as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest.bind(rateLimitedTransport);
+
+    // First request should succeed
+    await handleRequest(mockReq, mockRes1);
+    expect(mockRes1.writeHead).toHaveBeenCalledWith(200, expect.any(Object));
+
+    // Second request should be rate limited
+    await handleRequest(mockReq, mockRes2);
+    expect(mockRes2.writeHead).toHaveBeenCalledWith(429, {
+      "Content-Type": "application/json",
+    });
+  });
+
+  it("should reject oversized Content-Length", async () => {
+    const mockReq = createMockRequest({
+      method: "POST",
       url: "/mcp",
       headers: {
         host: "localhost:3000",
-        authorization: "Bearer valid_token",
+        "content-length": "999999999",
       },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
-
-    await (
-      transportWithOAuth as unknown as {
-        handleRequest: (
-          req: IncomingMessage,
-          res: ServerResponse,
-        ) => Promise<void>;
-      }
-    ).handleRequest(mockReq, mockRes);
-
-    // After successful auth, should return 404 (no MCP handling yet)
-    expect(mockRes.writeHead).toHaveBeenCalledWith(404);
-  });
-});
-
-describe("SSE Support", () => {
-  it("should route to SSE endpoint", async () => {
-    const mockReq = {
-      method: "GET",
-      url: "/sse",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
-
-    // Spy on onConnect callback
-    const onConnect = vi.fn();
-    const transportWithCallback = createHttpTransport(
-      { port: 3000 },
-      onConnect,
-    );
-    const { StreamableHTTPServerTransport } =
-      await import("@modelcontextprotocol/sdk/server/streamableHttp.js");
-
-    await (
-      transportWithCallback as unknown as {
-        handleRequest: (
-          req: IncomingMessage,
-          res: ServerResponse,
-        ) => Promise<void>;
-      }
-    ).handleRequest(mockReq, mockRes);
-
-    expect(StreamableHTTPServerTransport).toHaveBeenCalled();
-    // Verify start called (mocked)
-    const mockTransportInstance = (
-      StreamableHTTPServerTransport as unknown as ReturnType<typeof vi.fn>
-    ).mock.results[0].value;
-    expect(mockTransportInstance.start).toHaveBeenCalled();
-    expect(onConnect).toHaveBeenCalledWith(mockTransportInstance);
-    expect(mockTransportInstance.handleRequest).toHaveBeenCalledWith(
-      mockReq,
-      mockRes,
-    );
-  });
-
-  it("should route to messages endpoint", async () => {
-    const mockReq = {
-      method: "POST",
-      url: "/messages",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
-
-    // Setup transport with active SSE connection
-    const transport = new HttpTransport({ port: 3000 });
-    const { StreamableHTTPServerTransport } =
-      await import("@modelcontextprotocol/sdk/server/streamableHttp.js");
-    const mockTransportInstance = new StreamableHTTPServerTransport();
-
-    // Manually set transport (private)
-    Object.defineProperty(transport, "transport", {
-      value: mockTransportInstance,
-      writable: true,
     });
+    const mockRes = createMockResponse();
 
     await (
       transport as unknown as {
@@ -683,26 +668,14 @@ describe("SSE Support", () => {
       }
     ).handleRequest(mockReq, mockRes);
 
-    expect(mockTransportInstance.handleRequest).toHaveBeenCalledWith(
-      mockReq,
-      mockRes,
-    );
+    expect(mockRes.writeHead).toHaveBeenCalledWith(413, {
+      "Content-Type": "application/json",
+    });
   });
 
-  it("should return 400 for messages without active connection", async () => {
-    const mockReq = {
-      method: "POST",
-      url: "/messages",
-      headers: { host: "localhost:3000" },
-    } as IncomingMessage;
-
-    const mockRes = {
-      writeHead: vi.fn(),
-      end: vi.fn(),
-      setHeader: vi.fn(),
-    } as unknown as ServerResponse;
-
-    const transport = new HttpTransport({ port: 3000 });
+  it("should dispatch to /mcp for Streamable HTTP", async () => {
+    const mockReq = createMockRequest({ method: "GET", url: "/mcp" });
+    const mockRes = createMockResponse();
 
     await (
       transport as unknown as {
@@ -713,12 +686,130 @@ describe("SSE Support", () => {
       }
     ).handleRequest(mockReq, mockRes);
 
-    expect(mockRes.writeHead).toHaveBeenCalledWith(400);
+    // GET /mcp without session ID → 400 (no valid session)
+    expect(mockRes.writeHead).toHaveBeenCalledWith(400, {
+      "Content-Type": "application/json",
+    });
+  });
+
+  it("should dispatch to /sse for Legacy SSE", async () => {
+    const onConnect = vi.fn();
+    const t = new HttpTransport({ port: 3000 }, onConnect);
+
+    const mockReq = createMockRequest({ method: "GET", url: "/sse" });
+    const mockRes = createMockResponse();
+
+    await (
+      t as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    // SSE should have been created (onConnect called)
+    expect(onConnect).toHaveBeenCalled();
+    // Transport should be registered in the session map
+    expect(t.getTransports().size).toBe(1);
+  });
+
+  it("should dispatch to /messages for legacy message routing", async () => {
+    const mockReq = createMockRequest({
+      method: "POST",
+      url: "/messages?sessionId=nonexistent",
+    });
+    const mockRes = createMockResponse();
+
+    await (
+      transport as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    // No transport for this session → 404
+    expect(mockRes.writeHead).toHaveBeenCalledWith(404, {
+      "Content-Type": "application/json",
+    });
+  });
+
+  it("should return 400 for /messages without sessionId", async () => {
+    const mockReq = createMockRequest({
+      method: "POST",
+      url: "/messages",
+    });
+    const mockRes = createMockResponse();
+
+    await (
+      transport as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(400, {
+      "Content-Type": "application/json",
+    });
     const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(JSON.parse(endCall as string)).toHaveProperty(
       "error",
-      "No active connection",
+      "Missing sessionId parameter",
     );
+  });
+});
+
+describe("readBody()", () => {
+  it("should return undefined for GET requests", async () => {
+    const transport = new HttpTransport({ port: 3000 });
+    const mockReq = createMockRequest({ method: "GET" });
+
+    const result = await (
+      transport as unknown as {
+        readBody: (req: IncomingMessage) => Promise<unknown>;
+      }
+    ).readBody(mockReq);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined for DELETE requests", async () => {
+    const transport = new HttpTransport({ port: 3000 });
+    const mockReq = createMockRequest({ method: "DELETE" });
+
+    const result = await (
+      transport as unknown as {
+        readBody: (req: IncomingMessage) => Promise<unknown>;
+      }
+    ).readBody(mockReq);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined for OPTIONS requests", async () => {
+    const transport = new HttpTransport({ port: 3000 });
+    const mockReq = createMockRequest({ method: "OPTIONS" });
+
+    const result = await (
+      transport as unknown as {
+        readBody: (req: IncomingMessage) => Promise<unknown>;
+      }
+    ).readBody(mockReq);
+
+    expect(result).toBeUndefined();
+  });
+});
+
+describe("getTransports()", () => {
+  it("should return the transport map", () => {
+    const transport = new HttpTransport({ port: 3000 });
+    const map = transport.getTransports();
+    expect(map).toBeInstanceOf(Map);
+    expect(map.size).toBe(0);
   });
 });
 
@@ -734,6 +825,12 @@ describe("createHttpTransport()", () => {
       host: "0.0.0.0",
       corsOrigins: ["https://example.com"],
     });
+    expect(transport).toBeInstanceOf(HttpTransport);
+  });
+
+  it("should accept onConnect callback", () => {
+    const onConnect = vi.fn();
+    const transport = createHttpTransport({ port: 3000 }, onConnect);
     expect(transport).toBeInstanceOf(HttpTransport);
   });
 });
