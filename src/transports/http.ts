@@ -712,31 +712,35 @@ export class HttpTransport {
    */
   private setCorsHeaders(req: IncomingMessage, res: ServerResponse): void {
     const origin = req.headers.origin;
+    const allowAll = this.config.corsOrigins?.includes("*");
 
-    // Only allow configured origins
-    if (origin && this.config.corsOrigins?.includes(origin)) {
+    if (allowAll) {
+      // Wildcard: allow all origins
+      res.setHeader("Access-Control-Allow-Origin", "*");
+    } else if (origin && this.config.corsOrigins?.includes(origin)) {
+      // Explicit origin match
       res.setHeader("Access-Control-Allow-Origin", origin);
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET, POST, DELETE, OPTIONS",
-      );
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID",
-      );
-      res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
-      res.setHeader("Access-Control-Max-Age", "86400");
-
-      // Vary header is important for correct caching behavior
+      // Vary header is important for correct caching behavior with explicit origins
       res.setHeader("Vary", "Origin");
+    } else {
+      // No match — don't set CORS headers
+      return;
+    }
 
-      // Allow credentials if explicitly configured (needed for browser cookies/auth)
-      if (this.config.corsAllowCredentials) {
-        res.setHeader("Access-Control-Allow-Credentials", "true");
-      }
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID",
+    );
+    res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
+    res.setHeader("Access-Control-Max-Age", "86400");
+
+    // Allow credentials if explicitly configured (needed for browser cookies/auth)
+    // Note: credentials cannot be used with wildcard origin per CORS spec
+    if (this.config.corsAllowCredentials && !allowAll) {
+      res.setHeader("Access-Control-Allow-Credentials", "true");
     }
   }
-
   // ===========================================================================
   // Accessors
   // ===========================================================================

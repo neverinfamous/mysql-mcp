@@ -153,13 +153,16 @@ export class McpServer {
       await this.startTransport(this.config.transport);
       this.started = true;
 
-      // Enable MCP protocol logging now that transport is connected
-      mcpLogger.setConnected(true);
+      // For stdio, enable MCP protocol logging immediately (client connected during startTransport)
+      // For HTTP/SSE, defer until a client actually connects (see onConnect callback in startTransport)
+      if (this.config.transport === "stdio") {
+        mcpLogger.setConnected(true);
+        mcpLogger.info("MySQL MCP server ready", {
+          transport: this.config.transport,
+        });
+      }
 
       logger.info("Server started successfully");
-      mcpLogger.info("MySQL MCP server ready", {
-        transport: this.config.transport,
-      });
     } catch (error) {
       logger.error("Failed to start server", { error: String(error) });
       throw error;
@@ -199,6 +202,12 @@ export class McpServer {
               await server.close();
             }
             await server.connect(mcpTransport);
+
+            // Enable MCP protocol logging now that a client is actually connected
+            mcpLogger.setConnected(true);
+            mcpLogger.info("MySQL MCP server ready", {
+              transport: this.config.transport,
+            });
           },
         );
 

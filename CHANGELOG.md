@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **HTTP Transport No Body Size Enforcement** — No limit on request body size, allowing memory exhaustion. Added two-layer enforcement: Content-Length header check + streaming byte tracking
 - **HTTP Transport No Rate Limiting** — No per-IP request throttling. Added configurable sliding-window rate limiting with deterministic cleanup
 - **HTTP Transport `onConnect` Sync-Only** — Callback signature was synchronous, preventing `await` on reconnection logic. Changed to `(transport: Transport) => void | Promise<void>`
+- **HTTP Transport Server Crash on Startup in HTTP Mode** — `mcpLogger.setConnected(true)` was called in `McpServer.start()` before any client connected, causing `Error: Not connected` crash on `sendLoggingMessage()`. Fixed by deferring to `onConnect` callback for HTTP/SSE transport
+- **HTTP Transport CORS Wildcard Not Working** — `corsOrigins: ["*"]` was compared literally against the request `Origin` header and never matched. Added proper wildcard handling: when `"*"` is in `corsOrigins`, `Access-Control-Allow-Origin` is set to `"*"` unconditionally
+- **HTTP Transport CORS Credential/Wildcard Conflict** — `Access-Control-Allow-Credentials: true` was set even with wildcard origin, violating the CORS spec. Now only set when explicit origins are used
 
 ### Added
 
