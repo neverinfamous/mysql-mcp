@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved
+
+- **Centralized Error Helpers** — Created `src/adapters/mysql/tools/core/error-helpers.ts` with `formatMysqlError`, `formatZodError`, and `formatHandlerError` functions. All error formatting is now centralized instead of scattered across individual tool files
+- **Error Handling Standardization (Phase 1: Pattern B Files)** — Restructured 23 handlers across 9 files (`core.ts`, `partitioning.ts`, 6 schema files) to use a single outer `try/catch` pattern. Previously, these handlers had Zod-only catches with `throw error` re-throws, leaving domain errors unprotected. All handlers now format Zod validation errors and MySQL query errors consistently using the centralized helpers. Eliminated all `throw err`/`throw error` patterns from the tools directory
+
 ### Fixed
 
 - **HTTP Transport Server Crash on Reconnect (Critical)** — `void this.server.connect(sseTransport)` in `McpServer.startTransport()` called `connect()` without first calling `close()`, causing an "Already connected" crash on subsequent connections. Fixed with `close()`-before-`connect()` pattern

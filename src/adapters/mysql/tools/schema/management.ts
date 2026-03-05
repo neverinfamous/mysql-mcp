@@ -1,9 +1,6 @@
 import { z, ZodError } from "zod";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
+import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -46,19 +43,11 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListSchemasSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { pattern } = parsed;
+        const { pattern } = ListSchemasSchema.parse(params);
 
-      let query = `
-                SELECT 
+        let query = `
+                SELECT
                     SCHEMA_NAME as name,
                     DEFAULT_CHARACTER_SET_NAME as charset,
                     DEFAULT_COLLATION_NAME as collation
@@ -66,19 +55,24 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE SCHEMA_NAME NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')
             `;
 
-      const queryParams: unknown[] = [];
-      if (pattern) {
-        query += " AND SCHEMA_NAME LIKE ?";
-        queryParams.push(pattern);
+        const queryParams: unknown[] = [];
+        if (pattern) {
+          query += " AND SCHEMA_NAME LIKE ?";
+          queryParams.push(pattern);
+        }
+
+        query += " ORDER BY SCHEMA_NAME";
+
+        const result = await adapter.executeQuery(query, queryParams);
+        return {
+          schemas: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
       }
-
-      query += " ORDER BY SCHEMA_NAME";
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        schemas: result.rows,
-        count: result.rows?.length ?? 0,
-      };
     },
   };
 }
@@ -99,64 +93,57 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = CreateSchemaSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const { name, charset, collation, ifNotExists } =
+          CreateSchemaSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return { success: false, error: "Invalid schema name" };
         }
-        throw error;
-      }
-      const { name, charset, collation, ifNotExists } = parsed;
 
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        return { success: false, error: "Invalid schema name" };
-      }
-
-      if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
-        return { success: false, error: `Invalid charset: ${charset}` };
-      }
-      if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
-        return { success: false, error: `Invalid collation: ${collation}` };
-      }
-
-      // Pre-check: detect no-op when ifNotExists is true
-      if (ifNotExists) {
-        const check = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [name],
-        );
-        if (check.rows && check.rows.length > 0) {
-          return {
-            success: true,
-            skipped: true,
-            reason: "Schema already exists",
-            schemaName: name,
-          };
+        if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
+          return { success: false, error: `Invalid charset: ${charset}` };
         }
-      }
+        if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
+          return { success: false, error: `Invalid collation: ${collation}` };
+        }
 
-      const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
-      const sql = `CREATE DATABASE ${ifNotExistsClause}\`${name}\` CHARACTER SET ${charset} COLLATE ${collation}`;
+        // Pre-check: detect no-op when ifNotExists is true
+        if (ifNotExists) {
+          const check = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [name],
+          );
+          if (check.rows && check.rows.length > 0) {
+            return {
+              success: true,
+              skipped: true,
+              reason: "Schema already exists",
+              schemaName: name,
+            };
+          }
+        }
 
-      try {
-        await adapter.executeQuery(sql);
-        return { success: true, schemaName: name };
+        const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
+        const sql = `CREATE DATABASE ${ifNotExistsClause}\`${name}\` CHARACTER SET ${charset} COLLATE ${collation}`;
+
+        try {
+          await adapter.executeQuery(sql);
+          return { success: true, schemaName: name };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.toLowerCase().includes("database exists")) {
+            return {
+              success: false,
+              error: `Schema '${name}' already exists`,
+            };
+          }
+          return { success: false, error: formatMysqlError(err) };
+        }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.toLowerCase().includes("database exists")) {
-          return {
-            success: false,
-            error: `Schema '${name}' already exists`,
-          };
-        }
-        return {
-          success: false,
-          error: message
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, ""),
-        };
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
       }
     },
   };
@@ -179,70 +166,62 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       destructiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = DropSchemaSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const { name, ifExists } = DropSchemaSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return { success: false, error: "Invalid schema name" };
         }
-        throw error;
-      }
-      const { name, ifExists } = parsed;
 
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        return { success: false, error: "Invalid schema name" };
-      }
-
-      const systemSchemas = [
-        "mysql",
-        "information_schema",
-        "performance_schema",
-        "sys",
-      ];
-      if (systemSchemas.includes(name.toLowerCase())) {
-        return { success: false, error: "Cannot drop system schema" };
-      }
-
-      // Pre-check: detect no-op when ifExists is true
-      if (ifExists) {
-        const check = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [name],
-        );
-        if (!check.rows || check.rows.length === 0) {
-          return {
-            success: true,
-            skipped: true,
-            reason: "Schema did not exist",
-            schemaName: name,
-          };
+        const systemSchemas = [
+          "mysql",
+          "information_schema",
+          "performance_schema",
+          "sys",
+        ];
+        if (systemSchemas.includes(name.toLowerCase())) {
+          return { success: false, error: "Cannot drop system schema" };
         }
-      }
 
-      const ifExistsClause = ifExists ? "IF EXISTS " : "";
-      try {
-        await adapter.executeQuery(
-          `DROP DATABASE ${ifExistsClause}\`${name}\``,
-        );
-        return { success: true, schemaName: name };
+        // Pre-check: detect no-op when ifExists is true
+        if (ifExists) {
+          const check = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [name],
+          );
+          if (!check.rows || check.rows.length === 0) {
+            return {
+              success: true,
+              skipped: true,
+              reason: "Schema did not exist",
+              schemaName: name,
+            };
+          }
+        }
+
+        const ifExistsClause = ifExists ? "IF EXISTS " : "";
+        try {
+          await adapter.executeQuery(
+            `DROP DATABASE ${ifExistsClause}\`${name}\``,
+          );
+          return { success: true, schemaName: name };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (
+            message.toLowerCase().includes("database doesn't exist") ||
+            message.toLowerCase().includes("database does not exist")
+          ) {
+            return {
+              success: false,
+              error: `Schema '${name}' does not exist`,
+            };
+          }
+          return { success: false, error: formatMysqlError(err) };
+        }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (
-          message.toLowerCase().includes("database doesn't exist") ||
-          message.toLowerCase().includes("database does not exist")
-        ) {
-          return {
-            success: false,
-            error: `Schema '${name}' does not exist`,
-          };
-        }
-        return {
-          success: false,
-          error: message
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, ""),
-        };
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
       }
     },
   };

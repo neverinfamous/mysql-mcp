@@ -1,9 +1,6 @@
 import { z, ZodError } from "zod";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
+import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -60,30 +57,22 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListViewsSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { schema } = parsed;
+        const { schema } = ListViewsSchema.parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
         }
-      }
 
-      const query = `
-                SELECT 
+        const query = `
+                SELECT
                     TABLE_NAME as name,
                     VIEW_DEFINITION as definition,
                     DEFINER as definer,
@@ -95,11 +84,16 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY TABLE_NAME
             `;
 
-      const result = await adapter.executeQuery(query, [schema ?? null]);
-      return {
-        views: result.rows,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query, [schema ?? null]);
+        return {
+          views: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
+      }
     },
   };
 }
@@ -120,51 +114,44 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = CreateViewSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const { name, definition, orReplace, algorithm, checkOption } =
+          CreateViewSchema.parse(params);
+
+        try {
+          validateQualifiedIdentifier(name, "view");
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          return { success: false, error: message };
         }
-        throw error;
-      }
-      const { name, definition, orReplace, algorithm, checkOption } = parsed;
 
-      try {
-        validateQualifiedIdentifier(name, "view");
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        return { success: false, error: message };
-      }
+        const fullViewName = escapeQualifiedTable(name);
 
-      const fullViewName = escapeQualifiedTable(name);
+        const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
+        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${definition}`;
 
-      const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
-      let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${definition}`;
-
-      if (checkOption !== "NONE") {
-        sql += ` WITH ${checkOption} CHECK OPTION`;
-      }
-
-      try {
-        await adapter.executeQuery(sql);
-        adapter.clearSchemaCache();
-        return { success: true, viewName: name };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.toLowerCase().includes("already exists")) {
-          return {
-            success: false,
-            error: `View '${name}' already exists`,
-          };
+        if (checkOption !== "NONE") {
+          sql += ` WITH ${checkOption} CHECK OPTION`;
         }
-        return {
-          success: false,
-          error: message
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, ""),
-        };
+
+        try {
+          await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
+          return { success: true, viewName: name };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.toLowerCase().includes("already exists")) {
+            return {
+              success: false,
+              error: `View '${name}' already exists`,
+            };
+          }
+          return { success: false, error: formatMysqlError(err) };
+        }
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
       }
     },
   };

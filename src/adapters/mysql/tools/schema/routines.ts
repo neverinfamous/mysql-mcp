@@ -1,9 +1,6 @@
 import { z, ZodError } from "zod";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
+import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -35,30 +32,22 @@ export function createListStoredProceduresTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListObjectsSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { schema } = parsed;
+        const { schema } = ListObjectsSchema.parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
         }
-      }
 
-      const query = `
-                SELECT 
+        const query = `
+                SELECT
                     r.ROUTINE_NAME as name,
                     r.ROUTINE_TYPE as type,
                     r.DEFINER as definer,
@@ -73,22 +62,27 @@ export function createListStoredProceduresTool(
                         SEPARATOR ', '
                     ) as parameters
                 FROM information_schema.ROUTINES r
-                LEFT JOIN information_schema.PARAMETERS p 
-                    ON r.ROUTINE_SCHEMA = p.SPECIFIC_SCHEMA 
+                LEFT JOIN information_schema.PARAMETERS p
+                    ON r.ROUTINE_SCHEMA = p.SPECIFIC_SCHEMA
                     AND r.ROUTINE_NAME = p.SPECIFIC_NAME
                     AND p.PARAMETER_MODE IS NOT NULL
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'PROCEDURE'
-                GROUP BY r.ROUTINE_NAME, r.ROUTINE_TYPE, r.DEFINER, r.CREATED, 
+                GROUP BY r.ROUTINE_NAME, r.ROUTINE_TYPE, r.DEFINER, r.CREATED,
                          r.LAST_ALTERED, r.SQL_DATA_ACCESS, r.SECURITY_TYPE, r.ROUTINE_COMMENT
                 ORDER BY r.ROUTINE_NAME
             `;
 
-      const result = await adapter.executeQuery(query, [schema ?? null]);
-      return {
-        procedures: result.rows,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query, [schema ?? null]);
+        return {
+          procedures: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
+      }
     },
   };
 }
@@ -110,30 +104,22 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListObjectsSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { schema } = parsed;
+        const { schema } = ListObjectsSchema.parse(params);
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (schema) {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return { exists: false, schema };
+          }
         }
-      }
 
-      const query = `
-                SELECT 
+        const query = `
+                SELECT
                     r.ROUTINE_NAME as name,
                     r.DATA_TYPE as returnType,
                     r.DEFINER as definer,
@@ -149,11 +135,16 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY r.ROUTINE_NAME
             `;
 
-      const result = await adapter.executeQuery(query, [schema ?? null]);
-      return {
-        functions: result.rows,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query, [schema ?? null]);
+        return {
+          functions: result.rows,
+          count: result.rows?.length ?? 0,
+        };
+      } catch (err: unknown) {
+        if (err instanceof ZodError)
+          return { success: false, error: formatZodError(err) };
+        return { success: false, error: formatMysqlError(err) };
+      }
     },
   };
 }
