@@ -6,6 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,11 +16,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Schemas
@@ -91,10 +87,10 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Calculate Pearson correlation coefficient
         const query = `
-                SELECT 
+                SELECT
                     (COUNT(*) * SUM(\`${column1}\` * \`${column2}\`) - SUM(\`${column1}\`) * SUM(\`${column2}\`)) /
                     (SQRT(COUNT(*) * SUM(\`${column1}\` * \`${column1}\`) - SUM(\`${column1}\`) * SUM(\`${column1}\`)) *
-                     SQRT(COUNT(*) * SUM(\`${column2}\` * \`${column2}\`) - SUM(\`${column2}\`) * SUM(\`${column2}\`))) 
+                     SQRT(COUNT(*) * SUM(\`${column2}\` * \`${column2}\`) - SUM(\`${column2}\`) * SUM(\`${column2}\`)))
                     as correlation,
                     COUNT(*) as sample_size,
                     AVG(\`${column1}\`) as mean_x,
@@ -138,9 +134,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,
@@ -190,7 +184,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Simpler approach for MySQL
         const statsQuery = `
-                SELECT 
+                SELECT
                     COUNT(*) as n,
                     AVG(\`${xColumn}\`) as avg_x,
                     AVG(\`${yColumn}\`) as avg_y,
@@ -251,9 +245,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,
@@ -335,7 +327,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get histogram info from information_schema
         const histogramQuery = `
-                SELECT 
+                SELECT
                     SCHEMA_NAME as schemaName,
                     TABLE_NAME as tableName,
                     COLUMN_NAME as columnName,
@@ -380,9 +372,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,

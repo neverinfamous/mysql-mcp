@@ -10,6 +10,7 @@
 
 import mysql from "mysql2/promise";
 import { ZodError } from "zod";
+import { formatZodError } from "./core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import {
@@ -24,11 +25,6 @@ import {
   ProxySQLCommandInputSchema,
   type ProxySQLConfig,
 } from "../types/proxysql-types.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 /**
  * Safe character set for LIKE patterns.

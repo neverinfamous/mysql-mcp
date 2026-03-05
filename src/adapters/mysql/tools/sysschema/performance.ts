@@ -6,6 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,11 +16,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Zod Schemas
@@ -89,7 +85,7 @@ export function createSysStatementSummaryTool(
         }
 
         const query = `
-                SELECT 
+                SELECT
                     query,
                     db,
                     exec_count,
@@ -158,7 +154,7 @@ export function createSysWaitSummaryTool(
         switch (type) {
           case "global":
             query = `
-                        SELECT 
+                        SELECT
                             events,
                             total,
                             total_latency,
@@ -170,7 +166,7 @@ export function createSysWaitSummaryTool(
             break;
           case "by_host":
             query = `
-                        SELECT 
+                        SELECT
                             host,
                             event,
                             total,
@@ -183,7 +179,7 @@ export function createSysWaitSummaryTool(
             break;
           case "by_user":
             query = `
-                        SELECT 
+                        SELECT
                             user,
                             event,
                             total,
@@ -196,7 +192,7 @@ export function createSysWaitSummaryTool(
             break;
           case "by_instance":
             query = `
-                        SELECT 
+                        SELECT
                             event_name AS event,
                             count_star AS total,
                             FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
@@ -259,7 +255,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         switch (type) {
           case "file":
             query = `
-                        SELECT 
+                        SELECT
                             file,
                             count_read,
                             total_read,
@@ -276,7 +272,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             break;
           case "table":
             query = `
-                        SELECT 
+                        SELECT
                             table_schema,
                             table_name,
                             rows_fetched,
@@ -294,7 +290,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             break;
           case "global":
             query = `
-                        SELECT 
+                        SELECT
                             event_name,
                             total,
                             total_latency,

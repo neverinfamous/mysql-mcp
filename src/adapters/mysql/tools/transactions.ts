@@ -8,6 +8,7 @@
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { ZodError } from "zod";
+import { formatZodError } from "./core/error-helpers.js";
 import {
   TransactionBeginSchema,
   TransactionBeginSchemaBase,
@@ -18,11 +19,6 @@ import {
   TransactionExecuteSchema,
   TransactionExecuteSchemaBase,
 } from "../types.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 /**
  * Get all transaction tools

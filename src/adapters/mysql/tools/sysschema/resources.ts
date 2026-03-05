@@ -6,6 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,11 +16,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Zod Schemas
@@ -89,7 +85,7 @@ export function createSysSchemaStatsTool(
 
         // Get table statistics
         const tableStatsQuery = `
-                SELECT 
+                SELECT
                     table_schema,
                     table_name,
                     rows_fetched,
@@ -114,7 +110,7 @@ export function createSysSchemaStatsTool(
 
         // Get index statistics
         const indexStatsQuery = `
-                SELECT 
+                SELECT
                     table_schema,
                     table_name,
                     index_name,
@@ -134,7 +130,7 @@ export function createSysSchemaStatsTool(
 
         // Get auto-increment status
         const autoIncQuery = `
-                SELECT 
+                SELECT
                     table_schema,
                     table_name,
                     column_name,
@@ -196,7 +192,7 @@ export function createSysInnoDBLockWaitsTool(
         const { limit } = LimitSchema.parse(params);
 
         const query = `
-                SELECT 
+                SELECT
                     wait_started,
                     wait_age,
                     locked_table,
@@ -261,7 +257,7 @@ export function createSysMemorySummaryTool(
 
         // Global memory summary
         const globalQuery = `
-                SELECT 
+                SELECT
                     event_name,
                     current_count,
                     current_alloc,
@@ -276,7 +272,7 @@ export function createSysMemorySummaryTool(
 
         // Memory by user
         const userQuery = `
-                SELECT 
+                SELECT
                     user,
                     current_count_used,
                     current_allocated,

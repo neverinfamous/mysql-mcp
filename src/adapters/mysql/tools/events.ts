@@ -6,13 +6,9 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, formatMysqlError } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Zod Schemas
@@ -243,11 +239,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("already exists")) {
           return { success: false, error: "Event already exists" };
         }
-        const cleaned = message.replace(
-          /^(Query failed: )?(Execute failed: )?/i,
-          "",
-        );
-        return { success: false, error: cleaned };
+        return { success: false, error: formatMysqlError(error) };
       }
     },
   };
@@ -397,11 +389,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("unknown event")) {
           return { success: false, error: "Event does not exist" };
         }
-        const cleaned = message.replace(
-          /^(Query failed: )?(Execute failed: )?/i,
-          "",
-        );
-        return { success: false, error: cleaned };
+        return { success: false, error: formatMysqlError(error) };
       }
     },
   };
@@ -495,7 +483,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         let query = `
-                SELECT 
+                SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     DEFINER as definer,
@@ -569,7 +557,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const query = `
-                SELECT 
+                SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     DEFINER as definer,
@@ -637,7 +625,7 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get event counts by status
         const countResult = await adapter.executeQuery(`
-                SELECT 
+                SELECT
                     STATUS as status,
                     COUNT(*) as count
                 FROM information_schema.EVENTS
@@ -646,7 +634,7 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get recently executed events
         const recentResult = await adapter.executeQuery(`
-                SELECT 
+                SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     LAST_EXECUTED as lastExecuted

@@ -33,14 +33,25 @@ export function formatMysqlError(err: unknown): string {
 
   return (
     message
-      // Strip adapter-layer prefixes (Query failed: / Execute failed:)
-      .replace(/^(Query failed:\s*)?(Execute failed:\s*)*/i, "")
+      // Strip adapter-layer prefixes (Raw query failed: / Query failed: / Execute failed:)
+      .replace(
+        /^(Raw query failed:\s*)?(Query failed:\s*)?(Execute failed:\s*)*/i,
+        "",
+      )
       // Strip MySQL error code prefixes (ER_NO_SUCH_TABLE: / ER_DUP_ENTRY: etc.)
       .replace(/^ER_[A-Z_]+:\s*/i, "")
       // Strip numeric error code patterns (e.g., "1146 (42S02): ...")
       .replace(/^\d+\s*\([A-Z0-9]+\):\s*/, "")
       .trim()
   );
+}
+
+/**
+ * Alias for formatMysqlError that accepts a pre-extracted message string.
+ * Use this when you've already extracted the message from the Error object.
+ */
+export function stripErrorPrefix(msg: string): string {
+  return formatMysqlError(msg);
 }
 
 /**

@@ -6,6 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -21,16 +22,6 @@ import {
   validateIdentifier,
   validateWhereClause,
 } from "../../../../utils/validators.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from MySQL error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
-}
 
 /**
  * Format a value for MySQL export.

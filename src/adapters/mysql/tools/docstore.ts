@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import { formatZodError } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 
@@ -189,13 +190,6 @@ async function checkCollectionExists(
  */
 function escapeTableRef(name: string, schema?: string): string {
   return schema ? `\`${schema}\`.\`${name}\`` : `\`${name}\``;
-}
-
-/**
- * Format a ZodError into a human-readable string.
- */
-function formatZodError(err: z.ZodError): string {
-  return err.issues.map((i) => i.message).join("; ");
 }
 
 export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
@@ -657,7 +651,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
             const colName = `_idx_${field.path.replace(/\./g, "_")}`;
             const cast = field.type === "TEXT" ? "CHAR(255)" : field.type;
             await adapter.executeQuery(
-              `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast} 
+              `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast}
                            GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field.path}'))) STORED`,
             );
           }

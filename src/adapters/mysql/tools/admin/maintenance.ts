@@ -6,6 +6,7 @@
  */
 
 import { ZodError } from "zod";
+import { formatZodError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -25,11 +26,6 @@ import {
   KillQuerySchema,
   KillQuerySchemaBase,
 } from "../../types.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {

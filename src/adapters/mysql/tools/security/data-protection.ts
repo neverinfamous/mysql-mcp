@@ -5,6 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -14,19 +15,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg
-    .replace(/^Query failed:\s*/i, "")
-    .replace(/^Execute failed:\s*/i, "")
-    .trim();
-}
 
 // =============================================================================
 // Zod Schemas
@@ -246,7 +234,7 @@ export function createSecurityUserPrivilegesTool(
 
         // Get users
         let usersQuery = `
-                SELECT User, Host, 
+                SELECT User, Host,
                        plugin as authPlugin,
                        account_locked as accountLocked,
                        password_expired as passwordExpired,
@@ -423,7 +411,7 @@ export function createSecuritySensitiveTablesTool(
         const schemaParams = schema ? [schema] : [];
 
         const query = `
-                SELECT 
+                SELECT
                     TABLE_NAME as tableName,
                     COLUMN_NAME as columnName,
                     DATA_TYPE as dataType,

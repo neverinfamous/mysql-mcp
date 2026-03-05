@@ -16,6 +16,7 @@ import type {
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import https from "node:https";
 import { ZodError } from "zod";
+import { formatZodError } from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
@@ -26,11 +27,6 @@ import {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Router HTTP Client Helper

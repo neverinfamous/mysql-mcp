@@ -3,6 +3,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, stripErrorPrefix } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
@@ -11,17 +12,6 @@ import {
   validateMySQLUserHost,
   escapeLikePattern,
 } from "../../../utils/validators.js";
-
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-function stripErrorPrefix(msg: string): string {
-  return msg
-    .replace(/^Raw query failed:\s*/i, "")
-    .replace(/^Query failed:\s*/i, "")
-    .replace(/^Execute failed:\s*/i, "");
-}
 
 const RoleListSchema = z.object({
   pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),

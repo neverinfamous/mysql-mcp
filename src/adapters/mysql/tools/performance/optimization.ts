@@ -18,6 +18,7 @@ import {
   preprocessQueryOnlyParams,
 } from "../../types.js";
 import { z } from "zod";
+import { formatMysqlError } from "../core/error-helpers.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -336,11 +337,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             }
           }
         } catch (err: unknown) {
-          const rawMsg =
-            err instanceof Error ? err.message : "Failed to generate EXPLAIN";
-          explainError = rawMsg
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, "");
+          explainError = formatMysqlError(err);
         }
 
         const response: Record<string, unknown> = {
@@ -466,11 +463,7 @@ export function createOptimizerTraceTool(
         try {
           await adapter.executeReadQuery(query);
         } catch (err: unknown) {
-          const rawMsg =
-            err instanceof Error ? err.message : "Query execution failed";
-          const errorMsg = rawMsg
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, "");
+          const errorMsg = formatMysqlError(err);
           if (summary) {
             return { query, decisions: [], error: errorMsg };
           }

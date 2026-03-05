@@ -6,6 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,16 +16,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from MySQL error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
-}
 
 /**
  * Parse GeoJSON result from MySQL.
@@ -122,7 +113,7 @@ export function createSpatialIntersectionTool(
         const { geometry1, geometry2, srid } = IntersectionSchema.parse(params);
 
         const result = await adapter.executeQuery(
-          `SELECT 
+          `SELECT
                     ST_Intersects(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
@@ -189,7 +180,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           ? ""
           : `, ST_Buffer_Strategy('point_circle', ${String(segments)})`;
         const result = await adapter.executeQuery(
-          `SELECT 
+          `SELECT
                     ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause})) as buffer_wkt,
                     ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), ${String(precision)}) as buffer_geojson`,
           [geometry, distance, geometry, distance],
@@ -239,7 +230,7 @@ export function createSpatialTransformTool(
         const { geometry, fromSrid, toSrid } = TransformSchema.parse(params);
 
         const result = await adapter.executeQuery(
-          `SELECT 
+          `SELECT
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_wkt,
                     ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_geojson`,
           [geometry, geometry],

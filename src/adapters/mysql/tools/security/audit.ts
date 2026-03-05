@@ -5,6 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -14,19 +15,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg
-    .replace(/^Query failed:\s*/i, "")
-    .replace(/^Execute failed:\s*/i, "")
-    .trim();
-}
 
 // =============================================================================
 // Zod Schemas
@@ -75,16 +63,16 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const { limit, user, eventType, startTime } =
           AuditLogSchema.parse(params);
         const checkResult = await adapter.executeQuery(`
-                    SELECT TABLE_NAME 
-                    FROM information_schema.TABLES 
-                    WHERE TABLE_SCHEMA = 'mysql' 
+                    SELECT TABLE_NAME
+                    FROM information_schema.TABLES
+                    WHERE TABLE_SCHEMA = 'mysql'
                       AND TABLE_NAME = 'audit_log'
                 `);
 
         if (!checkResult.rows || checkResult.rows.length === 0) {
           // Try performance_schema alternative
           let query = `
-                        SELECT 
+                        SELECT
                             e.EVENT_NAME as event,
                             e.OBJECT_TYPE as objectType,
                             e.OBJECT_NAME as objectName,

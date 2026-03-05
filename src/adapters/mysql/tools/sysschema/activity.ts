@@ -6,6 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -15,11 +16,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Zod Schemas
@@ -58,7 +54,7 @@ export function createSysUserSummaryTool(
         const { user, limit } = UserSummarySchema.parse(params);
 
         let query = `
-                SELECT 
+                SELECT
                     user,
                     statements,
                     statement_latency,
@@ -117,7 +113,7 @@ export function createSysHostSummaryTool(
         const { host, limit } = HostSummarySchema.parse(params);
 
         let query = `
-                SELECT 
+                SELECT
                     host,
                     statements,
                     statement_latency,

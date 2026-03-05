@@ -8,6 +8,7 @@ import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { ZodError } from "zod";
+import { formatZodError } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -17,11 +18,6 @@ import {
   ShellRunScriptInputSchema,
 } from "../../types/shell-types.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 /**
  * Load dump to instance

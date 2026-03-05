@@ -7,6 +7,7 @@
  */
 
 import { z, ZodError } from "zod";
+import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -16,11 +17,6 @@ import type {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Schemas
@@ -143,7 +139,7 @@ export function createDescriptiveStatsTool(
             `;
 
         const query = `
-                SELECT 
+                SELECT
                     COUNT(\`${column}\`) as count,
                     AVG(\`${column}\`) as mean,
                     STD(\`${column}\`) as stddev,
@@ -180,9 +176,7 @@ export function createDescriptiveStatsTool(
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,
@@ -267,9 +261,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,
@@ -343,7 +335,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         // Generate distribution query with WIDTH_BUCKET emulation
         // Clamp with LEAST to prevent max value from creating an extra bucket
         const query = `
-                SELECT 
+                SELECT
                     LEAST(FLOOR((\`${column}\` - ${String(minVal)}) / ${String(bucketSize)}), ${String(buckets - 1)}) as bucket,
                     COUNT(*) as count,
                     MIN(\`${column}\`) as bucket_min,
@@ -382,9 +374,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,
@@ -480,7 +470,7 @@ export function createTimeSeriesToolStats(
         const aggFunc = aggregation.toUpperCase();
 
         const query = `
-                SELECT 
+                SELECT
                     DATE_FORMAT(\`${timeColumn}\`, '${dateFormat}') as period,
                     ${aggFunc}(\`${valueColumn}\`) as value,
                     COUNT(*) as data_points,
@@ -506,9 +496,7 @@ export function createTimeSeriesToolStats(
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,
@@ -603,9 +591,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return { success: false, error: formatZodError(error) };
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
             exists: false,

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Centralized Error Helpers** — Created `src/adapters/mysql/tools/core/error-helpers.ts` with `formatMysqlError`, `formatZodError`, and `formatHandlerError` functions. All error formatting is now centralized instead of scattered across individual tool files
 - **Error Handling Standardization (Phase 1: Pattern B Files)** — Restructured 23 handlers across 9 files (`core.ts`, `partitioning.ts`, 6 schema files) to use a single outer `try/catch` pattern. Previously, these handlers had Zod-only catches with `throw error` re-throws, leaving domain errors unprotected. All handlers now format Zod validation errors and MySQL query errors consistently using the centralized helpers. Eliminated all `throw err`/`throw error` patterns from the tools directory
+- **Error Handling Standardization (Phase 2: Centralize Helpers)** — Replaced 22 local `formatZodError` copies, 11 local `stripErrorPrefix` copies, and 10 inline `.replace()` error-prefix-stripping patterns across 23 tool files with centralized imports from `error-helpers.ts`. Zero local copies or inline patterns remain. Files updated across admin, security, spatial, shell, stats, sysschema, performance, and top-level tool groups
 
 ### Fixed
 
