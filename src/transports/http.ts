@@ -390,6 +390,12 @@ export class HttpTransport {
       return;
     }
 
+    // Root info endpoint
+    if (url.pathname === "/" && req.method === "GET") {
+      this.handleRootInfo(res);
+      return;
+    }
+
     // Authenticate if OAuth is configured and path is not public
     if (this.config.resourceServer && this.config.tokenValidator) {
       if (!this.isPublicPath(url.pathname)) {
@@ -664,6 +670,28 @@ export class HttpTransport {
       JSON.stringify({
         status: "healthy",
         timestamp: new Date().toISOString(),
+      }),
+    );
+  }
+
+  /**
+   * Handle root info endpoint — helpful for browser visitors and debugging
+   */
+  private handleRootInfo(res: ServerResponse): void {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        name: "mysql-mcp",
+        description: "MySQL MCP Server with dual HTTP transport",
+        endpoints: {
+          "POST /mcp": "JSON-RPC requests (Streamable HTTP, MCP 2025-03-26)",
+          "GET /mcp": "SSE stream for server-to-client notifications",
+          "DELETE /mcp": "Session termination",
+          "GET /sse": "Legacy SSE connection (MCP 2024-11-05)",
+          "POST /messages": "Legacy SSE message endpoint",
+          "GET /health": "Health check",
+        },
+        documentation: "https://github.com/neverinfamous/mysql-mcp",
       }),
     );
   }
