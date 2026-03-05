@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-**Last Updated March 4, 2026**
+**Last Updated March 5, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -29,7 +29,7 @@
 | **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
 | **Smart Tool Filtering**              | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                                                                                                                      |
-| **HTTP Streaming Transport**          | SSE-based streaming with `/sse`, `/messages`, and `/health` endpoints for remote deployments                                                                                                                                                                                           |
+| **Dual HTTP Transport**               | Streamable HTTP (`/mcp`) for modern clients + legacy SSE (`/sse`) for backward compatibility — both protocols supported simultaneously with session management, security headers, CORS, rate limiting, and body size enforcement                                                       |
 | **High-Performance Pooling**          | Built-in connection pooling for efficient, concurrent database access                                                                                                                                                                                                                  |
 | **Ecosystem Integrations**            | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                                                                                                                                                  |
 | **Advanced Encryption**               | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                                                                                                               |
@@ -196,12 +196,48 @@ docker run -p 3000:3000 writenotenow/mysql-mcp \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
-**Available endpoints:**
+The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect:
 
-- `GET /sse` - Establish MCP connection via Server-Sent Events
-- `POST /messages` - Send JSON-RPC messages to the server
-- `GET /health` - Health check endpoint
-- `GET /.well-known/oauth-protected-resource` - OAuth 2.1 metadata (when OAuth enabled)
+### Streamable HTTP (Recommended)
+
+Modern protocol (MCP 2025-03-26) — single endpoint, session-based:
+
+| Method   | Endpoint | Purpose                                          |
+| -------- | -------- | ------------------------------------------------ |
+| `POST`   | `/mcp`   | JSON-RPC requests (initialize, tools/list, etc.) |
+| `GET`    | `/mcp`   | SSE stream for server notifications              |
+| `DELETE` | `/mcp`   | Session termination                              |
+
+Sessions are managed via the `Mcp-Session-Id` header.
+
+### Legacy SSE (Backward Compatibility)
+
+Legacy protocol (MCP 2024-11-05) — for older MCP clients:
+
+| Method | Endpoint                   | Purpose                                                       |
+| ------ | -------------------------- | ------------------------------------------------------------- |
+| `GET`  | `/sse`                     | Opens SSE stream, returns `/messages?sessionId=<id>` endpoint |
+| `POST` | `/messages?sessionId=<id>` | Send JSON-RPC messages to the session                         |
+
+### Utility Endpoints
+
+| Method | Endpoint                                | Purpose                                 |
+| ------ | --------------------------------------- | --------------------------------------- |
+| `GET`  | `/health`                               | Health check (database connectivity)    |
+| `GET`  | `/.well-known/oauth-protected-resource` | OAuth 2.1 metadata (when OAuth enabled) |
+
+### Security Features
+
+All HTTP responses include security headers:
+
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Cache-Control: no-store, no-cache, must-revalidate`
+- `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- Optional HSTS for HTTPS deployments
+
+Additional protections: configurable CORS origins, per-IP rate limiting, and request body size enforcement (default 1 MB).
 
 > **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
 

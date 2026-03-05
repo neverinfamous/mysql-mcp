@@ -82,3 +82,6 @@ proxysql.cnf
 
 # Test server
 test-server/
+
+# Temporary scripts (dev only)
+tmp/

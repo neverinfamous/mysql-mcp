@@ -81,3 +81,4 @@ vitest.config.ts
 .DS_Store
 Thumbs.db
 releases/
+tmp/
