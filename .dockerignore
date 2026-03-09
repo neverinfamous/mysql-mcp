@@ -82,3 +82,6 @@ vitest.config.ts
 Thumbs.db
 releases/
 tmp/
+
+# Assets
+social-preview.png
