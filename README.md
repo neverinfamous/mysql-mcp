@@ -233,9 +233,16 @@ All HTTP responses include security headers:
 - `Cache-Control: no-store, no-cache, must-revalidate`
 - `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `Referrer-Policy: no-referrer`
 - Optional HSTS for HTTPS deployments
 
-Additional protections: configurable CORS origins, per-IP rate limiting, and request body size enforcement (default 1 MB).
+Additional protections:
+
+- **Server Timeouts** — Request (120s), keep-alive (65s), and headers (66s) timeouts prevent Slowloris DoS attacks
+- **Configurable CORS** — Exact origins and wildcard subdomain patterns (`*.example.com`)
+- **Per-IP Rate Limiting** — Sliding-window rate limiter with `Retry-After` header on 429 responses; `/health` endpoint bypasses rate limiting for monitoring probes
+- **Trust Proxy** — `trustProxy` option reads `X-Forwarded-For` for accurate client IP behind reverse proxies
+- **Body Size Enforcement** — Request body size limit (default 1 MB)
 
 > **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
 

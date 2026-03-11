@@ -25,7 +25,7 @@ const mockHttpTransport = {
   stop: vi.fn(),
 };
 
-vi.mock("../../transports/http.js", () => ({
+vi.mock("../../transports/http/index.js", () => ({
   createHttpTransport: vi.fn(() => mockHttpTransport),
 }));
 
@@ -211,7 +211,7 @@ describe("McpServer", () => {
       expect(httpServer.isRunning()).toBe(true);
 
       // Verify http transport was created and started
-      const { createHttpTransport } = await import("../../transports/http.js");
+      const { createHttpTransport } = await import("../../transports/http/index.js");
       expect(createHttpTransport).toHaveBeenCalledWith(
         expect.objectContaining({ port: 8080 }),
         expect.any(Function),
@@ -232,7 +232,7 @@ describe("McpServer", () => {
 
       await oauthServer.start();
 
-      const { createHttpTransport } = await import("../../transports/http.js");
+      const { createHttpTransport } = await import("../../transports/http/index.js");
       expect(createHttpTransport).toHaveBeenCalledWith(
         expect.objectContaining({
           resourceServer: expect.any(Object),

@@ -1,5 +1,5 @@
 /**
- * mysql-mcp - HTTP Transport
+ * mysql-mcp - HTTP Transport Server
  *
  * Dual-protocol HTTP transport with backward compatibility:
  * - `/mcp` — Streamable HTTP transport (MCP protocol 2025-03-26)
@@ -19,81 +19,32 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
-import type { OAuthResourceServer } from "../auth/OAuthResourceServer.js";
-import type { TokenValidator } from "../auth/TokenValidator.js";
-import { validateAuth, formatOAuthError } from "../auth/middleware.js";
-import { logger } from "../utils/logger.js";
+import { validateAuth, formatOAuthError } from "../../auth/middleware.js";
+import { logger } from "../../utils/logger.js";
+import type { HttpTransportConfig, RateLimitEntry } from "./types.js";
+import {
+  DEFAULT_RATE_LIMIT_WINDOW_MS,
+  DEFAULT_RATE_LIMIT_MAX_REQUESTS,
+  DEFAULT_MAX_BODY_SIZE,
+  HTTP_REQUEST_TIMEOUT_MS,
+  HTTP_KEEP_ALIVE_TIMEOUT_MS,
+  HTTP_HEADERS_TIMEOUT_MS,
+} from "./types.js";
+import {
+  checkRateLimit,
+  setSecurityHeaders,
+  setCorsHeaders,
+  readBody,
+} from "./security.js";
+import {
+  handleHealthCheck,
+  handleRootInfo,
+  handleProtectedResourceMetadata,
+} from "./handlers.js";
 
-/**
- * HTTP transport configuration
- */
-export interface HttpTransportConfig {
-  /** Port to listen on */
-  port: number;
-
-  /** Host to bind to (default: localhost) */
-  host?: string;
-
-  /** OAuth resource server (optional) */
-  resourceServer?: OAuthResourceServer;
-
-  /** Token validator (optional, required if resourceServer is provided) */
-  tokenValidator?: TokenValidator;
-
-  /** CORS allowed origins (default: none) */
-  corsOrigins?: string[];
-
-  /** Allow credentials in CORS requests (default: false) */
-  corsAllowCredentials?: boolean;
-
-  /** Paths that bypass authentication */
-  publicPaths?: string[];
-
-  // =========================================================================
-  // Security Options
-  // =========================================================================
-
-  /**
-   * Enable rate limiting (default: true)
-   * Helps prevent DoS attacks and brute-force attempts
-   */
-  enableRateLimit?: boolean;
-
-  /**
-   * Rate limit window in milliseconds (default: 60000 = 1 minute)
-   */
-  rateLimitWindowMs?: number;
-
-  /**
-   * Maximum requests per window per IP (default: 100)
-   */
-  rateLimitMaxRequests?: number;
-
-  /**
-   * Maximum request body size in bytes (default: 1MB = 1048576)
-   * Prevents memory exhaustion from large payloads
-   */
-  maxBodySize?: number;
-
-  /**
-   * Enable HTTP Strict Transport Security header (default: false)
-   * Should only be enabled when running behind HTTPS
-   */
-  enableHSTS?: boolean;
-
-  /**
-   * HSTS max-age in seconds (default: 31536000 = 1 year)
-   */
-  hstsMaxAge?: number;
-}
-
-/**
- * Rate limit entry for tracking request counts per IP
- */
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-}
+// =============================================================================
+// HTTP Transport Class
+// =============================================================================
 
 /**
  * HTTP Transport for MCP
@@ -113,15 +64,9 @@ export class HttpTransport {
     StreamableHTTPServerTransport | SSEServerTransport
   >();
 
-  // Rate limiting state
+  /** Rate limiting state */
   private readonly rateLimitMap = new Map<string, RateLimitEntry>();
   private rateLimitCleanupInterval: NodeJS.Timeout | null = null;
-
-  // Default configuration values
-  private static readonly DEFAULT_RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
-  private static readonly DEFAULT_RATE_LIMIT_MAX_REQUESTS = 100;
-  private static readonly DEFAULT_MAX_BODY_SIZE = 1048576; // 1MB
-  private static readonly DEFAULT_HSTS_MAX_AGE = 31536000; // 1 year
 
   constructor(
     config: HttpTransportConfig,
@@ -133,20 +78,24 @@ export class HttpTransport {
       publicPaths: config.publicPaths ?? ["/health", "/.well-known/*"],
       enableRateLimit: config.enableRateLimit ?? true,
       rateLimitWindowMs:
-        config.rateLimitWindowMs ?? HttpTransport.DEFAULT_RATE_LIMIT_WINDOW_MS,
+        config.rateLimitWindowMs ?? DEFAULT_RATE_LIMIT_WINDOW_MS,
       rateLimitMaxRequests:
         config.rateLimitMaxRequests ??
         (process.env["MCP_RATE_LIMIT_MAX"]
           ? parseInt(process.env["MCP_RATE_LIMIT_MAX"], 10)
-          : HttpTransport.DEFAULT_RATE_LIMIT_MAX_REQUESTS),
-      maxBodySize: config.maxBodySize ?? HttpTransport.DEFAULT_MAX_BODY_SIZE,
+          : DEFAULT_RATE_LIMIT_MAX_REQUESTS),
+      maxBodySize: config.maxBodySize ?? DEFAULT_MAX_BODY_SIZE,
       enableHSTS: config.enableHSTS ?? false,
-      hstsMaxAge: config.hstsMaxAge ?? HttpTransport.DEFAULT_HSTS_MAX_AGE,
+      trustProxy: config.trustProxy ?? false,
     };
     if (onConnect) {
       this.onConnect = onConnect;
     }
   }
+
+  // ===========================================================================
+  // Lifecycle
+  // ===========================================================================
 
   /**
    * Start the HTTP server
@@ -162,6 +111,11 @@ export class HttpTransport {
           }
         });
       });
+
+      // Apply server timeouts (slowloris protection)
+      this.server.setTimeout(HTTP_REQUEST_TIMEOUT_MS);
+      this.server.keepAliveTimeout = HTTP_KEEP_ALIVE_TIMEOUT_MS;
+      this.server.headersTimeout = HTTP_HEADERS_TIMEOUT_MS;
 
       // Start deterministic rate limit cleanup (every 60s)
       if (this.config.enableRateLimit) {
@@ -195,7 +149,6 @@ export class HttpTransport {
       this.rateLimitCleanupInterval = null;
     }
 
-    // Close all active transports
     for (const [sessionId, transport] of this.transports) {
       try {
         await transport.close();
@@ -217,6 +170,10 @@ export class HttpTransport {
     });
   }
 
+  // ===========================================================================
+  // Request Handling
+  // ===========================================================================
+
   /**
    * Check if a path is public (bypasses authentication)
    */
@@ -224,82 +181,13 @@ export class HttpTransport {
     const publicPaths = this.config.publicPaths ?? [];
     for (const pattern of publicPaths) {
       if (pattern.endsWith("/*")) {
-        // Wildcard pattern
         const prefix = pattern.slice(0, -2);
-        if (pathname.startsWith(prefix)) {
-          return true;
-        }
+        if (pathname.startsWith(prefix)) return true;
       } else if (pattern === pathname) {
         return true;
       }
     }
     return false;
-  }
-
-  /**
-   * Check rate limit for a request
-   * @returns true if request should be allowed, false if rate limited
-   */
-  private checkRateLimit(req: IncomingMessage): boolean {
-    if (!this.config.enableRateLimit) {
-      return true;
-    }
-
-    const clientIp = req.socket.remoteAddress ?? "unknown";
-    const now = Date.now();
-    const windowMs =
-      this.config.rateLimitWindowMs ??
-      HttpTransport.DEFAULT_RATE_LIMIT_WINDOW_MS;
-    const maxRequests =
-      this.config.rateLimitMaxRequests ??
-      HttpTransport.DEFAULT_RATE_LIMIT_MAX_REQUESTS;
-
-    const entry = this.rateLimitMap.get(clientIp);
-
-    if (!entry || now > entry.resetTime) {
-      // Start new window
-      this.rateLimitMap.set(clientIp, { count: 1, resetTime: now + windowMs });
-      return true;
-    }
-
-    if (entry.count >= maxRequests) {
-      return false;
-    }
-
-    entry.count++;
-    return true;
-  }
-
-  /**
-   * Read and parse JSON body from an incoming request.
-   * Returns undefined for GET/DELETE/OPTIONS (no body expected).
-   */
-  private async readBody(req: IncomingMessage): Promise<unknown> {
-    if (
-      req.method === "GET" ||
-      req.method === "DELETE" ||
-      req.method === "OPTIONS"
-    ) {
-      return undefined;
-    }
-
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      req.on("data", (chunk: Buffer) => chunks.push(chunk));
-      req.on("end", () => {
-        const raw = Buffer.concat(chunks).toString("utf-8");
-        if (!raw) {
-          resolve(undefined);
-          return;
-        }
-        try {
-          resolve(JSON.parse(raw));
-        } catch {
-          reject(new Error("Invalid JSON in request body"));
-        }
-      });
-      req.on("error", reject);
-    });
   }
 
   /**
@@ -310,10 +198,10 @@ export class HttpTransport {
     res: ServerResponse,
   ): Promise<void> {
     // Set security headers for all responses
-    this.setSecurityHeaders(res);
+    setSecurityHeaders(res, this.config);
 
     // Set CORS headers
-    this.setCorsHeaders(req, res);
+    setCorsHeaders(req, res, this.config);
 
     // Handle preflight
     if (req.method === "OPTIONS") {
@@ -322,9 +210,43 @@ export class HttpTransport {
       return;
     }
 
-    // Check rate limit
-    if (!this.checkRateLimit(req)) {
-      res.writeHead(429, { "Content-Type": "application/json" });
+    const url = new URL(
+      req.url ?? "/",
+      `http://${req.headers.host ?? "localhost"}`,
+    );
+
+    // Handle well-known endpoints
+    if (url.pathname === "/.well-known/oauth-protected-resource") {
+      handleProtectedResourceMetadata(res, this.config);
+      return;
+    }
+
+    // Health check — bypasses rate limiting so monitoring probes always succeed
+    if (url.pathname === "/health") {
+      handleHealthCheck(res, this.config);
+      return;
+    }
+
+    // Root info endpoint
+    if (url.pathname === "/" && req.method === "GET") {
+      handleRootInfo(res);
+      return;
+    }
+
+    // Check rate limit (after health check bypass)
+    const rateLimitResult = checkRateLimit(
+      req,
+      this.config,
+      this.rateLimitMap,
+    );
+    if (!rateLimitResult.allowed) {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (rateLimitResult.retryAfterSeconds !== undefined) {
+        headers["Retry-After"] = String(rateLimitResult.retryAfterSeconds);
+      }
+      res.writeHead(429, headers);
       res.end(
         JSON.stringify({
           error: "rate_limit_exceeded",
@@ -334,10 +256,8 @@ export class HttpTransport {
       return;
     }
 
-    // Check body size — two-layer enforcement:
-    // 1. Content-Length header for fast rejection of well-behaved clients
-    // 2. Streaming byte tracking for missing/spoofed headers and chunked encoding
-    const maxBodySize = this.config.maxBodySize ?? 1048576;
+    // Check body size — two-layer enforcement
+    const maxBodySize = this.config.maxBodySize ?? DEFAULT_MAX_BODY_SIZE;
     const contentLength = parseInt(req.headers["content-length"] ?? "0", 10);
     if (contentLength > maxBodySize) {
       res.writeHead(413, { "Content-Type": "application/json" });
@@ -350,8 +270,7 @@ export class HttpTransport {
       return;
     }
 
-    // Streaming body size enforcement — track actual received bytes
-    // Guard: only attach if req supports event listeners (real IncomingMessage)
+    // Streaming body size enforcement
     let receivedBytes = 0;
     let bodyLimitExceeded = false;
     if (typeof req.on === "function") {
@@ -375,29 +294,6 @@ export class HttpTransport {
 
     if (bodyLimitExceeded) return;
 
-    const url = new URL(
-      req.url ?? "/",
-      `http://${req.headers.host ?? "localhost"}`,
-    );
-
-    // Handle well-known endpoints
-    if (url.pathname === "/.well-known/oauth-protected-resource") {
-      this.handleProtectedResourceMetadata(res);
-      return;
-    }
-
-    // Health check
-    if (url.pathname === "/health") {
-      this.handleHealthCheck(res);
-      return;
-    }
-
-    // Root info endpoint
-    if (url.pathname === "/" && req.method === "GET") {
-      this.handleRootInfo(res);
-      return;
-    }
-
     // Authenticate if OAuth is configured and path is not public
     if (this.config.resourceServer && this.config.tokenValidator) {
       if (!this.isPublicPath(url.pathname)) {
@@ -418,18 +314,17 @@ export class HttpTransport {
       }
     }
 
-    // Dispatch MCP requests
-    // =====================================================================
-    // Streamable HTTP Transport (Protocol 2025-03-26) — canonical endpoint
-    // =====================================================================
+    // =========================================================================
+    // Streamable HTTP Transport (Protocol 2025-03-26)
+    // =========================================================================
     if (url.pathname === "/mcp") {
       await this.handleStreamableRequest(req, res);
       return;
     }
 
-    // =====================================================================
-    // Legacy SSE Transport (Protocol 2024-11-05) — backward compatibility
-    // =====================================================================
+    // =========================================================================
+    // Legacy SSE Transport (Protocol 2024-11-05)
+    // =========================================================================
     if (url.pathname === "/sse") {
       this.handleLegacySSERequest(req, res);
       return;
@@ -448,20 +343,12 @@ export class HttpTransport {
   // Streamable HTTP Transport (Protocol 2025-03-26)
   // ===========================================================================
 
-  /**
-   * Handle Streamable HTTP requests on `/mcp`.
-   *
-   * Supports GET (SSE stream), POST (initialize + messages), DELETE (terminate).
-   * Session management is handled via the `Mcp-Session-Id` header.
-   */
   private async handleStreamableRequest(
     req: IncomingMessage,
     res: ServerResponse,
   ): Promise<void> {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
-    // For non-POST requests (GET for SSE stream, DELETE for session termination),
-    // delegate directly to the transport if we have a valid session
     if (req.method !== "POST") {
       if (sessionId && this.transports.has(sessionId)) {
         const existing = this.transports.get(sessionId);
@@ -484,11 +371,9 @@ export class HttpTransport {
       return;
     }
 
-    // POST requests — pre-parse the body (required because the streaming body size
-    // enforcement listener consumes the req data stream before the SDK can read it)
     let body: unknown;
     try {
-      body = await this.readBody(req);
+      body = await readBody(req);
     } catch {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(
@@ -501,14 +386,12 @@ export class HttpTransport {
       return;
     }
 
-    // Existing session — route to the correct transport
     if (sessionId && this.transports.has(sessionId)) {
       const existing = this.transports.get(sessionId);
       if (existing instanceof StreamableHTTPServerTransport) {
         await existing.handleRequest(req, res, body);
         return;
       }
-      // Session exists but uses legacy SSE transport
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
@@ -524,7 +407,6 @@ export class HttpTransport {
       return;
     }
 
-    // No session ID — must be an initialization request
     if (!sessionId && isInitializeRequest(body)) {
       const newTransport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
@@ -536,7 +418,6 @@ export class HttpTransport {
         },
       });
 
-      // Clean up on close
       newTransport.onclose = () => {
         const sid = newTransport.sessionId;
         if (sid && this.transports.has(sid)) {
@@ -547,17 +428,14 @@ export class HttpTransport {
         }
       };
 
-      // Connect MCP server to this transport (must complete before handling request)
       if (this.onConnect) {
         await this.onConnect(newTransport as unknown as Transport);
       }
 
-      // Handle request with pre-parsed body
       await newTransport.handleRequest(req, res, body);
       return;
     }
 
-    // POST without session ID and not an initialization request
     res.writeHead(400, { "Content-Type": "application/json" });
     res.end(
       JSON.stringify({
@@ -575,12 +453,6 @@ export class HttpTransport {
   // Legacy SSE Transport (Protocol 2024-11-05)
   // ===========================================================================
 
-  /**
-   * Handle legacy SSE connection request (GET /sse).
-   *
-   * Creates an SSEServerTransport that establishes an event stream and
-   * directs the client to POST messages to `/messages?sessionId=<id>`.
-   */
   private handleLegacySSERequest(
     _req: IncomingMessage,
     res: ServerResponse,
@@ -590,7 +462,6 @@ export class HttpTransport {
     const transport = new SSEServerTransport("/messages", res);
     this.transports.set(transport.sessionId, transport);
 
-    // Clean up on disconnect
     res.on("close", () => {
       logger.debug("Legacy SSE transport closed", {
         sessionId: transport.sessionId,
@@ -598,17 +469,11 @@ export class HttpTransport {
       this.transports.delete(transport.sessionId);
     });
 
-    // Connect MCP server to this transport
     if (this.onConnect) {
       void this.onConnect(transport as unknown as Transport);
     }
   }
 
-  /**
-   * Handle legacy message request (POST /messages?sessionId=<id>).
-   *
-   * Routes the message to the correct SSEServerTransport instance.
-   */
   private async handleLegacyMessageRequest(
     req: IncomingMessage,
     res: ServerResponse,
@@ -645,133 +510,6 @@ export class HttpTransport {
   }
 
   // ===========================================================================
-  // Utility Endpoints
-  // ===========================================================================
-
-  /**
-   * Handle protected resource metadata endpoint
-   */
-  private handleProtectedResourceMetadata(res: ServerResponse): void {
-    if (!this.config.resourceServer) {
-      res.writeHead(404);
-      res.end(JSON.stringify({ error: "OAuth not configured" }));
-      return;
-    }
-
-    const metadata = this.config.resourceServer.getMetadata();
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(metadata));
-  }
-
-  /**
-   * Handle health check endpoint
-   */
-  private handleHealthCheck(res: ServerResponse): void {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(
-      JSON.stringify({
-        status: "healthy",
-        timestamp: new Date().toISOString(),
-      }),
-    );
-  }
-
-  /**
-   * Handle root info endpoint — helpful for browser visitors and debugging
-   */
-  private handleRootInfo(res: ServerResponse): void {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(
-      JSON.stringify({
-        name: "mysql-mcp",
-        description: "MySQL MCP Server with dual HTTP transport",
-        endpoints: {
-          "POST /mcp": "JSON-RPC requests (Streamable HTTP, MCP 2025-03-26)",
-          "GET /mcp": "SSE stream for server-to-client notifications",
-          "DELETE /mcp": "Session termination",
-          "GET /sse": "Legacy SSE connection (MCP 2024-11-05)",
-          "POST /messages": "Legacy SSE message endpoint",
-          "GET /health": "Health check",
-        },
-        documentation: "https://github.com/neverinfamous/mysql-mcp",
-      }),
-    );
-  }
-
-  // ===========================================================================
-  // Security Headers
-  // ===========================================================================
-
-  /**
-   * Set security headers for all responses
-   */
-  private setSecurityHeaders(res: ServerResponse): void {
-    // Prevent MIME type sniffing
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    // Prevent clickjacking
-    res.setHeader("X-Frame-Options", "DENY");
-    // Prevent caching of API responses
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-    // Content Security Policy - API server has no content to load
-    res.setHeader(
-      "Content-Security-Policy",
-      "default-src 'none'; frame-ancestors 'none'",
-    );
-    // Restrict browser features not needed by an API server
-    res.setHeader(
-      "Permissions-Policy",
-      "camera=(), microphone=(), geolocation=()",
-    );
-
-    // HTTP Strict Transport Security (for HTTPS deployments)
-    if (this.config.enableHSTS) {
-      const maxAge =
-        this.config.hstsMaxAge ?? HttpTransport.DEFAULT_HSTS_MAX_AGE;
-      res.setHeader(
-        "Strict-Transport-Security",
-        `max-age=${String(maxAge)}; includeSubDomains`,
-      );
-    }
-  }
-
-  /**
-   * Set CORS headers for browser-based MCP client support
-   *
-   * This implements the MCP SDK recommendation of using external middleware
-   * for origin validation rather than deprecated built-in options.
-   */
-  private setCorsHeaders(req: IncomingMessage, res: ServerResponse): void {
-    const origin = req.headers.origin;
-    const allowAll = this.config.corsOrigins?.includes("*");
-
-    if (allowAll) {
-      // Wildcard: allow all origins
-      res.setHeader("Access-Control-Allow-Origin", "*");
-    } else if (origin && this.config.corsOrigins?.includes(origin)) {
-      // Explicit origin match
-      res.setHeader("Access-Control-Allow-Origin", origin);
-      // Vary header is important for correct caching behavior with explicit origins
-      res.setHeader("Vary", "Origin");
-    } else {
-      // No match — don't set CORS headers
-      return;
-    }
-
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID",
-    );
-    res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
-    res.setHeader("Access-Control-Max-Age", "86400");
-
-    // Allow credentials if explicitly configured (needed for browser cookies/auth)
-    // Note: credentials cannot be used with wildcard origin per CORS spec
-    if (this.config.corsAllowCredentials && !allowAll) {
-      res.setHeader("Access-Control-Allow-Credentials", "true");
-    }
-  }
-  // ===========================================================================
   // Accessors
   // ===========================================================================
 
@@ -785,6 +523,10 @@ export class HttpTransport {
     return this.transports;
   }
 }
+
+// =============================================================================
+// Factory
+// =============================================================================
 
 /**
  * Create an HTTP transport instance

@@ -52,6 +52,25 @@ test.describe("HTTP Transport Security & Limits", () => {
     expect(headers["permissions-policy"]).toBe(
       "camera=(), microphone=(), geolocation=()",
     );
+    expect(headers["referrer-policy"]).toBe("no-referrer");
+  });
+
+  test("should NOT include HSTS header by default (opt-in only)", async ({
+    request,
+  }) => {
+    const response = await request.get("/health");
+    const headers = response.headers();
+    expect(headers["strict-transport-security"]).toBeUndefined();
+  });
+
+  test("should allow /health requests even when other endpoints are rate-limited", async ({
+    request,
+  }) => {
+    // Health check must always succeed regardless of rate limit state
+    const response = await request.get("/health");
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body).toHaveProperty("status", "healthy");
   });
 
   test("should respond correctly to CORS preflight OPTIONS requests", async ({

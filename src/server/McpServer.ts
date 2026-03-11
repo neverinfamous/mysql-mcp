@@ -179,7 +179,7 @@ export class McpServer {
         break;
       case "http":
       case "sse": {
-        const { createHttpTransport } = await import("../transports/http.js");
+        const { createHttpTransport } = await import("../transports/http/index.js");
         const port = this.config.port ?? 3000;
 
         const httpTransport = createHttpTransport(

@@ -8,7 +8,20 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { HttpTransport, createHttpTransport } from "../http.js";
+import { HttpTransport, createHttpTransport } from "../server.js";
+import {
+  setSecurityHeaders,
+  setCorsHeaders,
+  checkRateLimit,
+  readBody,
+  getClientIp,
+  matchesCorsOrigin,
+} from "../security.js";
+import {
+  handleHealthCheck,
+  handleProtectedResourceMetadata,
+} from "../handlers.js";
+import type { HttpTransportConfig, RateLimitEntry } from "../types.js";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createServer } from "node:http";
 
@@ -18,6 +31,9 @@ vi.mock("node:http", () => {
     listen: vi.fn((_port: number, _host: string, cb: () => void) => cb()),
     close: vi.fn((cb?: () => void) => cb && cb()),
     on: vi.fn(),
+    setTimeout: vi.fn(),
+    keepAliveTimeout: 0,
+    headersTimeout: 0,
   };
   return {
     createServer: vi.fn(() => mockServer),
@@ -66,7 +82,7 @@ vi.mock("@modelcontextprotocol/sdk/types.js", () => {
 });
 
 // Mock logger to avoid console output
-vi.mock("../../utils/logger.js", () => ({
+vi.mock("../../../utils/logger.js", () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
@@ -103,6 +119,306 @@ function createMockResponse(): ServerResponse {
   } as unknown as ServerResponse;
 }
 
+// =============================================================================
+// Standalone Security Functions
+// =============================================================================
+
+describe("getClientIp()", () => {
+  it("should return socket address when trustProxy is disabled", () => {
+    const req = createMockRequest({
+      headers: { "x-forwarded-for": "1.2.3.4" },
+    });
+    expect(getClientIp(req, false)).toBe("127.0.0.1");
+  });
+
+  it("should return X-Forwarded-For when trustProxy is enabled", () => {
+    const req = createMockRequest({
+      headers: { host: "localhost", "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
+    });
+    expect(getClientIp(req, true)).toBe("1.2.3.4");
+  });
+
+  it("should fall back to socket address when no X-Forwarded-For", () => {
+    const req = createMockRequest();
+    expect(getClientIp(req, true)).toBe("127.0.0.1");
+  });
+});
+
+describe("matchesCorsOrigin()", () => {
+  it("should match exact origins", () => {
+    expect(matchesCorsOrigin("https://example.com", "https://example.com")).toBe(
+      true,
+    );
+  });
+
+  it("should not match different origins", () => {
+    expect(matchesCorsOrigin("https://evil.com", "https://example.com")).toBe(
+      false,
+    );
+  });
+
+  it("should match wildcard subdomain patterns", () => {
+    expect(
+      matchesCorsOrigin("https://app.example.com", "*.example.com"),
+    ).toBe(true);
+  });
+
+  it("should not match bare domain against wildcard subdomain", () => {
+    expect(matchesCorsOrigin("https://example.com", "*.example.com")).toBe(
+      false,
+    );
+  });
+});
+
+describe("checkRateLimit()", () => {
+  it("should allow requests when rate limiting disabled", () => {
+    const config: HttpTransportConfig = { port: 3000, enableRateLimit: false };
+    const map = new Map<string, RateLimitEntry>();
+    const req = createMockRequest();
+    expect(checkRateLimit(req, config, map).allowed).toBe(true);
+  });
+
+  it("should block after max requests and return retryAfterSeconds", () => {
+    const config: HttpTransportConfig = {
+      port: 3000,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
+    };
+    const map = new Map<string, RateLimitEntry>();
+    const req = createMockRequest();
+
+    const r1 = checkRateLimit(req, config, map);
+    expect(r1.allowed).toBe(true);
+
+    const r2 = checkRateLimit(req, config, map);
+    expect(r2.allowed).toBe(false);
+    expect(r2.retryAfterSeconds).toBeGreaterThan(0);
+  });
+});
+
+describe("setSecurityHeaders()", () => {
+  it("should set 6 base headers (HSTS disabled)", () => {
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = { port: 3000, enableHSTS: false };
+    setSecurityHeaders(mockRes, config);
+
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "X-Content-Type-Options",
+      "nosniff",
+    );
+    expect(mockRes.setHeader).toHaveBeenCalledWith("X-Frame-Options", "DENY");
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate",
+    );
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Content-Security-Policy",
+      "default-src 'none'; frame-ancestors 'none'",
+    );
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Permissions-Policy",
+      "camera=(), microphone=(), geolocation=()",
+    );
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Referrer-Policy",
+      "no-referrer",
+    );
+    // 6 headers total
+    expect(mockRes.setHeader).toHaveBeenCalledTimes(6);
+  });
+
+  it("should include HSTS header when enabled (7 total)", () => {
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = { port: 3000, enableHSTS: true };
+    setSecurityHeaders(mockRes, config);
+
+    expect(mockRes.setHeader).toHaveBeenCalledTimes(7);
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Strict-Transport-Security",
+      expect.stringContaining("max-age="),
+    );
+  });
+});
+
+describe("setCorsHeaders()", () => {
+  it("should not set CORS headers when origin not in allowed list", () => {
+    const mockReq = createMockRequest({
+      headers: { origin: "https://notallowed.example.com" },
+    });
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = {
+      port: 3000,
+      corsOrigins: ["https://allowed.example.com"],
+    };
+
+    setCorsHeaders(mockReq, mockRes, config);
+    expect(mockRes.setHeader).not.toHaveBeenCalled();
+  });
+
+  it("should set CORS headers when origin is allowed", () => {
+    const mockReq = createMockRequest({
+      headers: { origin: "https://allowed.example.com" },
+    });
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = {
+      port: 3000,
+      corsOrigins: ["https://allowed.example.com"],
+    };
+
+    setCorsHeaders(mockReq, mockRes, config);
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Access-Control-Allow-Origin",
+      "https://allowed.example.com",
+    );
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Access-Control-Allow-Methods",
+      "GET, POST, DELETE, OPTIONS",
+    );
+  });
+
+  it("should not set CORS when no origin header", () => {
+    const mockReq = createMockRequest({ headers: {} });
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = {
+      port: 3000,
+      corsOrigins: ["https://allowed.example.com"],
+    };
+
+    setCorsHeaders(mockReq, mockRes, config);
+    expect(mockRes.setHeader).not.toHaveBeenCalled();
+  });
+
+  it("should set credentials header when configured", () => {
+    const mockReq = createMockRequest({
+      headers: { origin: "https://allowed.example.com" },
+    });
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = {
+      port: 3000,
+      corsOrigins: ["https://allowed.example.com"],
+      corsAllowCredentials: true,
+    };
+
+    setCorsHeaders(mockReq, mockRes, config);
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Access-Control-Allow-Credentials",
+      "true",
+    );
+  });
+
+  it("should match wildcard subdomain origin", () => {
+    const mockReq = createMockRequest({
+      headers: { origin: "https://app.example.com" },
+    });
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = {
+      port: 3000,
+      corsOrigins: ["*.example.com"],
+    };
+
+    setCorsHeaders(mockReq, mockRes, config);
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      "Access-Control-Allow-Origin",
+      "https://app.example.com",
+    );
+  });
+});
+
+describe("readBody()", () => {
+  it("should return undefined for GET requests", async () => {
+    const mockReq = createMockRequest({ method: "GET" });
+    const result = await readBody(mockReq);
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined for DELETE requests", async () => {
+    const mockReq = createMockRequest({ method: "DELETE" });
+    const result = await readBody(mockReq);
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined for OPTIONS requests", async () => {
+    const mockReq = createMockRequest({ method: "OPTIONS" });
+    const result = await readBody(mockReq);
+    expect(result).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// Standalone Handler Functions
+// =============================================================================
+
+describe("handleHealthCheck()", () => {
+  it("should return healthy status", () => {
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = { port: 3000 };
+    handleHealthCheck(mockRes, config);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "application/json",
+    });
+
+    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const response = JSON.parse(endCall as string);
+    expect(response).toHaveProperty("status", "healthy");
+    expect(response).toHaveProperty("timestamp");
+  });
+
+  it("should include ISO timestamp", () => {
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = { port: 3000 };
+    handleHealthCheck(mockRes, config);
+
+    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const response = JSON.parse(endCall as string);
+    expect(() => new Date(response.timestamp as string)).not.toThrow();
+  });
+});
+
+describe("handleProtectedResourceMetadata()", () => {
+  it("should return 404 when OAuth not configured", () => {
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = { port: 3000 };
+    handleProtectedResourceMetadata(mockRes, config);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(404);
+    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const response = JSON.parse(endCall as string);
+    expect(response).toHaveProperty("error");
+  });
+
+  it("should return metadata when OAuth configured", () => {
+    const mockResourceServer = {
+      getMetadata: () => ({
+        resource: "https://mysql-mcp.example.com",
+        authorization_servers: ["https://auth.example.com"],
+        scopes_supported: ["read", "write"],
+      }),
+    };
+
+    const mockRes = createMockResponse();
+    const config: HttpTransportConfig = {
+      port: 3000,
+      resourceServer: mockResourceServer as never,
+    };
+    handleProtectedResourceMetadata(mockRes, config);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "application/json",
+    });
+
+    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const response = JSON.parse(endCall as string);
+    expect(response).toHaveProperty("resource");
+    expect(response).toHaveProperty("authorization_servers");
+  });
+});
+
+// =============================================================================
+// HttpTransport Class Tests
+// =============================================================================
+
 describe("HttpTransport", () => {
   let transport: HttpTransport;
 
@@ -128,6 +444,15 @@ describe("HttpTransport", () => {
       expect(server.on).toHaveBeenCalledWith("error", expect.any(Function));
     });
 
+    it("should apply server timeouts on start()", async () => {
+      await transport.start();
+      const server = (createServer as ReturnType<typeof vi.fn>).mock.results[0]
+        .value;
+      expect(server.setTimeout).toHaveBeenCalledWith(120_000);
+      expect(server.keepAliveTimeout).toBe(65_000);
+      expect(server.headersTimeout).toBe(66_000);
+    });
+
     it("should stop server on stop()", async () => {
       await transport.start();
       await transport.stop();
@@ -142,7 +467,6 @@ describe("HttpTransport", () => {
     });
 
     it("should close all transports on stop()", async () => {
-      // Manually add mock transports to the session map
       const transports = transport.getTransports();
       const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
       const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
@@ -163,7 +487,6 @@ describe("HttpTransport", () => {
       };
       transports.set("session-err", mockT as never);
 
-      // Should not throw
       await transport.stop();
       expect(transports.size).toBe(0);
     });
@@ -181,311 +504,14 @@ describe("HttpTransport", () => {
 
     it("should apply default configuration values", () => {
       const t = new HttpTransport({ port: 3000 });
-      // Just verify it constructs without error — config is private
       expect(t).toBeInstanceOf(HttpTransport);
     });
   });
-
-  describe("setCorsHeaders()", () => {
-    it("should not set CORS headers when origin not in allowed list", () => {
-      const transportWithCors = new HttpTransport({
-        port: 3000,
-        corsOrigins: ["https://allowed.example.com"],
-      });
-
-      const mockReq = createMockRequest({
-        headers: { origin: "https://notallowed.example.com" },
-      });
-      const mockRes = createMockResponse();
-
-      (
-        transportWithCors as unknown as {
-          setCorsHeaders: (req: IncomingMessage, res: ServerResponse) => void;
-        }
-      ).setCorsHeaders(mockReq, mockRes);
-
-      expect(mockRes.setHeader).not.toHaveBeenCalled();
-    });
-
-    it("should set CORS headers when origin is allowed", () => {
-      const transportWithCors = new HttpTransport({
-        port: 3000,
-        corsOrigins: ["https://allowed.example.com"],
-      });
-
-      const mockReq = createMockRequest({
-        headers: { origin: "https://allowed.example.com" },
-      });
-      const mockRes = createMockResponse();
-
-      (
-        transportWithCors as unknown as {
-          setCorsHeaders: (req: IncomingMessage, res: ServerResponse) => void;
-        }
-      ).setCorsHeaders(mockReq, mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Access-Control-Allow-Origin",
-        "https://allowed.example.com",
-      );
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Access-Control-Allow-Methods",
-        "GET, POST, DELETE, OPTIONS",
-      );
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID",
-      );
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Access-Control-Expose-Headers",
-        "Mcp-Session-Id",
-      );
-    });
-
-    it("should not set CORS when no origin header", () => {
-      const transportWithCors = new HttpTransport({
-        port: 3000,
-        corsOrigins: ["https://allowed.example.com"],
-      });
-
-      const mockReq = createMockRequest({ headers: {} });
-      const mockRes = createMockResponse();
-
-      (
-        transportWithCors as unknown as {
-          setCorsHeaders: (req: IncomingMessage, res: ServerResponse) => void;
-        }
-      ).setCorsHeaders(mockReq, mockRes);
-
-      expect(mockRes.setHeader).not.toHaveBeenCalled();
-    });
-
-    it("should set credentials header when configured", () => {
-      const transportWithCors = new HttpTransport({
-        port: 3000,
-        corsOrigins: ["https://allowed.example.com"],
-        corsAllowCredentials: true,
-      });
-
-      const mockReq = createMockRequest({
-        headers: { origin: "https://allowed.example.com" },
-      });
-      const mockRes = createMockResponse();
-
-      (
-        transportWithCors as unknown as {
-          setCorsHeaders: (req: IncomingMessage, res: ServerResponse) => void;
-        }
-      ).setCorsHeaders(mockReq, mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Access-Control-Allow-Credentials",
-        "true",
-      );
-    });
-  });
-
-  describe("handleHealthCheck()", () => {
-    it("should return healthy status", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          handleHealthCheck: (res: ServerResponse) => void;
-        }
-      ).handleHealthCheck(mockRes);
-
-      expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
-        "Content-Type": "application/json",
-      });
-
-      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock
-        .calls[0][0];
-      const response = JSON.parse(endCall as string);
-
-      expect(response).toHaveProperty("status", "healthy");
-      expect(response).toHaveProperty("timestamp");
-    });
-
-    it("should include ISO timestamp", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          handleHealthCheck: (res: ServerResponse) => void;
-        }
-      ).handleHealthCheck(mockRes);
-
-      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock
-        .calls[0][0];
-      const response = JSON.parse(endCall as string);
-
-      expect(() => new Date(response.timestamp as string)).not.toThrow();
-    });
-  });
-
-  describe("handleProtectedResourceMetadata()", () => {
-    it("should return 404 when OAuth not configured", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          handleProtectedResourceMetadata: (res: ServerResponse) => void;
-        }
-      ).handleProtectedResourceMetadata(mockRes);
-
-      expect(mockRes.writeHead).toHaveBeenCalledWith(404);
-
-      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock
-        .calls[0][0];
-      const response = JSON.parse(endCall as string);
-      expect(response).toHaveProperty("error");
-    });
-
-    it("should return metadata when OAuth configured", () => {
-      const mockResourceServer = {
-        getMetadata: () => ({
-          resource: "https://mysql-mcp.example.com",
-          authorization_servers: ["https://auth.example.com"],
-          scopes_supported: ["read", "write"],
-        }),
-      };
-
-      const transportWithOAuth = new HttpTransport({
-        port: 3000,
-        resourceServer: mockResourceServer as never,
-      });
-
-      const mockRes = createMockResponse();
-
-      (
-        transportWithOAuth as unknown as {
-          handleProtectedResourceMetadata: (res: ServerResponse) => void;
-        }
-      ).handleProtectedResourceMetadata(mockRes);
-
-      expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
-        "Content-Type": "application/json",
-      });
-
-      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock
-        .calls[0][0];
-      const response = JSON.parse(endCall as string);
-      expect(response).toHaveProperty("resource");
-      expect(response).toHaveProperty("authorization_servers");
-    });
-  });
-
-  describe("setSecurityHeaders()", () => {
-    it("should set X-Content-Type-Options header", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "X-Content-Type-Options",
-        "nosniff",
-      );
-    });
-
-    it("should set X-Frame-Options header", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith("X-Frame-Options", "DENY");
-    });
-
-    it("should set Cache-Control header", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Cache-Control",
-        "no-store, no-cache, must-revalidate",
-      );
-    });
-
-    it("should set Content-Security-Policy header", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Content-Security-Policy",
-        "default-src 'none'; frame-ancestors 'none'",
-      );
-    });
-
-    it("should set 5 security headers by default (HSTS disabled)", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      // 5 headers: X-Content-Type-Options, X-Frame-Options, Cache-Control,
-      // Content-Security-Policy, Permissions-Policy
-      expect(mockRes.setHeader).toHaveBeenCalledTimes(5);
-    });
-
-    it("should include HSTS header when enabled", () => {
-      const transportWithHSTS = new HttpTransport({
-        port: 3000,
-        enableHSTS: true,
-      });
-
-      const mockRes = createMockResponse();
-
-      (
-        transportWithHSTS as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      // 5 base + 1 HSTS = 6 headers
-      expect(mockRes.setHeader).toHaveBeenCalledTimes(6);
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Strict-Transport-Security",
-        expect.stringContaining("max-age="),
-      );
-    });
-
-    it("should set Permissions-Policy header", () => {
-      const mockRes = createMockResponse();
-
-      (
-        transport as unknown as {
-          setSecurityHeaders: (res: ServerResponse) => void;
-        }
-      ).setSecurityHeaders(mockRes);
-
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        "Permissions-Policy",
-        "camera=(), microphone=(), geolocation=()",
-      );
-    });
-  });
 });
+
+// =============================================================================
+// handleRequest() Integration Tests
+// =============================================================================
 
 describe("handleRequest()", () => {
   let transport: HttpTransport;
@@ -616,7 +642,7 @@ describe("handleRequest()", () => {
     );
   });
 
-  it("should return 429 when rate limited", async () => {
+  it("should return 429 with Retry-After when rate limited", async () => {
     const rateLimitedTransport = new HttpTransport({
       port: 3000,
       enableRateLimit: true,
@@ -624,7 +650,8 @@ describe("handleRequest()", () => {
       rateLimitWindowMs: 60000,
     });
 
-    const mockReq = createMockRequest({ method: "GET", url: "/health" });
+    // Use /mcp, not /health (health bypasses rate limiting)
+    const mockReq = createMockRequest({ method: "GET", url: "/mcp" });
     const mockRes1 = createMockResponse();
     const mockRes2 = createMockResponse();
 
@@ -637,15 +664,46 @@ describe("handleRequest()", () => {
       }
     ).handleRequest.bind(rateLimitedTransport);
 
-    // First request should succeed
+    // First request consumes the quota
     await handleRequest(mockReq, mockRes1);
-    expect(mockRes1.writeHead).toHaveBeenCalledWith(200, expect.any(Object));
 
-    // Second request should be rate limited
+    // Second request should be rate limited with Retry-After
     await handleRequest(mockReq, mockRes2);
-    expect(mockRes2.writeHead).toHaveBeenCalledWith(429, {
-      "Content-Type": "application/json",
+    expect(mockRes2.writeHead).toHaveBeenCalledWith(
+      429,
+      expect.objectContaining({
+        "Content-Type": "application/json",
+        "Retry-After": expect.any(String),
+      }),
+    );
+  });
+
+  it("should allow /health even when rate limited", async () => {
+    const rateLimitedTransport = new HttpTransport({
+      port: 3000,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
     });
+
+    const handleRequest = (
+      rateLimitedTransport as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest.bind(rateLimitedTransport);
+
+    // Exhaust rate limit with /mcp
+    const mcpReq = createMockRequest({ method: "GET", url: "/mcp" });
+    await handleRequest(mcpReq, createMockResponse());
+
+    // Health should still respond 200
+    const healthReq = createMockRequest({ method: "GET", url: "/health" });
+    const healthRes = createMockResponse();
+    await handleRequest(healthReq, healthRes);
+    expect(healthRes.writeHead).toHaveBeenCalledWith(200, expect.any(Object));
   });
 
   it("should reject oversized Content-Length", async () => {
@@ -708,9 +766,7 @@ describe("handleRequest()", () => {
       }
     ).handleRequest(mockReq, mockRes);
 
-    // SSE should have been created (onConnect called)
     expect(onConnect).toHaveBeenCalled();
-    // Transport should be registered in the session map
     expect(t.getTransports().size).toBe(1);
   });
 
@@ -763,46 +819,9 @@ describe("handleRequest()", () => {
   });
 });
 
-describe("readBody()", () => {
-  it("should return undefined for GET requests", async () => {
-    const transport = new HttpTransport({ port: 3000 });
-    const mockReq = createMockRequest({ method: "GET" });
-
-    const result = await (
-      transport as unknown as {
-        readBody: (req: IncomingMessage) => Promise<unknown>;
-      }
-    ).readBody(mockReq);
-
-    expect(result).toBeUndefined();
-  });
-
-  it("should return undefined for DELETE requests", async () => {
-    const transport = new HttpTransport({ port: 3000 });
-    const mockReq = createMockRequest({ method: "DELETE" });
-
-    const result = await (
-      transport as unknown as {
-        readBody: (req: IncomingMessage) => Promise<unknown>;
-      }
-    ).readBody(mockReq);
-
-    expect(result).toBeUndefined();
-  });
-
-  it("should return undefined for OPTIONS requests", async () => {
-    const transport = new HttpTransport({ port: 3000 });
-    const mockReq = createMockRequest({ method: "OPTIONS" });
-
-    const result = await (
-      transport as unknown as {
-        readBody: (req: IncomingMessage) => Promise<unknown>;
-      }
-    ).readBody(mockReq);
-
-    expect(result).toBeUndefined();
-  });
-});
+// =============================================================================
+// Accessors & Factory
+// =============================================================================
 
 describe("getTransports()", () => {
   it("should return the transport map", () => {

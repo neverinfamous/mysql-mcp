@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- **HTTP Transport Modular Split** — Refactored monolithic `src/transports/http.ts` (798 lines) into `src/transports/http/` directory with 5 focused modules: `types.ts` (config interface + server timeout constants + defaults), `security.ts` (rate limiting, security headers, CORS, body parsing, client IP), `handlers.ts` (health check, root info, OAuth metadata), `server.ts` (transport class + factory), `index.ts` (barrel re-export). Aligns with `db-mcp` and `postgres-mcp` transport architecture
+- **HTTP Security Headers** — Added `Referrer-Policy: no-referrer` header to all HTTP responses (6 base headers, 7 with HSTS). Previously 5 base headers, 6 with HSTS
+- **Server Timeouts (Slowloris Protection)** — Added `requestTimeout` (120s), `keepAliveTimeout` (65s), and `headersTimeout` (66s) to prevent DoS attacks via slow HTTP connections
+- **Health Check Rate-Limit Bypass** — `/health` endpoint now responds before rate limiting is checked, ensuring monitoring probes always succeed regardless of per-IP request quotas
+- **Retry-After Header on 429** — Rate-limited responses now include a `Retry-After` header indicating seconds until the rate limit window resets
+- **Trust Proxy Support** — New `trustProxy` config option reads `X-Forwarded-For` for accurate client IP extraction behind reverse proxies (nginx, ALB, Cloudflare, etc.)
+- **Wildcard Subdomain CORS** — CORS origins now support wildcard subdomain patterns (e.g., `*.example.com` matches `app.example.com`)
 - **E2E Prompt Coverage** — Added `prompts.spec.ts` with 21 tests verifying all 19 MCP prompts are registered and return structured content via `client.listPrompts()` and `client.getPrompt()`
 - **E2E Streamable HTTP Transport** — Added `streamable-http.spec.ts` with 6 tests validating MCP 2025-03-26 Streamable HTTP transport parity: init, listTools, callTool (read + write), listResources, readResource, listPrompts, and getPrompt via `/mcp` endpoint
 - **E2E Structured Error Responses** — Added `errors.spec.ts` with 6 tests verifying structured `{ success: false, code, error }` contract for nonexistent tables, columns, statement type mismatches (INSERT in read_query, SELECT in write_query), invalid JSON paths, and nonexistent table describe
