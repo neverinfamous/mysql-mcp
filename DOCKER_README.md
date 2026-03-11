@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-**Last Updated March 5, 2026**
+**Last Updated March 10, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
