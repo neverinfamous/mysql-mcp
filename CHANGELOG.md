@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- **E2E Prompt Coverage** — Added `prompts.spec.ts` with 21 tests verifying all 19 MCP prompts are registered and return structured content via `client.listPrompts()` and `client.getPrompt()`
+- **E2E Streamable HTTP Transport** — Added `streamable-http.spec.ts` with 6 tests validating MCP 2025-03-26 Streamable HTTP transport parity: init, listTools, callTool (read + write), listResources, readResource, listPrompts, and getPrompt via `/mcp` endpoint
+- **E2E Structured Error Responses** — Added `errors.spec.ts` with 6 tests verifying structured `{ success: false, code, error }` contract for nonexistent tables, columns, statement type mismatches (INSERT in read_query, SELECT in write_query), invalid JSON paths, and nonexistent table describe
 - **Centralized Error Helpers** — Created `src/adapters/mysql/tools/core/error-helpers.ts` with `formatMysqlError`, `formatZodError`, and `formatHandlerError` functions. All error formatting is now centralized instead of scattered across individual tool files
 - **Error Handling Standardization (Phase 1: Pattern B Files)** — Restructured 23 handlers across 9 files (`core.ts`, `partitioning.ts`, 6 schema files) to use a single outer `try/catch` pattern. Previously, these handlers had Zod-only catches with `throw error` re-throws, leaving domain errors unprotected. All handlers now format Zod validation errors and MySQL query errors consistently using the centralized helpers. Eliminated all `throw err`/`throw error` patterns from the tools directory
 - **Error Handling Standardization (Phase 2: Centralize Helpers)** — Replaced 22 local `formatZodError` copies, 11 local `stripErrorPrefix` copies, and 10 inline `.replace()` error-prefix-stripping patterns across 23 tool files with centralized imports from `error-helpers.ts`. Zero local copies or inline patterns remain. Files updated across admin, security, spatial, shell, stats, sysschema, performance, and top-level tool groups
@@ -28,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`MCP_RATE_LIMIT_MAX` Environment Variable** — HTTP transport rate limiter now reads `MCP_RATE_LIMIT_MAX` from environment as a fallback when not set via constructor config. Allows E2E test configurations to increase the limit without code changes (default: 100 requests/minute)
 - **Dual HTTP Transport** — HTTP transport now supports both Streamable HTTP (`/mcp` endpoint, MCP protocol 2025-03-26) and Legacy SSE (`/sse` + `/messages` endpoints, MCP protocol 2024-11-05) simultaneously. Includes session management, cross-protocol guards, CORS, security headers, HSTS opt-in, OAuth integration, and health endpoint
 - **HTTP Transport Security Headers** — All HTTP responses now include `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control`, `Content-Security-Policy`, and `Permissions-Policy` headers. Optional HSTS for HTTPS deployments
 

@@ -28,6 +28,8 @@ export default defineConfig({
       ...process.env,
       // Load all 192 tools (override starter default)
       MYSQL_MCP_TOOL_FILTER: "+all",
+      // Prevent 429s during E2E runs with many client connections
+      MCP_RATE_LIMIT_MAX: "1000",
       // ProxySQL admin connection
       PROXYSQL_HOST: "localhost",
       PROXYSQL_PORT: "6032",
