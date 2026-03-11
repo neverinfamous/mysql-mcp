@@ -137,9 +137,6 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 >
 > For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
 
-> [!NOTE]
-> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](https://github.com/neverinfamous/mysql-mcp/blob/main/src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
-
 ---
 
 ## ⚡ MCP Client Configuration
@@ -277,9 +274,9 @@ Additional protections: configurable CORS origins, per-IP rate limiting, and req
     }
   }
 }
+```
 
 > **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Only needed for `mysqlsh_import_json` and `docstore` tools. Set to your MySQL Router X Protocol port (e.g., `6448`) when using InnoDB Cluster.
-```
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
@@ -300,7 +297,7 @@ Additional protections: configurable CORS origins, per-IP rate limiting, and req
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point. Code Mode is included in all presets by default for 70-90% token savings on multi-step operations.
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -317,7 +314,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Shortcut        | Tools  | Use Case           | What's Included                                                    |
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
-| `starter`       | **39** | 🌟 **Recommended** | core, json, transactions, text, codemode                           |
+| `starter`       | **39** | Standard Package   | core, json, transactions, text, codemode                           |
 | `essential`     | 16     | Minimal footprint  | core, transactions, codemode                                       |
 | `dev-power`     | 47     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
 | `ai-data`       | 46     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
@@ -331,48 +328,39 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Tool Groups (25 Available)
 
-> Tool counts include Code Mode (`mysql_execute_code`) which is added to all groups by default.
+> Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-| Group          | Tools | Description                              |
-| -------------- | ----- | ---------------------------------------- |
-| `codemode`     | 1     | Sandboxed code execution                 |
-| `core`         | 8     | Read/write queries, tables, indexes      |
-| `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints      |
-| `json`         | 17    | JSON functions, merge, diff, stats       |
-| `text`         | 6     | REGEXP, LIKE, SOUNDEX                    |
-| `fulltext`     | 5     | Natural language & boolean search        |
-| `performance`  | 8     | EXPLAIN, query analysis, slow queries    |
-| `optimization` | 4     | Index hints, recommendations             |
-| `admin`        | 6     | OPTIMIZE, ANALYZE, CHECK                 |
-| `monitoring`   | 7     | PROCESSLIST, status variables            |
-| `backup`       | 4     | Export, import, mysqldump                |
-| `replication`  | 5     | Master/slave, binlog                     |
-| `partitioning` | 4     | Partition management                     |
-| `schema`       | 10    | Views, procedures, triggers, constraints |
-| `shell`        | 10    | MySQL Shell utilities                    |
-| `events`       | 6     | Event Scheduler management               |
-| `sysschema`    | 8     | sys schema diagnostics                   |
-| `stats`        | 8     | Statistical analysis tools               |
-| `spatial`      | 12    | Spatial/GIS operations                   |
-| `security`     | 9     | Audit, SSL, encryption, masking          |
-| `roles`        | 8     | MySQL 8.0 role management                |
-| `docstore`     | 9     | Document Store collections               |
-| `cluster`      | 10    | Group Replication, InnoDB Cluster        |
-| `proxysql`     | 11    | ProxySQL management                      |
-| `router`       | 9     | MySQL Router REST API                    |
+| Group          | Tools | Description                                             |
+| -------------- | ----- | ------------------------------------------------------- |
+| `codemode`     | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
+| `core`         | 8     | Read/write queries, tables, indexes                     |
+| `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
+| `json`         | 17    | JSON functions, merge, diff, stats                      |
+| `text`         | 6     | REGEXP, LIKE, SOUNDEX                                   |
+| `fulltext`     | 5     | Natural language & boolean search                       |
+| `performance`  | 8     | EXPLAIN, query analysis, slow queries                   |
+| `optimization` | 4     | Index hints, recommendations                            |
+| `admin`        | 6     | OPTIMIZE, ANALYZE, CHECK                                |
+| `monitoring`   | 7     | PROCESSLIST, status variables                           |
+| `backup`       | 4     | Export, import, mysqldump                               |
+| `replication`  | 5     | Master/slave, binlog                                    |
+| `partitioning` | 4     | Partition management                                    |
+| `schema`       | 10    | Views, procedures, triggers, constraints                |
+| `shell`        | 10    | MySQL Shell utilities                                   |
+| `events`       | 6     | Event Scheduler management                              |
+| `sysschema`    | 8     | sys schema diagnostics                                  |
+| `stats`        | 8     | Statistical analysis tools                              |
+| `spatial`      | 12    | Spatial/GIS operations                                  |
+| `security`     | 9     | Audit, SSL, encryption, masking                         |
+| `roles`        | 8     | MySQL 8.0 role management                               |
+| `docstore`     | 9     | Document Store collections                              |
+| `cluster`      | 10    | Group Replication, InnoDB Cluster                       |
+| `proxysql`     | 11    | ProxySQL management                                     |
+| `router`       | 9     | MySQL Router REST API                                   |
 
 ---
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for IDE configuration examples and advanced usage.
-
----
-
-## 💡 Usage Instructions
-
-> [!NOTE]
-> Usage instructions are **automatically provided** to AI agents via the MCP protocol during server initialization.
-
-For debugging or manual reference, see the source: [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts)
 
 ---
 

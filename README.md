@@ -27,15 +27,15 @@
 | **192 Specialized Tools**             | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
 | **18 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
+| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 192 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
 | **Smart Tool Filtering**              | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                                                                                                                      |
 | **Dual HTTP Transport**               | Streamable HTTP (`/mcp`) for modern clients + legacy SSE (`/sse`) for backward compatibility — both protocols supported simultaneously with session management, security headers, CORS, rate limiting, and body size enforcement                                                       |
 | **High-Performance Pooling**          | Built-in connection pooling for efficient, concurrent database access                                                                                                                                                                                                                  |
 | **Ecosystem Integrations**            | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                                                                                                                                                  |
 | **Advanced Encryption**               | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                                                                                                               |
-| **Deterministic Error Handling**      | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes                                                                                         |
 | **Production-Ready Security**         | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                                                                                                              |
-| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 192 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
+| **Deterministic Error Handling**      | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes                                                                                         |
 | **Strict TypeScript**                 | 100% type-safe codebase with 2169 tests and 90% coverage                                                                                                                                                                                                                               |
 | **MCP 2025-11-25 Compliant**          | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                                                                                                          |
 
@@ -138,9 +138,6 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 > _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
 >
 > For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
-
-> [!NOTE]
-> **AntiGravity Users:** Server instructions are automatically sent to MCP clients during initialization. However, AntiGravity does not currently support MCP server instructions. For optimal Code Mode usage in AntiGravity, manually provide the contents of [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts) to the agent in your prompt or user rules.
 
 ---
 
@@ -344,7 +341,7 @@ Use the remote hostname directly:
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. We recommend `starter` (39 tools) as a starting point. Code Mode is included in all presets by default for 70-90% token savings on multi-step operations.
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 192 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -361,7 +358,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Shortcut        | Tools  | Use Case           | What's Included                                                    |
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
-| `starter`       | **39** | 🌟 **Recommended** | core, json, transactions, text, codemode                           |
+| `starter`       | **39** | Standard Package   | core, json, transactions, text, codemode                           |
 | `essential`     | 16     | Minimal footprint  | core, transactions, codemode                                       |
 | `dev-power`     | 47     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
 | `ai-data`       | 46     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
@@ -375,35 +372,35 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Tool Groups (25 Available)
 
-> Tool counts include Code Mode (`mysql_execute_code`) which is added to all groups by default.
+> Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-| Group          | Tools | Description                              |
-| -------------- | ----- | ---------------------------------------- |
-| `codemode`     | 1     | Sandboxed code execution                 |
-| `core`         | 8     | Read/write queries, tables, indexes      |
-| `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints      |
-| `json`         | 17    | JSON functions, merge, diff, stats       |
-| `text`         | 6     | REGEXP, LIKE, SOUNDEX                    |
-| `fulltext`     | 5     | Natural language & boolean search        |
-| `performance`  | 8     | EXPLAIN, query analysis, slow queries    |
-| `optimization` | 4     | Index hints, recommendations             |
-| `admin`        | 6     | OPTIMIZE, ANALYZE, CHECK                 |
-| `monitoring`   | 7     | PROCESSLIST, status variables            |
-| `backup`       | 4     | Export, import, mysqldump                |
-| `replication`  | 5     | Master/slave, binlog                     |
-| `partitioning` | 4     | Partition management                     |
-| `schema`       | 10    | Views, procedures, triggers, constraints |
-| `shell`        | 10    | MySQL Shell utilities                    |
-| `events`       | 6     | Event Scheduler management               |
-| `sysschema`    | 8     | sys schema diagnostics                   |
-| `stats`        | 8     | Statistical analysis tools               |
-| `spatial`      | 12    | Spatial/GIS operations                   |
-| `security`     | 9     | Audit, SSL, encryption, masking          |
-| `roles`        | 8     | MySQL 8.0 role management                |
-| `docstore`     | 9     | Document Store collections               |
-| `cluster`      | 10    | Group Replication, InnoDB Cluster        |
-| `proxysql`     | 11    | ProxySQL management                      |
-| `router`       | 9     | MySQL Router REST API                    |
+| Group          | Tools | Description                                             |
+| -------------- | ----- | ------------------------------------------------------- |
+| `codemode`     | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
+| `core`         | 8     | Read/write queries, tables, indexes                     |
+| `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
+| `json`         | 17    | JSON functions, merge, diff, stats                      |
+| `text`         | 6     | REGEXP, LIKE, SOUNDEX                                   |
+| `fulltext`     | 5     | Natural language & boolean search                       |
+| `performance`  | 8     | EXPLAIN, query analysis, slow queries                   |
+| `optimization` | 4     | Index hints, recommendations                            |
+| `admin`        | 6     | OPTIMIZE, ANALYZE, CHECK                                |
+| `monitoring`   | 7     | PROCESSLIST, status variables                           |
+| `backup`       | 4     | Export, import, mysqldump                               |
+| `replication`  | 5     | Master/slave, binlog                                    |
+| `partitioning` | 4     | Partition management                                    |
+| `schema`       | 10    | Views, procedures, triggers, constraints                |
+| `shell`        | 10    | MySQL Shell utilities                                   |
+| `events`       | 6     | Event Scheduler management                              |
+| `sysschema`    | 8     | sys schema diagnostics                                  |
+| `stats`        | 8     | Statistical analysis tools                              |
+| `spatial`      | 12    | Spatial/GIS operations                                  |
+| `security`     | 9     | Audit, SSL, encryption, masking                         |
+| `roles`        | 8     | MySQL 8.0 role management                               |
+| `docstore`     | 9     | Document Store collections                              |
+| `cluster`      | 10    | Group Replication, InnoDB Cluster                       |
+| `proxysql`     | 11    | ProxySQL management                                     |
+| `router`       | 9     | MySQL Router REST API                                   |
 
 ---
 
@@ -411,9 +408,9 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursorrules`, or equivalent):
 
-#### Option 1: Starter (39 Essential Tools)
+#### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
-**Best for:** General MySQL database work - CRUD operations, schema management, and monitoring.
+**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to all 192 tools via a JavaScript sandbox.
 
 ```json
 {
@@ -425,7 +422,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "--transport",
         "stdio",
         "--tool-filter",
-        "starter"
+        "codemode"
       ],
       "env": {
         "MYSQL_HOST": "localhost",
@@ -545,15 +542,6 @@ If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to
 | `-`      | Tool     | `-mysql_drop_table` | Remove one specific tool                      |
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
-
----
-
-## 💡 Usage Instructions
-
-> [!NOTE]
-> Usage instructions are **automatically provided** to AI agents via the MCP protocol during server initialization.
-
-For debugging or manual reference, see the source: [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts)
 
 ---
 
@@ -729,16 +717,6 @@ npm run test:coverage
 - Centralized mock factories in `src/__tests__/mocks/`
 - All 111 test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
-- ~28 second total runtime
-
-**Test Coverage:**
-
-| Component       | Coverage | Notes                 |
-| --------------- | -------- | --------------------- |
-| **Global**      | **90%+** | Statement coverage    |
-| MySQLAdapter    | 93%+     | Adapter logic covered |
-| Branch Coverage | ~75%     | High branch coverage  |
-| Tools (All)     | 98%+     | 2169 tests passing    |
 
 ---
 
