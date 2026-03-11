@@ -33,16 +33,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependencies
 
-- `@types/node`: 25.3.2 → 25.4.0
+- `@types/node`: 25.3.3 → 25.4.0
 - `eslint`: 10.0.2 → 10.0.3
 - `globals`: 17.3.0 → 17.4.0
 - `jose`: 6.1.3 → 6.2.1
 - `mysql2`: 3.18.2 → 3.19.1
 - `typescript-eslint`: 8.56.1 → 8.57.0
+- `express-rate-limit`: 8.2.1 → 8.3.1 (transitive)
+- `hono`: 4.12.2 → 4.12.7 (transitive)
+- `@hono/node-server`: 1.19.9 → 1.19.11 (transitive)
 
 ### CI
 
 - Bumped Docker GitHub Actions: `setup-buildx-action` v3 → v4, `login-action` v3 → v4, `metadata-action` v5 → v6, `build-push-action` v6 → v7
+- Bumped GitHub Actions: `upload-artifact` v6 → v7, `download-artifact` v7 → v8
 
 ## [3.0.2] - 2026-02-27
 
