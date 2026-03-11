@@ -127,6 +127,8 @@ export class HttpTransport {
             }
           }
         }, 60_000);
+        // Don't block process exit
+        this.rateLimitCleanupInterval.unref();
       }
 
       this.server.on("error", reject);
