@@ -62,6 +62,7 @@ describe("Group Replication Tools", () => {
       const result = (await tool.handler({}, {} as any)) as any;
 
       expect(result).toEqual({
+        success: true,
         enabled: true,
         groupName: "d747d0cc-189f-11ee-8653-0242ac110002",
         singlePrimaryMode: true,

@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck"
   },
   "keywords": [
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.3",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.0.0",

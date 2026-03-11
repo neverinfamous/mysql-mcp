@@ -9,7 +9,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-2169%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/Tests-2181%20passing-brightgreen.svg)
+![E2E](https://img.shields.io/badge/E2E-60%20tests%20%C2%B7%20192%20tools-blue.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
@@ -34,7 +35,7 @@
 | **Deterministic Error Handling**      | Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes                                                                                         |
 | **Production-Ready Security**         | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                                                                                                              |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 192 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
-| **Strict TypeScript**                 | 100% type-safe codebase with 2169 tests and 90% coverage                                                                                                                                                                                                                               |
+| **Strict TypeScript**                 | 100% type-safe codebase with 2181 tests and 90% coverage                                                                                                                                                                                                                               |
 | **MCP 2025-11-25 Compliant**          | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                                                                                                          |
 
 ---

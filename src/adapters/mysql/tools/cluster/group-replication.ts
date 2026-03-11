@@ -48,6 +48,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
+            success: false,
             enabled: false,
             message: "Group Replication plugin is not active",
           };
@@ -87,6 +88,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
 
         return {
+          success: true,
           enabled: members.length > 0,
           groupName: config?.["groupName"] ?? null,
           singlePrimaryMode: config?.["singlePrimaryMode"] === 1,
@@ -108,6 +110,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         return {
+          success: false,
           enabled: false,
           error: error instanceof Error ? error.message : String(error),
         };
@@ -142,6 +145,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
+            success: false,
             members: [],
             count: 0,
             message: "Group Replication not active",
@@ -173,11 +177,13 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
         return {
+          success: false,
           members: [],
           count: 0,
           error: error instanceof Error ? error.message : String(error),
@@ -225,12 +231,14 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         const localUuid = localResult.rows?.[0]?.["serverUuid"];
 
         return {
+          success: true,
           primary: primary ?? null,
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
       } catch (error) {
         return {
+          success: false,
           hasPrimary: false,
           error: error instanceof Error ? error.message : String(error),
         };
@@ -265,6 +273,7 @@ export function createGRTransactionsTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
+            success: false,
             memberStats: [],
             gtid: { executed: "", purged: "" },
             message: "Group Replication not active",
@@ -296,6 +305,7 @@ export function createGRTransactionsTool(
         const gtid = gtidResult.rows?.[0];
 
         return {
+          success: true,
           memberStats: statsResult.rows ?? [],
           gtid: {
             executed: gtid?.["gtidExecuted"] ?? "",
@@ -304,6 +314,7 @@ export function createGRTransactionsTool(
         };
       } catch (error) {
         return {
+          success: false,
           memberStats: [],
           gtid: { executed: "", purged: "" },
           error: error instanceof Error ? error.message : String(error),
@@ -337,6 +348,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
+            success: false,
             configuration: {},
             memberQueues: [],
             isThrottling: false,
@@ -379,6 +391,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         });
 
         return {
+          success: true,
           configuration: config ?? {},
           memberQueues: queueResult.rows ?? [],
           isThrottling,
@@ -388,6 +401,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         return {
+          success: false,
           configuration: {},
           memberQueues: [],
           isThrottling: false,

@@ -75,6 +75,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     `);
 
           return {
+            success: true,
             isInnoDBCluster: false,
             message:
               "InnoDB Cluster metadata not found. Using Group Replication status.",
@@ -106,6 +107,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         // Summary mode: return only essential metadata
         if (summary) {
           return {
+            success: true,
             isInnoDBCluster: true,
             cluster: clusterBasic ?? null,
             instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
@@ -139,6 +141,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return {
+          success: true,
           isInnoDBCluster: true,
           cluster,
           instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
@@ -146,6 +149,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         return {
+          success: false,
           isInnoDBCluster: false,
           message:
             "Unable to query cluster metadata. Ensure InnoDB Cluster is properly configured.",
@@ -184,6 +188,7 @@ export function createClusterInstancesTool(
         ({ limit } = LimitSchema.parse(params));
       } catch (error) {
         return {
+          success: false,
           instances: [],
           count: 0,
           error:
@@ -214,6 +219,7 @@ export function createClusterInstancesTool(
         );
 
         return {
+          success: true,
           instances: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
@@ -233,12 +239,14 @@ export function createClusterInstancesTool(
           );
 
           return {
+            success: true,
             source: "group_replication",
             instances: grResult.rows ?? [],
             count: grResult.rows?.length ?? 0,
           };
         } catch (fallbackError) {
           return {
+            success: false,
             instances: [],
             count: 0,
             error:
@@ -370,6 +378,7 @@ export function createClusterTopologyTool(
 
         const allMembers = members.length + metadataOffline.length;
         return {
+          success: true,
           topology,
           visualization: ascii,
           totalMembers: allMembers,
@@ -377,6 +386,7 @@ export function createClusterTopologyTool(
         };
       } catch (error) {
         return {
+          success: false,
           topology: {
             primary: [],
             secondaries: [],
@@ -443,6 +453,7 @@ export function createClusterRouterStatusTool(
           const staleCount = routers.filter((r) => r.isStale).length;
 
           return {
+            success: true,
             routers,
             count: routers.length,
             staleCount,
@@ -483,12 +494,14 @@ export function createClusterRouterStatusTool(
         const staleCount = routers.filter((r) => r.isStale).length;
 
         return {
+          success: true,
           routers,
           count: routers.length,
           staleCount,
         };
       } catch (error) {
         return {
+          success: false,
           available: false,
           message:
             "Router metadata not available. Ensure InnoDB Cluster is configured.",
@@ -589,6 +602,7 @@ export function createClusterSwitchoverTool(
 
         const firstCandidate = candidates[0];
         return {
+          success: true,
           currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
           candidates,
           recommendedTarget:
@@ -609,6 +623,7 @@ export function createClusterSwitchoverTool(
         };
       } catch (error) {
         return {
+          success: false,
           currentPrimary: null,
           candidates: [],
           canSwitchover: false,
