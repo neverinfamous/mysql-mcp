@@ -21,6 +21,8 @@ import { CodeModeSecurityManager } from "../../../../codemode/security.js";
 import { createMysqlApi } from "../../../../codemode/api.js";
 import type { ExecuteCodeOptions } from "../../../../codemode/types.js";
 
+import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
+
 // Schema for mysql_execute_code input
 export const ExecuteCodeSchema = z.object({
   code: z
@@ -39,25 +41,30 @@ export const ExecuteCodeSchema = z.object({
 });
 
 // Schema for mysql_execute_code output
-export const ExecuteCodeOutputSchema = z.object({
-  success: z.boolean().describe("Whether the code executed successfully"),
-  result: z
-    .unknown()
-    .optional()
-    .describe("Return value from the executed code"),
-  error: z.string().optional().describe("Error message if execution failed"),
-  metrics: z
-    .object({
-      wallTimeMs: z
-        .number()
-        .describe("Wall clock execution time in milliseconds"),
-      cpuTimeMs: z.number().describe("CPU time used in milliseconds"),
-      memoryUsedMb: z.number().describe("Memory used in megabytes"),
-    })
-    .optional()
-    .describe("Execution performance metrics"),
-  hint: z.string().optional().describe("Helpful tip or additional information"),
-});
+export const ExecuteCodeOutputSchema = z
+  .object({
+    success: z.boolean().describe("Whether the code executed successfully"),
+    result: z
+      .unknown()
+      .optional()
+      .describe("Return value from the executed code"),
+    error: z.string().optional().describe("Error message if execution failed"),
+    metrics: z
+      .object({
+        wallTimeMs: z
+          .number()
+          .describe("Wall clock execution time in milliseconds"),
+        cpuTimeMs: z.number().describe("CPU time used in milliseconds"),
+        memoryUsedMb: z.number().describe("Memory used in megabytes"),
+      })
+      .optional()
+      .describe("Execution performance metrics"),
+    hint: z
+      .string()
+      .optional()
+      .describe("Helpful tip or additional information"),
+  })
+  .extend(ErrorResponseFields.shape);
 
 // Singleton instances (initialized on first use)
 let sandboxPool: ISandboxPool | null = null;
