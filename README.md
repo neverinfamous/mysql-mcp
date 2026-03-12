@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-**Last Updated March 10, 2026**
+**Last Updated March 11, 2026**
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -29,6 +29,7 @@
 | **18 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 192 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
+| **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                     |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
 | **Smart Tool Filtering**              | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                                                                                                                      |
 | **Dual HTTP Transport**               | Streamable HTTP (`/mcp`) for modern clients + legacy SSE (`/sse`) for backward compatibility — both protocols supported simultaneously with session management, security headers, CORS, rate limiting, and body size enforcement                                                       |
