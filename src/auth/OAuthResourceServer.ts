@@ -80,6 +80,26 @@ export class OAuthResourceServer {
   getAuthorizationServers(): string[] {
     return [...this.config.authorizationServers];
   }
+
+  /**
+   * Generate WWW-Authenticate header for 401 responses
+   */
+  getWWWAuthenticateHeader(
+    error?: string,
+    errorDescription?: string,
+  ): string {
+    const parts = [`Bearer realm="${this.config.resource}"`];
+
+    if (error) {
+      parts.push(`error="${error}"`);
+    }
+
+    if (errorDescription) {
+      parts.push(`error_description="${errorDescription}"`);
+    }
+
+    return parts.join(", ");
+  }
 }
 
 /**

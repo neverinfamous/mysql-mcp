@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **OAuth Scope Map (`scope-map.ts`)** — O(1) reverse lookup from tool name to required OAuth scope. `getRequiredScope(toolName)` returns the scope without iterating tool groups. `getToolScopeMap()` exposes the full read-only map for introspection
+- **OAuth Auth Context (`auth-context.ts`)** — AsyncLocalStorage-based per-request authentication context threading. `runWithAuthContext()` / `getAuthContext()` allow tool handlers to access auth context without direct parameter coupling
+- **`SCOPE_PATTERNS` Regex Constants** — `SCOPE_PATTERNS.DATABASE` and `SCOPE_PATTERNS.TABLE` regex patterns for validating dynamic `db:*` and `table:*:*` scopes
+- **`BASE_SCOPES` Constant** — Array of the 4 standard scopes (`read`, `write`, `admin`, `full`) without dynamic patterns
+- **`OAuthResourceServer.getWWWAuthenticateHeader()`** — Generates RFC-compliant `WWW-Authenticate` headers for 401 responses
+- **`isOAuthError()` Type Guard** — Runtime type guard for `OAuthError` instances
+- **`getWWWAuthenticateHeader()` Utility** — Generates `WWW-Authenticate` headers from `OAuthError` instances with error-specific formatting (insufficient scope includes `scope` parameter, token missing omits error details)
+
 ### Improved
 
 - **HTTP Transport Modular Split** — Refactored monolithic `src/transports/http.ts` (798 lines) into `src/transports/http/` directory with 5 focused modules: `types.ts` (config interface + server timeout constants + defaults), `security.ts` (rate limiting, security headers, CORS, body parsing, client IP), `handlers.ts` (health check, root info, OAuth metadata), `server.ts` (transport class + factory), `index.ts` (barrel re-export). Aligns with `db-mcp` and `postgres-mcp` transport architecture

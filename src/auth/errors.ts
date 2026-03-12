@@ -114,3 +114,32 @@ export class ClientRegistrationError extends OAuthError {
     Object.setPrototypeOf(this, ClientRegistrationError.prototype);
   }
 }
+
+// =============================================================================
+// Utility Functions
+// =============================================================================
+
+/**
+ * Check if an error is an OAuth error
+ */
+export function isOAuthError(error: unknown): error is OAuthError {
+  return error instanceof OAuthError;
+}
+
+/**
+ * Get WWW-Authenticate header for an OAuth error
+ */
+export function getWWWAuthenticateHeader(
+  error: OAuthError,
+  realm = "mysql-mcp",
+): string {
+  if (error instanceof InsufficientScopeError) {
+    return `Bearer realm="${realm}", error="insufficient_scope", scope="${error.requiredScopes.join(" ")}"`;
+  }
+
+  if (error instanceof TokenMissingError) {
+    return `Bearer realm="${realm}"`;
+  }
+
+  return `Bearer realm="${realm}", error="invalid_token", error_description="${error.message}"`;
+}
