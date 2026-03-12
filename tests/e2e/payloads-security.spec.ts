@@ -70,16 +70,18 @@ test.describe("Payload Contracts: Security + Roles", () => {
     }
   });
 
-  test("mysql_security_sensitive_tables returns findings", async () => {
+  test("mysql_security_sensitive_tables returns findings with limit", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(
         client,
         "mysql_security_sensitive_tables",
-        {},
+        { limit: 5 },
       );
 
       expect(typeof payload).toBe("object");
+      expect(typeof payload.tableCount).toBe("number");
+      expect(payload.tableCount as number).toBeLessThanOrEqual(5);
     } finally {
       await client.close();
     }

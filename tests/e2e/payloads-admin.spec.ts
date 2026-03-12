@@ -58,16 +58,18 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
 
   // --- Monitoring tools ---
 
-  test("mysql_show_processlist returns { processes[] }", async () => {
+  test("mysql_show_processlist returns { processes[], count }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(
         client,
         "mysql_show_processlist",
-        {},
+        { limit: 3 },
       );
 
       expect(Array.isArray(payload.processes)).toBe(true);
+      expect(typeof payload.count).toBe("number");
+      expect(payload.count as number).toBeLessThanOrEqual(3);
     } finally {
       await client.close();
     }
@@ -135,6 +137,22 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
 
       // Health returns { connected, version, database, uptime, ... }
       expect(typeof payload.connected).toBe("boolean");
+    } finally {
+      await client.close();
+    }
+  });
+
+  test("mysql_replication_status returns info", async () => {
+    const client = await createClient();
+    try {
+      const payload = await callToolAndParse(
+        client,
+        "mysql_replication_status",
+        { summary: true },
+      );
+
+      // Should have configured boolean regardless
+      expect(typeof payload.configured).toBe("boolean");
     } finally {
       await client.close();
     }
