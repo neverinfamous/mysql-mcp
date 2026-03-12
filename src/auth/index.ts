@@ -6,7 +6,18 @@
 
 // Types
 export type * from "./types.js";
-export * from "./errors.js";
+export {
+  OAuthError,
+  TokenMissingError,
+  InvalidTokenError,
+  TokenExpiredError,
+  InvalidSignatureError,
+  InsufficientScopeError,
+  AuthServerDiscoveryError,
+  JwksFetchError,
+  ClientRegistrationError,
+  isOAuthError,
+} from "./errors.js";
 
 // Scopes
 export * from "./scopes.js";

@@ -6,6 +6,9 @@
  */
 
 import { ZodError } from "zod";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
+import type { ErrorResponse } from "../../../../types/modules/error-types.js";
 
 /**
  * Extract human-readable messages from a ZodError instead of raw JSON array.
@@ -81,3 +84,42 @@ export function formatHandlerError(err: unknown): {
   }
   return { success: false, error: formatMysqlError(err) };
 }
+
+/**
+ * Format any caught error into an enriched ErrorResponse.
+ *
+ * Returns the full harmonized error response with code, category,
+ * suggestion, and recoverable fields. Handles MySQLMcpError instances,
+ * ZodErrors, raw MySQL errors, and unknown errors.
+ */
+export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
+  // MySQLMcpError — already enriched
+  if (err instanceof MySQLMcpError) {
+    return err.toResponse();
+  }
+
+  // Zod validation error
+  if (err instanceof ZodError) {
+    return {
+      success: false,
+      error: formatZodError(err),
+      code: "VALIDATION_ERROR",
+      category: ErrorCategory.VALIDATION,
+      suggestion: undefined,
+      recoverable: false,
+      details: undefined,
+    };
+  }
+
+  // Raw MySQL / unknown error
+  return {
+    success: false,
+    error: formatMysqlError(err),
+    code: "QUERY_ERROR",
+    category: ErrorCategory.QUERY,
+    suggestion: undefined,
+    recoverable: false,
+    details: undefined,
+  };
+}
+

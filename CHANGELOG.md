@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Harmonized Error Types (`error-types.ts`)** — New `ErrorCategory` enum (9 categories: validation, connection, query, permission, config, resource, authentication, authorization, internal), `ErrorResponse` interface, and `ErrorContext` interface. Part of the harmonized error handling standard across db-mcp, postgres-mcp, and mysql-mcp
+- **Enriched `MySQLMcpError` Base Class** — Constructor now accepts `(message, code, category, options?)` with `suggestion`, `recoverable`, `details`, and `cause` fields. Includes `toResponse()` method returning structured `ErrorResponse`. All 7 subclasses enriched with category, suggestion, and recoverable defaults
+- **`formatHandlerErrorResponse()` Function** — New enriched error formatter in `error-helpers.ts` returning full `ErrorResponse` objects with code, category, suggestion, and recoverable fields. Handles `MySQLMcpError`, `ZodError`, and raw MySQL errors. Existing `formatHandlerError()` preserved for backward compatibility
+- **`OAuthError` Extends `MySQLMcpError`** — OAuth errors now inherit full error handling infrastructure (category, suggestion, toResponse()). All OAuth error codes prefixed with `AUTH_` (e.g., `TOKEN_MISSING` → `AUTH_TOKEN_MISSING`). Added `wwwAuthenticate` as instance property; deprecated standalone `getWWWAuthenticateHeader()` utility
 - **OAuth Scope Map (`scope-map.ts`)** — O(1) reverse lookup from tool name to required OAuth scope. `getRequiredScope(toolName)` returns the scope without iterating tool groups. `getToolScopeMap()` exposes the full read-only map for introspection
 - **OAuth Auth Context (`auth-context.ts`)** — AsyncLocalStorage-based per-request authentication context threading. `runWithAuthContext()` / `getAuthContext()` allow tool handlers to access auth context without direct parameter coupling
 - **`SCOPE_PATTERNS` Regex Constants** — `SCOPE_PATTERNS.DATABASE` and `SCOPE_PATTERNS.TABLE` regex patterns for validating dynamic `db:*` and `table:*:*` scopes

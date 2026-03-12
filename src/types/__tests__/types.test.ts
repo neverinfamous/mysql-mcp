@@ -14,12 +14,13 @@ import {
   AuthorizationError,
   ValidationError,
   TransactionError,
+  ErrorCategory,
 } from "../index.js";
 
 describe("Error Classes", () => {
   describe("MySQLMcpError", () => {
     it("should create error with message and code", () => {
-      const error = new MySQLMcpError("Test error", "TEST_CODE");
+      const error = new MySQLMcpError("Test error", "TEST_CODE", ErrorCategory.INTERNAL);
       expect(error.message).toBe("Test error");
       expect(error.code).toBe("TEST_CODE");
       expect(error.name).toBe("MySQLMcpError");
@@ -27,17 +28,17 @@ describe("Error Classes", () => {
 
     it("should create error with details", () => {
       const details = { table: "users", operation: "insert" };
-      const error = new MySQLMcpError("Test error", "TEST_CODE", details);
+      const error = new MySQLMcpError("Test error", "TEST_CODE", ErrorCategory.INTERNAL, { details });
       expect(error.details).toEqual(details);
     });
 
     it("should be instance of Error", () => {
-      const error = new MySQLMcpError("Test", "CODE");
+      const error = new MySQLMcpError("Test", "CODE", ErrorCategory.INTERNAL);
       expect(error).toBeInstanceOf(Error);
     });
 
     it("should have stack trace", () => {
-      const error = new MySQLMcpError("Test", "CODE");
+      const error = new MySQLMcpError("Test", "CODE", ErrorCategory.INTERNAL);
       expect(error.stack).toBeDefined();
     });
   });
@@ -56,7 +57,7 @@ describe("Error Classes", () => {
 
     it("should accept details", () => {
       const error = new ConnectionError("Failed", { host: "localhost" });
-      expect(error.details?.["host"]).toBe("localhost");
+      expect(error.details).toEqual({ host: "localhost" });
     });
   });
 
