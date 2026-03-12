@@ -1,11 +1,11 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 
 const ListEventsSchemaBase = z.object({
   schema: z
@@ -93,10 +93,8 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
           events: result.rows,
           count: result.rows?.length ?? 0,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

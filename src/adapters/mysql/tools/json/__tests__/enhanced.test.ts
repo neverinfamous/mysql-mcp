@@ -585,7 +585,7 @@ describe("JSON Enhanced Tools", () => {
           { json1: "not-json", json2: "{}" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+        expect(result).toMatchObject({ success: false, error: "Invalid JSON text" });
       });
 
       it("json_diff should return success: false for invalid input", async () => {
@@ -597,7 +597,7 @@ describe("JSON Enhanced Tools", () => {
           { json1: "not-json", json2: "{}" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+        expect(result).toMatchObject({ success: false, error: "Invalid JSON text" });
       });
     });
   });

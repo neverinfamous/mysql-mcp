@@ -7,8 +7,7 @@
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { ZodError } from "zod";
-import { formatZodError } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -266,12 +265,8 @@ export function createShellRunScriptTool(): ToolDefinition {
           stdout: result.stdout,
           stderr: result.stderr,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

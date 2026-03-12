@@ -1,6 +1,6 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
-import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -78,10 +78,8 @@ export function createListStoredProceduresTool(
           procedures: result.rows,
           count: result.rows?.length ?? 0,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -140,10 +138,8 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
           functions: result.rows,
           count: result.rows?.length ?? 0,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

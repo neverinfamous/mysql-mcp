@@ -155,9 +155,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: expect.stringContaining(
+      expect(result).toMatchObject({ success: false, error: expect.stringContaining(
           "Cannot create SPATIAL index on nullable column",
         ),
       });
@@ -186,9 +184,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Index 'idx_locations_geom' already exists on table 'locations'",
+      expect(result).toMatchObject({ success: false, error: "Index 'idx_locations_geom' already exists on table 'locations'",
       });
     });
 
@@ -211,9 +207,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Some other MySQL error",
+      expect(result).toMatchObject({ success: false, error: "Some other MySQL error",
       });
     });
   });
@@ -247,9 +241,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Invalid coordinate",
+      expect(result).toMatchObject({ success: false, error: "Invalid coordinate",
       });
     });
   });
@@ -470,9 +462,7 @@ describe("Handler Execution", () => {
       // geometry: "" passes Zod refine (string is defined) but is falsy,
       // so handler falls through to the structured error return
       const result = await tool.handler({ geometry: "" }, mockContext);
-      expect(result).toEqual({
-        success: false,
-        error: "Either geometry or geoJson must be provided",
+      expect(result).toMatchObject({ success: false, error: "Either geometry or geoJson must be provided",
       });
     });
   });

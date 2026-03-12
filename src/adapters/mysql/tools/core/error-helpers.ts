@@ -58,9 +58,12 @@ export function stripErrorPrefix(msg: string): string {
 }
 
 /**
- * Format any caught error into a structured handler error response.
+ * Format any caught error into an enriched ErrorResponse.
  *
- * Handles ZodError (validation) and general errors (MySQL/runtime).
+ * Returns the full harmonized error response with code, category,
+ * suggestion, and recoverable fields. Handles MySQLMcpError instances,
+ * ZodErrors, raw MySQL errors, and unknown errors.
+ *
  * Use as the single catch block for all tool handlers:
  *
  * ```typescript
@@ -75,24 +78,7 @@ export function stripErrorPrefix(msg: string): string {
  * }
  * ```
  */
-export function formatHandlerError(err: unknown): {
-  success: false;
-  error: string;
-} {
-  if (err instanceof ZodError) {
-    return { success: false, error: formatZodError(err) };
-  }
-  return { success: false, error: formatMysqlError(err) };
-}
-
-/**
- * Format any caught error into an enriched ErrorResponse.
- *
- * Returns the full harmonized error response with code, category,
- * suggestion, and recoverable fields. Handles MySQLMcpError instances,
- * ZodErrors, raw MySQL errors, and unknown errors.
- */
-export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
+export function formatHandlerError(err: unknown): ErrorResponse {
   // MySQLMcpError — already enriched
   if (err instanceof MySQLMcpError) {
     return err.toResponse();
@@ -122,4 +108,5 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     details: undefined,
   };
 }
+
 

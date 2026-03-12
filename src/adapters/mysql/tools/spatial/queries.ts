@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -138,7 +138,7 @@ export function createSpatialDistanceTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         if (error instanceof ValidationError) {
           return { success: false, error: error.message };
@@ -147,7 +147,7 @@ export function createSpatialDistanceTool(
         if (msg.includes("doesn't exist")) {
           return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };
@@ -216,7 +216,7 @@ export function createSpatialDistanceSphereTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         if (error instanceof ValidationError) {
           return { success: false, error: error.message };
@@ -225,7 +225,7 @@ export function createSpatialDistanceSphereTool(
         if (msg.includes("doesn't exist")) {
           return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };
@@ -281,7 +281,7 @@ export function createSpatialContainsTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         if (error instanceof ValidationError) {
           return { success: false, error: error.message };
@@ -290,7 +290,7 @@ export function createSpatialContainsTool(
         if (msg.includes("doesn't exist")) {
           return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };
@@ -343,7 +343,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         if (error instanceof ValidationError) {
           return { success: false, error: error.message };
@@ -352,7 +352,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return { exists: false, table: paramStr(params, "table") };
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };

@@ -24,8 +24,7 @@ import {
   GetIndexesSchemaBase,
   ListTablesSchema,
 } from "../types.js";
-import { ZodError } from "zod";
-import { formatZodError, formatMysqlError } from "./core/error-helpers.js";
+import { formatHandlerError } from "./core/error-helpers.js";
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -101,10 +100,8 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           rowCount: result.rows?.length ?? 0,
           executionTimeMs: result.executionTimeMs,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -142,10 +139,8 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           lastInsertId: result.lastInsertId?.toString(),
           executionTimeMs: result.executionTimeMs,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -196,10 +191,8 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           })),
           count: tables.length,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -234,10 +227,8 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
         return { ...tableInfo, exists: true };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -369,15 +360,13 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Table '${name}' already exists`,
             };
           }
-          return { success: false, error: formatMysqlError(err) };
+          return formatHandlerError(err);
         }
 
         adapter.clearSchemaCache();
         return { success: true, tableName: name };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -431,7 +420,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Table '${table}' does not exist`,
             };
           }
-          return { success: false, error: formatMysqlError(err) };
+          return formatHandlerError(err);
         }
 
         adapter.clearSchemaCache();
@@ -446,10 +435,8 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return { success: true, tableName: table };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -486,10 +473,8 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const indexes = await adapter.getTableIndexes(table);
         return { exists: true, indexes };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -572,7 +557,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
           if (message.includes("doesn't exist")) {
             return { exists: false, table };
           }
-          return { success: false, error: formatMysqlError(err) };
+          return formatHandlerError(err);
         }
 
         adapter.clearSchemaCache();
@@ -588,10 +573,8 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return { success: true, indexName: name };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

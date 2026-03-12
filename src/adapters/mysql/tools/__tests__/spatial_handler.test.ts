@@ -33,9 +33,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: expect.stringContaining("Invalid table name"),
+      expect(result).toMatchObject({ success: false, error: expect.stringContaining("Invalid table name"),
       });
     });
 
@@ -50,9 +48,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Invalid column name",
+      expect(result).toMatchObject({ success: false, error: "Invalid column name",
       });
     });
 
@@ -92,9 +88,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Invalid index name",
+      expect(result).toMatchObject({ success: false, error: "Invalid index name",
       });
     });
 
@@ -146,9 +140,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error:
+      expect(result).toMatchObject({ success: false, error:
           "Spatial index 'idx_existing_geom' already exists on column 'geom' of table 'locations'",
       });
       // Should have called: 1) column check, 2) existing index check — NOT the CREATE
@@ -240,9 +232,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return structured error if both inputs are missing (zod refinement)", async () => {
       const tool = findTool("mysql_spatial_geojson")!;
       const result = await tool.handler({}, mockContext);
-      expect(result).toEqual({
-        success: false,
-        error: expect.stringContaining(
+      expect(result).toMatchObject({ success: false, error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
         ),
       });
@@ -371,9 +361,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Unknown column 'bad_col' in 'field list'",
+      expect(result).toMatchObject({ success: false, error: "Unknown column 'bad_col' in 'field list'",
       });
     });
 
@@ -391,9 +379,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Invalid GIS data",
+      expect(result).toMatchObject({ success: false, error: "Invalid GIS data",
       });
     });
 
@@ -411,9 +397,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Invalid GIS data",
+      expect(result).toMatchObject({ success: false, error: "Invalid GIS data",
       });
     });
 
@@ -432,9 +416,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "There's no spatial reference system with SRID 99999",
+      expect(result).toMatchObject({ success: false, error: "There's no spatial reference system with SRID 99999",
       });
     });
 
@@ -451,9 +433,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Invalid GIS data",
+      expect(result).toMatchObject({ success: false, error: "Invalid GIS data",
       });
     });
 
@@ -471,9 +451,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Latitude must be in range",
+      expect(result).toMatchObject({ success: false, error: "Latitude must be in range",
       });
     });
 
@@ -491,9 +469,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Column 'location' already exists on table 'users'",
+      expect(result).toMatchObject({ success: false, error: "Column 'location' already exists on table 'users'",
       });
     });
 

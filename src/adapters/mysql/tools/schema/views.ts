@@ -1,6 +1,6 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
-import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -89,10 +89,8 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
           views: result.rows,
           count: result.rows?.length ?? 0,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -146,12 +144,10 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
               error: `View '${name}' already exists`,
             };
           }
-          return { success: false, error: formatMysqlError(err) };
+          return formatHandlerError(err);
         }
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

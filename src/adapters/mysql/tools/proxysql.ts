@@ -9,8 +9,7 @@
  */
 
 import mysql from "mysql2/promise";
-import { ZodError } from "zod";
-import { formatZodError } from "./core/error-helpers.js";
+import { formatHandlerError } from "./core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import {
@@ -181,14 +180,8 @@ function createProxySQLStatusTool(): ToolDefinition {
           stats: rows,
           totalVarsAvailable: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -254,14 +247,8 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
           adminVariables: redactedVars,
           totalAdminVarsAvailable: redactedVars.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -302,14 +289,8 @@ function createProxySQLServersTool(): ToolDefinition {
           servers: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -348,14 +329,8 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
           queryRules: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -390,14 +365,8 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
           queryDigests: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -438,14 +407,8 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
           connectionPools: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -483,14 +446,8 @@ function createProxySQLUsersTool(): ToolDefinition {
           users: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -566,14 +523,8 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
           count: redactedRows.length,
           totalVarsAvailable,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -608,14 +559,8 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
           memoryStats: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -650,14 +595,8 @@ function createProxySQLCommandsTool(): ToolDefinition {
           command,
           message: `Command executed: ${command}`,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -694,14 +633,8 @@ function createProxySQLProcessListTool(): ToolDefinition {
           processes: rows,
           count: rows.length,
         };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

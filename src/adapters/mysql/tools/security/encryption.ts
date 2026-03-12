@@ -5,7 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -102,12 +102,8 @@ export function createSecuritySSLStatusTool(
             finishedConnects: str(status["Ssl_finished_accepts"], "0"),
           },
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -191,12 +187,8 @@ export function createSecurityEncryptionStatusTool(
           },
           tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -275,7 +267,7 @@ export function createSecurityPasswordValidateTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         // Check for known component-not-installed errors
@@ -291,7 +283,7 @@ export function createSecurityPasswordValidateTool(
               'Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
           };
         }
-        return { success: false, error: stripErrorPrefix(message) };
+        return formatHandlerError(new Error(message));
       }
     },
   };

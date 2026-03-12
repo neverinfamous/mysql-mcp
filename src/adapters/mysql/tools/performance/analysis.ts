@@ -23,6 +23,7 @@ import {
   TableStatsSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
+import { formatHandlerError } from "../core/error-helpers.js";
 
 /**
  * Maximum reasonable timer value in milliseconds (24 hours).
@@ -189,9 +190,8 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
             "total_time_ms",
           ]),
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -245,9 +245,8 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
             "total_time_ms",
           ]),
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -309,9 +308,8 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           table ? [table] : [],
         );
         return { indexUsage: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -360,9 +358,8 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return { stats: result.rows[0] };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -400,9 +397,8 @@ export function createBufferPoolStatsTool(
         );
 
         return { bufferPoolStats: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -443,9 +439,8 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
             `);
 
         return { threads: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

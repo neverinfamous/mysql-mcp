@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -92,10 +92,10 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };
@@ -149,10 +149,10 @@ export function createSpatialPolygonTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };

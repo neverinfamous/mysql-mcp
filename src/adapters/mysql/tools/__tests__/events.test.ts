@@ -495,7 +495,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({ success: false, error: "Invalid event name" });
+    expect(result).toMatchObject({ success: false, error: "Invalid event name" });
   });
 
   it("should return structured error when executeAt is missing for ONE TIME events", async () => {
@@ -510,9 +510,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "executeAt is required for ONE TIME events",
+    expect(result).toMatchObject({ success: false, error: "executeAt is required for ONE TIME events",
     });
   });
 
@@ -528,9 +526,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "interval and intervalUnit are required for RECURRING events",
+    expect(result).toMatchObject({ success: false, error: "interval and intervalUnit are required for RECURRING events",
     });
   });
 
@@ -708,7 +704,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({ success: false, error: "Invalid event name" });
+    expect(result).toMatchObject({ success: false, error: "Invalid event name" });
   });
 
   it("should return structured error for invalid new event name", async () => {
@@ -722,7 +718,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({ success: false, error: "Invalid new event name" });
+    expect(result).toMatchObject({ success: false, error: "Invalid new event name" });
   });
 
   it("should return structured error when no modifications specified", async () => {
@@ -735,9 +731,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "No modifications specified",
+    expect(result).toMatchObject({ success: false, error: "No modifications specified",
     });
   });
 
@@ -752,9 +746,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "executeAt is required for ONE TIME events",
+    expect(result).toMatchObject({ success: false, error: "executeAt is required for ONE TIME events",
     });
   });
 
@@ -769,9 +761,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "interval and intervalUnit are required for RECURRING events",
+    expect(result).toMatchObject({ success: false, error: "interval and intervalUnit are required for RECURRING events",
     });
   });
 
@@ -834,7 +824,7 @@ describe("Event Drop Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({ success: false, error: "Invalid event name" });
+    expect(result).toMatchObject({ success: false, error: "Invalid event name" });
   });
 
   it("should drop without IF EXISTS when ifExists is false", async () => {
@@ -882,9 +872,7 @@ describe("Event Graceful Error Handling", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "Event already exists",
+    expect(result).toMatchObject({ success: false, error: "Event already exists",
     });
   });
 
@@ -903,9 +891,7 @@ describe("Event Graceful Error Handling", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "Event does not exist",
+    expect(result).toMatchObject({ success: false, error: "Event does not exist",
     });
   });
 
@@ -924,9 +910,7 @@ describe("Event Graceful Error Handling", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "Event does not exist",
+    expect(result).toMatchObject({ success: false, error: "Event does not exist",
     });
   });
 
@@ -943,7 +927,7 @@ describe("Event Graceful Error Handling", () => {
       mockContext,
     );
 
-    expect(result).toEqual({ success: false, error: "Connection lost" });
+    expect(result).toMatchObject({ success: false, error: "Connection lost" });
   });
 
   it("should strip error prefix from create error messages", async () => {
@@ -963,9 +947,7 @@ describe("Event Graceful Error Handling", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "You have an error in your SQL syntax",
+    expect(result).toMatchObject({ success: false, error: "You have an error in your SQL syntax",
     });
   });
 
@@ -977,9 +959,7 @@ describe("Event Graceful Error Handling", () => {
     const tool = tools.find((t) => t.name === "mysql_event_list")!;
     const result = await tool.handler({}, mockContext);
 
-    expect(result).toEqual({
-      success: false,
-      error: "Connection lost during query",
+    expect(result).toMatchObject({ success: false, error: "Connection lost during query",
     });
   });
 
@@ -991,9 +971,7 @@ describe("Event Graceful Error Handling", () => {
     const tool = tools.find((t) => t.name === "mysql_event_status")!;
     const result = await tool.handler({ name: "test_event" }, mockContext);
 
-    expect(result).toEqual({
-      success: false,
-      error: "Connection lost during query",
+    expect(result).toMatchObject({ success: false, error: "Connection lost during query",
     });
   });
 
@@ -1005,9 +983,7 @@ describe("Event Graceful Error Handling", () => {
     const tool = tools.find((t) => t.name === "mysql_scheduler_status")!;
     const result = await tool.handler({}, mockContext);
 
-    expect(result).toEqual({
-      success: false,
-      error: "Connection lost during query",
+    expect(result).toMatchObject({ success: false, error: "Connection lost during query",
     });
   });
 });

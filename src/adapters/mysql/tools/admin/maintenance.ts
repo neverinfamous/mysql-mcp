@@ -6,7 +6,7 @@
  */
 
 import { ZodError } from "zod";
-import { formatZodError } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -47,12 +47,8 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
           `OPTIMIZE TABLE ${tableList}`,
         );
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -77,12 +73,8 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -113,12 +105,8 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           results: result.rows ?? [],
           rowCount: result.rows?.length ?? 0,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -145,12 +133,8 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -208,12 +192,8 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return { success: true };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -239,7 +219,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, killed: processId, type: killType };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {

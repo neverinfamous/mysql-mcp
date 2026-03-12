@@ -5,7 +5,7 @@
  */
 
 import { ZodError } from "zod";
-import { formatZodError } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -187,7 +187,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -273,7 +273,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const errorMessage =
           error instanceof Error ? error.message : String(error);

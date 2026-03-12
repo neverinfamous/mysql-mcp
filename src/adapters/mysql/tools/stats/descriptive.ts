@@ -7,7 +7,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, formatMysqlError } from "../core/error-helpers.js";
+import { formatMysqlError, formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -174,7 +174,7 @@ export function createDescriptiveStatsTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
@@ -259,7 +259,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
@@ -372,7 +372,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
@@ -494,7 +494,7 @@ export function createTimeSeriesToolStats(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
@@ -589,7 +589,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {

@@ -15,8 +15,7 @@ import type {
 } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import https from "node:https";
-import { ZodError } from "zod";
-import { formatZodError } from "./core/error-helpers.js";
+import { formatHandlerError } from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
@@ -329,14 +328,8 @@ function createRouterRouteStatusTool(): ToolDefinition {
           routeName,
           status: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -373,14 +366,8 @@ function createRouterRouteHealthTool(): ToolDefinition {
           routeName,
           health: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -417,14 +404,8 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
           routeName,
           connections: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -461,14 +442,8 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
           routeName,
           destinations: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -505,14 +480,8 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
           routeName,
           blockedHosts: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -553,14 +522,8 @@ function createRouterMetadataStatusTool(): ToolDefinition {
           metadataName,
           status: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -601,14 +564,8 @@ function createRouterPoolStatusTool(): ToolDefinition {
           poolName,
           status: result.data,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

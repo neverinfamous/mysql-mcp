@@ -8,7 +8,7 @@
 import { ZodError } from "zod";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { formatZodError, formatMysqlError } from "./core/error-helpers.js";
+import { formatMysqlError, formatHandlerError } from "./core/error-helpers.js";
 import {
   PartitionInfoSchema,
   PartitionInfoSchemaBase,
@@ -96,10 +96,8 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
           expression: firstRow["PARTITION_EXPRESSION"],
           partitions: result.rows,
         };
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -189,10 +187,8 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             error: formatMysqlError(error),
           };
         }
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -266,10 +262,8 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             error: formatMysqlError(error),
           };
         }
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        return { success: false, error: formatMysqlError(err) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -357,7 +351,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
               "HASH/KEY partitions cannot be reorganized. Only RANGE and LIST partition types support REORGANIZE PARTITION.",
           };
         }
-        return { success: false, error: formatMysqlError(err) };
+        return formatHandlerError(err);
       }
     },
   };

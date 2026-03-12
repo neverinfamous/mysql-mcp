@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, formatMysqlError } from "./core/error-helpers.js";
+import { formatHandlerError } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 
@@ -233,13 +233,13 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, eventName: name };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("already exists")) {
           return { success: false, error: "Event already exists" };
         }
-        return { success: false, error: formatMysqlError(error) };
+        return formatHandlerError(error);
       }
     },
   };
@@ -383,13 +383,13 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, eventName: newName ?? name };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
           return { success: false, error: "Event does not exist" };
         }
-        return { success: false, error: formatMysqlError(error) };
+        return formatHandlerError(error);
       }
     },
   };
@@ -439,7 +439,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, eventName: name };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
@@ -516,10 +516,9 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerError(error);
       }
     },
   };
@@ -592,10 +591,9 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         return result.rows[0];
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerError(error);
       }
     },
   };
@@ -654,10 +652,9 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerError(error);
       }
     },
   };

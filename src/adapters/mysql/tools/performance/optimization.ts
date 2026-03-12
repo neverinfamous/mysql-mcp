@@ -18,7 +18,7 @@ import {
   preprocessQueryOnlyParams,
 } from "../../types.js";
 import { z } from "zod";
-import { formatMysqlError } from "../core/error-helpers.js";
+import { formatMysqlError, formatHandlerError } from "../core/error-helpers.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -230,9 +230,8 @@ export function createIndexRecommendationTool(
           })),
           recommendations,
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -351,9 +350,8 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return response;
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -401,9 +399,8 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return response;
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -481,9 +478,8 @@ export function createOptimizerTraceTool(
         }
 
         return { trace: traceResult.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       } finally {
         if (tracingEnabled) {
           // Disable optimizer trace

@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -125,7 +125,7 @@ export function createSpatialCreateColumnTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         if (error instanceof ValidationError) {
           return { success: false, error: error.message };
@@ -142,7 +142,7 @@ export function createSpatialCreateColumnTool(
             error: `Column '${col}' already exists on table '${tbl}'`,
           };
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };
@@ -239,7 +239,7 @@ export function createSpatialCreateIndexTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerError(error);
         }
         if (error instanceof ValidationError) {
           return { success: false, error: error.message };
@@ -250,7 +250,7 @@ export function createSpatialCreateIndexTool(
           return { exists: false, table: tbl };
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
-          return { success: false, error: stripErrorPrefix(msg) };
+          return formatHandlerError(new Error(msg));
         }
         const idxFromParams = paramStr(params, "indexName");
         const idx =
@@ -261,7 +261,7 @@ export function createSpatialCreateIndexTool(
             error: `Index '${idx}' already exists on table '${tbl}'`,
           };
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerError(new Error(msg));
       }
     },
   };

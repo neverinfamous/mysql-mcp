@@ -498,9 +498,7 @@ describe("Admin Maintenance Tools", () => {
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ processId: 999999 }, mockContext);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Process ID 999999 not found",
+      expect(result).toMatchObject({ success: false, error: "Process ID 999999 not found",
       });
     });
 
@@ -510,7 +508,7 @@ describe("Admin Maintenance Tools", () => {
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ processId: 123 }, mockContext);
 
-      expect(result).toEqual({ success: false, error: "Connection lost" });
+      expect(result).toMatchObject({ success: false, error: "Connection lost" });
     });
   });
 
@@ -525,9 +523,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Table storage engine mismatch",
+      expect(result).toMatchObject({ success: false, error: "Table storage engine mismatch",
       });
     });
 
@@ -551,9 +547,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["products"] }, mockContext);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Access denied for user",
+      expect(result).toMatchObject({ success: false, error: "Access denied for user",
       });
     });
 
@@ -575,9 +569,7 @@ describe("Admin Maintenance Tools", () => {
       const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ tables: ["orders"] }, mockContext);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Lock wait timeout exceeded",
+      expect(result).toMatchObject({ success: false, error: "Lock wait timeout exceeded",
       });
     });
 
@@ -599,9 +591,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["broken"] }, mockContext);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Table is read only",
+      expect(result).toMatchObject({ success: false, error: "Table is read only",
       });
     });
 
@@ -750,9 +740,7 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Tables not found: nonexistent_xyz",
+      expect(result).toMatchObject({ success: false, error: "Tables not found: nonexistent_xyz",
         notFound: ["nonexistent_xyz"],
         flushed: ["users"],
       });
@@ -773,9 +761,7 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        success: false,
-        error: "Tables not found: nonexistent_a, nonexistent_b",
+      expect(result).toMatchObject({ success: false, error: "Tables not found: nonexistent_a, nonexistent_b",
         notFound: ["nonexistent_a", "nonexistent_b"],
         flushed: [],
       });
@@ -832,9 +818,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Access denied; you need the RELOAD privilege",
+      expect(result).toMatchObject({ success: false, error: "Access denied; you need the RELOAD privilege",
       });
     });
   });

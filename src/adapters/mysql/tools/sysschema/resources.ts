@@ -5,8 +5,8 @@
  * 3 tools: schema_stats, innodb_lock_waits, memory_summary.
  */
 
-import { z, ZodError } from "zod";
-import { formatZodError } from "../core/error-helpers.js";
+import { z } from "zod";
+import { formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -158,12 +158,8 @@ export function createSysSchemaStatsTool(
           autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
           schemaName: resolvedSchema,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -223,12 +219,8 @@ export function createSysInnoDBLockWaitsTool(
           count: result.rows?.length ?? 0,
           hasContention: (result.rows?.length ?? 0) > 0,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -295,12 +287,8 @@ export function createSysMemorySummaryTool(
           globalMemoryCount: (globalStats.rows ?? []).length,
           memoryByUserCount: (userStats.rows ?? []).length,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

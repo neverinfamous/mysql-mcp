@@ -19,6 +19,7 @@ import {
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
 } from "../../types.js";
+import { formatHandlerError } from "../core/error-helpers.js";
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
@@ -74,9 +75,8 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
               : merged,
           mode,
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -202,9 +202,8 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           removedKeys,
           differences,
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

@@ -5,7 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
+import { formatZodError, stripErrorPrefix, formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -364,12 +364,8 @@ export function createSecurityUserPrivilegesTool(
           count: userPrivileges.length,
           summary,
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -471,12 +467,8 @@ export function createSecuritySensitiveTablesTool(
           patternsUsed: patterns,
           ...(limited ? { limited: true, totalAvailable } : {}),
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };

@@ -5,8 +5,8 @@
  * 4 tools: export, import, dump, restore.
  */
 
-import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix } from "../core/error-helpers.js";
+import { z } from "zod";
+import { stripErrorPrefix, formatHandlerError } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -134,7 +134,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           if (msg.includes("doesn't exist")) {
             return { exists: false, table };
           }
-          return { success: false, error: stripErrorPrefix(msg) };
+          return formatHandlerError(new Error(msg));
         }
 
         if (format === "CSV") {
@@ -180,12 +180,8 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return { sql: insertStatements.join("\n"), rowCount: rows.length };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -260,12 +256,8 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return { success: true, rowsInserted: totalInserted };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -340,12 +332,8 @@ export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
@@ -391,12 +379,8 @@ export function createRestoreDumpTool(adapter: MySQLAdapter): ToolDefinition {
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
         };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+      } catch (err) {
+        return formatHandlerError(err);
       }
     },
   };
