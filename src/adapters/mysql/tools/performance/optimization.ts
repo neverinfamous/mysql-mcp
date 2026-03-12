@@ -18,7 +18,7 @@ import {
   preprocessQueryOnlyParams,
 } from "../../types.js";
 import { z } from "zod";
-import { formatMysqlError, formatHandlerError } from "../core/error-helpers.js";
+import { formatMysqlError, formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -231,7 +231,7 @@ export function createIndexRecommendationTool(
           recommendations,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -351,7 +351,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
 
         return response;
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -400,7 +400,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         return response;
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -479,7 +479,7 @@ export function createOptimizerTraceTool(
 
         return { trace: traceResult.rows };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       } finally {
         if (tracingEnabled) {
           // Disable optimizer trace

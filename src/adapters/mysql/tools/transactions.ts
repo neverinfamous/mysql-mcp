@@ -8,7 +8,7 @@
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { ZodError } from "zod";
-import { formatHandlerError } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 import {
   TransactionBeginSchema,
   TransactionBeginSchemaBase,
@@ -62,7 +62,7 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = String(error instanceof Error ? error.message : error);
         return { success: false, error: msg };
@@ -294,7 +294,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         parsedParams = TransactionExecuteSchema.parse(params);
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = String(error instanceof Error ? error.message : error);
         return { success: false, error: msg };

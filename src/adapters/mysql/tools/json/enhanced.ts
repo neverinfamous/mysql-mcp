@@ -19,7 +19,7 @@ import {
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
 } from "../../types.js";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
@@ -76,7 +76,7 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
           mode,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -203,7 +203,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           differences,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

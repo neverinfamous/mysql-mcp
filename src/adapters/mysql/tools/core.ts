@@ -24,7 +24,7 @@ import {
   GetIndexesSchemaBase,
   ListTablesSchema,
 } from "../types.js";
-import { formatHandlerError } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -101,7 +101,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           executionTimeMs: result.executionTimeMs,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -140,7 +140,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           executionTimeMs: result.executionTimeMs,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -192,7 +192,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           count: tables.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -228,7 +228,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return { ...tableInfo, exists: true };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -360,13 +360,13 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Table '${name}' already exists`,
             };
           }
-          return formatHandlerError(err);
+          return formatHandlerErrorResponse(err);
         }
 
         adapter.clearSchemaCache();
         return { success: true, tableName: name };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -420,7 +420,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Table '${table}' does not exist`,
             };
           }
-          return formatHandlerError(err);
+          return formatHandlerErrorResponse(err);
         }
 
         adapter.clearSchemaCache();
@@ -436,7 +436,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { success: true, tableName: table };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -474,7 +474,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
         const indexes = await adapter.getTableIndexes(table);
         return { exists: true, indexes };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -557,7 +557,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
           if (message.includes("doesn't exist")) {
             return { exists: false, table };
           }
-          return formatHandlerError(err);
+          return formatHandlerErrorResponse(err);
         }
 
         adapter.clearSchemaCache();
@@ -574,7 +574,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { success: true, indexName: name };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

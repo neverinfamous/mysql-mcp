@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -69,7 +69,7 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -136,10 +136,10 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Schema '${name}' already exists`,
             };
           }
-          return formatHandlerError(err);
+          return formatHandlerErrorResponse(err);
         }
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -212,10 +212,10 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Schema '${name}' does not exist`,
             };
           }
-          return formatHandlerError(err);
+          return formatHandlerErrorResponse(err);
         }
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

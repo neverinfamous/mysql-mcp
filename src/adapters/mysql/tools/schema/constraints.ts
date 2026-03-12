@@ -5,7 +5,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 const ListConstraintsSchemaBase = z.object({
   table: z.string().describe("Table name"),
@@ -100,7 +100,7 @@ export function createListConstraintsTool(
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

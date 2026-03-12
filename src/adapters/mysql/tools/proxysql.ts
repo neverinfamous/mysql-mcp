@@ -9,7 +9,7 @@
  */
 
 import mysql from "mysql2/promise";
-import { formatHandlerError } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import {
@@ -181,7 +181,7 @@ function createProxySQLStatusTool(): ToolDefinition {
           totalVarsAvailable: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -248,7 +248,7 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
           totalAdminVarsAvailable: redactedVars.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -290,7 +290,7 @@ function createProxySQLServersTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -330,7 +330,7 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -366,7 +366,7 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -408,7 +408,7 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -447,7 +447,7 @@ function createProxySQLUsersTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -524,7 +524,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
           totalVarsAvailable,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -560,7 +560,7 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -596,7 +596,7 @@ function createProxySQLCommandsTool(): ToolDefinition {
           message: `Command executed: ${command}`,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -634,7 +634,7 @@ function createProxySQLProcessListTool(): ToolDefinition {
           count: rows.length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

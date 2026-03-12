@@ -5,7 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -103,7 +103,7 @@ export function createSecuritySSLStatusTool(
           },
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -188,7 +188,7 @@ export function createSecurityEncryptionStatusTool(
           tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -267,7 +267,7 @@ export function createSecurityPasswordValidateTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         // Check for known component-not-installed errors
@@ -283,7 +283,7 @@ export function createSecurityPasswordValidateTool(
               'Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
           };
         }
-        return formatHandlerError(new Error(message));
+        return formatHandlerErrorResponse(new Error(message));
       }
     },
   };

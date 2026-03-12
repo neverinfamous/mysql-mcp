@@ -7,7 +7,7 @@
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -266,7 +266,7 @@ export function createShellRunScriptTool(): ToolDefinition {
           stderr: result.stderr,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

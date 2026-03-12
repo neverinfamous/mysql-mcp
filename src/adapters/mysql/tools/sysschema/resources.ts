@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -159,7 +159,7 @@ export function createSysSchemaStatsTool(
           schemaName: resolvedSchema,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -220,7 +220,7 @@ export function createSysInnoDBLockWaitsTool(
           hasContention: (result.rows?.length ?? 0) > 0,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -288,7 +288,7 @@ export function createSysMemorySummaryTool(
           memoryByUserCount: (userStats.rows ?? []).length,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

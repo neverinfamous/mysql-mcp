@@ -15,7 +15,7 @@ import type {
 } from "../../../types/index.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import https from "node:https";
-import { formatHandlerError } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
@@ -329,7 +329,7 @@ function createRouterRouteStatusTool(): ToolDefinition {
           status: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -367,7 +367,7 @@ function createRouterRouteHealthTool(): ToolDefinition {
           health: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -405,7 +405,7 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
           connections: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -443,7 +443,7 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
           destinations: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -481,7 +481,7 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
           blockedHosts: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -523,7 +523,7 @@ function createRouterMetadataStatusTool(): ToolDefinition {
           status: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -565,7 +565,7 @@ function createRouterPoolStatusTool(): ToolDefinition {
           status: result.data,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

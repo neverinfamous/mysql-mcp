@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerError } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 
@@ -239,9 +239,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -305,7 +305,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, collection: name };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
           const message =
             error instanceof Error ? error.message : String(error);
@@ -373,7 +373,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, collection: name };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
           const message =
             error instanceof Error ? error.message : String(error);
@@ -456,9 +456,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { documents: docs, count: docs.length };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -502,9 +502,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, inserted };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -560,9 +560,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, modified: result.rowsAffected ?? 0 };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -600,9 +600,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, removed: result.rowsAffected ?? 0 };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -658,7 +658,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, index: name };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
           const message =
             error instanceof Error ? error.message : String(error);
@@ -737,9 +737,9 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           }
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
       },
     },

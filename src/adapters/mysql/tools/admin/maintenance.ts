@@ -6,7 +6,7 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -48,7 +48,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -74,7 +74,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -106,7 +106,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           rowCount: result.rows?.length ?? 0,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -134,7 +134,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return { results: result.rows, rowCount: result.rows?.length ?? 0 };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -193,7 +193,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { success: true };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -219,7 +219,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         return { success: true, killed: processId, type: killType };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {

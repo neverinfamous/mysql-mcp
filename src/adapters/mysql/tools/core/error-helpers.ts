@@ -73,12 +73,12 @@ export function stripErrorPrefix(msg: string): string {
  *     // ... domain logic ...
  *     return { success: true, ... };
  *   } catch (err) {
- *     return formatHandlerError(err);
+ *     return formatHandlerErrorResponse(err);
  *   }
  * }
  * ```
  */
-export function formatHandlerError(err: unknown): ErrorResponse {
+export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   // MySQLMcpError — already enriched
   if (err instanceof MySQLMcpError) {
     return err.toResponse();

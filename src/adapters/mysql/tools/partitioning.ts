@@ -8,7 +8,7 @@
 import { ZodError } from "zod";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { formatMysqlError, formatHandlerError } from "./core/error-helpers.js";
+import { formatMysqlError, formatHandlerErrorResponse } from "./core/error-helpers.js";
 import {
   PartitionInfoSchema,
   PartitionInfoSchemaBase,
@@ -97,7 +97,7 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
           partitions: result.rows,
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -188,7 +188,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -263,7 +263,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -351,7 +351,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
               "HASH/KEY partitions cannot be reorganized. Only RANGE and LIST partition types support REORGANIZE PARTITION.",
           };
         }
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

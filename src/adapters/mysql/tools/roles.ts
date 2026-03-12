@@ -3,7 +3,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { stripErrorPrefix, formatHandlerError } from "./core/error-helpers.js";
+import { stripErrorPrefix, formatHandlerErrorResponse } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../MySQLAdapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
@@ -75,10 +75,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { roles: result.rows ?? [], count: result.rows?.length ?? 0 };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },
@@ -117,7 +117,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, roleName: name };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation CREATE ROLE failed")) {
@@ -128,7 +128,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: `Role '${roleName}' already exists`,
             };
           }
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },
@@ -174,7 +174,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, roleName: name };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation DROP ROLE failed")) {
@@ -185,7 +185,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: `Role '${roleName}' does not exist`,
             };
           }
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },
@@ -219,10 +219,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { role, grants, exists: true };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },
@@ -298,7 +298,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(message);
@@ -356,7 +356,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, role, user, host };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
@@ -369,7 +369,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: "User does not exist",
             };
           }
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },
@@ -441,7 +441,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, role, user, host };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
@@ -454,7 +454,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: "User does not exist",
             };
           }
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },
@@ -487,10 +487,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { user, host, roles: result.rows ?? [] };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerError(error);
+            return formatHandlerErrorResponse(error);
           const message =
             error instanceof Error ? error.message : String(error);
-          return formatHandlerError(new Error(message));
+          return formatHandlerErrorResponse(new Error(message));
         }
       },
     },

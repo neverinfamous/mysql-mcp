@@ -5,7 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { stripErrorPrefix, formatHandlerError } from "../core/error-helpers.js";
+import { stripErrorPrefix, formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -165,7 +165,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         const stripped = stripErrorPrefix(msg);
@@ -246,7 +246,7 @@ export function createSecurityFirewallStatusTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         return {
@@ -340,7 +340,7 @@ export function createSecurityFirewallRulesTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         return {
           success: false,

@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { stripErrorPrefix, formatHandlerError } from "../core/error-helpers.js";
+import { stripErrorPrefix, formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -134,7 +134,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           if (msg.includes("doesn't exist")) {
             return { exists: false, table };
           }
-          return formatHandlerError(new Error(msg));
+          return formatHandlerErrorResponse(new Error(msg));
         }
 
         if (format === "CSV") {
@@ -181,7 +181,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { sql: insertStatements.join("\n"), rowCount: rows.length };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -257,7 +257,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { success: true, rowsInserted: totalInserted };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -333,7 +333,7 @@ export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -380,7 +380,7 @@ export function createRestoreDumpTool(adapter: MySQLAdapter): ToolDefinition {
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

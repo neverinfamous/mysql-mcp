@@ -23,7 +23,7 @@ import {
   TableStatsSchemaBase,
 } from "../../types.js";
 import { z } from "zod";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 /**
  * Maximum reasonable timer value in milliseconds (24 hours).
@@ -191,7 +191,7 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
           ]),
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -246,7 +246,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
           ]),
         };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -309,7 +309,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return { indexUsage: result.rows };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -359,7 +359,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { stats: result.rows[0] };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -398,7 +398,7 @@ export function createBufferPoolStatsTool(
 
         return { bufferPoolStats: result.rows };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -440,7 +440,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { threads: result.rows };
       } catch (err) {
-        return formatHandlerError(err);
+        return formatHandlerErrorResponse(err);
       }
     },
   };

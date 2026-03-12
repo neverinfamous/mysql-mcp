@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerError } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -139,10 +139,10 @@ export function createSpatialIntersectionTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerError(new Error(msg));
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -198,10 +198,10 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerError(new Error(msg));
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -246,10 +246,10 @@ export function createSpatialTransformTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerError(new Error(msg));
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -310,10 +310,10 @@ export function createSpatialGeoJSONTool(
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerError(new Error(msg));
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };

@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatMysqlError, formatHandlerError } from "../core/error-helpers.js";
+import { formatMysqlError, formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../MySQLAdapter.js";
 import type {
   ToolDefinition,
@@ -132,7 +132,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
@@ -243,7 +243,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
@@ -370,7 +370,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerError(error);
+          return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
