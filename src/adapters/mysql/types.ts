@@ -1931,6 +1931,15 @@ export const KillQuerySchema = z.object({
 
 export const ShowProcesslistSchema = z.object({
   full: z.boolean().optional().default(false).describe("Show full query text"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(50)
+    .describe(
+      "Maximum number of processes to return (default: 50). Set higher to see all.",
+    ),
 });
 
 export const ShowStatusSchema = z.object({

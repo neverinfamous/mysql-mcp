@@ -63,6 +63,15 @@ const SensitiveTablesSchema = z.object({
       "health",
     ])
     .describe("Column name patterns to consider sensitive"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(20)
+    .describe(
+      "Maximum number of tables to return (default: 20). Set higher for full scan.",
+    ),
 });
 
 // =============================================================================
@@ -385,7 +394,8 @@ export function createSecuritySensitiveTablesTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, patterns } = SensitiveTablesSchema.parse(params);
+        const { schema, patterns, limit } =
+          SensitiveTablesSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -440,7 +450,7 @@ export function createSecuritySensitiveTablesTool(
           tableMap.get(tableName)?.push(r);
         }
 
-        const sensitiveItems = Array.from(tableMap.entries()).map(
+        const allItems = Array.from(tableMap.entries()).map(
           ([table, columns]) => ({
             table,
             sensitiveColumns: columns,
@@ -448,11 +458,18 @@ export function createSecuritySensitiveTablesTool(
           }),
         );
 
+        const totalAvailable = allItems.length;
+        const limited = totalAvailable > limit;
+        const sensitiveItems = limited
+          ? allItems.slice(0, limit)
+          : allItems;
+
         return {
           sensitiveTables: sensitiveItems,
           tableCount: sensitiveItems.length,
           totalSensitiveColumns: result.rows?.length ?? 0,
           patternsUsed: patterns,
+          ...(limited ? { limited: true, totalAvailable } : {}),
         };
       } catch (error) {
         if (error instanceof ZodError) {

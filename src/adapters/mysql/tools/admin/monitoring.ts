@@ -33,10 +33,18 @@ export function createShowProcesslistTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { full } = ShowProcesslistSchema.parse(params);
+        const { full, limit } = ShowProcesslistSchema.parse(params);
         const sql = full ? "SHOW FULL PROCESSLIST" : "SHOW PROCESSLIST";
         const result = await adapter.executeQuery(sql);
-        return { processes: result.rows };
+        const allRows = result.rows ?? [];
+        const totalAvailable = allRows.length;
+        const limited = totalAvailable > limit;
+        const processes = limited ? allRows.slice(0, limit) : allRows;
+        return {
+          processes,
+          count: processes.length,
+          ...(limited ? { limited: true, totalAvailable } : {}),
+        };
       } catch (err) {
         if (err instanceof ZodError) {
           const messages = err.issues.map((i) => i.message).join("; ");
@@ -343,12 +351,55 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
 export function createReplicationStatusTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({
+    summary: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe(
+        "Return key replication metrics only instead of full 50+ field output (recommended)",
+      ),
+  });
+
+  /** Extract key metrics from raw SHOW REPLICA STATUS row */
+  function extractReplicationSummary(
+    row: Record<string, unknown>,
+  ): Record<string, unknown> {
+    // Field names differ between MySQL versions (Slave_ vs Replica_)
+    return {
+      ioRunning:
+        row["Replica_IO_Running"] ??
+        row["Slave_IO_Running"] ??
+        row["replica_io_running"],
+      sqlRunning:
+        row["Replica_SQL_Running"] ??
+        row["Slave_SQL_Running"] ??
+        row["replica_sql_running"],
+      secondsBehind:
+        row["Seconds_Behind_Master"] ??
+        row["Seconds_Behind_Source"] ??
+        row["seconds_behind_master"],
+      lastError:
+        row["Last_Error"] ?? row["Last_SQL_Error"] ?? row["last_error"],
+      lastErrno:
+        row["Last_Errno"] ?? row["Last_SQL_Errno"] ?? row["last_errno"],
+      sourceHost:
+        row["Master_Host"] ?? row["Source_Host"] ?? row["master_host"],
+      sourcePort:
+        row["Master_Port"] ?? row["Source_Port"] ?? row["master_port"],
+      executedGtidSet:
+        row["Executed_Gtid_Set"] ?? row["executed_gtid_set"],
+      retrievedGtidSet:
+        row["Retrieved_Gtid_Set"] ?? row["retrieved_gtid_set"],
+      channelName: row["Channel_Name"] ?? row["channel_name"],
+    };
+  }
 
   return {
     name: "mysql_replication_status",
     title: "MySQL Replication Status",
-    description: "Show replication slave/replica status.",
+    description:
+      "Show replication slave/replica status. Use summary=true for key metrics only.",
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
@@ -356,7 +407,9 @@ export function createReplicationStatusTool(
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
+      const { summary } = schema.parse(params);
+
       // Try both old and new syntax
       try {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
@@ -366,7 +419,20 @@ export function createReplicationStatusTool(
             message: "Replication is not configured on this server",
           };
         }
-        return { configured: true, status: result.rows[0] };
+        const first = result.rows[0];
+        if (!first) {
+          return {
+            configured: false,
+            message: "Replication is not configured on this server",
+          };
+        }
+        return {
+          configured: true,
+          status: summary
+            ? extractReplicationSummary(first)
+            : first,
+          ...(summary ? { summary: true } : {}),
+        };
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
@@ -376,7 +442,20 @@ export function createReplicationStatusTool(
               message: "Replication is not configured on this server",
             };
           }
-          return { configured: true, status: result.rows[0] };
+          const first = result.rows[0];
+          if (!first) {
+            return {
+              configured: false,
+              message: "Replication is not configured on this server",
+            };
+          }
+          return {
+            configured: true,
+            status: summary
+              ? extractReplicationSummary(first)
+              : first,
+            ...(summary ? { summary: true } : {}),
+          };
         } catch {
           return {
             configured: false,
