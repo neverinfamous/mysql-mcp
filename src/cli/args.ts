@@ -9,6 +9,7 @@ import type {
   PoolConfig,
   OAuthConfig,
 } from "../types/index.js";
+import { logger } from "../utils/logger.js";
 
 /**
  * Parse command line arguments
@@ -190,6 +191,34 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      case "--auth-token":
+        if (nextArg && !nextArg.startsWith("-")) {
+          config.authToken = nextArg;
+          i++;
+        }
+        break;
+
+      case "--stateless":
+        config.stateless = true;
+        break;
+
+      case "--trust-proxy":
+        config.trustProxy = true;
+        break;
+
+      case "--log-level":
+        if (nextArg && !nextArg.startsWith("-")) {
+          const level = nextArg.toLowerCase();
+          // Map convenience alias 'warn' → 'warning' (LogLevel uses RFC 5424 names)
+          const mapped = level === "warn" ? "warning" : level;
+          const validLevels = ["debug", "info", "warning", "error"];
+          if (validLevels.includes(mapped)) {
+            logger.setLevel(mapped as "debug" | "info" | "warning" | "error");
+          }
+          i++;
+        }
+        break;
+
       case "--version":
       case "-v":
         console.error(`mysql-mcp version ${DEFAULT_CONFIG.version}`);
@@ -294,6 +323,16 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     oauthClockTolerance = parseInt(process.env["OAUTH_CLOCK_TOLERANCE"], 10);
   }
 
+  // Check auth token environment variable
+  if (!config.authToken) {
+    config.authToken = process.env["MCP_AUTH_TOKEN"];
+  }
+
+  // Check trust proxy environment variable
+  if (!config.trustProxy && process.env["TRUST_PROXY"] === "true") {
+    config.trustProxy = true;
+  }
+
   // Build OAuth config if enabled
   let oauth: OAuthConfig | undefined;
   if (oauthEnabled) {
@@ -341,11 +380,17 @@ Server Options:
   --name <name>               Server name (default: mysql-mcp)
 
 OAuth Options:
-  --oauth-enabled, -o         Enable OAuth 2.0 authentication
+  --oauth-enabled, -o         Enable OAuth 2.1 authentication
   --oauth-issuer <url>        Authorization server URL (issuer)
   --oauth-audience <aud>      Expected token audience
   --oauth-jwks-uri <url>      JWKS URI (auto-discovered from issuer if not set)
   --oauth-clock-tolerance <s> Clock tolerance in seconds (default: 60)
+
+Authentication & Security:
+  --auth-token <token>        Simple bearer token for HTTP authentication (env: MCP_AUTH_TOKEN)
+  --stateless                 Enable stateless HTTP mode (no sessions, no SSE)
+  --trust-proxy               Trust X-Forwarded-For header for client IP
+  --log-level <level>         Log level: debug, info, warn, error (default: info)
 
 Other:
   --version, -v               Show version
@@ -360,6 +405,8 @@ Environment Variables:
   MYSQL_POOL_SIZE             Connection pool size
   MYSQL_MCP_TOOL_FILTER       Tool filter string
   MCP_HOST                    Host to bind HTTP transport to
+  MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
+  TRUST_PROXY                  Trust X-Forwarded-For (true/false)
   LOG_LEVEL                   Log level (debug, info, warn, error)
   OAUTH_ENABLED               Enable OAuth (true/false)
   OAUTH_ISSUER                Authorization server URL

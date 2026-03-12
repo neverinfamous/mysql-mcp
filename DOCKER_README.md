@@ -154,7 +154,25 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 - Enabling OAuth 2.1 authentication for enterprise security
 - Allowing multiple AI clients to share one database connection
 
-## OAuth 2.1 Authentication
+## Authentication
+
+mysql-mcp supports two authentication modes for HTTP transport:
+
+### Simple Bearer Token
+
+Lightweight authentication for development or single-tenant deployments:
+
+```bash
+mysql-mcp --transport http --port 3000 --auth-token my-secret --mysql mysql://root:pass@localhost/db
+
+# Or via environment variable
+export MCP_AUTH_TOKEN=my-secret
+mysql-mcp --transport http --port 3000 --mysql mysql://root:pass@localhost/db
+```
+
+Clients must include `Authorization: Bearer <token>` on all requests. `/health` and `/` are exempt.
+
+### OAuth 2.1 (Recommended for Production)
 
 For enterprise deployments, mysql-mcp supports OAuth 2.1 authentication with Keycloak or any RFC-compliant provider.
 
@@ -193,7 +211,9 @@ docker run -p 3000:3000 writenotenow/mysql-mcp \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
-The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect:
+The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect.
+
+In **stateless mode** (`--stateless`): `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport with no session persistence.
 
 ### Streamable HTTP (Recommended)
 
@@ -417,11 +437,17 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
-| `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth authentication                         |
+| `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
+| `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
+| `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
+| `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
+| `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
 | `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
+
+> **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
 ### Scopes
 

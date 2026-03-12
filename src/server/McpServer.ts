@@ -187,6 +187,11 @@ export class McpServer {
             port,
             host: this.config.host ?? "localhost",
             corsOrigins: ["*"], // Allow all for now, or make configurable
+            ...(this.config.authToken
+              ? { authToken: this.config.authToken }
+              : {}),
+            stateless: this.config.stateless ?? false,
+            trustProxy: this.config.trustProxy ?? false,
             // Pass OAuth config if enabled
             ...(this.config.oauth?.enabled
               ? {
@@ -210,6 +215,14 @@ export class McpServer {
             });
           },
         );
+
+        // Warn if HTTP starts without any authentication
+        if (!this.config.oauth?.enabled && !this.config.authToken) {
+          logger.warn(
+            "WARNING: HTTP transport started without authentication. " +
+              "Use --oauth-enabled or --auth-token for production deployments.",
+          );
+        }
 
         await httpTransport.start();
         this.activeTransport = httpTransport;

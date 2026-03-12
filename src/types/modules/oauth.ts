@@ -1,12 +1,12 @@
 /**
  * OAuth and Authentication Types
  *
- * Type definitions for OAuth 2.0 configuration, token validation,
+ * Type definitions for OAuth 2.1 configuration, token validation,
  * scopes, and request context.
  */
 
 /**
- * OAuth 2.0 configuration
+ * OAuth 2.1 configuration
  */
 export interface OAuthConfig {
   /** Enable OAuth authentication */

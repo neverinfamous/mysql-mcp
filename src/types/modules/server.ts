@@ -37,6 +37,15 @@ export interface McpServerConfig {
   /** OAuth configuration */
   oauth?: OAuthConfig;
 
+  /** Simple bearer token for HTTP authentication (alternative to OAuth) */
+  authToken?: string;
+
+  /** Enable stateless HTTP mode (no sessions, no SSE) */
+  stateless?: boolean;
+
+  /** Trust X-Forwarded-For header for client IP (behind reverse proxy) */
+  trustProxy?: boolean;
+
   /** Tool filtering configuration */
   toolFilter?: string;
 }
