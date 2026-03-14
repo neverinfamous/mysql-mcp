@@ -376,7 +376,7 @@ export class HttpTransport {
         res.end(JSON.stringify({ error: "Not found" }));
         return;
       }
-      this.handleLegacySSERequest(req, res);
+      await this.handleLegacySSERequest(req, res);
       return;
     }
 
@@ -573,10 +573,10 @@ export class HttpTransport {
   // Legacy SSE Transport (Protocol 2024-11-05)
   // ===========================================================================
 
-  private handleLegacySSERequest(
+  private async handleLegacySSERequest(
     _req: IncomingMessage,
     res: ServerResponse,
-  ): void {
+  ): Promise<void> {
     logger.debug("Legacy SSE connection established");
 
     const transport = new SSEServerTransport("/messages", res);
@@ -589,8 +589,9 @@ export class HttpTransport {
       this.transports.delete(transport.sessionId);
     });
 
+    // Connect MCP server to this transport (must complete before client sends messages)
     if (this.onConnect) {
-      void this.onConnect(transport as unknown as Transport);
+      await this.onConnect(transport as unknown as Transport);
     }
   }
 
