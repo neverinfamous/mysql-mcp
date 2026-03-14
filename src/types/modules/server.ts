@@ -42,6 +42,8 @@ export interface McpServerConfig {
 
   /** Enable stateless HTTP mode (no sessions, no SSE) */
   stateless?: boolean;
+  /** Enable HSTS header for HTTP transport (use when behind HTTPS) */
+  enableHSTS?: boolean;
 
   /** Trust X-Forwarded-For header for client IP (behind reverse proxy) */
   trustProxy?: boolean;

@@ -1,7 +1,5 @@
 # MySQL MCP Server
 
-**Last Updated March 11, 2026**
-
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
@@ -32,10 +30,10 @@
 | **High-Performance Pooling**          | Built-in connection pooling for efficient, concurrent database access                                                                                                                                                                                                                  |
 | **Ecosystem Integrations**            | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                                                                                                                                                  |
 | **Advanced Encryption**               | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                                                                                                               |
-| **Deterministic Error Handling**      | Every tool returns structured `{success, error, code, category, suggestion, recoverable}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes                                                                                         |
+| **Deterministic Error Handling**      | Every tool returns structured `{success, error, code, category, suggestion, recoverable}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes                                                |
 | **Production-Ready Security**         | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                                                                                                              |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 192 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
-| **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                     |
+| **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
 | **Strict TypeScript**                 | 100% type-safe codebase with 2181 tests and 90% coverage                                                                                                                                                                                                                               |
 | **MCP 2025-11-25 Compliant**          | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                                                                                                          |
 

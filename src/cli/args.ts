@@ -202,6 +202,10 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         config.stateless = true;
         break;
 
+      case "--enable-hsts":
+        config.enableHSTS = true;
+        break;
+
       case "--trust-proxy":
         config.trustProxy = true;
         break;
@@ -389,6 +393,7 @@ OAuth Options:
 Authentication & Security:
   --auth-token <token>        Simple bearer token for HTTP authentication (env: MCP_AUTH_TOKEN)
   --stateless                 Enable stateless HTTP mode (no sessions, no SSE)
+  --enable-hsts               Enable HSTS header (use when behind HTTPS)
   --trust-proxy               Trust X-Forwarded-For header for client IP
   --log-level <level>         Log level: debug, info, warn, error (default: info)
 
@@ -407,6 +412,7 @@ Environment Variables:
   MCP_HOST                    Host to bind HTTP transport to
   MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
   TRUST_PROXY                  Trust X-Forwarded-For (true/false)
+  MCP_ENABLE_HSTS              Enable HSTS header (same as --enable-hsts)
   LOG_LEVEL                   Log level (debug, info, warn, error)
   OAUTH_ENABLED               Enable OAuth (true/false)
   OAUTH_ISSUER                Authorization server URL

@@ -85,7 +85,8 @@ export class HttpTransport {
           ? parseInt(process.env["MCP_RATE_LIMIT_MAX"], 10)
           : DEFAULT_RATE_LIMIT_MAX_REQUESTS),
       maxBodySize: config.maxBodySize ?? DEFAULT_MAX_BODY_SIZE,
-      enableHSTS: config.enableHSTS ?? false,
+      enableHSTS:
+        config.enableHSTS ?? process.env["MCP_ENABLE_HSTS"] === "true",
       trustProxy: config.trustProxy ?? false,
       stateless: config.stateless ?? false,
     };
