@@ -563,10 +563,28 @@ If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to
 | -------- | -------- | ------------------- | --------------------------------------------- |
 | _(none)_ | Shortcut | `starter`           | **Whitelist Mode:** Enable ONLY this shortcut |
 | _(none)_ | Group    | `core`              | **Whitelist Mode:** Enable ONLY this group    |
+| _(none)_ | Tool     | `mysql_read_query`  | **Whitelist Mode:** Enable ONLY this tool     |
 | `+`      | Group    | `+spatial`          | Add tools from this group to current set      |
 | `-`      | Group    | `-admin`            | Remove tools in this group from current set   |
 | `+`      | Tool     | `+mysql_explain`    | Add one specific tool                         |
 | `-`      | Tool     | `-mysql_drop_table` | Remove one specific tool                      |
+
+### Custom Tool Selection
+
+You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
+
+```bash
+# Enable exactly 3 tools (whitelist mode)
+--tool-filter "mysql_read_query,mysql_write_query,mysql_list_tables"
+
+# Mix tools from different groups
+--tool-filter "mysql_read_query,mysql_explain,mysql_json_extract"
+
+# Combine with a shortcut or group
+--tool-filter "starter,+mysql_spatial_distance,+mysql_json_diff"
+```
+
+This is useful for scripted or automated clients that need a minimal, precise set of capabilities.
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
 

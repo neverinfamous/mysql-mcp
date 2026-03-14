@@ -334,8 +334,21 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | ---------------- | --------------------------- | ----- | ------------------------- |
 | Shortcut only    | `starter`                   | 39    | Use a predefined bundle   |
 | Groups only      | `core,json,transactions`    | 33    | Combine individual groups |
+| Tool names       | `mysql_read_query,mysql_explain`| 2  | Custom tool selection     |
 | Shortcut + Group | `starter,spatial`           | 51    | Extend a shortcut         |
 | Shortcut - Tool  | `starter,-mysql_drop_table` | 38    | Remove specific tools     |
+
+#### Custom Tool Selection
+
+You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
+
+```bash
+# Enable exactly 3 tools
+--tool-filter "mysql_read_query,mysql_write_query,mysql_list_tables"
+
+# Mix tools from different groups
+--tool-filter "mysql_read_query,mysql_explain,mysql_json_extract"
+```
 
 ### Shortcuts (Predefined Bundles)
 
