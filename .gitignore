@@ -88,3 +88,4 @@ test-server/*.dump
 
 # Temporary scripts (dev only)
 tmp/
+test-results/
