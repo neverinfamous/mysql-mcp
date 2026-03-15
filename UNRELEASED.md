@@ -1,6 +1,11 @@
 # Unreleased
 
 ## Changed
+- **Dependency Updates**:
+  - `mysql2` bumped to `^3.20.0`
+  - `vitest` and `@vitest/coverage-v8` bumped to `^4.1.0`
+  - `@types/node` bumped to `^25.5.0`
+  - Updated Docker build actions (`build-push-action`, `setup-buildx-action`, `login-action`) to their latest major versions.
 - **Help Resource Architecture**: Replaced 53KB monolithic `ServerInstructions.ts` with slim `INSTRUCTIONS` constant (~634 chars) + on-demand `mysql://help` resources. Agent instructions are now ~95% smaller; detailed tool reference is available via `mysql://help` (always) and `mysql://help/{group}` (filtered by `--tool-filter`).
 
 ## Added
