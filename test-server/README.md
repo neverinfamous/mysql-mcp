@@ -7,6 +7,7 @@
 | File | Size | Purpose | When to Read |
 |------|------|---------|--------------|
 | `test-tools.md` | ~17KB | **Entry-point protocol** — connection details, testing rules, structured error patterns, Zod/P154/Split Schema verification, reporting format | Always read first |
+| `test-preflight.md` | ~2KB | **Pre-flight check** — validates slim instructions, help resources, data resources, and tool-filter alignment in 5 steps | Before any test pass |
 | `test-agent-experience.md` | ~8KB | **Unguided agent test** — 35 open-ended scenarios across 8 passes validating help resource sufficiency | When testing agent experience |
 | `test-group-tools-core.md` | ~10KB | **Deterministic checklists** — core, transactions, schema groups | When testing core/transactions/schema |
 | `test-group-tools-data.md` | ~13KB | **Deterministic checklists** — json, fulltext, document, text, stats groups | When testing data groups |
