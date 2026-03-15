@@ -317,14 +317,102 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 `;
 
 /**
- * Generate dynamic instructions based on enabled tools, resources, and prompts
+ * Maps section heading prefixes (text after "## ") to tool group names.
+ * Sections NOT in this map are always included (Server Identity, Parameter Aliases, Code Mode).
+ */
+const SECTION_GROUP_MAP: ReadonlyMap<string, ToolGroup> = new Map([
+  ["JSON Tools", "json"],
+  ["Transactions", "transactions"],
+  ["Document Store", "docstore"],
+  ["Fulltext Search", "fulltext"],
+  ["Backup Tools", "backup"],
+  ["Core Tools", "core"],
+  ["Role Management", "roles"],
+  ["Group Replication", "cluster"],
+  ["InnoDB Cluster", "cluster"],
+  ["MySQL Router", "router"],
+  ["Partitioning Tools", "partitioning"],
+  ["Spatial Tools", "spatial"],
+  ["Text Tools", "text"],
+  ["Performance Tools", "performance"],
+  ["Optimization Tools", "optimization"],
+  ["Admin Tools", "admin"],
+  ["Monitoring Tools", "monitoring"],
+  ["Replication Tools", "replication"],
+  ["Events Tools", "events"],
+  ["Schema Tools", "schema"],
+  ["Sys Schema Tools", "sysschema"],
+  ["Stats Tools", "stats"],
+  ["Security Tools", "security"],
+  ["ProxySQL Tools", "proxysql"],
+  ["MySQL Shell Tools", "shell"],
+]);
+
+/**
+ * Filter BASE_INSTRUCTIONS by enabled groups.
+ * Splits at ## headings, includes sections whose heading matches an enabled group
+ * (or is unmapped, i.e. always-include sections like Server Identity and Code Mode).
+ */
+function filterInstructionsByGroup(
+  enabledGroups: Set<ToolGroup>,
+): string {
+  // Split at ## boundaries (keeping the ## prefix)
+  const sections = BASE_INSTRUCTIONS.split(/(?=^## )/m);
+
+  const filtered: string[] = [];
+  for (const section of sections) {
+    const headingMatch = /^## (.+)/.exec(section);
+    if (!headingMatch) {
+      // Preamble or non-heading content — always include
+      filtered.push(section);
+      continue;
+    }
+
+    const heading = headingMatch[1]!.trim();
+
+    // Find matching group by checking if heading starts with any mapped prefix
+    let mappedGroup: ToolGroup | undefined;
+    for (const [prefix, group] of SECTION_GROUP_MAP) {
+      if (heading.startsWith(prefix)) {
+        mappedGroup = group;
+        break;
+      }
+    }
+
+    if (mappedGroup === undefined) {
+      // Unmapped section — always include (Server Identity, Parameter Aliases, Code Mode)
+      filtered.push(section);
+    } else if (enabledGroups.has(mappedGroup)) {
+      filtered.push(section);
+    }
+    // else: skip section for disabled group
+  }
+
+  return filtered.join("");
+}
+
+/**
+ * Generate dynamic instructions based on enabled tools, resources, and prompts.
+ * Filters instruction sections to only include documentation for enabled tool groups.
  */
 export function generateInstructions(
   enabledTools: Set<string>,
   resources: ResourceDefinition[],
   prompts: PromptDefinition[],
 ): string {
-  let instructions = BASE_INSTRUCTIONS;
+  // Derive enabled groups from the enabled tool names
+  const enabledGroups = new Set<ToolGroup>();
+  for (const [group, allTools] of Object.entries(TOOL_GROUPS) as [
+    ToolGroup,
+    string[],
+  ][]) {
+    if (allTools.some((tool) => enabledTools.has(tool))) {
+      enabledGroups.add(group);
+    }
+  }
+
+  // Filter instructions based on enabled groups
+  let instructions = filterInstructionsByGroup(enabledGroups);
 
   // Add active tools section
   const activeGroups = getActiveToolGroups(enabledTools);
