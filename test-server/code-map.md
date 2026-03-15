@@ -1,0 +1,320 @@
+# mysql-mcp Code Map
+
+> **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
+>
+> Last updated: March 12, 2026
+
+---
+
+## Directory Tree
+
+```
+src/
+├── cli.ts                          # CLI entry point (legacy, calls cli/args.ts)
+├── index.ts                        # Barrel re-export for library consumers
+│
+├── cli/
+│   └── args.ts                     # Argument parsing, transport/auth/stateless/trustProxy selection
+│
+├── server/
+│   └── McpServer.ts                # McpServer setup, adapter registration, tool/resource/prompt wiring
+│
+├── types/                          # Core TypeScript types (barrel: types/index.ts)
+│   ├── index.ts                    # Barrel — also re-exports error classes from modules/errors.ts
+│   └── modules/
+│       ├── database.ts             # DatabaseConfig, MySQLOptions, PoolConfig, PoolStats, HealthStatus
+│       ├── query.ts                # QueryResult, ColumnInfo, FieldInfo, TableInfo, SchemaInfo, IndexInfo,
+│       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
+│       ├── server.ts               # TransportType, McpServerConfig (authToken, stateless, trustProxy)
+│       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
+│       ├── errors.ts               # MySQLMcpError base + 6 subclasses (see § Error Classes)
+│       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
+│                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
+│                                   #   ResourceDefinition, PromptDefinition
+│
+├── constants/
+│   └── ServerInstructions.ts       # Agent instructions string (system prompt for Code Mode + tool usage)
+│
+├── filtering/
+│   ├── ToolConstants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts, group→tools map
+│   └── ToolFilter.ts               # ToolFilter class — parse/apply --tool-filter expressions
+│
+├── utils/
+│   ├── logger.ts                   # Logger class (structured JSON, severity filtering)
+│   ├── validators.ts               # SQL identifier validation/sanitization, input validators
+│   └── promptGenerator.ts          # MCP prompt generation helpers
+│
+├── logging/
+│   ├── McpLogging.ts               # MCP protocol logging integration
+│   └── index.ts                    # Barrel
+│
+├── pool/
+│   └── ConnectionPool.ts           # MySQL connection pool manager (mysql2/promise)
+│
+├── progress/
+│   ├── ProgressReporter.ts         # MCP progress notification helpers
+│   └── index.ts                    # Barrel
+│
+├── auth/                           # OAuth 2.1 implementation
+│   ├── middleware.ts               # Express-style OAuth middleware
+│   ├── TokenValidator.ts           # JWT/JWKS token validation
+│   ├── scopes.ts                   # Scope parsing, enforcement, tool→scope mapping
+│   ├── OAuthResourceServer.ts      # RFC 9728 /.well-known/oauth-protected-resource
+│   ├── AuthorizationServerDiscovery.ts  # RFC 8414 auth server metadata discovery
+│   ├── errors.ts                   # OAuth-specific error classes
+│   ├── types.ts                    # OAuth TypeScript types
+│   └── index.ts                    # Barrel
+│
+├── transports/
+│   ├── index.ts                    # Barrel
+│   └── http/
+│       ├── server.ts               # HTTP/SSE transport (Streamable HTTP + legacy SSE + bearer auth + stateless mode)
+│       ├── handlers.ts             # Route handlers (POST /mcp, GET /sse, health, etc.)
+│       ├── security.ts             # Security headers, rate limiting, CORS, body parsing
+│       ├── types.ts                # HTTP transport types (authToken, stateless)
+│       └── index.ts                # Barrel
+│
+├── codemode/                       # Code Mode sandbox (secure JS execution)
+│   ├── sandbox.ts                  # SandboxPool lifecycle manager
+│   ├── sandbox-factory.ts          # Sandbox creation factory
+│   ├── worker-sandbox.ts           # Worker thread sandbox (MessagePort RPC bridge)
+│   ├── worker-script.ts            # Worker thread entry point (runs inside vm)
+│   ├── api.ts                      # mysql.* API bridge (exposes 192 tools to sandbox) — 40KB
+│   ├── security.ts                 # Code validation (blocked patterns, injection prevention)
+│   ├── types.ts                    # Sandbox TypeScript types
+│   └── index.ts                    # Barrel
+│
+├── adapters/
+│   ├── DatabaseAdapter.ts          # Abstract DatabaseAdapter base class
+│   │
+│   └── mysql/                      # ── MySQL adapter (mysql2) ──
+│       ├── MySQLAdapter.ts         # MySQLAdapter class (extends DatabaseAdapter)
+│       ├── SchemaManager.ts        # Schema cache + metadata (TTL-based)
+│       ├── types.ts                # Zod schemas + TS types for ALL tool groups — 72KB
+│       ├── index.ts                # Barrel
+│       ├── prompts/                # 13+ MCP prompts (see § below)
+│       ├── resources/              # 18+ MCP resources (see § below)
+│       ├── types/                  # Extended types for ecosystem tools
+│       │   ├── proxysql-types.ts   # ProxySQL-specific types
+│       │   ├── router-types.ts     # MySQL Router types
+│       │   └── shell-types.ts      # MySQL Shell types
+│       └── tools/                  # Tool handler files (see § Handler Map below)
+```
+
+---
+
+## Handler → Tool Mapping
+
+192 tools across 25 groups. Each handler file registers tools with `group` labels.
+
+### Tool Handlers (`src/adapters/mysql/tools/`)
+
+| Group | Handler File(s) | Tools | Description |
+|-------|----------------|-------|-------------|
+| **codemode** | `codemode/index.ts` | 1 | `mysql_execute_code` |
+| **core** | `core.ts` | 8 | `read_query`, `write_query`, `list_tables`, `describe_table`, `create_table`, `drop_table`, `create_index`, `get_indexes` |
+| | `core/error-helpers.ts` | — | Shared error formatting helpers |
+| **schema** | `schema/management.ts` | 3 | `list_schemas`, `create_schema`, `drop_schema` |
+| | `schema/views.ts` | 3 | `list_views`, `create_view` + 1 more |
+| | `schema/routines.ts` | 2 | `list_stored_procedures`, `list_functions` |
+| | `schema/triggers.ts` | 1 | `list_triggers` |
+| | `schema/constraints.ts` | 1 | `list_constraints` |
+| | `schema/scheduled_events.ts` | 1 | `list_events` |
+| **transactions** | `transactions.ts` | 7 | `transaction_begin/commit/rollback/savepoint/release/rollback_to/execute` |
+| **json** | `json/core.ts` | 8 | `json_extract`, `json_set`, `json_insert`, `json_replace`, `json_remove`, `json_contains`, `json_keys`, `json_array_append` |
+| | `json/helpers.ts` | 4 | `json_get`, `json_update`, `json_search`, `json_validate` |
+| | `json/enhanced.ts` | 5 | `json_merge`, `json_diff`, `json_normalize`, `json_stats`, `json_index_suggest` |
+| **docstore** | `docstore.ts` | 9 | `doc_list_collections`, `doc_create_collection`, `doc_drop_collection`, `doc_find`, `doc_add`, `doc_modify`, `doc_remove`, `doc_create_index`, `doc_collection_info` |
+| **text** | `text/processing.ts` | 6 | `regexp_match`, `like_search`, `soundex`, `substring`, `concat`, `collation_convert` |
+| | `text/fulltext.ts` | 5 | `fulltext_create`, `fulltext_drop`, `fulltext_search`, `fulltext_boolean`, `fulltext_expand` |
+| **stats** | `stats/descriptive.ts` | 5 | `stats_descriptive`, `stats_percentiles`, `stats_distribution`, `stats_time_series`, `stats_sampling` |
+| | `stats/comparative.ts` | 3 | `stats_correlation`, `stats_regression`, `stats_histogram` |
+| **performance** | `performance/analysis.ts` | 8 | `explain`, `explain_analyze`, `slow_queries`, `query_stats`, `index_usage`, `table_stats`, `buffer_pool_stats`, `thread_stats` |
+| **optimization** | `performance/optimization.ts` | 4 | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace` |
+| **admin** | `admin/maintenance.ts` | 6 | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query` |
+| | `admin/monitoring.ts` | 7 | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health` |
+| | `admin/backup.ts` | 4 | `export_table`, `import_data`, `create_dump`, `restore_dump` |
+| **security** | `security/audit.ts` | 3 | `security_audit`, `security_firewall_status`, `security_firewall_rules` |
+| | `security/data-protection.ts` | 3 | `security_mask_data`, `security_user_privileges`, `security_sensitive_tables` |
+| | `security/encryption.ts` | 3 | `security_ssl_status`, `security_encryption_status`, `security_password_validate` |
+| **roles** | `roles.ts` | 8 | `role_list/create/drop/grants/grant/assign/revoke`, `user_roles` |
+| **spatial** | `spatial/setup.ts` | 2 | `spatial_create_column`, `spatial_create_index` |
+| | `spatial/geometry.ts` | 2 | `spatial_point`, `spatial_polygon` |
+| | `spatial/queries.ts` | 4 | `spatial_distance`, `spatial_distance_sphere`, `spatial_contains`, `spatial_within` |
+| | `spatial/operations.ts` | 4 | `spatial_intersection`, `spatial_buffer`, `spatial_transform`, `spatial_geojson` |
+| **replication** | `replication.ts` | 5 | `master_status`, `slave_status`, `binlog_events`, `gtid_status`, `replication_lag` |
+| **partitioning** | `partitioning.ts` | 4 | `partition_info`, `add_partition`, `drop_partition`, `reorganize_partition` |
+| **events** | `events.ts` | 6 | `event_create/alter/drop/list/status`, `scheduler_status` |
+| **cluster** | `cluster/group-replication.ts` | 5 | `gr_status`, `gr_members`, `gr_primary`, `gr_transactions`, `gr_flow_control` |
+| | `cluster/innodb-cluster.ts` | 5 | `cluster_status`, `cluster_instances`, `cluster_topology`, `cluster_router_status`, `cluster_switchover` |
+| **router** | `router.ts` | 9 | `router_status/routes/route_status/route_health/route_connections/route_destinations/route_blocked_hosts/metadata_status/pool_status` |
+| **proxysql** | `proxysql.ts` | 11 | `proxysql_status/servers/query_rules/query_digest/connection_pool/users/global_variables/runtime_status/memory_stats/commands/process_list` |
+| **shell** | `shell/common.ts` | — | Shared MySQL Shell execution helpers |
+| | `shell/info.ts` | 1 | `mysqlsh_version` |
+| | `shell/backup.ts` | 3 | `mysqlsh_dump_instance/dump_schemas/dump_tables` |
+| | `shell/restore.ts` | 1 | `mysqlsh_load_dump` |
+| | `shell/data-transfer.ts` | 3 | `mysqlsh_export_table/import_table/import_json` |
+| | `shell/utilities.ts` | 2 | `mysqlsh_check_upgrade`, `mysqlsh_run_script` |
+| **sysschema** | `sysschema/resources.ts` | 3 | `sys_schema_stats`, `sys_innodb_lock_waits`, `sys_memory_summary` |
+| | `sysschema/performance.ts` | 3 | `sys_statement_summary`, `sys_wait_summary`, `sys_io_summary` |
+| | `sysschema/activity.ts` | 2 | `sys_user_summary`, `sys_host_summary` |
+
+---
+
+## Zod Schemas & Types
+
+Unlike db-mcp (which has separate `output-schemas/`), mysql-mcp consolidates all Zod schemas in a single file:
+
+| File | Size | Contents |
+|------|------|----------|
+| `adapters/mysql/types.ts` | **72KB** | All Zod input schemas for every tool group, parameter validation schemas, response types |
+| `adapters/mysql/types/proxysql-types.ts` | 7.5KB | ProxySQL-specific types |
+| `adapters/mysql/types/router-types.ts` | 4KB | MySQL Router types |
+| `adapters/mysql/types/shell-types.ts` | 10KB | MySQL Shell types |
+
+---
+
+## Prompts (`src/adapters/mysql/prompts/`)
+
+13 prompt definitions across specialized workflow files:
+
+| File | Prompts |
+|------|---------|
+| `index.ts` | Barrel + `mysql_optimization`, `mysql_health_check` |
+| `backupStrategy.ts` | `mysql_backup_strategy` |
+| `clusterSetup.ts` | `mysql_cluster_setup` |
+| `docstoreSetup.ts` | `mysql_docstore_setup` |
+| `eventScheduler.ts` | `mysql_event_scheduler` |
+| `indexTuning.ts` | `mysql_index_tuning` |
+| `mysqlshSetup.ts` | `mysql_mysqlsh_setup` |
+| `proxysqlSetup.ts` | `mysql_proxysql_setup` |
+| `replicationSetup.ts` | `mysql_replication_setup` |
+| `routerSetup.ts` | `mysql_router_setup` |
+| `spatialSetup.ts` | `mysql_spatial_setup` |
+| `sysSchema.ts` | `mysql_sys_schema` |
+
+---
+
+## Resources (`src/adapters/mysql/resources/`)
+
+18 MCP resources providing read-only database metadata:
+
+| File | Resources |
+|------|-----------|
+| `schema.ts` | `mysql://schema` |
+| `tables.ts` | `mysql://tables` |
+| `indexes.ts` | `mysql://indexes` |
+| `variables.ts` | `mysql://variables` |
+| `status.ts` | `mysql://status` |
+| `processlist.ts` | `mysql://processlist` |
+| `health.ts` | `mysql://health` |
+| `pool.ts` | `mysql://pool` |
+| `capabilities.ts` | `mysql://capabilities` |
+| `performance.ts` | `mysql://performance/{view}` (4 views) |
+| `innodb.ts` | `mysql://innodb/{metric}` (4 metrics) |
+| `replication.ts` | `mysql://replication/{view}` (4 views) |
+| `locks.ts` | `mysql://locks` |
+| `events.ts` | `mysql://events` |
+| `cluster.ts` | `mysql://cluster/{view}` |
+| `docstore.ts` | `mysql://docstore/{collection}` |
+| `spatial.ts` | `mysql://spatial/{table}` |
+| `sysschema.ts` | `mysql://sys/{view}` |
+
+---
+
+## Error Class Hierarchy
+
+All errors extend `MySQLMcpError` (defined in `src/types/modules/errors.ts`). Every tool returns an enriched `ErrorResponse` via `formatHandlerError()` — never raw MCP exceptions.
+
+```
+MySQLMcpError (modules/errors.ts)         code: string, details?: Record
+├── ConnectionError       code: CONNECTION_ERROR
+├── PoolError             code: POOL_ERROR          (accepts custom code)
+├── QueryError            code: QUERY_ERROR
+├── AuthenticationError   code: AUTHENTICATION_ERROR
+├── AuthorizationError    code: AUTHORIZATION_ERROR
+├── ValidationError       code: VALIDATION_ERROR
+└── TransactionError      code: TRANSACTION_ERROR
+```
+
+**ErrorResponse shape** (returned by all handlers on failure):
+```typescript
+{ success: false, error: string, category: ErrorCategory, code: string,
+  recoverable: boolean, suggestion?: string, details?: Record }
+```
+
+**Usage pattern** — all tool handlers:
+```typescript
+import { formatHandlerError } from "./core/error-helpers.js";
+
+try {
+  // ... tool logic
+} catch (err) {
+  return formatHandlerError(err); // Returns full ErrorResponse
+}
+```
+
+**Error helpers** — `tools/core/error-helpers.ts`:
+- `formatHandlerError(err)` — consolidated enriched `ErrorResponse` builder (handles `ZodError`, `MySQLMcpError`, generic `Error`)
+- `formatMysqlError(err)` / `formatZodError(err)` — internal string cleaners (used by `formatHandlerError`)
+- `stripErrorPrefix(msg)` — strips MySQL wire-protocol prefixes
+
+---
+
+## Key Constants & Config
+
+| What | Where | Notes |
+|------|-------|-------|
+| Server instructions (agent prompt) | `src/constants/ServerInstructions.ts` | 50KB — exported as string constant |
+| Tool group arrays | `src/filtering/ToolConstants.ts` | `TOOL_GROUPS` map, `META_GROUPS` shortcuts |
+| Tool filter logic | `src/filtering/ToolFilter.ts` | `ToolFilter` class |
+| Connection pool | `src/pool/ConnectionPool.ts` | mysql2/promise pool wrapper |
+| Progress reporter | `src/progress/ProgressReporter.ts` | MCP progress notification helpers |
+| Logger | `src/utils/logger.ts` | Structured logging with severity filtering |
+| Validators | `src/utils/validators.ts` | SQL identifier validation, input sanitization |
+
+---
+
+## Architecture Patterns (Quick Reference)
+
+| Pattern | Description |
+|---------|-------------|
+| **Structured Errors** | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Includes `category`, `code`, `recoverable`. |
+| **Adapter Pattern** | `DatabaseAdapter` (abstract) → `MySQLAdapter`. Single adapter (no WASM/Native split). |
+| **Schema Cache** | `SchemaManager` caches table/column metadata with configurable TTL. Auto-invalidates on DDL. |
+| **Connection Pool** | `ConnectionPool` wraps mysql2/promise. Managed lifecycle with health checks. |
+| **Code Mode Bridge** | `mysql.*` API in worker thread communicates via MessagePort RPC to main thread handlers. |
+| **Tool Filtering** | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. |
+| **Monolithic Types** | Unlike db-mcp's per-group output-schemas, all Zod schemas live in `adapters/mysql/types.ts` (72KB). |
+| **Barrel Re-exports** | Import from `./module/index.js` (with `.js` extension for ESM). |
+| **Ecosystem Tools** | Router, ProxySQL, Shell, Cluster tools connect to external services on alternate ports. |
+
+---
+
+## Import Path Conventions
+
+- All imports use **`.js` extension** (ESM requirement): `import { x } from "./foo/index.js"`
+- Error classes: import from `../../types/index.js` (barrel re-export)
+- Note: mysql-mcp uses **PascalCase filenames** (e.g., `MySQLAdapter.ts`, `McpServer.ts`)
+
+---
+
+## Test Infrastructure
+
+| File / Directory | Purpose |
+|-----------------|---------|
+| `test-server/README.md` | Agent testing orchestration doc |
+| `test-server/test-seed.sql` | Primary seed DDL+DML (11 tables, ~400+ rows) |
+| `test-server/reset-database.ps1` | Reset script — drops + re-seeds `testdb` |
+| `test-server/Tool-Reference.md` | Complete 192-tool inventory with descriptions |
+| `test-server/test-group-tools-core.md` | Core/transactions/schema group checklists |
+| `test-server/test-group-tools-data.md` | JSON/fulltext/docstore/text/stats checklists |
+| `test-server/test-group-tools-admin.md` | Admin/monitoring/perf/security/roles/backup checklists |
+| `test-server/test-group-tools-ext.md` | Spatial/partitioning/events checklists |
+| `test-server/test-group-tools-ecosystem.md` | Cluster/ProxySQL/Router/Shell checklists |
+| `test-server/test-tools.md` | Entry-point protocol (schema ref, reporting format) |
+| `test-server/advanced-test-tools.md` | Stress tests (boundary, concurrency, cross-group) |
+| `src/__tests__/` | Vitest unit tests (top-level) |
+| `src/adapters/mysql/tools/*/___tests__/` | Per-group Vitest unit tests |
+| `tests/e2e/auth.spec.ts` | Bearer token authentication E2E (port 3101) |
+| `tests/e2e/stateless.spec.ts` | Stateless HTTP mode E2E (port 3102) |

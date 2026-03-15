@@ -7,13 +7,15 @@
 
 import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { generateInstructions } from "../constants/ServerInstructions.js";
+import { INSTRUCTIONS, HELP_CONTENT } from "../constants/server-instructions.js";
+import { TOOL_GROUPS } from "../filtering/ToolConstants.js";
 import type { DatabaseAdapter } from "../adapters/DatabaseAdapter.js";
 import type {
   McpServerConfig,
   TransportType,
   DatabaseConfig,
   ToolFilterConfig,
+  ToolGroup,
 } from "../types/index.js";
 import { parseToolFilter, getFilterSummary } from "../filtering/ToolFilter.js";
 import { logger } from "../utils/logger.js";
@@ -48,11 +50,7 @@ export class McpServer {
     this.toolFilter = parseToolFilter(this.config.toolFilter);
 
     // Generate dynamic instructions based on enabled tools
-    const instructions = generateInstructions(
-      this.toolFilter.enabledTools,
-      [], // Resources will be added when adapter is registered
-      [], // Prompts will be added when adapter is registered
-    );
+    const instructions = INSTRUCTIONS;
 
     this.server = new SdkMcpServer(
       {
@@ -66,6 +64,9 @@ export class McpServer {
         instructions,
       },
     );
+
+    // Register help resources (mysql://help and mysql://help/{group})
+    this.registerHelpResources();
 
     // Initialize MCP protocol logging so clients can receive log messages
     mcpLogger.setServer(this.server);
@@ -356,6 +357,101 @@ export class McpServer {
       jwksUri: this.config.oauth.jwksUri,
       clockTolerance: this.config.oauth.clockTolerance,
     });
+  }
+
+  /**
+   * Register mysql://help resources for on-demand reference documentation.
+   * Always registers mysql://help (gotchas). Group-specific help is filtered
+   * by the tool filter configuration.
+   */
+  private registerHelpResources(): void {
+    // Always register mysql://help (gotchas + code mode + aliases)
+    const gotchasContent = HELP_CONTENT.get("gotchas");
+    if (gotchasContent) {
+      this.server.registerResource(
+        "mysql_help",
+        "mysql://help",
+        {
+          description: "Critical gotchas, parameter aliases, and Code Mode API reference",
+          mimeType: "text/markdown",
+        },
+        () => ({
+          contents: [{
+            uri: "mysql://help",
+            mimeType: "text/markdown",
+            text: gotchasContent,
+          }],
+        }),
+      );
+    }
+
+    // Derive enabled groups from enabled tools
+    const enabledGroups = new Set<ToolGroup>();
+    for (const [group, tools] of Object.entries(TOOL_GROUPS) as [ToolGroup, string[]][]) {
+      if (tools.some((tool) => this.toolFilter.enabledTools.has(tool))) {
+        enabledGroups.add(group);
+      }
+    }
+
+    // Register group-specific help resources based on tool filter
+    const groupHelpKeys: { group: ToolGroup; key: string }[] = [
+      { group: "core", key: "core" },
+      { group: "json", key: "json" },
+      { group: "transactions", key: "transactions" },
+      { group: "text", key: "text" },
+      { group: "fulltext", key: "fulltext" },
+      { group: "stats", key: "stats" },
+      { group: "spatial", key: "spatial" },
+      { group: "admin", key: "admin" },
+      { group: "monitoring", key: "monitoring" },
+      { group: "performance", key: "performance" },
+      { group: "optimization", key: "optimization" },
+      { group: "backup", key: "backup" },
+      { group: "replication", key: "replication" },
+      { group: "partitioning", key: "partitioning" },
+      { group: "schema", key: "schema" },
+      { group: "events", key: "events" },
+      { group: "sysschema", key: "sysschema" },
+      { group: "security", key: "security" },
+      { group: "roles", key: "roles" },
+      { group: "docstore", key: "docstore" },
+      { group: "cluster", key: "cluster" },
+      { group: "proxysql", key: "proxysql" },
+      { group: "router", key: "router" },
+      { group: "shell", key: "shell" },
+    ];
+
+    for (const { group, key } of groupHelpKeys) {
+      if (!enabledGroups.has(group)) continue;
+
+      const content = HELP_CONTENT.get(key);
+      if (!content) continue;
+
+      this.server.registerResource(
+        `mysql_help_${key}`,
+        `mysql://help/${key}`,
+        {
+          description: `Tool reference for the ${group} tool group`,
+          mimeType: "text/markdown",
+        },
+        () => ({
+          contents: [{
+            uri: `mysql://help/${key}`,
+            mimeType: "text/markdown",
+            text: content,
+          }],
+        }),
+      );
+    }
+
+    // Log registered help resources
+    const registeredHelp = ["mysql://help"];
+    for (const { group, key } of groupHelpKeys) {
+      if (enabledGroups.has(group)) {
+        registeredHelp.push(`mysql://help/${key}`);
+      }
+    }
+    logger.info(`Help resources: ${registeredHelp.join(", ")}`);
   }
 }
 
