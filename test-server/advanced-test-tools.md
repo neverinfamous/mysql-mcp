@@ -188,12 +188,14 @@ Create `stress_json_mut (id INT AUTO_INCREMENT PRIMARY KEY, data JSON)`, insert 
 
 ```javascript
 // Run via mysql_execute_code
-const direct = await mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_products"});
+const direct = await mysql.core.readQuery({
+  query: "SELECT COUNT(*) AS n FROM test_products",
+});
 const alias = await mysql.readQuery("SELECT COUNT(*) AS n FROM test_products");
 return {
   direct: direct.rows[0].n,
   alias: alias.rows[0].n,
-  match: direct.rows[0].n === alias.rows[0].n
+  match: direct.rows[0].n === alias.rows[0].n,
 };
 ```
 
@@ -209,11 +211,13 @@ Expect: `match: true`
 ### 7.3 Code Mode Error Handling
 
 ```javascript
-const result = await mysql.core.readQuery({query: "SELECT * FROM nonexistent_xyz"});
+const result = await mysql.core.readQuery({
+  query: "SELECT * FROM nonexistent_xyz",
+});
 return {
   success: result.success,
   hasError: !!result.error,
-  hasTableName: result.error?.includes("nonexistent_xyz")
+  hasTableName: result.error?.includes("nonexistent_xyz"),
 };
 ```
 
@@ -274,6 +278,3 @@ Compile a summary of all findings:
 5. **Commit**: Stage and commit all changes — do NOT push
 6. **Live re-test**: Test fixes with direct MCP tool calls
 7. **Final summary**: If no issues found, provide the final summary after testing. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working
-
-> **Note:** `test-server/` is in `.gitignore` as intended.
-

@@ -1,6 +1,6 @@
 # mysql-mcp Test Server — Agent Testing Instructions
 
-> **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`). All files in this directory are `.gitignore`d.
+> **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
 
 ## Files
 
@@ -23,6 +23,7 @@
 | `reset-database.ps1` | ~6KB | Reset + re-seed `testdb` | When data is dirty |
 | `test-seed.sql` | ~27KB | Primary seed SQL (DDL + DML) for all `test_*` tables | Reference only |
 | `sample.csv`, `sample.json` | <1KB | Fixtures for import/export testing | Used by text/CSV tools |
+| `test-instruction-levels.mjs` | ~4KB | Integration test — slim instructions + help resource filtering by group | Run after build |
 
 ## Test Database Schema (Quick Reference)
 
