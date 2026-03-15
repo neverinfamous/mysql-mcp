@@ -16,6 +16,7 @@ Run **each pass** as a separate conversation with the corresponding `--tool-filt
 | Pass 6 | `dba-manage` | Core, Admin, Backup, Replication, Part, Events (~34) | 26–29 |
 | Pass 7 | `dba-secure` | Core, Security, Roles, Trans (~33) | 30–32 |
 | Pass 8 | `codemode` | Code Mode only (1+3) | 33–35 |
+| Pass 9 | `ecosystem` | Cluster, ProxySQL, Router, Shell (~41) | 36–39 |
 
 > **Important:** Do NOT combine passes. Each pass is a fresh conversation with a clean context. The agent has never seen this database before.
 
@@ -53,7 +54,9 @@ For each scenario, report:
 
 ---
 
-## Pass 1: `starter` (Core, JSON, Trans, Text)
+## Pass 1: `starter`
+
+**Tool groups under test:** `core` (8), `json` (17), `transactions` (7), `text` (6), `codemode` (1)
 
 ### Phase 1 — Discovery
 
@@ -95,7 +98,9 @@ Find users whose email addresses match the pattern `%@example.com%` using LIKE s
 
 ---
 
-## Pass 2: `dev-power` (Core, Schema, Perf, Stats, Fulltext, Trans)
+## Pass 2: `dev-power`
+
+**Tool groups under test:** `core` (8), `schema` (10), `performance` (8), `stats` (8), `fulltext` (5), `transactions` (7), `codemode` (1)
 
 ### Phase 5 — Statistics & Performance
 
@@ -116,7 +121,9 @@ Create a view called `test_view_order_summary` that joins products and orders sh
 
 ---
 
-## Pass 3: `ai-data` (Core, JSON, Docstore, Text, Fulltext)
+## Pass 3: `ai-data`
+
+**Tool groups under test:** `core` (8), `json` (17), `docstore` (9), `text` (6), `fulltext` (5), `codemode` (1)
 
 ### Phase 6 — Document Store
 
@@ -134,7 +141,9 @@ Search articles for "performance" using full-text search, then extract JSON meta
 
 ---
 
-## Pass 4: `ai-spatial` (Core, Spatial, Stats, Perf, Trans)
+## Pass 4: `ai-spatial`
+
+**Tool groups under test:** `core` (8), `spatial` (12), `stats` (8), `performance` (8), `transactions` (7), `codemode` (1)
 
 ### Phase 7 — Spatial Operations
 
@@ -149,7 +158,9 @@ Compute statistics on the distances between all pairs of locations. What's the a
 
 ---
 
-## Pass 5: `dba-monitor` (Core, Monitoring, Perf, Sysschema, Optimization)
+## Pass 5: `dba-monitor`
+
+**Tool groups under test:** `core` (8), `monitoring` (7), `performance` (8), `sysschema` (8), `optimization` (4), `codemode` (1)
 
 ### Phase 8 — Monitoring & Diagnostics
 
@@ -164,7 +175,9 @@ Pick a table and get index recommendations. Are there any missing indexes that c
 
 ---
 
-## Pass 6: `dba-manage` (Core, Admin, Backup, Replication, Part, Events)
+## Pass 6: `dba-manage`
+
+**Tool groups under test:** `core` (8), `admin` (6), `backup` (4), `replication` (5), `partitioning` (4), `events` (6), `codemode` (1)
 
 ### Phase 9 — Admin & Infrastructure
 
@@ -182,7 +195,9 @@ Create a one-time event (disabled) called `test_event_cleanup` that runs a simpl
 
 ---
 
-## Pass 7: `dba-secure` (Core, Security, Roles, Trans)
+## Pass 7: `dba-secure`
+
+**Tool groups under test:** `core` (8), `security` (9), `roles` (8), `transactions` (7), `codemode` (1)
 
 ### Phase 10 — Security & Roles
 
@@ -197,7 +212,9 @@ What privileges does the current user have? Can the agent discover this using th
 
 ---
 
-## Pass 8: `codemode` (Code Mode only)
+## Pass 8: `codemode`
+
+**Tool groups under test:** `codemode` (1) + built-in resources (3)
 
 ### Phase 11 — Code Mode Discovery & Efficiency
 
@@ -212,6 +229,28 @@ Using only `mysql_execute_code`, do a full data quality audit: check for NULLs, 
 
 ---
 
+## Pass 9: `ecosystem`
+
+**Tool groups under test:** `cluster` (10), `proxysql` (11), `router` (9), `shell` (10), `codemode` (1)
+
+### Phase 12 — Cluster & Replication Infrastructure
+
+#### Scenario 36 — Group Replication status
+Check the Group Replication status. How many members are in the group? What roles do they have (PRIMARY/SECONDARY)?
+
+#### Scenario 37 — InnoDB Cluster inspection
+Get the InnoDB Cluster status, list instances, and visualize the topology. Is there a viable switchover candidate? What does the switchover analysis recommend?
+
+### Phase 13 — ProxySQL & Router
+
+#### Scenario 38 — ProxySQL overview
+Check ProxySQL status, list backend servers and their hostgroups, and show the top queries by execution count. What query routing rules are configured?
+
+#### Scenario 39 — MySQL Router inspection
+List the available Router routes, check metadata cache status, and get route connection stats. Is the Router healthy?
+
+---
+
 ## Post-Test Summary
 
 Compile findings across all passes into:
@@ -220,4 +259,4 @@ Compile findings across all passes into:
 2. **Discovery friction** — cases where the agent struggled to find the right tool or resource
 3. **Suggested improvements** — specific additions to `src/constants/server-instructions/*.md`
 
-> **Key metric:** How many of the 35 scenarios did the agent complete on the first try with ≤1 help resource read? This measures whether the instructions + tool descriptions are self-sufficient.
+> **Key metric:** How many of the 39 scenarios did the agent complete on the first try with ≤1 help resource read? This measures whether the instructions + tool descriptions are self-sufficient.
