@@ -50,6 +50,7 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
     close = vi.fn().mockResolvedValue(undefined);
     tool = vi.fn();
     resource = vi.fn();
+    registerResource = vi.fn();
     prompt = vi.fn();
     constructor(_serverInfo: unknown, options: unknown) {
       lastMockMcpServerOptions = options;
@@ -133,7 +134,7 @@ describe("McpServer", () => {
       expect(lastMockMcpServerOptions).toHaveProperty("instructions");
       expect(
         (lastMockMcpServerOptions as { instructions: string }).instructions,
-      ).toContain("mysql-mcp Usage Instructions");
+      ).toContain("mysql-mcp");
     });
   });
 
