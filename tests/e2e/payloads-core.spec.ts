@@ -78,11 +78,20 @@ test.describe("Payload Contracts: Core", () => {
   test("mysql_write_query returns { rowsAffected }", async () => {
     const client = await createClient();
     try {
-      // Setup + teardown in one test
-      await callToolAndParse(client, "mysql_write_query", {
+      // Setup: create temp table
+      const setup = await callToolAndParse(client, "mysql_write_query", {
         query:
           "CREATE TABLE IF NOT EXISTS _e2e_payload_test (id INT PRIMARY KEY, val VARCHAR(100))",
       });
+
+      // Skip on read-only servers (e.g. --super-read-only replicas)
+      if (setup.success === false) {
+        const err = String(setup.error ?? "");
+        if (err.includes("read-only") || err.includes("super-read-only")) {
+          test.skip(true, "Server is read-only — write_query requires write access");
+          return;
+        }
+      }
 
       const payload = await callToolAndParse(client, "mysql_write_query", {
         query:
@@ -118,6 +127,15 @@ test.describe("Payload Contracts: Core", () => {
         },
       );
 
+      // Skip on read-only servers
+      if (createPayload.success === false) {
+        const err = String(createPayload.error ?? "");
+        if (err.includes("read-only") || err.includes("super-read-only")) {
+          test.skip(true, "Server is read-only — create_table requires write access");
+          return;
+        }
+      }
+
       expect(createPayload.success).toBe(true);
       expect(createPayload.tableName).toBe(tableName);
 
@@ -138,13 +156,22 @@ test.describe("Payload Contracts: Core", () => {
       const ts = Date.now();
       const tableName = `_e2e_idx_${ts}`;
 
-      await callToolAndParse(client, "mysql_create_table", {
+      const tablePayload = await callToolAndParse(client, "mysql_create_table", {
         name: tableName,
         columns: [
           { name: "id", type: "INT", primaryKey: true },
           { name: "name", type: "VARCHAR(100)" },
         ],
       });
+
+      // Skip on read-only servers
+      if (tablePayload.success === false) {
+        const err = String(tablePayload.error ?? "");
+        if (err.includes("read-only") || err.includes("super-read-only")) {
+          test.skip(true, "Server is read-only — create_index requires write access");
+          return;
+        }
+      }
 
       const idxPayload = await callToolAndParse(client, "mysql_create_index", {
         name: `idx_${ts}`,

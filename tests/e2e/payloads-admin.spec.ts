@@ -21,6 +21,15 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         tables: ["test_products"],
       });
 
+      // Skip on read-only servers (e.g. --super-read-only replicas)
+      if (payload.success === false) {
+        const err = String(payload.error ?? "");
+        if (err.includes("read-only") || err.includes("super-read-only")) {
+          test.skip(true, "Server is read-only — OPTIMIZE TABLE requires write access");
+          return;
+        }
+      }
+
       expect(Array.isArray(payload.results)).toBe(true);
       expect(typeof payload.rowCount).toBe("number");
     } finally {
@@ -34,6 +43,15 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
       const payload = await callToolAndParse(client, "mysql_analyze_table", {
         tables: ["test_products"],
       });
+
+      // Skip on read-only servers
+      if (payload.success === false) {
+        const err = String(payload.error ?? "");
+        if (err.includes("read-only") || err.includes("super-read-only")) {
+          test.skip(true, "Server is read-only — ANALYZE TABLE requires write access");
+          return;
+        }
+      }
 
       expect(Array.isArray(payload.results)).toBe(true);
       expect(typeof payload.rowCount).toBe("number");
