@@ -43,10 +43,10 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { tables } = OptimizeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.executeQuery(
+        const result = await adapter.rawQuery(
           `OPTIMIZE TABLE ${tableList}`,
         );
-        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+        return { results: result.rows ?? [], rowCount: result.rows?.length ?? 0 };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -71,8 +71,8 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { tables } = AnalyzeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
-        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+        const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
+        return { results: result.rows ?? [], rowCount: result.rows?.length ?? 0 };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -129,10 +129,10 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
         const { tables, quick } = RepairTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const quickClause = quick ? " QUICK" : "";
-        const result = await adapter.executeQuery(
+        const result = await adapter.rawQuery(
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
-        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
+        return { results: result.rows ?? [], rowCount: result.rows?.length ?? 0 };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

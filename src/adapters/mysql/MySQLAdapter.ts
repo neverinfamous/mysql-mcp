@@ -585,10 +585,14 @@ export class MySQLAdapter extends DatabaseAdapter {
   }
 
   /**
-   * Process execution results into QueryResult
-   */
   /**
-   * Process execution results into QueryResult
+   * Process execution results into QueryResult.
+   *
+   * mysql2 returns different shapes depending on the query type and protocol:
+   * - SELECT via execute(): [RowDataPacket[], FieldPacket[]]
+   * - INSERT/UPDATE via execute(): [ResultSetHeader, undefined]
+   * - Admin DDL via query() fallback: may produce multi-result-set [[rows, OkPacket], [fields, fields]]
+   *   where `results` is an array containing mixed types (row arrays + ResultSetHeaders)
    */
   private processExecutionResult(
     results: unknown,
@@ -598,6 +602,40 @@ export class MySQLAdapter extends DatabaseAdapter {
     const executionTimeMs = Date.now() - startTime;
 
     if (Array.isArray(results)) {
+      // Multi-result-set detection: if the first element is also an array,
+      // mysql2 returned nested result sets (e.g., OPTIMIZE TABLE via query()).
+      // Flatten to the first result set that contains row objects.
+      if (results.length > 0 && Array.isArray(results[0])) {
+        const flatRows = results[0] as Record<string, unknown>[];
+        return {
+          rows: flatRows,
+          executionTimeMs,
+        };
+      }
+
+      // Check if this "array" is actually a ResultSetHeader wrapped in an array
+      // (some mysql2 edge cases for DDL commands)
+      if (
+        results.length > 0 &&
+        typeof results[0] === "object" &&
+        results[0] !== null &&
+        "affectedRows" in results[0] &&
+        !("Table" in results[0]) &&
+        !("name" in results[0])
+      ) {
+        const resultInfo = results[0] as {
+          affectedRows?: number;
+          insertId?: number | bigint;
+          warningStatus?: number;
+        };
+        return {
+          rowsAffected: resultInfo.affectedRows,
+          lastInsertId: resultInfo.insertId,
+          warningCount: resultInfo.warningStatus,
+          executionTimeMs,
+        };
+      }
+
       return {
         rows: results as Record<string, unknown>[],
         executionTimeMs,
