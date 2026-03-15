@@ -2,7 +2,7 @@
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
-> Last updated: March 12, 2026
+> Last updated: March 15, 2026
 
 ---
 
@@ -33,7 +33,8 @@ src/
 │                                   #   ResourceDefinition, PromptDefinition
 │
 ├── constants/
-│   └── ServerInstructions.ts       # Agent instructions string (system prompt for Code Mode + tool usage)
+│   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
+│   └── server-instructions/        # Source .md files for each help resource (26 files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
 │   ├── ToolConstants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts, group→tools map
@@ -197,7 +198,9 @@ Unlike db-mcp (which has separate `output-schemas/`), mysql-mcp consolidates all
 
 ## Resources (`src/adapters/mysql/resources/`)
 
-18 MCP resources providing read-only database metadata:
+18 data resources + 24+ help resources providing read-only metadata and agent guidance:
+
+### Data Resources
 
 | File | Resources |
 |------|-----------|
@@ -219,6 +222,15 @@ Unlike db-mcp (which has separate `output-schemas/`), mysql-mcp consolidates all
 | `docstore.ts` | `mysql://docstore/{collection}` |
 | `spatial.ts` | `mysql://spatial/{table}` |
 | `sysschema.ts` | `mysql://sys/{view}` |
+
+### Help Resources (registered dynamically by McpServer)
+
+| URI | Source | Content |
+|-----|--------|---------|
+| `mysql://help` | `server-instructions/overview.md` + `gotchas.md` | Gotchas, aliases, Code Mode API — always available |
+| `mysql://help/{group}` | `server-instructions/{group}.md` | Per-group tool reference — filtered by `--tool-filter` |
+
+24 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 
@@ -265,7 +277,8 @@ try {
 
 | What | Where | Notes |
 |------|-------|-------|
-| Server instructions (agent prompt) | `src/constants/ServerInstructions.ts` | 50KB — exported as string constant |
+| Server instructions (agent prompt) | `src/constants/server-instructions.ts` | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (26 files) |
+| Generator script | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts` |
 | Tool group arrays | `src/filtering/ToolConstants.ts` | `TOOL_GROUPS` map, `META_GROUPS` shortcuts |
 | Tool filter logic | `src/filtering/ToolFilter.ts` | `ToolFilter` class |
 | Connection pool | `src/pool/ConnectionPool.ts` | mysql2/promise pool wrapper |
@@ -286,6 +299,7 @@ try {
 | **Code Mode Bridge** | `mysql.*` API in worker thread communicates via MessagePort RPC to main thread handlers. |
 | **Tool Filtering** | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. |
 | **Monolithic Types** | Unlike db-mcp's per-group output-schemas, all Zod schemas live in `adapters/mysql/types.ts` (72KB). |
+| **Help Resources** | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 50KB monolith. `mysql://help/{group}` filtered by `--tool-filter`. |
 | **Barrel Re-exports** | Import from `./module/index.js` (with `.js` extension for ESM). |
 | **Ecosystem Tools** | Router, ProxySQL, Shell, Cluster tools connect to external services on alternate ports. |
 
@@ -304,17 +318,24 @@ try {
 | File / Directory | Purpose |
 |-----------------|---------|
 | `test-server/README.md` | Agent testing orchestration doc |
+| `test-server/code-map.md` | This file — agent-optimized codebase navigation reference |
 | `test-server/test-seed.sql` | Primary seed DDL+DML (11 tables, ~400+ rows) |
 | `test-server/reset-database.ps1` | Reset script — drops + re-seeds `testdb` |
 | `test-server/Tool-Reference.md` | Complete 192-tool inventory with descriptions |
+| `test-server/test-agent-experience.md` | 35 open-ended scenarios — validates help resource sufficiency |
 | `test-server/test-group-tools-core.md` | Core/transactions/schema group checklists |
 | `test-server/test-group-tools-data.md` | JSON/fulltext/docstore/text/stats checklists |
 | `test-server/test-group-tools-admin.md` | Admin/monitoring/perf/security/roles/backup checklists |
 | `test-server/test-group-tools-ext.md` | Spatial/partitioning/events checklists |
 | `test-server/test-group-tools-ecosystem.md` | Cluster/ProxySQL/Router/Shell checklists |
 | `test-server/test-tools.md` | Entry-point protocol (schema ref, reporting format) |
+| `test-server/test-prompts.md` | Prompt testing plan (13 prompts) |
+| `test-server/test-resources.md` | Resource testing plan (18+ data resources) |
+| `test-server/test-instruction-levels.mjs` | Integration test — slim instructions + help resource filtering |
 | `test-server/advanced-test-tools.md` | Stress tests (boundary, concurrency, cross-group) |
+| `scripts/README.md` | Agent-optimized cluster management reference |
+| `scripts/reboot-cluster.ps1` | InnoDB Cluster reboot after complete outage |
+| `scripts/generate-server-instructions.ts` | Generates `server-instructions.ts` from source `.md` files |
 | `src/__tests__/` | Vitest unit tests (top-level) |
 | `src/adapters/mysql/tools/*/___tests__/` | Per-group Vitest unit tests |
-| `tests/e2e/auth.spec.ts` | Bearer token authentication E2E (port 3101) |
-| `tests/e2e/stateless.spec.ts` | Stateless HTTP mode E2E (port 3102) |
+| `tests/e2e/` | Playwright E2E tests (payload contracts, auth, stateless) |
