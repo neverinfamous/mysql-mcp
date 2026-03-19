@@ -2,6 +2,14 @@
 
 ### Security
 - **CI/CD Hardening**: Added `--provenance` flag to `npm publish` in `publish-npm.yml` for SLSA Build L3 attestation. Added `id-token: write` permission for OIDC provenance token generation.
+- **CI/CD Harmonization**:
+  - SHA-pinned all GitHub Actions across all workflow files (was using tag-based `@v6`/`@v7` refs)
+  - Added standalone `lint-and-test.yml` workflow (Node 24+25 matrix, lint, typecheck, build, test, npm audit)
+  - Added `secrets-scanning.yml` (TruffleHog + Gitleaks on every push/PR)
+  - Added `dependabot-auto-merge.yml` (auto-squash patch/minor, manual review for major)
+  - Restructured `docker-publish.yml`: security scan now runs before push (was after), added Trivy+SARIF upload, switched trigger from `tags: [v*]` to `workflow_run` (after lint-and-test), removed inline quality-gate and codeql jobs (now standalone)
+  - Added `.gitleaks.toml` and `.trivyignore` configuration files
+  - Harmonized CodeQL to use `security-extended,security-and-quality` query sets with paths filter
 
 ## Changed
 - **Dependency Updates**:
