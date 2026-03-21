@@ -1,6 +1,11 @@
 # Unreleased
 
 ### Security
+- **Dependency Vulnerability Fixes**:
+  - Updated `hono` to `4.12.8` to fix multiple vulnerabilities (CVE-2025-27103, CVE-2025-27104, CVE-2025-27110, CVE-2025-27105).
+  - Updated `express-rate-limit` to `8.3.1` to fix IPv4-mapped IPv6 address bypass vulnerability.
+  - Updated `@hono/node-server` to `1.19.11` to fix authorization bypass for protected static paths.
+  - Pinned exact versions for `tar` (`7.5.12`) and `minimatch` (`10.2.4`) in the `Dockerfile` to patch npm bundled dependencies.
 - **CI/CD Hardening**: Added `--provenance` flag to `npm publish` in `publish-npm.yml` for SLSA Build L3 attestation. Added `id-token: write` permission for OIDC provenance token generation.
 - **CI/CD Harmonization**:
   - SHA-pinned all GitHub Actions across all workflow files (was using tag-based `@v6`/`@v7` refs)
@@ -13,6 +18,9 @@
 
 ## Changed
 - **Dependency Updates**:
+  - `eslint` bumped to `10.1.0`
+  - `typescript-eslint` bumped to `8.57.1`
+  - `jose` bumped to `6.2.2`
   - `mysql2` bumped to `^3.20.0`
   - `vitest` and `@vitest/coverage-v8` bumped to `^4.1.0`
   - `@types/node` bumped to `^25.5.0`
