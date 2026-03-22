@@ -39,6 +39,7 @@
 - **Multi-Result-Set Handling**: Hardened `processExecutionResult` to detect mysql2 nested arrays (multi-result-set) and ResultSetHeader-in-array edge cases from `query()` fallback.
 - **InnoDB Cluster Persistence**: Changed `group_replication_start_on_boot` from OFF to ON in `innodb-cluster.yml` and all `.cnf` files — cluster now auto-recovers from partial outages without manual MySQL Shell intervention.
 - **E2E Read-Only Detection**: 5 write-dependent e2e payload tests (`optimize_table`, `analyze_table`, `write_query`, `create_table`, `create_index`) now detect `--super-read-only` and skip gracefully instead of failing.
+- **Code Mode last-expression auto-return** — Bare expressions like `mysql.help()` now correctly surface their return value from `mysql_execute_code`. Previously, the async IIFE wrapper silently returned `undefined` for non-`return` statements. New `transformAutoReturn()` utility prepends `return` to the last expression statement, mimicking Node REPL semantics. Applied to both VM and Worker sandbox paths.
 
 ## Removed
 - **Instruction Levels**: Removed `ServerInstructions.ts` monolith, `generateInstructions()`, `filterInstructionsByGroup()`, and `SECTION_GROUP_MAP`.

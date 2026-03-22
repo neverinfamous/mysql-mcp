@@ -19,6 +19,7 @@ import {
   type SandboxResult,
   type ExecutionMetrics,
 } from "./types.js";
+import { transformAutoReturn } from "./auto-return.js";
 
 /**
  * A sandboxed execution context using Node.js vm module
@@ -159,7 +160,7 @@ export class CodeModeSandbox {
       // Wrap code in async IIFE to support await
       const wrappedCode = `
                 (async () => {
-                    ${code}
+                    ${transformAutoReturn(code)}
                 })();
             `;
 
