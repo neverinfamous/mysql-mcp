@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ProgressReporter } from "../ProgressReporter.js";
+import { ProgressReporter } from "../progress-reporter.js";
 
 describe("ProgressReporter", () => {
   let mockServer: {
@@ -213,13 +213,13 @@ describe("ProgressReporterFactory", () => {
   describe("Availability", () => {
     it("should report unavailable before server set", async () => {
       const { progressFactory: factory } =
-        await import("../ProgressReporter.js");
+        await import("../progress-reporter.js");
       expect(factory.isAvailable()).toBe(false);
     });
 
     it("should report available after server set", async () => {
       const { progressFactory: factory } =
-        await import("../ProgressReporter.js");
+        await import("../progress-reporter.js");
       factory.setServer(mockServer as never);
       expect(factory.isAvailable()).toBe(true);
     });
@@ -228,14 +228,14 @@ describe("ProgressReporterFactory", () => {
   describe("create()", () => {
     it("should return null when no server set", async () => {
       const { progressFactory: factory } =
-        await import("../ProgressReporter.js");
+        await import("../progress-reporter.js");
       const reporter = factory.create("token");
       expect(reporter).toBeNull();
     });
 
     it("should return null when no token provided", async () => {
       const { progressFactory: factory } =
-        await import("../ProgressReporter.js");
+        await import("../progress-reporter.js");
       factory.setServer(mockServer as never);
       const reporter = factory.create(undefined);
       expect(reporter).toBeNull();
@@ -243,7 +243,7 @@ describe("ProgressReporterFactory", () => {
 
     it("should create reporter when server and token available", async () => {
       const { progressFactory: factory } =
-        await import("../ProgressReporter.js");
+        await import("../progress-reporter.js");
       factory.setServer(mockServer as never);
       const reporter = factory.create("my-token");
 
@@ -253,7 +253,7 @@ describe("ProgressReporterFactory", () => {
 
     it("should create functional reporter", async () => {
       const { progressFactory: factory } =
-        await import("../ProgressReporter.js");
+        await import("../progress-reporter.js");
       factory.setServer(mockServer as never);
       const reporter = factory.create("test-token");
 

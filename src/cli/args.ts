@@ -1,7 +1,7 @@
 import {
   parseMySQLConnectionString,
   DEFAULT_CONFIG,
-} from "../server/McpServer.js";
+} from "../server/mcp-server.js";
 import type {
   McpServerConfig,
   TransportType,

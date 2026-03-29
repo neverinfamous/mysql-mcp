@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // Create a fresh McpLogger for each test by importing the class directly
 // We need to test the class, not the singleton
 describe("McpLogger", () => {
-  let McpLogger: typeof import("../McpLogging.js").mcpLogger;
+  let McpLogger: typeof import("../mcp-logging.js").mcpLogger;
   let mockServer: {
     sendLoggingMessage: ReturnType<typeof vi.fn>;
   };
@@ -19,7 +19,7 @@ describe("McpLogger", () => {
     vi.clearAllMocks();
     // Import fresh module for each test
     vi.resetModules();
-    const module = await import("../McpLogging.js");
+    const module = await import("../mcp-logging.js");
     McpLogger = module.mcpLogger;
 
     mockServer = {

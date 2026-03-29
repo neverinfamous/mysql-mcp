@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ConnectionPool } from "../ConnectionPool.js";
-import type { ConnectionPoolConfig } from "../ConnectionPool.js";
+import { ConnectionPool } from "../connection-pool.js";
+import type { ConnectionPoolConfig } from "../connection-pool.js";
 import mysql from "mysql2/promise";
 
 // Mock mysql2/promise

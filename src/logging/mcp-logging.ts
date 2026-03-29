@@ -160,7 +160,7 @@ class McpLogger {
  * Singleton MCP logger instance
  *
  * Usage:
- *   import { mcpLogger } from './logging/McpLogging.js';
+ *   import { mcpLogger } from './logging/mcp-logging.js';
  *
  *   // In server startup:
  *   mcpLogger.setServer(sdkServer);

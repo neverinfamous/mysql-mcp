@@ -6,7 +6,7 @@
  */
 
 import { ZodError } from "zod";
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { formatMysqlError, formatHandlerErrorResponse } from "./core/error-helpers.js";
 import {

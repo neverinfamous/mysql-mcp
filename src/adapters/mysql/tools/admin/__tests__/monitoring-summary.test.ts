@@ -13,7 +13,7 @@ import {
   createShowStatusTool,
   createShowVariablesTool,
 } from "../monitoring.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

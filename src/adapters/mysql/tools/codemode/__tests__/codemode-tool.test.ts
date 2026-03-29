@@ -10,7 +10,7 @@ import {
   getCodeModeTools,
   cleanupCodeMode,
 } from "../index.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import type { ToolDefinition } from "../../../../../types/index.js";
 
 // Suppress logger

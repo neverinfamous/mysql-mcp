@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   AuthorizationServerDiscovery,
   createAuthServerDiscovery,
-} from "../AuthorizationServerDiscovery.js";
+} from "../authorization-server-discovery.js";
 import { AuthServerDiscoveryError } from "../errors.js";
 import type { AuthorizationServerMetadata } from "../types.js";
 

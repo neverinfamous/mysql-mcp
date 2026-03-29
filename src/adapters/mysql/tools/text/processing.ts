@@ -5,7 +5,7 @@
  * 6 tools: regexp_match, like_search, soundex, substring, concat, collation_convert.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,

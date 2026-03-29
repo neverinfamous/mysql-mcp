@@ -4,7 +4,7 @@
  * AI-powered prompts for query building, schema design, and optimization.
  * 19 prompts total.
  */
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type {
   PromptDefinition,
   RequestContext,
@@ -13,22 +13,22 @@ import type {
 import {
   generateCompactIndex,
   generateDiscoveryPrompt,
-} from "../../../utils/promptGenerator.js";
+} from "../../../utils/prompt-generator.js";
 
 // Modular prompt imports
-import { createDatabaseHealthCheckPrompt } from "./healthCheck.js";
-import { createBackupStrategyPrompt } from "./backupStrategy.js";
-import { createIndexTuningPrompt } from "./indexTuning.js";
-import { createSetupRouterPrompt } from "./routerSetup.js";
-import { createSetupProxysqlPrompt } from "./proxysqlSetup.js";
-import { createSetupReplicationPrompt } from "./replicationSetup.js";
-import { createSetupMysqlshPrompt } from "./mysqlshSetup.js";
+import { createDatabaseHealthCheckPrompt } from "./health-check.js";
+import { createBackupStrategyPrompt } from "./backup-strategy.js";
+import { createIndexTuningPrompt } from "./index-tuning.js";
+import { createSetupRouterPrompt } from "./router-setup.js";
+import { createSetupProxysqlPrompt } from "./proxysql-setup.js";
+import { createSetupReplicationPrompt } from "./replication-setup.js";
+import { createSetupMysqlshPrompt } from "./mysqlsh-setup.js";
 // New prompts (5)
-import { createSetupEventsPrompt } from "./eventScheduler.js";
-import { createSysSchemaGuidePrompt } from "./sysSchema.js";
-import { createSetupSpatialPrompt } from "./spatialSetup.js";
-import { createSetupClusterPrompt } from "./clusterSetup.js";
-import { createSetupDocstorePrompt } from "./docstoreSetup.js";
+import { createSetupEventsPrompt } from "./event-scheduler.js";
+import { createSysSchemaGuidePrompt } from "./sys-schema.js";
+import { createSetupSpatialPrompt } from "./spatial-setup.js";
+import { createSetupClusterPrompt } from "./cluster-setup.js";
+import { createSetupDocstorePrompt } from "./docstore-setup.js";
 
 /**
  * Get all MySQL prompts (19 total)

@@ -12,8 +12,8 @@ import {
   parseToolFilter,
   filterTools,
   clearToolFilterCaches,
-} from "../filtering/ToolFilter.js";
-import { MySQLAdapter } from "../adapters/mysql/MySQLAdapter.js";
+} from "../filtering/tool-filter.js";
+import { MySQLAdapter } from "../adapters/mysql/mysql-adapter.js";
 import type { ToolDefinition } from "../types/index.js";
 
 /**

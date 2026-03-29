@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MysqlApi } from "../api.js";
-import type { MySQLAdapter } from "../../adapters/mysql/MySQLAdapter.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 
 // Suppress logger
 vi.mock("../../utils/logger.js", () => ({

@@ -11,8 +11,9 @@ import {
   createServer,
   parseMySQLConnectionString,
   DEFAULT_CONFIG,
-} from "../McpServer.js";
+} from "../mcp-server.js";
 import { createMockMySQLAdapter } from "../../__tests__/mocks/index.js";
+import { VERSION } from "../../utils/version.js";
 
 // Mock the StdioServerTransport
 vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
@@ -30,13 +31,13 @@ vi.mock("../../transports/http/index.js", () => ({
 }));
 
 // Mock OAuth dependencies
-vi.mock("../auth/OAuthResourceServer.js", () => ({
+vi.mock("../auth/oauth-resource-server.js", () => ({
   OAuthResourceServer: class MockOAuthResourceServer {
     constructor(_config: any) {}
   },
 }));
 
-vi.mock("../auth/TokenValidator.js", () => ({
+vi.mock("../auth/token-validator.js", () => ({
   TokenValidator: class MockTokenValidator {
     constructor(_config: any) {}
   },
@@ -69,7 +70,7 @@ vi.mock("../../utils/logger.js", () => ({
 }));
 
 // Mock MCP logging
-vi.mock("../../logging/McpLogging.js", () => ({
+vi.mock("../../logging/mcp-logging.js", () => ({
   mcpLogger: {
     setServer: vi.fn(),
     setConnected: vi.fn(),
@@ -79,7 +80,7 @@ vi.mock("../../logging/McpLogging.js", () => ({
 }));
 
 // Mock progress reporter
-vi.mock("../../progress/ProgressReporter.js", () => ({
+vi.mock("../../progress/progress-reporter.js", () => ({
   progressFactory: {
     setServer: vi.fn(),
   },
@@ -88,7 +89,7 @@ vi.mock("../../progress/ProgressReporter.js", () => ({
 describe("DEFAULT_CONFIG", () => {
   it("should have correct default values", () => {
     expect(DEFAULT_CONFIG.name).toBe("mysql-mcp");
-    expect(DEFAULT_CONFIG.version).toBe("0.1.0");
+    expect(DEFAULT_CONFIG.version).toBe(VERSION);
     expect(DEFAULT_CONFIG.transport).toBe("stdio");
     expect(DEFAULT_CONFIG.databases).toEqual([]);
   });
@@ -106,7 +107,7 @@ describe("McpServer", () => {
     it("should create server with default config", () => {
       const config = server.getConfig();
       expect(config.name).toBe("mysql-mcp");
-      expect(config.version).toBe("0.1.0");
+      expect(config.version).toBe(VERSION);
       expect(config.transport).toBe("stdio");
     });
 
@@ -118,7 +119,7 @@ describe("McpServer", () => {
       const config = customServer.getConfig();
       expect(config.name).toBe("custom-server");
       expect(config.transport).toBe("http");
-      expect(config.version).toBe("0.1.0"); // Default preserved
+      expect(config.version).toBe(VERSION); // Default preserved
     });
 
     it("should parse tool filter from config", () => {

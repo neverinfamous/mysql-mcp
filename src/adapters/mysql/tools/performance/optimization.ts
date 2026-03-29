@@ -5,7 +5,7 @@
  * 4 tools: index_recommendation, query_rewrite, force_index, optimizer_trace.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,

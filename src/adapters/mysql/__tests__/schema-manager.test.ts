@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { SchemaManager, QueryExecutor } from "../SchemaManager.js";
+import { SchemaManager, QueryExecutor } from "../schema-manager.js";
 import { ValidationError } from "../../../types/index.js";
 
 describe("SchemaManager", () => {

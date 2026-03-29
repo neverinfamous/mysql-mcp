@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createMockRequestContext } from "../../../../__tests__/mocks/index.js";
-import { createIndexTuningPrompt } from "../indexTuning.js";
+import { createIndexTuningPrompt } from "../index-tuning.js";
 
 describe("Index Tuning Prompt", () => {
   it("should generate generic tuning advice when no table specified", async () => {

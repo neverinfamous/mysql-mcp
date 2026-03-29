@@ -5,7 +5,7 @@
  * 12 tools total (8 performance + 4 optimization).
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules

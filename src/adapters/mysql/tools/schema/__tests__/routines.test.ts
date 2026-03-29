@@ -3,7 +3,7 @@ import {
   createListStoredProceduresTool,
   createListFunctionsTool,
 } from "../routines.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

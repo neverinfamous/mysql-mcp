@@ -5,7 +5,7 @@
  * 5 tools: master_status, slave_status, binlog_events, gtid_status, replication_lag.
  */
 
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../types.js";
 import { z } from "zod";

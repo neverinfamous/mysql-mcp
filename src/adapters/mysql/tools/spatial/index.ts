@@ -5,7 +5,7 @@
  * 12 tools total (2 setup + 2 geometry + 4 queries + 4 operations).
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules

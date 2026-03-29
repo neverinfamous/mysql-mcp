@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { TokenValidator, createTokenValidator } from "../TokenValidator.js";
+import { TokenValidator, createTokenValidator } from "../token-validator.js";
 
 // Mock jose library for comprehensive testing
 vi.mock("jose", async () => {

@@ -4,7 +4,7 @@
 
 import { z, ZodError } from "zod";
 import { stripErrorPrefix, formatHandlerErrorResponse } from "./core/error-helpers.js";
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   validateIdentifier,

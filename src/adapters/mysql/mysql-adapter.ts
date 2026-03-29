@@ -6,8 +6,8 @@
  */
 
 import type { PoolConnection, FieldPacket } from "mysql2/promise";
-import { DatabaseAdapter } from "../DatabaseAdapter.js";
-import { ConnectionPool } from "../../pool/ConnectionPool.js";
+import { DatabaseAdapter } from "../database-adapter.js";
+import { ConnectionPool } from "../../pool/connection-pool.js";
 import type {
   DatabaseConfig,
   QueryResult,
@@ -27,6 +27,7 @@ import {
   TransactionError,
 } from "../../types/index.js";
 import { logger } from "../../utils/logger.js";
+import { VERSION } from "../../utils/version.js";
 
 // Import tool modules
 import { getCoreTools } from "./tools/core.js";
@@ -64,7 +65,7 @@ import { getDocStoreTools } from "./tools/docstore.js";
 import { getCodeModeTools } from "./tools/codemode/index.js";
 import { getMySQLResources } from "./resources/index.js";
 import { getMySQLPrompts } from "./prompts/index.js";
-import { SchemaManager } from "./SchemaManager.js";
+import { SchemaManager } from "./schema-manager.js";
 
 /**
  * MySQL Database Adapter
@@ -72,7 +73,7 @@ import { SchemaManager } from "./SchemaManager.js";
 export class MySQLAdapter extends DatabaseAdapter {
   readonly type = "mysql" as const;
   readonly name = "MySQL Adapter";
-  readonly version = "0.1.0";
+  readonly version = VERSION;
 
   private pool: ConnectionPool | null = null;
   private activeTransactions = new Map<string, PoolConnection>();
@@ -584,7 +585,6 @@ export class MySQLAdapter extends DatabaseAdapter {
     );
   }
 
-  /**
   /**
    * Process execution results into QueryResult.
    *

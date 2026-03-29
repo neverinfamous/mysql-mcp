@@ -8,4 +8,4 @@ export {
   ProgressReporter,
   progressFactory,
   type ProgressToken,
-} from "./ProgressReporter.js";
+} from "./progress-reporter.js";

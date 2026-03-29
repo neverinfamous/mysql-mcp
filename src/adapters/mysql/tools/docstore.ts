@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "./core/error-helpers.js";
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 
 const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
@@ -112,13 +112,13 @@ function parseDocFilter(filter: string): { where: string; params: unknown[] } {
     const numVal = Number(value);
     if (!isNaN(numVal)) {
       return {
-        where: `JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field}')) = ?`,
-        params: [String(numVal)],
+        where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
+        params: [`$.${field}`, String(numVal)],
       };
     }
     return {
-      where: `JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field}')) = ?`,
-      params: [value],
+      where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
+      params: [`$.${field}`, value],
     };
   }
 
@@ -128,7 +128,13 @@ function parseDocFilter(filter: string): { where: string; params: unknown[] } {
       `Invalid filter: "${filter}". Use JSON path ($.field), _id value, or field=value format.`,
     );
   }
-  return { where: `JSON_EXTRACT(doc, '${filter}') IS NOT NULL`, params: [] };
+  // Validate JSON path against allowlist regex to prevent injection
+  if (!JSON_PATH_RE.test(filter)) {
+    throw new Error(
+      `Invalid JSON path: "${filter}". Only alphanumeric field names, array indices, and dot notation are allowed.`,
+    );
+  }
+  return { where: `JSON_EXTRACT(doc, ?) IS NOT NULL`, params: [filter] };
 }
 
 const CreateDocIndexSchema = z.object({
@@ -424,6 +430,15 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           let selectClause = "doc";
           if (fields && fields.length > 0) {
+            // Validate all field names to prevent SQL injection
+            for (const f of fields) {
+              if (!IDENTIFIER_RE.test(f)) {
+                return {
+                  success: false,
+                  error: `Invalid field name: "${f}". Field names must be valid identifiers (letters, digits, underscores).`,
+                };
+              }
+            }
             selectClause =
               "JSON_OBJECT(" +
               fields
@@ -441,11 +456,12 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
                 error: `Invalid JSON path filter: "${filter}". Use a valid JSON path like $.field or $.field.sub`,
               };
             }
-            query += ` WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`;
+            query += ` WHERE JSON_EXTRACT(doc, ?) IS NOT NULL`;
           }
           query += ` LIMIT ${String(limit)} OFFSET ${String(offset)}`;
 
-          const result = await adapter.executeQuery(query);
+          const queryParams: unknown[] = filter ? [filter] : [];
+          const result = await adapter.executeQuery(query, queryParams);
           const docs = (result.rows ?? []).map((r) => {
             const row = r;
             const docValue = row["doc"];
@@ -537,16 +553,33 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           const updates: string[] = [];
+          const updateParams: unknown[] = [];
           if (set) {
             for (const [path, value] of Object.entries(set)) {
+              // Validate path against identifier regex to prevent injection
+              if (!IDENTIFIER_RE.test(path)) {
+                return {
+                  success: false,
+                  error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                };
+              }
               updates.push(
-                `doc = JSON_SET(doc, '$.${path}', CAST('${JSON.stringify(value)}' AS JSON))`,
+                `doc = JSON_SET(doc, ?, CAST(? AS JSON))`,
               );
+              updateParams.push(`$.${path}`, JSON.stringify(value));
             }
           }
           if (unset) {
             for (const path of unset) {
-              updates.push(`doc = JSON_REMOVE(doc, '$.${path}')`);
+              // Validate path against identifier regex to prevent injection
+              if (!IDENTIFIER_RE.test(path)) {
+                return {
+                  success: false,
+                  error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                };
+              }
+              updates.push(`doc = JSON_REMOVE(doc, ?)`);
+              updateParams.push(`$.${path}`);
             }
           }
 
@@ -556,7 +589,7 @@ export function getDocStoreTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { where, params: whereParams } = parseDocFilter(filter);
           const tableRef = escapeTableRef(collection, schema);
           const query = `UPDATE ${tableRef} SET ${updates.join(", ")} WHERE ${where}`;
-          const result = await adapter.executeQuery(query, whereParams);
+          const result = await adapter.executeQuery(query, [...updateParams, ...whereParams]);
           return { success: true, modified: result.rowsAffected ?? 0 };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {

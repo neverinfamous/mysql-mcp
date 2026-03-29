@@ -6,7 +6,7 @@ import {
   createGRTransactionsTool,
   createGRFlowControlTool,
 } from "../group-replication.js";
-import { MySQLAdapter } from "../../../MySQLAdapter.js";
+import { MySQLAdapter } from "../../../mysql-adapter.js";
 
 describe("Group Replication Tools", () => {
   let mockAdapter: MySQLAdapter;

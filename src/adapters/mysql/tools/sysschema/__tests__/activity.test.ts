@@ -9,7 +9,7 @@ import {
   createSysUserSummaryTool,
   createSysHostSummaryTool,
 } from "../activity.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

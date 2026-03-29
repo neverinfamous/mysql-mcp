@@ -8,7 +8,7 @@
 
 import { z, ZodError } from "zod";
 import { formatMysqlError, formatHandlerErrorResponse } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,

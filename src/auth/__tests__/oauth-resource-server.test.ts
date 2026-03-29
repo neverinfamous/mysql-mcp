@@ -9,7 +9,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   OAuthResourceServer,
   createOAuthResourceServer,
-} from "../OAuthResourceServer.js";
+} from "../oauth-resource-server.js";
 import type { ResourceServerConfig } from "../types.js";
 
 describe("OAuthResourceServer", () => {

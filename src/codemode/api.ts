@@ -5,7 +5,7 @@
  * for use within the sandboxed execution environment.
  */
 
-import type { MySQLAdapter } from "../adapters/mysql/MySQLAdapter.js";
+import type { MySQLAdapter } from "../adapters/mysql/mysql-adapter.js";
 import type { ToolDefinition } from "../types/index.js";
 
 /**

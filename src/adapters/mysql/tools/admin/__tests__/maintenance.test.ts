@@ -13,7 +13,7 @@ import {
   createFlushTablesTool,
   createKillQueryTool,
 } from "../maintenance.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

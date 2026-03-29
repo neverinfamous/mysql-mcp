@@ -5,7 +5,7 @@
  * Built by inverting TOOL_GROUPS and TOOL_GROUP_SCOPES at module load.
  */
 
-import { TOOL_GROUPS } from "../filtering/ToolConstants.js";
+import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import { TOOL_GROUP_SCOPES, SCOPES } from "./scopes.js";
 import type { StandardScope } from "./scopes.js";
 import type { ToolGroup } from "../types/index.js";

@@ -6,7 +6,7 @@
  */
 
 import { vi } from "vitest";
-import type { MySQLAdapter } from "../../adapters/mysql/MySQLAdapter.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 import type {
   QueryResult,
   TableInfo,

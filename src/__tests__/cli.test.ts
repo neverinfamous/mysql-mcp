@@ -16,9 +16,9 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock McpServer partially
-vi.mock("../server/McpServer.js", async (importOriginal) => {
+vi.mock("../server/mcp-server.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../server/McpServer.js")>();
+    await importOriginal<typeof import("../server/mcp-server.js")>();
   return {
     ...actual,
     createServer: mocks.createServer,
@@ -26,7 +26,7 @@ vi.mock("../server/McpServer.js", async (importOriginal) => {
 });
 
 // Mock MySQLAdapter
-vi.mock("../adapters/mysql/MySQLAdapter.js", () => ({
+vi.mock("../adapters/mysql/mysql-adapter.js", () => ({
   MySQLAdapter: mocks.MySQLAdapter,
 }));
 

@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from "vitest";
 import { getRequiredScope, getToolScopeMap } from "../scope-map.js";
-import { TOOL_GROUPS } from "../../filtering/ToolConstants.js";
+import { TOOL_GROUPS } from "../../filtering/tool-constants.js";
 import { TOOL_GROUP_SCOPES, SCOPES } from "../scopes.js";
 
 describe("scope-map", () => {

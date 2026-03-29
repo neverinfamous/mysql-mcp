@@ -5,7 +5,7 @@
  * 13 tools total (8 core + 4 helpers + 5 enhanced).
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules

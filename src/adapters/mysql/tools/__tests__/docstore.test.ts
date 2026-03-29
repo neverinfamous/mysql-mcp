@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getDocStoreTools } from "../docstore.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -370,7 +370,9 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      expect(call).toContain("WHERE JSON_EXTRACT(doc, '$.age') IS NOT NULL");
+      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      expect(call).toContain("WHERE JSON_EXTRACT(doc, ?) IS NOT NULL");
+      expect(params).toContain("$.age");
       expect(result).toHaveProperty("documents");
     });
 
@@ -490,8 +492,9 @@ describe("Handler Execution", () => {
       );
 
       const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
       expect(call).toContain("JSON_EXTRACT");
-      expect(call).toContain("$.name");
+      expect(params).toContain("$.name");
     });
 
     it("should support field projection", async () => {

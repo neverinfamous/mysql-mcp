@@ -10,7 +10,7 @@ import {
   createSecurityUserPrivilegesTool,
   createSecuritySensitiveTablesTool,
 } from "../data-protection.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

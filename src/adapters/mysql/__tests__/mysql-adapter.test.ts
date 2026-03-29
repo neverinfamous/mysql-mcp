@@ -13,8 +13,8 @@ import {
   afterEach,
   type Mock,
 } from "vitest";
-import { MySQLAdapter } from "../MySQLAdapter.js";
-import { ConnectionPool } from "../../../pool/ConnectionPool.js";
+import { MySQLAdapter } from "../mysql-adapter.js";
+import { ConnectionPool } from "../../../pool/connection-pool.js";
 import {
   ConnectionError,
   QueryError,
@@ -23,7 +23,7 @@ import {
 } from "../../../types/index.js";
 
 // Mock generic ConnectionPool
-vi.mock("../../../pool/ConnectionPool.js");
+vi.mock("../../../pool/connection-pool.js");
 
 describe("MySQLAdapter", () => {
   let adapter: MySQLAdapter;

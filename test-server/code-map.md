@@ -17,7 +17,7 @@ src/
 │   └── args.ts                     # Argument parsing, transport/auth/stateless/trustProxy selection
 │
 ├── server/
-│   └── McpServer.ts                # McpServer setup, adapter registration, tool/resource/prompt wiring
+│   └── mcp-server.ts                # McpServer setup, adapter registration, tool/resource/prompt wiring
 │
 ├── types/                          # Core TypeScript types (barrel: types/index.ts)
 │   ├── index.ts                    # Barrel — also re-exports error classes from modules/errors.ts
@@ -37,31 +37,31 @@ src/
 │   └── server-instructions/        # Source .md files for each help resource (26 files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
-│   ├── ToolConstants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts, group→tools map
-│   └── ToolFilter.ts               # ToolFilter class — parse/apply --tool-filter expressions
+│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts, group→tools map
+│   └── tool-filter.ts               # ToolFilter class — parse/apply --tool-filter expressions
 │
 ├── utils/
 │   ├── logger.ts                   # Logger class (structured JSON, severity filtering)
 │   ├── validators.ts               # SQL identifier validation/sanitization, input validators
-│   └── promptGenerator.ts          # MCP prompt generation helpers
+│   └── prompt-generator.ts          # MCP prompt generation helpers
 │
 ├── logging/
-│   ├── McpLogging.ts               # MCP protocol logging integration
+│   ├── mcp-logging.ts               # MCP protocol logging integration
 │   └── index.ts                    # Barrel
 │
 ├── pool/
-│   └── ConnectionPool.ts           # MySQL connection pool manager (mysql2/promise)
+│   └── connection-pool.ts           # MySQL connection pool manager (mysql2/promise)
 │
 ├── progress/
-│   ├── ProgressReporter.ts         # MCP progress notification helpers
+│   ├── progress-reporter.ts         # MCP progress notification helpers
 │   └── index.ts                    # Barrel
 │
 ├── auth/                           # OAuth 2.1 implementation
 │   ├── middleware.ts               # Express-style OAuth middleware
-│   ├── TokenValidator.ts           # JWT/JWKS token validation
+│   ├── token-validator.ts           # JWT/JWKS token validation
 │   ├── scopes.ts                   # Scope parsing, enforcement, tool→scope mapping
-│   ├── OAuthResourceServer.ts      # RFC 9728 /.well-known/oauth-protected-resource
-│   ├── AuthorizationServerDiscovery.ts  # RFC 8414 auth server metadata discovery
+│   ├── oauth-resource-server.ts      # RFC 9728 /.well-known/oauth-protected-resource
+│   ├── authorization-server-discovery.ts  # RFC 8414 auth server metadata discovery
 │   ├── errors.ts                   # OAuth-specific error classes
 │   ├── types.ts                    # OAuth TypeScript types
 │   └── index.ts                    # Barrel
@@ -87,11 +87,11 @@ src/
 │   └── index.ts                    # Barrel
 │
 ├── adapters/
-│   ├── DatabaseAdapter.ts          # Abstract DatabaseAdapter base class
+│   ├── database-adapter.ts          # Abstract DatabaseAdapter base class
 │   │
 │   └── mysql/                      # ── MySQL adapter (mysql2) ──
-│       ├── MySQLAdapter.ts         # MySQLAdapter class (extends DatabaseAdapter)
-│       ├── SchemaManager.ts        # Schema cache + metadata (TTL-based)
+│       ├── mysql-adapter.ts         # MySQLAdapter class (extends DatabaseAdapter)
+│       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── types.ts                # Zod schemas + TS types for ALL tool groups — 72KB
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 13+ MCP prompts (see § below)
@@ -183,17 +183,17 @@ Unlike db-mcp (which has separate `output-schemas/`), mysql-mcp consolidates all
 | File | Prompts |
 |------|---------|
 | `index.ts` | Barrel + `mysql_optimization`, `mysql_health_check` |
-| `backupStrategy.ts` | `mysql_backup_strategy` |
-| `clusterSetup.ts` | `mysql_cluster_setup` |
-| `docstoreSetup.ts` | `mysql_docstore_setup` |
-| `eventScheduler.ts` | `mysql_event_scheduler` |
-| `indexTuning.ts` | `mysql_index_tuning` |
-| `mysqlshSetup.ts` | `mysql_mysqlsh_setup` |
-| `proxysqlSetup.ts` | `mysql_proxysql_setup` |
-| `replicationSetup.ts` | `mysql_replication_setup` |
-| `routerSetup.ts` | `mysql_router_setup` |
-| `spatialSetup.ts` | `mysql_spatial_setup` |
-| `sysSchema.ts` | `mysql_sys_schema` |
+| `backup-strategy.ts` | `mysql_backup_strategy` |
+| `cluster-setup.ts` | `mysql_cluster_setup` |
+| `docstore-setup.ts` | `mysql_docstore_setup` |
+| `event-scheduler.ts` | `mysql_event_scheduler` |
+| `index-tuning.ts` | `mysql_index_tuning` |
+| `mysqlsh-setup.ts` | `mysql_mysqlsh_setup` |
+| `proxysql-setup.ts` | `mysql_proxysql_setup` |
+| `replication-setup.ts` | `mysql_replication_setup` |
+| `router-setup.ts` | `mysql_router_setup` |
+| `spatial-setup.ts` | `mysql_spatial_setup` |
+| `sys-schema.ts` | `mysql_sys_schema` |
 
 ---
 
@@ -280,10 +280,10 @@ try {
 |------|-------|-------|
 | Server instructions (agent prompt) | `src/constants/server-instructions.ts` | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (26 files) |
 | Generator script | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts` |
-| Tool group arrays | `src/filtering/ToolConstants.ts` | `TOOL_GROUPS` map, `META_GROUPS` shortcuts |
-| Tool filter logic | `src/filtering/ToolFilter.ts` | `ToolFilter` class |
-| Connection pool | `src/pool/ConnectionPool.ts` | mysql2/promise pool wrapper |
-| Progress reporter | `src/progress/ProgressReporter.ts` | MCP progress notification helpers |
+| Tool group arrays | `src/filtering/tool-constants.ts` | `TOOL_GROUPS` map, `META_GROUPS` shortcuts |
+| Tool filter logic | `src/filtering/tool-filter.ts` | `ToolFilter` class |
+| Connection pool | `src/pool/connection-pool.ts` | mysql2/promise pool wrapper |
+| Progress reporter | `src/progress/progress-reporter.ts` | MCP progress notification helpers |
 | Logger | `src/utils/logger.ts` | Structured logging with severity filtering |
 | Validators | `src/utils/validators.ts` | SQL identifier validation, input sanitization |
 
@@ -310,7 +310,7 @@ try {
 
 - All imports use **`.js` extension** (ESM requirement): `import { x } from "./foo/index.js"`
 - Error classes: import from `../../types/index.js` (barrel re-export)
-- Note: mysql-mcp uses **PascalCase filenames** (e.g., `MySQLAdapter.ts`, `McpServer.ts`)
+- Note: mysql-mcp uses **kebab-case filenames** (e.g., `mysql-adapter.ts`, `mcp-server.ts`)
 
 ---
 

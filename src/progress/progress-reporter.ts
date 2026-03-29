@@ -163,7 +163,7 @@ class ProgressReporterFactory {
  * Singleton factory instance
  *
  * Usage:
- *   import { progressFactory } from './progress/ProgressReporter.js';
+ *   import { progressFactory } from './progress/progress-reporter.js';
  *
  *   // In server startup:
  *   progressFactory.setServer(sdkServer);

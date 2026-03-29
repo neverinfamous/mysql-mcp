@@ -5,7 +5,7 @@
  * 17 tools total (6 admin + 7 monitoring + 4 backup).
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules

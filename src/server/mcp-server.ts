@@ -8,8 +8,9 @@
 import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { INSTRUCTIONS, HELP_CONTENT } from "../constants/server-instructions.js";
-import { TOOL_GROUPS } from "../filtering/ToolConstants.js";
-import type { DatabaseAdapter } from "../adapters/DatabaseAdapter.js";
+import { VERSION } from "../utils/version.js";
+import { TOOL_GROUPS } from "../filtering/tool-constants.js";
+import type { DatabaseAdapter } from "../adapters/database-adapter.js";
 import type {
   McpServerConfig,
   TransportType,
@@ -17,19 +18,19 @@ import type {
   ToolFilterConfig,
   ToolGroup,
 } from "../types/index.js";
-import { parseToolFilter, getFilterSummary } from "../filtering/ToolFilter.js";
+import { parseToolFilter, getFilterSummary } from "../filtering/tool-filter.js";
 import { logger } from "../utils/logger.js";
-import { mcpLogger } from "../logging/McpLogging.js";
-import { progressFactory } from "../progress/ProgressReporter.js";
-import { OAuthResourceServer } from "../auth/OAuthResourceServer.js";
-import { TokenValidator } from "../auth/TokenValidator.js";
+import { mcpLogger } from "../logging/mcp-logging.js";
+import { progressFactory } from "../progress/progress-reporter.js";
+import { OAuthResourceServer } from "../auth/oauth-resource-server.js";
+import { TokenValidator } from "../auth/token-validator.js";
 
 /**
  * Default server configuration
  */
 export const DEFAULT_CONFIG: McpServerConfig = {
   name: "mysql-mcp",
-  version: "0.1.0",
+  version: VERSION,
   transport: "stdio",
   databases: [],
 };
