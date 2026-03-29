@@ -2,6 +2,11 @@
 
 ### Security
 - **Dependency Vulnerability Fixes**:
+  - Updated `flatted` to `3.4.2` to fix Prototype Pollution via `parse()` (GHSA Dependabot #23/#71).
+  - Updated `hono` to `4.12.9` to fix SSE control field injection, cookie attribute injection, and prototype pollution vulnerabilities (#77).
+  - Updated `path-to-regexp` to `8.4.0` to fix Regular Expression Denial of Service via sequential optional groups and multiple wildcards (#28/#79).
+  - Updated `picomatch` to `4.0.4` to fix Method Injection in POSIX Character Classes (#25/#78).
+  - Bumped Dockerfile `tar` patch from `7.5.12` → `7.5.13` (CVE-2026-26960 extended coverage for npm bundled copy).
   - Updated `hono` to `4.12.8` to fix multiple vulnerabilities (CVE-2025-27103, CVE-2025-27104, CVE-2025-27110, CVE-2025-27105).
   - Updated `express-rate-limit` to `8.3.1` to fix IPv4-mapped IPv6 address bypass vulnerability.
   - Updated `@hono/node-server` to `1.19.11` to fix authorization bypass for protected static paths.
@@ -18,12 +23,13 @@
 
 ## Changed
 - **Dependency Updates**:
+  - `@modelcontextprotocol/sdk` bumped to `1.28.0`
+  - `typescript-eslint` bumped to `8.57.2`
+  - `vitest` and `@vitest/coverage-v8` bumped to `4.1.2`
+  - `@types/node` bumped to `25.5.0`
   - `eslint` bumped to `10.1.0`
-  - `typescript-eslint` bumped to `8.57.1`
   - `jose` bumped to `6.2.2`
   - `mysql2` bumped to `^3.20.0`
-  - `vitest` and `@vitest/coverage-v8` bumped to `^4.1.0`
-  - `@types/node` bumped to `^25.5.0`
   - Updated Docker build actions (`build-push-action`, `setup-buildx-action`, `login-action`) to their latest major versions.
 - **Help Resource Architecture**: Replaced 53KB monolithic `ServerInstructions.ts` with slim `INSTRUCTIONS` constant (~634 chars) + on-demand `mysql://help` resources. Agent instructions are now ~95% smaller; detailed tool reference is available via `mysql://help` (always) and `mysql://help/{group}` (filtered by `--tool-filter`).
 
