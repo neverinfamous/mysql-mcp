@@ -23,7 +23,7 @@ import {
   ConcatSchemaBase,
   CollationConvertSchema,
   CollationConvertSchemaBase,
-} from "../../types.js";
+} from "../../types/index.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,

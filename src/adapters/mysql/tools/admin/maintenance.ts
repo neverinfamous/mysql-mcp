@@ -25,7 +25,7 @@ import {
   FlushTablesSchemaBase,
   KillQuerySchema,
   KillQuerySchemaBase,
-} from "../../types.js";
+} from "../../types/index.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {

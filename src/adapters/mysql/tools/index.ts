@@ -68,4 +68,4 @@ export { getClusterTools } from "./cluster/index.js";
 export { getRoleTools } from "./roles.js";
 
 // Document Store tools
-export { getDocStoreTools } from "./docstore.js";
+export { getDocStoreTools } from "./docstore/index.js";

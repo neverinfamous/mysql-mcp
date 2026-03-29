@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getDocStoreTools } from "../docstore.js";
+import { getDocStoreTools } from "../docstore/index.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,

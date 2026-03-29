@@ -18,7 +18,7 @@ import {
   type SandboxMode,
 } from "../../../../codemode/sandbox-factory.js";
 import { CodeModeSecurityManager } from "../../../../codemode/security.js";
-import { createMysqlApi } from "../../../../codemode/api.js";
+import { createMysqlApi } from "../../../../codemode/api/index.js";
 import type { ExecuteCodeOptions } from "../../../../codemode/types.js";
 
 import { ErrorResponseFields } from "../../schemas/error-response-fields.js";

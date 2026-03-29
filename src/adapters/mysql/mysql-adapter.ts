@@ -61,7 +61,7 @@ import { getSpatialTools } from "./tools/spatial/index.js";
 import { getSecurityTools } from "./tools/security/index.js";
 import { getClusterTools } from "./tools/cluster/index.js";
 import { getRoleTools } from "./tools/roles.js";
-import { getDocStoreTools } from "./tools/docstore.js";
+import { getDocStoreTools } from "./tools/docstore/index.js";
 import { getCodeModeTools } from "./tools/codemode/index.js";
 import { getMySQLResources } from "./resources/index.js";
 import { getMySQLPrompts } from "./prompts/index.js";

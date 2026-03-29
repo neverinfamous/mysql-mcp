@@ -16,7 +16,7 @@ import {
   ForceIndexSchema,
   ForceIndexSchemaBase,
   preprocessQueryOnlyParams,
-} from "../../types.js";
+} from "../../types/index.js";
 import { z } from "zod";
 import { formatMysqlError, formatHandlerErrorResponse } from "../core/error-helpers.js";
 

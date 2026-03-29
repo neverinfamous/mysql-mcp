@@ -17,7 +17,7 @@ import {
   ExportTableSchemaBase,
   ImportDataSchema,
   ImportDataSchemaBase,
-} from "../../types.js";
+} from "../../types/index.js";
 import {
   validateIdentifier,
   validateWhereClause,

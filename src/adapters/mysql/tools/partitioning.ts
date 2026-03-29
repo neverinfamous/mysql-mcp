@@ -18,7 +18,7 @@ import {
   DropPartitionSchemaBase,
   ReorganizePartitionSchema,
   ReorganizePartitionSchemaBase,
-} from "../types.js";
+} from "../types/index.js";
 
 /**
  * Get partitioning tools
