@@ -25,6 +25,21 @@ export interface ConnectionPoolConfig {
   charset?: string;
   timezone?: string;
   connectTimeout?: number;
+  /**
+   * SQL statements run once per pool connection, the first time the pool
+   * hands that connection out. Useful for session-level guardrails like
+   * `SET SESSION SQL_SAFE_UPDATES = 1` or `SET SESSION MAX_EXECUTION_TIME`
+   * that need to apply to every pooled connection independent of which one
+   * mysql2 happens to borrow for a given query.
+   *
+   * mysql2 has no built-in hook for this: its `connection` pool event fires
+   * on the underlying socket create, not on checkout, and there is no
+   * `initializationSql` option at the pool level. This config plugs that gap.
+   *
+   * Statements are idempotent per connection (tracked via WeakSet) and are
+   * run serially in order before the connection is returned.
+   */
+  initializationSql?: string[];
 }
 
 /**
@@ -41,6 +56,7 @@ export class ConnectionPool {
     totalQueries: 0,
   };
   private isShuttingDown = false;
+  private initializedConnections = new WeakSet<PoolConnection>();
 
   constructor(config: ConnectionPoolConfig) {
     this.config = config;
@@ -132,6 +148,7 @@ export class ConnectionPool {
 
     try {
       const connection = await this.pool.getConnection();
+      await this.applyInitializationSql(connection);
       this.stats.active++;
       return connection;
     } catch (error) {
@@ -153,6 +170,24 @@ export class ConnectionPool {
   }
 
   /**
+   * Run the configured initializationSql statements on a connection the
+   * first time this pool hands it out. Tracked via WeakSet so statements
+   * don't re-run when the same underlying connection is checked out again;
+   * mysql2 keeps session state alive for the connection's lifetime.
+   */
+  private async applyInitializationSql(
+    connection: PoolConnection,
+  ): Promise<void> {
+    const statements = this.config.initializationSql;
+    if (!statements || statements.length === 0) return;
+    if (this.initializedConnections.has(connection)) return;
+    for (const statement of statements) {
+      await connection.query(statement);
+    }
+    this.initializedConnections.add(connection);
+  }
+
+  /**
    * Execute a query using a pooled connection
    * Returns full result tuple [rows, fields] for compatibility with rawQuery
    */
@@ -166,12 +201,18 @@ export class ConnectionPool {
 
     this.stats.totalQueries++;
 
+    // Route through getConnection() so initializationSql (if configured)
+    // applies uniformly — pool.query() picks a connection internally and
+    // would otherwise bypass the session setup on first use.
+    const connection = await this.getConnection();
     try {
-      const result = await this.pool.query(sql, params);
+      const result = await connection.query(sql, params);
       return result as [T, mysql.FieldPacket[]];
     } catch (error) {
       const err = error as Error & { code?: string };
       throw new PoolError(`Query failed: ${err.message}`, { sql }, err.code);
+    } finally {
+      this.releaseConnection(connection);
     }
   }
 
@@ -188,8 +229,9 @@ export class ConnectionPool {
 
     this.stats.totalQueries++;
 
+    const connection = await this.getConnection();
     try {
-      const result = await this.pool.execute(
+      const result = await connection.execute(
         sql,
         params as (string | number | null)[],
       );
@@ -197,6 +239,8 @@ export class ConnectionPool {
     } catch (error) {
       const err = error as Error & { code?: string };
       throw new PoolError(`Execute failed: ${err.message}`, { sql }, err.code);
+    } finally {
+      this.releaseConnection(connection);
     }
   }
 

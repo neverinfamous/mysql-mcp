@@ -296,6 +296,111 @@ describe("ConnectionPool with custom pool config", () => {
   });
 });
 
+describe("ConnectionPool with initializationSql", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should not run any SQL on checkout when initializationSql is unset", async () => {
+    const pool = new ConnectionPool({
+      host: "localhost",
+      port: 3306,
+      user: "root",
+      password: "root",
+      database: "testdb",
+    });
+    await pool.initialize();
+
+    const internalPool = (pool as any).pool;
+    const mockConn = await internalPool.getConnection();
+    const querySpy = vi.spyOn(mockConn, "query");
+    querySpy.mockClear();
+
+    await pool.getConnection();
+
+    expect(querySpy).not.toHaveBeenCalled();
+  });
+
+  it("should run each initializationSql statement once on first checkout", async () => {
+    const pool = new ConnectionPool({
+      host: "localhost",
+      port: 3306,
+      user: "root",
+      password: "root",
+      database: "testdb",
+      initializationSql: [
+        "SET SESSION SQL_SAFE_UPDATES = 1",
+        "SET SESSION MAX_EXECUTION_TIME = 30000",
+      ],
+    });
+    await pool.initialize();
+
+    const internalPool = (pool as any).pool;
+    const mockConn = await internalPool.getConnection();
+    const querySpy = vi.spyOn(mockConn, "query");
+    querySpy.mockClear();
+
+    await pool.getConnection();
+
+    expect(querySpy).toHaveBeenCalledTimes(2);
+    expect(querySpy).toHaveBeenNthCalledWith(
+      1,
+      "SET SESSION SQL_SAFE_UPDATES = 1",
+    );
+    expect(querySpy).toHaveBeenNthCalledWith(
+      2,
+      "SET SESSION MAX_EXECUTION_TIME = 30000",
+    );
+  });
+
+  it("should not re-run initializationSql when the same connection is checked out again", async () => {
+    const pool = new ConnectionPool({
+      host: "localhost",
+      port: 3306,
+      user: "root",
+      password: "root",
+      database: "testdb",
+      initializationSql: ["SET SESSION SQL_SAFE_UPDATES = 1"],
+    });
+    await pool.initialize();
+
+    const internalPool = (pool as any).pool;
+    const mockConn = await internalPool.getConnection();
+    const querySpy = vi.spyOn(mockConn, "query");
+    querySpy.mockClear();
+
+    await pool.getConnection();
+    await pool.getConnection();
+    await pool.getConnection();
+
+    // Still just one init run — the WeakSet remembers this connection.
+    expect(querySpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("should apply initializationSql for pool.query() calls", async () => {
+    const pool = new ConnectionPool({
+      host: "localhost",
+      port: 3306,
+      user: "root",
+      password: "root",
+      database: "testdb",
+      initializationSql: ["SET SESSION SQL_SAFE_UPDATES = 1"],
+    });
+    await pool.initialize();
+
+    const internalPool = (pool as any).pool;
+    const mockConn = await internalPool.getConnection();
+    const querySpy = vi.spyOn(mockConn, "query");
+    querySpy.mockClear();
+
+    await pool.query("SELECT 1");
+
+    // init SQL + the actual query
+    expect(querySpy).toHaveBeenCalledWith("SET SESSION SQL_SAFE_UPDATES = 1");
+    expect(querySpy).toHaveBeenCalledWith("SELECT 1", undefined);
+  });
+});
+
 describe("ConnectionPool Error Handling", () => {
   it("should handle initialization failure", async () => {
     const createPoolSpy = vi.spyOn(mysql, "createPool");
@@ -370,8 +475,11 @@ describe("ConnectionPool Error Handling", () => {
     });
     await pool.initialize();
 
+    // pool.query() routes through getConnection() → connection.query(),
+    // so we mock the connection-level method rather than the pool-level one.
     const internalPool = (pool as any).pool;
-    vi.spyOn(internalPool, "query").mockRejectedValueOnce(
+    const mockConn = await internalPool.getConnection();
+    vi.spyOn(mockConn, "query").mockRejectedValueOnce(
       new Error("Query failed"),
     );
 
@@ -391,7 +499,8 @@ describe("ConnectionPool Error Handling", () => {
     await pool.initialize();
 
     const internalPool = (pool as any).pool;
-    vi.spyOn(internalPool, "execute").mockRejectedValueOnce(
+    const mockConn = await internalPool.getConnection();
+    vi.spyOn(mockConn, "execute").mockRejectedValueOnce(
       new Error("Execution failed"),
     );
 
