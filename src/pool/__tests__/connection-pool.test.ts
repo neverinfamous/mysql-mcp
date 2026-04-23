@@ -96,6 +96,52 @@ describe("ConnectionPool", () => {
     });
   });
 
+  describe("initializationSql", () => {
+    it("should run initialization sql exactly once per connection", async () => {
+      const initSql = ["SET SESSION max_execution_time=1000"];
+      const poolWithInit = new ConnectionPool({
+        ...config,
+        initializationSql: initSql,
+      });
+      await poolWithInit.initialize();
+
+      const internalPool = (poolWithInit as any).pool;
+      const mockConn = {
+        query: vi.fn().mockResolvedValue([]),
+        release: vi.fn(),
+      };
+      vi.spyOn(internalPool, "getConnection").mockResolvedValueOnce(mockConn).mockResolvedValueOnce(mockConn);
+
+      await poolWithInit.getConnection();
+      expect(mockConn.query).toHaveBeenCalledWith(initSql[0]);
+      expect(mockConn.query).toHaveBeenCalledTimes(1);
+
+      // Second checkout of the SAME connection should not run it again
+      await poolWithInit.getConnection();
+      expect(mockConn.query).toHaveBeenCalledTimes(1); // Still 1
+    });
+
+    it("should fail connection checkout if initialization fails", async () => {
+      const poolWithInit = new ConnectionPool({
+        ...config,
+        initializationSql: ["SET INVALID"],
+      });
+      await poolWithInit.initialize();
+
+      const internalPool = (poolWithInit as any).pool;
+      const mockConn = {
+        query: vi.fn().mockRejectedValue(new Error("Syntax error")),
+        release: vi.fn(),
+      };
+      vi.spyOn(internalPool, "getConnection").mockResolvedValueOnce(mockConn);
+
+      await expect(poolWithInit.getConnection()).rejects.toThrow(
+        "Failed to initialize connection: Syntax error"
+      );
+      expect(mockConn.release).toHaveBeenCalled();
+    });
+  });
+
   describe("query", () => {
     it("should throw if pool not initialized", async () => {
       await expect(pool.query("SELECT 1")).rejects.toThrow(
@@ -371,7 +417,8 @@ describe("ConnectionPool Error Handling", () => {
     await pool.initialize();
 
     const internalPool = (pool as any).pool;
-    vi.spyOn(internalPool, "query").mockRejectedValueOnce(
+    const connection = await internalPool.getConnection();
+    vi.spyOn(connection, "query").mockRejectedValueOnce(
       new Error("Query failed"),
     );
 
@@ -391,7 +438,8 @@ describe("ConnectionPool Error Handling", () => {
     await pool.initialize();
 
     const internalPool = (pool as any).pool;
-    vi.spyOn(internalPool, "execute").mockRejectedValueOnce(
+    const connection = await internalPool.getConnection();
+    vi.spyOn(connection, "execute").mockRejectedValueOnce(
       new Error("Execution failed"),
     );
 

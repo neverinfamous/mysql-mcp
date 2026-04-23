@@ -20,6 +20,10 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { validateAuth, formatOAuthError } from "../../auth/middleware.js";
+import type { AuthenticatedContext } from "../../auth/middleware.js";
+import { getRequiredScope } from "../../auth/scope-map.js";
+import { hasScope } from "../../auth/scopes.js";
+import { InsufficientScopeError } from "../../auth/errors.js";
 import { logger } from "../../utils/logger.js";
 import type { HttpTransportConfig, RateLimitEntry } from "./types.js";
 import {
@@ -336,10 +340,11 @@ export class HttpTransport {
     if (bodyLimitExceeded) return;
 
     // Authenticate if OAuth is configured and path is not public
+    let authContext: AuthenticatedContext | undefined;
     if (this.config.resourceServer && this.config.tokenValidator) {
       if (!this.isPublicPath(url.pathname)) {
         try {
-          await validateAuth(req.headers.authorization, {
+          authContext = await validateAuth(req.headers.authorization, {
             tokenValidator: this.config.tokenValidator,
             required: true,
           });
@@ -360,9 +365,9 @@ export class HttpTransport {
     // =========================================================================
     if (url.pathname === "/mcp") {
       if (this.config.stateless) {
-        await this.handleStatelessRequest(req, res);
+        await this.handleStatelessRequest(req, res, authContext);
       } else {
-        await this.handleStreamableRequest(req, res);
+        await this.handleStreamableRequest(req, res, authContext);
       }
       return;
     }
@@ -386,12 +391,43 @@ export class HttpTransport {
         res.end(JSON.stringify({ error: "Not found" }));
         return;
       }
-      await this.handleLegacyMessageRequest(req, res, url);
+      await this.handleLegacyMessageRequest(req, res, url, authContext);
       return;
     }
 
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
+  }
+
+  // ===========================================================================
+  // Authorization
+  // ===========================================================================
+
+  /**
+   * Check if the authenticated context has the required scope for a tool call.
+   * Returns true if authorized, false if unauthorized (and sends response).
+   */
+  private checkToolScope(body: unknown, authContext: AuthenticatedContext, res: ServerResponse): boolean {
+    interface JsonRpcBody { method?: string; params?: { name?: string } }
+    const jsonBody = body as JsonRpcBody | null | undefined;
+    
+    if (jsonBody?.method === "tools/call") {
+      const toolName = jsonBody.params?.name;
+      if (toolName) {
+        const requiredScope = getRequiredScope(toolName);
+        const granted = hasScope(authContext.scopes, requiredScope);
+        
+        if (!granted) {
+          const error = new InsufficientScopeError([requiredScope]);
+          logger.warn(`Insufficient scope for tool: ${toolName}`, { module: "AUTH", operation: "scope-check", entityId: toolName });
+          const { status, body: errBody } = formatOAuthError(error);
+          res.writeHead(status, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ...errBody, tool: toolName }));
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   // ===========================================================================
@@ -401,6 +437,7 @@ export class HttpTransport {
   private async handleStreamableRequest(
     req: IncomingMessage,
     res: ServerResponse,
+    authContext?: AuthenticatedContext,
   ): Promise<void> {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
@@ -438,6 +475,10 @@ export class HttpTransport {
           id: null,
         }),
       );
+      return;
+    }
+
+    if (authContext && !this.checkToolScope(body, authContext, res)) {
       return;
     }
 
@@ -517,6 +558,7 @@ export class HttpTransport {
   private async handleStatelessRequest(
     req: IncomingMessage,
     res: ServerResponse,
+    authContext?: AuthenticatedContext,
   ): Promise<void> {
     if (req.method === "GET") {
       res.writeHead(405, { "Content-Type": "application/json" });
@@ -554,6 +596,10 @@ export class HttpTransport {
           id: null,
         }),
       );
+      return;
+    }
+
+    if (authContext && !this.checkToolScope(body, authContext, res)) {
       return;
     }
 
@@ -599,6 +645,7 @@ export class HttpTransport {
     req: IncomingMessage,
     res: ServerResponse,
     url: URL,
+    authContext?: AuthenticatedContext,
   ): Promise<void> {
     const sessionId = url.searchParams.get("sessionId");
 
@@ -627,7 +674,20 @@ export class HttpTransport {
       return;
     }
 
-    await transport.handlePostMessage(req, res);
+    let body: unknown;
+    try {
+      body = await readBody(req);
+    } catch {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Parse error: Invalid JSON" }));
+      return;
+    }
+
+    if (authContext && !this.checkToolScope(body, authContext, res)) {
+      return;
+    }
+
+    await transport.handlePostMessage(req, res, body);
   }
 
   // ===========================================================================

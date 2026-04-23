@@ -20,6 +20,7 @@
   - Restructured `docker-publish.yml`: security scan now runs before push (was after), added Trivy+SARIF upload, switched trigger from `tags: [v*]` to `workflow_run` (after lint-and-test), removed inline quality-gate and codeql jobs (now standalone)
   - Added `.gitleaks.toml` and `.trivyignore` configuration files
   - Harmonized CodeQL to use `security-extended,security-and-quality` query sets with paths filter
+- **OAuth Scope Enforcement (Security Fix)**: Addressed a security gap where OAuth authentication was validating tokens but not enforcing tool-specific scopes during `tools/call` JSON-RPC requests via the HTTP transport. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports now intercept request bodies and strictly enforce `requireToolScope` for the requested tool before delegating to the MCP SDK.
 
 ## Changed
 - **Dependency Updates**:
@@ -42,6 +43,7 @@
 - **Agent Experience Test**: `test-server/test-agent-experience.md` — 35 open-ended scenarios across 8 passes validating help resource sufficiency for cold-start agent operation.
 - **Test Files Tracked**: `.gitignore` updated to track test documentation (`.md`, `.mjs`, `.ps1`, `.sql`) while ignoring only runtime files.
 - **Cluster Reboot Script**: `scripts/reboot-cluster.ps1` — convenience PowerShell script to reboot InnoDB Cluster from complete outage (machine reboot).
+- **Connection Pool Initialization (`initializationSql`)**: Added new `initializationSql` configuration property to `ConnectionPoolConfig` (PR #94, courtesy of @rsh2k1-2026). Allows defining an array of SQL statements that will be executed exactly once per connection when it is first checked out of the pool. Ensures per-connection session variables (e.g. `SET SESSION max_execution_time`) are reliably applied even when connections are rotated or recreated.
 
 ## Fixed
 - **Admin DDL Result Parsing**: Switched `mysql_optimize_table`, `mysql_analyze_table`, `mysql_repair_table` from `executeQuery` to `rawQuery` — prevents mysql2 prepared-statement fallback from corrupting multi-result-set admin DDL responses. Matches `mysql_check_table`'s existing pattern.

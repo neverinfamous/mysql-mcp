@@ -8,7 +8,7 @@
 import mysql from "mysql2/promise";
 import type { Pool, PoolConnection } from "mysql2/promise";
 import type { PoolConfig, PoolStats, HealthStatus } from "../types/index.js";
-import { PoolError, ConnectionError } from "../types/index.js";
+import { PoolError, ConnectionError } from "../types/modules/errors.js";
 import { logger } from "../utils/logger.js";
 
 /**
@@ -20,6 +20,7 @@ export interface ConnectionPoolConfig {
   user: string;
   password: string;
   database: string;
+  initializationSql?: string[];
   pool?: PoolConfig;
   ssl?: boolean | mysql.SslOptions;
   charset?: string;
@@ -33,6 +34,7 @@ export interface ConnectionPoolConfig {
 export class ConnectionPool {
   private pool: Pool | null = null;
   private config: ConnectionPoolConfig;
+  private initializedConnections = new WeakSet<PoolConnection>();
   private stats: PoolStats = {
     total: 0,
     active: 0,
@@ -132,6 +134,25 @@ export class ConnectionPool {
 
     try {
       const connection = await this.pool.getConnection();
+
+      // Run initialization SQL if configured and not already initialized
+      if (
+        this.config.initializationSql &&
+        this.config.initializationSql.length > 0 &&
+        !this.initializedConnections.has(connection)
+      ) {
+        try {
+          for (const sql of this.config.initializationSql) {
+            await connection.query(sql);
+          }
+          this.initializedConnections.add(connection);
+        } catch (error) {
+          connection.release();
+          const err = error as Error;
+          throw new PoolError(`Failed to initialize connection: ${err.message}`);
+        }
+      }
+
       this.stats.active++;
       return connection;
     } catch (error) {
@@ -166,12 +187,15 @@ export class ConnectionPool {
 
     this.stats.totalQueries++;
 
+    const connection = await this.getConnection();
     try {
-      const result = await this.pool.query(sql, params);
+      const result = await connection.query(sql, params);
       return result as [T, mysql.FieldPacket[]];
     } catch (error) {
       const err = error as Error & { code?: string };
       throw new PoolError(`Query failed: ${err.message}`, { sql }, err.code);
+    } finally {
+      this.releaseConnection(connection);
     }
   }
 
@@ -188,8 +212,9 @@ export class ConnectionPool {
 
     this.stats.totalQueries++;
 
+    const connection = await this.getConnection();
     try {
-      const result = await this.pool.execute(
+      const result = await connection.execute(
         sql,
         params as (string | number | null)[],
       );
@@ -197,6 +222,8 @@ export class ConnectionPool {
     } catch (error) {
       const err = error as Error & { code?: string };
       throw new PoolError(`Execute failed: ${err.message}`, { sql }, err.code);
+    } finally {
+      this.releaseConnection(connection);
     }
   }
 

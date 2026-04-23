@@ -24,6 +24,8 @@ import {
 import type { HttpTransportConfig, RateLimitEntry } from "../types.js";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createServer } from "node:http";
+import { PassThrough } from "node:stream";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
 // Mock node:http
 vi.mock("node:http", () => {
@@ -56,15 +58,12 @@ vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => {
   };
 });
 
-// Mock SDK SSEServerTransport
 vi.mock("@modelcontextprotocol/sdk/server/sse.js", () => {
   return {
-    SSEServerTransport: vi.fn(function (_path: string, _res: ServerResponse) {
-      return {
-        handlePostMessage: vi.fn().mockResolvedValue(undefined),
-        close: vi.fn().mockResolvedValue(undefined),
-        sessionId: `sse-session-${Date.now()}`,
-      };
+    SSEServerTransport: vi.fn(function (this: any, _path: string, _res: ServerResponse) {
+      this.handlePostMessage = vi.fn().mockResolvedValue(undefined);
+      this.close = vi.fn().mockResolvedValue(undefined);
+      this.sessionId = `sse-session-${Date.now()}`;
     }),
   };
 });
@@ -816,6 +815,105 @@ describe("handleRequest()", () => {
       "error",
       "Missing sessionId parameter",
     );
+  });
+
+  describe("OAuth Scope Enforcement", () => {
+    it("should allow tools/call if auth context has required scope", async () => {
+      const mockTokenValidator = {
+        validate: vi.fn().mockResolvedValue({
+          valid: true,
+          claims: { scopes: ["write"] }, // mysql_read_query requires 'write'
+        }),
+      };
+      const mockResourceServer = {
+        getMetadata: vi.fn().mockReturnValue({ resource: "test" }),
+      };
+
+      const t = new HttpTransport({
+        port: 3000,
+        resourceServer: mockResourceServer as never,
+        tokenValidator: mockTokenValidator as never,
+      });
+
+      const mockTransport = new SSEServerTransport("/messages", createMockResponse());
+      t.getTransports().set("mock-session", mockTransport as never);
+
+      const mockReq = new PassThrough() as unknown as IncomingMessage;
+      mockReq.method = "POST";
+      mockReq.url = "/messages?sessionId=mock-session";
+      mockReq.headers = { host: "localhost:3000", authorization: "Bearer token" };
+      (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
+      
+      mockReq.write(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
+        }),
+      );
+      mockReq.end();
+
+      const mockRes = createMockResponse();
+
+      await (t as any).handleRequest(mockReq, mockRes);
+
+      expect(mockRes.writeHead).not.toHaveBeenCalled();
+      expect(mockTransport.handlePostMessage).toHaveBeenCalled();
+    });
+
+    it("should block tools/call with 403 if missing required scope", async () => {
+      const mockTokenValidator = {
+        validate: vi.fn().mockResolvedValue({
+          valid: true,
+          claims: { scopes: ["read"] }, // Missing 'write' scope
+        }),
+      };
+      const mockResourceServer = {
+        getMetadata: vi.fn().mockReturnValue({ resource: "test" }),
+      };
+
+      const t = new HttpTransport({
+        port: 3000,
+        resourceServer: mockResourceServer as never,
+        tokenValidator: mockTokenValidator as never,
+      });
+
+      const mockTransport = new SSEServerTransport("/messages", createMockResponse());
+      t.getTransports().set("mock-session", mockTransport as never);
+
+      const mockReq = new PassThrough() as unknown as IncomingMessage;
+      mockReq.method = "POST";
+      mockReq.url = "/messages?sessionId=mock-session";
+      mockReq.headers = { host: "localhost:3000", authorization: "Bearer token" };
+      (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
+      
+      mockReq.write(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: 2,
+          method: "tools/call",
+          params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
+        }),
+      );
+      mockReq.end();
+
+      const mockRes = createMockResponse();
+
+      await (t as any).handleRequest(mockReq, mockRes);
+
+      expect(mockRes.writeHead).toHaveBeenCalledWith(403, expect.objectContaining({
+        "Content-Type": "application/json",
+      }));
+      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const responseBody = JSON.parse(endCall as string);
+
+      expect(responseBody).toHaveProperty("error", "insufficient_scope");
+      expect(responseBody).toHaveProperty("error_description");
+      expect(responseBody.error_description).toContain("Insufficient scope");
+      expect(responseBody).toHaveProperty("tool", "mysql_read_query");
+      expect(mockTransport.handlePostMessage).not.toHaveBeenCalled();
+    });
   });
 });
 
