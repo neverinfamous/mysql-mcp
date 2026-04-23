@@ -281,7 +281,7 @@ export class MySQLAdapter extends DatabaseAdapter {
         try {
           const [results, fields] = await connection.query(
             sql,
-            params as (string | number | null)[],
+            params,
           );
           return this.processExecutionResult(results, fields, startTime);
         } catch (fallbackError) {

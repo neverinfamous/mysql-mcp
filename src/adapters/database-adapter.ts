@@ -287,7 +287,7 @@ export abstract class DatabaseAdapter {
     server.registerResource(
       resource.name,
       resource.uri,
-      resourceMeta as { description?: string; mimeType?: string },
+      resourceMeta,
       async (uri: URL) => {
         const context = this.createContext();
         const result = await resource.handler(uri.toString(), context);

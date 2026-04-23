@@ -23,13 +23,16 @@
 
 ## Changed
 - **Dependency Updates**:
-  - `@modelcontextprotocol/sdk` bumped to `1.28.0`
-  - `typescript-eslint` bumped to `8.57.2`
-  - `vitest` and `@vitest/coverage-v8` bumped to `4.1.2`
-  - `@types/node` bumped to `25.5.0`
-  - `eslint` bumped to `10.1.0`
+  - `@modelcontextprotocol/sdk` bumped to `1.29.0`
+  - `typescript-eslint` bumped to `8.59.0`
+  - `vitest` and `@vitest/coverage-v8` bumped to `4.1.5`
+  - `@types/node` bumped to `25.6.0`
+  - `eslint` bumped to `10.2.1`
+  - `@playwright/test` bumped to `1.59.1`
+  - `globals` bumped to `17.5.0`
+  - `typescript` bumped to `6.0.3`
   - `jose` bumped to `6.2.2`
-  - `mysql2` bumped to `^3.20.0`
+  - `mysql2` bumped to `3.22.2`
   - Updated Docker build actions (`build-push-action`, `setup-buildx-action`, `login-action`) to their latest major versions.
 - **Help Resource Architecture**: Replaced 53KB monolithic `ServerInstructions.ts` with slim `INSTRUCTIONS` constant (~634 chars) + on-demand `mysql://help` resources. Agent instructions are now ~95% smaller; detailed tool reference is available via `mysql://help` (always) and `mysql://help/{group}` (filtered by `--tool-filter`).
 

@@ -484,7 +484,7 @@ export class HttpTransport {
       };
 
       if (this.onConnect) {
-        await this.onConnect(newTransport as unknown as Transport);
+        await this.onConnect(newTransport);
       }
 
       await newTransport.handleRequest(req, res, body);
@@ -558,11 +558,11 @@ export class HttpTransport {
     }
 
     const transport = new StreamableHTTPServerTransport(
-      {} as ConstructorParameters<typeof StreamableHTTPServerTransport>[0],
+      {},
     );
 
     if (this.onConnect) {
-      await this.onConnect(transport as unknown as Transport);
+      await this.onConnect(transport);
     }
 
     await transport.handleRequest(req, res, body);
@@ -591,7 +591,7 @@ export class HttpTransport {
 
     // Connect MCP server to this transport (must complete before client sends messages)
     if (this.onConnect) {
-      await this.onConnect(transport as unknown as Transport);
+      await this.onConnect(transport);
     }
   }
 

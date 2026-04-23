@@ -79,7 +79,7 @@ export function createSysSchemaStatsTool(
             "SELECT DATABASE() as db",
           );
           const rows = dbResult.rows ?? [];
-          const dbRow = rows[0] as Record<string, unknown> | undefined;
+          const dbRow = rows[0];
           resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
         }
 
