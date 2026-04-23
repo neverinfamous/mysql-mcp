@@ -119,6 +119,16 @@ function createMockAdapterWithTools(): MySQLAdapter {
       annotations: {},
       handler: vi.fn().mockResolvedValue({ output: "" }),
     },
+    {
+      name: "mysql_migration_init",
+      group: "migration",
+      title: "Migration Init",
+      description: "Initialize migration tracking",
+      inputSchema: { parse: (v: unknown) => v },
+      requiredScopes: ["write"],
+      annotations: {},
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
   ];
 
   return {
@@ -152,6 +162,15 @@ describe("MysqlApi", () => {
       expect(api.sysschema).toBeDefined();
       expect(api.docstore).toBeDefined();
       expect(api.shell).toBeDefined();
+      expect(api.schema).toBeDefined();
+      expect(api.events).toBeDefined();
+      expect(api.stats).toBeDefined();
+      expect(api.spatial).toBeDefined();
+      expect(api.security).toBeDefined();
+      expect(api.cluster).toBeDefined();
+      expect(api.roles).toBeDefined();
+      expect(api.introspection).toBeDefined();
+      expect(api.migration).toBeDefined();
     });
 
     it("should create methods for each tool", () => {
@@ -203,6 +222,11 @@ describe("MysqlApi", () => {
     it("should strip json_ prefix for json group", () => {
       // mysql_json_extract -> extract
       expect(api.json).toHaveProperty("extract");
+    });
+
+    it("should strip mysql_migration_ prefix for migration group", () => {
+      // mysql_migration_init -> init
+      expect(api.migration).toHaveProperty("init");
     });
   });
 
@@ -260,6 +284,33 @@ describe("MysqlApi", () => {
       if (api.transactions.begin) {
         expect(api.transactions.begin).toBe(api.transactions.transactionBegin);
       }
+    });
+  });
+
+  // ===========================================================================
+  // createSandboxBindings
+  // ===========================================================================
+  describe("createSandboxBindings", () => {
+    it("should filter out write methods when readonly is true", () => {
+      const readonlyApi = new MysqlApi(mockAdapter, true);
+      const bindings = readonlyApi.createSandboxBindings();
+
+      // Core write method (mysql_write_query) should be stubbed to return error
+      const coreApi = bindings.core as Record<string, (...args: unknown[]) => { success: boolean; error: string }>;
+      const writeResult = coreApi.writeQuery();
+      expect(writeResult).toHaveProperty("success", false);
+      expect(writeResult.error).toContain("Readonly mode");
+
+      // Core read method (mysql_read_query) should remain intact
+      // We can't easily test the exact function, but it shouldn't return the stub error object synchronously
+      const readResult = coreApi.readQuery();
+      expect(readResult).not.toHaveProperty("error", expect.stringContaining("Readonly mode"));
+
+      // Migration write method should be stubbed
+      const migrationApi = bindings.migration as Record<string, (...args: unknown[]) => { success: boolean; error: string }>;
+      const initResult = migrationApi.init();
+      expect(initResult).toHaveProperty("success", false);
+      expect(initResult.error).toContain("Readonly mode");
     });
   });
 

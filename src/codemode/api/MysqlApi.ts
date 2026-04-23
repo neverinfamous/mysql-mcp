@@ -35,6 +35,9 @@ export class MysqlApi {
   readonly cluster: GroupApiRecord;
   readonly roles: GroupApiRecord;
   readonly docstore: GroupApiRecord;
+  // Phase 3 groups
+  readonly introspection: GroupApiRecord;
+  readonly migration: GroupApiRecord;
 
   private readonly toolsByGroup: Map<string, ToolDefinition[]>;
   private readonly isReadonly: boolean;
@@ -168,6 +171,16 @@ export class MysqlApi {
       "docstore",
       this.toolsByGroup.get("docstore") ?? [],
     );
+    this.introspection = createGroupApi(
+      adapter,
+      "introspection",
+      this.toolsByGroup.get("introspection") ?? [],
+    );
+    this.migration = createGroupApi(
+      adapter,
+      "migration",
+      this.toolsByGroup.get("migration") ?? [],
+    );
   }
 
   /**
@@ -257,6 +270,7 @@ export class MysqlApi {
         "docCreateIndex",
       ]),
       schema: new Set(["createSchema", "dropSchema", "createView"]),
+      migration: new Set(["init", "record", "apply", "rollback"]),
       json: new Set([
         "set",
         "insert",
@@ -295,6 +309,8 @@ export class MysqlApi {
       "cluster",
       "roles",
       "docstore",
+      "introspection",
+      "migration",
     ] as const;
 
     for (const groupName of groupNames) {
