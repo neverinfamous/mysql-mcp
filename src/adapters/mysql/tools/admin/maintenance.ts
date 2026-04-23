@@ -27,11 +27,21 @@ import {
   KillQuerySchemaBase,
 } from "../../types/index.js";
 
-function extractMaintenanceError(rows: any[] | undefined): { success: false; error: string } | null {
+function isRecord(val: unknown): val is Record<string, unknown> {
+  return typeof val === "object" && val !== null;
+}
+
+function extractMaintenanceError(rows: unknown[] | undefined): { success: false; error: string } | null {
   if (!rows || rows.length === 0) return null;
-  const errorRow = rows.find((r: any) => r.Msg_type && r.Msg_type.toLowerCase() === "error");
-  if (errorRow) {
-    return { success: false, error: String(errorRow.Msg_text || "Maintenance operation failed") };
+  const errorRow = rows.find((r: unknown) => {
+    if (isRecord(r) && typeof r["Msg_type"] === "string") {
+      return r["Msg_type"].toLowerCase() === "error";
+    }
+    return false;
+  });
+  if (errorRow !== undefined && isRecord(errorRow)) {
+    const errorMsg = typeof errorRow["Msg_text"] === "string" ? errorRow["Msg_text"] : "Maintenance operation failed";
+    return { success: false, error: errorMsg };
   }
   return null;
 }
