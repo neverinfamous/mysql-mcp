@@ -18,7 +18,7 @@ import {
   JsonGetSchemaBase,
   JsonUpdateSchema,
   JsonUpdateSchemaBase,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,

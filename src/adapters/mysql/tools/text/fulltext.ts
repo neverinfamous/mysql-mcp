@@ -21,7 +21,7 @@ import {
   FulltextBooleanSchemaBase,
   FulltextExpandSchema,
   FulltextExpandSchemaBase,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 import { z } from "zod";
 import {
   validateIdentifier,

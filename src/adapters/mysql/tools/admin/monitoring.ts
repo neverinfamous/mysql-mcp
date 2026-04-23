@@ -14,7 +14,7 @@ import {
   ShowProcesslistSchema,
   ShowStatusSchema,
   ShowVariablesSchema,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 import { z, ZodError } from "zod";
 
 export function createShowProcesslistTool(

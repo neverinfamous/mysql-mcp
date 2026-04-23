@@ -6,6 +6,7 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { logger } from "../utils/logger.js";
 import { z } from "zod";
 import type {
@@ -22,6 +23,9 @@ import type {
   RequestContext,
   ToolGroup,
 } from "../types/index.js";
+import { ValidationError } from "../types/index.js";
+import type { AuditInterceptor } from "../audit/interceptor.js";
+import type { BackupManager } from "../audit/backup-manager.js";
 
 /**
  * Dangerous SQL patterns for query validation (hoisted for performance)
@@ -183,10 +187,29 @@ export abstract class DatabaseAdapter {
    */
   abstract getPromptDefinitions(): PromptDefinition[];
 
+  // =========================================================================
+  // Audit Subsystem
+  // =========================================================================
+
+  protected auditInterceptor: AuditInterceptor | null = null;
+  protected backupManager: BackupManager | null = null;
+
   /**
-   * Register tools with the MCP server
-   * @param server - MCP server instance
-   * @param enabledTools - Set of enabled tool names (from filtering)
+   * Inject the audit interceptor.
+   */
+  setAuditInterceptor(interceptor: AuditInterceptor): void {
+    this.auditInterceptor = interceptor;
+  }
+
+  /**
+   * Inject the backup manager for tools to use natively.
+   */
+  setBackupManager(manager: BackupManager): void {
+    this.backupManager = manager;
+  }
+
+  /**
+   * Register all enabled tools with the MCP server
    */
   registerTools(server: McpServer, enabledTools: Set<string>): void {
     const tools = this.getToolDefinitions();
@@ -234,18 +257,51 @@ export abstract class DatabaseAdapter {
       },
       async (params: unknown) => {
         const context = this.createContext();
-        const result = await tool.handler(params, context);
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text:
-                typeof result === "string"
-                  ? result
-                  : JSON.stringify(result, null, 2),
-            },
-          ],
+
+        const execFn = async (): Promise<CallToolResult> => {
+          const result = await tool.handler(params, context);
+
+          // Inject _meta.tokenEstimate into object responses (content[].text only)
+          if (typeof result === "object" && result !== null) {
+            const withMeta = JSON.stringify(
+              { ...result, _meta: { tokenEstimate: 0 } },
+              null,
+              2,
+            );
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(withMeta, "utf8") / 4,
+            );
+            const finalText = withMeta.replace(
+              '"tokenEstimate": 0',
+              `"tokenEstimate": ${String(tokenEstimate)}`,
+            );
+            return {
+              content: [{ type: "text" as const, text: finalText }],
+            };
+          }
+
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text:
+                  typeof result === "string"
+                    ? result
+                    : JSON.stringify(result, null, 2),
+              },
+            ],
+          };
         };
+
+        if (this.auditInterceptor) {
+          return await this.auditInterceptor.around(
+            tool.name,
+            params,
+            context.requestId,
+            execFn,
+          );
+        }
+        return await execFn();
       },
     );
   }
@@ -421,7 +477,7 @@ export abstract class DatabaseAdapter {
    */
   validateQuery(sql: string, isReadOnly: boolean): void {
     if (!sql || typeof sql !== "string") {
-      throw new Error("Query must be a non-empty string");
+      throw new ValidationError("Query must be a non-empty string");
     }
 
     const normalizedSql = sql.trim().toUpperCase();
@@ -429,7 +485,9 @@ export abstract class DatabaseAdapter {
     // Check for dangerous patterns
     for (const pattern of DANGEROUS_QUERY_PATTERNS) {
       if (pattern.test(sql)) {
-        throw new Error("Query contains potentially dangerous patterns");
+        throw new ValidationError(
+          "Query contains potentially dangerous patterns",
+        );
       }
     }
 
@@ -437,7 +495,7 @@ export abstract class DatabaseAdapter {
     if (isReadOnly) {
       for (const keyword of WRITE_KEYWORDS) {
         if (normalizedSql.startsWith(keyword)) {
-          throw new Error(
+          throw new ValidationError(
             `Read-only mode: ${keyword} statements are not allowed`,
           );
         }

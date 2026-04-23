@@ -15,7 +15,7 @@ import type {
 import {
   ShellLoadDumpInputSchema,
   ShellRunScriptInputSchema,
-} from "../../types/shell-types.js";
+} from "../../schemas/shell.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
 
 /**

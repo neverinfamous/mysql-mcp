@@ -12,7 +12,7 @@ import {
   ShellExportTableInputSchema,
   ShellImportTableInputSchema,
   ShellImportJSONInputSchema,
-} from "../../types/shell-types.js";
+} from "../../schemas/shell.js";
 import {
   getShellConfig,
   escapeForJS,

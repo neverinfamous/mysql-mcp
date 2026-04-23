@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessTableParams, preprocessQueryOnlyParams } from "./preprocessors.js";
+import { preprocessTableParams, preprocessQueryOnlyParams } from "./preprocess-utils.js";
 
 // =============================================================================
 // Performance Schemas

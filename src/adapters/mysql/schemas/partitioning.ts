@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessTableParams } from "./preprocessors.js";
+import { preprocessTableParams } from "./preprocess-utils.js";
 
 // =============================================================================
 // Partitioning Schemas

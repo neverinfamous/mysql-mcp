@@ -21,10 +21,7 @@ import {
   ConstraintAnalysisSchema,
   MigrationRisksSchemaBase,
   MigrationRisksSchema,
-  // Output schemas
-  ConstraintAnalysisOutputSchema,
-  MigrationRisksOutputSchema,
-} from "../../types.js";
+} from "../../schemas/index.js";
 
 // =============================================================================
 // mysql_constraint_analysis
@@ -39,7 +36,6 @@ export function createConstraintAnalysisTool(
       "Analyze all constraints for issues: missing NOT NULL, missing primary keys.",
     group: "introspection",
     inputSchema: ConstraintAnalysisSchemaBase,
-    outputSchema: ConstraintAnalysisOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -328,7 +324,6 @@ export function createMigrationRisksTool(
       "Analyze proposed DDL statements for risks: data loss, lock contention, constraint violations, and breaking changes. Pre-flight check before executing migrations.",
     group: "introspection",
     inputSchema: MigrationRisksSchemaBase,
-    outputSchema: MigrationRisksOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

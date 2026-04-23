@@ -18,7 +18,7 @@ import {
   TransactionSavepointSchemaBase,
   TransactionExecuteSchema,
   TransactionExecuteSchemaBase,
-} from "../types/index.js";
+} from "../schemas/index.js";
 
 /**
  * Get all transaction tools

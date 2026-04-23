@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessTableParams, preprocessQueryParams, preprocessCreateTableParams } from "./preprocessors.js";
+import { preprocessTableParams, preprocessQueryParams, preprocessCreateTableParams } from "./preprocess-utils.js";
 
 // =============================================================================
 // Core Tools Schemas

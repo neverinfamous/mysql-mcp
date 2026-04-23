@@ -38,6 +38,10 @@
 - **Help Resource Architecture**: Replaced 53KB monolithic `ServerInstructions.ts` with slim `INSTRUCTIONS` constant (~634 chars) + on-demand `mysql://help` resources. Agent instructions are now ~95% smaller; detailed tool reference is available via `mysql://help` (always) and `mysql://help/{group}` (filtered by `--tool-filter`).
 
 ## Added
+- **Token Burn-Rate Estimation (`_meta.tokenEstimate`)**: Every tool response now includes `_meta.tokenEstimate` in `content[].text` using a ~4 bytes/token heuristic. Code Mode responses include `metrics.tokenEstimate` for sandbox results. `structuredContent` stays schema-pure (no injection). Enables agents to monitor token consumption per tool call.
+- **Error Auto-Refinement (`findSuggestion()`)**: New `src/utils/error-suggestions.ts` maps ~30 common MySQL error patterns (wire-protocol codes 1146, 1054, 1062, 1064, etc.) to actionable suggestions and specific error codes. `MySQLMcpError` constructor now auto-detects suggestions and refines generic codes (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`, `COLUMN_NOT_FOUND`, `DUPLICATE_KEY`).
+- **Insights Subsystem**: New `mysql_append_insight` tool (admin group) and `mysql://insights` resource. In-memory `InsightsManager` singleton accumulates business insights during database analysis sessions and synthesizes them into a formatted memo. Tool count: 192 → **193**. Resource count: 18 → **19**.
+- **Benchmark Suite**: 3 Vitest bench files measuring Code Mode sandbox performance, resource/prompt assembly, and tool-filter parsing throughput. Run via `pnpm run bench`.
 - **Help Resources**: 24 group-specific help resources (`mysql://help/{group}`) registered dynamically based on tool filter configuration, plus `mysql://help` (gotchas, aliases, Code Mode API) always available.
 - **Generator Script**: `scripts/generate-server-instructions.ts` reads per-group `.md` files and produces `server-instructions.ts` with `INSTRUCTIONS` + `HELP_CONTENT` exports.
 - **Agent Experience Test**: `test-server/test-agent-experience.md` — 35 open-ended scenarios across 8 passes validating help resource sufficiency for cold-start agent operation.

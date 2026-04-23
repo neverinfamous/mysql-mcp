@@ -62,6 +62,8 @@ import { getSecurityTools } from "./tools/security/index.js";
 import { getClusterTools } from "./tools/cluster/index.js";
 import { getRoleTools } from "./tools/roles.js";
 import { getDocStoreTools } from "./tools/docstore/index.js";
+import { getIntrospectionTools } from "./tools/introspection/index.js";
+import { getMigrationTools } from "./tools/migration/index.js";
 import { getCodeModeTools } from "./tools/codemode/index.js";
 import { getMySQLResources } from "./resources/index.js";
 import { getMySQLPrompts } from "./prompts/index.js";
@@ -481,6 +483,8 @@ export class MySQLAdapter extends DatabaseAdapter {
       "cluster",
       "roles",
       "docstore",
+      "introspection",
+      "migration",
       "codemode",
     ];
   }
@@ -522,6 +526,8 @@ export class MySQLAdapter extends DatabaseAdapter {
       ...getClusterTools(this),
       ...getRoleTools(this),
       ...getDocStoreTools(this),
+      ...getIntrospectionTools(this),
+      ...getMigrationTools(this),
       ...getCodeModeTools(this),
     ];
 

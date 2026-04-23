@@ -2,7 +2,7 @@
  * MySQL Performance & Optimization Tools
  *
  * Query analysis, EXPLAIN, and optimization tools.
- * 12 tools total (8 performance + 4 optimization).
+ * 15 tools total (8 performance + 4 optimization + 3 anomaly).
  */
 
 import type { MySQLAdapter } from "../../mysql-adapter.js";
@@ -27,6 +27,13 @@ import {
   createOptimizerTraceTool,
 } from "./optimization.js";
 
+import {
+  createDetectQueryAnomaliesTool,
+  createDetectBloatRiskTool,
+} from "./anomaly-detection.js";
+
+import { createDetectConnectionSpikeTool } from "./connection-analysis.js";
+
 /**
  * Get performance analysis tools
  */
@@ -40,6 +47,11 @@ export function getPerformanceTools(adapter: MySQLAdapter): ToolDefinition[] {
     createTableStatsTool(adapter),
     createBufferPoolStatsTool(adapter),
     createThreadStatsTool(adapter),
+
+    // Anomaly Detection
+    createDetectQueryAnomaliesTool(adapter),
+    createDetectBloatRiskTool(adapter),
+    createDetectConnectionSpikeTool(adapter),
   ];
 }
 

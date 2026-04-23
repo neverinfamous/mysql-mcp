@@ -2,7 +2,7 @@
  * MySQL Admin, Monitoring & Backup Tools
  *
  * Database administration, monitoring, and backup operations.
- * 17 tools total (6 admin + 7 monitoring + 4 backup).
+ * 18 tools total (7 admin + 7 monitoring + 4 backup).
  */
 
 import type { MySQLAdapter } from "../../mysql-adapter.js";
@@ -35,6 +35,14 @@ import {
   createRestoreDumpTool,
 } from "./backup.js";
 
+import {
+  createAuditListBackupsTool,
+  createAuditRestoreBackupTool,
+  createAuditDiffBackupTool,
+} from "./audit-backup.js";
+
+import { createAppendInsightTool } from "./insights.js";
+
 /**
  * Get admin tools
  */
@@ -46,6 +54,7 @@ export function getAdminTools(adapter: MySQLAdapter): ToolDefinition[] {
     createRepairTableTool(adapter),
     createFlushTablesTool(adapter),
     createKillQueryTool(adapter),
+    createAppendInsightTool(),
   ];
 }
 
@@ -73,5 +82,8 @@ export function getBackupTools(adapter: MySQLAdapter): ToolDefinition[] {
     createImportDataTool(adapter),
     createCreateDumpTool(adapter),
     createRestoreDumpTool(adapter),
+    createAuditListBackupsTool(adapter),
+    createAuditRestoreBackupTool(adapter),
+    createAuditDiffBackupTool(adapter),
   ];
 }

@@ -23,7 +23,7 @@ import {
   ProxySQLVariableFilterSchemaBase,
   ProxySQLCommandInputSchema,
   type ProxySQLConfig,
-} from "../types/proxysql-types.js";
+} from "../schemas/proxysql.js";
 
 /**
  * Safe character set for LIKE patterns.

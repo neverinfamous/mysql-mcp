@@ -14,7 +14,7 @@ import {
   AddDocSchema,
   ModifyDocSchema,
   RemoveDocSchema,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [

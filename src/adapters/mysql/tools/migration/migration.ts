@@ -20,10 +20,7 @@ import {
   MigrationApplySchemaBase,
   MigrationApplySchema,
   // Output schemas
-  MigrationInitOutputSchema,
-  MigrationRecordOutputSchema,
-  MigrationApplyOutputSchema,
-} from "../../types.js";
+} from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
   buildCreateTrackingTableSql,
@@ -46,7 +43,6 @@ export function createMigrationInitTool(
       "Idempotent — safe to call repeatedly. Returns current tracking state.",
     group: "migration",
     inputSchema: MigrationInitSchemaBase,
-    outputSchema: MigrationInitOutputSchema,
     annotations: { readOnlyHint: false },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -111,7 +107,6 @@ export function createMigrationRecordTool(
       "Computes SHA-256 hash for idempotency detection.",
     group: "migration",
     inputSchema: MigrationRecordSchemaBase,
-    outputSchema: MigrationRecordOutputSchema,
     annotations: { readOnlyHint: false },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -183,7 +178,6 @@ export function createMigrationApplyTool(
       "Use mysql_migration_record instead if you only need to log an already-applied migration.",
     group: "migration",
     inputSchema: MigrationApplySchemaBase,
-    outputSchema: MigrationApplyOutputSchema,
     annotations: { readOnlyHint: false, destructiveHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

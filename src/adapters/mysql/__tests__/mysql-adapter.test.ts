@@ -606,7 +606,7 @@ describe("MySQLAdapter", () => {
       const first = adapter.getToolDefinitions();
       const second = adapter.getToolDefinitions();
       expect(first).toBe(second); // Same reference = cached
-      expect(first.length).toBe(208);
+      expect(first.length).toBe(223);
     });
   });
 

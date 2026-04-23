@@ -20,10 +20,7 @@ import {
   MigrationStatusSchemaBase,
   MigrationStatusSchema,
   // Output schemas
-  MigrationRollbackOutputSchema,
-  MigrationHistoryOutputSchema,
-  MigrationStatusOutputSchema,
-} from "../../types.js";
+} from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
   ensureTrackingTable,
@@ -45,7 +42,6 @@ export function createMigrationRollbackTool(
       "Use dryRun: true to preview the rollback SQL without executing.",
     group: "migration",
     inputSchema: MigrationRollbackSchemaBase,
-    outputSchema: MigrationRollbackOutputSchema,
     annotations: { readOnlyHint: false, destructiveHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -172,7 +168,6 @@ export function createMigrationHistoryTool(
       "Returns paginated results ordered by applied_at descending.",
     group: "migration",
     inputSchema: MigrationHistorySchemaBase,
-    outputSchema: MigrationHistoryOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -254,7 +249,6 @@ export function createMigrationStatusTool(
       "and list of source systems. Returns initialized: false if tracking table doesn't exist.",
     group: "migration",
     inputSchema: MigrationStatusSchemaBase,
-    outputSchema: MigrationStatusOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

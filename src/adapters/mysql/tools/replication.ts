@@ -7,7 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../types/index.js";
+import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../schemas/index.js";
 import { z } from "zod";
 
 /**

@@ -23,7 +23,7 @@ import {
   GetIndexesSchema,
   GetIndexesSchemaBase,
   ListTablesSchema,
-} from "../types/index.js";
+} from "../schemas/index.js";
 import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 
 /**

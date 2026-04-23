@@ -69,3 +69,9 @@ export { getRoleTools } from "./roles.js";
 
 // Document Store tools
 export { getDocStoreTools } from "./docstore/index.js";
+
+// Introspection tools
+export { getIntrospectionTools } from "./introspection/index.js";
+
+// Migration tools
+export { getMigrationTools } from "./migration/index.js";

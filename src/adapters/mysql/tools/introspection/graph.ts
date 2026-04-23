@@ -20,10 +20,7 @@ import {
   CascadeSimulatorSchemaBase,
   CascadeSimulatorSchema,
   // Output schemas
-  DependencyGraphOutputSchema,
-  TopologicalSortOutputSchema,
-  CascadeSimulatorOutputSchema,
-} from "../../types.js";
+} from "../../schemas/index.js";
 
 // Shared helpers
 import type { FkEdge } from "./helpers.js";
@@ -69,7 +66,6 @@ export function createDependencyGraphTool(
       "Get the full foreign key dependency graph with cascade paths, row counts, circular dependency detection, and severity assessment. Agent-optimized structured output.",
     group: "introspection",
     inputSchema: DependencyGraphSchemaBase,
-    outputSchema: DependencyGraphOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -220,7 +216,6 @@ export function createTopologicalSortTool(
       "Get tables in safe DDL execution order. 'create' direction: dependencies first (for CREATE TABLE). 'drop' direction: dependents first (for DROP TABLE).",
     group: "introspection",
     inputSchema: TopologicalSortSchemaBase,
-    outputSchema: TopologicalSortOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -349,7 +344,6 @@ export function createCascadeSimulatorTool(
       "Simulate the impact of DELETE, DROP, or TRUNCATE on a table. Returns affected tables, estimated row counts, cascade paths, and severity assessment.",
     group: "introspection",
     inputSchema: CascadeSimulatorSchemaBase,
-    outputSchema: CascadeSimulatorOutputSchema,
     annotations: { readOnlyHint: true, idempotentHint: true },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

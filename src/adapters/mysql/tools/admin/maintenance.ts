@@ -25,7 +25,7 @@ import {
   FlushTablesSchemaBase,
   KillQuerySchema,
   KillQuerySchemaBase,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 
 function isRecord(val: unknown): val is Record<string, unknown> {
   return typeof val === "object" && val !== null;

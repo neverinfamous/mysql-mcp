@@ -9,7 +9,7 @@ import {
 } from "./helpers.js";
 import {
   CreateDocIndexSchema,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [

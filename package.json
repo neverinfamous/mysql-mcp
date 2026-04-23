@@ -19,7 +19,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck",
-    "generate:instructions": "node scripts/generate-server-instructions.ts"
+    "generate:instructions": "node scripts/generate-server-instructions.ts",
+    "bench": "vitest bench"
   },
   "keywords": [
     "mcp",

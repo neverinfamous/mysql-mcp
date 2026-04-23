@@ -5,4 +5,4 @@
 export { MySQLAdapter } from "./mysql-adapter.js";
 
 // Re-export types
-export * from "./types/index.js";
+export * from "./schemas/index.js";

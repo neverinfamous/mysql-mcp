@@ -24,6 +24,9 @@ import { mcpLogger } from "../logging/mcp-logging.js";
 import { progressFactory } from "../progress/progress-reporter.js";
 import { OAuthResourceServer } from "../auth/oauth-resource-server.js";
 import { TokenValidator } from "../auth/token-validator.js";
+import { AuditLogger } from "../audit/logger.js";
+import { BackupManager } from "../audit/backup-manager.js";
+import { createAuditInterceptor } from "../audit/interceptor.js";
 
 /**
  * Default server configuration
@@ -45,6 +48,8 @@ export class McpServer {
   private toolFilter: ToolFilterConfig;
   private started = false;
   private activeTransport: { stop(): Promise<void> } | null = null;
+  private auditLogger: AuditLogger | null = null;
+  private backupManager: BackupManager | null = null;
 
   constructor(config: Partial<McpServerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -71,6 +76,18 @@ export class McpServer {
 
     // Initialize MCP protocol logging so clients can receive log messages
     mcpLogger.setServer(this.server);
+
+    // Initialize Audit Subsystem
+    if (this.config.auditConfig?.enabled) {
+      this.auditLogger = new AuditLogger(this.config.auditConfig);
+      if (this.config.auditConfig.backup?.enabled) {
+        this.backupManager = new BackupManager(
+          this.config.auditConfig.backup,
+          this.config.auditConfig.logPath
+        );
+      }
+      this.registerAuditResource();
+    }
 
     // Initialize MCP protocol progress reporting for long-running operations
     progressFactory.setServer(this.server);
@@ -106,6 +123,19 @@ export class McpServer {
     const allTools = adapter.getToolDefinitions();
     const allResources = adapter.getResourceDefinitions();
     const allPrompts = adapter.getPromptDefinitions();
+
+    // Wire up audit interceptor
+    if (this.auditLogger) {
+      const interceptor = createAuditInterceptor(
+        this.auditLogger,
+        this.backupManager ?? undefined,
+        adapter
+      );
+      adapter.setAuditInterceptor(interceptor);
+      if (this.backupManager) {
+        adapter.setBackupManager(this.backupManager);
+      }
+    }
 
     // Register adapter's tools, resources, and prompts
     adapter.registerTools(this.server, this.toolFilter.enabledTools);
@@ -275,6 +305,13 @@ export class McpServer {
         logger.error("Error stopping transport", { error: String(error) });
       }
       this.activeTransport = null;
+    }
+
+    if (this.backupManager) {
+      await this.backupManager.flush();
+    }
+    if (this.auditLogger) {
+      await this.auditLogger.close();
     }
 
     await this.server.close();
@@ -453,6 +490,58 @@ export class McpServer {
       }
     }
     logger.info(`Help resources: ${registeredHelp.join(", ")}`);
+  }
+
+  /**
+   * Register mysql://audit resource for forensic trail and snapshots.
+   */
+  private registerAuditResource(): void {
+    if (!this.auditLogger) return;
+
+    this.server.registerResource(
+      "mysql_audit",
+      "mysql://audit",
+      {
+        description: "Recent forensic audit trail and pre-mutation snapshot stats",
+        mimeType: "application/json",
+      },
+      async () => {
+        if (!this.auditLogger) return { contents: [] };
+        
+        const recent = await this.auditLogger.recent(100);
+        const backupStats = this.backupManager ? await this.backupManager.getStats() : undefined;
+        
+        let tokenEstimate = 0;
+        let errors = 0;
+        const tools: Record<string, number> = {};
+
+        for (const entry of recent) {
+          if (entry.tokenEstimate != null) tokenEstimate += entry.tokenEstimate;
+          if (!entry.success) errors++;
+          tools[entry.tool] = (tools[entry.tool] ?? 0) + 1;
+        }
+
+        const summary = {
+          entries: recent.length,
+          errors,
+          tokenEstimate,
+          topTools: Object.entries(tools)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([name, count]) => ({ name, count })),
+          ...(backupStats && { backups: backupStats }),
+        };
+
+        return {
+          contents: [{
+            uri: "mysql://audit",
+            mimeType: "application/json",
+            text: JSON.stringify({ summary, recent }, null, 2),
+          }],
+        };
+      }
+    );
+    logger.info("Registered audit resource: mysql://audit");
   }
 }
 

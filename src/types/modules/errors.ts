@@ -8,6 +8,18 @@
 
 import { ErrorCategory } from "./error-types.js";
 import type { ErrorResponse } from "./error-types.js";
+import { findSuggestion } from "../../utils/error-suggestions.js";
+
+/**
+ * Generic error codes that should be auto-refined when findSuggestion
+ * provides a more specific code (e.g., QUERY_ERROR → TABLE_NOT_FOUND).
+ */
+const REFINABLE_CODES = new Set([
+  "QUERY_ERROR",
+  "VALIDATION_ERROR",
+  "RESOURCE_ERROR",
+  "UNKNOWN_ERROR",
+]);
 
 /**
  * Base error class for mysql-mcp with enhanced diagnostics
@@ -37,11 +49,19 @@ export class MySQLMcpError extends Error {
   ) {
     super(message, { cause: options?.cause });
     this.name = this.constructor.name;
-    this.code = code;
-    this.category = category;
     this.recoverable = options?.recoverable ?? false;
     this.details = options?.details;
-    this.suggestion = options?.suggestion;
+
+    // Auto-detect suggestion and refine generic codes
+    const match = findSuggestion(message);
+    this.suggestion = options?.suggestion ?? match?.suggestion;
+
+    // Prefer the suggestion's specific code and category over generic ones
+    this.code = match?.code && REFINABLE_CODES.has(code) ? match.code : code;
+    this.category =
+      match?.category !== undefined && REFINABLE_CODES.has(code)
+        ? match.category
+        : category;
 
     // Capture stack trace
     Error.captureStackTrace?.(this, this.constructor);

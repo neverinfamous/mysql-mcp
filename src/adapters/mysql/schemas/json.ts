@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessJsonColumnParams } from "./preprocessors.js";
+import { preprocessJsonColumnParams } from "./preprocess-utils.js";
 
 // =============================================================================
 // JSON Schemas

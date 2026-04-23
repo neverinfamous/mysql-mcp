@@ -6,6 +6,7 @@
 
 import type { DatabaseConfig } from "./database.js";
 import type { OAuthConfig } from "./oauth.js";
+import type { AuditConfig } from "../../audit/types.js";
 
 /**
  * Transport type for MCP communication
@@ -50,4 +51,7 @@ export interface McpServerConfig {
 
   /** Tool filtering configuration */
   toolFilter?: string;
+
+  /** Audit logging and snapshot configuration */
+  auditConfig?: AuditConfig;
 }

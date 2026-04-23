@@ -18,7 +18,7 @@ import {
   JsonStatsSchemaBase,
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   validateQualifiedIdentifier,

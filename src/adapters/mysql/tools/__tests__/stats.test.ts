@@ -21,8 +21,8 @@ describe("getStatsTools", () => {
     tools = getStatsTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
   });
 
-  it("should return 8 stats tools", () => {
-    expect(tools).toHaveLength(8);
+  it("should return 20 stats tools", () => {
+    expect(tools).toHaveLength(20);
   });
 
   it("should have stats group for all tools", () => {

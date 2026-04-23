@@ -27,7 +27,7 @@ import {
   JsonKeysSchemaBase,
   JsonArrayAppendSchema,
   JsonArrayAppendSchemaBase,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,

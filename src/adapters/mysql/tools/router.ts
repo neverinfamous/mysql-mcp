@@ -21,7 +21,7 @@ import {
   RouteNameInputSchema,
   MetadataNameInputSchema,
   ConnectionPoolNameInputSchema,
-} from "../types/router-types.js";
+} from "../schemas/router.js";
 
 // =============================================================================
 // Helpers

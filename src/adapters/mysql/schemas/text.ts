@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessTableParams, preprocessJsonColumnParams, preprocessQueryOnlyParams } from "./preprocessors.js";
+import { preprocessTableParams, preprocessJsonColumnParams, preprocessQueryOnlyParams } from "./preprocess-utils.js";
 
 // =============================================================================
 // Text Schemas

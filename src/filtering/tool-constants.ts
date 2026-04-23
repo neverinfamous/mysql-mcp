@@ -65,6 +65,9 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_table_stats",
     "mysql_buffer_pool_stats",
     "mysql_thread_stats",
+    "mysql_detect_query_anomalies",
+    "mysql_detect_bloat_risk",
+    "mysql_detect_connection_spike",
   ],
   optimization: [
     "mysql_index_recommendation",
@@ -79,6 +82,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_repair_table",
     "mysql_flush_tables",
     "mysql_kill_query",
+    "mysql_append_insight",
   ],
   monitoring: [
     "mysql_show_processlist",
@@ -94,6 +98,9 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_import_data",
     "mysql_create_dump",
     "mysql_restore_dump",
+    "mysql_audit_list_backups",
+    "mysql_audit_restore_backup",
+    "mysql_audit_diff_backup",
   ],
   replication: [
     "mysql_master_status",
@@ -193,6 +200,18 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_stats_regression",
     "mysql_stats_sampling",
     "mysql_stats_histogram",
+    "mysql_stats_row_number",
+    "mysql_stats_rank",
+    "mysql_stats_lag_lead",
+    "mysql_stats_running_total",
+    "mysql_stats_moving_avg",
+    "mysql_stats_ntile",
+    "mysql_stats_hypothesis",
+    "mysql_stats_outliers",
+    "mysql_stats_top_n",
+    "mysql_stats_distinct",
+    "mysql_stats_frequency",
+    "mysql_stats_summary",
   ],
   spatial: [
     "mysql_spatial_create_column",
@@ -252,6 +271,22 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_doc_create_index",
     "mysql_doc_collection_info",
   ],
+  introspection: [
+    "mysql_dependency_graph",
+    "mysql_topological_sort",
+    "mysql_cascade_simulator",
+    "mysql_schema_snapshot",
+    "mysql_constraint_analysis",
+    "mysql_migration_risks",
+  ],
+  migration: [
+    "mysql_migration_init",
+    "mysql_migration_record",
+    "mysql_migration_apply",
+    "mysql_migration_rollback",
+    "mysql_migration_history",
+    "mysql_migration_status",
+  ],
   codemode: ["mysql_execute_code"],
 };
 
@@ -268,7 +303,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  *   ai-data:       46 (core:8 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
  *   ai-spatial:    44 (core:8 + spatial:12 + stats:8 + performance:8 + transactions:7 + codemode:1)
  *   dba-monitor:   36 (core:8 + monitoring:7 + performance:8 + sysschema:8 + optimization:4 + codemode:1)
- *   dba-manage:    34 (core:8 + admin:6 + backup:4 + replication:5 + partitioning:4 + events:6 + codemode:1)
+ *   dba-manage:    35 (core:8 + admin:7 + backup:4 + replication:5 + partitioning:4 + events:6 + codemode:1)
  *   dba-secure:    33 (core:8 + security:9 + roles:8 + transactions:7 + codemode:1)
  *   base-core:     49 (core:8 + json:17 + transactions:7 + text:6 + schema:10 + codemode:1)
  *   base-advanced: 41 (docstore:9 + spatial:12 + stats:8 + fulltext:5 + events:6 + codemode:1)
@@ -318,6 +353,7 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "codemode",
   ],
   "dba-secure": ["core", "security", "roles", "transactions", "codemode"],
+  "dba-schema": ["core", "schema", "introspection", "migration", "codemode"],
 
   // 4. Base Blocks (Building Blocks)
   "base-core": ["core", "json", "transactions", "text", "schema", "codemode"],

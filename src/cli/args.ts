@@ -45,6 +45,15 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
   let mysqlPassword: string | undefined;
   let mysqlDatabase: string | undefined;
 
+  // Audit config
+  let auditLogPath: string | undefined;
+  let auditRedact = false;
+  let auditReads = false;
+  let auditLogMaxSize = 10 * 1024 * 1024; // 10MB
+  let auditBackup = false;
+  let auditBackupData = false;
+  let auditBackupMaxSize = 50 * 1024 * 1024; // 50MB
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     const nextArg = args[i + 1];
@@ -223,6 +232,38 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      // Audit options
+      case "--audit-log":
+        if (nextArg && !nextArg.startsWith("-")) {
+          auditLogPath = nextArg;
+          i++;
+        }
+        break;
+      case "--audit-redact":
+        auditRedact = true;
+        break;
+      case "--audit-reads":
+        auditReads = true;
+        break;
+      case "--audit-log-max-size":
+        if (nextArg && !nextArg.startsWith("-")) {
+          auditLogMaxSize = parseInt(nextArg, 10);
+          i++;
+        }
+        break;
+      case "--audit-backup":
+        auditBackup = true;
+        break;
+      case "--audit-backup-data":
+        auditBackupData = true;
+        break;
+      case "--audit-backup-max-size":
+        if (nextArg && !nextArg.startsWith("-")) {
+          auditBackupMaxSize = parseInt(nextArg, 10);
+          i++;
+        }
+        break;
+
       case "--version":
       case "-v":
         console.error(`mysql-mcp version ${DEFAULT_CONFIG.version}`);
@@ -350,6 +391,32 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     };
   }
 
+  // Check audit environment variables if log path wasn't provided via CLI
+  if (!auditLogPath && process.env["AUDIT_LOG_PATH"]) {
+    auditLogPath = process.env["AUDIT_LOG_PATH"];
+  }
+
+  // Build audit config if enabled
+  if (auditLogPath) {
+    config.auditConfig = {
+      enabled: true,
+      logPath: auditLogPath,
+      redact: auditRedact || process.env["AUDIT_REDACT"] === "true",
+      auditReads: auditReads || process.env["AUDIT_READS"] === "true",
+      maxSizeBytes: auditLogMaxSize,
+    };
+
+    if (auditBackup || process.env["AUDIT_BACKUP"] === "true") {
+      config.auditConfig.backup = {
+        enabled: true,
+        includeData: auditBackupData || process.env["AUDIT_BACKUP_DATA"] === "true",
+        maxAgeDays: 30, // Fixed default for now
+        maxCount: 1000, // Fixed default for now
+        maxDataSizeBytes: auditBackupMaxSize,
+      };
+    }
+  }
+
   return { config, databases, oauth, shouldExit: false };
 }
 
@@ -396,6 +463,15 @@ Authentication & Security:
   --enable-hsts               Enable HSTS header (use when behind HTTPS)
   --trust-proxy               Trust X-Forwarded-For header for client IP
   --log-level <level>         Log level: debug, info, warn, error (default: info)
+
+Audit Options:
+  --audit-log <path>          Path to JSONL audit log file (or 'stderr' to stream)
+  --audit-redact              Redact tool arguments from audit log
+  --audit-reads               Log read operations in addition to writes/admins
+  --audit-log-max-size <b>    Max audit log size in bytes before rotation (default: 10MB)
+  --audit-backup              Enable pre-mutation DDL snapshots for destructive tools
+  --audit-backup-data         Include sample data rows in pre-mutation snapshots
+  --audit-backup-max-size <b> Max table size in bytes for data capture (default: 50MB)
 
 Other:
   --version, -v               Show version

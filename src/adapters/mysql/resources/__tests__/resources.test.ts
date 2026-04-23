@@ -23,8 +23,8 @@ describe("getMySQLResources", () => {
     );
   });
 
-  it("should return 18 resources", () => {
-    expect(resources).toHaveLength(18);
+  it("should return 19 resources", () => {
+    expect(resources).toHaveLength(19);
   });
 
   it("should have handler functions for all resources", () => {

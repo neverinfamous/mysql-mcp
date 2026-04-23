@@ -21,7 +21,7 @@ import {
   IndexUsageSchemaBase,
   TableStatsSchema,
   TableStatsSchemaBase,
-} from "../../types/index.js";
+} from "../../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 

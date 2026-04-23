@@ -561,12 +561,19 @@ describe("DatabaseAdapter", () => {
           args: Record<string, unknown>,
         ) => Promise<unknown>;
 
-        const result = await handler({});
-        expect(result).toEqual({
-          content: [
-            { type: "text", text: JSON.stringify({ result: "ok" }, null, 2) },
-          ],
-        });
+        const result = (await handler({})) as {
+          content: { type: string; text: string }[];
+        };
+        expect(result.content).toHaveLength(1);
+        expect(result.content[0].type).toBe("text");
+
+        // Parse the text to verify _meta.tokenEstimate injection
+        const parsed = JSON.parse(result.content[0].text) as {
+          result: string;
+          _meta: { tokenEstimate: number };
+        };
+        expect(parsed.result).toBe("ok");
+        expect(parsed._meta.tokenEstimate).toBeGreaterThan(0);
       });
 
       it("should execute resource handler when called", async () => {

@@ -8,7 +8,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ShellVersionInputSchema } from "../../types/shell-types.js";
+import { ShellVersionInputSchema } from "../../schemas/shell.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
 /**
