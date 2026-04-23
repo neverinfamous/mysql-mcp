@@ -1,0 +1,46 @@
+# mysql-mcp Code Mode Re-Testing: [performance]
+
+**ESSENTIAL INSTRUCTIONS**
+
+- Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
+- Do not modify or skip tests. Return an aggregated `failures` array.
+- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+
+## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+
+## Requirements
+
+1. **Coverage Matrix**: Track in `tmp/task.md`. Log Happy Path + Domain Error for EVERY tool.
+2. Handler errors must return `{success: false, error: "..."}` — NOT raw MCP errors.
+3. Post-Test: Fix findings, read `code-map.md`, update changelog, commit without pushing.
+
+---
+
+## Group Focus: performance
+
+performance Tool Group (8 tools +1 code mode):
+
+1. `mysql_explain` 2. `mysql_explain_analyze` 3. `mysql_slow_queries`
+4. `mysql_query_stats` 5. `mysql_index_usage` 6. `mysql_table_stats`
+7. `mysql_buffer_pool_stats` 8. `mysql_thread_stats`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.performance.help()` → verify method listing
+2. `mysql.performance.explain({query: "SELECT * FROM test_products WHERE id = 1"})` → execution plan
+3. `mysql.performance.explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → JSON plan
+4. `mysql.performance.tableStats({table: "test_products"})` → rows, dataLength
+5. `mysql.performance.indexUsage({table: "test_products"})` → index stats
+6. `mysql.performance.bufferPoolStats()` → buffer pool metrics
+7. `mysql.performance.threadStats()` → thread statistics
+8. `mysql.performance.queryStats({limit: 3})` → top queries
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql.performance.tableStats({table: "nonexistent_xyz"})` → `{success: false}` (P154)
+10. 🔴 `mysql.performance.explain({query: "SELEKT * FROM test_products"})` → `{success: false}` syntax error
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.performance.explain({})` → `{success: false, error: "Validation error: ..."}`
+12. 🔴 `mysql.performance.tableStats({})` → `{success: false, error: "Validation error: ..."}`
