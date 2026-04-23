@@ -27,6 +27,15 @@ import {
   KillQuerySchemaBase,
 } from "../../types/index.js";
 
+function extractMaintenanceError(rows: any[] | undefined): { success: false; error: string } | null {
+  if (!rows || rows.length === 0) return null;
+  const errorRow = rows.find((r: any) => r.Msg_type && r.Msg_type.toLowerCase() === "error");
+  if (errorRow) {
+    return { success: false, error: String(errorRow.Msg_text || "Maintenance operation failed") };
+  }
+  return null;
+}
+
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_optimize_table",
@@ -46,7 +55,10 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.rawQuery(
           `OPTIMIZE TABLE ${tableList}`,
         );
-        return { results: result.rows ?? [], rowCount: result.rows?.length ?? 0 };
+        const rows = result.rows ?? [];
+        const error = extractMaintenanceError(rows);
+        if (error) return error;
+        return { success: true, results: rows, rowCount: rows.length };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -72,7 +84,10 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const { tables } = AnalyzeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
-        return { results: result.rows ?? [], rowCount: result.rows?.length ?? 0 };
+        const rows = result.rows ?? [];
+        const error = extractMaintenanceError(rows);
+        if (error) return error;
+        return { success: true, results: rows, rowCount: rows.length };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -101,9 +116,13 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.rawQuery(
           `CHECK TABLE ${tableList}${optionClause}`,
         );
+        const rows = result.rows ?? [];
+        const error = extractMaintenanceError(rows);
+        if (error) return error;
         return {
-          results: result.rows ?? [],
-          rowCount: result.rows?.length ?? 0,
+          success: true,
+          results: rows,
+          rowCount: rows.length,
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -132,7 +151,10 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.rawQuery(
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
-        return { results: result.rows ?? [], rowCount: result.rows?.length ?? 0 };
+        const rows = result.rows ?? [];
+        const error = extractMaintenanceError(rows);
+        if (error) return error;
+        return { success: true, results: rows, rowCount: rows.length };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

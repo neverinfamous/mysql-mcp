@@ -46,6 +46,7 @@
 - **Connection Pool Initialization (`initializationSql`)**: Added new `initializationSql` configuration property to `ConnectionPoolConfig` (PR #94, courtesy of @rsh2k1-2026). Allows defining an array of SQL statements that will be executed exactly once per connection when it is first checked out of the pool. Ensures per-connection session variables (e.g. `SET SESSION max_execution_time`) are reliably applied even when connections are rotated or recreated.
 
 ## Fixed
+- **Admin Maintenance Error Handling**: Updated `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, and `mysql_repair_table` tools to correctly parse and extract MySQL domain errors (e.g., table not found) from multi-row result sets. Domain errors are now correctly wrapped and returned as `{ success: false, error: "..." }` instead of returning the raw results object.
 - **Admin DDL Result Parsing**: Switched `mysql_optimize_table`, `mysql_analyze_table`, `mysql_repair_table` from `executeQuery` to `rawQuery` — prevents mysql2 prepared-statement fallback from corrupting multi-result-set admin DDL responses. Matches `mysql_check_table`'s existing pattern.
 - **Multi-Result-Set Handling**: Hardened `processExecutionResult` to detect mysql2 nested arrays (multi-result-set) and ResultSetHeader-in-array edge cases from `query()` fallback.
 - **InnoDB Cluster Persistence**: Changed `group_replication_start_on_boot` from OFF to ON in `innodb-cluster.yml` and all `.cnf` files — cluster now auto-recovers from partial outages without manual MySQL Shell intervention.
