@@ -23,7 +23,7 @@ import {
 import type { ToolDefinition } from "../../types/index.js";
 
 describe("TOOL_GROUPS", () => {
-  it("should contain all 25 tool groups", () => {
+  it("should contain all 27 tool groups", () => {
     const expectedGroups = [
       "core",
       "json",
@@ -52,7 +52,7 @@ describe("TOOL_GROUPS", () => {
       "codemode",
     ];
 
-    expect(Object.keys(TOOL_GROUPS)).toHaveLength(25);
+    expect(Object.keys(TOOL_GROUPS)).toHaveLength(27);
     for (const group of expectedGroups) {
       expect(TOOL_GROUPS).toHaveProperty(group);
     }
@@ -66,9 +66,9 @@ describe("TOOL_GROUPS", () => {
     expect(TOOL_GROUPS.fulltext).toHaveLength(5);
     expect(TOOL_GROUPS.performance).toHaveLength(8);
     expect(TOOL_GROUPS.optimization).toHaveLength(4);
-    expect(TOOL_GROUPS.admin).toHaveLength(6);
+    expect(TOOL_GROUPS.admin).toHaveLength(7);
     expect(TOOL_GROUPS.monitoring).toHaveLength(7);
-    expect(TOOL_GROUPS.backup).toHaveLength(4);
+    expect(TOOL_GROUPS.backup).toHaveLength(7);
     expect(TOOL_GROUPS.replication).toHaveLength(5);
     expect(TOOL_GROUPS.partitioning).toHaveLength(4);
     expect(TOOL_GROUPS.router).toHaveLength(9);
@@ -86,14 +86,14 @@ describe("TOOL_GROUPS", () => {
     expect(TOOL_GROUPS.codemode).toHaveLength(1);
   });
 
-  it("should total 193 tools across all groups", () => {
+  it("should total 208 tools across all groups", () => {
     const totalTools = Object.values(TOOL_GROUPS).flat().length;
-    expect(totalTools).toBe(192);
+    expect(totalTools).toBe(208);
   });
 });
 
 describe("META_GROUPS", () => {
-  it("should contain all 11 meta-groups", () => {
+  it("should contain all 12 meta-groups", () => {
     const expectedMetaGroups = [
       "starter",
       "essential",
@@ -107,7 +107,7 @@ describe("META_GROUPS", () => {
       "base-advanced",
       "ecosystem",
     ];
-    expect(Object.keys(META_GROUPS)).toHaveLength(11);
+    expect(Object.keys(META_GROUPS)).toHaveLength(12);
     for (const metaGroup of expectedMetaGroups) {
       expect(META_GROUPS).toHaveProperty(metaGroup);
     }
@@ -130,9 +130,9 @@ describe("META_GROUPS", () => {
 });
 
 describe("getAllToolNames", () => {
-  it("should return all 193 tool names", () => {
+  it("should return all 208 tool names", () => {
     const tools = getAllToolNames();
-    expect(tools).toHaveLength(192);
+    expect(tools).toHaveLength(208);
   });
 
   it("should return unique tool names", () => {
@@ -205,7 +205,7 @@ describe("getMetaGroupTools", () => {
 
   it("should return correct tools for dba-manage meta-group", () => {
     const tools = getMetaGroupTools("dba-manage");
-    expect(tools).toHaveLength(34);
+    expect(tools).toHaveLength(38);
   });
 
   it("should return correct tools for dba-secure meta-group", () => {
@@ -230,21 +230,21 @@ describe("parseToolFilter", () => {
 
   it("should disable a single tool", () => {
     const config = parseToolFilter("-mysql_read_query");
-    expect(config.enabledTools.size).toBe(191);
+    expect(config.enabledTools.size).toBe(207);
     expect(config.enabledTools.has("mysql_read_query")).toBe(false);
     expect(config.enabledTools.has("mysql_write_query")).toBe(true);
   });
 
   it("should disable a tool group", () => {
     const config = parseToolFilter("-core");
-    expect(config.enabledTools.size).toBe(184); // 192 - 8
+    expect(config.enabledTools.size).toBe(200); // 208 - 8
     expect(config.enabledTools.has("mysql_read_query")).toBe(false);
     expect(config.enabledTools.has("mysql_json_extract")).toBe(true);
   });
 
   it("should disable a meta-group", () => {
     const config = parseToolFilter("-ecosystem");
-    expect(config.enabledTools.size).toBe(151); // 192 - 41
+    expect(config.enabledTools.size).toBe(167); // 208 - 41
     expect(config.enabledTools.has("mysql_router_status")).toBe(false);
     expect(config.enabledTools.has("proxysql_status")).toBe(false);
     expect(config.enabledTools.has("mysqlsh_version")).toBe(false);
@@ -382,14 +382,14 @@ describe("filterTools", () => {
 
 describe("calculateTokenSavings", () => {
   it("should calculate correct savings", () => {
-    const result = calculateTokenSavings(192, 39);
-    // (192 - 39) * 200 = 30600 tokens
-    expect(result.tokensSaved).toBe(30600);
+    const result = calculateTokenSavings(193, 39);
+    // (193 - 39) * 200 = 30800 tokens
+    expect(result.tokensSaved).toBe(30800);
     expect(result.percentSaved).toBe(80); // ~80% disabled
   });
 
   it("should return 0 for no filtering", () => {
-    const result = calculateTokenSavings(192, 192);
+    const result = calculateTokenSavings(193, 193);
     expect(result.tokensSaved).toBe(0);
     expect(result.percentSaved).toBe(0);
   });
@@ -411,7 +411,7 @@ describe("getFilterSummary", () => {
   it("should generate summary for no filter", () => {
     const config = parseToolFilter("");
     const summary = getFilterSummary(config);
-    expect(summary).toContain("39/192 tools");
+    expect(summary).toContain("39/208 tools");
     expect(summary).toContain("Token savings");
   });
 
@@ -443,9 +443,9 @@ describe("getFilterSummary", () => {
 });
 
 describe("getToolGroupInfo", () => {
-  it("should return info for all 25 groups", () => {
+  it("should return info for all 27 groups", () => {
     const info = getToolGroupInfo();
-    expect(info).toHaveLength(25);
+    expect(info).toHaveLength(27);
   });
 
   it("should include correct counts", () => {
@@ -458,9 +458,9 @@ describe("getToolGroupInfo", () => {
 });
 
 describe("getMetaGroupInfo", () => {
-  it("should return info for all 11 meta-groups", () => {
+  it("should return info for all 12 meta-groups", () => {
     const info = getMetaGroupInfo();
-    expect(info).toHaveLength(11);
+    expect(info).toHaveLength(12);
   });
 
   it("should include correct expanded counts", () => {
