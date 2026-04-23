@@ -2,7 +2,7 @@
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
-> Last updated: March 15, 2026
+> Last updated: April 23, 2026
 
 ---
 
@@ -22,12 +22,14 @@ src/
 ├── types/                          # Core TypeScript types (barrel: types/index.ts)
 │   ├── index.ts                    # Barrel — also re-exports error classes from modules/errors.ts
 │   └── modules/
-│       ├── database.ts             # DatabaseConfig, MySQLOptions, PoolConfig, PoolStats, HealthStatus
+│       ├── database.ts             # DatabaseConfig, MySQLOptions, PoolConfig, ConnectionPoolConfig,
+│       │                           #   PoolStats, HealthStatus, initializationSql
 │       ├── query.ts                # QueryResult, ColumnInfo, FieldInfo, TableInfo, SchemaInfo, IndexInfo,
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
 │       ├── server.ts               # TransportType, McpServerConfig (authToken, stateless, trustProxy)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
-│       ├── errors.ts               # MySQLMcpError base + 6 subclasses (see § Error Classes)
+│       ├── errors.ts               # MySQLMcpError base + 7 subclasses (see § Error Classes)
+│       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext
 │       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
 │                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
 │                                   #   ResourceDefinition, PromptDefinition
@@ -50,16 +52,18 @@ src/
 │   └── index.ts                    # Barrel
 │
 ├── pool/
-│   └── connection-pool.ts           # MySQL connection pool manager (mysql2/promise)
+│   └── connection-pool.ts           # MySQL connection pool manager (mysql2/promise), initializationSql support
 │
 ├── progress/
 │   ├── progress-reporter.ts         # MCP progress notification helpers
 │   └── index.ts                    # Barrel
 │
-├── auth/                           # OAuth 2.1 implementation
+├── auth/                           # OAuth 2.1 implementation (10 files)
 │   ├── middleware.ts               # Express-style OAuth middleware
 │   ├── token-validator.ts           # JWT/JWKS token validation
-│   ├── scopes.ts                   # Scope parsing, enforcement, tool→scope mapping
+│   ├── scopes.ts                   # Scope parsing, enforcement
+│   ├── scope-map.ts                # Tool→scope O(1) mapping (getRequiredScope(), getToolScopeMap())
+│   ├── auth-context.ts             # Request context builder (AsyncLocalStorage)
 │   ├── oauth-resource-server.ts      # RFC 9728 /.well-known/oauth-protected-resource
 │   ├── authorization-server-discovery.ts  # RFC 8414 auth server metadata discovery
 │   ├── errors.ts                   # OAuth-specific error classes
@@ -69,7 +73,8 @@ src/
 ├── transports/
 │   ├── index.ts                    # Barrel
 │   └── http/
-│       ├── server.ts               # HTTP/SSE transport (Streamable HTTP + legacy SSE + bearer auth + stateless mode)
+│       ├── server.ts               # HTTP/SSE transport (Streamable HTTP + legacy SSE + bearer auth + stateless mode
+│       │                           #   + OAuth scope enforcement on tools/call for both transports)
 │       ├── handlers.ts             # Route handlers (POST /mcp, GET /sse, health, etc.)
 │       ├── security.ts             # Security headers, rate limiting, CORS, body parsing
 │       ├── types.ts                # HTTP transport types (authToken, stateless)
@@ -115,7 +120,7 @@ src/
 |-------|----------------|-------|-------------|
 | **codemode** | `codemode/index.ts` | 1 | `mysql_execute_code` |
 | **core** | `core.ts` | 8 | `read_query`, `write_query`, `list_tables`, `describe_table`, `create_table`, `drop_table`, `create_index`, `get_indexes` |
-| | `core/error-helpers.ts` | — | Shared error formatting helpers |
+| | `core/error-helpers.ts` | — | Shared `formatHandlerError()` orchestrator (handles ZodError, MySQLMcpError, generic Error) |
 | **schema** | `schema/management.ts` | 3 | `list_schemas`, `create_schema`, `drop_schema` |
 | | `schema/views.ts` | 3 | `list_views`, `create_view` + 1 more |
 | | `schema/routines.ts` | 2 | `list_stored_procedures`, `list_functions` |
@@ -133,7 +138,7 @@ src/
 | | `stats/comparative.ts` | 3 | `stats_correlation`, `stats_regression`, `stats_histogram` |
 | **performance** | `performance/analysis.ts` | 8 | `explain`, `explain_analyze`, `slow_queries`, `query_stats`, `index_usage`, `table_stats`, `buffer_pool_stats`, `thread_stats` |
 | **optimization** | `performance/optimization.ts` | 4 | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace` |
-| **admin** | `admin/maintenance.ts` | 6 | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query` |
+| **admin** | `admin/maintenance.ts` | 6 | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query` (uses `extractMaintenanceError()` + `rawQuery` for DDL) |
 | | `admin/monitoring.ts` | 7 | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health` |
 | | `admin/backup.ts` | 4 | `export_table`, `import_data`, `create_dump`, `restore_dump` |
 | **security** | `security/audit.ts` | 3 | `security_audit`, `security_firewall_status`, `security_firewall_rules` |
@@ -237,23 +242,38 @@ Unlike db-mcp (which has separate `output-schemas/`), mysql-mcp consolidates all
 
 ## Error Class Hierarchy
 
-All errors extend `MySQLMcpError` (defined in `src/types/modules/errors.ts`). Every tool returns an enriched `ErrorResponse` via `formatHandlerError()` — never raw MCP exceptions.
+All errors extend `MySQLMcpError` (defined in `src/types/modules/errors.ts`). Every tool returns an enriched `ErrorResponse` via `formatHandlerError()` — never raw MCP exceptions. `ErrorCategory` enum and `ErrorResponse` interface defined in `src/types/modules/error-types.ts`.
 
 ```
-MySQLMcpError (modules/errors.ts)         code: string, details?: Record
-├── ConnectionError       code: CONNECTION_ERROR
-├── PoolError             code: POOL_ERROR          (accepts custom code)
-├── QueryError            code: QUERY_ERROR
-├── AuthenticationError   code: AUTHENTICATION_ERROR
-├── AuthorizationError    code: AUTHORIZATION_ERROR
-├── ValidationError       code: VALIDATION_ERROR
-└── TransactionError      code: TRANSACTION_ERROR
+MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory, details?: Record
+├── ConnectionError       code: CONNECTION_ERROR       category: CONNECTION
+├── PoolError             code: POOL_ERROR             category: CONNECTION  (accepts custom code)
+├── QueryError            code: QUERY_ERROR            category: QUERY
+├── AuthenticationError   code: AUTHENTICATION_ERROR   category: AUTHENTICATION
+├── AuthorizationError    code: AUTHORIZATION_ERROR    category: AUTHORIZATION
+├── ValidationError       code: VALIDATION_ERROR       category: VALIDATION
+└── TransactionError      code: TRANSACTION_ERROR      category: QUERY
 ```
 
-**ErrorResponse shape** (returned by all handlers on failure):
+**ErrorCategory enum** (9 categories) — `src/types/modules/error-types.ts`:
 ```typescript
-{ success: false, error: string, category: ErrorCategory, code: string,
-  recoverable: boolean, suggestion?: string, details?: Record }
+enum ErrorCategory {
+  CONNECTION, QUERY, VALIDATION, AUTHENTICATION, AUTHORIZATION,
+  RESOURCE, CONFIGURATION, TIMEOUT, UNKNOWN
+}
+```
+
+**ErrorResponse interface** — `src/types/modules/error-types.ts` (returned by all handlers on failure):
+```typescript
+interface ErrorResponse {
+  success: false;
+  error: string;
+  code: string;
+  category: ErrorCategory;
+  recoverable: boolean;
+  suggestion?: string;
+  details?: Record<string, unknown>;
+}
 ```
 
 **Usage pattern** — all tool handlers:
@@ -268,9 +288,12 @@ try {
 ```
 
 **Error helpers** — `tools/core/error-helpers.ts`:
-- `formatHandlerError(err)` — consolidated enriched `ErrorResponse` builder (handles `ZodError`, `MySQLMcpError`, generic `Error`)
+- `formatHandlerError(err)` — consolidated enriched `ErrorResponse` builder (handles `ZodError`, `MySQLMcpError`, generic `Error`). Returns full `ErrorResponse` with `category`, `code`, `recoverable`
 - `formatMysqlError(err)` / `formatZodError(err)` — internal string cleaners (used by `formatHandlerError`)
 - `stripErrorPrefix(msg)` — strips MySQL wire-protocol prefixes
+
+**Admin maintenance helpers** — `tools/admin/maintenance.ts`:
+- `extractMaintenanceError(rows)` — parses MySQL multi-row maintenance results for domain errors (e.g., table not found). Used by `optimize_table`, `analyze_table`, `check_table`, `repair_table` to correctly wrap errors instead of returning raw result objects
 
 ---
 
@@ -293,16 +316,18 @@ try {
 
 | Pattern | Description |
 |---------|-------------|
-| **Structured Errors** | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Includes `category`, `code`, `recoverable`. |
+| **Structured Errors** | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (9 categories) and `ErrorResponse` interface from `error-types.ts`. |
 | **Adapter Pattern** | `DatabaseAdapter` (abstract) → `MySQLAdapter`. Single adapter (no WASM/Native split). |
 | **Schema Cache** | `SchemaManager` caches table/column metadata with configurable TTL. Auto-invalidates on DDL. |
-| **Connection Pool** | `ConnectionPool` wraps mysql2/promise. Managed lifecycle with health checks. |
-| **Code Mode Bridge** | `mysql.*` API in worker thread communicates via MessagePort RPC to main thread handlers. |
-| **Tool Filtering** | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. |
+| **Connection Pool** | `ConnectionPool` wraps mysql2/promise. Managed lifecycle with health checks. Supports `initializationSql` for per-connection session variable setup. |
+| **Code Mode Bridge** | `mysql.*` API in worker thread communicates via MessagePort RPC to main thread handlers. `transformAutoReturn()` prepends `return` to last expression statement (Node REPL semantics). |
+| **Tool Filtering** | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. Supports meta-groups (`starter`, `dba-monitor`, etc.). |
 | **Monolithic Types** | Unlike db-mcp's per-group output-schemas, all Zod schemas live in `adapters/mysql/types.ts` (72KB). |
-| **Help Resources** | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 50KB monolith. `mysql://help/{group}` filtered by `--tool-filter`. |
+| **Help Resources** | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 53KB monolith. `mysql://help/{group}` filtered by `--tool-filter`. |
 | **Barrel Re-exports** | Import from `./module/index.js` (with `.js` extension for ESM). |
 | **Ecosystem Tools** | Router, ProxySQL, Shell, Cluster tools connect to external services on alternate ports. |
+| **OAuth Scope Enforcement** | Per-tool scope enforcement on `tools/call` JSON-RPC requests. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports intercept and validate `requireToolScope`. Uses `scope-map.ts` for O(1) tool→scope lookup. |
+| **Admin Maintenance** | `optimize_table`, `analyze_table`, `check_table`, `repair_table` use `rawQuery` (not `executeQuery`) to avoid prepared-statement corruption of multi-result-set DDL responses. `extractMaintenanceError()` parses domain errors from multi-row results. |
 
 ---
 
