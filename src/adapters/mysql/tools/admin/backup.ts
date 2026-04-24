@@ -135,12 +135,12 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (format === "CSV") {
           if (rows.length === 0) {
-            return { csv: "", rowCount: 0 };
+            return { success: true, csv: "", rowCount: 0 };
           }
 
           const firstRow = rows[0];
           if (!firstRow) {
-            return { csv: "", rowCount: 0 };
+            return { success: true, csv: "", rowCount: 0 };
           }
 
           const headers = Object.keys(firstRow);
@@ -151,13 +151,13 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             csvLines.push(values.join(","));
           }
 
-          return { csv: csvLines.join("\n"), rowCount: rows.length };
+          return { success: true, csv: csvLines.join("\n"), rowCount: rows.length };
         }
 
         // SQL format
         const firstRow = rows[0];
         if (!firstRow) {
-          return { sql: "", rowCount: 0 };
+          return { success: true, sql: "", rowCount: 0 };
         }
 
         const columns = Object.keys(firstRow)
@@ -175,7 +175,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        return { sql: insertStatements.join("\n"), rowCount: rows.length };
+        return { success: true, sql: insertStatements.join("\n"), rowCount: rows.length };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -263,12 +263,11 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
   };
 }
 
-export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
+export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
     database: z
       .string()
-      .optional()
-      .describe("Database name (defaults to current)"),
+      .describe("Database name"),
     tables: z.array(z.string()).optional().describe("Specific tables to dump"),
     noData: z
       .boolean()
@@ -298,21 +297,7 @@ export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
         const { database, tables, noData, singleTransaction } =
           schema.parse(params);
 
-        // Get current database if not specified
-        let dbName = database;
-        if (!dbName) {
-          const result = await adapter.executeReadQuery(
-            "SELECT DATABASE() as db",
-          );
-          const dbValue = result.rows?.[0]?.["db"];
-          if (typeof dbValue === "string") {
-            dbName = dbValue;
-          } else {
-            dbName = "";
-          }
-        }
-
-        let command = `mysqldump -u [username] -p ${dbName}`;
+        let command = `mysqldump -u [username] -p ${database}`;
 
         if (tables && tables.length > 0) {
           command += ` ${tables.join(" ")}`;
@@ -329,6 +314,7 @@ export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
         command += " > backup.sql";
 
         return {
+          success: true,
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
         };
@@ -339,9 +325,9 @@ export function createCreateDumpTool(adapter: MySQLAdapter): ToolDefinition {
   };
 }
 
-export function createRestoreDumpTool(adapter: MySQLAdapter): ToolDefinition {
+export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
-    database: z.string().optional().describe("Target database"),
+    database: z.string().describe("Target database"),
     filename: z.string().default("backup.sql").describe("Dump file to restore"),
   });
 
@@ -360,22 +346,10 @@ export function createRestoreDumpTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { database, filename } = schema.parse(params);
 
-        let dbName = database;
-        if (!dbName) {
-          const result = await adapter.executeReadQuery(
-            "SELECT DATABASE() as db",
-          );
-          const dbValue = result.rows?.[0]?.["db"];
-          if (typeof dbValue === "string") {
-            dbName = dbValue;
-          } else {
-            dbName = "";
-          }
-        }
-
-        const command = `mysql -u [username] -p ${dbName} < ${filename}`;
+        const command = `mysql -u [username] -p ${database} < ${filename}`;
 
         return {
+          success: true,
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
         };
