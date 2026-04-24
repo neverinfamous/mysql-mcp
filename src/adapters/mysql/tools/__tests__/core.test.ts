@@ -301,14 +301,14 @@ describe("Handler Execution", () => {
       expect(mockAdapter.listTables).toHaveBeenCalled();
     });
 
-    it("should return exists: false for nonexistent database", async () => {
+    it("should return structured error for nonexistent database", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_list_tables")!;
       const result = await tool.handler({ database: "fake_db" }, mockContext);
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("database", "fake_db");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).error).toContain("does not exist");
     });
   });
 
@@ -765,7 +765,7 @@ describe("Handler Execution", () => {
       );
     });
 
-    it("should return exists: false when table does not exist", async () => {
+    it("should return structured error when table does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -780,8 +780,8 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("table", "nonexistent");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).error).toContain("does not exist");
     });
 
     it("should return structured error for non-index errors in create index", async () => {

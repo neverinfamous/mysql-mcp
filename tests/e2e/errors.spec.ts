@@ -36,7 +36,7 @@ test.describe("Structured Error Responses", () => {
     });
 
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse((response.content[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
     expect(parsed.success).toBe(false);
     expect(typeof parsed.error).toBe("string");
   });
@@ -51,7 +51,7 @@ test.describe("Structured Error Responses", () => {
     });
 
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse((response.content[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
     expect(parsed.success).toBe(false);
     expect(typeof parsed.error).toBe("string");
   });
@@ -64,7 +64,7 @@ test.describe("Structured Error Responses", () => {
       });
 
       expect(Array.isArray(response.content)).toBe(true);
-      const text = (response.content[0] as any).text as string;
+      const text = ((response.content as any[])[0] as any).text as string;
       // Should reject mutation in read_query (either structured error or MCP error)
       expect(text.toLowerCase()).toMatch(/not allowed|read-only|invalid|error/);
     } catch (error: unknown) {
@@ -82,7 +82,7 @@ test.describe("Structured Error Responses", () => {
       });
 
       expect(Array.isArray(response.content)).toBe(true);
-      const text = (response.content[0] as any).text as string;
+      const text = ((response.content as any[])[0] as any).text as string;
       expect(text.toLowerCase()).toMatch(/not allowed|write|invalid|error/);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -101,7 +101,7 @@ test.describe("Structured Error Responses", () => {
     });
 
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse((response.content[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
     expect(parsed.success).toBe(false);
     expect(typeof parsed.error).toBe("string");
   });
@@ -113,8 +113,9 @@ test.describe("Structured Error Responses", () => {
     });
 
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse((response.content[0] as any).text);
-    // mysql_describe_table uses { exists: false } pattern (P154)
-    expect(parsed.exists).toBe(false);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
+    // mysql_describe_table now uses standard error pattern { success: false, error: ... }
+    expect(parsed.success).toBe(false);
+    expect(typeof parsed.error).toBe("string");
   });
 });

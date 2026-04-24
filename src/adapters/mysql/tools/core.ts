@@ -173,9 +173,8 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (!dbCheck.rows || dbCheck.rows.length === 0) {
             return {
-              exists: false,
-              database,
-              message: `Database '${database}' does not exist`,
+              success: false,
+              error: `Database '${database}' does not exist`,
             };
           }
         }
@@ -221,9 +220,8 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
         // Graceful handling for non-existent tables
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
           return {
-            exists: false,
-            table,
-            message: `Table '${table}' does not exist or has no columns`,
+            success: false,
+            error: `Table '${table}' does not exist or has no columns`,
           };
         }
         return { ...tableInfo, exists: true };
@@ -465,10 +463,8 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
           return {
-            exists: false,
-            table,
-            indexes: [],
-            message: `Table '${table}' does not exist`,
+            success: false,
+            error: `Table '${table}' does not exist`,
           };
         }
         const indexes = await adapter.getTableIndexes(table);
@@ -555,7 +551,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
             };
           }
           if (message.includes("doesn't exist")) {
-            return { exists: false, table };
+            return { success: false, error: `Table '${table}' does not exist` };
           }
           return formatHandlerErrorResponse(err);
         }
