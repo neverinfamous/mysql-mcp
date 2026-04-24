@@ -22,7 +22,8 @@ import {
   FulltextExpandSchema,
   FulltextExpandSchemaBase,
 } from "../../schemas/index.js";
-import { z } from "zod";
+import { z, ZodError } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
@@ -92,39 +93,46 @@ export function createFulltextCreateTool(
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, indexName } = FulltextCreateSchema.parse(params);
-
-      const name = indexName ?? `ft_${table}_${columns.join("_")}`;
-      const columnList = columns.map((c) => `\`${c}\``).join(", ");
-
-      const sql = `CREATE FULLTEXT INDEX \`${name}\` ON \`${table}\` (${columnList})`;
-
       try {
-        await adapter.executeQuery(sql);
-      } catch (err: unknown) {
-        if (isDuplicateKeyError(err)) {
-          return {
-            success: false,
-            error: `Index '${name}' already exists on table '${table}'`,
-          };
-        }
-        const msg = err instanceof Error ? err.message : String(err);
-        // Distinguish column-not-found (errno 1072) from table-not-found
-        if (
-          (err as Error & { errno?: number }).errno === 1072 ||
-          msg.includes("Key column") ||
-          msg.includes("Column '")
-        ) {
-          return { success: false, error: msg };
-        }
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
-        }
-        return { success: false, error: msg };
-      }
+        const { table, columns, indexName } = FulltextCreateSchema.parse(params);
 
-      adapter.clearSchemaCache();
-      return { success: true, indexName: name, columns };
+        const name = indexName ?? `ft_${table}_${columns.join("_")}`;
+        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+
+        const sql = `CREATE FULLTEXT INDEX \`${name}\` ON \`${table}\` (${columnList})`;
+
+        try {
+          await adapter.executeQuery(sql);
+        } catch (err: unknown) {
+          if (isDuplicateKeyError(err)) {
+            return {
+              success: false,
+              error: `Index '${name}' already exists on table '${table}'`,
+            };
+          }
+          const msg = err instanceof Error ? err.message : String(err);
+          // Distinguish column-not-found (errno 1072) from table-not-found
+          if (
+            (err as Error & { errno?: number }).errno === 1072 ||
+            msg.includes("Key column") ||
+            msg.includes("Column '")
+          ) {
+            return { success: false, error: msg };
+          }
+          if (msg.includes("doesn't exist")) {
+            return { success: false, error: `Table '${table}' does not exist` };
+          }
+          return formatHandlerErrorResponse(err);
+        }
+
+        adapter.clearSchemaCache();
+        return { success: true, indexName: name, columns };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return formatHandlerErrorResponse(error);
+      }
     },
   };
 }
@@ -142,32 +150,39 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
       destructiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, indexName } = FulltextDropSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(indexName, "index");
-
-      const sql = `DROP INDEX \`${indexName}\` ON ${escapeQualifiedTable(table)}`;
-
       try {
-        await adapter.executeQuery(sql);
-      } catch (err: unknown) {
-        if (isCantDropKeyError(err)) {
-          return {
-            success: false,
-            error: `Index '${indexName}' does not exist on table '${table}'`,
-          };
-        }
-        const msg = err instanceof Error ? err.message : String(err);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
-        }
-        return { success: false, error: msg };
-      }
+        const { table, indexName } = FulltextDropSchema.parse(params);
 
-      adapter.clearSchemaCache();
-      return { success: true, indexName, table };
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(indexName, "index");
+
+        const sql = `DROP INDEX \`${indexName}\` ON ${escapeQualifiedTable(table)}`;
+
+        try {
+          await adapter.executeQuery(sql);
+        } catch (err: unknown) {
+          if (isCantDropKeyError(err)) {
+            return {
+              success: false,
+              error: `Index '${indexName}' does not exist on table '${table}'`,
+            };
+          }
+          const msg = err instanceof Error ? err.message : String(err);
+          if (msg.includes("doesn't exist")) {
+            return { success: false, error: `Table '${table}' does not exist` };
+          }
+          return formatHandlerErrorResponse(err);
+        }
+
+        adapter.clearSchemaCache();
+        return { success: true, indexName, table };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return formatHandlerErrorResponse(error);
+      }
     },
   };
 }
@@ -196,45 +211,55 @@ export function createFulltextSearchTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const parsed = FulltextSearchSchema.parse(params);
-      const { table, columns, query, mode } = parsed;
-      const maxLength = (params as Record<string, unknown>)["maxLength"] as
-        | number
-        | undefined;
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      for (const col of columns) {
-        validateIdentifier(col, "column");
-      }
-
-      const columnList = columns.map((c) => `\`${c}\``).join(", ");
-      let matchClause: string;
-
-      switch (mode) {
-        case "BOOLEAN":
-          matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
-          break;
-        case "EXPANSION":
-          matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
-          break;
-        default:
-          matchClause = `MATCH(${columnList}) AGAINST(? IN NATURAL LANGUAGE MODE)`;
-      }
-
-      // Return only id, searched columns, and relevance for minimal payload
-      const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-
       try {
-        const result = await adapter.executeReadQuery(sql, [query, query]);
-        const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-        return { rows, count: rows.length };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        const parsed = FulltextSearchSchema.parse(params);
+        const { table, columns, query, mode } = parsed;
+        const maxLength = (params as Record<string, unknown>)["maxLength"] as
+          | number
+          | undefined;
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        for (const col of columns) {
+          validateIdentifier(col, "column");
         }
-        return { success: false, error: msg };
+
+        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        let matchClause: string;
+
+        switch (mode) {
+          case "BOOLEAN":
+            matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
+            break;
+          case "EXPANSION":
+            matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
+            break;
+          default:
+            matchClause = `MATCH(${columnList}) AGAINST(? IN NATURAL LANGUAGE MODE)`;
+        }
+
+        // Return only id, searched columns, and relevance for minimal payload
+        const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+
+        try {
+          const result = await adapter.executeReadQuery(sql, [query, query]);
+          const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+          return { success: true, rows, count: rows.length };
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg.includes("doesn't exist")) {
+            return { success: false, error: `Table '${table}' does not exist` };
+          }
+          if (msg.includes("Can't find FULLTEXT index matching the column list")) {
+            return { success: false, error: "No FULLTEXT index found for the specified columns" };
+          }
+          return formatHandlerErrorResponse(error);
+        }
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -256,31 +281,41 @@ export function createFulltextBooleanTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query, maxLength } =
-        FulltextBooleanSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      for (const col of columns) {
-        validateIdentifier(col, "column");
-      }
-
-      const columnList = columns.map((c) => `\`${c}\``).join(", ");
-      const matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
-
-      // Return only id, searched columns, and relevance for minimal payload
-      const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
-
       try {
-        const result = await adapter.executeReadQuery(sql, [query, query]);
-        const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-        return { rows, count: rows.length };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        const { table, columns, query, maxLength } =
+          FulltextBooleanSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        for (const col of columns) {
+          validateIdentifier(col, "column");
         }
-        return { success: false, error: msg };
+
+        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        const matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
+
+        // Return only id, searched columns, and relevance for minimal payload
+        const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+
+        try {
+          const result = await adapter.executeReadQuery(sql, [query, query]);
+          const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+          return { success: true, rows, count: rows.length };
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg.includes("doesn't exist")) {
+            return { success: false, error: `Table '${table}' does not exist` };
+          }
+          if (msg.includes("Can't find FULLTEXT index matching the column list")) {
+            return { success: false, error: "No FULLTEXT index found for the specified columns" };
+          }
+          return formatHandlerErrorResponse(error);
+        }
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -302,31 +337,41 @@ export function createFulltextExpandTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, query, maxLength } =
-        FulltextExpandSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      for (const col of columns) {
-        validateIdentifier(col, "column");
-      }
-
-      const columnList = columns.map((c) => `\`${c}\``).join(", ");
-      const matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
-
-      // Return only id, searched columns, and relevance for minimal payload
-      const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-
       try {
-        const result = await adapter.executeReadQuery(sql, [query, query]);
-        const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-        return { rows, count: rows.length };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        const { table, columns, query, maxLength } =
+          FulltextExpandSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        for (const col of columns) {
+          validateIdentifier(col, "column");
         }
-        return { success: false, error: msg };
+
+        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        const matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
+
+        // Return only id, searched columns, and relevance for minimal payload
+        const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+
+        try {
+          const result = await adapter.executeReadQuery(sql, [query, query]);
+          const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
+          return { success: true, rows, count: rows.length };
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg.includes("doesn't exist")) {
+            return { success: false, error: `Table '${table}' does not exist` };
+          }
+          if (msg.includes("Can't find FULLTEXT index matching the column list")) {
+            return { success: false, error: "No FULLTEXT index found for the specified columns" };
+          }
+          return formatHandlerErrorResponse(error);
+        }
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };

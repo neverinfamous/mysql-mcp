@@ -1,27 +1,16 @@
-# Events Tool Group Verification
+# MySQL-MCP Code Mode Re-Testing: [fulltext]
 
-## Objective
-Verify the `events` tool group using ONLY code mode (`mysql_execute_code`), ensure structured error responses, and track the findings.
+## Coverage Matrix
 
-## Code Mode Test Coverage
-1. `mysql.events.help()` -> Validated method listing
-2. `mysql.events.schedulerStatus()` -> Validated status
-3. `mysql.events.list()` -> Validated list structure
-4. `mysql.events.create(...)` -> Validated successful creation
-5. `mysql.events.status(...)` -> Validated happy path status
-6. `mysql.events.alter(...)` -> Validated successful alteration
-7. `mysql.events.drop(...)` -> Validated successful drop
-8. `mysql.events.status({name: "nonexistent_xyz"})` -> Validated Domain Error
-9. `mysql.events.drop({name: "nonexistent_xyz"})` -> Validated Domain Error
-10. `mysql.events.alter({name: "nonexistent_xyz"})` -> Validated Domain Error
-11. `mysql.events.create({})` -> Validated Zod Error
+| Tool | Happy Path | Domain Error | Zod Error | Status |
+|------|------------|--------------|-----------|--------|
+| `mysql_fulltext_create` | ✅ Passed | ✅ Handled (Duplicate/Table Missing) | ✅ Handled | Fixed & Compliant |
+| `mysql_fulltext_drop` | ✅ Passed | ✅ Handled (Index Missing/Table Missing) | ✅ Handled | Fixed & Compliant |
+| `mysql_fulltext_search` | ✅ Passed | ✅ Handled (No FTS Index/Table Missing) | ✅ Handled | Fixed & Compliant |
+| `mysql_fulltext_boolean` | ✅ Passed | ✅ Handled (Table Missing) | ✅ Handled | Fixed & Compliant |
+| `mysql_fulltext_expand` | ✅ Passed | ✅ Handled (Table Missing) | ✅ Handled | Fixed & Compliant |
 
-## Results
-- **Happy Paths**: ✅ All passed successfully.
-- **Domain Errors**: ✅ Correctly returned as structured responses (e.g., `{ success: false, error: "Event does not exist" }`). No MCP errors were thrown.
-- **Zod Validation**: ✅ Missing parameters correctly resulted in a structured error: `{ success: false, error: "Validation error: ...", code: "VALIDATION_ERROR" }`. No unhandled promise rejections.
-- **Metrics**: Average token payload strictly monitored. Execution overhead minimal.
-
-## Findings
-- **Failures**: 0
-- **Remediations Required**: None. The `events` tool group handlers and Zod validation are fully compliant with the project's standard `ErrorResponse` schema and architectural requirements. No fixes needed.
+## Findings & Remediation
+- **Domain Errors**: The handlers were previously returning custom `{ exists: false, table }` payloads. They have been refactored to return the standard `{ success: false, error: "..." }` responses.
+- **Zod Errors**: The handlers were allowing `ZodError` objects to bubble up, which resulted in raw MCP exception payloads instead of standard ErrorResponse wrappers. Wrapped handlers in `try-catch` blocks and leveraged `formatHandlerErrorResponse` to properly intercept and format `ZodError` instances.
+- **Unit Tests**: Updated `fulltext.test.ts` to expect `success: false` in error assertions rather than legacy `exists: false` properties, bringing all 30 tests to passing status.
