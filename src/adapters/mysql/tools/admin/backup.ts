@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { stripErrorPrefix, formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -229,28 +229,9 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             totalInserted++;
           }
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          // Graceful handling for missing table (P154)
-          if (errorMessage.includes("doesn't exist")) {
-            return {
-              success: false,
-              error: stripErrorPrefix(errorMessage),
-              rowsInserted: totalInserted,
-            };
-          }
-          // Graceful handling for duplicate key violations
-          if (errorMessage.includes("Duplicate entry")) {
-            return {
-              success: false,
-              error: stripErrorPrefix(errorMessage),
-              rowsInserted: totalInserted,
-            };
-          }
-          // Catch-all for other MySQL errors (unknown column, data truncation, etc.)
+          const response = formatHandlerErrorResponse(error);
           return {
-            success: false,
-            error: stripErrorPrefix(errorMessage),
+            ...response,
             rowsInserted: totalInserted,
           };
         }

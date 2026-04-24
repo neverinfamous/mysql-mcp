@@ -81,7 +81,9 @@ export function stripErrorPrefix(msg: string): string {
 export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   // MySQLMcpError — already enriched
   if (err instanceof MySQLMcpError) {
-    return err.toResponse();
+    const response = err.toResponse();
+    response.error = formatMysqlError(response.error);
+    return response;
   }
 
   // Zod validation error
