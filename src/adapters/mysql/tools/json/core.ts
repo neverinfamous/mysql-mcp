@@ -77,6 +77,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, path, where } = JsonExtractSchema.parse(params);
 
       // Validate inputs
@@ -86,7 +87,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
       }
 
-      try {
+      
         let sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as extracted_value FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] = [path];
 
@@ -122,6 +123,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, path, value, where } = JsonSetSchema.parse(params);
 
       // Validate inputs
@@ -129,7 +131,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      try {
+      
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
@@ -163,6 +165,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, path, value, where } =
         JsonInsertSchema.parse(params);
 
@@ -171,7 +174,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      try {
+      
         // Check if path already exists before insert
         const checkSql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as existing_value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql, [path]);
@@ -220,6 +223,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, path, value, where } =
         JsonReplaceSchema.parse(params);
 
@@ -228,7 +232,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      try {
+      
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
@@ -261,6 +265,7 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, paths, where } = JsonRemoveSchema.parse(params);
 
       // Validate inputs
@@ -268,7 +273,7 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      try {
+      
         const pathPlaceholders = paths.map(() => "?").join(", ");
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathPlaceholders}) WHERE ${where}`;
 
@@ -301,13 +306,14 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, value, path } = JsonContainsSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      try {
+      
         // JSON_CONTAINS expects the value to be a valid JSON document
         // We ensure strict validation so that strings must be quoted (e.g. '"green"')
         const jsonValue = validateJsonString(value);
@@ -350,13 +356,14 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, path } = JsonKeysSchema.parse(params);
 
       // Validate inputs
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      try {
+      
         const jsonPath = path ?? "$";
         const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} HAVING json_keys IS NOT NULL`;
 
@@ -390,6 +397,7 @@ export function createJsonArrayAppendTool(
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, path, value, where } =
         JsonArrayAppendSchema.parse(params);
 
@@ -398,7 +406,7 @@ export function createJsonArrayAppendTool(
       validateIdentifier(column, "column");
       validateWhereClause(where);
 
-      try {
+      
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);

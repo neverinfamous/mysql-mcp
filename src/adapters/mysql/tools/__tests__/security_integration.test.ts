@@ -61,7 +61,7 @@ describe("Security: Validation Flow Integration", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("dangerous SQL patterns");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("dangerous SQL patterns") });
 
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
@@ -189,7 +189,7 @@ describe("Security: Validation Flow Integration", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid table name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid table name") });
     });
   });
 });

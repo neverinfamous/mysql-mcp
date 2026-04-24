@@ -96,7 +96,8 @@ export const JsonContainsSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  value: z.unknown().describe("Value to search for"),
+  value: z.unknown().optional().describe("Value to search for"),
+  contains: z.unknown().optional().describe("Alias for value"),
   path: z.string().optional().describe("Optional JSON path to search within"),
 });
 
@@ -109,14 +110,15 @@ export const JsonContainsSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      value: z.unknown(),
+      value: z.unknown().optional(),
+      contains: z.unknown().optional(),
       path: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    value: data.value,
+    value: data.value ?? data.contains,
     path: data.path,
   }))
   .refine((data) => data.table !== "", {
@@ -124,6 +126,9 @@ export const JsonContainsSchema = z
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
+  })
+  .refine((data) => data.value !== undefined, {
+    message: "value (or contains alias) is required",
   });
 
 // --- JsonKeys ---

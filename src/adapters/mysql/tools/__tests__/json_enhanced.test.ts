@@ -191,7 +191,7 @@ describe("JSON Enhanced Handler Execution", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid table name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid table name") });
     });
 
     it("should reject invalid column names", async () => {
@@ -206,7 +206,7 @@ describe("JSON Enhanced Handler Execution", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid column name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid column name") });
     });
 
     it("should handle database errors during normalization", async () => {
@@ -279,7 +279,7 @@ describe("JSON Enhanced Handler Execution", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid table name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid table name") });
     });
 
     it("should handle zero rows", async () => {
@@ -381,7 +381,7 @@ describe("JSON Enhanced Handler Execution", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid column name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid column name") });
     });
 
     it("should handle empty index suggestions", async () => {

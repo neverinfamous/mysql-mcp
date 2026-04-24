@@ -191,7 +191,7 @@ describe("Security: SQL Injection Prevention", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid table name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid table name") });
     });
 
     it("should reject column name with injection in mysql_json_extract", async () => {
@@ -207,7 +207,7 @@ describe("Security: SQL Injection Prevention", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("Invalid column name");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("Invalid column name") });
     });
 
     it("should reject WHERE clause with BENCHMARK attack in mysql_json_set", async () => {
@@ -225,7 +225,7 @@ describe("Security: SQL Injection Prevention", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("dangerous SQL patterns");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("dangerous SQL patterns") });
     });
 
     it("should reject WHERE clause with file operation attack", async () => {
@@ -243,7 +243,7 @@ describe("Security: SQL Injection Prevention", () => {
           },
           mockContext,
         ),
-      ).rejects.toThrow("dangerous SQL patterns");
+      ).resolves.toMatchObject({ success: false, error: expect.stringContaining("dangerous SQL patterns") });
     });
 
     it("should accept valid inputs in mysql_json_set", async () => {

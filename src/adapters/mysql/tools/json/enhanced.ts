@@ -27,19 +27,58 @@ import {
 } from "../../../../utils/validators.js";
 
 // Schemas for json_merge and json_diff (no table/column — no aliases needed)
-const JsonMergeSchema = z.object({
-  json1: z.string().describe("First JSON document"),
-  json2: z.string().describe("Second JSON document"),
-  mode: z
-    .enum(["patch", "preserve"])
-    .default("patch")
-    .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
-});
+const JsonMergeSchema = z
+  .object({
+    json1: z.unknown().optional().describe("First JSON document"),
+    doc1: z.unknown().optional().describe("Alias for json1"),
+    json2: z.unknown().optional().describe("Second JSON document"),
+    doc2: z.unknown().optional().describe("Alias for json2"),
+    mode: z
+      .enum(["patch", "preserve"])
+      .default("patch")
+      .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
+  })
+  .transform((data) => {
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2;
+    return {
+      json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
+      json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
+      mode: data.mode,
+      _raw1: val1,
+      _raw2: val2,
+    };
+  })
+  .refine((data) => data._raw1 !== undefined, {
+    message: "json1 (or doc1 alias) is required",
+  })
+  .refine((data) => data._raw2 !== undefined, {
+    message: "json2 (or doc2 alias) is required",
+  });
 
-const JsonDiffSchema = z.object({
-  json1: z.string().describe("First JSON document"),
-  json2: z.string().describe("Second JSON document"),
-});
+const JsonDiffSchema = z
+  .object({
+    json1: z.unknown().optional().describe("First JSON document"),
+    doc1: z.unknown().optional().describe("Alias for json1"),
+    json2: z.unknown().optional().describe("Second JSON document"),
+    doc2: z.unknown().optional().describe("Alias for json2"),
+  })
+  .transform((data) => {
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2;
+    return {
+      json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
+      json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
+      _raw1: val1,
+      _raw2: val2,
+    };
+  })
+  .refine((data) => data._raw1 !== undefined, {
+    message: "json1 (or doc1 alias) is required",
+  })
+  .refine((data) => data._raw2 !== undefined, {
+    message: "json2 (or doc2 alias) is required",
+  });
 
 // =============================================================================
 // Tool Creation Functions
@@ -59,9 +98,10 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { json1, json2, mode } = JsonMergeSchema.parse(params);
 
-      try {
+      
         const mergeFunction =
           mode === "patch" ? "JSON_MERGE_PATCH" : "JSON_MERGE_PRESERVE";
         const sql = `SELECT ${mergeFunction}(?, ?) as merged`;
@@ -99,9 +139,10 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { json1, json2 } = JsonDiffSchema.parse(params);
 
-      try {
+      
         // MySQL doesn't have native JSON_DIFF, so we compare key-by-key
         const sql = `
                 SELECT 
@@ -231,13 +272,14 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, where, limit } = JsonNormalizeSchema.parse(params);
 
       // Validate identifiers
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      try {
+      
         const whereClause = where ? `WHERE ${where}` : "";
 
         // Get all unique top-level keys
@@ -309,6 +351,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, where, sampleSize } =
         JsonStatsSchema.parse(params);
 
@@ -316,7 +359,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      try {
+      
         const whereClause = where ? `WHERE ${where}` : "";
 
         const statsQuery = `
@@ -385,6 +428,7 @@ export function createJsonIndexSuggestTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
+      try {
       const { table, column, sampleSize } =
         JsonIndexSuggestSchema.parse(params);
 
@@ -392,7 +436,7 @@ export function createJsonIndexSuggestTool(
       validateQualifiedIdentifier(table, "table");
       validateIdentifier(column, "column");
 
-      try {
+      
         // Get top-level keys and their types
         const keysQuery = `
                 SELECT DISTINCT jt.key_name
