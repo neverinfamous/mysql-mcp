@@ -47,7 +47,7 @@
 
 ### performance Group-Specific Testing
 
-performance Tool Group (8 tools +1 for code mode):
+performance Tool Group (11 tools +1 for code mode):
 
 1. 'mysql_explain'
 2. 'mysql_explain_analyze'
@@ -57,7 +57,10 @@ performance Tool Group (8 tools +1 for code mode):
 6. 'mysql_table_stats'
 7. 'mysql_buffer_pool_stats'
 8. 'mysql_thread_stats'
-9. 'mysql_execute_code' (codemode, auto-added)
+9. 'mysql_detect_query_anomalies'
+10. 'mysql_detect_bloat_risk'
+11. 'mysql_detect_connection_spike'
+12. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
@@ -68,18 +71,22 @@ performance Tool Group (8 tools +1 for code mode):
 5. `mysql_buffer_pool_stats()` → verify buffer pool metrics
 6. `mysql_thread_stats()` → verify thread statistics
 7. `mysql_query_stats({limit: 3})` → verify top query statistics
+8. `mysql_detect_query_anomalies()` → verify query anomalies detected
+9. `mysql_detect_bloat_risk()` → verify table bloat risks
+10. `mysql_detect_connection_spike()` → verify connection spike risks
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql_table_stats({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error (P154)
-9. 🔴 `mysql_explain({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
+11. 🔴 `mysql_table_stats({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error (P154)
+12. 🔴 `mysql_explain({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql_explain({})` → `{success: false, error: "..."}` (missing required `query`)
-11. 🔴 `mysql_table_stats({})` → `{success: false, error: "..."}` (missing required params)
+13. 🔴 `mysql_explain({})` → `{success: false, error: "..."}` (missing required `query`)
+14. 🔴 `mysql_table_stats({})` → `{success: false, error: "..."}` (missing required params)
+15. 🔴 `mysql_detect_query_anomalies({minExecutions: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
 
 **Wrong-type numeric param coercion (🔴):**
 
-12. 🔴 `mysql_query_stats({limit: "abc"})` → must NOT return raw MCP error
-13. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error
+16. 🔴 `mysql_query_stats({limit: "abc"})` → must NOT return raw MCP error
+17. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error

@@ -59,7 +59,7 @@
 
 ### stats Group-Specific Testing
 
-stats Tool Group (8 tools +1 for code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. 'mysql_stats_descriptive'
 2. 'mysql_stats_percentiles'
@@ -69,7 +69,19 @@ stats Tool Group (8 tools +1 for code mode):
 6. 'mysql_stats_regression'
 7. 'mysql_stats_sampling'
 8. 'mysql_stats_histogram'
-9. 'mysql_execute_code' (codemode, auto-added)
+9. 'mysql_stats_row_number'
+10. 'mysql_stats_rank'
+11. 'mysql_stats_lag_lead'
+12. 'mysql_stats_running_total'
+13. 'mysql_stats_moving_avg'
+14. 'mysql_stats_ntile'
+15. 'mysql_stats_hypothesis'
+16. 'mysql_stats_outliers'
+17. 'mysql_stats_top_n'
+18. 'mysql_stats_distinct'
+19. 'mysql_stats_frequency'
+20. 'mysql_stats_summary'
+21. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
@@ -84,19 +96,25 @@ stats Tool Group (8 tools +1 for code mode):
 5. `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: 10})` → verify histogram data
 6. `mysql_stats_sampling({table: "test_measurements", sampleSize: 10})` → verify approximately 10 rows returned
 7. `mysql_stats_regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → verify regression coefficients returned
+8. `mysql_stats_row_number({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+9. `mysql_stats_moving_avg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+10. `mysql_stats_outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
+11. `mysql_stats_summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql_stats_descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false, error: "..."}` handler error
-9. 🔴 `mysql_stats_correlation({table: "test_products", column1: "name", column2: "description"})` → error about non-numeric columns
+12. 🔴 `mysql_stats_descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false, error: "..."}` handler error
+13. 🔴 `mysql_stats_correlation({table: "test_products", column1: "name", column2: "description"})` → error about non-numeric columns
+14. 🔴 `mysql_stats_moving_avg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql_stats_descriptive({})` → `{success: false, error: "..."}` (Zod validation)
-11. 🔴 `mysql_stats_percentiles({})` → `{success: false, error: "..."}` (missing required params)
+15. 🔴 `mysql_stats_descriptive({})` → `{success: false, error: "..."}` (Zod validation)
+16. 🔴 `mysql_stats_percentiles({})` → `{success: false, error: "..."}` (missing required params)
+17. 🔴 `mysql_stats_outliers({})` → `{success: false, error: "..."}` (Zod validation)
 
 **Wrong-type numeric param coercion (🔴):**
 
-12. 🔴 `mysql_stats_sampling({table: "test_measurements", sampleSize: "abc"})` → must NOT return raw MCP error
-13. 🔴 `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
-14. 🔴 `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
+18. 🔴 `mysql_stats_sampling({table: "test_measurements", sampleSize: "abc"})` → must NOT return raw MCP error
+19. 🔴 `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
+20. 🔴 `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error

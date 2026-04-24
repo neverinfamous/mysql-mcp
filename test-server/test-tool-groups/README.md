@@ -1,6 +1,6 @@
 # MySQL-MCP Standard Testing Suite
 
-**Directory Purpose**: This folder contains 25 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.
+**Directory Purpose**: This folder contains 28 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.
 
 ## Agent Instructions
 
@@ -40,23 +40,25 @@ When tasked with running tests from this folder, adhere to the following optimiz
 5. `document` (9 tools)
 6. `events` (6 tools)
 7. `fulltext` (5 tools)
-8. `json` (17 tools)
-9. `monitoring` (7 tools)
-10. `optimization` (4 tools)
-11. `partitioning` (4 tools)
-12. `performance` (8 tools)
-13. `proxysql` (11 tools)
-14. `replication` (5 tools)
-15. `roles` (8 tools)
-16. `router` (9 tools)
-17. `schema` (10 tools)
-18. `security` (9 tools)
-19. `shell` (10 tools)
-20. `spatial` (12 tools)
-21. `stats` (8 tools)
-22. `sys` (8 tools)
-23. `text` (6 tools)
-24. `transactions` (7 tools)
+8. `introspection` (6 tools)
+9. `json` (17 tools)
+10. `migration` (6 tools)
+11. `monitoring` (7 tools)
+12. `optimization` (4 tools)
+13. `partitioning` (4 tools)
+14. `performance` (11 tools)
+15. `proxysql` (11 tools)
+16. `replication` (5 tools)
+17. `roles` (8 tools)
+18. `router` (9 tools)
+19. `schema` (10 tools)
+20. `security` (9 tools)
+21. `shell` (10 tools)
+22. `spatial` (12 tools)
+23. `stats` (20 tools)
+24. `sys` (8 tools)
+25. `text` (6 tools)
+26. `transactions` (7 tools)
 
 ## Execution
 

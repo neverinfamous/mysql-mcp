@@ -11,7 +11,7 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 
 ## Execution Parts
 
-The original monolithic advanced stress testing suite was split into 9 granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
+The original monolithic advanced stress testing suite was split into 12 granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
 | File | Primary Focus | Key Validations |
 |------|---------------|-----------------|
@@ -21,8 +21,11 @@ The original monolithic advanced stress testing suite was split into 9 granular 
 | `test-tools-advanced-spatial.md` | Spatial | Boundary coordinates, out-of-bounds validation, exact boundary values |
 | `test-tools-advanced-document.md` | Document Store | Empty array edge cases, nonexistent field criteria, collection lifecycle |
 | `test-tools-advanced-fulltext.md` | Fulltext/Search | Search pipeline lifecycle, temp table FTS index creation and search |
+| `test-tools-advanced-introspection.md` | Introspection | Deep dependency graphs, circular foreign keys, cascade limit testing |
+| `test-tools-advanced-migration.md` | Migration | Corrupted checksums, out-of-order logs, idempotency, boundary rollbacks |
+| `test-tools-advanced-stats.md` | Stats | Null handling, zero-variance arrays, hypothesis boundaries, missing types |
 | `test-tools-advanced-admin.md` | Admin/Error Quality | Cross-group error message quality, type mismatches, invalid parameter values, payload sizes |
-| `test-tools-advanced-performance.md` | Performance/Payload | Truncation indicators, default payload sizes, summary mode comparisons |
+| `test-tools-advanced-performance.md` | Performance/Payload | Truncation indicators, summary mode, anomaly detection bounds |
 | `test-tools-advanced-cross-group.md` | Cross-Group | Code Mode parity, discovery methods, multi-group integration workflows |
 
 ### Test Results
