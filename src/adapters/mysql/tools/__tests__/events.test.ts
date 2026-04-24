@@ -74,10 +74,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "cleanup_once",
-          schedule: {
-            type: "ONE TIME",
-            executeAt: "2024-12-31 23:59:59",
-          },
+          schedule: "AT '2024-12-31 23:59:59'",
           body: "DELETE FROM temp_data",
         },
         mockContext,
@@ -97,11 +94,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           name: "daily_cleanup",
-          schedule: {
-            type: "RECURRING",
-            interval: 1,
-            intervalUnit: "DAY",
-          },
+          schedule: "EVERY 1 DAY",
           body: "DELETE FROM logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)",
         },
         mockContext,
@@ -120,7 +113,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "cleanup_job",
-          enabled: false,
+          status: "DISABLE",
         },
         mockContext,
       );
@@ -175,11 +168,6 @@ describe("Handler Execution", () => {
 
   describe("mysql_event_drop", () => {
     it("should drop an event", async () => {
-      // First call: pre-check returns event exists (ifExists defaults to true)
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ EVENT_NAME: "old_event" }]),
-      );
-      // Second call: actual DROP
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_drop")!;
@@ -190,8 +178,8 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      const dropCall = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(dropCall).toContain("DROP EVENT");
       expect(result).toHaveProperty("success", true);
     });
@@ -217,7 +205,7 @@ describe("Handler Execution", () => {
       expect(dropCall).toContain("IF EXISTS");
     });
 
-    it("should return skipped when ifExists is true and event does not exist", async () => {
+    it("should return structured error when ifExists is true and event does not exist", async () => {
       // Pre-check returns empty (event doesn't exist)
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -231,10 +219,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toEqual({
-        success: true,
-        skipped: true,
-        reason: "Event did not exist",
-        eventName: "ghost_event",
+        success: false,
+        error: "Event does not exist",
       });
       // Should only have the pre-check query, no DROP
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -286,7 +272,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, schema: "nonexistent_db" });
+      expect(result).toEqual({ success: false, error: "Schema does not exist" });
       // Should only have the schema check query, no event list query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -327,7 +313,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, name: "nonexistent_event" });
+      expect(result).toEqual({ success: false, error: "Event does not exist" });
     });
 
     it("should return exists false for nonexistent schema", async () => {
@@ -339,7 +325,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, schema: "nonexistent_db" });
+      expect(result).toEqual({ success: false, error: "Schema does not exist" });
       // Should only have the schema check query, no event status query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -384,7 +370,7 @@ describe("Event Create Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "DELETE FROM temp",
         ifNotExists: true,
       },
@@ -395,7 +381,7 @@ describe("Event Create Advanced", () => {
     expect(call).toContain("IF NOT EXISTS");
   });
 
-  it("should return skipped when ifNotExists is true and event already exists", async () => {
+  it("should return structured error when ifNotExists is true and event already exists", async () => {
     // Pre-check returns existing event
     mockAdapter.executeQuery.mockResolvedValueOnce(
       createMockQueryResult([{ EVENT_NAME: "my_event" }]),
@@ -405,7 +391,7 @@ describe("Event Create Advanced", () => {
     const result = await tool.handler(
       {
         name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "DELETE FROM temp",
         ifNotExists: true,
       },
@@ -413,10 +399,8 @@ describe("Event Create Advanced", () => {
     );
 
     expect(result).toEqual({
-      success: true,
-      skipped: true,
-      reason: "Event already exists",
-      eventName: "my_event",
+      success: false,
+      error: "Event already exists",
     });
     // Should only have the pre-check query, no CREATE
     expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -429,13 +413,7 @@ describe("Event Create Advanced", () => {
     await tool.handler(
       {
         name: "recurring_event",
-        schedule: {
-          type: "RECURRING",
-          interval: 1,
-          intervalUnit: "HOUR",
-          starts: "2024-01-01 00:00:00",
-          ends: "2024-12-31 23:59:59",
-        },
+        schedule: "EVERY 1 HOUR STARTS '2024-01-01 00:00:00' ENDS '2024-12-31 23:59:59'",
         body: "CALL cleanup_proc()",
       },
       mockContext,
@@ -453,7 +431,7 @@ describe("Event Create Advanced", () => {
     await tool.handler(
       {
         name: "commented_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
         comment: "This is a test event",
       },
@@ -472,9 +450,9 @@ describe("Event Create Advanced", () => {
     await tool.handler(
       {
         name: "disabled_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
-        enabled: false,
+        status: "DISABLE",
       },
       mockContext,
     );
@@ -489,7 +467,7 @@ describe("Event Create Advanced", () => {
     const result = await tool.handler(
       {
         name: "123-invalid",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
       },
       mockContext,
@@ -498,99 +476,6 @@ describe("Event Create Advanced", () => {
     expect(result).toMatchObject({ success: false, error: "Invalid event name" });
   });
 
-  it("should return structured error when executeAt is missing for ONE TIME events", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
-
-    const result = await tool.handler(
-      {
-        name: "bad_event",
-        schedule: { type: "ONE TIME" },
-        body: "SELECT 1",
-      },
-      mockContext,
-    );
-
-    expect(result).toMatchObject({ success: false, error: "executeAt is required for ONE TIME events",
-    });
-  });
-
-  it("should return structured error when interval is missing for RECURRING events", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
-
-    const result = await tool.handler(
-      {
-        name: "bad_recurring",
-        schedule: { type: "RECURRING" },
-        body: "SELECT 1",
-      },
-      mockContext,
-    );
-
-    expect(result).toMatchObject({ success: false, error: "interval and intervalUnit are required for RECURRING events",
-    });
-  });
-
-  it("should return structured error for invalid schedule type on create", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        schedule: { type: "INVALID_TYPE" },
-        body: "SELECT 1",
-      },
-      mockContext,
-    );
-
-    expect(result).toHaveProperty("success", false);
-    expect(result).toHaveProperty("error");
-    expect((result as { error: string }).error).toContain(
-      "Invalid schedule type",
-    );
-  });
-
-  it("should return structured error for invalid onCompletion on create", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
-        body: "SELECT 1",
-        onCompletion: "INVALID_VALUE",
-      },
-      mockContext,
-    );
-
-    expect(result).toHaveProperty("success", false);
-    expect(result).toHaveProperty("error");
-    expect((result as { error: string }).error).toContain(
-      "Invalid onCompletion",
-    );
-  });
-
-  it("should return structured error for invalid intervalUnit on create", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        schedule: {
-          type: "RECURRING",
-          interval: 1,
-          intervalUnit: "INVALID_UNIT",
-        },
-        body: "SELECT 1",
-      },
-      mockContext,
-    );
-
-    expect(result).toHaveProperty("success", false);
-    expect(result).toHaveProperty("error");
-    expect((result as { error: string }).error).toContain(
-      "Invalid intervalUnit",
-    );
-  });
 });
 
 describe("Event Alter Advanced", () => {
@@ -612,7 +497,7 @@ describe("Event Alter Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
       },
       mockContext,
     );
@@ -628,13 +513,7 @@ describe("Event Alter Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        schedule: {
-          type: "RECURRING",
-          interval: 2,
-          intervalUnit: "HOUR",
-          starts: "2024-01-01 00:00:00",
-          ends: "2024-12-31 23:59:59",
-        },
+        schedule: "EVERY 2 HOUR STARTS '2024-01-01 00:00:00' ENDS '2024-12-31 23:59:59'",
       },
       mockContext,
     );
@@ -699,7 +578,7 @@ describe("Event Alter Advanced", () => {
     const result = await tool.handler(
       {
         name: "invalid-name",
-        enabled: true,
+        status: "ENABLE",
       },
       mockContext,
     );
@@ -735,71 +614,6 @@ describe("Event Alter Advanced", () => {
     });
   });
 
-  it("should return structured error when executeAt missing for ONE TIME alter", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        schedule: { type: "ONE TIME" },
-      },
-      mockContext,
-    );
-
-    expect(result).toMatchObject({ success: false, error: "executeAt is required for ONE TIME events",
-    });
-  });
-
-  it("should return structured error when interval missing for RECURRING alter", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        schedule: { type: "RECURRING" },
-      },
-      mockContext,
-    );
-
-    expect(result).toMatchObject({ success: false, error: "interval and intervalUnit are required for RECURRING events",
-    });
-  });
-
-  it("should return structured error for invalid onCompletion on alter", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        onCompletion: "INVALID_VALUE",
-      },
-      mockContext,
-    );
-
-    expect(result).toHaveProperty("success", false);
-    expect(result).toHaveProperty("error");
-    expect((result as { error: string }).error).toContain(
-      "Invalid onCompletion",
-    );
-  });
-
-  it("should return structured error for invalid schedule type on alter", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
-
-    const result = await tool.handler(
-      {
-        name: "my_event",
-        schedule: { type: "INVALID_TYPE" },
-      },
-      mockContext,
-    );
-
-    expect(result).toHaveProperty("success", false);
-    expect(result).toHaveProperty("error");
-    expect((result as { error: string }).error).toContain(
-      "Invalid schedule type",
-    );
-  });
 });
 
 describe("Event Drop Advanced", () => {
@@ -866,7 +680,7 @@ describe("Event Graceful Error Handling", () => {
     const result = await tool.handler(
       {
         name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
       },
       mockContext,
@@ -886,7 +700,7 @@ describe("Event Graceful Error Handling", () => {
     const result = await tool.handler(
       {
         name: "ghost_event",
-        enabled: true,
+        status: "ENABLE",
       },
       mockContext,
     );
@@ -921,7 +735,7 @@ describe("Event Graceful Error Handling", () => {
     const result = await tool.handler(
       {
         name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
       },
       mockContext,
@@ -941,7 +755,7 @@ describe("Event Graceful Error Handling", () => {
     const result = await tool.handler(
       {
         name: "my_event",
-        schedule: { type: "ONE TIME", executeAt: "2024-12-31 23:59:59" },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECTT * FROMM",
       },
       mockContext,

@@ -19,12 +19,13 @@
 
 ## Fixed
 - **Core Tool Constraints**: Added missing `limit` parameter support to `mysql_list_tables` to respect query boundaries and optimize agent payloads.
-- **Structured Error Compliance**: Unified and hardened domain error reporting across Core, Backup, Admin, and Docstore tool groups to strictly adhere to the `ErrorResponse` schema (Pattern P154) and enforced `success: true` returns for all successful operations.
+- **Structured Error Compliance**: Unified and hardened domain error reporting across Core, Backup, Admin, Docstore, and Events tool groups to strictly adhere to the `ErrorResponse` schema (Pattern P154) and enforced `success: true` returns for all successful operations.
+- **Events Schema Optimization**: Moved inline schemas from `events.ts` to `adapters/mysql/schemas/events.ts` to align with the decentralized architecture, and simplified schema definitions to accept standard MySQL syntax strings.
 - **Zod Validation Uniformity**: Prepended `"Validation error: "` to all Zod errors and enforced `database` as a required parameter in dump tools.
 - **Admin Multi-Result Handling**: Switched Admin DDL tools to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
 - **Backup Parameter Parsing**: Relaxed `mysql_export_table` format parameter to accept case-insensitive values.
 - **Test Stability**: Relaxed benchmark timing assertions (`< 0.5ms`), added `--run` to `vitest bench` to fix watch-mode hangs, and added read-only detection to gracefully skip E2E write tests.
-- **Docstore Verification**: Remediated the Docstore Code Mode verification script to correctly utilize `filter` and `set` parameters, and completed an exhaustive 14-step Code Mode verification of the Docstore tool group, confirming 100% compliance with structured error schemas.
+- **Docstore & Events Verification**: Remediated the Docstore Code Mode verification script to correctly utilize `filter` and `set` parameters, and completed an exhaustive Code Mode verification of both Docstore and Events tool groups, confirming 100% compliance with structured error schemas.
 - **Cluster Auto-Recovery**: Changed `group_replication_start_on_boot=ON` to persist cluster state across machine restarts.
 
 ## Security
