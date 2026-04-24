@@ -97,14 +97,10 @@ src/
 │   └── mysql/                      # ── MySQL adapter (mysql2) ──
 │       ├── mysql-adapter.ts         # MySQLAdapter class (extends DatabaseAdapter)
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
-│       ├── types.ts                # Zod schemas + TS types for ALL tool groups — 72KB
+│       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 13+ MCP prompts (see § below)
 │       ├── resources/              # 18+ MCP resources (see § below)
-│       ├── types/                  # Extended types for ecosystem tools
-│       │   ├── proxysql-types.ts   # ProxySQL-specific types
-│       │   ├── router-types.ts     # MySQL Router types
-│       │   └── shell-types.ts      # MySQL Shell types
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -112,7 +108,7 @@ src/
 
 ## Handler → Tool Mapping
 
-192 tools across 25 groups. Each handler file registers tools with `group` labels.
+230+ tools across 25 groups. Each handler file registers tools with `group` labels.
 
 ### Tool Handlers (`src/adapters/mysql/tools/`)
 
@@ -170,14 +166,12 @@ src/
 
 ## Zod Schemas & Types
 
-Unlike db-mcp (which has separate `output-schemas/`), mysql-mcp consolidates all Zod schemas in a single file:
+mysql-mcp uses a decentralized schema architecture to maintain type safety and minimize bundle sizes:
 
-| File | Size | Contents |
-|------|------|----------|
-| `adapters/mysql/types.ts` | **72KB** | All Zod input schemas for every tool group, parameter validation schemas, response types |
-| `adapters/mysql/types/proxysql-types.ts` | 7.5KB | ProxySQL-specific types |
-| `adapters/mysql/types/router-types.ts` | 4KB | MySQL Router types |
-| `adapters/mysql/types/shell-types.ts` | 10KB | MySQL Shell types |
+| Directory | Contents |
+|-----------|----------|
+| `adapters/mysql/schemas/` | Modular Zod input schemas grouped by domain (e.g., `core.ts`, `admin.ts`, `schema.ts`) |
+| `adapters/mysql/schemas/index.ts` | Barrel export for all schema definitions |
 
 ---
 
@@ -322,7 +316,7 @@ try {
 | **Connection Pool** | `ConnectionPool` wraps mysql2/promise. Managed lifecycle with health checks. Supports `initializationSql` for per-connection session variable setup. |
 | **Code Mode Bridge** | `mysql.*` API in worker thread communicates via MessagePort RPC to main thread handlers. `transformAutoReturn()` prepends `return` to last expression statement (Node REPL semantics). |
 | **Tool Filtering** | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. Supports meta-groups (`starter`, `dba-monitor`, etc.). |
-| **Monolithic Types** | Unlike db-mcp's per-group output-schemas, all Zod schemas live in `adapters/mysql/types.ts` (72KB). |
+| **Modular Schemas** | All Zod schemas live in `adapters/mysql/schemas/` to keep bundle sizes optimized and isolate group dependencies. |
 | **Help Resources** | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 53KB monolith. `mysql://help/{group}` filtered by `--tool-filter`. |
 | **Barrel Re-exports** | Import from `./module/index.js` (with `.js` extension for ESM). |
 | **Ecosystem Tools** | Router, ProxySQL, Shell, Cluster tools connect to external services on alternate ports. |

@@ -208,10 +208,10 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Adding or Modifying Tools
 
-postgres-mcp organizes tools into groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `jsonb`, `vector`, `admin`, `transactions`, `partitioning`, `backup`, `codemode`, and PostgreSQL extensions (`postgis`, `ltree`, `citext`, `pgcrypto`, `partman`, `cron`, `kcache`). When adding a new tool:
+mysql-mcp organizes tools into 25 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, and `codemode`. When adding a new tool:
 
-1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/postgresql/schemas/`
-2. **Implement the handler** in the corresponding adapter directory under `src/adapters/postgresql/tools/`
+1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
+2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`
 3. **Add structured error handling** by letting the handler return `formatHandlerError()` when exceptions are caught
 4. **Write meaningful Vitest tests** and update E2E spec files if making systemic changes
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/server-instructions/`)
@@ -303,7 +303,7 @@ Log all changes in **[`UNRELEASED.md`](UNRELEASED.md)** at the project root usin
 
 ```
 src/
-├── adapters/       # PostgreSQL queries, handlers, Zod schemas, prompts, and resources
+├── adapters/       # MySQL queries, handlers, Zod schemas, prompts, and resources
 ├── audit/          # JSONL audit trail with session token estimates, pre-mutation snapshots, interceptor
 ├── auth/           # Transport-agnostic OAuth 2.1, scopes, RFC 6750 enforcement
 ├── cli/            # CLI argument parsing and server bootstrap

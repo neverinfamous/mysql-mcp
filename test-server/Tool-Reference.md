@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete list of all **192 tools** across 25 categories.
+Complete list of all **230+ tools** across 25 categories.
 
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
@@ -381,6 +381,36 @@ Complete list of all **192 tools** across 25 categories.
 
 ---
 
+## Introspection (6 tools)
+
+> Pre-flight analysis, relationship mapping, and constraint validation tools to ensure schema modifications are safe.
+
+| Tool | Description |
+|------|-------------|
+| `mysql_dependency_graph` | Generate a deep relationship graph of tables based on foreign keys |
+| `mysql_topological_sort` | Determine exact creation/deletion order for foreign key constraints |
+| `mysql_cascade_simulator` | Simulate cascading deletes/updates without actual data modification |
+| `mysql_schema_snapshot` | Capture the state of the schema definition at a given point in time |
+| `mysql_constraint_analysis` | Detect circular dependencies, missing indexes, and overlapping constraints |
+| `mysql_migration_risks` | Run pre-flight checks on DDL to identify downtime or locking risks |
+
+---
+
+## Migration (6 tools)
+
+> Integrated schema versioning and deployment tracker built directly into the MCP server.
+
+| Tool | Description |
+|------|-------------|
+| `mysql_migration_init` | Set up migration tracking tables in the database |
+| `mysql_migration_record` | Manually record an out-of-band migration to the history |
+| `mysql_migration_apply` | Apply a single forward migration step |
+| `mysql_migration_rollback` | Revert a recently applied migration |
+| `mysql_migration_history` | View applied migrations history |
+| `mysql_migration_status` | Check the current state of applied vs. pending migrations |
+
+---
+
 ## Code Mode (1 tool)
 
 > Execute JavaScript in a worker-thread sandbox (separate V8 isolate) with access to all MySQL tools via `mysql.*` API. See [[Code-Mode]] for full API documentation.
@@ -398,4 +428,4 @@ Complete list of all **192 tools** across 25 categories.
 
 ---
 
-_Updated for v2.2.0 — March 10, 2026_
+_Updated for v3.0.2 — April 23, 2026_

@@ -23,6 +23,8 @@
 - **OAuth Scope Enforcement (Security Fix)**: Addressed a security gap where OAuth authentication was validating tokens but not enforcing tool-specific scopes during `tools/call` JSON-RPC requests via the HTTP transport. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports now intercept request bodies and strictly enforce `requireToolScope` for the requested tool before delegating to the MCP SDK.
 
 ## Changed
+- **Modular Schema Architecture**: Decentralized the monolithic `adapters/mysql/types.ts` (72KB) into modular, group-specific schemas within `adapters/mysql/schemas/`. This drastically improves maintainability, isolates domain dependencies, and optimizes build performance.
+- **Code Mode API Expansion**: Integrated `introspection` and `migration` tool groups into the `MysqlApi` class, securely surfacing them to the sandbox. Hardened `createSandboxBindings` to automatically stub out write-methods (e.g., `mysql_migration_apply`) when running in `readonly: true` mode.
 - **Dependency Updates**:
   - `@modelcontextprotocol/sdk` bumped to `1.29.0`
   - `typescript-eslint` bumped to `8.59.0`
@@ -40,6 +42,7 @@
 ## Added
 - **Token Burn-Rate Estimation (`_meta.tokenEstimate`)**: Every tool response now includes `_meta.tokenEstimate` in `content[].text` using a ~4 bytes/token heuristic. Code Mode responses include `metrics.tokenEstimate` for sandbox results. `structuredContent` stays schema-pure (no injection). Enables agents to monitor token consumption per tool call.
 - **Error Auto-Refinement (`findSuggestion()`)**: New `src/utils/error-suggestions.ts` maps ~30 common MySQL error patterns (wire-protocol codes 1146, 1054, 1062, 1064, etc.) to actionable suggestions and specific error codes. `MySQLMcpError` constructor now auto-detects suggestions and refines generic codes (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`, `COLUMN_NOT_FOUND`, `DUPLICATE_KEY`).
+- **New Tool Groups**: Added **Introspection** (6 tools for dependency mapping, topological sort, cascade simulation, schema snapshots, constraint analysis, and risk assessment) and **Migration** (6 tools for tracking, applying, and rolling back schema versions). Tool count: 193 → **205**.
 - **Insights Subsystem**: New `mysql_append_insight` tool (admin group) and `mysql://insights` resource. In-memory `InsightsManager` singleton accumulates business insights during database analysis sessions and synthesizes them into a formatted memo. Tool count: 192 → **193**. Resource count: 18 → **19**.
 - **Benchmark Suite**: 3 Vitest bench files measuring Code Mode sandbox performance, resource/prompt assembly, and tool-filter parsing throughput. Run via `pnpm run bench`.
 - **Help Resources**: 24 group-specific help resources (`mysql://help/{group}`) registered dynamically based on tool filter configuration, plus `mysql://help` (gotchas, aliases, Code Mode API) always available.
