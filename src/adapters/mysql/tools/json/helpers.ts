@@ -224,6 +224,10 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Invalid JSON text")) {
+          return { success: true, valid: false };
+        }
         return formatHandlerErrorResponse(error);
       }
     },

@@ -184,10 +184,29 @@ describe("JSON Helper Tools", () => {
       expect(result.valid).toBe(false);
     });
 
-    it("should strip Query failed and Execute failed prefixes from errors", async () => {
+    it("should return valid: false for Invalid JSON text query errors", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
           'Query failed: Execute failed: Invalid JSON text in argument 1 to function cast_as_json: "Missing a name" at position 1.',
+        ),
+      );
+
+      const tool = createJsonValidateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
+        success: boolean;
+        valid?: boolean;
+      };
+
+      expect(result.success).toBe(true);
+      expect(result.valid).toBe(false);
+    });
+
+    it("should strip Query failed and Execute failed prefixes from generic errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error(
+          'Query failed: Execute failed: Table metadata lock timeout.',
         ),
       );
 
@@ -202,7 +221,7 @@ describe("JSON Helper Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).not.toContain("Query failed");
       expect(result.error).not.toContain("Execute failed");
-      expect(result.error).toContain("Invalid JSON text");
+      expect(result.error).toContain("Table metadata lock timeout");
     });
   });
 
