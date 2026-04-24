@@ -199,7 +199,7 @@ describe("Admin Backup Tools", () => {
       expect(result.error).toContain("dangerous SQL patterns");
     });
 
-    it("should return exists: false for non-existent table", async () => {
+    it("should return structured error for non-existent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -210,10 +210,11 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", format: "SQL" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string; code?: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
+      expect(result.code).toBe("QUERY_ERROR");
     });
 
     it("should return structured error for query failures", async () => {
@@ -493,7 +494,7 @@ describe("Admin Backup Tools", () => {
       expect(result.rowsInserted).toBe(1);
     });
 
-    it("should return exists: false for non-existent table", async () => {
+    it("should return structured error for non-existent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -505,10 +506,11 @@ describe("Admin Backup Tools", () => {
           data: [{ name: "test" }],
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string; rowsInserted: number };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
+      expect(result.rowsInserted).toBe(0);
     });
 
     it("should return structured error for unknown column", async () => {
