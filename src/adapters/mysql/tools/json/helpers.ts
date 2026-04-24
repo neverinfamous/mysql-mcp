@@ -43,13 +43,14 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, id, idColumn } = JsonGetSchema.parse(params);
-
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateIdentifier(idColumn, "column");
-
       try {
+        const { table, column, path, id, idColumn } = JsonGetSchema.parse(params);
+
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateIdentifier(idColumn, "column");
+
+
         const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
         const result = await adapter.executeReadQuery(sql, [path, id]);
 
@@ -104,14 +105,15 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, id, idColumn } =
-        JsonUpdateSchema.parse(params);
-
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateIdentifier(idColumn, "column");
-
       try {
+        const { table, column, path, value, id, idColumn } =
+          JsonUpdateSchema.parse(params);
+
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateIdentifier(idColumn, "column");
+
+
         // Normalize value to valid JSON (bare strings get wrapped automatically)
         let jsonValue: string;
         if (typeof value === "string") {
@@ -169,13 +171,14 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, searchValue, mode } =
-        JsonSearchSchema.parse(params);
-
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-
       try {
+        const { table, column, searchValue, mode } =
+          JsonSearchSchema.parse(params);
+
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+
+
         const sql = `SELECT id, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
 
         const result = await adapter.executeReadQuery(sql, [
@@ -212,9 +215,10 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { value } = JsonValidateSchema.parse(params);
-
       try {
+        const { value } = JsonValidateSchema.parse(params);
+
+
         const sql = `SELECT JSON_VALID(?) as is_valid`;
         const result = await adapter.executeReadQuery(sql, [value]);
 
