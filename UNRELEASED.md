@@ -29,7 +29,7 @@
 - **Backup Parameter Parsing**: Relaxed `mysql_export_table` format parameter to accept case-insensitive values.
 - **Test Stability**: Relaxed benchmark timing assertions (`< 0.5ms`), added `--run` to `vitest bench` to fix watch-mode hangs, and added read-only detection to gracefully skip E2E write tests.
 - **Docstore & Events Verification**: Remediated the Docstore Code Mode verification script to correctly utilize `filter` and `set` parameters, and completed an exhaustive Code Mode verification of both Docstore and Events tool groups, standardizing domain error responses in `mysql_event_drop` to ensure 100% compliance with structured error schemas.
-- **Fulltext Tool Group Refactoring**: Completed exhaustive Code Mode re-testing of the `fulltext` tool group, refactoring handlers to properly intercept and format `ZodError` objects and ensuring all domain errors (like missing tables/indexes) return the standardized `{ success: false, error: "..." }` response rather than legacy objects.
+- **Fulltext Tool Group Refactoring**: Completed exhaustive Code Mode re-testing of the `fulltext` tool group. Remediated all 5 fulltext handlers (`create`, `drop`, `search`, `boolean`, `expand`) by replacing ad-hoc partial error object literals (`{success: false, error: "..."}`) with the standardized `formatHandlerErrorResponse` wrapper to ensure all domain errors strictly conform to the project-wide `ErrorResponse` schema (including `code`, `category`, and `recoverable` properties).
 - **Cluster Auto-Recovery**: Changed `group_replication_start_on_boot=ON` to persist cluster state across machine restarts.
 
 ## Security

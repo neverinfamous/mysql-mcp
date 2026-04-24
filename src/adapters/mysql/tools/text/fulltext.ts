@@ -105,10 +105,9 @@ export function createFulltextCreateTool(
           await adapter.executeQuery(sql);
         } catch (err: unknown) {
           if (isDuplicateKeyError(err)) {
-            return {
-              success: false,
-              error: `Index '${name}' already exists on table '${table}'`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Index '${name}' already exists on table '${table}'`)
+            );
           }
           const msg = err instanceof Error ? err.message : String(err);
           // Distinguish column-not-found (errno 1072) from table-not-found
@@ -117,10 +116,10 @@ export function createFulltextCreateTool(
             msg.includes("Key column") ||
             msg.includes("Column '")
           ) {
-            return { success: false, error: msg };
+            return formatHandlerErrorResponse(new Error(msg));
           }
           if (msg.includes("doesn't exist")) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return formatHandlerErrorResponse(new Error(`Table '${table}' does not exist`));
           }
           return formatHandlerErrorResponse(err);
         }
@@ -163,14 +162,13 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery(sql);
         } catch (err: unknown) {
           if (isCantDropKeyError(err)) {
-            return {
-              success: false,
-              error: `Index '${indexName}' does not exist on table '${table}'`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Index '${indexName}' does not exist on table '${table}'`)
+            );
           }
           const msg = err instanceof Error ? err.message : String(err);
           if (msg.includes("doesn't exist")) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return formatHandlerErrorResponse(new Error(`Table '${table}' does not exist`));
           }
           return formatHandlerErrorResponse(err);
         }
@@ -248,10 +246,10 @@ export function createFulltextSearchTool(
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return formatHandlerErrorResponse(new Error(`Table '${table}' does not exist`));
           }
           if (msg.includes("Can't find FULLTEXT index matching the column list")) {
-            return { success: false, error: "No FULLTEXT index found for the specified columns" };
+            return formatHandlerErrorResponse(new Error("No FULLTEXT index found for the specified columns"));
           }
           return formatHandlerErrorResponse(error);
         }
@@ -304,10 +302,10 @@ export function createFulltextBooleanTool(
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return formatHandlerErrorResponse(new Error(`Table '${table}' does not exist`));
           }
           if (msg.includes("Can't find FULLTEXT index matching the column list")) {
-            return { success: false, error: "No FULLTEXT index found for the specified columns" };
+            return formatHandlerErrorResponse(new Error("No FULLTEXT index found for the specified columns"));
           }
           return formatHandlerErrorResponse(error);
         }
@@ -360,10 +358,10 @@ export function createFulltextExpandTool(
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return formatHandlerErrorResponse(new Error(`Table '${table}' does not exist`));
           }
           if (msg.includes("Can't find FULLTEXT index matching the column list")) {
-            return { success: false, error: "No FULLTEXT index found for the specified columns" };
+            return formatHandlerErrorResponse(new Error("No FULLTEXT index found for the specified columns"));
           }
           return formatHandlerErrorResponse(error);
         }
