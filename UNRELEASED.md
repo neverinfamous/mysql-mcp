@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Security
+
 - **Dependency Vulnerability Fixes**:
   - Updated `flatted` to `3.4.2` to fix Prototype Pollution via `parse()` (GHSA Dependabot #23/#71).
   - Updated `hono` to `4.12.9` to fix SSE control field injection, cookie attribute injection, and prototype pollution vulnerabilities (#77).
@@ -23,6 +24,7 @@
 - **OAuth Scope Enforcement (Security Fix)**: Addressed a security gap where OAuth authentication was validating tokens but not enforcing tool-specific scopes during `tools/call` JSON-RPC requests via the HTTP transport. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports now intercept request bodies and strictly enforce `requireToolScope` for the requested tool before delegating to the MCP SDK.
 
 ## Changed
+
 - **Modular Schema Architecture**: Decentralized the monolithic `adapters/mysql/types.ts` (72KB) into modular, group-specific schemas within `adapters/mysql/schemas/`. This drastically improves maintainability, isolates domain dependencies, and optimizes build performance.
 - **Code Mode API Expansion**: Integrated `introspection` and `migration` tool groups into the `MysqlApi` class, securely surfacing them to the sandbox. Hardened `createSandboxBindings` to automatically stub out write-methods (e.g., `mysql_migration_apply`) when running in `readonly: true` mode.
 - **Dependency Updates**:
@@ -40,10 +42,10 @@
 - **Help Resource Architecture**: Replaced 53KB monolithic `ServerInstructions.ts` with slim `INSTRUCTIONS` constant (~634 chars) + on-demand `mysql://help` resources. Agent instructions are now ~95% smaller; detailed tool reference is available via `mysql://help` (always) and `mysql://help/{group}` (filtered by `--tool-filter`).
 
 ## Added
+
 - **Token Burn-Rate Estimation (`_meta.tokenEstimate`)**: Every tool response now includes `_meta.tokenEstimate` in `content[].text` using a ~4 bytes/token heuristic. Code Mode responses include `metrics.tokenEstimate` for sandbox results. `structuredContent` stays schema-pure (no injection). Enables agents to monitor token consumption per tool call.
 - **Error Auto-Refinement (`findSuggestion()`)**: New `src/utils/error-suggestions.ts` maps ~30 common MySQL error patterns (wire-protocol codes 1146, 1054, 1062, 1064, etc.) to actionable suggestions and specific error codes. `MySQLMcpError` constructor now auto-detects suggestions and refines generic codes (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`, `COLUMN_NOT_FOUND`, `DUPLICATE_KEY`).
 - **New Tool Groups**: Added **Introspection** (6 tools for dependency mapping, topological sort, cascade simulation, schema snapshots, constraint analysis, and risk assessment) and **Migration** (6 tools for tracking, applying, and rolling back schema versions). Tool count: 193 → **205**.
-- **Admin Code Mode Testing**: Executed comprehensive verification of the `admin` tool group within Code Mode, validating happy paths, domain error paths, and Zod validation paths. Verified that domain errors correctly return the `{success: false, error: "..."}` structured format.
 - **Insights Subsystem**: New `mysql_append_insight` tool (admin group) and `mysql://insights` resource. In-memory `InsightsManager` singleton accumulates business insights during database analysis sessions and synthesizes them into a formatted memo. Tool count: 192 → **193**. Resource count: 18 → **19**.
 - **Benchmark Suite**: 3 Vitest bench files measuring Code Mode sandbox performance, resource/prompt assembly, and tool-filter parsing throughput. Run via `pnpm run bench`.
 - **Help Resources**: 24 group-specific help resources (`mysql://help/{group}`) registered dynamically based on tool filter configuration, plus `mysql://help` (gotchas, aliases, Code Mode API) always available.
@@ -54,6 +56,8 @@
 - **Connection Pool Initialization (`initializationSql`)**: Added new `initializationSql` configuration property to `ConnectionPoolConfig` (PR #94, courtesy of @rsh2k1-2026). Allows defining an array of SQL statements that will be executed exactly once per connection when it is first checked out of the pool. Ensures per-connection session variables (e.g. `SET SESSION max_execution_time`) are reliably applied even when connections are rotated or recreated.
 
 ## Fixed
+
+- **Zod Validation Error Formatting**: Updated `formatZodError` in `src/adapters/mysql/tools/core/error-helpers.ts` to explicitly prepend the `"Validation error: "` prefix to the extracted validation issues. This ensures all tools maintain consistent structured validation response formats, satisfying cross-server verification standards.
 - **Admin Maintenance Error Handling**: Updated `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, and `mysql_repair_table` tools to correctly parse and extract MySQL domain errors (e.g., table not found) from multi-row result sets. Domain errors are now correctly wrapped and returned as `{ success: false, error: "..." }` instead of returning the raw results object.
 - **Admin DDL Result Parsing**: Switched `mysql_optimize_table`, `mysql_analyze_table`, `mysql_repair_table` from `executeQuery` to `rawQuery` — prevents mysql2 prepared-statement fallback from corrupting multi-result-set admin DDL responses. Matches `mysql_check_table`'s existing pattern.
 - **Multi-Result-Set Handling**: Hardened `processExecutionResult` to detect mysql2 nested arrays (multi-result-set) and ResultSetHeader-in-array edge cases from `query()` fallback.
@@ -62,5 +66,5 @@
 - **Code Mode last-expression auto-return** — Bare expressions like `mysql.help()` now correctly surface their return value from `mysql_execute_code`. Previously, the async IIFE wrapper silently returned `undefined` for non-`return` statements. New `transformAutoReturn()` utility prepends `return` to the last expression statement, mimicking Node REPL semantics. Applied to both VM and Worker sandbox paths.
 
 ## Removed
-- **Instruction Levels**: Removed `ServerInstructions.ts` monolith, `generateInstructions()`, `filterInstructionsByGroup()`, and `SECTION_GROUP_MAP`.
 
+- **Instruction Levels**: Removed `ServerInstructions.ts` monolith, `generateInstructions()`, `filterInstructionsByGroup()`, and `SECTION_GROUP_MAP`.
