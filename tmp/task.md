@@ -1,29 +1,40 @@
-# Introspection Tools - Code Mode Verification Matrix
+# Introspection Tool Group Code Mode Testing
 
-## Summary
-- **Total Tools Tested**: 6
-- **Test Operations**: Happy paths, domain errors, and Zod validation paths.
-- **Failures Identified and Fixed**: 
-  - `dependencyGraph({})`: Succeeded instead of returning a Zod validation error because `schema` was marked as optional. Fixed by updating `DependencyGraphSchema` to make `schema` required.
-  - `migrationRisks`: Failed with a Zod validation error on the happy path because the test passed `ddlQuery` instead of `statements` or `sql`. Fixed by updating `MigrationRisksSchema` to accept `ddlQuery` as an alias.
-- **Status**: 100% compliant with structured error schemas and validation requirements.
+## Execution Summary
+- **Methodology:** Tested via `mysql_execute_code` mapping `mysql.introspection.*`.
+- **Date:** April 24, 2026
 
-## Coverage Matrix
+## 1. `dependencyGraph`
+- ✅ **Happy Path:** `dependencyGraph({ schema: "testdb", maxDepth: 2 })` — Passed (returns node and edge graph representation).
+- ✅ **Domain Error:** `dependencyGraph({ schema: "nonexistent_schema" })` — Passed (Returned structured error response with `code: VALIDATION_ERROR` instead of throwing raw exception).
+- ✅ **Zod Error:** `dependencyGraph({})` — Passed (Caught `ZodError` and returned standardized validation error payload).
 
-| Tool | Happy Path | Domain Error (🔴) | Zod Error (🔴) |
-|---|---|---|---|
-| `mysql.introspection.dependencyGraph` | ✅ Passed | ✅ Passed (`schema: "nonexistent_schema"`) | ✅ Passed (Returns `{success: false, error: "Validation error..."}`) |
-| `mysql.introspection.topologicalSort` | ✅ Passed | - | - |
-| `mysql.introspection.cascadeSimulator` | ✅ Passed | ✅ Passed (`table: "nonexistent_table"`) | - |
-| `mysql.introspection.schemaSnapshot` | ✅ Passed | - | - |
-| `mysql.introspection.constraintAnalysis` | ✅ Passed | - | - |
-| `mysql.introspection.migrationRisks` | ✅ Passed (via `ddlQuery` alias) | - | ✅ Passed (`{}` missing required statement) |
+## 2. `topologicalSort`
+- ✅ **Happy Path:** `topologicalSort({ schema: "testdb" })` — Passed (returns logically ordered array of tables).
+- ✅ **Domain Error:** `topologicalSort({ schema: "nonexistent_schema" })` — Passed (Returned structured error response for nonexistent schema).
+- ✅ **Zod Error:** `topologicalSort({})` — Passed (Standard validation error payload).
 
-## Code Mode Payload Metrics
-- Execution of `help()` and all tools completed successfully.
-- Payload size and token metrics were within acceptable limits.
-- Structured Error Pattern (`{success: false, error: "..."}`) is correctly implemented across the group.
+## 3. `cascadeSimulator`
+- ✅ **Happy Path:** `cascadeSimulator({ table: "test_products", operation: "DELETE" })` — Passed (successfully simulated constraint violations/cascades).
+- ✅ **Domain Error:** `cascadeSimulator({ table: "nonexistent_table", operation: "DELETE" })` — Passed (Returns "Table 'testdb.nonexistent_table' does not exist...").
+- ✅ **Zod Error:** `cascadeSimulator({})` — Passed.
 
-## Action Items
-- Remediation complete. Modified `src/adapters/mysql/schemas/introspection/index.ts` to require `schema` for `dependencyGraph` and support `ddlQuery` alias for `migrationRisks`.
-- `UNRELEASED.md` changelog updated.
+## 4. `schemaSnapshot`
+- ✅ **Happy Path:** `schemaSnapshot({ schema: "testdb" })` — Passed (returns full schema definitions).
+- ✅ **Domain Error:** `schemaSnapshot({ schema: "nonexistent_schema" })` — Passed.
+- ✅ **Zod Error:** `schemaSnapshot({})` — Passed.
+
+## 5. `constraintAnalysis`
+- ✅ **Happy Path:** `constraintAnalysis({ schema: "testdb" })` — Passed (analyzes constraints successfully).
+- ✅ **Domain Error:** `constraintAnalysis({ schema: "nonexistent_schema" })` — Passed.
+- ✅ **Zod Error:** `constraintAnalysis({})` — Passed.
+
+## 6. `migrationRisks`
+- ✅ **Happy Path:** `migrationRisks({ ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT" })` — Passed (returns associated risks).
+- ✅ **Domain Error:** `migrationRisks({ ddlQuery: "ALTER TABLE nonexistent_table ADD COLUMN new_col INT" })` — Passed.
+- ✅ **Zod Error:** `migrationRisks({})` — Passed.
+
+## Findings
+- **Failures:** `[]` (None)
+- **Compliance:** 100% compliant with the `ErrorResponse` schema (`{ success: false, error: "...", code: "VALIDATION_ERROR", category: "validation" }`).
+- **Tests Passed:** All Code Mode testing paths completely adhered to the standardized schema. No unhandled MCP exceptions were thrown during execution.
