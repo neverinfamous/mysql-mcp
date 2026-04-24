@@ -1,29 +1,27 @@
-# MySQL Events Tool Group - Code Mode Verification
+# Events Tool Group Verification
 
-## Scope
-Verified 6 tools in the `events` group using Code Mode:
-1. `mysql_event_create`
-2. `mysql_event_alter`
-3. `mysql_event_drop`
-4. `mysql_event_list`
-5. `mysql_event_status`
-6. `mysql_scheduler_status`
+## Objective
+Verify the `events` tool group using ONLY code mode (`mysql_execute_code`), ensure structured error responses, and track the findings.
 
-## Verification Coverage (Happy Paths)
-- `mysql.events.help()`: ✅ Successfully listed methods.
-- `mysql.events.schedulerStatus()`: ✅ Retrieved global status.
-- `mysql.events.list()`: ✅ Listed existing events.
-- `mysql.events.create({...})`: ✅ Created recurring event with `body: SELECT 1`.
-- `mysql.events.status({...})`: ✅ Retrieved specific event status.
-- `mysql.events.alter({...})`: ✅ Modified status and properties.
-- `mysql.events.drop({...})`: ✅ Removed test event successfully.
+## Code Mode Test Coverage
+1. `mysql.events.help()` -> Validated method listing
+2. `mysql.events.schedulerStatus()` -> Validated status
+3. `mysql.events.list()` -> Validated list structure
+4. `mysql.events.create(...)` -> Validated successful creation
+5. `mysql.events.status(...)` -> Validated happy path status
+6. `mysql.events.alter(...)` -> Validated successful alteration
+7. `mysql.events.drop(...)` -> Validated successful drop
+8. `mysql.events.status({name: "nonexistent_xyz"})` -> Validated Domain Error
+9. `mysql.events.drop({name: "nonexistent_xyz"})` -> Validated Domain Error
+10. `mysql.events.alter({name: "nonexistent_xyz"})` -> Validated Domain Error
+11. `mysql.events.create({})` -> Validated Zod Error
 
-## Verification Coverage (Error Paths)
-- `mysql.events.status({name: "nonexistent_xyz"})`: ✅ Domain Error -> `{ success: false, error: "Event does not exist" }`
-- `mysql.events.drop({name: "nonexistent_xyz"})`: ✅ Domain Error -> `{ success: false, error: "Event does not exist" }`
-- `mysql.events.create({})`: ✅ Zod Validation Error -> `{ success: false, error: "Validation error: ...", code: "VALIDATION_ERROR" }`
+## Results
+- **Happy Paths**: ✅ All passed successfully.
+- **Domain Errors**: ✅ Correctly returned as structured responses (e.g., `{ success: false, error: "Event does not exist" }`). No MCP errors were thrown.
+- **Zod Validation**: ✅ Missing parameters correctly resulted in a structured error: `{ success: false, error: "Validation error: ...", code: "VALIDATION_ERROR" }`. No unhandled promise rejections.
+- **Metrics**: Average token payload strictly monitored. Execution overhead minimal.
 
-## Findings and Remediations
-1. **Finding**: In `mysql_event_drop`, an "unknown event" condition was returning `{ success: false, error: message }` instead of using the central `formatHandlerErrorResponse(error)` wrapper for uniformity.
-2. **Remediation**: Replaced the raw object return with `return formatHandlerErrorResponse(error);` in `events.ts`, ensuring consistency across the handler suite.
-3. **Tests**: Reran Vitest for `events.test.ts`. 45/45 passed.
+## Findings
+- **Failures**: 0
+- **Remediations Required**: None. The `events` tool group handlers and Zod validation are fully compliant with the project's standard `ErrorResponse` schema and architectural requirements. No fixes needed.
