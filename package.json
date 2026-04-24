@@ -20,7 +20,7 @@
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck",
     "generate:instructions": "node scripts/generate-server-instructions.ts",
-    "bench": "vitest bench"
+    "bench": "vitest bench --run"
   },
   "keywords": [
     "mcp",

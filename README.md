@@ -769,6 +769,14 @@ npm run test:coverage
 - All 111 test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
 
+### Benchmarking
+
+The project includes a performance benchmarking suite to track the efficiency of critical paths like Code Mode sandbox initialization, tool filtering, and URI routing.
+
+```bash
+npm run bench
+```
+
 ---
 
 ## Contributing
