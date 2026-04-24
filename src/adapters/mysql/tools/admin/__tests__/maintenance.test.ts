@@ -741,8 +741,10 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(result).toMatchObject({ success: false, error: "Tables not found: nonexistent_xyz",
-        notFound: ["nonexistent_xyz"],
-        flushed: ["users"],
+        details: {
+          notFound: ["nonexistent_xyz"],
+          flushed: ["users"],
+        }
       });
       // Should have flushed the valid table
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -762,8 +764,10 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(result).toMatchObject({ success: false, error: "Tables not found: nonexistent_a, nonexistent_b",
-        notFound: ["nonexistent_a", "nonexistent_b"],
-        flushed: [],
+        details: {
+          notFound: ["nonexistent_a", "nonexistent_b"],
+          flushed: [],
+        }
       });
       // Should NOT have called executeQuery (no valid tables to flush)
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();

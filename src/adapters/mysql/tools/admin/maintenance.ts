@@ -27,11 +27,14 @@ import {
   KillQuerySchemaBase,
 } from "../../schemas/index.js";
 
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
+import type { ErrorResponse } from "../../../../types/modules/error-types.js";
+
 function isRecord(val: unknown): val is Record<string, unknown> {
   return typeof val === "object" && val !== null;
 }
 
-function extractMaintenanceError(rows: unknown[] | undefined): { success: false; error: string } | null {
+function extractMaintenanceError(rows: unknown[] | undefined): ErrorResponse | null {
   if (!rows || rows.length === 0) return null;
   const errorRow = rows.find((r: unknown) => {
     if (isRecord(r) && typeof r["Msg_type"] === "string") {
@@ -41,7 +44,15 @@ function extractMaintenanceError(rows: unknown[] | undefined): { success: false;
   });
   if (errorRow !== undefined && isRecord(errorRow)) {
     const errorMsg = typeof errorRow["Msg_text"] === "string" ? errorRow["Msg_text"] : "Maintenance operation failed";
-    return { success: false, error: errorMsg };
+    return {
+      success: false,
+      error: errorMsg,
+      code: "MAINTENANCE_ERROR",
+      category: ErrorCategory.QUERY,
+      suggestion: undefined,
+      recoverable: false,
+      details: undefined
+    };
   }
   return null;
 }
@@ -212,8 +223,14 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
             return {
               success: false,
               error: `Tables not found: ${notFound.join(", ")}`,
-              notFound,
-              flushed: validTables,
+              code: "MAINTENANCE_ERROR",
+              category: ErrorCategory.RESOURCE,
+              suggestion: undefined,
+              recoverable: false,
+              details: {
+                notFound,
+                flushed: validTables,
+              }
             };
           }
 
@@ -258,9 +275,22 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
           return {
             success: false,
             error: `Process ID ${/\d+/.exec(message)?.[0] ?? "unknown"} not found`,
+            code: "KILL_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: undefined
           };
         }
-        return { success: false, error: message };
+        return {
+          success: false,
+          error: message,
+          code: "KILL_ERROR",
+          category: ErrorCategory.QUERY,
+          suggestion: undefined,
+          recoverable: false,
+          details: undefined
+        };
       }
     },
   };
