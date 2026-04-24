@@ -26,7 +26,11 @@ Read \`mysql://help/{group}\` for group-specific tool reference (e.g., \`mysql:/
 ## Structured Errors
 
 All tools return \`{success: false, error, code, category, suggestion, recoverable}\` — never raw MCP exceptions.
-Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).`;
+Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).
+
+## Architecture
+
+\`mysql-mcp\` utilizes a highly modular architecture spanning 230+ tools across 23 distinct groups (including specialized \`introspection\` and \`migration\` tools). The schema definitions are decentralized within the \`src/adapters/mysql/schemas/\` directory, ensuring strict type-safety and optimal build times.`;
 
 /**
  * Help content keyed by group name.
@@ -34,7 +38,7 @@ Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P
  * Other keys are tool groups (mysql://help/{group}).
  */
 export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
-  ["admin", `# Admin Tools (\`mysql_optimize_table\`, \`mysql_repair_table\`, etc.)
+  ["admin", `# Admin Tools (\`mysql_optimize_table\`, \`mysql_repair_table\`, \`mysql_append_insight\`, etc.)
 
 - **Optimize**: \`mysql_optimize_table\` reclaims unused space (InnoDB does recreate + analyze).
 - **Analyze**: \`mysql_analyze_table\` updates index statistics for the query optimizer.
@@ -42,7 +46,8 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Repair**: \`mysql_repair_table\` only works for MyISAM tables; InnoDB reports "not supported."
 - **Flush**: \`mysql_flush_tables\` writes cached changes to disk. When some specified tables do not exist, valid tables are still flushed; the response returns \`{ success: false, notFound, flushed }\` listing both missing and successfully flushed tables. Global flush (no tables) always succeeds.
 - **Kill**: \`mysql_kill_query\` terminates queries by process ID. Use \`connection: true\` to kill the entire connection. Returns \`{ success: false, error }\` for invalid process IDs.
-- **Error handling**: \`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, and \`mysql_repair_table\` return MySQL's native per-table \`results\` array. Nonexistent tables appear as rows with \`Msg_type: "Error"\` and \`Msg_text: "Table does not exist"\` (no P154 wrapping—these are multi-table DDL commands).`],
+- **Error handling**: \`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, and \`mysql_repair_table\` return MySQL's native per-table \`results\` array. Nonexistent tables appear as rows with \`Msg_type: "Error"\` and \`Msg_text: "Table does not exist"\` (no P154 wrapping—these are multi-table DDL commands).
+- **Insight**: \`mysql_append_insight\` records a business insight to the in-memory insights memo. Insights are accessible via \`mysql://insights\` resource. Max 1000 chars per insight.`],
   ["backup", `# Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
@@ -146,6 +151,24 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **Security**: Code runs in an isolated VM sandbox. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Rate-limited to prevent abuse.
 - **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
 - **Scope**: Requires \`admin\` scope.`],
+  ["introspection", `# Introspection Tools
+
+The **Introspection** group provides advanced schema analysis capabilities, specifically designed to help AI agents understand complex entity relationships, simulate changes, and assess risks before performing database migrations or schema modifications.
+
+## Core Capabilities
+
+- **Dependency Mapping**: Analyze deep relationships between tables (\`mysql_dependency_graph\`) to understand how entities are interconnected.
+- **Topological Sorting**: Determine the exact order in which tables must be created or deleted to satisfy foreign key constraints (\`mysql_topological_sort\`).
+- **Cascade Simulation**: Safely simulate the cascading effects of a \`DELETE\` or \`UPDATE\` operation (\`mysql_cascade_simulator\`) without modifying actual data, preventing accidental mass data loss.
+- **Schema Snapshots**: Capture the exact state of the schema definition at a given point in time (\`mysql_schema_snapshot\`).
+- **Constraint Analysis**: Detect circular dependencies, missing indexes on foreign keys, and overlapping constraints (\`mysql_constraint_analysis\`).
+- **Risk Assessment**: Pre-flight checks for \`ALTER TABLE\` and \`DROP TABLE\` operations to identify potential downtime or locking issues (\`mysql_migration_risks\`).
+
+## Best Practices
+
+- **Pre-Migration Checks**: Always run \`mysql_migration_risks\` and \`mysql_topological_sort\` before executing any broad schema changes.
+- **Cascade Safety**: If you are planning a \`DELETE\` on a core table (e.g., \`users\` or \`organizations\`), use \`mysql_cascade_simulator\` first to understand the blast radius.
+- **Dependency Awareness**: When writing complex \`JOIN\` queries across unfamiliar schemas, use \`mysql_dependency_graph\` to ensure you understand the optimal traversal paths.`],
   ["json", `# JSON Tools (\`mysql_json_*\`)
 
 - **Automatic String Handling**: JSON tools automatically convert bare strings to valid JSON.
@@ -158,6 +181,24 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **\`json_get\` nonexistent row**: When the target row ID does not exist, returns \`{ value: null, rowFound: false }\`. When the row exists but the JSON path yields null, returns \`{ value: null }\` (no \`rowFound\` field). This distinguishes missing rows from null paths.
 - **Write operations require WHERE**: \`json_set\`, \`json_insert\`, \`json_replace\`, \`json_remove\`, and \`json_array_append\` all require a mandatory \`where\` parameter (or \`filter\` alias) to identify target rows.
 - **\`json_remove\` uses \`paths\` array**: Unlike other write tools that accept a single \`path\` string, \`json_remove\` accepts \`paths\` (an array of strings) to remove multiple paths in one operation.`],
+  ["migration", `# Migration Tools
+
+The **Migration** group provides an integrated, structured schema versioning and deployment system directly within the MCP server. It is designed to track schema changes, ensure idempotent deployments, and allow safe rollbacks.
+
+## Core Capabilities
+
+- **Initialization**: Set up the migration tracking tables (\`_mysql_migrations\`) in the target database (\`mysql_migration_init\`).
+- **Tracking & Status**: View applied migrations (\`mysql_migration_history\`) and check the current state against pending migrations (\`mysql_migration_status\`).
+- **Execution**: Apply a single forward migration step (\`mysql_migration_apply\`) safely.
+- **Rollback**: Revert a recently applied migration (\`mysql_migration_rollback\`).
+- **Record Auditing**: Manually record that a migration was applied out-of-band (\`mysql_migration_record\`).
+
+## Best Practices
+
+- **Idempotency**: Always ensure your migration scripts are idempotent (\`CREATE TABLE IF NOT EXISTS\`, \`DROP TABLE IF EXISTS\`).
+- **Downtime Minimization**: Combine with tools from the \`introspection\` group (like \`mysql_migration_risks\`) prior to applying migrations to production databases.
+- **Transactions**: For storage engines that support transactional DDL (note: MySQL largely commits DDL implicitly, unlike PostgreSQL), still attempt to group related DML updates together safely.
+- **Initialization First**: You must run \`mysql_migration_init\` before attempting to use \`mysql_migration_apply\` or track history.`],
   ["monitoring", `# Monitoring Tools (\`mysql_show_processlist\`, \`mysql_server_health\`, etc.)
 
 - **Process list**: \`mysql_show_processlist\` shows active queries. Use \`full: true\` for complete query text.
