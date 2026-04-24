@@ -28,14 +28,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { schema } = ListCollectionsSchema.parse(params);
 
-          // P154: Schema existence check when explicitly provided
           if (schema) {
             const schemaCheck = await adapter.executeQuery(
               "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
               [schema],
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return { exists: false, schema };
+              return { success: false, error: `Schema '${schema}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" };
             }
           }
 
@@ -56,6 +55,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema ?? null,
           ]);
           return {
+            success: true,
             collections: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
@@ -99,7 +99,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
             // If schema doesn't exist, report it even with ifNotExists
             if (check.reason === "schema") {
-              return { exists: false, schema: check.name };
+              return { success: false, error: `Schema '${check.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" };
             }
           }
 
@@ -131,12 +131,14 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           const message =
             error instanceof Error ? error.message : String(error);
-          if (message.toLowerCase().includes("unknown database")) {
-            return {
-              exists: false,
-              schema: (params as { schema?: string })?.schema ?? "unknown",
-            };
-          }
+            if (message.toLowerCase().includes("unknown database")) {
+              return {
+                success: false,
+                error: `Schema '${(params as { schema?: string })?.schema ?? "unknown"}' does not exist`,
+                code: "SCHEMA_NOT_FOUND",
+                category: "domain"
+              };
+            }
           if (message.toLowerCase().includes("already exists")) {
             return {
               success: false,
@@ -172,7 +174,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               [schema],
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return { exists: false, schema };
+              return { success: false, error: `Schema '${schema}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" };
             }
           }
 
@@ -231,8 +233,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!infoCheck.exists) {
             return infoCheck.reason === "schema"
-              ? { exists: false, schema: infoCheck.name }
-              : { exists: false, collection };
+              ? { success: false, error: `Schema '${infoCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
+              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
           }
 
           // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
@@ -265,6 +267,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           const stats = tableInfo.rows?.[0] ?? {};
           return {
+            success: true,
             collection,
             stats: { rowCount, ...stats },
             indexes: indexInfo.rows ?? [],

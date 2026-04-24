@@ -39,8 +39,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!idxCheck.exists) {
             return idxCheck.reason === "schema"
-              ? { exists: false, schema: idxCheck.name }
-              : { exists: false, collection };
+              ? { success: false, error: `Schema '${idxCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
+              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
           }
 
           const tableRef = escapeTableRef(collection, schema);

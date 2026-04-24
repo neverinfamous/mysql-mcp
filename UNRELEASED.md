@@ -19,7 +19,7 @@
 
 ## Fixed
 - **Core Tool Constraints**: Added missing `limit` parameter support to `mysql_list_tables` to respect query boundaries and optimize agent payloads.
-- **Structured Error Compliance**: Unified and hardened domain error reporting across Core, Backup, and Admin tool groups to strictly adhere to the `ErrorResponse` schema (Pattern P154).
+- **Structured Error Compliance**: Unified and hardened domain error reporting across Core, Backup, Admin, and Docstore tool groups to strictly adhere to the `ErrorResponse` schema (Pattern P154) and enforced `success: true` returns for all successful operations.
 - **Zod Validation Uniformity**: Prepended `"Validation error: "` to all Zod errors and enforced `database` as a required parameter in dump tools.
 - **Admin Multi-Result Handling**: Switched Admin DDL tools to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
 - **Backup Parameter Parsing**: Relaxed `mysql_export_table` format parameter to accept case-insensitive values.

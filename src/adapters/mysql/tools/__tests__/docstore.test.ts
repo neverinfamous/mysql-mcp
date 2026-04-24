@@ -118,10 +118,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
   });
 
@@ -256,10 +253,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        exists: false,
-        schema: "fake_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'fake_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
   });
 
@@ -344,10 +338,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
   });
 
@@ -455,13 +446,8 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        collection: "nonexistent_col",
-        documents: [],
-        count: 0,
-      });
-      expect(result).not.toHaveProperty("error");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent_col' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
+      
     });
 
     it("should handle pre-parsed JSON documents", async () => {
@@ -538,16 +524,10 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { collection: "nonexistent" },
         mockContext,
-      )) as {
-        exists: boolean;
-        documents: unknown[];
-        count: number;
-      };
+      )) as { success: boolean; error: string; code: string; category: string };
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("documents", []);
-      expect(result).toHaveProperty("count", 0);
-      expect(result).not.toHaveProperty("error");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
+      
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -561,10 +541,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
   });
 
@@ -633,10 +610,9 @@ describe("Handler Execution", () => {
           documents: [{ name: "test" }],
         },
         mockContext,
-      )) as { exists: boolean; collection: string };
+      )) as { success: boolean; error: string; code: string; category: string };
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("collection", "nonexistent");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -654,10 +630,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -802,10 +775,9 @@ describe("Handler Execution", () => {
           set: { status: "active" },
         },
         mockContext,
-      )) as { exists: boolean; collection: string };
+      )) as { success: boolean; error: string; code: string; category: string };
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("collection", "nonexistent");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -824,10 +796,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -901,10 +870,9 @@ describe("Handler Execution", () => {
           filter: "$.id",
         },
         mockContext,
-      )) as { exists: boolean; collection: string };
+      )) as { success: boolean; error: string; code: string; category: string };
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("collection", "nonexistent");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -922,10 +890,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -1062,10 +1027,9 @@ describe("Handler Execution", () => {
           fields: [{ path: "email", type: "TEXT" }],
         },
         mockContext,
-      )) as { exists: boolean; collection: string };
+      )) as { success: boolean; error: string; code: string; category: string };
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("collection", "nonexistent");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -1084,10 +1048,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -1176,10 +1137,9 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { collection: "nonexistent" },
         mockContext,
-      )) as { exists: boolean; collection: string };
+      )) as { success: boolean; error: string; code: string; category: string };
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("collection", "nonexistent");
+      expect(result).toEqual({ success: false, error: "Collection 'nonexistent' does not exist", code: "TABLE_NOT_FOUND", category: "domain" });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -1193,10 +1153,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        exists: false,
-        schema: "nonexistent_schema",
-      });
+      expect(result).toEqual({ success: false, error: "Schema 'nonexistent_schema' does not exist", code: "SCHEMA_NOT_FOUND", category: "domain" });
     });
   });
 });

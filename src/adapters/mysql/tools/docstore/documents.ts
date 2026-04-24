@@ -42,15 +42,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema,
           );
           if (!findCheck.exists) {
-            if (findCheck.reason === "schema") {
-              return { exists: false, schema: findCheck.name };
-            }
-            return {
-              exists: false,
-              collection,
-              documents: [],
-              count: 0,
-            };
+            return findCheck.reason === "schema"
+              ? { success: false, error: `Schema '${findCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
+              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
           }
 
           let selectClause = "doc";
@@ -94,7 +88,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               ? (JSON.parse(docValue) as Record<string, unknown>)
               : docValue;
           });
-          return { documents: docs, count: docs.length };
+          return { success: true, documents: docs, count: docs.length };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -126,8 +120,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!addCheck.exists) {
             return addCheck.reason === "schema"
-              ? { exists: false, schema: addCheck.name }
-              : { exists: false, collection };
+              ? { success: false, error: `Schema '${addCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
+              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
           }
 
           const tableRef = escapeTableRef(collection, schema);
@@ -173,8 +167,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!modCheck.exists) {
             return modCheck.reason === "schema"
-              ? { exists: false, schema: modCheck.name }
-              : { exists: false, collection };
+              ? { success: false, error: `Schema '${modCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
+              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
           }
 
           const updates: string[] = [];
@@ -247,8 +241,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!rmCheck.exists) {
             return rmCheck.reason === "schema"
-              ? { exists: false, schema: rmCheck.name }
-              : { exists: false, collection };
+              ? { success: false, error: `Schema '${rmCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
+              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
           }
 
           const { where, params: whereParams } = parseDocFilter(filter);
