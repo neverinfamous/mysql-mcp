@@ -554,23 +554,15 @@ describe("Admin Backup Tools", () => {
       expect(tool.annotations?.readOnlyHint).toBe(true);
     });
 
-    it("should generate mysqldump command for current database", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "testdb" }]),
-      );
-
+    it("should return validation error when database is missing", async () => {
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        command: string;
-        note: string;
+        success: boolean;
+        error: string;
       };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT DATABASE() as db",
-      );
-      expect(result.command).toContain("mysqldump");
-      expect(result.command).toContain("testdb");
-      expect(result.note).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Validation error");
     });
 
     it("should generate mysqldump command with specific database", async () => {
@@ -585,13 +577,10 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should include specific tables in command", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         {
+          database: "mydb",
           tables: ["users", "orders"],
         },
         mockContext,
@@ -602,12 +591,8 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should add --no-data flag for schema-only dump", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({ noData: true }, mockContext)) as {
+      const result = (await tool.handler({ database: "mydb", noData: true }, mockContext)) as {
         command: string;
       };
 
@@ -615,13 +600,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should add --single-transaction flag when specified", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
-        { singleTransaction: true },
+        { database: "mydb", singleTransaction: true },
         mockContext,
       )) as { command: string };
 
@@ -629,13 +610,10 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should combine multiple options", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         {
+          database: "mydb",
           tables: ["users"],
           noData: true,
           singleTransaction: true,
@@ -648,33 +626,7 @@ describe("Admin Backup Tools", () => {
       expect(result.command).toContain("users");
     });
 
-    it("should handle missing database gracefully", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: null }]),
-      );
 
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({}, mockContext)) as {
-        command: string;
-      };
-
-      expect(result.command).toBeDefined();
-    });
-
-    it("should return structured error on query failure", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Connection lost"),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({}, mockContext)) as {
-        success: boolean;
-        error: string;
-      };
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Connection lost");
-    });
   });
 
   describe("createRestoreDumpTool", () => {
@@ -689,11 +641,7 @@ describe("Admin Backup Tools", () => {
       expect(tool.annotations?.readOnlyHint).toBe(false);
     });
 
-    it("should generate mysql restore command for current database", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "testdb" }]),
-      );
-
+    it("should return validation error when database is missing", async () => {
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
@@ -702,15 +650,10 @@ describe("Admin Backup Tools", () => {
           filename: "backup.sql",
         },
         mockContext,
-      )) as { command: string; note: string };
+      )) as { success: boolean; error: string };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT DATABASE() as db",
-      );
-      expect(result.command).toContain("mysql");
-      expect(result.command).toContain("testdb");
-      expect(result.command).toContain("backup.sql");
-      expect(result.note).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Validation error");
     });
 
     it("should generate mysql restore command with specific database", async () => {
@@ -731,58 +674,23 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle various filename formats", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
 
       let result = (await tool.handler(
-        { filename: "/path/to/backup.sql" },
+        { database: "mydb", filename: "/path/to/backup.sql" },
         mockContext,
       )) as { command: string };
       expect(result.command).toContain("/path/to/backup.sql");
 
       result = (await tool.handler(
-        { filename: "backup.sql.gz" },
+        { database: "mydb", filename: "backup.sql.gz" },
         mockContext,
       )) as { command: string };
       expect(result.command).toContain("backup.sql.gz");
     });
 
-    it("should handle missing database gracefully", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: null }]),
-      );
 
-      const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler(
-        { filename: "backup.sql" },
-        mockContext,
-      )) as { command: string };
-
-      expect(result.command).toBeDefined();
-    });
-
-    it("should return structured error on query failure", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Connection lost"),
-      );
-
-      const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler(
-        { filename: "backup.sql" },
-        mockContext,
-      )) as { success: boolean; error: string };
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Connection lost");
-    });
   });
 });
