@@ -110,6 +110,12 @@ export const ListTablesSchema = z.object({
     .string()
     .optional()
     .describe("Database name (defaults to connected database)"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Maximum number of tables to return"),
 });
 
 // --- DescribeTable ---

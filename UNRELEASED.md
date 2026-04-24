@@ -18,6 +18,7 @@
 - Updated core dependencies (`@modelcontextprotocol/sdk@1.29.0`, `vitest@4.1.5`, `eslint@10.2.1`, `typescript@6.0.3`, `mysql2@3.22.2`).
 
 ## Fixed
+- **Core Tool Constraints**: Added missing `limit` parameter support to `mysql_list_tables` to respect query boundaries and optimize agent payloads.
 - **Structured Error Compliance**: Unified and hardened domain error reporting across Core, Backup, and Admin tool groups to strictly adhere to the `ErrorResponse` schema (Pattern P154).
 - **Zod Validation Uniformity**: Prepended `"Validation error: "` to all Zod errors and enforced `database` as a required parameter in dump tools.
 - **Admin Multi-Result Handling**: Switched Admin DDL tools to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.

@@ -163,7 +163,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { database } = ListTablesSchema.parse(params);
+        const { database, limit } = ListTablesSchema.parse(params);
 
         // P154: Pre-check database existence when explicitly provided
         if (database) {
@@ -179,7 +179,11 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const tables = await adapter.listTables(database);
+        let tables = await adapter.listTables(database);
+        if (limit !== undefined) {
+          tables = tables.slice(0, limit);
+        }
+
         return {
           tables: tables.map((t) => ({
             name: t.name,
