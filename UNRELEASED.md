@@ -30,6 +30,7 @@
 - **Test Stability**: Relaxed benchmark timing assertions (`< 0.5ms`), added `--run` to `vitest bench` to fix watch-mode hangs, and added read-only detection to gracefully skip E2E write tests.
 - **Docstore & Events Verification**: Remediated the Docstore Code Mode verification script to correctly utilize `filter` and `set` parameters, and completed an exhaustive Code Mode verification of both Docstore and Events tool groups, standardizing domain error responses in `mysql_event_drop` to ensure 100% compliance with structured error schemas.
 - **Fulltext Tool Group Refactoring**: Completed exhaustive Code Mode re-testing of the `fulltext` tool group. Remediated all 5 fulltext handlers (`create`, `drop`, `search`, `boolean`, `expand`) by replacing ad-hoc partial error object literals (`{success: false, error: "..."}`) with the standardized `formatHandlerErrorResponse` wrapper to ensure all domain errors strictly conform to the project-wide `ErrorResponse` schema (including `code`, `category`, and `recoverable` properties).
+- **Introspection Tool Group Refactoring**: Completed exhaustive Code Mode re-testing of the `introspection` tool group. Updated `DependencyGraphSchema` to enforce `schema` as a required parameter and updated `MigrationRisksSchema` to accept `ddlQuery` as an alias for `statements`, ensuring strict compliance with Zod validation standards and established testing scripts.
 - **Cluster Auto-Recovery**: Changed `group_replication_start_on_boot=ON` to persist cluster state across machine restarts.
 
 ## Security

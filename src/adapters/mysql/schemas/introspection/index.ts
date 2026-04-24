@@ -9,8 +9,7 @@ import { z } from "zod";
 export const DependencyGraphSchemaBase = z.object({
   schema: z
     .string()
-    .optional()
-    .describe("Schema to analyze (default: all user schemas)"),
+    .describe("Schema to analyze"),
   includeRowCounts: z
     .boolean()
     .optional()
@@ -27,15 +26,14 @@ export const DependencyGraphSchemaBase = z.object({
 
 export const DependencyGraphSchema = z
   .object({
-    schema: z.string().optional(),
+    schema: z.string(),
     includeRowCounts: z.boolean().optional(),
     compact: z.boolean().optional(),
     limit: z.preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
     }, z.number().optional().default(100)),
-  })
-  .default({ limit: 100 });
+  });
 
 /**
  * mysql_topological_sort input
@@ -220,6 +218,7 @@ export const MigrationRisksSchemaBase = z.object({
     .optional()
     .describe("Single DDL statement (alias for statements)"),
   sql: z.string().optional().describe("Alias for statements/statement"),
+  ddlQuery: z.string().optional().describe("Alias for statements/statement"),
   schema: z
     .string()
     .optional()
@@ -236,6 +235,9 @@ export const MigrationRisksSchema = z.preprocess(
       }
       if (obj["sql"] !== undefined && obj["statements"] === undefined) {
         return { ...obj, statements: [obj["sql"]] };
+      }
+      if (obj["ddlQuery"] !== undefined && obj["statements"] === undefined) {
+        return { ...obj, statements: [obj["ddlQuery"]] };
       }
     }
     return input;
