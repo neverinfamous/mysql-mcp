@@ -10,6 +10,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   JsonSearchSchema,
   JsonSearchSchemaBase,
@@ -53,35 +55,38 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
 
         // No rows = row ID doesn't exist (distinct from null JSON path)
         if (!result.rows || result.rows.length === 0) {
-          return { value: null, rowFound: false };
+          return { success: true, value: null, rowFound: false };
         }
 
         const rawValue = result.rows?.[0]?.["value"];
         // Parse JSON value for consistency with mysql_json_extract
         // Return null for missing paths, parse objects/arrays, return primitives as-is
         if (rawValue === null || rawValue === undefined) {
-          return { value: null };
+          return { success: true, value: null };
         }
         // If result is already an object (MySQL driver parsed it), return as-is
         if (typeof rawValue === "object") {
-          return { value: rawValue };
+          return { success: true, value: rawValue };
         }
         // Try to parse string values as JSON
         if (typeof rawValue === "string") {
           try {
-            return { value: JSON.parse(rawValue) as unknown };
+            return { success: true, value: JSON.parse(rawValue) as unknown };
           } catch {
             // Return unquoted string for primitive string values
-            return { value: rawValue };
+            return { success: true, value: rawValue };
           }
         }
-        return { value: rawValue };
-      } catch (error) {
+        return { success: true, value: rawValue };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -136,12 +141,15 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
         return { success: true };
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -176,13 +184,16 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
           mode,
           searchValue,
         ]);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
+        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -208,17 +219,12 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [value]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
-        return { valid: isValid };
-      } catch (error) {
-        // MySQL may throw an error for severely malformed input
-        // Return a structured error response instead of propagating
-        let message =
-          error instanceof Error ? error.message : "Unknown validation error";
-        message = message.replace(
-          /^(Query failed:\s*|Execute failed:\s*)+/i,
-          "",
-        );
-        return { valid: false, error: message };
+        return { success: true, valid: isValid };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };

@@ -1,40 +1,37 @@
-# Introspection Tool Group Code Mode Testing
+# JSON Tool Group Verification Matrix
 
-## Execution Summary
-- **Methodology:** Tested via `mysql_execute_code` mapping `mysql.introspection.*`.
-- **Date:** April 24, 2026
+All tests passed locally via `mysql_execute_code`.
 
-## 1. `dependencyGraph`
-- ✅ **Happy Path:** `dependencyGraph({ schema: "testdb", maxDepth: 2 })` — Passed (returns node and edge graph representation).
-- ✅ **Domain Error:** `dependencyGraph({ schema: "nonexistent_schema" })` — Passed (Returned structured error response with `code: VALIDATION_ERROR` instead of throwing raw exception).
-- ✅ **Zod Error:** `dependencyGraph({})` — Passed (Caught `ZodError` and returned standardized validation error payload).
+## Core Tools (Coverage)
 
-## 2. `topologicalSort`
-- ✅ **Happy Path:** `topologicalSort({ schema: "testdb" })` — Passed (returns logically ordered array of tables).
-- ✅ **Domain Error:** `topologicalSort({ schema: "nonexistent_schema" })` — Passed (Returned structured error response for nonexistent schema).
-- ✅ **Zod Error:** `topologicalSort({})` — Passed (Standard validation error payload).
+| Tool | Happy Path | Domain Error (Non-existent Table/Col) | Zod Validation |
+| :--- | :--- | :--- | :--- |
+| `mysql_json_extract` | ✅ Passed | ✅ Passed (`{success: false, error: ...}`) | ✅ Passed |
+| `mysql_json_set` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_insert` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_replace`| ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_remove` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_contains`| ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_keys` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_array_append` | ✅ Passed | ✅ Passed | ✅ Passed |
 
-## 3. `cascadeSimulator`
-- ✅ **Happy Path:** `cascadeSimulator({ table: "test_products", operation: "DELETE" })` — Passed (successfully simulated constraint violations/cascades).
-- ✅ **Domain Error:** `cascadeSimulator({ table: "nonexistent_table", operation: "DELETE" })` — Passed (Returns "Table 'testdb.nonexistent_table' does not exist...").
-- ✅ **Zod Error:** `cascadeSimulator({})` — Passed.
+## Helper & Enhanced Tools (Coverage)
 
-## 4. `schemaSnapshot`
-- ✅ **Happy Path:** `schemaSnapshot({ schema: "testdb" })` — Passed (returns full schema definitions).
-- ✅ **Domain Error:** `schemaSnapshot({ schema: "nonexistent_schema" })` — Passed.
-- ✅ **Zod Error:** `schemaSnapshot({})` — Passed.
+| Tool | Happy Path | Domain Error (Non-existent Table/Col) | Zod Validation |
+| :--- | :--- | :--- | :--- |
+| `mysql_json_get` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_update` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_search` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_validate` | ✅ Passed | ✅ Passed (Invalid JSON string) | ✅ Passed |
+| `mysql_json_merge` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_diff` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_normalize`| ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_stats` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_json_index_suggest` | ✅ Passed | ✅ Passed | ✅ Passed |
 
-## 5. `constraintAnalysis`
-- ✅ **Happy Path:** `constraintAnalysis({ schema: "testdb" })` — Passed (analyzes constraints successfully).
-- ✅ **Domain Error:** `constraintAnalysis({ schema: "nonexistent_schema" })` — Passed.
-- ✅ **Zod Error:** `constraintAnalysis({})` — Passed.
+## Remediation Applied
 
-## 6. `migrationRisks`
-- ✅ **Happy Path:** `migrationRisks({ ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT" })` — Passed (returns associated risks).
-- ✅ **Domain Error:** `migrationRisks({ ddlQuery: "ALTER TABLE nonexistent_table ADD COLUMN new_col INT" })` — Passed.
-- ✅ **Zod Error:** `migrationRisks({})` — Passed.
-
-## Findings
-- **Failures:** `[]` (None)
-- **Compliance:** 100% compliant with the `ErrorResponse` schema (`{ success: false, error: "...", code: "VALIDATION_ERROR", category: "validation" }`).
-- **Tests Passed:** All Code Mode testing paths completely adhered to the standardized schema. No unhandled MCP exceptions were thrown during execution.
+1. Standardized all 17 tools to use `formatHandlerErrorResponse` rather than throwing ad-hoc raw errors.
+2. Standardized domain checks (P154) to return `{success: false, error: "Table or column does not exist"}` instead of `{exists: false, table: "..."}`.
+3. Updated unit tests (`core.test.ts`, `helpers.test.ts`, `enhanced.test.ts`) to align with these `{success: false}` schemas, bringing coverage metrics up to par and tests to a clean build.
+4. Code Mode Proxy validated for Zod constraints which properly surfaced as standard proxy boundary exceptions.

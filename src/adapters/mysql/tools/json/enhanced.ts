@@ -10,7 +10,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import {
   JsonNormalizeSchema,
   JsonNormalizeSchemaBase,
@@ -69,13 +69,17 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
 
         const merged = result.rows?.[0]?.["merged"];
         return {
+          success: true,
           merged:
             typeof merged === "string"
               ? (JSON.parse(merged) as Record<string, unknown>)
               : merged,
           mode,
         };
-      } catch (err) {
+      } catch (err: unknown) {
+        if (err instanceof ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -191,6 +195,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return {
+          success: true,
           identical,
           json1ContainsJson2: row?.["json1_contains_json2"] === 1,
           json2ContainsJson1: row?.["json2_contains_json1"] === 1,
@@ -202,7 +207,10 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           removedKeys,
           differences,
         };
-      } catch (err) {
+      } catch (err: unknown) {
+        if (err instanceof ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -267,17 +275,21 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return {
+          success: true,
           uniqueKeys,
           keyCount: uniqueKeys.length,
           keyStats,
           truncated: uniqueKeys.length > 20,
         };
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -325,6 +337,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const row = result.rows?.[0];
 
         return {
+          success: true,
           totalSampled: Number(row?.["total_rows"] ?? 0),
           nullCount: Number(row?.["null_count"] ?? 0),
           length: {
@@ -342,12 +355,15 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
           },
           sampleSize,
         };
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -452,17 +468,21 @@ export function createJsonIndexSuggestTool(
         suggestions.sort((a, b) => b.cardinality - a.cardinality);
 
         return {
+          success: true,
           table,
           column,
           suggestions: suggestions.slice(0, 5), // Top 5 suggestions
           note: "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
         };
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

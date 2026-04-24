@@ -195,11 +195,11 @@ describe("JSON Helper Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
-        valid: boolean;
+        success: boolean;
         error: string;
       };
 
-      expect(result.valid).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.error).not.toContain("Query failed");
       expect(result.error).not.toContain("Execute failed");
       expect(result.error).toContain("Invalid JSON text");
@@ -216,7 +216,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", id: 1 },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_update should return exists: false for nonexistent table", async () => {
@@ -226,7 +226,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", value: 1, id: 1 },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_search should return exists: false for nonexistent table", async () => {
@@ -236,7 +236,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", searchValue: "test" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("should return success: false for generic errors", async () => {
@@ -248,7 +248,7 @@ describe("JSON Helper Tools", () => {
         { table: "data", column: "doc", path: "$.x", id: 1 },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Connection lost" });
+      expect(result).toEqual(expect.objectContaining({ success: false, error: "Connection lost" }));
     });
   });
 });

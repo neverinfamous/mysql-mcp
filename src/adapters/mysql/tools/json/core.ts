@@ -10,6 +10,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   JsonExtractSchema,
   JsonExtractSchemaBase,
@@ -93,13 +95,16 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { rows: result.rows };
-      } catch (error) {
+        return { success: true, rows: result.rows };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -130,13 +135,16 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        return { success: true, rowsAffected: result.rowsAffected };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -179,18 +187,22 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (pathExists) {
           return {
+            success: true,
             rowsAffected: result.rowsAffected,
             changed: false,
             note: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
           };
         }
-        return { rowsAffected: result.rowsAffected, changed: true };
-      } catch (error) {
+        return { success: true, rowsAffected: result.rowsAffected, changed: true };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -222,13 +234,16 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        return { success: true, rowsAffected: result.rowsAffected };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -258,13 +273,16 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathPlaceholders}) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql, paths);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        return { success: true, rowsAffected: result.rowsAffected };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -304,13 +322,16 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
+        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -340,13 +361,16 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} HAVING json_keys IS NOT NULL`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
+        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -380,13 +404,16 @@ export function createJsonArrayAppendTool(
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        return { success: true, rowsAffected: result.rowsAffected };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return { success: false, error: "Table or column does not exist" };
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

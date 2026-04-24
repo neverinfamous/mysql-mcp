@@ -547,7 +547,7 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ exists: false, table: "nonexistent" });
+        expect(result).toEqual({ success: false, error: "Table or column does not exist" });
       });
 
       it("json_stats should return exists: false for nonexistent table", async () => {
@@ -559,7 +559,7 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ exists: false, table: "nonexistent" });
+        expect(result).toEqual({ success: false, error: "Table or column does not exist" });
       });
 
       it("json_index_suggest should return exists: false for nonexistent table", async () => {
@@ -571,7 +571,7 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ exists: false, table: "nonexistent" });
+        expect(result).toEqual({ success: false, error: "Table or column does not exist" });
       });
 
       it("json_merge should return success: false for invalid input", async () => {

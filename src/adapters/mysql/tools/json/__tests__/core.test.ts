@@ -359,7 +359,7 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_set should return exists: false for nonexistent table", async () => {
@@ -375,7 +375,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_insert should return exists: false for nonexistent table", async () => {
@@ -391,7 +391,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_replace should return exists: false for nonexistent table", async () => {
@@ -409,7 +409,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_remove should return exists: false for nonexistent table", async () => {
@@ -424,7 +424,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_contains should return exists: false for nonexistent table", async () => {
@@ -436,7 +436,7 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc", value: "1" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_keys should return exists: false for nonexistent table", async () => {
@@ -446,7 +446,7 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_array_append should return exists: false for nonexistent table", async () => {
@@ -464,7 +464,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
     });
 
     it("should return success: false for generic errors", async () => {
@@ -478,7 +478,7 @@ describe("JSON Core Tools", () => {
         { table: "data", column: "doc", path: "$.x" },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Connection lost" });
+      expect(result).toEqual(expect.objectContaining({ success: false, error: "Connection lost" }));
     });
   });
 });

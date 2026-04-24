@@ -123,9 +123,9 @@ describe("JSON Helper Handler Execution", () => {
       const result = (await tool.handler(
         { value: "\x00invalid" },
         mockContext,
-      )) as { valid: boolean; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.valid).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.error).toBe("Validation query failed");
     });
   });
