@@ -130,11 +130,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeReadQuery(sql);
           rows = result.rows ?? [];
         } catch (error) {
-          const msg = error instanceof Error ? error.message : String(error);
-          if (msg.includes("doesn't exist")) {
-            return { exists: false, table };
-          }
-          return formatHandlerErrorResponse(new Error(msg));
+          return formatHandlerErrorResponse(error);
         }
 
         if (format === "CSV") {
@@ -237,7 +233,11 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             error instanceof Error ? error.message : String(error);
           // Graceful handling for missing table (P154)
           if (errorMessage.includes("doesn't exist")) {
-            return { exists: false, table };
+            return {
+              success: false,
+              error: stripErrorPrefix(errorMessage),
+              rowsInserted: totalInserted,
+            };
           }
           // Graceful handling for duplicate key violations
           if (errorMessage.includes("Duplicate entry")) {
