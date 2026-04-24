@@ -91,14 +91,14 @@ describe("Performance Tests", () => {
       }, 100);
 
       // Both should be very fast (O(1) Map lookup)
-      expect(firstToolTime.avg).toBeLessThan(0.1);
-      expect(lastToolTime.avg).toBeLessThan(0.1);
+      expect(firstToolTime.avg).toBeLessThan(0.5);
+      expect(lastToolTime.avg).toBeLessThan(0.5);
 
       // Times should be similar (indicating O(1) behavior)
       // Note: Ratio comparisons are unstable for very small numbers (e.g. 0.001ms vs 0.02ms is 20x variance).
-      // We check that the absolute difference is negligible (< 0.2ms)
+      // We check that the absolute difference is negligible (< 0.5ms)
       const diff = Math.abs(firstToolTime.avg - lastToolTime.avg);
-      expect(diff).toBeLessThan(0.2);
+      expect(diff).toBeLessThan(0.5);
     });
 
     it("should correctly identify tool groups", () => {

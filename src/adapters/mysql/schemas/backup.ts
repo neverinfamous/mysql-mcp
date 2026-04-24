@@ -11,7 +11,8 @@ export const ExportTableSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   format: z
-    .enum(["SQL", "CSV"])
+    .enum(["SQL", "CSV", "sql", "csv"])
+    .transform((val) => val.toUpperCase() as "SQL" | "CSV")
     .optional()
     .default("SQL")
     .describe("Export format"),
@@ -43,7 +44,7 @@ export const ExportTableSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      format: z.enum(["SQL", "CSV"]).optional().default("SQL"),
+      format: z.enum(["SQL", "CSV", "sql", "csv"]).transform(val => val.toUpperCase() as "SQL" | "CSV").optional().default("SQL"),
       where: z.string().optional(),
       filter: z.string().optional(),
       limit: z.number().int().positive().optional().default(100),

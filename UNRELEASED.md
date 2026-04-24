@@ -57,6 +57,8 @@
 
 ## Fixed
 
+- **Backup Export Format Validation**: Relaxed the Zod schema for `mysql_export_table`'s `format` parameter to accept case-insensitive values (`"csv"`, `"sql"`), transforming them to uppercase before execution. Prevents valid user inputs from triggering strict validation rejections.
+- **Performance Test Stability**: Relaxed strict millisecond timing assertions (`< 0.1ms`) in `src/__tests__/perf.test.ts` for O(1) group lookup verification to `< 0.5ms` to prevent flaky failures in CI and high-load environments.
 - **Zod Validation Error Formatting**: Updated `formatZodError` in `src/adapters/mysql/tools/core/error-helpers.ts` to explicitly prepend the `"Validation error: "` prefix to the extracted validation issues. This ensures all tools maintain consistent structured validation response formats, satisfying cross-server verification standards.
 - **Backup Tools Schema Validation**: Updated schemas for `mysql_create_dump` and `mysql_restore_dump` to enforce `database` as a required parameter, removing its optional default. This ensures correct Zod validation rejection (`{ success: false, error: "Validation error: ..." }`) when empty configurations are passed in Code Mode. Additionally, added explicit `success: true` returns to all happy-path responses in the backup toolset to strictly align with the project's structured response pattern.
 - **Backup Tool Error Responses**: Refactored `mysql_export_table` and `mysql_import_data` to return fully populated, standard `ErrorResponse` objects (e.g., `{ success: false, error: "..." }`) instead of raw `{ exists: false }` payloads when encountering domain errors (like nonexistent tables). This ensures adherence to Pattern P154 (Object Existence Verification) and strict structured error standards.
