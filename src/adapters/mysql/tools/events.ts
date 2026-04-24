@@ -250,7 +250,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         if (message.toLowerCase().includes("unknown event")) {
           return { success: false, error: "Event does not exist" };
         }
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

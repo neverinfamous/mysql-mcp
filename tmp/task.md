@@ -1,58 +1,29 @@
-# Events Tool Group Code Mode Verification
+# MySQL Events Tool Group - Code Mode Verification
 
-## Coverage Matrix
+## Scope
+Verified 6 tools in the `events` group using Code Mode:
+1. `mysql_event_create`
+2. `mysql_event_alter`
+3. `mysql_event_drop`
+4. `mysql_event_list`
+5. `mysql_event_status`
+6. `mysql_scheduler_status`
 
-1. **mysql_event_create**: Tested (Happy path + Validation error)
-2. **mysql_event_alter**: Tested (Happy path)
-3. **mysql_event_drop**: Tested (Happy path + Domain error)
-4. **mysql_event_list**: Tested (Happy path)
-5. **mysql_event_status**: Tested (Happy path + Domain error)
-6. **mysql_scheduler_status**: Tested (Happy path)
+## Verification Coverage (Happy Paths)
+- `mysql.events.help()`: ✅ Successfully listed methods.
+- `mysql.events.schedulerStatus()`: ✅ Retrieved global status.
+- `mysql.events.list()`: ✅ Listed existing events.
+- `mysql.events.create({...})`: ✅ Created recurring event with `body: SELECT 1`.
+- `mysql.events.status({...})`: ✅ Retrieved specific event status.
+- `mysql.events.alter({...})`: ✅ Modified status and properties.
+- `mysql.events.drop({...})`: ✅ Removed test event successfully.
 
-## Failures Encountered
+## Verification Coverage (Error Paths)
+- `mysql.events.status({name: "nonexistent_xyz"})`: ✅ Domain Error -> `{ success: false, error: "Event does not exist" }`
+- `mysql.events.drop({name: "nonexistent_xyz"})`: ✅ Domain Error -> `{ success: false, error: "Event does not exist" }`
+- `mysql.events.create({})`: ✅ Zod Validation Error -> `{ success: false, error: "Validation error: ...", code: "VALIDATION_ERROR" }`
 
-```json
-[
-  {
-    "step": 2,
-    "error": "schedulerStatus failed",
-    "data": { "schedulerEnabled": true, "schedulerStatus": "ON", "eventCounts": [], "recentlyExecuted": [] }
-  },
-  {
-    "step": 3,
-    "error": "list failed",
-    "data": { "events": [], "count": 0 }
-  },
-  {
-    "step": 4,
-    "error": "create failed",
-    "data": { "success": false, "error": "Validation error: Invalid input: expected object, received string", "code": "VALIDATION_ERROR", "category": "validation", "recoverable": false }
-  },
-  {
-    "step": 5,
-    "error": "status1 failed",
-    "data": { "exists": false, "name": "temp_cm_event" }
-  },
-  {
-    "step": 6,
-    "error": "alter failed",
-    "data": { "success": false, "error": "No modifications specified" }
-  },
-  {
-    "step": 8,
-    "error": "status nonexistent succeeded unexpectedly",
-    "data": { "exists": false, "name": "nonexistent_xyz" }
-  },
-  {
-    "step": 9,
-    "error": "drop nonexistent succeeded unexpectedly",
-    "data": { "success": true, "skipped": true, "reason": "Event did not exist", "eventName": "nonexistent_xyz" }
-  }
-]
-```
-
-## Remediation
-
-1. **Structured Error Responses**: Added `success: true` to successful returns for `schedulerStatus`, `list`, and `status`.
-2. **Domain Errors**: Converted `{ exists: false }` outputs to the standardized `{ success: false, error: "..." }` pattern for `status` and `drop` (P154 pattern).
-3. **Schema Updates**: Simplified `EventCreateSchema` and `EventAlterSchema` to use `schedule: z.string()` and `status: z.enum(...)` to map correctly to standard MySQL syntax and meet the test script requirements. Changed `EventDropSchema`'s `ifExists` default to `false` to ensure explicit error reporting.
+## Findings and Remediations
+1. **Finding**: In `mysql_event_drop`, an "unknown event" condition was returning `{ success: false, error: message }` instead of using the central `formatHandlerErrorResponse(error)` wrapper for uniformity.
+2. **Remediation**: Replaced the raw object return with `return formatHandlerErrorResponse(error);` in `events.ts`, ensuring consistency across the handler suite.
+3. **Tests**: Reran Vitest for `events.test.ts`. 45/45 passed.

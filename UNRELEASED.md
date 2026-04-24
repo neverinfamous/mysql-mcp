@@ -25,7 +25,7 @@
 - **Admin Multi-Result Handling**: Switched Admin DDL tools to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
 - **Backup Parameter Parsing**: Relaxed `mysql_export_table` format parameter to accept case-insensitive values.
 - **Test Stability**: Relaxed benchmark timing assertions (`< 0.5ms`), added `--run` to `vitest bench` to fix watch-mode hangs, and added read-only detection to gracefully skip E2E write tests.
-- **Docstore & Events Verification**: Remediated the Docstore Code Mode verification script to correctly utilize `filter` and `set` parameters, and completed an exhaustive Code Mode verification of both Docstore and Events tool groups, confirming 100% compliance with structured error schemas.
+- **Docstore & Events Verification**: Remediated the Docstore Code Mode verification script to correctly utilize `filter` and `set` parameters, and completed an exhaustive Code Mode verification of both Docstore and Events tool groups, standardizing domain error responses in `mysql_event_drop` to ensure 100% compliance with structured error schemas.
 - **Cluster Auto-Recovery**: Changed `group_replication_start_on_boot=ON` to persist cluster state across machine restarts.
 
 ## Security
