@@ -47,6 +47,7 @@ export function riskFromScore(score: number): RiskLevel {
 export const DetectQueryAnomaliesSchema = z.object({
   threshold: z.number().optional().describe("Max/Avg variance multiplier threshold (default: 10.0)"),
   minCalls: z.number().optional().describe("Minimum call count to filter noise (default: 50)"),
+  minExecutions: z.number().optional().describe("Alias for minCalls"),
 });
 
 export const DetectBloatRiskSchema = z.object({
@@ -74,7 +75,7 @@ export function createDetectQueryAnomaliesTool(
         const parsed = DetectQueryAnomaliesSchema.parse(params);
 
         const threshold = parsed.threshold ?? 10.0;
-        const minCalls = parsed.minCalls ?? 50;
+        const minCalls = parsed.minCalls ?? parsed.minExecutions ?? 50;
 
         if (threshold < 2 || threshold > 1000) {
           return { success: false, error: "threshold must be between 2 and 1000" };

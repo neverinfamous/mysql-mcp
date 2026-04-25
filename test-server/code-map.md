@@ -138,6 +138,8 @@ src/
 | **stats** | `stats/descriptive.ts` | 5 | `stats_descriptive`, `stats_percentiles`, `stats_distribution`, `stats_time_series`, `stats_sampling` |
 | | `stats/comparative.ts` | 3 | `stats_correlation`, `stats_regression`, `stats_histogram` |
 | **performance** | `performance/analysis.ts` | 8 | `explain`, `explain_analyze`, `slow_queries`, `query_stats`, `index_usage`, `table_stats`, `buffer_pool_stats`, `thread_stats` |
+| | `performance/anomaly-detection.ts` | 2 | `detect_query_anomalies`, `detect_bloat_risk` |
+| | `performance/connection-analysis.ts` | 1 | `detect_connection_spike` |
 | **optimization** | `performance/optimization.ts` | 4 | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace` |
 | **admin** | `admin/maintenance.ts` | 6 | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query` (uses `extractMaintenanceError()` + `rawQuery` for DDL) |
 | | `admin/monitoring.ts` | 7 | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health` |

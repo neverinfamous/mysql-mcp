@@ -79,28 +79,22 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, format } = ExplainSchema.parse(params);
-
-      const sql = `EXPLAIN FORMAT=${format} ${query}`;
-
       try {
+        const { query, format } = ExplainSchema.parse(params);
+        const sql = `EXPLAIN FORMAT=${format} ${query}`;
         const result = await adapter.executeReadQuery(sql);
 
         if (format === "JSON" && result.rows?.[0] !== undefined) {
           const explainRow = result.rows[0];
           const jsonStr = explainRow["EXPLAIN"];
           if (typeof jsonStr === "string") {
-            return { plan: JSON.parse(jsonStr) as unknown };
+            return { success: true, plan: JSON.parse(jsonStr) as unknown };
           }
         }
 
-        return { plan: result.rows };
+        return { success: true, plan: result.rows };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, error: msg };
-        }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -121,30 +115,24 @@ export function createExplainAnalyzeTool(
       readOnlyHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, format } = ExplainAnalyzeSchema.parse(params);
-
-      // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
-      // (requires explain_json_format_version=2 which is not widely available).
-      // Return a descriptive error for JSON format requests.
-      if (format === "JSON") {
-        return {
-          supported: false,
-          reason:
-            "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
-        };
-      }
-
-      const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
-
       try {
-        const result = await adapter.executeReadQuery(sql);
-        return { analysis: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, error: msg };
+        const { query, format } = ExplainAnalyzeSchema.parse(params);
+
+        // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
+        // (requires explain_json_format_version=2 which is not widely available).
+        // Return a descriptive error for JSON format requests.
+        if (format === "JSON") {
+          return {
+            success: false,
+            error: "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
+          };
         }
-        return { success: false, error: msg };
+
+        const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
+        const result = await adapter.executeReadQuery(sql);
+        return { success: true, analysis: result.rows };
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -163,9 +151,8 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit, minTime } = SlowQuerySchema.parse(params);
-
       try {
+        const { limit, minTime } = SlowQuerySchema.parse(params);
         let sql = `
                 SELECT 
                     LEFT(DIGEST_TEXT, 200) as query,
@@ -185,6 +172,7 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeReadQuery(sql);
         return {
+          success: true,
           slowQueries: sanitizeTimerRows(result.rows, [
             "avg_time_ms",
             "total_time_ms",
@@ -210,9 +198,8 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { orderBy, limit } = QueryStatsSchema.parse(params);
-
       try {
+        const { orderBy, limit } = QueryStatsSchema.parse(params);
         const orderColumn = {
           total_time: "SUM_TIMER_WAIT",
           avg_time: "AVG_TIMER_WAIT",
@@ -239,6 +226,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeReadQuery(sql);
         return {
+          success: true,
           queries: sanitizeTimerRows(result.rows, [
             "avg_time_ms",
             "max_time_ms",
@@ -275,7 +263,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
             [table],
           );
           if (!check.rows || check.rows.length === 0) {
-            return { exists: false, table };
+            return { success: false, error: `Table '${table}' doesn't exist` };
           }
         }
 
@@ -307,7 +295,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           sql,
           table ? [table] : [],
         );
-        return { indexUsage: result.rows };
+        return { success: true, indexUsage: result.rows };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -354,10 +342,10 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [table]);
 
         if (!result.rows || result.rows.length === 0) {
-          return { exists: false, table };
+          return { success: false, error: `Table '${table}' doesn't exist` };
         }
 
-        return { stats: result.rows[0] };
+        return { success: true, stats: result.rows[0] };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -396,7 +384,7 @@ export function createBufferPoolStatsTool(
          FROM information_schema.INNODB_BUFFER_POOL_STATS`,
         );
 
-        return { bufferPoolStats: result.rows };
+        return { success: true, bufferPoolStats: result.rows };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -438,7 +426,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY PROCESSLIST_TIME DESC
             `);
 
-        return { threads: result.rows };
+        return { success: true, threads: result.rows };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

@@ -129,7 +129,7 @@ describe("Performance Analysis Tools", () => {
       expect(result.plan).toBe(mockRows);
     });
 
-    it("should return exists false for nonexistent table", async () => {
+    it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -138,9 +138,9 @@ describe("Performance Analysis Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
-      )) as { exists: boolean; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
     });
 
@@ -202,15 +202,15 @@ describe("Performance Analysis Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT 1", format: "JSON" },
         mockContext,
-      )) as { supported: boolean; reason: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.supported).toBe(false);
-      expect(result.reason).toContain("does not support FORMAT=JSON");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not support FORMAT=JSON");
       // Should NOT call executeReadQuery for JSON format
       expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
     });
 
-    it("should return exists false for nonexistent table", async () => {
+    it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -221,9 +221,9 @@ describe("Performance Analysis Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
-      )) as { exists: boolean; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
     });
 
@@ -608,13 +608,13 @@ describe("Performance Analysis Tools", () => {
       expect(args).toEqual(["users"]);
     });
 
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ table: "nonexistent" }, mockContext);
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({ success: false, error: "Table 'nonexistent' doesn't exist" });
       // Should only call once (existence check), not the index usage query
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(1);
     });
@@ -682,17 +682,17 @@ describe("Performance Analysis Tools", () => {
       expect(result.stats).toBeDefined();
     });
 
-    it("should return exists false if table not found", async () => {
+    it("should return success false if table not found", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return structured error on query failure", async () => {

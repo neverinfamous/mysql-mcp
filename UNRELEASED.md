@@ -41,8 +41,8 @@
 - Fixed optimization tool domain error reporting (e.g. `index_recommendation`, `force_index`), standardizing on `{ success: false, error: ... }` for missing tables instead of `{ exists: false }`.
 - Added missing preprocessing aliases to `mysql_force_index` parameter schema to support `index` and `sql` inputs.
 - Enforced 100% adherence to the `ErrorResponse` schema in the `optimization` tool group by guaranteeing `success: true` for all happy paths and `success: false` for all `extractTraceSummary` errors.
-- Fixed partitioning tool domain error reporting, standardizing on strict `{ success: false, error: ... }` for failures by removing leaked properties (`table`, `partitionName`, `fromPartitions`), and updated `mysql_partition_info` to return `{ success: true, partitioned: false }` instead of an error for unpartitioned tables. Verified via exhaustive Code Mode testing.
-
+- Fixed partitioning tool domain error reporting, standardizing on strict `{ success: false, error: ... }` for failures by removing leaked properties (`table`, `partitionName`, `fromPartitions`), and updated `mysql_partition_info` to return `{ success: true, partitioned: false }` instead of an error for unpartitioned tables.
+- Fixed performance tool group error handling by wrapping Zod validation in `try/catch` blocks, enforcing `{ success: true }` on success, and replacing legacy object responses (e.g. `{ exists: false }`) with standardized `ErrorResponse` objects. Added `minExecutions` alias support to `mysql_detect_query_anomalies`.
 ## Security
 
 - Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
