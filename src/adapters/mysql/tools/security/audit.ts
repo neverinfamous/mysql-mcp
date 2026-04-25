@@ -115,6 +115,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
 
           const result = await adapter.executeQuery(query, []);
           const response: Record<string, unknown> = {
+            success: true,
             source: "performance_schema",
             message: "Using performance_schema as audit log is not available",
             events: result.rows ?? [],
@@ -159,6 +160,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           source: "mysql.audit_log",
           events: result.rows ?? [],
           count: result.rows?.length ?? 0,
@@ -218,6 +220,7 @@ export function createSecurityFirewallStatusTool(
 
         if (!pluginResult.rows || pluginResult.rows.length === 0) {
           return {
+            success: true,
             installed: false,
             message: "MySQL Enterprise Firewall is not installed",
             suggestion:
@@ -240,6 +243,7 @@ export function createSecurityFirewallStatusTool(
         );
 
         return {
+          success: true,
           installed: true,
           plugins: pluginResult.rows,
           configuration: variables,
@@ -333,6 +337,7 @@ export function createSecurityFirewallRulesTool(
         );
 
         return {
+          success: true,
           users: usersResult.rows ?? [],
           rules: rulesResult.rows ?? [],
           userCount: usersResult.rows?.length ?? 0,

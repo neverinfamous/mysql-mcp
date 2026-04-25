@@ -154,6 +154,7 @@ export function createSecurityMaskDataTool(
             const ccDigits = value.replace(/\D/g, "");
             if (ccDigits.length <= 8) {
               return Promise.resolve({
+                success: true,
                 original: value,
                 masked: maskChar.repeat(value.length),
                 type,
@@ -171,6 +172,7 @@ export function createSecurityMaskDataTool(
             // When keepFirst + keepLast covers the entire value, return unchanged with warning
             if (keepFirst + keepLast >= value.length) {
               return Promise.resolve({
+                success: true,
                 original: value,
                 masked: value,
                 type,
@@ -190,7 +192,7 @@ export function createSecurityMaskDataTool(
             maskedValue = maskChar.repeat(value.length);
         }
 
-        return Promise.resolve({ original: value, masked: maskedValue, type });
+        return Promise.resolve({ success: true, original: value, masked: maskedValue, type });
       } catch (error) {
         if (error instanceof ZodError) {
           return Promise.resolve({
@@ -360,6 +362,7 @@ export function createSecurityUserPrivilegesTool(
         }
 
         return {
+          success: true,
           users: userPrivileges,
           count: userPrivileges.length,
           summary,
@@ -461,6 +464,7 @@ export function createSecuritySensitiveTablesTool(
           : allItems;
 
         return {
+          success: true,
           sensitiveTables: sensitiveItems,
           tableCount: sensitiveItems.length,
           totalSensitiveColumns: result.rows?.length ?? 0,

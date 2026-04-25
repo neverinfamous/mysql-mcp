@@ -84,6 +84,7 @@ export function createSecuritySSLStatusTool(
           typeof val === "string" && val !== "" ? val : defaultVal;
 
         return {
+          success: true,
           sslEnabled: str(status["Ssl_cipher"]) !== "",
           currentCipher: str(status["Ssl_cipher"], "None"),
           sslVersion: str(status["Ssl_version"], "N/A"),
@@ -177,6 +178,7 @@ export function createSecurityEncryptionStatusTool(
         );
 
         return {
+          success: true,
           keyringPlugins: keyringResult.rows ?? [],
           keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
           encryptedTablespaces: tablespaceResult.rows ?? [],
@@ -236,6 +238,7 @@ export function createSecurityPasswordValidateTool(
         // If no validate_password variables exist, component is not installed
         if (Object.keys(policy).length === 0) {
           return {
+            success: true,
             available: false,
             message: "Password validation component not installed",
             suggestion:
@@ -260,6 +263,7 @@ export function createSecurityPasswordValidateTool(
         else interpretation = "Very Weak";
 
         return {
+          success: true,
           strength,
           interpretation,
           meetsPolicy: strength >= 50, // General guideline
