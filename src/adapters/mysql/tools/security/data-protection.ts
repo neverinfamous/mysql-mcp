@@ -237,7 +237,7 @@ export function createSecurityUserPrivilegesTool(
             [user],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return { exists: false, user };
+            return { success: false, error: `User '${user}' does not exist.` };
           }
         }
 
@@ -400,7 +400,7 @@ export function createSecuritySensitiveTablesTool(
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return { success: false, error: `Schema '${schema}' does not exist.` };
           }
         }
 

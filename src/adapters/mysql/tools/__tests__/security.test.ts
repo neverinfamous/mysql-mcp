@@ -651,7 +651,7 @@ describe("Security Tools", () => {
       expect(result.users[0].roles).toBeUndefined();
     });
 
-    it("should return exists:false for nonexistent user (P154)", async () => {
+    it("should return ErrorResponse for nonexistent user (P154)", async () => {
       // P154 pre-check returns empty
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -663,8 +663,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.exists).toBe(false);
-      expect(result.user).toBe("nonexistent_user");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
       expect(result.users).toBeUndefined();
     });
   });
@@ -700,7 +700,7 @@ describe("Security Tools", () => {
       expect(result.sensitiveTables[0].sensitiveColumns).toHaveLength(2);
     });
 
-    it("should return exists:false for nonexistent schema (P154)", async () => {
+    it("should return ErrorResponse for nonexistent schema (P154)", async () => {
       // P154 pre-check returns empty
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -712,8 +712,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.exists).toBe(false);
-      expect(result.schema).toBe("nonexistent_schema");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
       expect(result.sensitiveTables).toBeUndefined();
     });
   });
