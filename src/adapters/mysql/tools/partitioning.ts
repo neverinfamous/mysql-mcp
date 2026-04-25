@@ -5,7 +5,7 @@
  * 4 tools: partition_info, add_partition, drop_partition, reorganize_partition.
  */
 
-import { ZodError } from "zod";
+
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { formatMysqlError, formatHandlerErrorResponse } from "./core/error-helpers.js";
@@ -56,7 +56,11 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { exists: false, table };
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' does not exist`,
+          };
         }
 
         const result = await adapter.executeQuery(
@@ -85,12 +89,14 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
         const firstRow = result.rows?.[0];
         if (!firstRow || firstRow["PARTITION_NAME"] === null) {
           return {
-            partitioned: false,
-            message: "Table is not partitioned",
+            success: false,
+            table,
+            error: `Table '${table}' is not partitioned`,
           };
         }
 
         return {
+          success: true,
           partitioned: true,
           method: firstRow["PARTITION_METHOD"],
           expression: firstRow["PARTITION_EXPRESSION"],
@@ -126,7 +132,11 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           [table],
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { exists: false, table };
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' does not exist`,
+          };
         }
 
         let sql: string;
@@ -218,7 +228,11 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           [table],
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { exists: false, table };
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' does not exist`,
+          };
         }
 
         try {
@@ -292,7 +306,11 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           [table],
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { exists: false, table };
+          return {
+            success: false,
+            table,
+            error: `Table '${table}' does not exist`,
+          };
         }
 
         const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
@@ -344,13 +362,6 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
       } catch (err: unknown) {
-        if (err instanceof ZodError) {
-          return {
-            success: false,
-            error:
-              "HASH/KEY partitions cannot be reorganized. Only RANGE and LIST partition types support REORGANIZE PARTITION.",
-          };
-        }
         return formatHandlerErrorResponse(err);
       }
     },

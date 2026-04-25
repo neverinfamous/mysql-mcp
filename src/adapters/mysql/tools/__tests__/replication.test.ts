@@ -280,10 +280,12 @@ describe("Partitioning Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
-        partitioned: boolean;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.partitioned).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("is not partitioned");
     });
 
     it("should detect partitioned table with method and expression", async () => {
@@ -505,8 +507,8 @@ describe("Partitioning Handler Execution", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("HASH/KEY");
-      expect(result.error).toContain("cannot be reorganized");
+      expect(result.error).toContain("Validation error");
+      expect(result.error).toContain("Invalid option: expected");
       // Should NOT have called executeQuery — error caught at validation
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
@@ -525,10 +527,11 @@ describe("Partitioning Handler Execution", () => {
           value: "100",
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; table: string; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.table).toBe("nonexistent");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return exists: false for nonexistent table in drop_partition", async () => {
@@ -538,10 +541,11 @@ describe("Partitioning Handler Execution", () => {
       const result = (await tool.handler(
         { table: "nonexistent", partitionName: "p1" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; table: string; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.table).toBe("nonexistent");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return exists: false for nonexistent table in reorganize_partition", async () => {
@@ -556,10 +560,11 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [{ name: "p1a", value: "50" }],
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; table: string; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.table).toBe("nonexistent");
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -571,10 +576,11 @@ describe("Partitioning Handler Execution", () => {
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; table: string; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.table).toBe("nonexistent");
+      expect(result.error).toContain("does not exist");
     });
   });
 
