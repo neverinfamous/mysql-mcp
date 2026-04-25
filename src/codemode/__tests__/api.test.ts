@@ -240,7 +240,7 @@ describe("MysqlApi", () => {
       const readTool = tools.find(
         (t: { name: string }) => t.name === "mysql_read_query",
       );
-      expect(readTool.handler).toHaveBeenCalled();
+      expect(readTool!.handler).toHaveBeenCalled();
     });
 
     it("should normalize positional string argument", async () => {
@@ -250,7 +250,7 @@ describe("MysqlApi", () => {
         (t: { name: string }) => t.name === "mysql_read_query",
       );
       // Should have been called with { sql: "SELECT 1" } after normalization
-      expect(readTool.handler).toHaveBeenCalled();
+      expect(readTool!.handler).toHaveBeenCalled();
     });
 
     it("should pass empty params for no-arg calls", async () => {
@@ -259,7 +259,7 @@ describe("MysqlApi", () => {
       const readTool = tools.find(
         (t: { name: string }) => t.name === "mysql_read_query",
       );
-      expect(readTool.handler).toHaveBeenCalled();
+      expect(readTool!.handler).toHaveBeenCalled();
     });
 
     it("should create context for each call", async () => {
@@ -420,7 +420,7 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_read_query",
     );
     await api.core.readQuery({ sql: "SELECT 1", limit: 10 });
-    expect(readTool.handler).toHaveBeenCalledWith(
+    expect(readTool!.handler).toHaveBeenCalledWith(
       { sql: "SELECT 1", limit: 10 },
       expect.anything(),
     );
@@ -432,7 +432,7 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_read_query",
     );
     await api.core.readQuery("SELECT 1");
-    const calledWith = readTool.handler.mock.calls[0][0];
+    const calledWith = vi.mocked(readTool!.handler).mock.calls[0][0];
     expect(calledWith).toHaveProperty("sql", "SELECT 1");
   });
 
@@ -442,7 +442,7 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_create_table",
     );
     await api.core.createTable("orders", [{ name: "id", type: "INT" }]);
-    const calledWith = createTool.handler.mock.calls[0][0];
+    const calledWith = vi.mocked(createTool!.handler).mock.calls[0][0];
     expect(calledWith).toHaveProperty("name", "orders");
     expect(calledWith).toHaveProperty("columns");
   });
@@ -454,7 +454,7 @@ describe("normalizeParams (indirect)", () => {
     );
     const stmts = [{ sql: "INSERT INTO t VALUES(1)" }];
     await api.transactions.transactionExecute(stmts);
-    const calledWith = execTool.handler.mock.calls[0][0];
+    const calledWith = vi.mocked(execTool!.handler).mock.calls[0][0];
     expect(calledWith).toHaveProperty("statements");
   });
 
@@ -464,6 +464,6 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_read_query",
     );
     await api.core.readQuery();
-    expect(readTool.handler).toHaveBeenCalledWith({}, expect.anything());
+    expect(readTool!.handler).toHaveBeenCalledWith({}, expect.anything());
   });
 });
