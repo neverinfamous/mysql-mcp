@@ -213,11 +213,7 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        role: "test_role",
-        user: "testuser",
-        host: "localhost",
-        error:
-          "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
+        error: "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
       });
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
@@ -345,9 +341,6 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "User does not exist",
-        user: "nonexistent",
-        host: "%",
-        exists: false,
       });
     });
   });
@@ -409,9 +402,6 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        role: "test_role",
-        user: "baduser",
-        host: "%",
         error: "User does not exist",
       });
     });
@@ -432,9 +422,6 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        role: "test_role",
-        user: "baduser",
-        host: "%",
         error: "User does not exist",
       });
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();

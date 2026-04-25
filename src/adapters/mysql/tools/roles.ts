@@ -18,16 +18,36 @@ const RoleListSchema = z.object({
 });
 
 const RoleCreateSchema = z.object({
-  name: z.string().describe("Role name"),
+  name: z.string().optional().describe("Role name"),
+  role: z.string().optional().describe("Alias for name"),
   ifNotExists: z.boolean().default(false),
+}).refine(val => val.name || val.role, {
+  message: "Must provide 'name' or 'role'",
+}).transform(val => {
+  const name = val.name || val.role || "";
+  return { ...val, name };
 });
 
 const RoleDropSchema = z.object({
-  name: z.string().describe("Role name"),
+  name: z.string().optional().describe("Role name"),
+  role: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().default(false),
+}).refine(val => val.name || val.role, {
+  message: "Must provide 'name' or 'role'",
+}).transform(val => {
+  const name = val.name || val.role || "";
+  return { ...val, name };
 });
 
-const RoleGrantsSchema = z.object({ role: z.string() });
+const RoleGrantsSchema = z.object({ 
+  role: z.string().optional(),
+  name: z.string().optional()
+}).refine(val => val.role || val.name, {
+  message: "Must provide 'role' or 'name'",
+}).transform(val => {
+  const role = val.role || val.name || "";
+  return { ...val, role };
+});
 
 const RoleGrantPrivilegeSchema = z
   .object({
@@ -61,20 +81,38 @@ const RoleGrantPrivilegeSchema = z
 
 const RoleAssignSchema = z.object({
   role: z.string(),
-  user: z.string(),
+  user: z.string().optional(),
+  toUser: z.string().optional(),
   host: z.string().default("%"),
   withAdminOption: z.boolean().default(false),
+}).refine(val => val.user || val.toUser, {
+  message: "Must provide 'user' or 'toUser'",
+}).transform(val => {
+  const user = val.user || val.toUser || "";
+  return { ...val, user };
 });
 
 const RoleRevokeSchema = z.object({
   role: z.string(),
-  user: z.string(),
+  user: z.string().optional(),
+  fromUser: z.string().optional(),
   host: z.string().default("%"),
+}).refine(val => val.user || val.fromUser, {
+  message: "Must provide 'user' or 'fromUser'",
+}).transform(val => {
+  const user = val.user || val.fromUser || "";
+  return { ...val, user };
 });
 
 const UserRolesSchema = z.object({
-  user: z.string(),
+  user: z.string().optional(),
+  targetUser: z.string().optional(),
   host: z.string().default("%"),
+}).refine(val => val.user || val.targetUser, {
+  message: "Must provide 'user' or 'targetUser'",
+}).transform(val => {
+  const user = val.user || val.targetUser || "";
+  return { ...val, user };
 });
 
 export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
@@ -233,7 +271,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return { success: false, error: "Role does not exist", role, exists: false };
+            return { success: false, error: "Role does not exist" };
           }
 
           // SHOW GRANTS cannot be always prepared
@@ -277,8 +315,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!checkResult.rows || checkResult.rows.length === 0) {
             return {
               success: false,
-              role,
-              exists: false,
               error: "Role does not exist",
             };
           }
@@ -362,10 +398,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!checkResult.rows || checkResult.rows.length === 0) {
             return {
               success: false,
-              role,
-              user,
-              host,
-              exists: false,
               error: "Role does not exist",
             };
           }
@@ -385,10 +417,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.includes("Unknown authorization ID")) {
             return {
               success: false,
-              role: (params as Record<string, unknown>)["role"] as string,
-              user: (params as Record<string, unknown>)["user"] as string,
-              host:
-                ((params as Record<string, unknown>)["host"] as string) ?? "%",
               error: "User does not exist",
             };
           }
@@ -416,10 +444,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!checkResult.rows || checkResult.rows.length === 0) {
             return {
               success: false,
-              role,
-              user,
-              host,
-              exists: false,
               error: "Role does not exist",
             };
           }
@@ -432,9 +456,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return {
               success: false,
-              role,
-              user,
-              host,
               error: "User does not exist",
             };
           }
@@ -447,9 +468,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!assignCheck.rows || assignCheck.rows.length === 0) {
             return {
               success: false,
-              role,
-              user,
-              host,
               error: `Role '${role}' is not assigned to user '${user}'@'${host}'`,
             };
           }
@@ -470,10 +488,6 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.includes("Unknown authorization ID")) {
             return {
               success: false,
-              role: (params as Record<string, unknown>)["role"] as string,
-              user: (params as Record<string, unknown>)["user"] as string,
-              host:
-                ((params as Record<string, unknown>)["host"] as string) ?? "%",
               error: "User does not exist",
             };
           }
@@ -499,7 +513,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return { success: false, error: "User does not exist", user, host, exists: false };
+            return { success: false, error: "User does not exist" };
           }
 
           const result = await adapter.executeQuery(
