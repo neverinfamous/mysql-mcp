@@ -195,7 +195,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     grant: "roleGrant",
     revoke: "roleRevoke",
     grants: "roleGrants",
-    userRoles: "userRoles",
   },
   // DocStore: shorter aliases
   docstore: {
