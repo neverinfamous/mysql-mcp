@@ -124,6 +124,11 @@ src/
 | | `schema/constraints.ts` | 1 | `list_constraints` |
 | | `schema/scheduled_events.ts` | 1 | `list_events` |
 | **transactions** | `transactions.ts` | 7 | `transaction_begin/commit/rollback/savepoint/release/rollback_to/execute` |
+| **introspection**| `introspection/graph.ts` | 3 | `dependency_graph`, `topological_sort`, `foreign_key_cycles` |
+| | `introspection/analysis.ts` | 2 | `table_relationships`, `migration_risks` |
+| | `introspection/snapshot.ts` | 1 | `schema_snapshot` |
+| **migration** | `migration/migration.ts` | 3 | `migration_init`, `migration_record`, `migration_apply` |
+| | `migration/migration-query.ts` | 3 | `migration_rollback`, `migration_history`, `migration_status` |
 | **json** | `json/core.ts` | 8 | `json_extract`, `json_set`, `json_insert`, `json_replace`, `json_remove`, `json_contains`, `json_keys`, `json_array_append` |
 | | `json/helpers.ts` | 4 | `json_get`, `json_update`, `json_search`, `json_validate` |
 | | `json/enhanced.ts` | 5 | `json_merge`, `json_diff`, `json_normalize`, `json_stats`, `json_index_suggest` |
