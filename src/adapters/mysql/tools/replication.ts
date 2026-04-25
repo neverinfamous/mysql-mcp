@@ -9,6 +9,7 @@ import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../schemas/index.js";
 import { z } from "zod";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 
 /**
  * Get replication tools
@@ -41,16 +42,15 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
-        return { status: result.rows?.[0] };
+        return { success: true, status: result.rows?.[0] };
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          return { status: result.rows?.[0] };
+          return { success: true, status: result.rows?.[0] };
         } catch (e) {
-          return {
-            success: false,
-            error: `Binary logging may not be enabled: ${String(e)}`,
-          };
+          return formatHandlerErrorResponse(
+            `Binary logging may not be enabled: ${String(e)}`
+          );
         }
       }
     },
@@ -77,23 +77,20 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
         const status = result.rows?.[0];
         if (status) {
-          return { status };
+          return { success: true, status };
         }
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
           const status = result.rows?.[0];
           if (status) {
-            return { status };
+            return { success: true, status };
           }
         } catch {
           // Fall through to not-configured response
         }
       }
-      return {
-        configured: false,
-        message: "This server is not configured as a replica",
-      };
+      return formatHandlerErrorResponse("This server is not configured as a replica");
     },
   };
 }
@@ -117,7 +114,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
         if (limit === 0) {
-          return { events: [] };
+          return { success: true, events: [] };
         }
 
         // Resolve effective log file: use provided or fetch current from master status
@@ -158,7 +155,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
-          return { events: result.rows };
+          return { success: true, events: result.rows };
         } catch (e) {
           const message = String(e);
           const targetFile = effectiveLogFile || logFile;
@@ -169,22 +166,19 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
               error: `Binlog file '${targetFile}' not found`,
             };
           }
-          return {
-            success: false,
-            error: `Failed to read binlog events: ${message}`,
-          };
+          return formatHandlerErrorResponse(
+            `Failed to read binlog events: ${message}`
+          );
         }
       } catch (e) {
         if (e instanceof z.ZodError) {
-          return {
-            success: false,
-            error: e.issues.map((i) => i.message).join("; "),
-          };
+          return formatHandlerErrorResponse(
+            e.issues.map((i) => i.message).join("; ")
+          );
         }
-        return {
-          success: false,
-          error: `Failed to read binlog events: ${String(e)}`,
-        };
+        return formatHandlerErrorResponse(
+          `Failed to read binlog events: ${String(e)}`
+        );
       }
     },
   };
@@ -222,15 +216,15 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         return {
+          success: true,
           gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
           gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
           gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
         };
       } catch (e) {
-        return {
-          success: false,
-          error: `Failed to retrieve GTID status: ${String(e)}`,
-        };
+        return formatHandlerErrorResponse(
+          `Failed to retrieve GTID status: ${String(e)}`
+        );
       }
     },
   };
@@ -258,6 +252,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (status != null) {
           return {
+            success: true,
             lagSeconds:
               status["Seconds_Behind_Source"] ??
               status["Seconds_Behind_Master"],
@@ -275,6 +270,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
 
           if (status != null) {
             return {
+              success: true,
               lagSeconds: status["Seconds_Behind_Master"],
               ioRunning: status["Slave_IO_Running"],
               sqlRunning: status["Slave_SQL_Running"],
@@ -286,10 +282,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      return {
-        lagSeconds: null,
-        message: "This server is not configured as a replica",
-      };
+      return formatHandlerErrorResponse("This server is not configured as a replica");
     },
   };
 }

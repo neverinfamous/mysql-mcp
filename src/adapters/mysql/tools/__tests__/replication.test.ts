@@ -762,10 +762,12 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_slave_status")!;
       const result = (await tool.handler({}, mockContext)) as {
-        message: string;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.message).toContain("not configured");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not configured");
     });
   });
 
@@ -836,8 +838,9 @@ describe("Replication Fallback Handling", () => {
       const result = (await tool.handler(
         { logFile: "mysql-bin.000001", limit: 0 },
         mockContext,
-      )) as { events: unknown[] };
+      )) as { success: boolean; events: unknown[] };
 
+      expect(result.success).toBe(true);
       expect(result.events).toEqual([]);
       // Should NOT have called executeQuery — guard returns before any SQL
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
@@ -907,23 +910,25 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: null;
-        message: string;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.lagSeconds).toBeNull();
-      expect(result.message).toContain("not configured");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not configured");
     });
 
-    it("should return null lag when replica status returns empty", async () => {
+    it("should return structured error when replica status returns empty", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: null;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.lagSeconds).toBeNull();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not configured");
     });
   });
 });
