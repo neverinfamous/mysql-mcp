@@ -145,7 +145,10 @@ export function createSpatialDistanceTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          return {
+            success: false,
+            error: `Table '${paramStr(params, "table")}' does not exist`,
+          };
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -223,7 +226,10 @@ export function createSpatialDistanceSphereTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          return {
+            success: false,
+            error: `Table '${paramStr(params, "table")}' does not exist`,
+          };
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -288,7 +294,10 @@ export function createSpatialContainsTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          return {
+            success: false,
+            error: `Table '${paramStr(params, "table")}' does not exist`,
+          };
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -350,7 +359,10 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          return {
+            success: false,
+            error: `Table '${paramStr(params, "table")}' does not exist`,
+          };
         }
         return formatHandlerErrorResponse(new Error(msg));
       }

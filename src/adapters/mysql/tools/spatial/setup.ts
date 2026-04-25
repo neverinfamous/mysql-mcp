@@ -132,7 +132,10 @@ export function createSpatialCreateColumnTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          return {
+            success: false,
+            error: `Table '${paramStr(params, "table")}' does not exist`,
+          };
         }
         if (msg.includes("Duplicate column name")) {
           const col = paramStr(params, "column");
@@ -247,7 +250,7 @@ export function createSpatialCreateIndexTool(
         const msg = error instanceof Error ? error.message : String(error);
         const tbl = paramStr(params, "table");
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: tbl };
+          return { success: false, error: `Table '${tbl}' does not exist` };
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
           return formatHandlerErrorResponse(new Error(msg));
