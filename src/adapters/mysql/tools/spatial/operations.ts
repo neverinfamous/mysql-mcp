@@ -131,6 +131,7 @@ export function createSpatialIntersectionTool(
 
         const row = result.rows?.[0];
         return {
+          success: true,
           intersects: Boolean(row?.["intersects"]),
           intersectionWkt: row?.["intersection_wkt"],
           intersectionGeoJson: parseGeoJsonResult(
@@ -188,6 +189,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
 
         const row = result.rows?.[0];
         return {
+          success: true,
           bufferWkt: row?.["buffer_wkt"],
           bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
           bufferDistance: distance,
@@ -238,6 +240,7 @@ export function createSpatialTransformTool(
 
         const row = result.rows?.[0];
         return {
+          success: true,
           originalWkt: geometry,
           transformedWkt: row?.["transformed_wkt"],
           transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
@@ -285,6 +288,7 @@ export function createSpatialGeoJSONTool(
 
           const row = result.rows?.[0];
           return {
+            success: true,
             wkt: geometry,
             geoJson: parseGeoJsonResult(row?.["geoJson"]),
             conversion: "WKT to GeoJSON",
@@ -298,6 +302,7 @@ export function createSpatialGeoJSONTool(
 
           const row = result.rows?.[0];
           return {
+            success: true,
             wkt: row?.["wkt"],
             geoJson: JSON.parse(geoJson) as Record<string, unknown>,
             conversion: "GeoJSON to WKT",

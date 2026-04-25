@@ -132,6 +132,7 @@ export function createSpatialDistanceTool(
           ),
         );
         return {
+          success: true,
           results: rows,
           count: rows.length,
           referencePoint: point,
@@ -212,6 +213,7 @@ export function createSpatialDistanceSphereTool(
           ),
         );
         return {
+          success: true,
           results: rows,
           count: rows.length,
           referencePoint: point,
@@ -282,6 +284,7 @@ export function createSpatialContainsTool(
           ),
         );
         return {
+          success: true,
           results: rows,
           count: rows.length,
         };
@@ -347,6 +350,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           ),
         );
         return {
+          success: true,
           results: rows,
           count: rows.length,
         };

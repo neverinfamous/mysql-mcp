@@ -84,6 +84,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
 
         const row = result.rows?.[0];
         return {
+          success: true,
           wkt: row?.["wkt"],
           geoJson: parseGeoJsonResult(row?.["geoJson"]),
           srid,
@@ -142,6 +143,7 @@ export function createSpatialPolygonTool(
 
         const row = result.rows?.[0];
         return {
+          success: true,
           wkt: row?.["wkt"],
           geoJson: parseGeoJsonResult(row?.["geoJson"]),
           area: row?.["area"],
