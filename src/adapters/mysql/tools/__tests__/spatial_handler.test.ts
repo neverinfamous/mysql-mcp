@@ -255,7 +255,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
@@ -273,7 +276,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (contains)", async () => {
@@ -291,7 +297,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (within)", async () => {
@@ -309,7 +318,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (create_column)", async () => {
@@ -326,7 +338,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (create_index)", async () => {
@@ -343,7 +358,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { success: false } for MySQL error (distance)", async () => {
