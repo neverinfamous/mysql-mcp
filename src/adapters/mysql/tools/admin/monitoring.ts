@@ -41,6 +41,7 @@ export function createShowProcesslistTool(
         const limited = totalAvailable > limit;
         const processes = limited ? allRows.slice(0, limit) : allRows;
         return {
+          success: true,
           processes,
           count: processes.length,
           ...(limited ? { limited: true, totalAvailable } : {}),
@@ -119,6 +120,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
           : status;
 
         return {
+          success: true,
           status: truncated,
           rowCount: Object.keys(truncated).length,
           totalAvailable,
@@ -195,6 +197,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
           : variables;
 
         return {
+          success: true,
           variables: truncated,
           rowCount: Object.keys(truncated).length,
           totalAvailable,
@@ -330,10 +333,10 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "";
 
         if (summary) {
-          return { summary: parseInnodbStatusSummary(rawStatus) };
+          return { success: true, summary: parseInnodbStatusSummary(rawStatus) };
         }
 
-        return { status: rawRow };
+        return { success: true, status: rawRow };
       } catch (err) {
         if (err instanceof ZodError) {
           const messages = err.issues.map((i) => i.message).join("; ");
@@ -415,6 +418,7 @@ export function createReplicationStatusTool(
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
         if (!result.rows || result.rows.length === 0) {
           return {
+            success: true,
             configured: false,
             message: "Replication is not configured on this server",
           };
@@ -422,11 +426,13 @@ export function createReplicationStatusTool(
         const first = result.rows[0];
         if (!first) {
           return {
+            success: true,
             configured: false,
             message: "Replication is not configured on this server",
           };
         }
         return {
+          success: true,
           configured: true,
           status: summary
             ? extractReplicationSummary(first)
@@ -438,6 +444,7 @@ export function createReplicationStatusTool(
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
           if (!result.rows || result.rows.length === 0) {
             return {
+              success: true,
               configured: false,
               message: "Replication is not configured on this server",
             };
@@ -445,11 +452,13 @@ export function createReplicationStatusTool(
           const first = result.rows[0];
           if (!first) {
             return {
+              success: true,
               configured: false,
               message: "Replication is not configured on this server",
             };
           }
           return {
+            success: true,
             configured: true,
             status: summary
               ? extractReplicationSummary(first)
@@ -458,6 +467,7 @@ export function createReplicationStatusTool(
           };
         } catch {
           return {
+            success: true,
             configured: false,
             message: "Replication is not configured on this server",
           };
@@ -487,7 +497,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
         if (!pool) {
           return { success: false as const, error: "Pool not available" };
         }
-        return { poolStats: pool.getStats() };
+        return { success: true, poolStats: pool.getStats() };
       } catch (err) {
         return {
           success: false as const,
@@ -533,6 +543,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
         const queries = queriesResult.rows?.[0]?.["Value"];
 
         return {
+          success: true,
           ...health,
           uptime:
             uptime != null && typeof uptime === "string"
