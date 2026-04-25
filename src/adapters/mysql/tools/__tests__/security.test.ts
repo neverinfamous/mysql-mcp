@@ -448,8 +448,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("not installed");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not installed");
     });
 
     it("should handle validation function error", async () => {

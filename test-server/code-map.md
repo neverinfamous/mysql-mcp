@@ -269,9 +269,9 @@ enum ErrorCategory {
 interface ErrorResponse {
   success: false;
   error: string;
-  code: string;
-  category: ErrorCategory;
-  recoverable: boolean;
+  code?: string;
+  category?: ErrorCategory;
+  recoverable?: boolean;
   suggestion?: string;
   details?: Record<string, unknown>;
 }

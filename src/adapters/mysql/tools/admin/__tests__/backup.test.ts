@@ -214,7 +214,6 @@ describe("Admin Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
-      expect(result.code).toBe("QUERY_ERROR");
     });
 
     it("should return structured error for query failures", async () => {

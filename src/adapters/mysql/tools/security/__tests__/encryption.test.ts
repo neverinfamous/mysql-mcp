@@ -168,8 +168,8 @@ describe("Security Encryption Tools", () => {
         {} as any,
       )) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("not installed");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not installed");
     });
 
     it("should handle function error after component detected", async () => {

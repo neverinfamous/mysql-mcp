@@ -7,7 +7,6 @@
 
 import { ZodError } from "zod";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
-import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import type { ErrorResponse } from "../../../../types/modules/error-types.js";
 
 /**
@@ -83,7 +82,7 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   if (err instanceof MySQLMcpError) {
     const response = err.toResponse();
     response.error = formatMysqlError(response.error);
-    return response;
+    return { success: false, error: response.error };
   }
 
   // Zod validation error
@@ -91,11 +90,6 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     return {
       success: false,
       error: formatZodError(err),
-      code: "VALIDATION_ERROR",
-      category: ErrorCategory.VALIDATION,
-      suggestion: undefined,
-      recoverable: false,
-      details: undefined,
     };
   }
 
@@ -103,11 +97,6 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   return {
     success: false,
     error: formatMysqlError(err),
-    code: "QUERY_ERROR",
-    category: ErrorCategory.QUERY,
-    suggestion: undefined,
-    recoverable: false,
-    details: undefined,
   };
 }
 

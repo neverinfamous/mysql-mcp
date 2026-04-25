@@ -35,11 +35,11 @@ export enum ErrorCategory {
 export interface ErrorResponse {
   success: false;
   error: string;
-  code: string;
-  category: ErrorCategory;
-  suggestion: string | undefined;
-  recoverable: boolean;
-  details: Record<string, unknown> | undefined;
+  code?: string;
+  category?: ErrorCategory;
+  suggestion?: string;
+  recoverable?: boolean;
+  details?: Record<string, unknown>;
 }
 
 /**

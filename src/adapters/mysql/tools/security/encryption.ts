@@ -238,11 +238,9 @@ export function createSecurityPasswordValidateTool(
         // If no validate_password variables exist, component is not installed
         if (Object.keys(policy).length === 0) {
           return {
-            success: true,
-            available: false,
-            message: "Password validation component not installed",
-            suggestion:
-              'Install with: INSTALL COMPONENT "file://component_validate_password"',
+            success: false,
+            error:
+              'Password validation component not installed. Install with: INSTALL COMPONENT "file://component_validate_password"',
           };
         }
 
