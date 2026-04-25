@@ -160,11 +160,9 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           const message = String(e);
           const targetFile = effectiveLogFile || logFile;
           if (targetFile && message.includes("Could not find target log")) {
-            return {
-              success: false,
-              logFile: targetFile,
-              error: `Binlog file '${targetFile}' not found`,
-            };
+            return formatHandlerErrorResponse(
+              `Binlog file '${targetFile}' not found`
+            );
           }
           return formatHandlerErrorResponse(
             `Failed to read binlog events: ${message}`

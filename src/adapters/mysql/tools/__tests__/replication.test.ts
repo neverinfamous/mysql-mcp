@@ -808,10 +808,9 @@ describe("Replication Fallback Handling", () => {
       const result = (await tool.handler(
         { logFile: "nonexistent.000001" },
         mockContext,
-      )) as { success: boolean; logFile: string; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.logFile).toBe("nonexistent.000001");
       expect(result.error).toContain("not found");
     });
 
