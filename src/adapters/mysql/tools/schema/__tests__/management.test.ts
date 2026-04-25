@@ -156,7 +156,7 @@ describe("Schema Management Tools", () => {
       expect(result.error).toContain("already exists");
     });
 
-    it("should return skipped when schema already exists with ifNotExists", async () => {
+    it("should return structured error when schema already exists with ifNotExists", async () => {
       const tool = createCreateSchemaTool(
         mockAdapter as unknown as MySQLAdapter,
       );
@@ -170,15 +170,11 @@ describe("Schema Management Tools", () => {
         mockContext,
       )) as {
         success: boolean;
-        skipped: boolean;
-        reason: string;
-        schemaName: string;
+        error?: string;
       };
 
-      expect(result.success).toBe(true);
-      expect(result.skipped).toBe(true);
-      expect(result.reason).toBe("Schema already exists");
-      expect(result.schemaName).toBe("existing_db");
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Schema 'existing_db' already exists");
       // Only the pre-check query should have been called
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -256,7 +252,7 @@ describe("Schema Management Tools", () => {
       expect(result.error).toContain("does not exist");
     });
 
-    it("should return skipped when schema does not exist with ifExists", async () => {
+    it("should return structured error when schema does not exist with ifExists", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
       // Pre-check finds no schema
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
@@ -268,15 +264,11 @@ describe("Schema Management Tools", () => {
         mockContext,
       )) as {
         success: boolean;
-        skipped?: boolean;
         error?: string;
-        reason?: string;
       };
 
-      expect(result.success).toBe(true);
-      expect(result.skipped).toBe(true);
-      expect(result.reason).toBe("Schema did not exist");
-      expect(result.error).toBeUndefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Schema 'gone_db' does not exist");
       
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       const sql = mockAdapter.executeQuery.mock.calls[1][0] as string;

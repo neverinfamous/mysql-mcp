@@ -115,10 +115,8 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (check.rows !== undefined && check.rows.length > 0) {
             return {
-              success: true,
-              skipped: true,
-              reason: "Schema already exists",
-              schemaName: name,
+              success: false,
+              error: `Schema '${name}' already exists`,
             };
           }
         }
@@ -200,10 +198,8 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           
           if (schemaAbsent) {
             return {
-              success: true,
-              skipped: true,
-              schemaName: name,
-              reason: "Schema did not exist",
+              success: false,
+              error: `Schema '${name}' does not exist`,
             };
           }
           
