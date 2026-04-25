@@ -201,10 +201,12 @@ describe("Security Audit Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        available: boolean;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.available).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Audit logging is not enabled");
     });
 
     it("should not include duplicated message field in error response", async () => {
@@ -300,10 +302,12 @@ describe("Security Audit Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        available: boolean;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.available).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Firewall tables not accessible");
     });
 
     it("should not include duplicated message field in error response", async () => {

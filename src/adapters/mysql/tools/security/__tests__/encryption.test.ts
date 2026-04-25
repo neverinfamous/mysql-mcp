@@ -186,8 +186,8 @@ describe("Security Encryption Tools", () => {
         {} as any,
       )) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("failed");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("failed");
     });
   });
 });
