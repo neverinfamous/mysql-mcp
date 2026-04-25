@@ -117,6 +117,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     slave: "slaveStatus",
     binlog: "binlogEvents",
     gtid: "gtidStatus",
+    replicationLag: "lag",
   },
   // Partitioning: shorter aliases
   partitioning: {
