@@ -175,8 +175,13 @@ export const ForceIndexSchemaBase = z.object({
 // Transformed schema for handler parsing
 export const ForceIndexSchema = z
   .preprocess(
-    (data: any) => {
-      let newData = typeof data === "string" ? { table: data } : { ...data };
+    (data: unknown) => {
+      const newData =
+        typeof data === "string"
+          ? { table: data }
+          : typeof data === "object" && data !== null
+            ? { ...data }
+            : {};
       return preprocessTableParams(newData);
     },
     z.object({

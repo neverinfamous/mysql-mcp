@@ -464,9 +464,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { exists: boolean };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -507,9 +508,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
           indexName: "idx1",
         },
         mockContext,
-      )) as { exists: boolean };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 });
