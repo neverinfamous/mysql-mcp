@@ -1,23 +1,21 @@
 # MySQL Monitoring Tool Group Verification
 
-## Testing Methodology
-- **Mode**: Programmatic Code Mode execution (`mysql_execute_code`)
-- **Tools Evaluated**: `mysql.monitoring.*`
-- **Scope**: Exhaustive testing of 7 monitoring tools (happy path, domain errors).
+## Objective
+Exhaustive code mode testing (`mysql_execute_code`) of the `monitoring` tool group to ensure architectural parity and proper `ErrorResponse` structured responses.
 
 ## Coverage Matrix
 
-| Tool | Happy Path | Domain Error | Status |
-|------|------------|--------------|--------|
-| `showProcesslist` | ✅ | N/A | ✅ |
-| `showStatus` | ✅ | 🔴 (Empty match returns success with 0 rows) | ✅ |
-| `showVariables` | ✅ | N/A | ✅ |
-| `innodbStatus` | ✅ | N/A | ✅ |
-| `replicationStatus` | ✅ (Simulated via catch logic) | N/A | ✅ |
-| `poolStats` | ✅ | N/A | ✅ |
-| `serverHealth` | ✅ | N/A | ✅ |
+| Tool | Happy Path | Domain Error / Empty Result | Zod Validation Error |
+|---|---|---|---|
+| `mysql_show_processlist` | ✅ `processes` array | N/A (always has at least 1) | ✅ `limit: -5` -> `success: false` |
+| `mysql_show_status` | ✅ `status.Uptime` > 0 | ✅ `{like: "nonexistent"}` -> `status: {}` | ✅ `limit: -5` -> `success: false` |
+| `mysql_show_variables` | ✅ `variables.max_connections` > 0 | ✅ `{like: "nonexistent"}` -> `variables: {}`| ✅ `limit: -5` -> `success: false` |
+| `mysql_innodb_status` | ✅ `status` string | N/A | ✅ `summary: 123` -> `success: false` |
+| `mysql_replication_status`| ✅ `configured: false` | N/A | ✅ `summary: 123` -> `success: false` |
+| `mysql_pool_stats` | ✅ `poolStats.total` > 0 | N/A | N/A |
+| `mysql_server_health` | ✅ `connected: true` | N/A | N/A |
 
-## Findings & Remediation
-- **Issue**: Monitoring handlers returned raw unwrapped responses (e.g. `{ processes, count }`) instead of standardizing the success path with `success: true`. This was causing test mismatches when asserting `success === true`.
-- **Fix**: Re-authored all 7 handlers in `src/adapters/mysql/tools/admin/monitoring.ts` to include `success: true` in their return payloads for consistency across the codebase. Fixed the nested try/catch blocks in `replicationStatus` to ensure all branches return the standard object format.
-- **Testing**: Rebuilt the project (`npm run build`) and verified via `vitest run monitoring.test.ts`. MCP code mode scripts correctly report `success: true` when run against the rebuilt code.
+## Remediations
+- **Issue**: `monitoring.ts` tools were using legacy custom `catch (err)` logic which could throw raw MCP exceptions on unhandled errors (e.g. `schema.parse()` Zod errors in `replicationStatus`) and lacked standard `ErrorCategory` mappings.
+- **Fix**: Replaced all custom try/catch blocks with the project-standard `formatHandlerErrorResponse(err)` orchestrator. 
+- **Validation**: 100% test pass on Vitest, Playwright E2E, and Code Mode testing, confirming no regressions and total architectural parity.

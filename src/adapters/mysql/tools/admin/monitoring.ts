@@ -15,7 +15,8 @@ import {
   ShowStatusSchema,
   ShowVariablesSchema,
 } from "../../schemas/index.js";
-import { z, ZodError } from "zod";
+import { z } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 export function createShowProcesslistTool(
   adapter: MySQLAdapter,
@@ -47,14 +48,7 @@ export function createShowProcesslistTool(
           ...(limited ? { limited: true, totalAvailable } : {}),
         };
       } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -127,14 +121,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
           ...(limited && { limited: true }),
         };
       } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -204,14 +191,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
           ...(limited && { limited: true }),
         };
       } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -338,14 +318,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         return { success: true, status: rawRow };
       } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -411,37 +384,12 @@ export function createReplicationStatusTool(
       idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { summary } = schema.parse(params);
-
-      // Try both old and new syntax
       try {
-        const result = await adapter.executeQuery("SHOW REPLICA STATUS");
-        if (!result.rows || result.rows.length === 0) {
-          return {
-            success: true,
-            configured: false,
-            message: "Replication is not configured on this server",
-          };
-        }
-        const first = result.rows[0];
-        if (!first) {
-          return {
-            success: true,
-            configured: false,
-            message: "Replication is not configured on this server",
-          };
-        }
-        return {
-          success: true,
-          configured: true,
-          status: summary
-            ? extractReplicationSummary(first)
-            : first,
-          ...(summary ? { summary: true } : {}),
-        };
-      } catch {
+        const { summary } = schema.parse(params);
+
+        // Try both old and new syntax
         try {
-          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+          const result = await adapter.executeQuery("SHOW REPLICA STATUS");
           if (!result.rows || result.rows.length === 0) {
             return {
               success: true,
@@ -460,18 +408,43 @@ export function createReplicationStatusTool(
           return {
             success: true,
             configured: true,
-            status: summary
-              ? extractReplicationSummary(first)
-              : first,
+            status: summary ? extractReplicationSummary(first) : first,
             ...(summary ? { summary: true } : {}),
           };
         } catch {
-          return {
-            success: true,
-            configured: false,
-            message: "Replication is not configured on this server",
-          };
+          try {
+            const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+            if (!result.rows || result.rows.length === 0) {
+              return {
+                success: true,
+                configured: false,
+                message: "Replication is not configured on this server",
+              };
+            }
+            const first = result.rows[0];
+            if (!first) {
+              return {
+                success: true,
+                configured: false,
+                message: "Replication is not configured on this server",
+              };
+            }
+            return {
+              success: true,
+              configured: true,
+              status: summary ? extractReplicationSummary(first) : first,
+              ...(summary ? { summary: true } : {}),
+            };
+          } catch {
+            return {
+              success: true,
+              configured: false,
+              message: "Replication is not configured on this server",
+            };
+          }
         }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -499,10 +472,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return { success: true, poolStats: pool.getStats() };
       } catch (err) {
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -559,10 +529,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
               : undefined,
         };
       } catch (err) {
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
