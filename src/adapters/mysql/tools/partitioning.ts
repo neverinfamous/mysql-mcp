@@ -58,7 +58,6 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           return {
             success: false,
-            table,
             error: `Table '${table}' does not exist`,
           };
         }
@@ -89,9 +88,8 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
         const firstRow = result.rows?.[0];
         if (!firstRow || firstRow["PARTITION_NAME"] === null) {
           return {
-            success: false,
-            table,
-            error: `Table '${table}' is not partitioned`,
+            success: true,
+            partitioned: false,
           };
         }
 
@@ -134,7 +132,6 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           return {
             success: false,
-            table,
             error: `Table '${table}' does not exist`,
           };
         }
@@ -154,9 +151,10 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             break;
           default: {
             const unexpectedType: never = partitionType;
-            throw new Error(
-              `Unsupported partition type: ${String(unexpectedType)}`,
-            );
+            return {
+              success: false,
+              error: `Unsupported partition type: ${String(unexpectedType)}`,
+            };
           }
         }
 
@@ -170,30 +168,24 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           if (msg.includes("not partitioned")) {
             return {
               success: false,
-              table,
               error: `Table '${table}' is not partitioned`,
             };
           }
           if (msg.includes("MAXVALUE")) {
             return {
               success: false,
-              table,
               error: `Cannot add RANGE partition — existing MAXVALUE partition must be reorganized first using mysql_reorganize_partition`,
             };
           }
           if (msg.includes("Multiple definition")) {
             return {
               success: false,
-              table,
-              partitionName,
               error: `Partition value(s) already exist in another partition`,
             };
           }
 
           return {
             success: false,
-            table,
-            partitionName,
             error: formatMysqlError(error),
           };
         }
@@ -230,7 +222,6 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           return {
             success: false,
-            table,
             error: `Table '${table}' does not exist`,
           };
         }
@@ -253,7 +244,6 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           if (msg.includes("not partitioned")) {
             return {
               success: false,
-              table,
               error: `Table '${table}' is not partitioned`,
             };
           }
@@ -263,16 +253,12 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           ) {
             return {
               success: false,
-              table,
-              partitionName,
               error: `Partition '${partitionName}' does not exist on table '${table}'`,
             };
           }
 
           return {
             success: false,
-            table,
-            partitionName,
             error: formatMysqlError(error),
           };
         }
@@ -308,7 +294,6 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           return {
             success: false,
-            table,
             error: `Table '${table}' does not exist`,
           };
         }
@@ -341,23 +326,18 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           if (msg.includes("not partitioned")) {
             return {
               success: false,
-              table,
               error: `Table '${table}' is not partitioned`,
             };
           }
           if (msg.includes("Error in list of partitions")) {
             return {
               success: false,
-              table,
-              fromPartitions,
               error: `One or more source partitions (${fromPartitions.join(", ")}) do not exist on table '${table}'`,
             };
           }
 
           return {
             success: false,
-            table,
-            fromPartitions,
             error: formatMysqlError(error),
           };
         }

@@ -281,11 +281,11 @@ describe("Partitioning Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
         success: boolean;
-        error: string;
+        partitioned: boolean;
       };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("is not partitioned");
+      expect(result.success).toBe(true);
+      expect(result.partitioned).toBe(false);
     });
 
     it("should detect partitioned table with method and expression", async () => {
@@ -487,10 +487,9 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [{ name: "p_new", value: "2030" }],
         },
         mockContext,
-      )) as { success: boolean; fromPartitions: string[]; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.fromPartitions).toEqual(["nonexistent"]);
       expect(result.error).toContain("do not exist");
     });
 
@@ -527,10 +526,9 @@ describe("Partitioning Handler Execution", () => {
           value: "100",
         },
         mockContext,
-      )) as { success: boolean; table: string; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.table).toBe("nonexistent");
       expect(result.error).toContain("does not exist");
     });
 
@@ -541,10 +539,9 @@ describe("Partitioning Handler Execution", () => {
       const result = (await tool.handler(
         { table: "nonexistent", partitionName: "p1" },
         mockContext,
-      )) as { success: boolean; table: string; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.table).toBe("nonexistent");
       expect(result.error).toContain("does not exist");
     });
 
@@ -560,10 +557,9 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [{ name: "p1a", value: "50" }],
         },
         mockContext,
-      )) as { success: boolean; table: string; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.table).toBe("nonexistent");
       expect(result.error).toContain("does not exist");
     });
   });
@@ -576,10 +572,9 @@ describe("Partitioning Handler Execution", () => {
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { success: boolean; table: string; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.table).toBe("nonexistent");
       expect(result.error).toContain("does not exist");
     });
   });
@@ -692,12 +687,10 @@ describe("Partitioning Handler Execution", () => {
         mockContext,
       )) as {
         success: boolean;
-        partitionName: string;
         error: string;
       };
 
       expect(result.success).toBe(false);
-      expect(result.partitionName).toBe("nonexistent");
       expect(result.error).toContain("does not exist");
     });
   });

@@ -41,7 +41,7 @@
 - Fixed optimization tool domain error reporting (e.g. `index_recommendation`, `force_index`), standardizing on `{ success: false, error: ... }` for missing tables instead of `{ exists: false }`.
 - Added missing preprocessing aliases to `mysql_force_index` parameter schema to support `index` and `sql` inputs.
 - Enforced 100% adherence to the `ErrorResponse` schema in the `optimization` tool group by guaranteeing `success: true` for all happy paths and `success: false` for all `extractTraceSummary` errors.
-- Fixed partitioning tool domain error reporting (e.g. `partition_info`, `add_partition`, `drop_partition`, `reorganize_partition`), standardizing on `{ success: false, error: ... }` for missing or unpartitioned tables instead of legacy schema responses.
+- Fixed partitioning tool domain error reporting, standardizing on strict `{ success: false, error: ... }` for failures by removing leaked properties (`table`, `partitionName`, `fromPartitions`), and updated `mysql_partition_info` to return `{ success: true, partitioned: false }` instead of an error for unpartitioned tables.
 
 ## Security
 
