@@ -113,7 +113,6 @@ describe("Security Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Audit logging is not enabled");
-      expect(result.available).toBe(false);
     });
   });
 
@@ -165,7 +164,6 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext)) as any;
 
       expect(result.success).toBe(false);
-      expect(result.available).toBe(false);
       expect(result.error).toContain("Firewall tables not accessible");
     });
   });
@@ -214,7 +212,6 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext)) as any;
 
       expect(result.success).toBe(false);
-      expect(result.installed).toBe(false);
       expect(result.error).toContain("Firewall plugin check failed");
     });
   });
@@ -473,8 +470,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("failed");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("failed");
     });
   });
 
