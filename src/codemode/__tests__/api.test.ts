@@ -349,8 +349,9 @@ describe("MysqlApi", () => {
   describe("help", () => {
     it("should return all groups with their methods", () => {
       const help = api.help();
-      expect(help).toHaveProperty("core");
-      expect(help["core"]).toContain("readQuery");
+      expect(help.success).toBe(true);
+      expect(help.groups).toHaveProperty("core");
+      expect(help.groups["core"]).toContain("readQuery");
     });
 
     it("should include examples in help output", () => {

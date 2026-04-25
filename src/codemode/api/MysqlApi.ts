@@ -230,14 +230,14 @@ export class MysqlApi {
    *
    * @returns Object with group names as keys and arrays of method names as values
    */
-  help(): Record<string, string[]> {
+  help(): { success: true; groups: Record<string, string[]> } {
     const result: Record<string, string[]> = {};
     for (const [group, tools] of this.toolsByGroup) {
       // Skip codemode group itself
       if (group === "codemode") continue;
       result[group] = tools.map((t) => toolNameToMethodName(t.name, group));
     }
-    return result;
+    return { success: true, groups: result };
   }
 
   /**
@@ -326,6 +326,7 @@ export class MysqlApi {
           stubbed[method] = blockedStub;
         }
         stubbed["help"] = () => ({
+          success: true,
           methods: Object.keys(groupApi),
           readonly: true,
           note: `All methods in '${groupName}' are blocked in readonly mode`,
@@ -378,6 +379,7 @@ export class MysqlApi {
       bindings[groupName] = {
         ...filteredApi,
         help: () => ({
+          success: true,
           methods: canonicalMethodNames,
           methodAliases: usefulAliases,
           examples: GROUP_EXAMPLES[groupName],

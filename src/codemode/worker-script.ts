@@ -71,8 +71,6 @@ function buildMysqlProxy(
 
     const groupApi: Record<string, unknown> = {};
     for (const method of methods) {
-      if (method === "help") continue; // We build help separately
-
       groupApi[method] = (...args: unknown[]): Promise<unknown> =>
         new Promise((resolve, reject) => {
           const id = nextId++;
@@ -81,12 +79,6 @@ function buildMysqlProxy(
         });
     }
 
-    // Add help() for each group — returns method list
-    groupApi["help"] = (): { group: string; methods: string[] } => ({
-      group: key,
-      methods: methods.filter((m) => m !== "help"),
-    });
-
     mysql[key] = groupApi;
   }
 
@@ -94,33 +86,19 @@ function buildMysqlProxy(
   const topLevel = bindings["_topLevel"];
   if (topLevel) {
     for (const method of topLevel) {
-      if (method === "help") {
-        // Top-level help returns all groups
-        mysql["help"] = (): { groups: string[] } => ({
-          groups: groupNames,
-        });
-      } else {
-        // Top-level aliases forward via _topLevel group
-        mysql[method] = (...args: unknown[]): Promise<unknown> =>
-          new Promise((resolve, reject) => {
-            const id = nextId++;
-            pending.set(id, { resolve, reject });
-            rpcPort.postMessage({
-              id,
-              group: "_topLevel",
-              method,
-              args,
-            });
+      // Top-level aliases forward via _topLevel group
+      mysql[method] = (...args: unknown[]): Promise<unknown> =>
+        new Promise((resolve, reject) => {
+          const id = nextId++;
+          pending.set(id, { resolve, reject });
+          rpcPort.postMessage({
+            id,
+            group: "_topLevel",
+            method,
+            args,
           });
-      }
+        });
     }
-  }
-
-  // If no top-level help was set, add one
-  if (mysql["help"] === undefined) {
-    mysql["help"] = (): { groups: string[] } => ({
-      groups: groupNames,
-    });
   }
 
   return mysql;
