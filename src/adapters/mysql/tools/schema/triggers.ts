@@ -43,7 +43,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [targetSchema],
           );
-          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }
@@ -54,7 +54,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
             "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?",
             [targetSchema ?? null, table],
           );
-          if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return { success: false, error: `Table '${table}' does not exist` };
           }
         }

@@ -113,7 +113,7 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [name],
           );
-          if (check.rows && check.rows.length > 0) {
+          if (check.rows !== undefined && check.rows.length > 0) {
             return {
               success: true,
               skipped: true,
@@ -181,16 +181,14 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Pre-check: detect no-op when ifExists is true
+        let schemaAbsent = false;
         if (ifExists) {
           const check = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [name],
           );
-          if (!check.rows || check.rows.length === 0) {
-            return {
-              success: false,
-              error: `Schema '${name}' does not exist`,
-            };
+          if (check.rows === undefined || check.rows.length === 0) {
+            schemaAbsent = true;
           }
         }
 
@@ -199,6 +197,16 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery(
             `DROP DATABASE ${ifExistsClause}\`${name}\``,
           );
+          
+          if (schemaAbsent) {
+            return {
+              success: true,
+              skipped: true,
+              schemaName: name,
+              reason: "Schema did not exist",
+            };
+          }
+          
           return { success: true, schemaName: name };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);

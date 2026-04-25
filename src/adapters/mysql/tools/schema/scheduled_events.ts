@@ -56,7 +56,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [targetSchema],
           );
-          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }

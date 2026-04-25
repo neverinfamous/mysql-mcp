@@ -56,7 +56,7 @@ export function createListConstraintsTool(
           `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
           [schemaName, tableName],
         );
-        if (!existsResult.rows || existsResult.rows.length === 0) {
+        if (existsResult.rows === undefined || existsResult.rows.length === 0) {
           return { success: false, error: `Table '${tableName}' does not exist` };
         }
 
