@@ -114,7 +114,7 @@ describe("Performance Optimization Tools", () => {
       expect(result.recommendations).toHaveLength(0);
     });
 
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return structured error for nonexistent table", async () => {
       const mockTableInfo = createMockTableInfo("ghost");
       mockTableInfo.columns = [];
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
@@ -123,12 +123,12 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ table: "ghost" }, mockContext)) as {
-        exists: boolean;
-        table: string;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("ghost");
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Table 'ghost' does not exist");
       expect(mockAdapter.getTableIndexes).not.toHaveBeenCalled();
     });
   });
@@ -325,7 +325,7 @@ describe("Performance Optimization Tools", () => {
       );
     });
 
-    it("should return exists: false for nonexistent table (P154)", async () => {
+    it("should return structured error for nonexistent table (P154)", async () => {
       const mockTableInfo = createMockTableInfo("ghost");
       mockTableInfo.columns = [];
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
@@ -338,10 +338,10 @@ describe("Performance Optimization Tools", () => {
           indexName: "some_idx",
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("ghost");
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Table 'ghost' does not exist");
       expect(mockAdapter.getTableIndexes).not.toHaveBeenCalled();
     });
   });

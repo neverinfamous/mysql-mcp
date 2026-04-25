@@ -166,19 +166,41 @@ export const ForceIndexSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  query: z.string().describe("Original query"),
-  indexName: z.string().describe("Index name to force"),
+  query: z.string().optional().describe("Original query"),
+  sql: z.string().optional().describe("Alias for query"),
+  indexName: z.string().optional().describe("Index name to force"),
+  index: z.string().optional().describe("Alias for index name"),
 });
 
 // Transformed schema for handler parsing
 export const ForceIndexSchema = z
-  .preprocess(preprocessTableParams, ForceIndexSchemaBase)
+  .preprocess(
+    (data: any) => {
+      let newData = typeof data === "string" ? { table: data } : { ...data };
+      return preprocessTableParams(newData);
+    },
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
+      indexName: z.string().optional(),
+      index: z.string().optional(),
+    })
+  )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    query: data.query,
-    indexName: data.indexName,
+    query: data.query ?? data.sql ?? "",
+    indexName: data.indexName ?? data.index ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.query !== "", {
+    message: "query (or sql alias) is required",
+  })
+  .refine((data) => data.indexName !== "", {
+    message: "indexName (or index alias) is required",
   });
 

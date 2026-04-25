@@ -28,7 +28,6 @@
 
 - Unified error reporting across all tool groups to strictly adhere to the `ErrorResponse` schema, replacing custom try/catch blocks with `formatHandlerErrorResponse`.
 - Enforced `success: true` returns for all successful operations across all tool groups.
-- Completed Code Mode compliance testing for the `monitoring` tool group, verifying `success` assertions and structured error paths.
 - Standardized Zod error formats by prepending `"Validation error: "` and fixed exception leaks outside `try/catch` blocks.
 - Switched Admin DDL tools to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
 - Fixed `json_validate` to properly catch query errors for malformed JSON, returning `valid: false` instead of throwing.
@@ -39,6 +38,8 @@
 - Enforced `database` as a required parameter in dump tools and `schema` as required in `DependencyGraphSchema`.
 - Relaxed `mysql_export_table` format parameter to accept case-insensitive values.
 - Remediated test stability: relaxed benchmark timing assertions, fixed watch-mode hangs with `--run` in `vitest bench`, and gracefully skipped E2E write tests in read-only mode.
+- Fixed optimization tool domain error reporting (e.g. `index_recommendation`, `force_index`), standardizing on `{ success: false, error: ... }` for missing tables instead of `{ exists: false }`.
+- Added missing preprocessing aliases to `mysql_force_index` parameter schema to support `index` and `sql` inputs.
 
 ## Security
 

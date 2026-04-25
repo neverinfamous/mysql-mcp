@@ -1,26 +1,25 @@
-# MySQL Monitoring Tool Group Code Mode Re-Testing
+# MySQL MCP Optimization Tool Group Code Mode Re-Testing
 
-## Overview
-Exhaustive verification of the `mysql.monitoring` tool group via Code Mode testing (`mysql_execute_code`) to ensure compliance with the standardized `ErrorResponse` schema (Pattern P306). 
+## Objective
+Exhaustive functional verification of the `optimization` tool group using Code Mode to ensure 100% adherence to the `ErrorResponse` schema and fix any domain error reporting issues.
 
-## Test Strategy
-- **Environment**: Code Mode (`mysql_execute_code`)
-- **Assertions**: Output shape, parameter parsing, standardized error returns.
+## Testing Matrix & Results
 
-## Coverage Matrix
+| Tool | Path Type | Status | Fix Required |
+|------|-----------|--------|--------------|
+| `help` | Happy | ✅ | None |
+| `indexRecommendation` | Happy | ✅ | None |
+| `queryRewrite` | Happy | ✅ | None |
+| `forceIndex` | Happy | ✅ | Added `index` and `sql` aliases to Zod schema to support agent input. |
+| `optimizerTrace` (full) | Happy | ✅ | None |
+| `optimizerTrace` (summary)| Happy | ✅ | None |
+| `indexRecommendation` | Domain Error | ✅ | Refactored `exists: false` returns into structured `{ success: false, error: ... }` for non-existent tables. |
+| `indexRecommendation` | Zod Error | ✅ | None |
+| `optimizerTrace` | Zod Error | ✅ | None |
 
-| Tool | Status | Findings |
-|---|---|---|
-| `mysql.monitoring.help()` | ✅ Pass | Returns valid method listing |
-| `mysql.monitoring.showProcesslist()` | ✅ Pass | Returns structured process list correctly |
-| `mysql.monitoring.showStatus({like: "Uptime"})` | ✅ Pass | Returns specific variable properly mapped |
-| `mysql.monitoring.showVariables({like: "max_connections"})` | ✅ Pass | Returns variables cleanly |
-| `mysql.monitoring.innodbStatus()` | ✅ Pass | Returns raw InnoDB status string inside JSON |
-| `mysql.monitoring.innodbStatus({summary: true})` | ✅ Pass | Returns summarized keys as requested |
-| `mysql.monitoring.poolStats()` | ✅ Pass | Returns pool statistics correctly mapped |
-| `mysql.monitoring.serverHealth()` | ✅ Pass | Returns server health payload with active connection details |
-| `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` | ✅ Pass (Domain Error) | Correctly handles empty results gracefully and returns `{success: true, status: {}}` |
+## Remediations
+1. **forceIndex Alias**: The Zod schema required `indexName`, but queries used `index`. Added preprocessing aliases (`index` -> `indexName` and `sql` -> `query`).
+2. **Graceful Table Checking**: The `indexRecommendation` and `forceIndex` tools returned `{ exists: false, table }` when tables didn't exist. This violated the structured error convention (`{ success: false, error: ... }`). Fixed handlers and their respective tests.
 
-## Fixes Applied
-- **No Refactoring Needed**: The tools had already been successfully remediated in a previous session to correctly implement `formatHandlerErrorResponse` within `try-catch` blocks.
-- **Test Integrity**: The tools handle both happy paths and domain errors natively now, passing all `vitest` unit tests and `Code Mode` programmatic queries.
+## Status
+All tests passed. System architectural parity achieved for the `optimization` tool group.

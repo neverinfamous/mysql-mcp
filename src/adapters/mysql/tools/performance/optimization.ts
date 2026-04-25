@@ -181,7 +181,10 @@ export function createIndexRecommendationTool(
 
         // Graceful handling for non-existent tables (P154)
         if (!columns.columns || columns.columns.length === 0) {
-          return { exists: false, table };
+          return {
+            success: false,
+            error: `Table '${table}' does not exist`,
+          };
         }
 
         // Get existing indexes
@@ -376,7 +379,10 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         // P154: Check table existence first
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return { exists: false, table };
+          return {
+            success: false,
+            error: `Table '${table}' does not exist`,
+          };
         }
 
         // Simple replacement - insert FORCE INDEX after table name
