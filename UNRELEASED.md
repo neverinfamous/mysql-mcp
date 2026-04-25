@@ -28,6 +28,7 @@
 
 - Unified error reporting across all tool groups to strictly adhere to the `ErrorResponse` schema, replacing custom try/catch blocks with `formatHandlerErrorResponse`.
 - Enforced `success: true` returns for all successful operations across all tool groups.
+- Completed Code Mode compliance testing for the `monitoring` tool group, verifying `success` assertions and structured error paths.
 - Standardized Zod error formats by prepending `"Validation error: "` and fixed exception leaks outside `try/catch` blocks.
 - Switched Admin DDL tools to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
 - Fixed `json_validate` to properly catch query errors for malformed JSON, returning `valid: false` instead of throwing.
