@@ -19,22 +19,45 @@ const RoleListSchema = z.object({
 
 const RoleCreateSchema = z.object({
   name: z.string().describe("Role name"),
-  ifNotExists: z.boolean().default(true),
+  ifNotExists: z.boolean().default(false),
 });
 
 const RoleDropSchema = z.object({
   name: z.string().describe("Role name"),
-  ifExists: z.boolean().default(true),
+  ifExists: z.boolean().default(false),
 });
 
 const RoleGrantsSchema = z.object({ role: z.string() });
 
-const RoleGrantPrivilegeSchema = z.object({
-  role: z.string(),
-  privileges: z.array(z.string()),
-  database: z.string().default("*"),
-  table: z.string().default("*"),
-});
+const RoleGrantPrivilegeSchema = z
+  .object({
+    role: z.string(),
+    privileges: z.array(z.string()).optional(),
+    privilege: z.string().optional(),
+    database: z.string().default("*"),
+    table: z.string().default("*"),
+    on: z.string().optional(),
+  })
+  .transform((val) => {
+    const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
+    let database = val.database;
+    let table = val.table;
+
+    if (val.on) {
+      if (val.on.includes(".")) {
+        const [db, tbl] = val.on.split(".");
+        database = db || "*";
+        table = tbl || "*";
+      } else {
+        database = val.on;
+      }
+    }
+
+    return { ...val, privileges, database, table };
+  })
+  .refine((val) => val.privileges.length > 0, {
+    message: "Must provide 'privileges' array or single 'privilege' string",
+  });
 
 const RoleAssignSchema = z.object({
   role: z.string(),
@@ -72,7 +95,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (pattern)
             query += ` AND u.User LIKE '${escapeLikePattern(pattern)}'`;
           const result = await adapter.executeQuery(query);
-          return { roles: result.rows ?? [], count: result.rows?.length ?? 0 };
+          return { success: true, roles: result.rows ?? [], count: result.rows?.length ?? 0 };
         } catch (error: unknown) {
           if (error instanceof ZodError)
             return formatHandlerErrorResponse(error);
@@ -210,13 +233,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return { role, grants: [], exists: false };
+            return { success: false, error: "Role does not exist", role, exists: false };
           }
 
           // SHOW GRANTS cannot be always prepared
           const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
           const grants = (result.rows ?? []).map((r) => Object.values(r)[0]);
-          return { role, grants, exists: true };
+          return { success: true, role, grants, exists: true };
         } catch (error: unknown) {
           if (error instanceof ZodError)
             return formatHandlerErrorResponse(error);
@@ -476,7 +499,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return { user, host, exists: false };
+            return { success: false, error: "User does not exist", user, host, exists: false };
           }
 
           const result = await adapter.executeQuery(
@@ -484,7 +507,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
                        FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?`,
             [user, host],
           );
-          return { user, host, roles: result.rows ?? [] };
+          return { success: true, user, host, roles: result.rows ?? [] };
         } catch (error: unknown) {
           if (error instanceof ZodError)
             return formatHandlerErrorResponse(error);

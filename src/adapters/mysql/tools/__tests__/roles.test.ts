@@ -82,14 +82,14 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_role_create", () => {
-    it("should create a role with IF NOT EXISTS default", async () => {
+    it("should create a role with IF NOT EXISTS", async () => {
       // First call: pre-check (role does not exist)
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
-      await tool.handler({ name: "test_role" }, mockContext);
+      await tool.handler({ name: "test_role", ifNotExists: true }, mockContext);
 
       // Second call should be the CREATE ROLE
       const createCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
@@ -224,14 +224,14 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_role_drop", () => {
-    it("should drop a role with IF EXISTS default", async () => {
+    it("should drop a role with IF EXISTS", async () => {
       // First call: pre-check (role exists)
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
-      await tool.handler({ name: "test_role" }, mockContext);
+      await tool.handler({ name: "test_role", ifExists: true }, mockContext);
 
       // Second call should be the DROP ROLE
       const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
@@ -343,6 +343,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toEqual({
+        success: false,
+        error: "User does not exist",
         user: "nonexistent",
         host: "%",
         exists: false,

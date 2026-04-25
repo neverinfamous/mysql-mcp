@@ -44,7 +44,7 @@
 - Fixed partitioning tool domain error reporting, standardizing on strict `{ success: false, error: ... }` for failures by removing leaked properties (`table`, `partitionName`, `fromPartitions`), and updated `mysql_partition_info` to return `{ success: true, partitioned: false }` instead of an error for unpartitioned tables.
 - Fixed performance tool group error handling by wrapping Zod validation in `try/catch` blocks, enforcing `{ success: true }` on success, and replacing legacy object responses (e.g. `{ exists: false }`) with standardized `ErrorResponse` objects. Added `minExecutions` alias support to `mysql_detect_query_anomalies`.
 - Fixed replication tool group error handling by enforcing `{ success: true }` on success and replacing custom fallback error objects (e.g. `{ message: "..." }`, `{ success: false, logFile: "..." }`) with the standard `ErrorResponse` schema via `formatHandlerErrorResponse`. Rewired Code Mode API `help()` generation to proxy over the RPC bridge instead of using synchronous stubs, fixing canonical method mapping and enforcing `{ success: true }` schema compliance for `mysql.help()` requests.
-
+- Fixed roles tool group error handling by enforcing strict adherence to the `ErrorResponse` schema (`{ success: boolean }`) for all handlers, updated default boolean flags to improve Code Mode domain error testing, and added parameter aliases (`privilege` and `on`) to `mysql_role_grant`.
 ## Security
 
 - Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
