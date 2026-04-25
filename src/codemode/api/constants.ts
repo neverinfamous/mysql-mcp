@@ -117,7 +117,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     slave: "slaveStatus",
     binlog: "binlogEvents",
     gtid: "gtidStatus",
-    replicationLag: "lag",
+    lag: "replicationLag",
   },
   // Partitioning: shorter aliases
   partitioning: {
@@ -308,7 +308,7 @@ export const GROUP_EXAMPLES: Record<string, string[]> = {
   ],
   replication: [
     "mysql.replication.slaveStatus()",
-    "mysql.replication.lag()",
+    "mysql.replication.replicationLag()",
     "mysql.replication.masterStatus()",
     "mysql.replication.binlogEvents({ limit: 20 })",
   ],

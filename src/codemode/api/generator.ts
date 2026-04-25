@@ -73,9 +73,9 @@ export function toolNameToMethodName(toolName: string, groupName: string): strin
     "docstore",
     "transactions",
     "cluster",
-
     "roles",
     "events",
+    "replication",
   ]);
 
   if (!keepPrefix.has(groupName) && name.startsWith(groupPrefix)) {
