@@ -3,7 +3,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { stripErrorPrefix, formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { stripErrorPrefix, formatZodError } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
@@ -136,10 +136,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, roles: result.rows ?? [], count: result.rows?.length ?? 0 };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
@@ -178,18 +178,20 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, roleName: name };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation CREATE ROLE failed")) {
-            const rawName = (params as Record<string, string>)["name"];
-            const roleName = rawName ?? "unknown";
+            const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
+            const pName = typeof parsed["name"] === "string" ? parsed["name"] : undefined;
+            const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            const roleName = pName ?? pRole ?? "unknown";
             return {
               success: false,
               error: `Role '${roleName}' already exists`,
             };
           }
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
@@ -235,18 +237,20 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, roleName: name };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation DROP ROLE failed")) {
-            const rawName = (params as Record<string, string>)["name"];
-            const roleName = rawName ?? "unknown";
+            const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
+            const pName = typeof parsed["name"] === "string" ? parsed["name"] : undefined;
+            const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            const roleName = pName ?? pRole ?? "unknown";
             return {
               success: false,
               error: `Role '${roleName}' does not exist`,
             };
           }
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
@@ -280,10 +284,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, role, grants, exists: true };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
@@ -357,16 +361,14 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(message);
-          // Include role context for table/db-level errors when role was parsed
-          const roleName = (params as Record<string, unknown>)["role"] as
-            | string
-            | undefined;
-          if (roleName) {
-            return { success: false, role: roleName, error: cleanMsg };
+          const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
+          const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+          if (pRole !== undefined) {
+            return { success: false, role: pRole, error: cleanMsg };
           }
           return { success: false, error: cleanMsg };
         }
@@ -411,7 +413,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, role, user, host };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
@@ -420,7 +422,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: "User does not exist",
             };
           }
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
@@ -482,7 +484,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, role, user, host };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
@@ -491,7 +493,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: "User does not exist",
             };
           }
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
@@ -524,10 +526,10 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: true, user, host, roles: result.rows ?? [] };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return formatHandlerErrorResponse(error);
+            return { success: false, error: formatZodError(error) };
           const message =
             error instanceof Error ? error.message : String(error);
-          return formatHandlerErrorResponse(new Error(message));
+          return { success: false, error: stripErrorPrefix(message) };
         }
       },
     },
