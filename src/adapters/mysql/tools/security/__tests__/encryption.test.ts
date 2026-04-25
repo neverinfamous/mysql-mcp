@@ -47,6 +47,7 @@ describe("Security Encryption Tools", () => {
       const result = (await tool.handler({}, {} as any)) as any;
 
       expect(result).toEqual({
+        success: true,
         sslEnabled: true,
         currentCipher: "AES256-SHA",
         sslVersion: "TLSv1.3",
