@@ -33,6 +33,7 @@ interface TraceSummaryDecision {
 
 /** Trace summary result type */
 interface TraceSummaryResult {
+  success?: boolean;
   query: string;
   decisions: TraceSummaryDecision[];
   error?: string;
@@ -46,17 +47,17 @@ function extractTraceSummary(
   const decisions: TraceSummaryDecision[] = [];
 
   if (!rows || rows.length === 0) {
-    return { query, decisions, error: "No trace data available" };
+    return { success: false, query, decisions, error: "No trace data available" };
   }
 
   const row = rows[0];
   if (!row) {
-    return { query, decisions, error: "No trace data available" };
+    return { success: false, query, decisions, error: "No trace data available" };
   }
 
   const traceStr = row["TRACE"];
   if (typeof traceStr !== "string") {
-    return { query, decisions, error: "Invalid trace format" };
+    return { success: false, query, decisions, error: "Invalid trace format" };
   }
 
   try {
@@ -151,10 +152,10 @@ function extractTraceSummary(
       }
     }
   } catch {
-    return { query, decisions, error: "Failed to parse trace" };
+    return { success: false, query, decisions, error: "Failed to parse trace" };
   }
 
-  return { query, decisions };
+  return { success: true, query, decisions };
 }
 
 export function createIndexRecommendationTool(
@@ -225,6 +226,7 @@ export function createIndexRecommendationTool(
         }
 
         return {
+          success: true,
           exists: true,
           table,
           existingIndexes: indexes.map((i) => ({
@@ -343,12 +345,15 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const response: Record<string, unknown> = {
+          success: true,
           originalQuery: query,
           suggestions,
           explainPlan: explainResult,
         };
 
         if (explainError) {
+          response["success"] = false;
+          response["error"] = explainError;
           response["explainError"] = explainError;
         }
 
@@ -392,6 +397,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         const response: Record<string, unknown> = {
+          success: true,
           originalQuery: query,
           rewrittenQuery: rewritten,
           hint: `FORCE INDEX (\`${indexName}\`)`,
@@ -468,9 +474,9 @@ export function createOptimizerTraceTool(
         } catch (err: unknown) {
           const errorMsg = formatMysqlError(err);
           if (summary) {
-            return { query, decisions: [], error: errorMsg };
+            return { success: false, error: errorMsg, query, decisions: [] };
           }
-          return { query, trace: null, error: errorMsg };
+          return { success: false, error: errorMsg, query, trace: null };
         }
 
         // Get the trace
@@ -483,7 +489,7 @@ export function createOptimizerTraceTool(
           return extractTraceSummary(traceResult.rows, query);
         }
 
-        return { trace: traceResult.rows };
+        return { success: true, trace: traceResult.rows };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       } finally {
