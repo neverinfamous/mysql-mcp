@@ -266,15 +266,11 @@ describe("Schema Management Tools", () => {
         mockContext,
       )) as {
         success: boolean;
-        skipped: boolean;
-        reason: string;
-        schemaName: string;
+        error: string;
       };
 
-      expect(result.success).toBe(true);
-      expect(result.skipped).toBe(true);
-      expect(result.reason).toBe("Schema did not exist");
-      expect(result.schemaName).toBe("gone_db");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
       // Only the pre-check query should have been called
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });

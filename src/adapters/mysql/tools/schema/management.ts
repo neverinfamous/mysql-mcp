@@ -65,6 +65,7 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           schemas: result.rows,
           count: result.rows?.length ?? 0,
         };
@@ -187,10 +188,8 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (!check.rows || check.rows.length === 0) {
             return {
-              success: true,
-              skipped: true,
-              reason: "Schema did not exist",
-              schemaName: name,
+              success: false,
+              error: `Schema '${name}' does not exist`,
             };
           }
         }

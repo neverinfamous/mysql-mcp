@@ -16,11 +16,13 @@ const ListViewsSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 const CreateViewSchemaBase = z.object({
   name: z.string().describe("View name"),
-  definition: z.string().describe("SELECT statement defining the view"),
+  definition: z.string().optional().describe("SELECT statement defining the view"),
+  query: z.string().optional().describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
   checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
@@ -28,7 +30,8 @@ const CreateViewSchemaBase = z.object({
 
 const CreateViewSchema = z.object({
   name: z.string().describe("View name"),
-  definition: z.string().describe("SELECT statement defining the view"),
+  definition: z.string().optional().describe("SELECT statement defining the view"),
+  query: z.string().optional().describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z
     .enum(["UNDEFINED", "MERGE", "TEMPTABLE"])
@@ -58,16 +61,17 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema } = ListViewsSchema.parse(params);
+        const parsedParams = ListViewsSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (targetSchema !== undefined && targetSchema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
+            [targetSchema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }
 
@@ -84,8 +88,9 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY TABLE_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [schema ?? null]);
+        const result = await adapter.executeQuery(query, [targetSchema ?? null]);
         return {
+          success: true,
           views: result.rows,
           count: result.rows?.length ?? 0,
         };
@@ -113,8 +118,18 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { name, definition, orReplace, algorithm, checkOption } =
-          CreateViewSchema.parse(params);
+        const parsedParams = CreateViewSchema.parse(params);
+        const name = parsedParams.name;
+        const definition = parsedParams.definition;
+        const query = parsedParams.query;
+        const orReplace = parsedParams.orReplace;
+        const algorithm = parsedParams.algorithm;
+        const checkOption = parsedParams.checkOption;
+
+        const finalDefinition = definition ?? query;
+        if (finalDefinition === undefined || finalDefinition === "") {
+          return { success: false, error: "Validation error: definition or query must be provided" };
+        }
 
         try {
           validateQualifiedIdentifier(name, "view");
@@ -126,7 +141,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const fullViewName = escapeQualifiedTable(name);
 
         const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
-        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${definition}`;
+        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${finalDefinition}`;
 
         if (checkOption !== "NONE") {
           sql += ` WITH ${checkOption} CHECK OPTION`;

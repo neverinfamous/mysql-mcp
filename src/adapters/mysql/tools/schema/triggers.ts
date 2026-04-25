@@ -13,6 +13,7 @@ const ListTriggersSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 /**
@@ -32,27 +33,29 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, schema } = ListTriggersSchema.parse(params);
+        const parsedParams = ListTriggersSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const table = parsedParams.table;
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (targetSchema !== undefined && targetSchema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
+            [targetSchema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }
 
         // P154: Table existence check when explicitly provided
-        if (table) {
+        if (table !== undefined && table !== "") {
           const tableCheck = await adapter.executeQuery(
             "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?",
-            [schema ?? null, table],
+            [targetSchema ?? null, table],
           );
           if (!tableCheck.rows || tableCheck.rows.length === 0) {
-            return { exists: false, table };
+            return { success: false, error: `Table '${table}' does not exist` };
           }
         }
 
@@ -69,9 +72,9 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-        const queryParams: unknown[] = [schema ?? null];
+        const queryParams: unknown[] = [targetSchema ?? null];
 
-        if (table) {
+        if (table !== undefined && table !== "") {
           query += " AND EVENT_OBJECT_TABLE = ?";
           queryParams.push(table);
         }
@@ -81,6 +84,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           triggers: result.rows,
           count: result.rows?.length ?? 0,
         };

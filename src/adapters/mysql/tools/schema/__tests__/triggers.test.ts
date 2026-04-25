@@ -45,10 +45,10 @@ describe("Schema Trigger Tools", () => {
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
-      )) as { exists: boolean; schema: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.schema).toBe("nonexistent_db");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return exists false for nonexistent table", async () => {
@@ -61,10 +61,10 @@ describe("Schema Trigger Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent_table" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent_table");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should filter by table when provided", async () => {

@@ -48,10 +48,10 @@ describe("Schema Routine Tools", () => {
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
-      )) as { exists: boolean; schema: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.schema).toBe("nonexistent_db");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -81,10 +81,10 @@ describe("Schema Routine Tools", () => {
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
-      )) as { exists: boolean; schema: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.schema).toBe("nonexistent_db");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 });

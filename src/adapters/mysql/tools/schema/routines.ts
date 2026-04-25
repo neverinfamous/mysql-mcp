@@ -12,6 +12,7 @@ const ListObjectsSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 /**
@@ -33,16 +34,17 @@ export function createListStoredProceduresTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema } = ListObjectsSchema.parse(params);
+        const parsedParams = ListObjectsSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (targetSchema !== undefined && targetSchema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
+            [targetSchema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }
 
@@ -73,8 +75,9 @@ export function createListStoredProceduresTool(
                 ORDER BY r.ROUTINE_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [schema ?? null]);
+        const result = await adapter.executeQuery(query, [targetSchema ?? null]);
         return {
+          success: true,
           procedures: result.rows,
           count: result.rows?.length ?? 0,
         };
@@ -103,16 +106,17 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema } = ListObjectsSchema.parse(params);
+        const parsedParams = ListObjectsSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (targetSchema !== undefined && targetSchema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
+            [targetSchema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }
 
@@ -133,8 +137,9 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY r.ROUTINE_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [schema ?? null]);
+        const result = await adapter.executeQuery(query, [targetSchema ?? null]);
         return {
+          success: true,
           functions: result.rows,
           count: result.rows?.length ?? 0,
         };

@@ -57,7 +57,7 @@ export function createListConstraintsTool(
           [schemaName, tableName],
         );
         if (!existsResult.rows || existsResult.rows.length === 0) {
-          return { exists: false, table: tableName };
+          return { success: false, error: `Table '${tableName}' does not exist` };
         }
 
         // Query for table constraints
@@ -96,6 +96,7 @@ export function createListConstraintsTool(
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           constraints: result.rows,
           count: result.rows?.length ?? 0,
         };

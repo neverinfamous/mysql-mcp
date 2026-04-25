@@ -12,6 +12,7 @@ const ListEventsSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   status: z.string().optional().describe("Filter by status"),
 });
 
@@ -20,6 +21,7 @@ const ListEventsSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   status: z
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
@@ -44,16 +46,18 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, status } = ListEventsSchema.parse(params);
+        const parsedParams = ListEventsSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const status = parsedParams.status;
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (targetSchema !== undefined && targetSchema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
+            [targetSchema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return { success: false, error: `Schema '${targetSchema}' does not exist` };
           }
         }
 
@@ -79,9 +83,9 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE EVENT_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-        const queryParams: unknown[] = [schema ?? null];
+        const queryParams: unknown[] = [targetSchema ?? null];
 
-        if (status) {
+        if (status !== undefined) {
           query += " AND STATUS = ?";
           queryParams.push(status);
         }
@@ -90,6 +94,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           events: result.rows,
           count: result.rows?.length ?? 0,
         };
