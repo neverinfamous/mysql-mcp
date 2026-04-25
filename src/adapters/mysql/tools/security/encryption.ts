@@ -281,10 +281,8 @@ export function createSecurityPasswordValidateTool(
           lower.includes("function")
         ) {
           return {
-            available: false,
-            message: "Password validation function failed",
-            suggestion:
-              'Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
+            success: false,
+            error: "Password validation function failed. Reinstall with: INSTALL COMPONENT \"file://component_validate_password\""
           };
         }
         return formatHandlerErrorResponse(new Error(message));
