@@ -10,7 +10,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { QueryError } from "../../../../types/index.js";
+
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   MigrationInitSchemaBase,
@@ -67,7 +67,7 @@ export function createMigrationInitTool(
         const existed = firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
 
         if (!existed) {
-          await adapter.executeReadQuery(
+          await adapter.executeWriteQuery(
             buildCreateTrackingTableSql(qualifiedTable),
           );
         }
@@ -123,7 +123,7 @@ export function createMigrationRecordTool(
         const targetSchema = (dbRow?.["db"] as string) || "mysql";
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
-        await adapter.executeReadQuery(
+        await adapter.executeWriteQuery(
           `INSERT INTO ${qualifiedTable}
          (version, description, applied_by, migration_hash, migration_sql, source_system, rollback_sql, status)
          VALUES (?, ?, ?, ?, ?, ?, ?, 'recorded')`,
@@ -198,10 +198,10 @@ export function createMigrationApplyTool(
         // We will just execute it, and if it succeeds, write the record.
         try {
           // Execute the migration SQL
-          await adapter.executeReadQuery(parsed.migrationSql);
+          await adapter.executeWriteQuery(parsed.migrationSql);
 
           // Record in tracking table
-          await adapter.executeReadQuery(
+          await adapter.executeWriteQuery(
             `INSERT INTO ${qualifiedTable}
            (version, description, applied_by, migration_hash, migration_sql, source_system, rollback_sql, status)
            VALUES (?, ?, ?, ?, ?, ?, ?, 'applied')`,
@@ -241,7 +241,7 @@ export function createMigrationApplyTool(
 
           // Record a 'failed' entry
           try {
-            await adapter.executeReadQuery(
+            await adapter.executeWriteQuery(
               `INSERT INTO ${qualifiedTable}
              (version, description, applied_by, migration_hash, migration_sql, source_system, rollback_sql, status, error_information)
              VALUES (?, ?, ?, ?, ?, ?, ?, 'failed', ?)`,
@@ -260,9 +260,13 @@ export function createMigrationApplyTool(
             // Best-effort: if we can't record the failure, still return the error
           }
 
-          throw new QueryError(
-            `Migration "${parsed.version}" failed: ${message}. Warning: If this was a DDL statement, partial changes may exist.`,
-          );
+          return {
+            success: false,
+            error: `Migration "${parsed.version}" failed: ${message}. Warning: If this was a DDL statement, partial changes may exist.`,
+            code: "QUERY_ERROR",
+            category: "query",
+            recoverable: false,
+          };
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

@@ -63,7 +63,7 @@ export async function ensureTrackingTable(
 
   if (!existed) {
     const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
-    await adapter.executeReadQuery(buildCreateTrackingTableSql(qualifiedTable));
+    await adapter.executeWriteQuery(buildCreateTrackingTableSql(qualifiedTable));
   }
   return !existed;
 }

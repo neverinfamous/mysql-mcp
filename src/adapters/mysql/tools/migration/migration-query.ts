@@ -10,7 +10,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ValidationError } from "../../../../types/index.js";
+
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   MigrationRollbackSchemaBase,
@@ -52,9 +52,13 @@ export function createMigrationRollbackTool(
         await ensureTrackingTable(adapter, targetSchema);
 
         if (parsed.id === undefined && parsed.version === undefined) {
-          throw new ValidationError(
-            "Either 'id' or 'version' is required to identify the migration to roll back.",
-          );
+          return {
+            success: false,
+            error: "Either 'id' or 'version' is required to identify the migration to roll back.",
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: true,
+          };
         }
 
         // Coerce id: functional param, return error on wrong type
@@ -62,9 +66,13 @@ export function createMigrationRollbackTool(
         if (parsed.id !== undefined) {
           const num = parsed.id;
           if (isNaN(num)) {
-            throw new ValidationError(
-              `Invalid migration id: expected a number, got "${String(parsed.id)}"`,
-            );
+            return {
+              success: false,
+              error: `Invalid migration id: expected a number, got "${String(parsed.id)}"`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: true,
+            };
           }
           coercedId = num;
         }
@@ -103,15 +111,23 @@ export function createMigrationRollbackTool(
         const rollbackSql = (row["rollback_sql"] as string | null) ?? null;
 
         if (rowStatus === "rolled_back") {
-          throw new ValidationError(
-            `Migration "${rowVersion}" (id: ${String(rowId)}) has already been rolled back.`,
-          );
+          return {
+            success: false,
+            error: `Migration "${rowVersion}" (id: ${String(rowId)}) has already been rolled back.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: true,
+          };
         }
 
         if (rollbackSql === null) {
-          throw new ValidationError(
-            `Migration "${rowVersion}" (id: ${String(rowId)}) has no rollback SQL stored. Manual rollback required.`,
-          );
+          return {
+            success: false,
+            error: `Migration "${rowVersion}" (id: ${String(rowId)}) has no rollback SQL stored. Manual rollback required.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: true,
+          };
         }
 
         if (parsed.dryRun === true) {
@@ -124,8 +140,8 @@ export function createMigrationRollbackTool(
         }
 
         try {
-          await adapter.executeReadQuery(rollbackSql);
-          await adapter.executeReadQuery(
+          await adapter.executeWriteQuery(rollbackSql);
+          await adapter.executeWriteQuery(
             `UPDATE ${qualifiedTable} SET status = 'rolled_back' WHERE id = ?`,
             [rowId],
           );
@@ -142,9 +158,13 @@ export function createMigrationRollbackTool(
           };
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
-          throw new ValidationError(
-            `Rollback failed for migration "${rowVersion}" (id: ${String(rowId)}): ${msg}.`,
-          );
+          return {
+            success: false,
+            error: `Rollback failed for migration "${rowVersion}" (id: ${String(rowId)}): ${msg}.`,
+            code: "QUERY_ERROR",
+            category: "query",
+            recoverable: false,
+          };
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -214,8 +234,8 @@ export function createMigrationHistoryTool(
          FROM ${qualifiedTable}
          ${whereClause}
          ORDER BY applied_at DESC
-         LIMIT ? OFFSET ?`,
-          [...values, limit, offset],
+         LIMIT ${limit} OFFSET ${offset}`,
+          values.length > 0 ? values : undefined,
         );
 
         const records = (dataResult.rows ?? []).map(formatRecord);
