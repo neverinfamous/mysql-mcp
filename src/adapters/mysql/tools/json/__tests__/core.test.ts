@@ -173,10 +173,10 @@ describe("JSON Core Tools", () => {
           where: "id = 1",
         },
         mockContext,
-      )) as { rowsAffected: number; changed: boolean; note: string };
+      )) as { rowsAffected: number; changed: boolean; suggestion: string };
 
       expect(result.changed).toBe(false);
-      expect(result.note).toContain("Path already exists");
+      expect(result.suggestion).toContain("Path already exists");
       expect(result.rowsAffected).toBe(1);
     });
   });
