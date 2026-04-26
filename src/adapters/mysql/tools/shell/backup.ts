@@ -96,14 +96,14 @@ export function createShellDumpInstanceTool(): ToolDefinition {
           return {
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            hint: "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
+            suggestion: "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
           };
         }
         if (errorMessage.includes("Fatal error during dump")) {
           return {
             success: false,
             error: `Dump failed: ${errorMessage}.`,
-            hint: "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
+            suggestion: "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
           };
         }
         return { success: false, error: errorMessage };
@@ -200,7 +200,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           return {
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            hint: "Set ddlOnly: true to skip events, triggers, and routines.",
+            suggestion: "Set ddlOnly: true to skip events, triggers, and routines.",
           };
         }
         return { success: false, error: errorMessage };
@@ -293,7 +293,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
           return {
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            hint:
+            suggestion:
               specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
                 ? `Set all: false to skip ${specificPrivilege.toLowerCase()}s.`
                 : "Set all: false to skip metadata that requires extra privileges.",
@@ -307,7 +307,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
             error: errorMessage.includes("Writing schema metadata")
               ? `Dump failed while writing schema metadata: ${errorMessage}.`
               : `Dump failed: ${errorMessage}.`,
-            hint: "Set all: false to skip metadata that requires extra privileges.",
+            suggestion: "Set all: false to skip metadata that requires extra privileges.",
           };
         }
 

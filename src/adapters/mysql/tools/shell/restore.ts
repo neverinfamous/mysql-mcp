@@ -152,14 +152,14 @@ export function createShellLoadDumpTool(): ToolDefinition {
                   return {
                     success: false,
                     error: "Load failed: local_infile is disabled on the server.",
-                    hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+                    suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
                   };
                 }
                 if (errorMessage.includes("Duplicate objects")) {
                   return {
                     success: false,
                     error: errorMessage,
-                    hint: "Use ignoreExistingObjects: true to skip existing objects",
+                    suggestion: "Use ignoreExistingObjects: true to skip existing objects",
                   };
                 }
                 return { success: false, error: errorMessage };
@@ -198,14 +198,14 @@ export function createShellLoadDumpTool(): ToolDefinition {
           return {
             success: false,
             error: "Load failed: local_infile is disabled on the server.",
-            hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+            suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
           };
         }
         if (errorMessage.includes("Duplicate objects")) {
           return {
             success: false,
             error: errorMessage,
-            hint: "Use ignoreExistingObjects: true to skip existing objects",
+            suggestion: "Use ignoreExistingObjects: true to skip existing objects",
           };
         }
         return { success: false, error: errorMessage };

@@ -147,7 +147,7 @@ describe("Shell Restore and Script Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error when Loading local data is disabled", async () => {
@@ -163,7 +163,7 @@ describe("Shell Restore and Script Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error for non-local_infile errors", async () => {
@@ -194,7 +194,7 @@ describe("Shell Restore and Script Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate objects");
-      expect(result.hint).toContain("ignoreExistingObjects");
+      expect(result.suggestion).toContain("ignoreExistingObjects");
     });
   });
 

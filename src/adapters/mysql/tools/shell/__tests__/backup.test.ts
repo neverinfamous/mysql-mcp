@@ -116,7 +116,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("mysqlsh_dump_schemas");
+      expect(result.suggestion).toContain("mysqlsh_dump_schemas");
     });
 
     it("should return structured error for Fatal error during dump", async () => {
@@ -130,7 +130,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Fatal error during dump");
-      expect(result.hint).toContain("mysqlsh_dump_schemas");
+      expect(result.suggestion).toContain("mysqlsh_dump_schemas");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -242,7 +242,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("ddlOnly: true");
+      expect(result.suggestion).toContain("ddlOnly: true");
     });
 
     it("should return structured error for TRIGGER privilege errors", async () => {
@@ -259,7 +259,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("ddlOnly: true");
+      expect(result.suggestion).toContain("ddlOnly: true");
     });
 
     it("should return structured error for generic privilege errors", async () => {
@@ -276,7 +276,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("ddlOnly: true");
+      expect(result.suggestion).toContain("ddlOnly: true");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -407,7 +407,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("all: false");
+      expect(result.suggestion).toContain("all: false");
     });
 
     it("should return structured error for TRIGGER privilege errors", async () => {
@@ -426,7 +426,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("all: false");
+      expect(result.suggestion).toContain("all: false");
     });
 
     it("should return structured error for Fatal error during dump", async () => {
@@ -444,7 +444,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Fatal error during dump");
-      expect(result.hint).toContain("all: false");
+      expect(result.suggestion).toContain("all: false");
     });
 
     it("should return structured error for non-privilege errors", async () => {

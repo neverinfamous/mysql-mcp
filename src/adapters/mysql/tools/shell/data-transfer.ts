@@ -83,7 +83,7 @@ export function createShellExportTableTool(): ToolDefinition {
           return {
             success: false,
             error: `Export failed due to insufficient privileges: ${errorMessage}.`,
-            hint: `Ensure the user has SELECT privilege on the target table.`,
+            suggestion: `Ensure the user has SELECT privilege on the target table.`,
           };
         }
         return { success: false, error: errorMessage };
@@ -178,7 +178,7 @@ export function createShellImportTableTool(): ToolDefinition {
           return {
             success: false,
             error: "Import failed: local_infile is disabled on the server.",
-            hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+            suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
           };
         }
         return {
@@ -257,7 +257,7 @@ export function createShellImportJSONTool(): ToolDefinition {
             success: false,
             protocol: "X Protocol",
             error: `X Protocol connection failed: ${errorMessage}.`,
-            hint: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
+            suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
           };
         }
 
@@ -270,7 +270,7 @@ export function createShellImportJSONTool(): ToolDefinition {
             success: false,
             protocol: "X Protocol",
             error: `X Protocol authentication failed.`,
-            hint: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
+            suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
           };
         }
 

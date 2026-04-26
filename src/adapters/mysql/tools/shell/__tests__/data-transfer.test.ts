@@ -151,7 +151,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("privilege");
-      expect(result.hint).toContain("SELECT privilege");
+      expect(result.suggestion).toContain("SELECT privilege");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -246,7 +246,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error when Loading local data is disabled", async () => {
@@ -264,7 +264,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error for non-local_infile errors", async () => {
@@ -387,7 +387,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("X Protocol authentication failed");
-      expect(result.hint).toContain("X Plugin");
+      expect(result.suggestion).toContain("X Plugin");
     });
 
     it("should return structured error for X Protocol 1045 error in stderr", async () => {
@@ -405,7 +405,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("X Protocol authentication failed");
-      expect(result.hint).toContain("X Plugin");
+      expect(result.suggestion).toContain("X Plugin");
     });
 
     it("should return structured error when JSON result has success: false", async () => {
