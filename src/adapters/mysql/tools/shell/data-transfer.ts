@@ -255,9 +255,9 @@ export function createShellImportJSONTool(): ToolDefinition {
             error instanceof Error ? error.message : String(error);
           return {
             success: false,
-            protocol: "X Protocol",
             error: `X Protocol connection failed: ${errorMessage}.`,
             suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
+            details: { protocol: "X Protocol" },
           };
         }
 
@@ -268,9 +268,9 @@ export function createShellImportJSONTool(): ToolDefinition {
         ) {
           return {
             success: false,
-            protocol: "X Protocol",
             error: `X Protocol authentication failed.`,
             suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
+            details: { protocol: "X Protocol" },
           };
         }
 
@@ -295,8 +295,8 @@ export function createShellImportJSONTool(): ToolDefinition {
             if (!parsed.success) {
               return {
                 success: false,
-                protocol: "X Protocol",
                 error: parsed.error ?? "Unknown MySQL Shell error",
+                details: { protocol: "X Protocol" },
               };
             }
             return {
@@ -313,8 +313,8 @@ export function createShellImportJSONTool(): ToolDefinition {
         if (result.exitCode !== 0) {
           return {
             success: false,
-            protocol: "X Protocol",
             error: result.stderr || result.stdout || "MySQL Shell import failed",
+            details: { protocol: "X Protocol" },
           };
         }
 

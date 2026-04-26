@@ -275,8 +275,21 @@ export function createShellRunScriptTool(): ToolDefinition {
           result = await execMySQLShell(args, { timeout });
         }
 
+        if (result.exitCode !== 0) {
+          return {
+            success: false,
+            error: result.stderr ? result.stderr.trim() : `Script failed with exit code ${result.exitCode}`,
+            details: {
+              language,
+              exitCode: result.exitCode,
+              stdout: result.stdout,
+              stderr: result.stderr,
+            },
+          };
+        }
+
         return {
-          success: result.exitCode === 0,
+          success: true,
           language,
           exitCode: result.exitCode,
           stdout: result.stdout,
