@@ -32,7 +32,12 @@ export const DropCollectionSchema = z.object({
 export const FindSchema = z.object({
   collection: z.string(),
   schema: z.string().optional(),
-  filter: z.string().optional().describe("JSON path expression filter"),
+  filter: z
+    .string()
+    .optional()
+    .describe(
+      "Filter: JSON path for existence ($.name) OR _id value for specific document",
+    ),
   fields: z.array(z.string()).optional(),
   limit: z.number().default(100),
   offset: z.number().default(0),

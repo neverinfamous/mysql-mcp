@@ -68,18 +68,16 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           const tableRef = escapeTableRef(collection, schema);
           let query = `SELECT ${selectClause} FROM ${tableRef}`;
+          let queryParams: unknown[] = [];
+          
           if (filter) {
-            if (!JSON_PATH_RE.test(filter)) {
-              return {
-                success: false,
-                error: `Invalid JSON path filter: "${filter}". Use a valid JSON path like $.field or $.field.sub`,
-              };
-            }
-            query += ` WHERE JSON_EXTRACT(doc, ?) IS NOT NULL`;
+            const { where, params: whereParams } = parseDocFilter(filter);
+            query += ` WHERE ${where}`;
+            queryParams = whereParams;
           }
+          
           query += ` LIMIT ${String(limit)} OFFSET ${String(offset)}`;
 
-          const queryParams: unknown[] = filter ? [filter] : [];
           const result = await adapter.executeQuery(query, queryParams);
           const docs = (result.rows ?? []).map((r) => {
             const row = r;
