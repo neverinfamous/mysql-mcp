@@ -102,12 +102,24 @@ export function preprocessCreateTableParams(input: unknown): unknown {
 export function preprocessTransactionExecuteParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
+  
   if (result["statements"] === undefined) {
-    if (result["queries"] !== undefined)
-      result["statements"] = result["queries"];
-    else if (result["sqls"] !== undefined)
-      result["statements"] = result["sqls"];
+    if (result["queries"] !== undefined) result["statements"] = result["queries"];
+    else if (result["sqls"] !== undefined) result["statements"] = result["sqls"];
   }
+
+  // Handle arrays of {sql: "..."} objects gracefully
+  if (Array.isArray(result["statements"])) {
+    result["statements"] = result["statements"].map((s: unknown) => {
+      if (typeof s === "object" && s !== null) {
+        const obj = s as Record<string, unknown>;
+        if ("sql" in obj && typeof obj["sql"] === "string") return obj["sql"];
+        if ("query" in obj && typeof obj["query"] === "string") return obj["query"];
+      }
+      return s;
+    });
+  }
+
   return result;
 }
 
