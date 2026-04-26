@@ -137,10 +137,8 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };
@@ -248,10 +246,8 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };
@@ -294,7 +290,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { exists: false, table };
+          return { success: false, error: `Table '${table}' doesn't exist` };
         }
 
         // Check if column exists on the table
@@ -306,10 +302,8 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!columnCheck.rows || columnCheck.rows.length === 0) {
           return {
-            exists: false,
-            table,
-            column,
-            message: `Column '${column}' does not exist on table '${table}'`,
+            success: false,
+            error: `Column '${column}' does not exist on table '${table}'`,
           };
         }
 
@@ -349,18 +343,16 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!result.rows || result.rows.length === 0) {
           return {
-            exists: false,
-            message: update
+            success: false,
+            error: update
               ? "Histogram created but not yet visible in metadata"
               : "No histogram exists for this column",
-            table,
-            column,
           };
         }
 
         const histogramRow = result.rows[0];
         if (!histogramRow) {
-          return { exists: false, table, column };
+          return { success: false, error: "Histogram data is empty" };
         }
         return {
           exists: true,
@@ -375,10 +367,8 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };

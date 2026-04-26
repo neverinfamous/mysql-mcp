@@ -173,8 +173,8 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.exists).toBe(false);
-      expect(result.message).toContain("No histogram exists");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("No histogram exists");
     });
 
     it("should handle non-existent column", async () => {
@@ -191,9 +191,9 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.exists).toBe(false);
-      expect(result.message).toContain("does not exist on table");
-      expect(result.column).toBe("nonexistent_col");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist on table");
+      expect(result.error).toContain("nonexistent_col");
     });
   });
 });

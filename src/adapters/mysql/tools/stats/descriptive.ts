@@ -179,10 +179,8 @@ export function createDescriptiveStatsTool(
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };
@@ -264,10 +262,8 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };
@@ -377,10 +373,8 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };
@@ -499,10 +493,8 @@ export function createTimeSeriesToolStats(
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };
@@ -594,10 +586,8 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
           return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           };
         }
         return { success: false, error: msg };

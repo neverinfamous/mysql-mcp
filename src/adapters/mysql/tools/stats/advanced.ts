@@ -174,7 +174,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { exists: false, table: (params as Record<string, unknown>)?.["table"] ?? "unknown" };
+           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -248,7 +248,7 @@ export function createStatsDistinctTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { exists: false, table: (params as Record<string, unknown>)?.["table"] ?? "unknown" };
+           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -328,7 +328,7 @@ export function createStatsFrequencyTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { exists: false, table: (params as Record<string, unknown>)?.["table"] ?? "unknown" };
+           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -363,6 +363,17 @@ export function createStatsSummaryTool(
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return { success: false, error: "Invalid table name" };
+        }
+
+        // Check if table exists (P154)
+        const tableCheck = await adapter.executeQuery(
+          `SELECT TABLE_NAME FROM information_schema.TABLES
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+          [table],
+        );
+
+        if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          return { success: false, error: `Table '${table}' doesn't exist` };
         }
 
         // Determine columns to summarize
@@ -440,7 +451,7 @@ export function createStatsSummaryTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { exists: false, table: (params as Record<string, unknown>)?.["table"] ?? "unknown" };
+           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
         }
         return formatHandlerErrorResponse(error);
       }

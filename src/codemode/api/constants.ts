@@ -149,7 +149,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Stats: intuitive aliases
   stats: {
-    summary: "descriptive",
     percentile: "percentiles",
     movingAverage: "timeSeries",
     time_series: "timeSeries",
