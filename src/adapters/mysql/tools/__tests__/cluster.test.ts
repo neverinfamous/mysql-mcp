@@ -343,9 +343,8 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_cluster_router_status")!;
       const result: any = await tool.handler({}, mockContext);
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("Router metadata not available");
-      expect(result.suggestion).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Router metadata not available");
     });
   });
 
