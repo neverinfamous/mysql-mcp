@@ -116,6 +116,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return {
+          success: true,
           column1,
           column2,
           correlation: correlation ?? null,
@@ -223,6 +224,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const rSquared = ssTotal > 0 ? 1 - ssResidual / ssTotal : 0;
 
         return {
+          success: true,
           xColumn,
           yColumn,
           sampleSize: n,
@@ -355,6 +357,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: false, error: "Histogram data is empty" };
         }
         return {
+          success: true,
           exists: true,
           ...histogramRow,
           updated: update,

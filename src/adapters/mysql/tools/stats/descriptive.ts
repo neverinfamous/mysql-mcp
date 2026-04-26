@@ -109,6 +109,7 @@ export function createDescriptiveStatsTool(
 
         if (totalCount === 0) {
           return {
+            success: true,
             column,
             count: 0,
             mean: null,
@@ -161,6 +162,7 @@ export function createDescriptiveStatsTool(
         const medianRow = medianResult.rows?.[0];
 
         return {
+          success: true,
           column,
           count: stats?.["count"] ?? 0,
           mean: stats?.["mean"] ?? null,
@@ -226,6 +228,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (totalCount === 0) {
           return {
+            success: true,
             column,
             totalCount: 0,
             percentiles: {},
@@ -251,6 +254,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return {
+          success: true,
           column,
           totalCount,
           percentiles: percentileResults,
@@ -316,6 +320,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (minVal === maxVal) {
           return {
+            success: true,
             column,
             distribution: [
               { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
@@ -359,6 +364,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         });
 
         return {
+          success: true,
           column,
           distribution,
           bucketCount: buckets,
@@ -479,6 +485,7 @@ export function createTimeSeriesToolStats(
         const result = await adapter.executeQuery(query);
 
         return {
+          success: true,
           interval,
           aggregation,
           valueColumn,
@@ -574,6 +581,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query);
 
         return {
+          success: true,
           sample: result.rows ?? [],
           sampleSize: result.rows?.length ?? 0,
           requestedSize: sampleSize,

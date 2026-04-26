@@ -201,6 +201,7 @@ export function createStatsHypothesisTool(
           });
 
           return {
+            success: true,
             table,
             column,
             testType,
@@ -244,6 +245,7 @@ export function createStatsHypothesisTool(
         }
 
         return {
+          success: true,
           table,
           column,
           testType,
@@ -254,7 +256,7 @@ export function createStatsHypothesisTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { exists: false, table: (params as Record<string, unknown>)?.["table"] ?? "unknown" };
+           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
         }
         return formatHandlerErrorResponse(error);
       }

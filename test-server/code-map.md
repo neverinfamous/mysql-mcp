@@ -137,6 +137,10 @@ src/
 | | `text/fulltext.ts` | 5 | `fulltext_create`, `fulltext_drop`, `fulltext_search`, `fulltext_boolean`, `fulltext_expand` |
 | **stats** | `stats/descriptive.ts` | 5 | `stats_descriptive`, `stats_percentiles`, `stats_distribution`, `stats_time_series`, `stats_sampling` |
 | | `stats/comparative.ts` | 3 | `stats_correlation`, `stats_regression`, `stats_histogram` |
+| | `stats/advanced.ts` | 4 | `stats_top_n`, `stats_distinct`, `stats_frequency`, `stats_summary` |
+| | `stats/hypothesis.ts` | 1 | `stats_hypothesis` |
+| | `stats/outlier.ts` | 1 | `stats_outliers` |
+| | `stats/window.ts` | 6 | `stats_row_number`, `stats_rank`, `stats_lag_lead`, `stats_running_total`, `stats_moving_avg`, `stats_ntile` |
 | **performance** | `performance/analysis.ts` | 8 | `explain`, `explain_analyze`, `slow_queries`, `query_stats`, `index_usage`, `table_stats`, `buffer_pool_stats`, `thread_stats` |
 | | `performance/anomaly-detection.ts` | 2 | `detect_query_anomalies`, `detect_bloat_risk` |
 | | `performance/connection-analysis.ts` | 1 | `detect_connection_spike` |
