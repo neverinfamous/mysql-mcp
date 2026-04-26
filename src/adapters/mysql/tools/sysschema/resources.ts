@@ -150,6 +150,7 @@ export function createSysSchemaStatsTool(
         ]);
 
         return {
+          success: true,
           tableStatistics: tableStats.rows ?? [],
           indexStatistics: indexStats.rows ?? [],
           autoIncrementStatus: autoIncStats.rows ?? [],
@@ -215,6 +216,7 @@ export function createSysInnoDBLockWaitsTool(
 
         const result = await adapter.executeQuery(query);
         return {
+          success: true,
           lockWaits: result.rows,
           count: result.rows?.length ?? 0,
           hasContention: (result.rows?.length ?? 0) > 0,
@@ -282,6 +284,7 @@ export function createSysMemorySummaryTool(
         ]);
 
         return {
+          success: true,
           globalMemory: globalStats.rows ?? [],
           memoryByUser: userStats.rows ?? [],
           globalMemoryCount: (globalStats.rows ?? []).length,

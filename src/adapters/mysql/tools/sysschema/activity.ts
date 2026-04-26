@@ -77,6 +77,7 @@ export function createSysUserSummaryTool(
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           users: result.rows,
           count: result.rows?.length ?? 0,
         };
@@ -132,6 +133,7 @@ export function createSysHostSummaryTool(
 
         const result = await adapter.executeQuery(query, queryParams);
         return {
+          success: true,
           hosts: result.rows,
           count: result.rows?.length ?? 0,
         };
