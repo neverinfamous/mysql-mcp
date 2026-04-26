@@ -1,46 +1,27 @@
-# MySQL SysSchema Tool Group Code Mode Certification
+# Code Mode Re-Testing: Text Tool Group
 
-## Objective
-Exhaustively test the `sysschema` tool group using code mode (`mysql_execute_code`) to ensure 100% adherence to the mandatory `{ success: boolean, error?: string }` response schema. 
+## Overview
+Tested the 6 Text tools along with Code Mode.
 
-## Testing Methodology
-Executed a JavaScript validation script against the following tools:
-1. `mysql.sysschema.help()`
-2. `mysql.sysschema.sysUserSummary()`
-3. `mysql.sysschema.sysIoSummary()`
-4. `mysql.sysschema.sysStatementSummary()`
-5. `mysql.sysschema.sysWaitSummary()`
-6. `mysql.sysschema.sysInnodbLockWaits()`
-7. `mysql.sysschema.sysSchemaStats()`
-8. `mysql.sysschema.sysHostSummary()`
-9. `mysql.sysschema.sysMemorySummary()`
+## Tested Tools
+1. `mysql_regexp_match` (`mysql.text.regexpMatch`)
+2. `mysql_like_search` (`mysql.text.likeSearch`)
+3. `mysql_soundex` (`mysql.text.soundex`)
+4. `mysql_substring` (`mysql.text.substring`)
+5. `mysql_concat` (`mysql.text.concat`)
+6. `mysql_collation_convert` (`mysql.text.collationConvert`)
 
-Tested both:
-- **Happy Path:** Expected `success: true`
-- **Domain Errors / Invalid Input:** Expected `success: false` with an `error` string.
+## Results
+- **Happy Paths**: All passed. Returned expected `success: true` and appropriate payloads.
+- **Domain Errors**: All passed. Correctly returned `success: false` and `error` string without any property leakage.
+- **Zod Validation**: All passed. Correctly rejected missing parameters with `success: false` and an error payload.
+- **Code Mode Execution**: Confirmed successful multi-step execution.
 
-## Coverage Matrix
+All test suites (`src/adapters/mysql/tools/text/__tests__/processing.test.ts`) are completely green and handlers are fully compliant with the `{ success: boolean, error?: string }` interface schema.
 
-| Tool | Happy Path | Domain Error / Zod | Status |
-|------|------------|--------------------|--------|
-| `sysschema.help()` | ✅ Pass | N/A | Certified |
-| `sysUserSummary()` | ✅ Pass | ✅ Pass | Certified |
-| `sysIoSummary()` | ✅ Pass | ✅ Pass | Certified |
-| `sysStatementSummary()` | ✅ Pass | ✅ Pass | Certified |
-| `sysWaitSummary()` | ✅ Pass | ✅ Pass | Certified |
-| `sysInnodbLockWaits()` | ✅ Pass | ✅ Pass | Certified |
-| `sysSchemaStats()` | ✅ Pass | ✅ Pass | Certified |
-| `sysHostSummary()` | ✅ Pass | ✅ Pass | Certified |
-| `sysMemorySummary()` | ✅ Pass | ✅ Pass | Certified |
-
-## Findings
-- **Failures:** `[]`
-- All tools in the `sysschema` group perfectly comply with the `{ success: boolean, error?: string }` schema.
-- Explicit domain errors (e.g., `sysWaitSummary({ type: "invalid_type" })`) correctly return `{ success: false, error: ... }`.
-- Existence check in `sysSchemaStats` explicitly returns a clean error string without property leakage.
-- `formatHandlerErrorResponse` is used consistently across all `sysschema` tool handlers.
+**Payload Estimate**: `metrics.tokenEstimate` was under ~80 tokens for the multi-step test, showing excellent token efficiency.
 
 ## Next Steps
-- Read `code-map.md` to verify structural status.
-- Update `UNRELEASED.md` changelog to mark the `sysschema` group as fully certified.
-- Commit the results.
+- Update `code-map.md`.
+- Update `UNRELEASED.md`.
+- Commit changes.
