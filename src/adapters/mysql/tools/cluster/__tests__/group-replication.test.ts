@@ -93,8 +93,7 @@ describe("Group Replication Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.enabled).toBe(false);
-      expect(result.message).toContain("not active");
+      expect(result.error).toContain("not active");
     });
 
     it("should handle partial status where config is missing but members exist", async () => {
@@ -238,7 +237,6 @@ describe("Group Replication Tools - Error Handling", () => {
 
     const result = (await tool.handler({}, {} as any)) as any;
 
-    expect(result.enabled).toBe(false);
     expect(result.error).toBe("Connection refused");
   });
 
@@ -248,8 +246,6 @@ describe("Group Replication Tools - Error Handling", () => {
 
     const result = (await tool.handler({}, {} as any)) as any;
 
-    expect(result.members).toEqual([]);
-    expect(result.count).toBe(0);
     expect(result.error).toBe("Access denied");
   });
 
@@ -259,7 +255,6 @@ describe("Group Replication Tools - Error Handling", () => {
 
     const result = (await tool.handler({}, {} as any)) as any;
 
-    expect(result.hasPrimary).toBe(false);
     expect(result.error).toBe("Connection lost");
   });
 
@@ -269,8 +264,6 @@ describe("Group Replication Tools - Error Handling", () => {
 
     const result = (await tool.handler({}, {} as any)) as any;
 
-    expect(result.memberStats).toEqual([]);
-    expect(result.gtid).toEqual({ executed: "", purged: "" });
     expect(result.error).toBe("Permission denied");
   });
 
@@ -280,9 +273,6 @@ describe("Group Replication Tools - Error Handling", () => {
 
     const result = (await tool.handler({}, {} as any)) as any;
 
-    expect(result.configuration).toEqual({});
-    expect(result.memberQueues).toEqual([]);
-    expect(result.isThrottling).toBe(false);
     expect(result.error).toBe("Timeout");
   });
 });

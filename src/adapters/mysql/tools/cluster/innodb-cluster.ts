@@ -150,9 +150,6 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (error) {
         return {
           success: false,
-          isInnoDBCluster: false,
-          message:
-            "Unable to query cluster metadata. Ensure InnoDB Cluster is properly configured.",
           error:
             error instanceof ZodError
               ? error.issues.map((i) => i.message).join(", ")
@@ -189,8 +186,6 @@ export function createClusterInstancesTool(
       } catch (error) {
         return {
           success: false,
-          instances: [],
-          count: 0,
           error:
             error instanceof ZodError
               ? error.issues.map((i) => i.message).join(", ")
@@ -245,18 +240,11 @@ export function createClusterInstancesTool(
             count: grResult.rows?.length ?? 0,
           };
         } catch (fallbackError) {
+          const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+          const primaryMsg = primaryError instanceof Error ? primaryError.message : String(primaryError);
           return {
             success: false,
-            instances: [],
-            count: 0,
-            error:
-              fallbackError instanceof Error
-                ? fallbackError.message
-                : String(fallbackError),
-            primaryError:
-              primaryError instanceof Error
-                ? primaryError.message
-                : String(primaryError),
+            error: `Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`,
           };
         }
       }
@@ -387,15 +375,6 @@ export function createClusterTopologyTool(
       } catch (error) {
         return {
           success: false,
-          topology: {
-            primary: [],
-            secondaries: [],
-            recovering: [],
-            offline: [],
-          },
-          visualization: "",
-          totalMembers: 0,
-          onlineMembers: 0,
           error: error instanceof Error ? error.message : String(error),
         };
       }
@@ -500,19 +479,14 @@ export function createClusterRouterStatusTool(
           staleCount,
         };
       } catch (error) {
+        const baseError = error instanceof ZodError
+            ? error.issues.map((i) => i.message).join(", ")
+            : error instanceof Error
+            ? error.message
+            : String(error);
         return {
           success: false,
-          available: false,
-          message:
-            "Router metadata not available. Ensure InnoDB Cluster is configured.",
-          suggestion:
-            "Use mysql_router_status tool if connecting directly to Router REST API.",
-          error:
-            error instanceof ZodError
-              ? error.issues.map((i) => i.message).join(", ")
-              : error instanceof Error
-                ? error.message
-                : String(error),
+          error: `Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`,
         };
       }
     },
@@ -624,9 +598,6 @@ export function createClusterSwitchoverTool(
       } catch (error) {
         return {
           success: false,
-          currentPrimary: null,
-          candidates: [],
-          canSwitchover: false,
           error: error instanceof Error ? error.message : String(error),
         };
       }

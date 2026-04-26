@@ -106,8 +106,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.isInnoDBCluster).toBe(false);
-      expect(result.message).toContain("Unable to query cluster metadata");
       expect(result.error).toBe("Connection refused");
     });
 
@@ -119,7 +117,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.isInnoDBCluster).toBe(false);
       expect(result.error).toBe("String error");
     });
   });
@@ -135,10 +132,7 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as any;
 
-      expect(result.instances).toEqual([]);
-      expect(result.count).toBe(0);
-      expect(result.error).toBe("GR query also failed");
-      expect(result.primaryError).toBe("Metadata query failed");
+      expect(result.error).toBe("Primary Error: Metadata query failed. Fallback Error: GR query also failed");
     });
 
     it("should fallback to GR members when InnoDB Cluster metadata query fails", async () => {
@@ -176,9 +170,8 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("Router metadata not available");
-      expect(result.suggestion).toContain("mysql_router_status");
+      expect(result.error).toContain("Router metadata not available");
+      expect(result.error).toContain("mysql_router_status");
     });
 
     it("should return routers when metadata exists", async () => {
@@ -484,15 +477,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.topology).toEqual({
-        primary: [],
-        secondaries: [],
-        recovering: [],
-        offline: [],
-      });
-      expect(result.visualization).toBe("");
-      expect(result.totalMembers).toBe(0);
-      expect(result.onlineMembers).toBe(0);
       expect(result.error).toBe("Connection refused");
     });
   });
@@ -506,8 +490,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.candidates).toEqual([]);
-      expect(result.canSwitchover).toBe(false);
       expect(result.error).toBe("Access denied");
     });
   });
@@ -522,7 +504,6 @@ describe("InnoDB Cluster Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.isInnoDBCluster).toBe(false);
       expect(result.error).toBeDefined();
       expect(result.error).toContain("expected boolean");
     });
@@ -533,8 +514,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ limit: "abc" }, mockContext)) as any;
 
-      expect(result.instances).toEqual([]);
-      expect(result.count).toBe(0);
       expect(result.error).toBeDefined();
       expect(result.error).toContain("expected number");
     });
@@ -545,8 +524,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ limit: -5 }, mockContext)) as any;
 
-      expect(result.instances).toEqual([]);
-      expect(result.count).toBe(0);
       expect(result.error).toBeDefined();
     });
 
@@ -556,8 +533,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ limit: 0.5 }, mockContext)) as any;
 
-      expect(result.instances).toEqual([]);
-      expect(result.count).toBe(0);
       expect(result.error).toBeDefined();
     });
 
@@ -567,7 +542,6 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ summary: 123 }, mockContext)) as any;
 
-      expect(result.available).toBe(false);
       expect(result.error).toBeDefined();
       expect(result.error).toContain("expected boolean");
     });
