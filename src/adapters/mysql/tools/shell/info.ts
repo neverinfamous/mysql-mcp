@@ -29,21 +29,28 @@ export function createShellVersionTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const config = getShellConfig();
+      try {
+        const config = getShellConfig();
 
-      const result = await execMySQLShell(["--version"]);
+        const result = await execMySQLShell(["--version"]);
 
-      // Parse version from output like "mysqlsh   Ver 8.0.44 for Win64 on x86_64"
-      const versionRegex = /Ver\s+(\d+\.\d+\.\d+)/;
-      const versionMatch = versionRegex.exec(result.stdout);
-      const version = versionMatch ? versionMatch[1] : "unknown";
+        // Parse version from output like "mysqlsh   Ver 8.0.44 for Win64 on x86_64"
+        const versionRegex = /Ver\s+(\d+\.\d+\.\d+)/;
+        const versionMatch = versionRegex.exec(result.stdout);
+        const version = versionMatch ? versionMatch[1] : "unknown";
 
-      return {
-        success: true,
-        version,
-        binPath: config.binPath,
-        rawOutput: result.stdout.trim(),
-      };
+        return {
+          success: true,
+          version,
+          binPath: config.binPath,
+          rawOutput: result.stdout.trim(),
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }

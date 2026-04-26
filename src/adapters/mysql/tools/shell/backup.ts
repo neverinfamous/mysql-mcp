@@ -34,47 +34,47 @@ export function createShellDumpInstanceTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        outputDir,
-        threads,
-        compression,
-        dryRun,
-        includeSchemas,
-        excludeSchemas,
-        consistent,
-        users,
-      } = ShellDumpInstanceInputSchema.parse(params);
-
-      const escapedPath = outputDir.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (compression && compression !== "zstd") {
-        options.push(`compression: "${compression}"`);
-      }
-      if (dryRun) {
-        options.push("dryRun: true");
-      }
-      if (includeSchemas && includeSchemas.length > 0) {
-        options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
-      }
-      if (excludeSchemas && excludeSchemas.length > 0) {
-        options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
-      }
-      if (consistent !== undefined && !consistent) {
-        options.push("consistent: false");
-      }
-      if (users !== undefined && !users) {
-        options.push("users: false");
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-      const jsCode = `return util.dumpInstance("${escapedPath}"${optionsStr});`;
-
       try {
+        const {
+          outputDir,
+          threads,
+          compression,
+          dryRun,
+          includeSchemas,
+          excludeSchemas,
+          consistent,
+          users,
+        } = ShellDumpInstanceInputSchema.parse(params);
+
+        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (compression && compression !== "zstd") {
+          options.push(`compression: "${compression}"`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
+        }
+        if (includeSchemas && includeSchemas.length > 0) {
+          options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
+        }
+        if (excludeSchemas && excludeSchemas.length > 0) {
+          options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
+        }
+        if (consistent !== undefined && !consistent) {
+          options.push("consistent: false");
+        }
+        if (users !== undefined && !users) {
+          options.push("users: false");
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+        const jsCode = `return util.dumpInstance("${escapedPath}"${optionsStr});`;
+
         const result = await execShellJS(jsCode, { timeout: 3600000 }); // 1 hour timeout
 
         return {
@@ -84,6 +84,9 @@ export function createShellDumpInstanceTool(): ToolDefinition {
           result,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
@@ -92,7 +95,6 @@ export function createShellDumpInstanceTool(): ToolDefinition {
         ) {
           return {
             success: false,
-            outputDir,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
             hint: "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
           };
@@ -100,12 +102,11 @@ export function createShellDumpInstanceTool(): ToolDefinition {
         if (errorMessage.includes("Fatal error during dump")) {
           return {
             success: false,
-            outputDir,
             error: `Dump failed: ${errorMessage}.`,
             hint: "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
           };
         }
-        return { success: false, outputDir, error: errorMessage };
+        return { success: false, error: errorMessage };
       }
     },
   };

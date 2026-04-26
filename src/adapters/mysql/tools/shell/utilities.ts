@@ -4,6 +4,8 @@
  * Tools for server maintenance and upgrade compatibility checking.
  */
 
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -28,8 +30,9 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { targetVersion, outputFormat } =
-        ShellCheckUpgradeInputSchema.parse(params);
+      try {
+        const { targetVersion, outputFormat } =
+          ShellCheckUpgradeInputSchema.parse(params);
       const config = getShellConfig();
 
       // Use connection URI string instead of session object
@@ -92,6 +95,15 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
         noticeCount: 0,
         upgradeCheck: result,
       };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
   };
 }

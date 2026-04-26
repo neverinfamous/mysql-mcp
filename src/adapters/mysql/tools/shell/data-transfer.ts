@@ -4,6 +4,8 @@
  * Tools for importing and exporting data using MySQL Shell utilities.
  */
 
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -37,27 +39,27 @@ export function createShellExportTableTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { schema, table, outputPath, format, where } =
-        ShellExportTableInputSchema.parse(params);
-
-      // Escape path for JavaScript
-      const escapedPath = outputPath.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (format === "csv") {
-        options.push('fieldsTerminatedBy: ","');
-        options.push('fieldsEnclosedBy: "\\""');
-      }
-      // TSV is the default for util.exportTable(), no special options needed
-      if (where) {
-        options.push(`where: "${escapeForJS(where)}"`);
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-      const jsCode = `return util.exportTable("${schema}.${table}", "${escapedPath}"${optionsStr});`;
-
       try {
+        const { schema, table, outputPath, format, where } =
+          ShellExportTableInputSchema.parse(params);
+
+        // Escape path for JavaScript
+        const escapedPath = outputPath.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (format === "csv") {
+          options.push('fieldsTerminatedBy: ","');
+          options.push('fieldsEnclosedBy: "\\""');
+        }
+        // TSV is the default for util.exportTable(), no special options needed
+        if (where) {
+          options.push(`where: "${escapeForJS(where)}"`);
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+        const jsCode = `return util.exportTable("${schema}.${table}", "${escapedPath}"${optionsStr});`;
+
         const result = await execShellJS(jsCode);
 
         return {
@@ -69,6 +71,9 @@ export function createShellExportTableTool(): ToolDefinition {
           result,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
@@ -77,13 +82,11 @@ export function createShellExportTableTool(): ToolDefinition {
         ) {
           return {
             success: false,
-            schema,
-            table,
             error: `Export failed due to insufficient privileges: ${errorMessage}.`,
-            hint: `Ensure the user has SELECT privilege on ${schema}.${table}.`,
+            hint: `Ensure the user has SELECT privilege on the target table.`,
           };
         }
-        return { success: false, schema, table, error: errorMessage };
+        return { success: false, error: errorMessage };
       }
     },
   };
@@ -106,53 +109,53 @@ export function createShellImportTableTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        inputPath,
-        schema,
-        table,
-        threads,
-        skipRows,
-        columns,
-        fieldsTerminatedBy,
-        linesTerminatedBy,
-        updateServerSettings,
-      } = ShellImportTableInputSchema.parse(params);
-
-      const escapedPath = inputPath.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      options.push(`schema: "${schema}"`);
-      options.push(`table: "${table}"`);
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (skipRows !== undefined) {
-        options.push(`skipRows: ${skipRows}`);
-      }
-      if (columns && columns.length > 0) {
-        options.push(`columns: ${JSON.stringify(columns)}`);
-      }
-      if (fieldsTerminatedBy) {
-        options.push(
-          `fieldsTerminatedBy: ${JSON.stringify(fieldsTerminatedBy)}`,
-        );
-      }
-      if (linesTerminatedBy) {
-        options.push(`linesTerminatedBy: ${JSON.stringify(linesTerminatedBy)}`);
-      }
-
-      // Build JavaScript code that optionally enables local_infile
-      let jsCode: string;
-      if (updateServerSettings) {
-        jsCode = `
-                    session.runSql("SET GLOBAL local_infile = ON");
-                    return util.importTable("${escapedPath}", { ${options.join(", ")} });
-                `;
-      } else {
-        jsCode = `return util.importTable("${escapedPath}", { ${options.join(", ")} });`;
-      }
-
       try {
+        const {
+          inputPath,
+          schema,
+          table,
+          threads,
+          skipRows,
+          columns,
+          fieldsTerminatedBy,
+          linesTerminatedBy,
+          updateServerSettings,
+        } = ShellImportTableInputSchema.parse(params);
+
+        const escapedPath = inputPath.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        options.push(`schema: "${schema}"`);
+        options.push(`table: "${table}"`);
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (skipRows !== undefined) {
+          options.push(`skipRows: ${skipRows}`);
+        }
+        if (columns && columns.length > 0) {
+          options.push(`columns: ${JSON.stringify(columns)}`);
+        }
+        if (fieldsTerminatedBy) {
+          options.push(
+            `fieldsTerminatedBy: ${JSON.stringify(fieldsTerminatedBy)}`,
+          );
+        }
+        if (linesTerminatedBy) {
+          options.push(`linesTerminatedBy: ${JSON.stringify(linesTerminatedBy)}`);
+        }
+
+        // Build JavaScript code that optionally enables local_infile
+        let jsCode: string;
+        if (updateServerSettings) {
+          jsCode = `
+                      session.runSql("SET GLOBAL local_infile = ON");
+                      return util.importTable("${escapedPath}", { ${options.join(", ")} });
+                  `;
+        } else {
+          jsCode = `return util.importTable("${escapedPath}", { ${options.join(", ")} });`;
+        }
+
         const result = await execShellJS(jsCode);
         return {
           success: true,
@@ -163,6 +166,9 @@ export function createShellImportTableTool(): ToolDefinition {
           result,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
@@ -171,18 +177,12 @@ export function createShellImportTableTool(): ToolDefinition {
         ) {
           return {
             success: false,
-            inputPath,
-            schema,
-            table,
             error: "Import failed: local_infile is disabled on the server.",
             hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
           };
         }
         return {
           success: false,
-          inputPath,
-          schema,
-          table,
           error: errorMessage,
         };
       }
@@ -207,136 +207,133 @@ export function createShellImportJSONTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { inputPath, schema, collection, tableColumn, convertBsonTypes } =
-        ShellImportJSONInputSchema.parse(params);
-      const config = getShellConfig();
-
-      const escapedPath = inputPath.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      options.push(`schema: "${schema}"`);
-
-      if (tableColumn) {
-        // Importing to a table column
-        options.push(`table: "${collection}"`);
-        options.push(`tableColumn: "${tableColumn}"`);
-      } else {
-        // Importing to a collection
-        options.push(`collection: "${collection}"`);
-      }
-
-      if (convertBsonTypes) {
-        options.push("convertBsonTypes: true");
-      }
-
-      const jsCode = `return util.importJson("${escapedPath}", { ${options.join(", ")} });`;
-
-      // util.importJson() ALWAYS requires X Protocol (X DevAPI)
-      let result;
       try {
-        result = await execMySQLShell([
-          "--uri",
-          config.xConnectionUri,
-          "--js",
-          "-e",
-          `
-                        var __result__;
-                        try {
-                            __result__ = (function() { ${jsCode} })();
-                            print(JSON.stringify({ success: true, result: __result__ }));
-                        } catch (e) {
-                            print(JSON.stringify({ success: false, error: e.message }));
-                        }
-                    `,
-        ]);
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        return {
-          success: false,
-          inputPath,
-          schema,
-          collection,
-          protocol: "X Protocol",
-          error: `X Protocol connection failed: ${errorMessage}.`,
-          hint: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
-        };
-      }
+        const { inputPath, schema, collection, tableColumn, convertBsonTypes } =
+          ShellImportJSONInputSchema.parse(params);
+        const config = getShellConfig();
 
-      // Check for X Protocol access denied errors in stderr
-      if (
-        result.stderr.includes("Access denied") ||
-        result.stderr.includes("1045")
-      ) {
-        return {
-          success: false,
-          inputPath,
-          schema,
-          collection,
-          protocol: "X Protocol",
-          error: `X Protocol authentication failed.`,
-          hint: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
-        };
-      }
+        const escapedPath = inputPath.replace(/\\/g, "\\\\");
 
-      // Parse result
-      const lines = result.stdout.trim().split("\n");
-      for (let i = lines.length - 1; i >= 0; i--) {
-        const line = lines[i];
-        if (!line) continue;
-        const trimmedLine = line.trim();
-        if (trimmedLine.startsWith("{")) {
-          let parsed: { success: boolean; result?: unknown; error?: string };
-          try {
-            parsed = JSON.parse(trimmedLine) as {
-              success: boolean;
-              result?: unknown;
-              error?: string;
-            };
-          } catch {
-            continue;
-          }
+        const options: string[] = [];
+        options.push(`schema: "${schema}"`);
 
-          if (!parsed.success) {
+        if (tableColumn) {
+          // Importing to a table column
+          options.push(`table: "${collection}"`);
+          options.push(`tableColumn: "${tableColumn}"`);
+        } else {
+          // Importing to a collection
+          options.push(`collection: "${collection}"`);
+        }
+
+        if (convertBsonTypes) {
+          options.push("convertBsonTypes: true");
+        }
+
+        const jsCode = `return util.importJson("${escapedPath}", { ${options.join(", ")} });`;
+
+        // util.importJson() ALWAYS requires X Protocol (X DevAPI)
+        let result;
+        try {
+          result = await execMySQLShell([
+            "--uri",
+            config.xConnectionUri,
+            "--js",
+            "-e",
+            `
+                          var __result__;
+                          try {
+                              __result__ = (function() { ${jsCode} })();
+                              print(JSON.stringify({ success: true, result: __result__ }));
+                          } catch (e) {
+                              print(JSON.stringify({ success: false, error: e.message }));
+                          }
+                      `,
+          ]);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          return {
+            success: false,
+            protocol: "X Protocol",
+            error: `X Protocol connection failed: ${errorMessage}.`,
+            hint: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
+          };
+        }
+
+        // Check for X Protocol access denied errors in stderr
+        if (
+          result.stderr.includes("Access denied") ||
+          result.stderr.includes("1045")
+        ) {
+          return {
+            success: false,
+            protocol: "X Protocol",
+            error: `X Protocol authentication failed.`,
+            hint: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
+          };
+        }
+
+        // Parse result
+        const lines = result.stdout.trim().split("\n");
+        for (let i = lines.length - 1; i >= 0; i--) {
+          const line = lines[i];
+          if (!line) continue;
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith("{")) {
+            let parsed: { success: boolean; result?: unknown; error?: string };
+            try {
+              parsed = JSON.parse(trimmedLine) as {
+                success: boolean;
+                result?: unknown;
+                error?: string;
+              };
+            } catch {
+              continue;
+            }
+
+            if (!parsed.success) {
+              return {
+                success: false,
+                protocol: "X Protocol",
+                error: parsed.error ?? "Unknown MySQL Shell error",
+              };
+            }
             return {
-              success: false,
+              success: true,
               inputPath,
               schema,
               collection,
               protocol: "X Protocol",
-              error: parsed.error ?? "Unknown MySQL Shell error",
+              result: parsed.result,
             };
           }
+        }
+
+        if (result.exitCode !== 0) {
           return {
-            success: true,
-            inputPath,
-            schema,
-            collection,
+            success: false,
             protocol: "X Protocol",
-            result: parsed.result,
+            error: result.stderr || result.stdout || "MySQL Shell import failed",
           };
         }
-      }
 
-      if (result.exitCode !== 0) {
         return {
-          success: false,
+          success: true,
           inputPath,
           schema,
           collection,
           protocol: "X Protocol",
-          error: result.stderr || result.stdout || "MySQL Shell import failed",
+          result: { raw: result.stdout },
         };
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        return { success: false, error: errorMessage };
       }
-
-      return {
-        success: true,
-        inputPath,
-        schema,
-        collection,
-        protocol: "X Protocol",
-        result: { raw: result.stdout },
-      };
     },
   };
 }

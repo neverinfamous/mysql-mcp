@@ -7,6 +7,7 @@
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
+import { ZodError } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
@@ -35,66 +36,66 @@ export function createShellLoadDumpTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        inputDir,
-        threads,
-        dryRun,
-        includeSchemas,
-        excludeSchemas,
-        includeTables,
-        excludeTables,
-        ignoreExistingObjects,
-        ignoreVersion,
-        resetProgress,
-        updateServerSettings,
-      } = ShellLoadDumpInputSchema.parse(params);
-
-      const escapedPath = inputDir.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (dryRun) {
-        options.push("dryRun: true");
-      }
-      if (includeSchemas && includeSchemas.length > 0) {
-        options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
-      }
-      if (excludeSchemas && excludeSchemas.length > 0) {
-        options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
-      }
-      if (includeTables && includeTables.length > 0) {
-        options.push(`includeTables: ${JSON.stringify(includeTables)}`);
-      }
-      if (excludeTables && excludeTables.length > 0) {
-        options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
-      }
-      if (ignoreExistingObjects) {
-        options.push("ignoreExistingObjects: true");
-      }
-      if (ignoreVersion) {
-        options.push("ignoreVersion: true");
-      }
-      if (resetProgress) {
-        options.push("resetProgress: true");
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-
-      // Build JavaScript code that optionally enables local_infile
-      let jsCode: string;
-      if (updateServerSettings) {
-        jsCode = `
-                    session.runSql("SET GLOBAL local_infile = ON");
-                    return util.loadDump("${escapedPath}"${optionsStr});
-                `;
-      } else {
-        jsCode = `return util.loadDump("${escapedPath}"${optionsStr});`;
-      }
-
       try {
+        const {
+          inputDir,
+          threads,
+          dryRun,
+          includeSchemas,
+          excludeSchemas,
+          includeTables,
+          excludeTables,
+          ignoreExistingObjects,
+          ignoreVersion,
+          resetProgress,
+          updateServerSettings,
+        } = ShellLoadDumpInputSchema.parse(params);
+
+        const escapedPath = inputDir.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
+        }
+        if (includeSchemas && includeSchemas.length > 0) {
+          options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
+        }
+        if (excludeSchemas && excludeSchemas.length > 0) {
+          options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
+        }
+        if (includeTables && includeTables.length > 0) {
+          options.push(`includeTables: ${JSON.stringify(includeTables)}`);
+        }
+        if (excludeTables && excludeTables.length > 0) {
+          options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
+        }
+        if (ignoreExistingObjects) {
+          options.push("ignoreExistingObjects: true");
+        }
+        if (ignoreVersion) {
+          options.push("ignoreVersion: true");
+        }
+        if (resetProgress) {
+          options.push("resetProgress: true");
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+
+        // Build JavaScript code that optionally enables local_infile
+        let jsCode: string;
+        if (updateServerSettings) {
+          jsCode = `
+                      session.runSql("SET GLOBAL local_infile = ON");
+                      return util.loadDump("${escapedPath}"${optionsStr});
+                  `;
+        } else {
+          jsCode = `return util.loadDump("${escapedPath}"${optionsStr});`;
+        }
+
         if (dryRun) {
           // For dry runs, use execMySQLShell directly to capture stderr
           // where MySQL Shell outputs the summary of what would be loaded
@@ -167,6 +168,9 @@ export function createShellLoadDumpTool(): ToolDefinition {
           result,
         };
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
@@ -175,7 +179,6 @@ export function createShellLoadDumpTool(): ToolDefinition {
         ) {
           return {
             success: false,
-            inputDir,
             error: "Load failed: local_infile is disabled on the server.",
             hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
           };
@@ -183,20 +186,16 @@ export function createShellLoadDumpTool(): ToolDefinition {
         if (errorMessage.includes("Duplicate objects")) {
           return {
             success: false,
-            inputDir,
             error: errorMessage,
             hint: "Use ignoreExistingObjects: true to skip existing objects",
           };
         }
-        return { success: false, inputDir, error: errorMessage };
+        return { success: false, error: errorMessage };
       }
     },
   };
 }
 
-/**
- * Execute script via MySQL Shell
- */
 export function createShellRunScriptTool(): ToolDefinition {
   return {
     name: "mysqlsh_run_script",
