@@ -14,7 +14,15 @@ import type { ErrorResponse } from "../../../../types/modules/error-types.js";
  * Replaces ~30 local copies of this function across tool files.
  */
 export function formatZodError(error: ZodError): string {
-  return "Validation error: " + error.issues.map((i) => i.message).join("; ");
+  return (
+    "Validation error: " +
+    error.issues
+      .map((i) => {
+        const path = i.path.join(".");
+        return path ? `${path}: ${i.message}` : i.message;
+      })
+      .join("; ")
+  );
 }
 
 /**

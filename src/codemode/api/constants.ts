@@ -474,6 +474,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   repairTable: "table",
   optimizeTable: "table",
   analyzeTable: "table",
+  killQuery: "processId",
+  flushTables: "tables",
 
   // ============ BACKUP GROUP ============
   createDump: "tables",

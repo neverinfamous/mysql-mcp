@@ -181,7 +181,7 @@ export const ShowStatusSchema = z.object({
     .int()
     .optional()
     .describe(
-      "Maximum number of variables to return (default: 100). Set higher to see all.",
+      "Maximum number of variables to return (default: 30). Set higher to see all.",
     ),
 });
 
@@ -197,7 +197,7 @@ export const ShowVariablesSchema = z.object({
     .int()
     .optional()
     .describe(
-      "Maximum number of variables to return (default: 100). Set higher to see all.",
+      "Maximum number of variables to return (default: 30). Set higher to see all.",
     ),
 });
 

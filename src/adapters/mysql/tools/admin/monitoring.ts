@@ -75,7 +75,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
             error: "limit must be a positive integer",
           };
         }
-        const effectiveLimit = limit ?? 100;
+        const effectiveLimit = limit ?? 30;
 
         let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
 
@@ -148,7 +148,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
             error: "limit must be a positive integer",
           };
         }
-        const effectiveLimit = limit ?? 100;
+        const effectiveLimit = limit ?? 30;
 
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
@@ -283,7 +283,7 @@ const InnodbStatusSchema = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
       "Return parsed summary with key metrics instead of raw output (recommended)",
     ),

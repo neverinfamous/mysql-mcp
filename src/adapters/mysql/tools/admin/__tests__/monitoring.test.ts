@@ -177,7 +177,7 @@ describe("Admin Monitoring Tools", () => {
       expect(result.status).toHaveProperty("Queries", "98765");
     });
 
-    it("should apply default limit of 100 when results exceed it", async () => {
+    it("should apply default limit of 30 when results exceed it", async () => {
       const rows = Array.from({ length: 150 }, (_, i) => ({
         Variable_name: `Status_${i}`,
         Value: `${i}`,
@@ -192,8 +192,8 @@ describe("Admin Monitoring Tools", () => {
         limited: boolean;
       };
 
-      expect(Object.keys(result.status)).toHaveLength(100);
-      expect(result.rowCount).toBe(100);
+      expect(Object.keys(result.status)).toHaveLength(30);
+      expect(result.rowCount).toBe(30);
       expect(result.totalAvailable).toBe(150);
       expect(result.limited).toBe(true);
     });
@@ -347,7 +347,7 @@ describe("Admin Monitoring Tools", () => {
       expect(result.variables).toHaveProperty("datadir", "/var/lib/mysql/");
     });
 
-    it("should apply default limit of 100 when results exceed it", async () => {
+    it("should apply default limit of 30 when results exceed it", async () => {
       const rows = Array.from({ length: 200 }, (_, i) => ({
         Variable_name: `var_${i}`,
         Value: `val_${i}`,
@@ -364,8 +364,8 @@ describe("Admin Monitoring Tools", () => {
         limited: boolean;
       };
 
-      expect(Object.keys(result.variables)).toHaveLength(100);
-      expect(result.rowCount).toBe(100);
+      expect(Object.keys(result.variables)).toHaveLength(30);
+      expect(result.rowCount).toBe(30);
       expect(result.totalAvailable).toBe(200);
       expect(result.limited).toBe(true);
     });
@@ -417,7 +417,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW ENGINE INNODB STATUS",
       );
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("summary");
     });
 
     it("should handle empty status result", async () => {
@@ -428,7 +428,7 @@ describe("Admin Monitoring Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("summary");
     });
 
     it("should return structured error on query failure", async () => {
