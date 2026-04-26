@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { preprocessDocFilterParams } from "./preprocess-utils.js";
 
 export const ListCollectionsSchema = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
@@ -29,7 +30,7 @@ export const DropCollectionSchema = z.object({
   ifExists: z.boolean().default(true),
 });
 
-export const FindSchema = z.object({
+export const FindSchemaBase = z.object({
   collection: z.string(),
   schema: z.string().optional(),
   filter: z
@@ -42,6 +43,11 @@ export const FindSchema = z.object({
   limit: z.number().default(100),
   offset: z.number().default(0),
 });
+
+export const FindSchema = z.preprocess(
+  preprocessDocFilterParams,
+  FindSchemaBase
+);
 
 export const AddDocSchema = z.object({
   collection: z.string(),

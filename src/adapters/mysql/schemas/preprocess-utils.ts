@@ -174,4 +174,22 @@ export function preprocessAdminTableParams(val: unknown): unknown {
   return v;
 }
 
+// =============================================================================
+// Preprocess: Docstore filter params (normalize empty {} to undefined)
+// =============================================================================
+
+export function preprocessDocFilterParams(val: unknown): unknown {
+  if (val == null || typeof val !== "object") return val ?? {};
+  const v = val as Record<string, unknown>;
+  if (v["filter"] !== undefined) {
+    if (typeof v["filter"] === "object" && v["filter"] !== null && Object.keys(v["filter"]).length === 0) {
+      return { ...v, filter: undefined };
+    }
+    if (v["filter"] === "{}" || v["filter"] === "[]" || v["filter"] === "") {
+      return { ...v, filter: undefined };
+    }
+  }
+  return v;
+}
+
 
