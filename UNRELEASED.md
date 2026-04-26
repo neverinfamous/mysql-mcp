@@ -63,6 +63,9 @@
 - Fixed docstore tool group to support empty filter objects/strings (`{}`) in `mysql_doc_find`, converting them to undefined to return all documents without throwing Zod or SQL validation errors.
 - Fixed fulltext search tool group SQL generation by removing the hardcoded `id` column requirement from the SELECT clause, allowing FULLTEXT operations on tables without an `id` primary key.
 - Fixed introspection tool group by enforcing strict adherence to the `ErrorResponse` schema (`{ success: boolean }`) for circular dependency detection. Replaced hardcoded exceptions with standardized domain errors in `mysql_topological_sort` and integrated `circular_dependency` checks into `mysql_constraint_analysis`.
+- Fixed `formatHandlerErrorResponse` inadvertently stripping structured error properties (`code`, `category`, `suggestion`, `recoverable`) from `MySQLMcpError` returns, ensuring 100% adherence to the `ErrorResponse` schema globally.
+- Fixed `mysql_dependency_graph` failing to truncate early by implementing active `maxDepth` traversal filtering in the graph construction phase and exposing `maxDepth` in its Zod schema.
+
 ## Security
 
 - Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.

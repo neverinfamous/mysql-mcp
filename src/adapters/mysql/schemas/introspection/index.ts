@@ -22,6 +22,10 @@ export const DependencyGraphSchemaBase = z.object({
     .union([z.number(), z.string()])
     .optional()
     .describe("Maximum tables to include in graph (default: 100, max: 500)"),
+  maxDepth: z
+    .union([z.number(), z.string()])
+    .optional()
+    .describe("Maximum depth for traversal (default: no limit)"),
 });
 
 export const DependencyGraphSchema = z
@@ -33,6 +37,10 @@ export const DependencyGraphSchema = z
       if (typeof val === "string") return parseInt(val, 10);
       return val;
     }, z.number().optional().default(100)),
+    maxDepth: z.preprocess((val) => {
+      if (typeof val === "string") return parseInt(val, 10);
+      return val;
+    }, z.number().optional()),
   });
 
 /**
@@ -166,7 +174,16 @@ export const ConstraintAnalysisSchemaBase = z.object({
     .optional()
     .describe("Analyze constraints for a specific table only"),
   checks: z
-    .array(z.string())
+    .array(
+      z.enum([
+        "redundant",
+        "missing_fk",
+        "missing_not_null",
+        "missing_pk",
+        "unindexed_fk",
+        "circular_dependency",
+      ]),
+    )
     .optional()
     .describe("Specific checks to run (default: all)"),
 });

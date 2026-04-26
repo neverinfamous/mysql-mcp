@@ -12,10 +12,12 @@ import type {
 } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
-  qualifiedName,
   checkSchemaExists,
   checkTableExists,
+  fetchForeignKeys,
+  qualifiedName,
 } from "./helpers.js";
+import { detectCycles } from "./algorithms.js";
 import {
   ConstraintAnalysisSchemaBase,
   ConstraintAnalysisSchema,
@@ -99,6 +101,45 @@ export function createConstraintAnalysisTool(
               description: "Table has no primary key",
               suggestion:
                 "Add a primary key column (e.g., id INT AUTO_INCREMENT PRIMARY KEY) for data integrity and efficient lookups",
+            });
+          }
+        }
+
+        // Check: Circular dependencies
+        if (runAll || checks.has("circular_dependency")) {
+          const fks = await fetchForeignKeys(adapter, parsed.schema);
+          
+          const adjacency = new Map<string, string[]>();
+          for (const fk of fks) {
+            const from = qualifiedName(fk.fromSchema, fk.fromTable);
+            const to = qualifiedName(fk.toSchema, fk.toTable);
+            if (from === to) continue; // Self references are not treated as system-blocking circular dependencies
+            
+            // Only add edges matching our filters
+            if (parsed.table && fk.fromTable !== parsed.table && fk.toTable !== parsed.table) {
+                continue;
+            }
+            
+            const existing = adjacency.get(from) ?? [];
+            existing.push(to);
+            adjacency.set(from, existing);
+          }
+          
+          const cycles = detectCycles(adjacency);
+          for (const cycle of cycles) {
+            // A cycle is an array of tables like ['A', 'B', 'A']
+            // We report it for the first table in the cycle to avoid spamming
+            const table = cycle[0] ?? "";
+            if (parsed.table && !table.includes(`.${parsed.table}`)) {
+              // If filtering by table, only report cycles that involve this table
+              if (!cycle.some(t => t.includes(`.${parsed.table}`))) continue;
+            }
+            findings.push({
+              type: "circular_dependency",
+              severity: "error",
+              table,
+              description: `Circular foreign key dependency detected: ${cycle.join(" -> ")}`,
+              suggestion: "Redesign schema to break the circular reference or defer constraints during operations",
             });
           }
         }

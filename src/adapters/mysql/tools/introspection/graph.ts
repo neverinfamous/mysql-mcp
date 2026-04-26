@@ -20,6 +20,8 @@ import {
   CascadeSimulatorSchema,
   // Output schemas
 } from "../../schemas/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 
 // Shared helpers
 import type { FkEdge } from "./helpers.js";
@@ -129,6 +131,58 @@ export function createDependencyGraphTool(
 
         const limit = Math.min(Math.max(parsed.limit ?? 100, 1), 500);
         const originalNodeCount = allNodes.size;
+
+        // Filter by maxDepth if specified
+        if (parsed.maxDepth !== undefined && parsed.maxDepth >= 0) {
+          const nodeDepth = new Map<string, number>();
+          for (const root of rootTables) {
+            nodeDepth.set(root, 0);
+          }
+
+          const reverseAdjacency = new Map<string, string[]>();
+          for (const [from, tos] of adjacency) {
+            for (const to of tos) {
+              const existing = reverseAdjacency.get(to) ?? [];
+              existing.push(from);
+              reverseAdjacency.set(to, existing);
+            }
+          }
+
+          let currentLevel = [...rootTables];
+          let depth = 0;
+          while (currentLevel.length > 0 && depth < parsed.maxDepth) {
+            const nextLevel = [];
+            for (const node of currentLevel) {
+              for (const dependent of (reverseAdjacency.get(node) ?? [])) {
+                if (!nodeDepth.has(dependent)) {
+                  nodeDepth.set(dependent, depth + 1);
+                  nextLevel.push(dependent);
+                }
+              }
+            }
+            currentLevel = nextLevel;
+            depth++;
+          }
+
+          const allowedNodes = new Set<string>();
+          for (const node of allNodes) {
+            const d = nodeDepth.get(node);
+            if (d !== undefined && d <= parsed.maxDepth) {
+              allowedNodes.add(node);
+            }
+          }
+          
+          const filteredOut = new Set<string>();
+          for (const node of allNodes) {
+            if (!allowedNodes.has(node)) {
+              filteredOut.add(node);
+            }
+          }
+          
+          for (const node of filteredOut) {
+            allNodes.delete(node);
+          }
+        }
 
         // Truncate nodes if needed
         let finalNodes = [...allNodes].sort();
@@ -317,10 +371,12 @@ export function createTopologicalSortTool(
         });
 
         if (sorted === null || cycles.length > 0) {
-          return {
-            success: false,
-            error: `Circular dependency cycle detected: ${cycles.map((c) => c.join(" -> ")).join(", ")}`,
-          };
+          throw new MySQLMcpError(
+            `Circular dependency cycle detected: ${cycles.map((c) => c.join(" -> ")).join(", ")}`,
+            "CIRCULAR_DEPENDENCY",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Redesign schema to break the circular reference or defer constraints during operations", recoverable: false }
+          );
         }
 
         return {
@@ -375,10 +431,12 @@ export function createCascadeSimulatorTool(
 
         // Check if source table exists
         if (!tableMap.has(sourceQName)) {
-          return {
-            success: false,
-            error: `Table '${sourceQName}' does not exist. Use mysql_list_tables to verify.`,
-          };
+          throw new MySQLMcpError(
+            `Table '${sourceQName}' does not exist. Use mysql_list_tables to verify.`,
+            "TABLE_NOT_FOUND",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure you are specifying the correct table and schema.", recoverable: true }
+          );
         }
 
         // Build reverse adjacency: for each table, find what references it

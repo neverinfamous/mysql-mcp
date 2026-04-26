@@ -90,7 +90,7 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   if (err instanceof MySQLMcpError) {
     const response = err.toResponse();
     response.error = formatMysqlError(response.error);
-    return { success: false, error: response.error };
+    return response;
   }
 
   // Zod validation error
