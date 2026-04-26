@@ -144,7 +144,25 @@ export function createShellLoadDumpTool(): ToolDefinition {
                 continue;
               }
               if (!parsed.success) {
-                throw new Error(parsed.error ?? "Unknown MySQL Shell error");
+                const errorMessage = typeof parsed.error === "string" ? parsed.error : "Unknown MySQL Shell error";
+                if (
+                  errorMessage.includes("local_infile") ||
+                  errorMessage.includes("Loading local data is disabled")
+                ) {
+                  return {
+                    success: false,
+                    error: "Load failed: local_infile is disabled on the server.",
+                    hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+                  };
+                }
+                if (errorMessage.includes("Duplicate objects")) {
+                  return {
+                    success: false,
+                    error: errorMessage,
+                    hint: "Use ignoreExistingObjects: true to skip existing objects",
+                  };
+                }
+                return { success: false, error: errorMessage };
               }
               break;
             }
