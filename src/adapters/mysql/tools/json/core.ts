@@ -193,7 +193,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
             success: true,
             rowsAffected: result.rowsAffected,
             changed: false,
-            note: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+            suggestion: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
           };
         }
         return { success: true, rowsAffected: result.rowsAffected, changed: true };

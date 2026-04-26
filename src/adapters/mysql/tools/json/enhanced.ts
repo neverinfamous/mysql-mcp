@@ -516,7 +516,7 @@ export function createJsonIndexSuggestTool(
           table,
           column,
           suggestions: suggestions.slice(0, 5), // Top 5 suggestions
-          note: "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
+          suggestion: "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
         };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
