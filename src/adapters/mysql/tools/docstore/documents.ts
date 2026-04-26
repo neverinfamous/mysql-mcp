@@ -4,7 +4,6 @@ import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
-  JSON_PATH_RE,
   parseDocFilter,
   checkCollectionExists,
   escapeTableRef,
