@@ -96,6 +96,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         );
         return {
+          success: true,
           rows: result.rows,
           rowCount: result.rows?.length ?? 0,
           executionTimeMs: result.executionTimeMs,
@@ -135,6 +136,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         );
         return {
+          success: true,
           rowsAffected: result.rowsAffected,
           lastInsertId: result.lastInsertId?.toString(),
           executionTimeMs: result.executionTimeMs,
@@ -185,6 +187,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return {
+          success: true,
           tables: tables.map((t) => ({
             name: t.name,
             type: t.type,
@@ -228,7 +231,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${table}' does not exist or has no columns`,
           };
         }
-        return { ...tableInfo, exists: true };
+        return { success: true, ...tableInfo, exists: true };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -472,7 +475,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
         const indexes = await adapter.getTableIndexes(table);
-        return { exists: true, indexes };
+        return { success: true, exists: true, indexes };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
