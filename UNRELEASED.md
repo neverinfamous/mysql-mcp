@@ -61,7 +61,7 @@
 - Reduced default token payloads for monitoring tools by defaulting `summary` to `true` in `mysql_innodb_status` and reducing the default `limit` to 30 in `mysql_show_status` and `mysql_show_variables`.
 - Fixed docstore tool group filter inconsistencies by migrating `mysql_doc_find` to use `parseDocFilter`, ensuring query parity with `doc_modify` and `doc_remove` when passing direct `_id` values or `field=value` expressions.
 - Fixed docstore tool group to support empty filter objects/strings (`{}`) in `mysql_doc_find`, converting them to undefined to return all documents without throwing Zod or SQL validation errors.
-- Validated docstore tool group through advanced code mode stress testing, verifying collection lifecycle, index operations, and edge case parameters.
+- Fixed fulltext search tool group SQL generation by removing the hardcoded `id` column requirement from the SELECT clause, allowing FULLTEXT operations on tables without an `id` primary key.
 
 ## Security
 

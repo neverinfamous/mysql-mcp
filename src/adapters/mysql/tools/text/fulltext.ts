@@ -236,8 +236,8 @@ export function createFulltextSearchTool(
             matchClause = `MATCH(${columnList}) AGAINST(? IN NATURAL LANGUAGE MODE)`;
         }
 
-        // Return only id, searched columns, and relevance for minimal payload
-        const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        // Return searched columns and relevance for minimal payload
+        const sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
 
         try {
           const result = await adapter.executeReadQuery(sql, [query, query]);
@@ -292,8 +292,8 @@ export function createFulltextBooleanTool(
         const columnList = columns.map((c) => `\`${c}\``).join(", ");
         const matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
 
-        // Return only id, searched columns, and relevance for minimal payload
-        const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+        // Return searched columns and relevance for minimal payload
+        const sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
 
         try {
           const result = await adapter.executeReadQuery(sql, [query, query]);
@@ -348,8 +348,8 @@ export function createFulltextExpandTool(
         const columnList = columns.map((c) => `\`${c}\``).join(", ");
         const matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
 
-        // Return only id, searched columns, and relevance for minimal payload
-        const sql = `SELECT id, ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        // Return searched columns and relevance for minimal payload
+        const sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
 
         try {
           const result = await adapter.executeReadQuery(sql, [query, query]);
