@@ -66,6 +66,7 @@
 - Fixed `formatHandlerErrorResponse` inadvertently stripping structured error properties (`code`, `category`, `suggestion`, `recoverable`) from `MySQLMcpError` returns, ensuring 100% adherence to the `ErrorResponse` schema globally.
 - Fixed `mysql_dependency_graph` failing to truncate early by implementing active `maxDepth` traversal filtering in the graph construction phase and exposing `maxDepth` in its Zod schema.
 - Fixed `json` tool group error handling by enforcing strict adherence to the `ErrorResponse` schema (`{ success: boolean }`) for all handlers. Replaced legacy property leakages on informational fields (`note`) with standard domain properties (`suggestion`) in `mysql_json_insert` and `mysql_json_index_suggest`. Added `path` as an accepted alias parameter for `paths` in `mysql_json_remove` to improve Code Mode compatibility, and validated robust handling of empty string payloads in `mysql_json_validate`. Certified `json` tool group via comprehensive Code Mode stress testing, validating deep object mutation workflows, array subset manipulation, payload efficiency (`metrics.tokenEstimate`), and edge-case resilience.
+- Fixed `migration` tool group by enforcing strict validation of conflicting schema hashes across identical versions in `mysql_migration_apply` and correctly flagging out-of-order executions in `mysql_migration_history`. Certified migration tool group via advanced Code Mode stress testing.
 
 ## Security
 

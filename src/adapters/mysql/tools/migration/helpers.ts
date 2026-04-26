@@ -78,6 +78,7 @@ export function hashMigrationSql(sql: string): string {
  */
 export async function checkDuplicateHash(
   adapter: MySQLAdapter,
+  version: string,
   migrationSql: string,
   schema?: string,
 ): Promise<{
@@ -98,6 +99,30 @@ export async function checkDuplicateHash(
   const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
   const migrationHash = hashMigrationSql(migrationSql);
+  
+  // Check for checksum mismatch on the same version
+  const versionCheck = await adapter.executeReadQuery(
+    `SELECT id, migration_hash FROM ${qualifiedTable} WHERE version = ? AND status IN ('applied', 'recorded')`,
+    [version]
+  );
+  if (versionCheck.rows && versionCheck.rows.length > 0) {
+    for (const row of versionCheck.rows) {
+      if (row["migration_hash"] !== migrationHash) {
+        return {
+          migrationHash,
+          duplicateError: {
+            success: false,
+            error: `Checksum mismatch for migration "${version}". The version already exists but with a different SQL hash.`,
+            code: "CHECKSUM_MISMATCH",
+            category: "validation",
+            recoverable: false,
+          }
+        };
+      }
+    }
+  }
+
+  // Check for duplicate hash
   const dupCheck = await adapter.executeReadQuery(
     `SELECT id, version, status FROM ${qualifiedTable}
      WHERE migration_hash = ? AND status = 'applied'`,
@@ -108,6 +133,20 @@ export async function checkDuplicateHash(
     const dup = dupRows[0] ?? {};
     const dupId = dup["id"] as number;
     const dupVersion = dup["version"] as string;
+    
+    if (dupVersion === version) {
+       return {
+         migrationHash,
+         duplicateError: {
+           success: false,
+           error: `Migration "${version}" has already been applied.`,
+           code: "ALREADY_APPLIED",
+           category: "validation",
+           recoverable: true,
+         }
+       };
+    }
+    
     return {
       migrationHash,
       duplicateError: {
@@ -134,6 +173,7 @@ export interface FormattedRecord {
   sourceSystem: string | null;
   status: string;
   errorInformation?: string | null;
+  outOfOrder?: boolean;
 }
 
 export function formatRecord(row: Record<string, unknown>): FormattedRecord {
@@ -154,6 +194,11 @@ export function formatRecord(row: Record<string, unknown>): FormattedRecord {
     ...(row["error_information"] !== undefined
       ? {
           errorInformation: (row["error_information"] as string | null) ?? null,
+        }
+      : {}),
+    ...(row["out_of_order"] !== undefined
+      ? {
+          outOfOrder: Boolean(row["out_of_order"]),
         }
       : {}),
   };

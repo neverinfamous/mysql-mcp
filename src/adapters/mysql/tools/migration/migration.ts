@@ -115,6 +115,7 @@ export function createMigrationRecordTool(
 
         const { migrationHash, duplicateError } = await checkDuplicateHash(
           adapter,
+          parsed.version,
           parsed.migrationSql,
         );
         if (duplicateError) return duplicateError;
@@ -186,6 +187,7 @@ export function createMigrationApplyTool(
 
         const { migrationHash, duplicateError } = await checkDuplicateHash(
           adapter,
+          parsed.version,
           parsed.migrationSql,
         );
         if (duplicateError) return duplicateError;

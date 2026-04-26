@@ -229,11 +229,12 @@ export function createMigrationHistoryTool(
 
         // Get page of results (exclude migration_sql for payload efficiency)
         const dataResult = await adapter.executeReadQuery(
-          `SELECT id, version, description, applied_at, applied_by,
-                migration_hash, source_system, rollback_sql IS NOT NULL AS has_rollback, status, error_information
-         FROM ${qualifiedTable}
-         ${whereClause}
-         ORDER BY applied_at DESC
+          `SELECT m.id, m.version, m.description, m.applied_at, m.applied_by,
+                m.migration_hash, m.source_system, m.rollback_sql IS NOT NULL AS has_rollback, m.status, m.error_information,
+                (SELECT EXISTS(SELECT 1 FROM ${qualifiedTable} prev WHERE prev.status IN ('applied', 'recorded') AND prev.id < m.id AND prev.version > m.version)) AS out_of_order
+         FROM ${qualifiedTable} m
+         ${whereClause ? whereClause.replace(/status/g, 'm.status').replace(/source_system/g, 'm.source_system') : ""}
+         ORDER BY m.applied_at DESC
          LIMIT ${limit} OFFSET ${offset}`,
           values.length > 0 ? values : undefined,
         );
