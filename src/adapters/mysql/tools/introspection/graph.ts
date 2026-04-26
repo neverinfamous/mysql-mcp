@@ -10,7 +10,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ValidationError } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   DependencyGraphSchemaBase,
@@ -317,12 +316,18 @@ export function createTopologicalSortTool(
           };
         });
 
+        if (sorted === null || cycles.length > 0) {
+          return {
+            success: false,
+            error: `Circular dependency cycle detected: ${cycles.map((c) => c.join(" -> ")).join(", ")}`,
+          };
+        }
+
         return {
           success: true,
           ...(order.length > 0 ? { order } : {}),
           direction,
-          hasCycles: sorted === null,
-          ...(cycles.length > 0 ? { cycles } : {}),
+          hasCycles: false,
         };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -370,9 +375,10 @@ export function createCascadeSimulatorTool(
 
         // Check if source table exists
         if (!tableMap.has(sourceQName)) {
-          throw new ValidationError(
-            `Table '${sourceQName}' does not exist. Use mysql_list_tables to verify.`,
-          );
+          return {
+            success: false,
+            error: `Table '${sourceQName}' does not exist. Use mysql_list_tables to verify.`,
+          };
         }
 
         // Build reverse adjacency: for each table, find what references it

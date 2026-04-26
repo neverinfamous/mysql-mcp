@@ -182,6 +182,7 @@ const ConstraintAnalysisInnerSchema = z.object({
         "missing_not_null",
         "missing_pk",
         "unindexed_fk",
+        "circular_dependency",
       ]),
     )
     .optional(),
