@@ -35,7 +35,8 @@ import {
  * Response type for graceful Router API unavailability
  */
 interface RouterUnavailableResponse {
-  available: false;
+  success: false;
+  available?: false;
   error: string;
 }
 
@@ -195,18 +196,20 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
         response: {
           success: false,
           error: msg,
-        } as unknown as RouterUnavailableResponse,
+        },
       };
     }
     return {
       success: false,
       response: {
+        success: false,
         available: false,
         error: msg,
       },
     };
   }
 }
+
 
 // =============================================================================
 // Tool Registration

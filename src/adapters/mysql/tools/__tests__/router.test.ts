@@ -474,6 +474,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toEqual({
+      success: false,
       available: false,
       error: "Router API error: 401 Unauthorized",
     });
@@ -534,6 +535,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toEqual({
+      success: false,
       available: false,
       error: "Router API request failed: Network error",
     });
@@ -560,6 +562,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toEqual({
+      success: false,
       available: false,
       error: expect.stringContaining("Connection refused"),
     });
