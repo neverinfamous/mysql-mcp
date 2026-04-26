@@ -203,7 +203,6 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           return {
             success: false,
             error: "Insufficient data points for regression (need at least 2)",
-            sampleSize: stats?.["n"] ?? 0,
           };
         }
 
