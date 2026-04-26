@@ -120,6 +120,10 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
     });
   }
 
+  // Remove alias fields so they don't fail their own Zod validation
+  delete result["queries"];
+  delete result["sqls"];
+
   return result;
 }
 
