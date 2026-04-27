@@ -82,7 +82,7 @@
 - Certified `replication` tool group for production readiness by completing advanced Code Mode stress tests. Fixed `mysql_binlog_events` to return a structured error response for empty string `logFile` parameters.
 - Certified `roles` tool group for production readiness by completing advanced Code Mode stress tests. Fixed `mysql_role_revoke` to support revoking privileges from roles (in addition to revoking roles from users), resolving the corresponding `RoleRevokeSchema` validation errors and fixing parameter alias parity.
 - Certified `schema` tool group for production readiness by completing advanced Code Mode stress tests. Fixed idempotency handlers in `mysql_create_schema` and `mysql_drop_schema` to correctly return `{ success: true, skipped: true }` when `ifNotExists`/`ifExists` is true instead of raising errors.
-
+- Certified `security` tool group for production readiness by completing advanced Code Mode stress tests. Validated password validation boundaries, sensitive table detection, privilege enumeration, and payload monitoring efficiency with 0 regressions. Verified structured responses for uninstalled components.
 ## Security
 
 - Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
