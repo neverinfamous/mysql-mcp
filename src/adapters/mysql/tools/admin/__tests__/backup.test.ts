@@ -565,17 +565,23 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should generate mysqldump command with specific database", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "production_db" }])
+      );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         { database: "production_db" },
         mockContext,
       )) as { command: string };
 
-      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.command).toContain("production_db");
     });
 
     it("should include specific tables in command", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }, { TABLE_NAME: "users" }])
+      );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         {
@@ -590,6 +596,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should add --no-data flag for schema-only dump", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }])
+      );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({ database: "mydb", noData: true }, mockContext)) as {
         command: string;
@@ -599,6 +608,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should add --single-transaction flag when specified", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }])
+      );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         { database: "mydb", singleTransaction: true },
@@ -609,6 +621,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should combine multiple options", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }, { TABLE_NAME: "users" }])
+      );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
         {

@@ -154,6 +154,10 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: true, csv: csvLines.join("\n"), rowCount: rows.length };
         }
 
+        if (format === "JSON") {
+          return { success: true, json: JSON.stringify(rows, null, 2), rowCount: rows.length };
+        }
+
         // SQL format
         const firstRow = rows[0];
         if (!firstRow) {
@@ -273,10 +277,46 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: (params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { database, tables, noData, singleTransaction } =
           schema.parse(params);
+
+        // Verify database exists
+        try {
+          const dbCheck = await _adapter.executeReadQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database]
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            return {
+              success: false,
+              error: `Database '${database}' does not exist.`
+            };
+          }
+        } catch (dbErr) {
+          return formatHandlerErrorResponse(dbErr);
+        }
+
+        // Verify tables exist if provided
+        if (tables && tables.length > 0) {
+          for (const table of tables) {
+            try {
+              const tableCheck = await _adapter.executeReadQuery(
+                `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
+                [database, table]
+              );
+              if (!tableCheck.rows || tableCheck.rows.length === 0) {
+                return {
+                  success: false,
+                  error: `Table '${table}' does not exist in database '${database}'.`
+                };
+              }
+            } catch (tableErr) {
+              return formatHandlerErrorResponse(tableErr);
+            }
+          }
+        }
 
         let command = `mysqldump -u [username] -p ${database}`;
 
@@ -294,13 +334,13 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
         command += " > backup.sql";
 
-        return Promise.resolve({
+        return {
           success: true,
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-        });
+        };
       } catch (err) {
-        return Promise.resolve(formatHandlerErrorResponse(err));
+        return formatHandlerErrorResponse(err);
       }
     },
   };

@@ -73,6 +73,7 @@
 - Fixed spatial tool group WKT round-tripping for SRID 4326 by explicitly requesting `'axis-order=long-lat'` in all `ST_AsText` output queries in `geometry.ts`, `queries.ts`, and `operations.ts`. Certified spatial tool group via advanced Code Mode stress testing.
 - Fixed `performance` anomaly tools by updating input validation to emit strict structured errors for out-of-bounds parameters and accurately reflect alias usage (`minExecutions`, `thresholdPercent`). Certified `performance` tool group via advanced Code Mode stress testing.
 - Fixed `stats` tool group boundary validation by enforcing numeric type checking in `mysql_stats_percentiles`, enforcing a minimum bucket count of 1 for `mysql_stats_histogram`, and a maximum bucket count of 500 for `mysql_stats_distribution`. Certified `stats` tool group via advanced Code Mode stress testing.
+- Fixed `backup` tool group missing parameter validation and JSON support by enforcing structured `{ success: false }` domain errors for missing database/tables in `mysql_create_dump` and extending the `ExportTableSchema` to support the case-insensitive `JSON` format. Certified `backup` tool group via advanced Code Mode stress testing.
 
 ## Security
 
