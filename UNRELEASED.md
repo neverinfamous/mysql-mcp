@@ -6,6 +6,14 @@
 - 6 **Migration** tools for tracking, applying, and rolling back schema versions.
 - **Insights Subsystem**: `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
 - **Token Estimation**: `_meta.tokenEstimate` (4 bytes/token heuristic) in all tool responses.
+- **Audit Observability** (parity with `postgres-mcp`):
+  - Activated audit logging via `--audit-log` and `--audit-backup` CLI flags in `mcp_config.json`.
+  - Exposed `getAuditInterceptor()` on `DatabaseAdapter` for Code Mode API integration.
+  - Wired `AuditInterceptor` through `MysqlApi` → `createGroupApi()` → every inner sandbox tool call, closing the Code Mode audit blindspot where sandbox operations previously bypassed the audit trail.
+  - Enriched Code Mode responses with `metrics.tokenEstimate` (~4 bytes/token) in the `ExecuteCodeOutputSchema`.
+  - Added `tokenEstimate` field to Code Mode output schema for consistent telemetry.
+  - Ported 51-test audit unit test suite: `audit-interceptor.test.ts` (13 tests), `audit-logger.test.ts` (15 tests), `backup-manager.test.ts` (23 tests).
+  - Configured `.gitignore` to protect audit JSONL files and snapshots while preserving `logs/` structure.
 - **Benchmark Suite**: Code Mode performance and throughput benchmarks.
 - **Help Architecture**: Dynamically registered group-specific help resources (`mysql://help/{group}`).
 - `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
@@ -83,7 +91,6 @@
 - Certified `roles` tool group for production readiness by completing advanced Code Mode stress tests. Fixed `mysql_role_revoke` to support revoking privileges from roles (in addition to revoking roles from users), resolving the corresponding `RoleRevokeSchema` validation errors and fixing parameter alias parity.
 - Certified `schema` tool group for production readiness by completing advanced Code Mode stress tests. Fixed idempotency handlers in `mysql_create_schema` and `mysql_drop_schema` to correctly return `{ success: true, skipped: true }` when `ifNotExists`/`ifExists` is true instead of raising errors.
 - Certified `sysschema` tool group for production readiness by completing advanced Code Mode stress tests. Reduced default limits from 5 to 2 in `LimitSchema` (affecting `mysql_sys_schema_stats`, `mysql_sys_memory_summary`, and `mysql_sys_innodb_lock_waits`) to resolve remaining payload bloat and ensure all responses stay strictly below 500 tokens. Verified structured response schemas, clean empty state handling for lock waits, and stable rapid sequential execution without connection leaks.
-- Certified all tool groups for production readiness by completing an 18-point advanced Code Mode cross-group stress test suite. Verified 100% Code Mode API parity (≥ 192 methods available), successful multi-group integration workflows (ETL extraction & stats, full-text search & export), consistent token-efficient payloads, and universally standardized `ErrorResponse` schema compliance across all empty and nonexistent edge cases.
 
 ## Security
 

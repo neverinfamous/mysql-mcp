@@ -209,6 +209,13 @@ export abstract class DatabaseAdapter {
   }
 
   /**
+   * Get the audit interceptor (used by Code Mode to wrap inner tool calls).
+   */
+  getAuditInterceptor(): AuditInterceptor | null {
+    return this.auditInterceptor;
+  }
+
+  /**
    * Register all enabled tools with the MCP server
    */
   registerTools(server: McpServer, enabledTools: Set<string>): void {

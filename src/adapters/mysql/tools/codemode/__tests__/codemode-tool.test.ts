@@ -56,6 +56,7 @@ function createCodeModeMockAdapter(): MySQLAdapter {
     }),
     getActiveTransactionIds: vi.fn().mockReturnValue([]),
     rollbackTransaction: vi.fn().mockResolvedValue(undefined),
+    getAuditInterceptor: vi.fn().mockReturnValue(null),
   } as unknown as MySQLAdapter;
 }
 

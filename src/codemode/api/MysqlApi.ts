@@ -1,5 +1,6 @@
 import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 import type { ToolDefinition } from "../../types/index.js";
+import type { AuditInterceptor } from "../../audit/interceptor.js";
 import { METHOD_ALIASES, GROUP_EXAMPLES } from "./constants.js";
 import { toolNameToMethodName, createGroupApi } from "./generator.js";
 
@@ -49,137 +50,166 @@ export class MysqlApi {
     const allTools = adapter.getToolDefinitions();
     this.toolsByGroup = this.groupTools(allTools);
 
-    // Create group-specific APIs - 24 groups
+    // §1: Get audit interceptor for Code Mode blindspot fix
+    const audit: AuditInterceptor | null = adapter.getAuditInterceptor();
+
+    // Create group-specific APIs (all wrapped with audit interceptor when enabled)
     this.core = createGroupApi(
       adapter,
       "core",
       this.toolsByGroup.get("core") ?? [],
+      audit,
     );
     this.transactions = createGroupApi(
       adapter,
       "transactions",
       this.toolsByGroup.get("transactions") ?? [],
+      audit,
     );
     this.json = createGroupApi(
       adapter,
       "json",
       this.toolsByGroup.get("json") ?? [],
+      audit,
     );
     this.text = createGroupApi(
       adapter,
       "text",
       this.toolsByGroup.get("text") ?? [],
+      audit,
     );
     this.fulltext = createGroupApi(
       adapter,
       "fulltext",
       this.toolsByGroup.get("fulltext") ?? [],
+      audit,
     );
     this.performance = createGroupApi(
       adapter,
       "performance",
       this.toolsByGroup.get("performance") ?? [],
+      audit,
     );
     this.optimization = createGroupApi(
       adapter,
       "optimization",
       this.toolsByGroup.get("optimization") ?? [],
+      audit,
     );
     this.admin = createGroupApi(
       adapter,
       "admin",
       this.toolsByGroup.get("admin") ?? [],
+      audit,
     );
     this.monitoring = createGroupApi(
       adapter,
       "monitoring",
       this.toolsByGroup.get("monitoring") ?? [],
+      audit,
     );
     this.backup = createGroupApi(
       adapter,
       "backup",
       this.toolsByGroup.get("backup") ?? [],
+      audit,
     );
     this.replication = createGroupApi(
       adapter,
       "replication",
       this.toolsByGroup.get("replication") ?? [],
+      audit,
     );
     this.partitioning = createGroupApi(
       adapter,
       "partitioning",
       this.toolsByGroup.get("partitioning") ?? [],
+      audit,
     );
     this.router = createGroupApi(
       adapter,
       "router",
       this.toolsByGroup.get("router") ?? [],
+      audit,
     );
     this.proxysql = createGroupApi(
       adapter,
       "proxysql",
       this.toolsByGroup.get("proxysql") ?? [],
+      audit,
     );
     this.shell = createGroupApi(
       adapter,
       "shell",
       this.toolsByGroup.get("shell") ?? [],
+      audit,
     );
     // New groups (9)
     this.schema = createGroupApi(
       adapter,
       "schema",
       this.toolsByGroup.get("schema") ?? [],
+      audit,
     );
     this.events = createGroupApi(
       adapter,
       "events",
       this.toolsByGroup.get("events") ?? [],
+      audit,
     );
     this.sysschema = createGroupApi(
       adapter,
       "sysschema",
       this.toolsByGroup.get("sysschema") ?? [],
+      audit,
     );
     this.stats = createGroupApi(
       adapter,
       "stats",
       this.toolsByGroup.get("stats") ?? [],
+      audit,
     );
     this.spatial = createGroupApi(
       adapter,
       "spatial",
       this.toolsByGroup.get("spatial") ?? [],
+      audit,
     );
     this.security = createGroupApi(
       adapter,
       "security",
       this.toolsByGroup.get("security") ?? [],
+      audit,
     );
     this.cluster = createGroupApi(
       adapter,
       "cluster",
       this.toolsByGroup.get("cluster") ?? [],
+      audit,
     );
     this.roles = createGroupApi(
       adapter,
       "roles",
       this.toolsByGroup.get("roles") ?? [],
+      audit,
     );
     this.docstore = createGroupApi(
       adapter,
       "docstore",
       this.toolsByGroup.get("docstore") ?? [],
+      audit,
     );
     this.introspection = createGroupApi(
       adapter,
       "introspection",
       this.toolsByGroup.get("introspection") ?? [],
+      audit,
     );
     this.migration = createGroupApi(
       adapter,
       "migration",
       this.toolsByGroup.get("migration") ?? [],
+      audit,
     );
   }
 

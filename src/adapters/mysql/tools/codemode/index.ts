@@ -56,6 +56,12 @@ export const ExecuteCodeOutputSchema = z
           .describe("Wall clock execution time in milliseconds"),
         cpuTimeMs: z.number().describe("CPU time used in milliseconds"),
         memoryUsedMb: z.number().describe("Memory used in megabytes"),
+        tokenEstimate: z
+          .number()
+          .optional()
+          .describe(
+            "Estimated token count of the result (~4 bytes per token)",
+          ),
       })
       .optional()
       .describe("Execution performance metrics"),
@@ -228,12 +234,23 @@ return results;
       );
       security.auditLog(record);
 
+      // Compute token estimate for Code Mode responses
+      const resultJson = JSON.stringify(result.result ?? null);
+      const tokenEstimate = Math.ceil(
+        Buffer.byteLength(resultJson, "utf8") / 4,
+      );
+
       // Add help hint for discoverability
       const helpHint =
         "Tip: Use mysql.help() to list all groups, or mysql.core.help() for group-specific methods.";
 
+      // Include hint and enriched metrics in response
       return {
         ...result,
+        metrics:
+          result.metrics != null
+            ? { ...result.metrics, tokenEstimate }
+            : undefined,
         hint: helpHint,
       };
     },

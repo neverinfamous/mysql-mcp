@@ -137,6 +137,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       timestamp: new Date(),
       requestId: "test-ctx",
     }),
+    getAuditInterceptor: vi.fn().mockReturnValue(null),
   } as unknown as MySQLAdapter;
 }
 
@@ -418,6 +419,7 @@ describe("normalizeParams (indirect)", () => {
         timestamp: new Date(),
         requestId: "test",
       }),
+      getAuditInterceptor: vi.fn().mockReturnValue(null),
     } as unknown as MySQLAdapter;
 
     api = new MysqlApi(mockAdapter);

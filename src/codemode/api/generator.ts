@@ -1,16 +1,23 @@
 import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 import type { ToolDefinition } from "../../types/index.js";
+import type { AuditInterceptor } from "../../audit/interceptor.js";
 import { METHOD_ALIASES } from "./constants.js";
 import { normalizeParams } from "./params.js";
 
 /**
- * Dynamic API generator for tool groups
- * Creates methods for each tool in the group
+ * Dynamic API generator for tool groups.
+ * Creates methods for each tool in the group.
+ *
+ * §1: When an auditInterceptor is provided, all handler calls are wrapped
+ * with audit logging + pre-mutation snapshots. This closes the Code Mode
+ * blindspot where sandbox tool calls previously bypassed the audit trail.
+ * Each auditInterceptor.around() adds ~2ms latency per inner tool call.
  */
 export function createGroupApi(
   adapter: MySQLAdapter,
   groupName: string,
   tools: ToolDefinition[],
+  auditInterceptor?: AuditInterceptor | null,
 ): Record<string, (...args: unknown[]) => Promise<unknown>> {
   const api: Record<string, (...args: unknown[]) => Promise<unknown>> = {};
 
@@ -23,6 +30,17 @@ export function createGroupApi(
       // Normalize positional arguments to object parameters
       const normalizedParams = normalizeParams(methodName, args) ?? {};
       const context = adapter.createContext();
+
+      // §1: Wrap with audit interceptor when available
+      if (auditInterceptor) {
+        return auditInterceptor.around(
+          tool.name,
+          normalizedParams,
+          context.requestId,
+          () => tool.handler(normalizedParams, context),
+          { logAs: "mysql_execute_code" },
+        );
+      }
       return tool.handler(normalizedParams, context);
     };
   }
