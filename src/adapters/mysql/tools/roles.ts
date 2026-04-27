@@ -97,11 +97,31 @@ const RoleRevokeSchema = z.object({
   user: z.string().optional(),
   fromUser: z.string().optional(),
   host: z.string().default("%"),
-}).refine(val => val.user || val.fromUser, {
-  message: "Must provide 'user' or 'fromUser'",
+  privileges: z.union([z.string(), z.array(z.string())]).optional(),
+  privilege: z.string().optional(),
+  database: z.string().default("*"),
+  table: z.string().default("*"),
+  on: z.string().optional(),
+}).refine(val => Boolean(val.user) || Boolean(val.fromUser) || Boolean(val.privileges) || Boolean(val.privilege), {
+  message: "Must provide 'user'/'fromUser' OR 'privileges'/'privilege'",
 }).transform(val => {
   const user = val.user || val.fromUser || "";
-  return { ...val, user };
+  const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
+  const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
+  let database = val.database;
+  let table = val.table;
+
+  if (val.on) {
+    if (val.on.includes(".")) {
+      const [db, tbl] = val.on.split(".");
+      database = db || "*";
+      table = tbl || "*";
+    } else {
+      database = val.on;
+    }
+  }
+
+  return { ...val, user, privileges, database, table };
 });
 
 const UserRolesSchema = z.object({
@@ -429,14 +449,14 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
     {
       name: "mysql_role_revoke",
       title: "MySQL Revoke Role",
-      description: "Revoke a role from a user.",
+      description: "Revoke a role from a user, or privileges from a role.",
       group: "roles",
       inputSchema: RoleRevokeSchema,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { role, user, host } = RoleRevokeSchema.parse(params);
+          const { role, user, host, privileges, database, table } = RoleRevokeSchema.parse(params);
 
           // Check if role exists first
           const checkResult = await adapter.executeQuery(
@@ -450,38 +470,72 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             };
           }
 
-          // P154: Check if user exists before checking assignment
-          const userCheck = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
-            [user, host],
-          );
-          if (!userCheck.rows || userCheck.rows.length === 0) {
+          if (user) {
+            // P154: Check if user exists before checking assignment
+            const userCheck = await adapter.executeQuery(
+              `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+              [user, host],
+            );
+            if (!userCheck.rows || userCheck.rows.length === 0) {
+              return {
+                success: false,
+                error: "User does not exist",
+              };
+            }
+
+            // Check if the role is actually assigned to this user
+            const assignCheck = await adapter.executeQuery(
+              `SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?`,
+              [role, user, host],
+            );
+            if (!assignCheck.rows || assignCheck.rows.length === 0) {
+              return {
+                success: false,
+                error: `Role '${role}' is not assigned to user '${user}'@'${host}'`,
+              };
+            }
+
+            // Validate before interpolation (role/user/host already validated by earlier checks
+            // but validate user/host explicitly for this rawQuery)
+            validateIdentifier(role, "role");
+            validateMySQLUserHost(user, "user");
+            validateMySQLUserHost(host, "host");
+
+            await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
+            return { success: true, role, user, host };
+          } else if (privileges.length > 0) {
+            // Validate each privilege against allowlist
+            for (const priv of privileges) {
+              validateMySQLPrivilege(priv);
+            }
+
+            const targetDb = database;
+            const targetTable = table;
+
+            if (targetDb !== "*") validateIdentifier(targetDb, "database");
+            if (targetTable !== "*") validateIdentifier(targetTable, "table");
+
+            const db = targetDb === "*" ? "*" : `\`${targetDb}\``;
+            const tbl = targetTable === "*" ? "*" : `\`${targetTable}\``;
+
+            let onClause = `${db}.${tbl}`;
+            if (targetDb === "*" && targetTable !== "*") {
+              onClause = tbl;
+            }
+
+            await adapter.rawQuery(
+              `REVOKE ${privileges.join(", ")} ON ${onClause} FROM '${role}'`,
+            );
             return {
-              success: false,
-              error: "User does not exist",
+              success: true,
+              role,
+              privileges,
+              database: targetDb,
+              table: targetTable,
             };
+          } else {
+            return { success: false, error: "Must provide 'user' to revoke role from user, or 'privileges' to revoke privileges from role" };
           }
-
-          // Check if the role is actually assigned to this user
-          const assignCheck = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?`,
-            [role, user, host],
-          );
-          if (!assignCheck.rows || assignCheck.rows.length === 0) {
-            return {
-              success: false,
-              error: `Role '${role}' is not assigned to user '${user}'@'${host}'`,
-            };
-          }
-
-          // Validate before interpolation (role/user/host already validated by earlier checks
-          // but validate user/host explicitly for this rawQuery)
-          validateIdentifier(role, "role");
-          validateMySQLUserHost(user, "user");
-          validateMySQLUserHost(host, "host");
-
-          await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
-          return { success: true, role, user, host };
         } catch (error: unknown) {
           if (error instanceof ZodError)
             return { success: false, error: formatZodError(error) };
@@ -493,7 +547,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               error: "User does not exist",
             };
           }
-          return { success: false, error: stripErrorPrefix(message) };
+          const cleanMsg = stripErrorPrefix(message);
+          const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
+          const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+          if (pRole !== undefined) {
+            return { success: false, role: pRole, error: cleanMsg };
+          }
+          return { success: false, error: cleanMsg };
         }
       },
     },
