@@ -262,7 +262,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler(
-        { query: "SELECT * FROM nonexistent" },
+        { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
       )) as { error?: string; trace?: unknown };
 
