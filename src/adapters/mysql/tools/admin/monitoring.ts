@@ -80,7 +80,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
         let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (typeof like === "string") {
+        if (typeof like === "string" && like.length > 0) {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
@@ -153,7 +153,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (typeof like === "string") {
+        if (typeof like === "string" && like.length > 0) {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
