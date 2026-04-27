@@ -355,8 +355,13 @@ export class MySQLAdapter extends DatabaseAdapter {
 
     try {
       if (isolationLevel) {
+        // Store original isolation level to restore it later
+        const [rows] = await connection.query('SELECT @@SESSION.transaction_isolation AS iso');
+        const origIso = (rows as any[])[0].iso.replace('-', ' ');
+        (connection as any)._origIso = origIso;
+        
         await connection.query(
-          `SET TRANSACTION ISOLATION LEVEL ${isolationLevel}`,
+          `SET SESSION TRANSACTION ISOLATION LEVEL ${isolationLevel}`,
         );
       }
       await connection.beginTransaction();
@@ -382,6 +387,14 @@ export class MySQLAdapter extends DatabaseAdapter {
     try {
       await connection.commit();
     } finally {
+      if ((connection as any)._origIso) {
+        try {
+          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${(connection as any)._origIso}`);
+          delete (connection as any)._origIso;
+        } catch (e) {
+          // Ignore reset errors
+        }
+      }
       connection.release();
       this.activeTransactions.delete(transactionId);
     }
@@ -399,6 +412,14 @@ export class MySQLAdapter extends DatabaseAdapter {
     try {
       await connection.rollback();
     } finally {
+      if ((connection as any)._origIso) {
+        try {
+          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${(connection as any)._origIso}`);
+          delete (connection as any)._origIso;
+        } catch (e) {
+          // Ignore reset errors
+        }
+      }
       connection.release();
       this.activeTransactions.delete(transactionId);
     }
