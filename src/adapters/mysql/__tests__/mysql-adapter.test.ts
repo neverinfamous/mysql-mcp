@@ -36,7 +36,7 @@ describe("MySQLAdapter", () => {
     // Setup mock connection
     mockConnection = {
       execute: vi.fn(),
-      query: vi.fn(),
+      query: vi.fn().mockResolvedValue([[], undefined]),
       release: vi.fn(),
       beginTransaction: vi.fn(),
       commit: vi.fn(),
@@ -339,10 +339,14 @@ describe("MySQLAdapter", () => {
     });
 
     it("should accept valid isolation levels", async () => {
+      // Mock the SELECT query to return the current isolation level
+      mockConnection.query.mockResolvedValueOnce([[{ iso: "REPEATABLE-READ" }], undefined]);
+      mockConnection.query.mockResolvedValueOnce([[], undefined]);
+
       const txId = await adapter.beginTransaction("READ COMMITTED");
       expect(txId).toBeDefined();
       expect(mockConnection.query).toHaveBeenCalledWith(
-        "SET TRANSACTION ISOLATION LEVEL READ COMMITTED",
+        "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED",
       );
     });
 

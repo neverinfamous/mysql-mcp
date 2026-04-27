@@ -79,6 +79,7 @@ export class MySQLAdapter extends DatabaseAdapter {
 
   private pool: ConnectionPool | null = null;
   private activeTransactions = new Map<string, PoolConnection>();
+  private origIsolationLevels = new Map<string, string>();
   private cachedToolDefinitions: ToolDefinition[] | null = null;
   private cachedResourceDefinitions: ResourceDefinition[] | null = null;
   private cachedPromptDefinitions: PromptDefinition[] | null = null;
@@ -357,8 +358,11 @@ export class MySQLAdapter extends DatabaseAdapter {
       if (isolationLevel) {
         // Store original isolation level to restore it later
         const [rows] = await connection.query('SELECT @@SESSION.transaction_isolation AS iso');
-        const origIso = (rows as any[])[0].iso.replace('-', ' ');
-        (connection as any)._origIso = origIso;
+        const results = rows as { iso: string }[];
+        if (results.length > 0 && results[0]) {
+          const origIso = results[0].iso.replace('-', ' ');
+          this.origIsolationLevels.set(transactionId, origIso);
+        }
         
         await connection.query(
           `SET SESSION TRANSACTION ISOLATION LEVEL ${isolationLevel}`,
@@ -387,13 +391,14 @@ export class MySQLAdapter extends DatabaseAdapter {
     try {
       await connection.commit();
     } finally {
-      if ((connection as any)._origIso) {
+      const origIso = this.origIsolationLevels.get(transactionId);
+      if (origIso) {
         try {
-          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${(connection as any)._origIso}`);
-          delete (connection as any)._origIso;
-        } catch (e) {
+          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${origIso}`);
+        } catch {
           // Ignore reset errors
         }
+        this.origIsolationLevels.delete(transactionId);
       }
       connection.release();
       this.activeTransactions.delete(transactionId);
@@ -412,13 +417,14 @@ export class MySQLAdapter extends DatabaseAdapter {
     try {
       await connection.rollback();
     } finally {
-      if ((connection as any)._origIso) {
+      const origIso = this.origIsolationLevels.get(transactionId);
+      if (origIso) {
         try {
-          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${(connection as any)._origIso}`);
-          delete (connection as any)._origIso;
-        } catch (e) {
+          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${origIso}`);
+        } catch {
           // Ignore reset errors
         }
+        this.origIsolationLevels.delete(transactionId);
       }
       connection.release();
       this.activeTransactions.delete(transactionId);
