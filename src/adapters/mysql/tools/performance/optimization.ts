@@ -401,7 +401,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Simple replacement - insert FORCE INDEX after table name
-        const regex = new RegExp(`FROM\\s+\`?${table}\`?`, "i");
+        const regex = new RegExp(`FROM\\s+\`?${table}\`?(?=\\s|,|$)`, "i");
         if (!regex.test(query)) {
           return {
             success: false,

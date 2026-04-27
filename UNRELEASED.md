@@ -76,7 +76,7 @@
 - Fixed `performance` anomaly tools by updating input validation to emit strict structured errors for out-of-bounds parameters and accurately reflect alias usage (`minExecutions`, `thresholdPercent`).
 - Fixed `stats` tool group boundary validation by enforcing numeric type checking in `mysql_stats_percentiles`, enforcing a minimum bucket count of 1 for `mysql_stats_histogram`, and a maximum bucket count of 500 for `mysql_stats_distribution`.
 - Fixed `backup` tool group missing parameter validation and JSON support by enforcing structured `{ success: false }` domain errors for missing database/tables in `mysql_create_dump` and extending the `ExportTableSchema` to support the case-insensitive `JSON` format.
-- Certified `optimization` tool group for production readiness by completing advanced Code Mode stress tests, updating `mysql_force_index` to emit strict `{ success: false, error: ... }` structured domain errors for nonexistent indexes and un-referenced tables instead of falling back to query warnings, and ensuring `mysql_query_rewrite` surfaces the `rewrittenQuery` property to guarantee Code Mode mapping compatibility.
+- Certified `optimization` tool group for production readiness by completing advanced Code Mode stress tests, updating `mysql_force_index` to emit strict `{ success: false, error: ... }` structured domain errors for nonexistent indexes and un-referenced tables instead of falling back to query warnings, and ensuring `mysql_query_rewrite` surfaces the `rewrittenQuery` property to guarantee Code Mode mapping compatibility. Fixed a regex substring matching bug in `mysql_force_index` to prevent unintended index hint injections in queries referencing tables with overlapping names.
 
 ## Security
 
