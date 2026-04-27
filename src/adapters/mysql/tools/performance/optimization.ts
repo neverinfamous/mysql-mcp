@@ -426,7 +426,7 @@ export function createOptimizerTraceTool(
       .boolean()
       .optional()
       .describe(
-        "If true, return only key optimization decisions instead of full trace",
+        "If true (default), returns only key optimization decisions to save tokens. Set to false for the full trace.",
       ),
   });
 
@@ -441,7 +441,7 @@ export function createOptimizerTraceTool(
     )
     .transform((data) => ({
       query: data.query ?? data.sql ?? "",
-      summary: data.summary,
+      summary: data.summary ?? true,
     }))
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",

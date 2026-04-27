@@ -22,6 +22,7 @@
   - Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`).
   - Updated `minimatch` in Dockerfile to `10.2.5`.
 - Reduced default limits to 5 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and `mysql_export_table` to optimize token payload efficiency (< 500 tokens).
+- Optimized token payload for `mysql_optimizer_trace` by defaulting `summary: true`, preventing massive payloads from exceeding context windows.
 
 ## Removed
 

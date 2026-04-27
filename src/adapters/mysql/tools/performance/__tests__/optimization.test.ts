@@ -368,7 +368,7 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = await tool.handler(
-        { query: "SELECT * FROM users" },
+        { query: "SELECT * FROM users", summary: false },
         mockContext,
       );
 
@@ -402,7 +402,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const result = (await tool.handler(
-        { query: "SELECT * FROM nonexistent" },
+        { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
       )) as { query: string; trace: null; error: string };
 
@@ -452,7 +452,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const result = (await tool.handler(
-        { query: "SELECT * FROM ghost" },
+        { query: "SELECT * FROM ghost", summary: false },
         mockContext,
       )) as { query: string; trace: null; error: string };
 
@@ -470,7 +470,7 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = await tool.handler(
-        { sql: "SELECT * FROM users" },
+        { sql: "SELECT * FROM users", summary: false },
         mockContext,
       );
 
