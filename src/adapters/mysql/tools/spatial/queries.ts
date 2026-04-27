@@ -110,7 +110,7 @@ export function createSpatialDistanceTool(
         const escapedTable = escapeQualifiedTable(table);
 
         let query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt,
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance
                 FROM ${escapedTable}
             `;
@@ -191,7 +191,7 @@ export function createSpatialDistanceSphereTool(
         const escapedTable = escapeQualifiedTable(table);
 
         let query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt,
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance_meters
                 FROM ${escapedTable}
             `;
@@ -270,7 +270,7 @@ export function createSpatialContainsTool(
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
                 WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
                 LIMIT ${String(limit)}
@@ -336,7 +336,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
                 WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
                 LIMIT ${String(limit)}

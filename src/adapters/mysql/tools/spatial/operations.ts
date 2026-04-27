@@ -121,7 +121,7 @@ export function createSpatialIntersectionTool(
                     ST_AsText(ST_Intersection(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
-                    )) as intersection_wkt,
+                    ), 'axis-order=long-lat') as intersection_wkt,
                     ST_AsGeoJSON(ST_Intersection(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
@@ -182,7 +182,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           : `, ST_Buffer_Strategy('point_circle', ${String(segments)})`;
         const result = await adapter.executeQuery(
           `SELECT
-                    ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause})) as buffer_wkt,
+                    ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), 'axis-order=long-lat') as buffer_wkt,
                     ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), ${String(precision)}) as buffer_geojson`,
           [geometry, distance, geometry, distance],
         );
@@ -233,7 +233,7 @@ export function createSpatialTransformTool(
 
         const result = await adapter.executeQuery(
           `SELECT
-                    ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_wkt,
+                    ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 'axis-order=long-lat') as transformed_wkt,
                     ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_geojson`,
           [geometry, geometry],
         );
@@ -296,7 +296,7 @@ export function createSpatialGeoJSONTool(
         } else if (geoJson) {
           // Convert GeoJSON to WKT
           const result = await adapter.executeQuery(
-            `SELECT ST_AsText(ST_GeomFromGeoJSON(?)) as wkt`,
+            `SELECT ST_AsText(ST_GeomFromGeoJSON(?), 'axis-order=long-lat') as wkt`,
             [geoJson],
           );
 
