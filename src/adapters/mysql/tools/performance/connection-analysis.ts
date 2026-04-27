@@ -23,6 +23,8 @@ import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 
 export const DetectConnectionSpikeSchema = z.object({
   warningPercent: z.number().optional().describe("Percentage threshold for flagging concentration (default: 70)"),
+  windowMinutes: z.number().optional().describe("Idle time window in minutes to flag connections (default: 5)"),
+  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
 });
 
 // =============================================================================
@@ -51,8 +53,14 @@ export function createDetectConnectionSpikeTool(
       try {
         const parsed = DetectConnectionSpikeSchema.parse(params);
 
-        const rawPercent = parsed.warningPercent ?? 70;
-        const warningPercent = Math.max(10, Math.min(100, rawPercent));
+        const rawPercent = parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
+        const warningPercent = Math.max(0, Math.min(100, rawPercent));
+        const windowMinutes = parsed.windowMinutes ?? 5;
+
+        if (windowMinutes < 1 || windowMinutes > 1440) {
+          return { success: false, error: "windowMinutes must be between 1 and 1440" };
+        }
+        const idleSeconds = windowMinutes * 60;
 
         // Gather connection data in parallel
         const [processlistResult, maxResult] = await Promise.all([
@@ -118,9 +126,9 @@ export function createDetectConnectionSpikeTool(
         // Check idle (Sleep) connection buildup
         const idleRows = userProcesses.filter((r) => toStr(r["COMMAND"]) === "Sleep");
         if (idleRows.length > 0) {
-          const longIdle = idleRows.filter((r) => toNum(r["TIME"]) > 300); // 5 minutes
+          const longIdle = idleRows.filter((r) => toNum(r["TIME"]) > idleSeconds);
           if (longIdle.length > 0) {
-            warnings.push(`${String(longIdle.length)} connection(s) sleeping for >5 minutes — these hold resources unnecessarily`);
+            warnings.push(`${String(longIdle.length)} connection(s) sleeping for >${String(windowMinutes)} minutes — these hold resources unnecessarily`);
           }
           if (idleRows.length >= 50 && (idleRows.length / totalConnections) > 0.5) {
             warnings.push(`${String(idleRows.length)} total sleeping connections — consider lowering wait_timeout`);
