@@ -49,13 +49,13 @@ RUN apk upgrade --no-cache
 # - CVE-2025-64756: glob < 10.5.0
 # - CVE-2025-5889: brace-expansion <= 2.0.1
 # - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.13)
-# - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.4)
+# - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.5)
 RUN npm install -g npm@latest && \
     npm install -g tar@7.5.13 && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
     cp -r /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/tar && \
     npm uninstall -g tar && \
-    npm install -g minimatch@10.2.4 && \
+    npm install -g minimatch@10.2.5 && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/minimatch && \
     cp -r /usr/local/lib/node_modules/minimatch /usr/local/lib/node_modules/npm/node_modules/minimatch && \
     npm uninstall -g minimatch && \
