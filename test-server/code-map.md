@@ -2,7 +2,7 @@
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
-> Last updated: April 23, 2026
+> Last updated: April 27, 2026
 
 ---
 
@@ -58,6 +58,12 @@ src/
 │   ├── progress-reporter.ts         # MCP progress notification helpers
 │   └── index.ts                    # Barrel
 │
+├── audit/                          # Audit observability (interceptor, logger, backup manager)
+│   ├── interceptor.ts              # AuditInterceptor — wraps tool handlers, scope-based filtering,
+│   │                               #   tokenEstimate, redaction, OAuth identity capture
+│   ├── logger.ts                   # AuditLogger — JSONL file I/O, buffered flush, rotation, recent()
+│   └── backup-manager.ts           # BackupManager — pre-mutation DDL/data snapshots, diff, restore
+│
 ├── auth/                           # OAuth 2.1 implementation (10 files)
 │   ├── middleware.ts               # Express-style OAuth middleware
 │   ├── token-validator.ts           # JWT/JWKS token validation
@@ -86,7 +92,10 @@ src/
 │   ├── auto-return.ts              # Last-expression auto-return transform (IIFE helper)
 │   ├── worker-sandbox.ts           # Worker thread sandbox (MessagePort RPC bridge)
 │   ├── worker-script.ts            # Worker thread entry point (runs inside vm)
-│   ├── api.ts                      # mysql.* API bridge (exposes 192 tools to sandbox) — 40KB
+│   ├── api/
+│   │   ├── MysqlApi.ts             # mysql.* API bridge — injects AuditInterceptor into all 24 groups
+│   │   ├── generator.ts            # createGroupApi() — dynamic tool→method generator with audit wrapper
+│   │   └── index.ts                # Barrel
 │   ├── security.ts                 # Code validation (blocked patterns, injection prevention)
 │   ├── types.ts                    # Sandbox TypeScript types
 │   └── index.ts                    # Barrel
@@ -146,6 +155,7 @@ src/
 | | `performance/connection-analysis.ts` | 1 | `detect_connection_spike` |
 | **optimization** | `performance/optimization.ts` | 4 | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace` |
 | **admin** | `admin/maintenance.ts` | 6 | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query` (uses `extractMaintenanceError()` + `rawQuery` for DDL) |
+| | `admin/audit-backup.ts` | 3 | `audit_list_backups`, `audit_diff_backup`, `audit_restore_backup` (require `--audit-backup` flag) |
 | | `admin/monitoring.ts` | 7 | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health` |
 | | `admin/backup.ts` | 4 | `export_table`, `import_data`, `create_dump`, `restore_dump` |
 | **security** | `security/audit.ts` | 3 | `security_audit`, `security_firewall_status`, `security_firewall_rules` |
@@ -233,6 +243,12 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `docstore.ts` | `mysql://docstore/{collection}` |
 | `spatial.ts` | `mysql://spatial/{table}` |
 | `sysschema.ts` | `mysql://sys/{view}` |
+
+### Audit Resource (registered dynamically by McpServer when `--audit-log` is set)
+
+| URI | Content |
+|-----|---------|
+| `mysql://audit` | Recent forensic audit trail + token summary + backup snapshot stats |
 
 ### Help Resources (registered dynamically by McpServer)
 
@@ -333,6 +349,7 @@ try {
 | **Ecosystem Tools** | Router, ProxySQL, Shell, Cluster tools connect to external services on alternate ports. |
 | **OAuth Scope Enforcement** | Per-tool scope enforcement on `tools/call` JSON-RPC requests. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports intercept and validate `requireToolScope`. Uses `scope-map.ts` for O(1) tool→scope lookup. |
 | **Admin Maintenance** | `optimize_table`, `analyze_table`, `check_table`, `repair_table` use `rawQuery` (not `executeQuery`) to avoid prepared-statement corruption of multi-result-set DDL responses. `extractMaintenanceError()` parses domain errors from multi-row results. |
+| **Audit Observability** | `AuditInterceptor` wraps all tool handlers (scope-based filtering, tokenEstimate, redaction). `AuditLogger` writes JSONL with buffered flush + rotation. `BackupManager` captures DDL/data snapshots before destructive ops. `getAuditInterceptor()` exposes interceptor to Code Mode bridge for 100% sandbox audit coverage. Activated via `--audit-log`, `--audit-backup` CLI flags. |
 
 ---
 
@@ -368,5 +385,12 @@ try {
 | `scripts/reboot-cluster.ps1` | InnoDB Cluster reboot after complete outage |
 | `scripts/generate-server-instructions.ts` | Generates `server-instructions.ts` from source `.md` files |
 | `src/__tests__/` | Vitest unit tests (top-level) |
+| `src/audit/audit-interceptor.test.ts` | AuditInterceptor unit tests (13 tests) |
+| `src/audit/audit-logger.test.ts` | AuditLogger unit tests (15 tests) |
+| `src/audit/backup-manager.test.ts` | BackupManager unit tests (23 tests) |
 | `src/adapters/mysql/tools/*/___tests__/` | Per-group Vitest unit tests |
 | `tests/e2e/` | Playwright E2E tests (payload contracts, auth, stateless) |
+| `tests/e2e/audit-log.spec.ts` | Audit log E2E tests (write/read scope, redact, resource, corruption) |
+| `tests/e2e/audit-backup.spec.ts` | Audit backup E2E tests (snapshot, diff, restore dryRun, disabled) |
+| `tests/e2e/audit-token-summary.spec.ts` | Audit token summary E2E tests (aggregation accuracy) |
+| `tests/e2e/audit-rotation-stress.spec.ts` | Audit log rotation stress test (40 iterations, 5-file retention) |
