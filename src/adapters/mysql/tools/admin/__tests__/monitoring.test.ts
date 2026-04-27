@@ -417,7 +417,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW ENGINE INNODB STATUS",
       );
-      expect(result).toHaveProperty("summary");
+      expect(result).toHaveProperty("status");
     });
 
     it("should handle empty status result", async () => {
@@ -428,7 +428,7 @@ describe("Admin Monitoring Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toHaveProperty("summary");
+      expect(result).toHaveProperty("status");
     });
 
     it("should return structured error on query failure", async () => {
