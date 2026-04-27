@@ -46,7 +46,7 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table } = PartitionInfoSchema.parse(params);
+        const { table, summary } = PartitionInfoSchema.parse(params);
 
         // Check if table exists (P154)
         const tableCheck = await adapter.executeQuery(
@@ -93,12 +93,26 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
 
+        // Map partitions according to summary mode
+        const partitions = (result.rows ?? []).map((row) => {
+          if (summary) {
+            return {
+              PARTITION_NAME: row["PARTITION_NAME"],
+              PARTITION_METHOD: row["PARTITION_METHOD"],
+              PARTITION_EXPRESSION: row["PARTITION_EXPRESSION"],
+              PARTITION_DESCRIPTION: row["PARTITION_DESCRIPTION"],
+              TABLE_ROWS: row["TABLE_ROWS"],
+            };
+          }
+          return row;
+        });
+
         return {
           success: true,
           partitioned: true,
           method: firstRow["PARTITION_METHOD"],
           expression: firstRow["PARTITION_EXPRESSION"],
-          partitions: result.rows,
+          partitions,
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);

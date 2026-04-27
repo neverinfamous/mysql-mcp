@@ -10,6 +10,7 @@ export const PartitionInfoSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  summary: z.boolean().optional().describe("If true, returns a lighter payload without column details (default: true)"),
 });
 
 export const PartitionInfoSchema = z
@@ -19,10 +20,12 @@ export const PartitionInfoSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      summary: z.boolean().optional().default(true),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
+    summary: data.summary,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -71,25 +74,39 @@ export const DropPartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  partitionName: z.string().describe("Partition name to drop"),
+  partitionName: z.string().optional().describe("Partition name to drop"),
+  partition: z.string().optional().describe("Alias for partitionName"),
 });
 
 export const DropPartitionSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => {
+      const v = preprocessTableParams(val);
+      if (typeof v === "object" && v !== null) {
+        const obj = v as Record<string, unknown>;
+        if (obj["partitionName"] === undefined && obj["partition"] !== undefined) {
+          obj["partitionName"] = obj["partition"];
+        }
+      }
+      return v;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      partitionName: z.string(),
+      partitionName: z.string().optional(),
+      partition: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    partitionName: data.partitionName,
+    partitionName: data.partitionName ?? data.partition ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.partitionName !== "", {
+    message: "partitionName (or partition alias) is required",
   });
 
 // --- ReorganizePartition ---
