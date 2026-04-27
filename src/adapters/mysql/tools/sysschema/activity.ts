@@ -23,12 +23,12 @@ import type {
 
 const UserSummarySchema = z.object({
   user: z.string().optional().describe("Filter by specific user"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+  limit: z.number().default(5).describe("Maximum number of results"),
 });
 
 const HostSummarySchema = z.object({
   host: z.string().optional().describe("Filter by specific host"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+  limit: z.number().default(5).describe("Maximum number of results"),
 });
 
 /**

@@ -22,7 +22,7 @@ import type {
 // =============================================================================
 
 const LimitSchema = z.object({
-  limit: z.number().default(10).describe("Maximum number of results to return"),
+  limit: z.number().default(5).describe("Maximum number of results to return"),
 });
 
 /**
@@ -42,7 +42,7 @@ export function createSysSchemaStatsTool(
         .string()
         .optional()
         .describe("Schema name (defaults to current database)"),
-      limit: z.number().default(10).describe("Maximum number of results"),
+      limit: z.number().default(5).describe("Maximum number of results"),
     }),
     requiredScopes: ["read"],
     annotations: {
@@ -54,7 +54,7 @@ export function createSysSchemaStatsTool(
         const { schema, limit } = z
           .object({
             schema: z.string().optional(),
-            limit: z.number().default(10),
+            limit: z.number().default(5),
           })
           .parse(params);
 

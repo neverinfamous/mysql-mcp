@@ -31,7 +31,7 @@ const VALID_ORDER_BY = [
 
 const StatementSummarySchema = z.object({
   orderBy: z.string().default("total_latency").describe("Order results by"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+  limit: z.number().default(5).describe("Maximum number of results"),
 });
 
 const VALID_WAIT_TYPES = [
@@ -43,14 +43,14 @@ const VALID_WAIT_TYPES = [
 
 const WaitSummarySchema = z.object({
   type: z.string().default("global").describe("Type of wait summary"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+  limit: z.number().default(5).describe("Maximum number of results"),
 });
 
 const VALID_IO_TYPES = ["file", "table", "global"] as const;
 
 const IOSummarySchema = z.object({
   type: z.string().default("table").describe("Type of I/O summary"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+  limit: z.number().default(5).describe("Maximum number of results"),
 });
 
 /**
