@@ -19,6 +19,7 @@ import {
 } from "../../schemas/index.js";
 import { z } from "zod";
 import { formatMysqlError, formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -182,10 +183,7 @@ export function createIndexRecommendationTool(
 
         // Graceful handling for non-existent tables (P154)
         if (!columns.columns || columns.columns.length === 0) {
-          return {
-            success: false,
-            error: `Table '${table}' does not exist`,
-          };
+          throw new ValidationError(`Table '${table}' does not exist`);
         }
 
         // Get existing indexes
@@ -385,28 +383,19 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         // P154: Check table existence first
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return {
-            success: false,
-            error: `Table '${table}' does not exist`,
-          };
+          throw new ValidationError(`Table '${table}' does not exist`);
         }
 
         // Validate index existence
         const indexes = await adapter.getTableIndexes(table);
         if (!indexes.some((idx) => idx.name === indexName)) {
-          return {
-            success: false,
-            error: `Index '${indexName}' not found on table '${table}'`
-          };
+          throw new ValidationError(`Index '${indexName}' not found on table '${table}'`);
         }
 
         // Simple replacement - insert FORCE INDEX after table name
         const regex = new RegExp(`FROM\\s+\`?${table}\`?(?=\\s|,|$)`, "i");
         if (!regex.test(query)) {
-          return {
-            success: false,
-            error: `Table '${table}' not found in query FROM clause`
-          };
+          throw new ValidationError(`Table '${table}' not found in query FROM clause`);
         }
 
         const rewritten = query.replace(
