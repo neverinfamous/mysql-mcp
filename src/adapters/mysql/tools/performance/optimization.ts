@@ -347,6 +347,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         const response: Record<string, unknown> = {
           success: true,
           originalQuery: query,
+          rewrittenQuery: query,
           suggestions,
           explainPlan: explainResult,
         };
@@ -390,27 +391,35 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
           };
         }
 
+        // Validate index existence
+        const indexes = await adapter.getTableIndexes(table);
+        if (!indexes.some((idx) => idx.name === indexName)) {
+          return {
+            success: false,
+            error: `Index '${indexName}' not found on table '${table}'`
+          };
+        }
+
         // Simple replacement - insert FORCE INDEX after table name
+        const regex = new RegExp(`FROM\\s+\`?${table}\`?`, "i");
+        if (!regex.test(query)) {
+          return {
+            success: false,
+            error: `Table '${table}' not found in query FROM clause`
+          };
+        }
+
         const rewritten = query.replace(
-          new RegExp(`FROM\\s+\`?${table}\`?`, "i"),
+          regex,
           `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
         );
 
-        const response: Record<string, unknown> = {
+        return {
           success: true,
           originalQuery: query,
           rewrittenQuery: rewritten,
           hint: `FORCE INDEX (\`${indexName}\`)`,
         };
-
-        // Validate index existence and warn if not found
-        const indexes = await adapter.getTableIndexes(table);
-        if (!indexes.some((idx) => idx.name === indexName)) {
-          response["warning"] =
-            `Index '${indexName}' not found on table '${table}'`;
-        }
-
-        return response;
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

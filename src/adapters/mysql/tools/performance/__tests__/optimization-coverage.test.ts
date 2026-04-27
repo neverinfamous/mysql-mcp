@@ -475,7 +475,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
   // Force Index edge cases
   // ===========================================================================
   describe("force index edge cases", () => {
-    it("should warn when index doesn't exist", async () => {
+    it("should return error when index doesn't exist", async () => {
       mockAdapter.describeTable.mockResolvedValue({
         columns: [{ name: "id", type: "int", nullable: false }],
       });
@@ -491,10 +491,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
           indexName: "nonexistent_idx",
         },
         mockContext,
-      )) as { warning?: string; rewrittenQuery: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.warning).toContain("not found");
-      expect(result.rewrittenQuery).toContain("FORCE INDEX");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not found");
     });
 
     it("should handle nonexistent table in force index", async () => {

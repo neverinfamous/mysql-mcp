@@ -298,7 +298,7 @@ describe("Performance Optimization Tools", () => {
       expect(result.warning).toBeUndefined();
     });
 
-    it("should include warning for nonexistent index", async () => {
+    it("should return error for nonexistent index", async () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "PRIMARY",
@@ -308,6 +308,11 @@ describe("Performance Optimization Tools", () => {
           type: "BTREE",
         },
       ]);
+      const mockTableInfo = createMockTableInfo("users");
+      mockTableInfo.columns = [
+        { name: "id", type: "int", nullable: false, primaryKey: true },
+      ];
+      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
       const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -317,10 +322,10 @@ describe("Performance Optimization Tools", () => {
           indexName: "nonexistent_idx",
         },
         mockContext,
-      )) as { rewrittenQuery: string; warning: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.rewrittenQuery).toContain("FORCE INDEX");
-      expect(result.warning).toBe(
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(
         "Index 'nonexistent_idx' not found on table 'users'",
       );
     });
