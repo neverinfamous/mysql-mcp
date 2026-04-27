@@ -54,7 +54,10 @@ export function createDetectConnectionSpikeTool(
         const parsed = DetectConnectionSpikeSchema.parse(params);
 
         const rawPercent = parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
-        const warningPercent = Math.max(0, Math.min(100, rawPercent));
+        if (rawPercent < 0 || rawPercent > 100) {
+          return { success: false, error: "warningPercent (or thresholdPercent) must be between 0 and 100" };
+        }
+        const warningPercent = rawPercent;
         const windowMinutes = parsed.windowMinutes ?? 5;
 
         if (windowMinutes < 1 || windowMinutes > 1440) {

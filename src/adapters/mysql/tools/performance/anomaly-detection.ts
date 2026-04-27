@@ -78,11 +78,11 @@ export function createDetectQueryAnomaliesTool(
         const threshold = parsed.stdDevThreshold ?? parsed.threshold ?? 10.0;
         const minCalls = parsed.minExecutions ?? parsed.minCalls ?? 50;
 
-        if (threshold < 2 || threshold > 1000) {
-          return { success: false, error: "threshold must be between 2 and 1000" };
+        if (threshold < 2 || threshold > 10000) {
+          return { success: false, error: "threshold (or stdDevThreshold) must be between 2 and 10000" };
         }
         if (minCalls < 1 || minCalls > 100000) {
-          return { success: false, error: "minCalls must be between 1 and 100000" };
+          return { success: false, error: "minCalls (or minExecutions) must be between 1 and 100000" };
         }
 
         // Check if performance_schema is available
