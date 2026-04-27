@@ -11,6 +11,7 @@ import { INSTRUCTIONS, HELP_CONTENT } from "../constants/server-instructions.js"
 import { VERSION } from "../utils/version.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import type { DatabaseAdapter } from "../adapters/database-adapter.js";
+import { MySQLMcpError, ErrorCategory } from "../types/index.js";
 import type {
   McpServerConfig,
   TransportType,
@@ -261,7 +262,7 @@ export class McpServer {
         break;
       }
       default:
-        throw new Error(`Unknown transport: ${String(transport)}`);
+        throw new MySQLMcpError(`Unknown transport: ${String(transport)}`, "UNKNOWN_TRANSPORT", ErrorCategory.INTERNAL);
     }
   }
 
@@ -352,7 +353,7 @@ export class McpServer {
    */
   private createOAuthResourceServer(): OAuthResourceServer {
     if (!this.config.oauth?.enabled) {
-      throw new Error("OAuth is not enabled");
+      throw new MySQLMcpError("OAuth is not enabled", "OAUTH_DISABLED", ErrorCategory.INTERNAL);
     }
 
     // Use audience as resource ID if not explicitly configured in future
@@ -360,7 +361,7 @@ export class McpServer {
 
     const issuer = this.config.oauth.issuer;
     if (!issuer) {
-      throw new Error("OAuth issuer is required");
+      throw new MySQLMcpError("OAuth issuer is required", "OAUTH_ISSUER_REQUIRED", ErrorCategory.INTERNAL);
     }
 
     return new OAuthResourceServer({
@@ -376,17 +377,17 @@ export class McpServer {
    */
   private createTokenValidator(): TokenValidator {
     if (!this.config.oauth?.enabled) {
-      throw new Error("OAuth is not enabled");
+      throw new MySQLMcpError("OAuth is not enabled", "OAUTH_DISABLED", ErrorCategory.INTERNAL);
     }
 
     if (!this.config.oauth.jwksUri) {
-      throw new Error("OAuth JWKS URI is required for validation");
+      throw new MySQLMcpError("OAuth JWKS URI is required for validation", "OAUTH_JWKS_REQUIRED", ErrorCategory.INTERNAL);
     }
 
     const issuer = this.config.oauth.issuer;
     const audience = this.config.oauth.audience;
     if (!issuer || !audience) {
-      throw new Error("OAuth issuer and audience are required");
+      throw new MySQLMcpError("OAuth issuer and audience are required", "OAUTH_ISSUER_REQUIRED", ErrorCategory.INTERNAL);
     }
 
     return new TokenValidator({
@@ -428,6 +429,14 @@ export class McpServer {
     for (const [group, tools] of Object.entries(TOOL_GROUPS) as [ToolGroup, string[]][]) {
       if (tools.some((tool) => this.toolFilter.enabledTools.has(tool))) {
         enabledGroups.add(group);
+      }
+    }
+
+    // If Code Mode is enabled, it exposes the full API surface area via the sandbox,
+    // so we must register all help resources for the agent to reference.
+    if (enabledGroups.has("codemode")) {
+      for (const group of Object.keys(TOOL_GROUPS)) {
+        enabledGroups.add(group as ToolGroup);
       }
     }
 
