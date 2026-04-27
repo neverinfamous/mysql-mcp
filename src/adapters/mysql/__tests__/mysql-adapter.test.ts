@@ -341,7 +341,7 @@ describe("MySQLAdapter", () => {
     it("should accept valid isolation levels", async () => {
       const txId = await adapter.beginTransaction("READ COMMITTED");
       expect(txId).toBeDefined();
-      expect(mockConnection.execute).toHaveBeenCalledWith(
+      expect(mockConnection.query).toHaveBeenCalledWith(
         "SET TRANSACTION ISOLATION LEVEL READ COMMITTED",
       );
     });

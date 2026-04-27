@@ -355,7 +355,7 @@ export class MySQLAdapter extends DatabaseAdapter {
 
     try {
       if (isolationLevel) {
-        await connection.execute(
+        await connection.query(
           `SET TRANSACTION ISOLATION LEVEL ${isolationLevel}`,
         );
       }
