@@ -412,7 +412,7 @@ describe("Admin Monitoring Tools", () => {
       const tool = createInnodbStatusTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ summary: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW ENGINE INNODB STATUS",
@@ -426,7 +426,7 @@ describe("Admin Monitoring Tools", () => {
       const tool = createInnodbStatusTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ summary: false }, mockContext);
 
       expect(result).toHaveProperty("status");
     });

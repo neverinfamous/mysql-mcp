@@ -80,7 +80,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
         let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (like !== undefined) {
+        if (like) {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
@@ -153,7 +153,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (like !== undefined) {
+        if (like) {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
@@ -283,7 +283,7 @@ const InnodbStatusSchema = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
       "Return parsed summary with key metrics instead of raw output (recommended)",
     ),
