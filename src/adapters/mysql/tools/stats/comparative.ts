@@ -40,6 +40,7 @@ const HistogramSchema = z.object({
   column: z.string().describe("Column for histogram"),
   buckets: z
     .number()
+    .min(1)
     .default(16)
     .describe("Number of histogram buckets (max 1024)"),
   update: z

@@ -157,9 +157,12 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_percentiles", () => {
     it("should calculate percentiles", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ cnt: 100 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (typeof query === "string" && query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([{ cnt: 100 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
       const result = await tool.handler(
@@ -174,9 +177,12 @@ describe("Handler Execution", () => {
     });
 
     it("should use custom percentiles", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ cnt: 100 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (typeof query === "string" && query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([{ cnt: 100 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
       await tool.handler(
@@ -501,9 +507,12 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should return empty percentiles when table is empty", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ cnt: 0 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (typeof query === "string" && query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([{ cnt: 0 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
       const result = (await tool.handler(

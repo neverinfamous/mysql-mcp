@@ -41,7 +41,7 @@ const PercentilesSchema = z.object({
 const DistributionSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column to analyze"),
-  buckets: z.number().default(10).describe("Number of histogram buckets"),
+  buckets: z.number().max(500).default(10).describe("Number of histogram buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
@@ -219,6 +219,17 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
+
+        // Check if column is numeric
+        const colCheck = await adapter.executeQuery(
+          `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          [table, column]
+        );
+        const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
+        const dataType = typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
+        if (!["tinyint", "smallint", "mediumint", "int", "bigint", "decimal", "numeric", "float", "double"].includes(dataType)) {
+          return { success: false, error: `Column type mismatch: '${column}' is not a numeric column` };
+        }
 
         // Get total count
         const countResult = await adapter.executeQuery(
