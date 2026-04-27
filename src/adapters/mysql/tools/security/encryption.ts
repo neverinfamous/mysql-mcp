@@ -280,7 +280,8 @@ export function createSecurityPasswordValidateTool(
         ) {
           return {
             success: false,
-            error: "Password validation function failed. Reinstall with: INSTALL COMPONENT \"file://component_validate_password\""
+            error:
+              'Password validation function failed. Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
           };
         }
         return formatHandlerErrorResponse(new Error(message));

@@ -48,7 +48,10 @@ export function createGroupApi(
  *   mysql_fulltext_search (fulltext) -> fulltextSearch
  *   mysql_sys_schema_stats (sysschema) -> sysSchemaStats
  */
-export function toolNameToMethodName(toolName: string, groupName: string): string {
+export function toolNameToMethodName(
+  toolName: string,
+  groupName: string,
+): string {
   // Remove mysql_ prefix
   let name = toolName.replace(/^mysql_/, "");
 

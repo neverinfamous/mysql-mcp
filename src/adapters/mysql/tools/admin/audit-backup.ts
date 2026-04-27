@@ -13,16 +13,28 @@ import type {
 } from "../../../../types/index.js";
 import type { BackupManager } from "../../../../audit/backup-manager.js";
 
-export function createAuditListBackupsTool(adapter: MySQLAdapter): ToolDefinition {
+export function createAuditListBackupsTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   const schema = z.object({
-    limit: z.number().int().min(1).max(100).default(50).describe("Max backups to return"),
-    target: z.string().optional().describe("Filter by exact target object name (e.g. users)"),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(50)
+      .describe("Max backups to return"),
+    target: z
+      .string()
+      .optional()
+      .describe("Filter by exact target object name (e.g. users)"),
   });
 
   return {
     name: "mysql_audit_list_backups",
     title: "MySQL Audit List Backups",
-    description: "List available pre-mutation snapshots captured before destructive operations.",
+    description:
+      "List available pre-mutation snapshots captured before destructive operations.",
     group: "backup",
     inputSchema: schema,
     requiredScopes: ["read"],
@@ -32,16 +44,18 @@ export function createAuditListBackupsTool(adapter: MySQLAdapter): ToolDefinitio
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit, target } = schema.parse(params);
-        
+
         // This relies on the DatabaseAdapter having the backupManager available
         // Need to add it to the MySQLAdapter subclass
-        const backupManager = (adapter as unknown as { backupManager?: BackupManager }).backupManager;
+        const backupManager = (
+          adapter as unknown as { backupManager?: BackupManager }
+        ).backupManager;
         if (!backupManager) {
           return { error: "Backup Manager is not enabled or available" };
         }
 
         const snapshots = await backupManager.listSnapshots();
-        
+
         let filtered = snapshots;
         if (target) {
           filtered = filtered.filter((s) => s.target === target);
@@ -58,11 +72,19 @@ export function createAuditListBackupsTool(adapter: MySQLAdapter): ToolDefinitio
   };
 }
 
-export function createAuditRestoreBackupTool(adapter: MySQLAdapter): ToolDefinition {
+export function createAuditRestoreBackupTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   const schema = z.object({
     filename: z.string().describe("Snapshot filename to restore"),
-    includeData: z.boolean().default(false).describe("Execute INSERT data if present in snapshot"),
-    dryRun: z.boolean().default(false).describe("Return the DDL/DML without executing it"),
+    includeData: z
+      .boolean()
+      .default(false)
+      .describe("Execute INSERT data if present in snapshot"),
+    dryRun: z
+      .boolean()
+      .default(false)
+      .describe("Return the DDL/DML without executing it"),
   });
 
   return {
@@ -79,8 +101,10 @@ export function createAuditRestoreBackupTool(adapter: MySQLAdapter): ToolDefinit
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { filename, includeData, dryRun } = schema.parse(params);
-        
-        const backupManager = (adapter as unknown as { backupManager?: BackupManager }).backupManager;
+
+        const backupManager = (
+          adapter as unknown as { backupManager?: BackupManager }
+        ).backupManager;
         if (!backupManager) {
           return { error: "Backup Manager is not enabled or available" };
         }
@@ -110,7 +134,7 @@ export function createAuditRestoreBackupTool(adapter: MySQLAdapter): ToolDefinit
         // Note: For multi-statement execution in MySQL, standard mysql2 requires multipleStatements: true
         // But the DatabaseAdapter's executeWriteQuery doesn't inherently split.
         // We'll just pass the full script if multipleStatements is enabled, or warn.
-        
+
         await adapter.executeWriteQuery(combinedSql);
 
         return {
@@ -125,15 +149,20 @@ export function createAuditRestoreBackupTool(adapter: MySQLAdapter): ToolDefinit
   };
 }
 
-export function createAuditDiffBackupTool(adapter: MySQLAdapter): ToolDefinition {
+export function createAuditDiffBackupTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   const schema = z.object({
-    filename: z.string().describe("Snapshot filename to compare against current schema"),
+    filename: z
+      .string()
+      .describe("Snapshot filename to compare against current schema"),
   });
 
   return {
     name: "mysql_audit_diff_backup",
     title: "MySQL Audit Diff Backup",
-    description: "Compare a snapshot's DDL against the current live schema of the object.",
+    description:
+      "Compare a snapshot's DDL against the current live schema of the object.",
     group: "backup",
     inputSchema: schema,
     requiredScopes: ["read"],
@@ -143,8 +172,10 @@ export function createAuditDiffBackupTool(adapter: MySQLAdapter): ToolDefinition
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { filename } = schema.parse(params);
-        
-        const backupManager = (adapter as unknown as { backupManager?: BackupManager }).backupManager;
+
+        const backupManager = (
+          adapter as unknown as { backupManager?: BackupManager }
+        ).backupManager;
         if (!backupManager) {
           return { error: "Backup Manager is not enabled or available" };
         }
@@ -155,14 +186,14 @@ export function createAuditDiffBackupTool(adapter: MySQLAdapter): ToolDefinition
         }
 
         const { target, schema: schemaName } = snapshot.metadata;
-        
+
         // Get current DDL
         let liveDdl = "";
         try {
           // Parse schema.table if applicable
           let tableName = target;
           let currentSchema = schemaName;
-          
+
           if (target.includes(".")) {
             const parts = target.split(".");
             if (parts[0] && parts[1]) {
@@ -170,12 +201,20 @@ export function createAuditDiffBackupTool(adapter: MySQLAdapter): ToolDefinition
               tableName = parts[1];
             }
           }
-          
-          const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
-          const dbName = dbRow?.["db"];
-          const dbRes = currentSchema ? currentSchema : (typeof dbName === "string" ? dbName : "mysql");
 
-          const result = await adapter.executeReadQuery(`SHOW CREATE TABLE \`${dbRes}\`.\`${tableName}\``);
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          const dbName = dbRow?.["db"];
+          const dbRes = currentSchema
+            ? currentSchema
+            : typeof dbName === "string"
+              ? dbName
+              : "mysql";
+
+          const result = await adapter.executeReadQuery(
+            `SHOW CREATE TABLE \`${dbRes}\`.\`${tableName}\``,
+          );
           if (Array.isArray(result.rows)) {
             const row = result.rows[0];
             if (row !== undefined) {

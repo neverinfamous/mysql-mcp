@@ -17,37 +17,46 @@ const RoleListSchema = z.object({
   pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
 });
 
-const RoleCreateSchema = z.object({
-  name: z.string().optional().describe("Role name"),
-  role: z.string().optional().describe("Alias for name"),
-  ifNotExists: z.boolean().default(false),
-}).refine(val => val.name || val.role, {
-  message: "Must provide 'name' or 'role'",
-}).transform(val => {
-  const name = val.name || val.role || "";
-  return { ...val, name };
-});
+const RoleCreateSchema = z
+  .object({
+    name: z.string().optional().describe("Role name"),
+    role: z.string().optional().describe("Alias for name"),
+    ifNotExists: z.boolean().default(false),
+  })
+  .refine((val) => val.name || val.role, {
+    message: "Must provide 'name' or 'role'",
+  })
+  .transform((val) => {
+    const name = val.name || val.role || "";
+    return { ...val, name };
+  });
 
-const RoleDropSchema = z.object({
-  name: z.string().optional().describe("Role name"),
-  role: z.string().optional().describe("Alias for name"),
-  ifExists: z.boolean().default(false),
-}).refine(val => val.name || val.role, {
-  message: "Must provide 'name' or 'role'",
-}).transform(val => {
-  const name = val.name || val.role || "";
-  return { ...val, name };
-});
+const RoleDropSchema = z
+  .object({
+    name: z.string().optional().describe("Role name"),
+    role: z.string().optional().describe("Alias for name"),
+    ifExists: z.boolean().default(false),
+  })
+  .refine((val) => val.name || val.role, {
+    message: "Must provide 'name' or 'role'",
+  })
+  .transform((val) => {
+    const name = val.name || val.role || "";
+    return { ...val, name };
+  });
 
-const RoleGrantsSchema = z.object({ 
-  role: z.string().optional(),
-  name: z.string().optional()
-}).refine(val => val.role || val.name, {
-  message: "Must provide 'role' or 'name'",
-}).transform(val => {
-  const role = val.role || val.name || "";
-  return { ...val, role };
-});
+const RoleGrantsSchema = z
+  .object({
+    role: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .refine((val) => val.role || val.name, {
+    message: "Must provide 'role' or 'name'",
+  })
+  .transform((val) => {
+    const role = val.role || val.name || "";
+    return { ...val, role };
+  });
 
 const RoleGrantPrivilegeSchema = z
   .object({
@@ -79,61 +88,77 @@ const RoleGrantPrivilegeSchema = z
     message: "Must provide 'privileges' array or single 'privilege' string",
   });
 
-const RoleAssignSchema = z.object({
-  role: z.string(),
-  user: z.string().optional(),
-  toUser: z.string().optional(),
-  host: z.string().default("%"),
-  withAdminOption: z.boolean().default(false),
-}).refine(val => val.user || val.toUser, {
-  message: "Must provide 'user' or 'toUser'",
-}).transform(val => {
-  const user = val.user || val.toUser || "";
-  return { ...val, user };
-});
+const RoleAssignSchema = z
+  .object({
+    role: z.string(),
+    user: z.string().optional(),
+    toUser: z.string().optional(),
+    host: z.string().default("%"),
+    withAdminOption: z.boolean().default(false),
+  })
+  .refine((val) => val.user || val.toUser, {
+    message: "Must provide 'user' or 'toUser'",
+  })
+  .transform((val) => {
+    const user = val.user || val.toUser || "";
+    return { ...val, user };
+  });
 
-const RoleRevokeSchema = z.object({
-  role: z.string(),
-  user: z.string().optional(),
-  fromUser: z.string().optional(),
-  host: z.string().default("%"),
-  privileges: z.union([z.string(), z.array(z.string())]).optional(),
-  privilege: z.string().optional(),
-  database: z.string().default("*"),
-  table: z.string().default("*"),
-  on: z.string().optional(),
-}).refine(val => Boolean(val.user) || Boolean(val.fromUser) || Boolean(val.privileges) || Boolean(val.privilege), {
-  message: "Must provide 'user'/'fromUser' OR 'privileges'/'privilege'",
-}).transform(val => {
-  const user = val.user || val.fromUser || "";
-  const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
-  const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
-  let database = val.database;
-  let table = val.table;
+const RoleRevokeSchema = z
+  .object({
+    role: z.string(),
+    user: z.string().optional(),
+    fromUser: z.string().optional(),
+    host: z.string().default("%"),
+    privileges: z.union([z.string(), z.array(z.string())]).optional(),
+    privilege: z.string().optional(),
+    database: z.string().default("*"),
+    table: z.string().default("*"),
+    on: z.string().optional(),
+  })
+  .refine(
+    (val) =>
+      Boolean(val.user) ||
+      Boolean(val.fromUser) ||
+      Boolean(val.privileges) ||
+      Boolean(val.privilege),
+    {
+      message: "Must provide 'user'/'fromUser' OR 'privileges'/'privilege'",
+    },
+  )
+  .transform((val) => {
+    const user = val.user || val.fromUser || "";
+    const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
+    const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
+    let database = val.database;
+    let table = val.table;
 
-  if (val.on) {
-    if (val.on.includes(".")) {
-      const [db, tbl] = val.on.split(".");
-      database = db || "*";
-      table = tbl || "*";
-    } else {
-      database = val.on;
+    if (val.on) {
+      if (val.on.includes(".")) {
+        const [db, tbl] = val.on.split(".");
+        database = db || "*";
+        table = tbl || "*";
+      } else {
+        database = val.on;
+      }
     }
-  }
 
-  return { ...val, user, privileges, database, table };
-});
+    return { ...val, user, privileges, database, table };
+  });
 
-const UserRolesSchema = z.object({
-  user: z.string().optional(),
-  targetUser: z.string().optional(),
-  host: z.string().default("%"),
-}).refine(val => val.user || val.targetUser, {
-  message: "Must provide 'user' or 'targetUser'",
-}).transform(val => {
-  const user = val.user || val.targetUser || "";
-  return { ...val, user };
-});
+const UserRolesSchema = z
+  .object({
+    user: z.string().optional(),
+    targetUser: z.string().optional(),
+    host: z.string().default("%"),
+  })
+  .refine((val) => val.user || val.targetUser, {
+    message: "Must provide 'user' or 'targetUser'",
+  })
+  .transform((val) => {
+    const user = val.user || val.targetUser || "";
+    return { ...val, user };
+  });
 
 export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -153,7 +178,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (pattern)
             query += ` AND u.User LIKE '${escapeLikePattern(pattern)}'`;
           const result = await adapter.executeQuery(query);
-          return { success: true, roles: result.rows ?? [], count: result.rows?.length ?? 0 };
+          return {
+            success: true,
+            roles: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          };
         } catch (error: unknown) {
           if (error instanceof ZodError)
             return { success: false, error: formatZodError(error) };
@@ -202,9 +231,14 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation CREATE ROLE failed")) {
-            const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
-            const pName = typeof parsed["name"] === "string" ? parsed["name"] : undefined;
-            const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            const parsed =
+              params !== null && typeof params === "object"
+                ? (params as Record<string, unknown>)
+                : {};
+            const pName =
+              typeof parsed["name"] === "string" ? parsed["name"] : undefined;
+            const pRole =
+              typeof parsed["role"] === "string" ? parsed["role"] : undefined;
             const roleName = pName ?? pRole ?? "unknown";
             return {
               success: false,
@@ -261,9 +295,14 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation DROP ROLE failed")) {
-            const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
-            const pName = typeof parsed["name"] === "string" ? parsed["name"] : undefined;
-            const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            const parsed =
+              params !== null && typeof params === "object"
+                ? (params as Record<string, unknown>)
+                : {};
+            const pName =
+              typeof parsed["name"] === "string" ? parsed["name"] : undefined;
+            const pRole =
+              typeof parsed["role"] === "string" ? parsed["role"] : undefined;
             const roleName = pName ?? pRole ?? "unknown";
             return {
               success: false,
@@ -385,8 +424,12 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(message);
-          const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
-          const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+          const parsed =
+            params !== null && typeof params === "object"
+              ? (params as Record<string, unknown>)
+              : {};
+          const pRole =
+            typeof parsed["role"] === "string" ? parsed["role"] : undefined;
           if (pRole !== undefined) {
             return { success: false, role: pRole, error: cleanMsg };
           }
@@ -456,7 +499,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { role, user, host, privileges, database, table } = RoleRevokeSchema.parse(params);
+          const { role, user, host, privileges, database, table } =
+            RoleRevokeSchema.parse(params);
 
           // Check if role exists first
           const checkResult = await adapter.executeQuery(
@@ -534,7 +578,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               table: targetTable,
             };
           } else {
-            return { success: false, error: "Must provide 'user' to revoke role from user, or 'privileges' to revoke privileges from role" };
+            return {
+              success: false,
+              error:
+                "Must provide 'user' to revoke role from user, or 'privileges' to revoke privileges from role",
+            };
           }
         } catch (error: unknown) {
           if (error instanceof ZodError)
@@ -548,8 +596,12 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             };
           }
           const cleanMsg = stripErrorPrefix(message);
-          const parsed = (params !== null && typeof params === "object") ? (params as Record<string, unknown>) : {};
-          const pRole = typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+          const parsed =
+            params !== null && typeof params === "object"
+              ? (params as Record<string, unknown>)
+              : {};
+          const pRole =
+            typeof parsed["role"] === "string" ? parsed["role"] : undefined;
           if (pRole !== undefined) {
             return { success: false, role: pRole, error: cleanMsg };
           }

@@ -60,7 +60,11 @@ vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => {
 
 vi.mock("@modelcontextprotocol/sdk/server/sse.js", () => {
   return {
-    SSEServerTransport: vi.fn(function (this: any, _path: string, _res: ServerResponse) {
+    SSEServerTransport: vi.fn(function (
+      this: any,
+      _path: string,
+      _res: ServerResponse,
+    ) {
       this.handlePostMessage = vi.fn().mockResolvedValue(undefined);
       this.close = vi.fn().mockResolvedValue(undefined);
       this.sessionId = `sse-session-${Date.now()}`;
@@ -145,9 +149,9 @@ describe("getClientIp()", () => {
 
 describe("matchesCorsOrigin()", () => {
   it("should match exact origins", () => {
-    expect(matchesCorsOrigin("https://example.com", "https://example.com")).toBe(
-      true,
-    );
+    expect(
+      matchesCorsOrigin("https://example.com", "https://example.com"),
+    ).toBe(true);
   });
 
   it("should not match different origins", () => {
@@ -157,9 +161,9 @@ describe("matchesCorsOrigin()", () => {
   });
 
   it("should match wildcard subdomain patterns", () => {
-    expect(
-      matchesCorsOrigin("https://app.example.com", "*.example.com"),
-    ).toBe(true);
+    expect(matchesCorsOrigin("https://app.example.com", "*.example.com")).toBe(
+      true,
+    );
   });
 
   it("should not match bare domain against wildcard subdomain", () => {
@@ -835,15 +839,21 @@ describe("handleRequest()", () => {
         tokenValidator: mockTokenValidator as never,
       });
 
-      const mockTransport = new SSEServerTransport("/messages", createMockResponse());
+      const mockTransport = new SSEServerTransport(
+        "/messages",
+        createMockResponse(),
+      );
       t.getTransports().set("mock-session", mockTransport as never);
 
       const mockReq = new PassThrough() as unknown as IncomingMessage;
       mockReq.method = "POST";
       mockReq.url = "/messages?sessionId=mock-session";
-      mockReq.headers = { host: "localhost:3000", authorization: "Bearer token" };
+      mockReq.headers = {
+        host: "localhost:3000",
+        authorization: "Bearer token",
+      };
       (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
-      
+
       mockReq.write(
         JSON.stringify({
           jsonrpc: "2.0",
@@ -879,15 +889,21 @@ describe("handleRequest()", () => {
         tokenValidator: mockTokenValidator as never,
       });
 
-      const mockTransport = new SSEServerTransport("/messages", createMockResponse());
+      const mockTransport = new SSEServerTransport(
+        "/messages",
+        createMockResponse(),
+      );
       t.getTransports().set("mock-session", mockTransport as never);
 
       const mockReq = new PassThrough() as unknown as IncomingMessage;
       mockReq.method = "POST";
       mockReq.url = "/messages?sessionId=mock-session";
-      mockReq.headers = { host: "localhost:3000", authorization: "Bearer token" };
+      mockReq.headers = {
+        host: "localhost:3000",
+        authorization: "Bearer token",
+      };
       (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
-      
+
       mockReq.write(
         JSON.stringify({
           jsonrpc: "2.0",
@@ -902,10 +918,14 @@ describe("handleRequest()", () => {
 
       await (t as any).handleRequest(mockReq, mockRes);
 
-      expect(mockRes.writeHead).toHaveBeenCalledWith(403, expect.objectContaining({
-        "Content-Type": "application/json",
-      }));
-      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(mockRes.writeHead).toHaveBeenCalledWith(
+        403,
+        expect.objectContaining({
+          "Content-Type": "application/json",
+        }),
+      );
+      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       const responseBody = JSON.parse(endCall as string);
 
       expect(responseBody).toHaveProperty("error", "insufficient_scope");

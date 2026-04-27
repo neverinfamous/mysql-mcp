@@ -93,9 +93,7 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
     typeof lastArg === "object" &&
     lastArg !== null &&
     !Array.isArray(lastArg) &&
-    Object.keys(lastArg).some((k) =>
-      paramMapping.includes(k),
-    );
+    Object.keys(lastArg).some((k) => paramMapping.includes(k));
 
   // Map positional args to their keys
   const argsToMap = lastArgIsOptionsObject ? args.length - 1 : args.length;
@@ -120,4 +118,3 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
 
   return result;
 }
-

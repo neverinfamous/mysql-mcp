@@ -44,7 +44,10 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return { success: false, error: `Schema '${targetSchema}' does not exist` };
+            return {
+              success: false,
+              error: `Schema '${targetSchema}' does not exist`,
+            };
           }
         }
 

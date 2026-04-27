@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
-import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
   parseDocFilter,
@@ -42,8 +45,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!findCheck.exists) {
             return findCheck.reason === "schema"
-              ? { success: false, error: `Schema '${findCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
-              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
+              ? {
+                  success: false,
+                  error: `Schema '${findCheck.name}' does not exist`,
+                  code: "SCHEMA_NOT_FOUND",
+                  category: "domain",
+                }
+              : {
+                  success: false,
+                  error: `Collection '${collection}' does not exist`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "domain",
+                };
           }
 
           let selectClause = "doc";
@@ -68,13 +81,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tableRef = escapeTableRef(collection, schema);
           let query = `SELECT ${selectClause} FROM ${tableRef}`;
           let queryParams: unknown[] = [];
-          
+
           if (filter) {
             const { where, params: whereParams } = parseDocFilter(filter);
             query += ` WHERE ${where}`;
             queryParams = whereParams;
           }
-          
+
           query += ` LIMIT ${String(limit)} OFFSET ${String(offset)}`;
 
           const result = await adapter.executeQuery(query, queryParams);
@@ -117,8 +130,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!addCheck.exists) {
             return addCheck.reason === "schema"
-              ? { success: false, error: `Schema '${addCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
-              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
+              ? {
+                  success: false,
+                  error: `Schema '${addCheck.name}' does not exist`,
+                  code: "SCHEMA_NOT_FOUND",
+                  category: "domain",
+                }
+              : {
+                  success: false,
+                  error: `Collection '${collection}' does not exist`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "domain",
+                };
           }
 
           const tableRef = escapeTableRef(collection, schema);
@@ -164,8 +187,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!modCheck.exists) {
             return modCheck.reason === "schema"
-              ? { success: false, error: `Schema '${modCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
-              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
+              ? {
+                  success: false,
+                  error: `Schema '${modCheck.name}' does not exist`,
+                  code: "SCHEMA_NOT_FOUND",
+                  category: "domain",
+                }
+              : {
+                  success: false,
+                  error: `Collection '${collection}' does not exist`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "domain",
+                };
           }
 
           const updates: string[] = [];
@@ -179,9 +212,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
                 };
               }
-              updates.push(
-                `doc = JSON_SET(doc, ?, CAST(? AS JSON))`,
-              );
+              updates.push(`doc = JSON_SET(doc, ?, CAST(? AS JSON))`);
               updateParams.push(`$.${path}`, JSON.stringify(value));
             }
           }
@@ -205,7 +236,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { where, params: whereParams } = parseDocFilter(filter);
           const tableRef = escapeTableRef(collection, schema);
           const query = `UPDATE ${tableRef} SET ${updates.join(", ")} WHERE ${where}`;
-          const result = await adapter.executeQuery(query, [...updateParams, ...whereParams]);
+          const result = await adapter.executeQuery(query, [
+            ...updateParams,
+            ...whereParams,
+          ]);
           return { success: true, modified: result.rowsAffected ?? 0 };
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
@@ -238,8 +272,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!rmCheck.exists) {
             return rmCheck.reason === "schema"
-              ? { success: false, error: `Schema '${rmCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
-              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
+              ? {
+                  success: false,
+                  error: `Schema '${rmCheck.name}' does not exist`,
+                  code: "SCHEMA_NOT_FOUND",
+                  category: "domain",
+                }
+              : {
+                  success: false,
+                  error: `Collection '${collection}' does not exist`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "domain",
+                };
           }
 
           const { where, params: whereParams } = parseDocFilter(filter);
@@ -254,6 +298,6 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           return formatHandlerErrorResponse(error);
         }
       },
-    }
+    },
   ];
 }

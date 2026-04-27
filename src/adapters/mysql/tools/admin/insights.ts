@@ -50,9 +50,7 @@ export function createAppendInsightTool(): ToolDefinition {
 
         if (!parsed.insight?.trim()) {
           return Promise.resolve(
-            new ValidationError(
-              "Insight text cannot be empty",
-            ).toResponse(),
+            new ValidationError("Insight text cannot be empty").toResponse(),
           );
         }
 

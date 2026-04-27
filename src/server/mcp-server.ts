@@ -7,7 +7,10 @@
 
 import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { INSTRUCTIONS, HELP_CONTENT } from "../constants/server-instructions.js";
+import {
+  INSTRUCTIONS,
+  HELP_CONTENT,
+} from "../constants/server-instructions.js";
 import { VERSION } from "../utils/version.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import type { DatabaseAdapter } from "../adapters/database-adapter.js";
@@ -84,7 +87,7 @@ export class McpServer {
       if (this.config.auditConfig.backup?.enabled) {
         this.backupManager = new BackupManager(
           this.config.auditConfig.backup,
-          this.config.auditConfig.logPath
+          this.config.auditConfig.logPath,
         );
       }
       this.registerAuditResource();
@@ -130,7 +133,7 @@ export class McpServer {
       const interceptor = createAuditInterceptor(
         this.auditLogger,
         this.backupManager ?? undefined,
-        adapter
+        adapter,
       );
       adapter.setAuditInterceptor(interceptor);
       if (this.backupManager) {
@@ -212,7 +215,8 @@ export class McpServer {
         break;
       case "http":
       case "sse": {
-        const { createHttpTransport } = await import("../transports/http/index.js");
+        const { createHttpTransport } =
+          await import("../transports/http/index.js");
         const port = this.config.port ?? 3000;
 
         const httpTransport = createHttpTransport(
@@ -262,7 +266,10 @@ export class McpServer {
         break;
       }
       default:
-        throw new McpError(ErrorCode.InvalidRequest, `Unknown transport: ${String(transport)}`);
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Unknown transport: ${String(transport)}`,
+        );
     }
   }
 
@@ -381,13 +388,19 @@ export class McpServer {
     }
 
     if (!this.config.oauth.jwksUri) {
-      throw new McpError(ErrorCode.InvalidParams, "OAuth JWKS URI is required for validation");
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        "OAuth JWKS URI is required for validation",
+      );
     }
 
     const issuer = this.config.oauth.issuer;
     const audience = this.config.oauth.audience;
     if (!issuer || !audience) {
-      throw new McpError(ErrorCode.InvalidParams, "OAuth issuer and audience are required");
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        "OAuth issuer and audience are required",
+      );
     }
 
     return new TokenValidator({
@@ -411,22 +424,28 @@ export class McpServer {
         "mysql_help",
         "mysql://help",
         {
-          description: "Critical gotchas, parameter aliases, and Code Mode API reference",
+          description:
+            "Critical gotchas, parameter aliases, and Code Mode API reference",
           mimeType: "text/markdown",
         },
         () => ({
-          contents: [{
-            uri: "mysql://help",
-            mimeType: "text/markdown",
-            text: gotchasContent,
-          }],
+          contents: [
+            {
+              uri: "mysql://help",
+              mimeType: "text/markdown",
+              text: gotchasContent,
+            },
+          ],
         }),
       );
     }
 
     // Derive enabled groups from enabled tools
     const enabledGroups = new Set<ToolGroup>();
-    for (const [group, tools] of Object.entries(TOOL_GROUPS) as [ToolGroup, string[]][]) {
+    for (const [group, tools] of Object.entries(TOOL_GROUPS) as [
+      ToolGroup,
+      string[],
+    ][]) {
       if (tools.some((tool) => this.toolFilter.enabledTools.has(tool))) {
         enabledGroups.add(group);
       }
@@ -482,11 +501,13 @@ export class McpServer {
           mimeType: "text/markdown",
         },
         () => ({
-          contents: [{
-            uri: `mysql://help/${key}`,
-            mimeType: "text/markdown",
-            text: content,
-          }],
+          contents: [
+            {
+              uri: `mysql://help/${key}`,
+              mimeType: "text/markdown",
+              text: content,
+            },
+          ],
         }),
       );
     }
@@ -511,15 +532,18 @@ export class McpServer {
       "mysql_audit",
       "mysql://audit",
       {
-        description: "Recent forensic audit trail and pre-mutation snapshot stats",
+        description:
+          "Recent forensic audit trail and pre-mutation snapshot stats",
         mimeType: "application/json",
       },
       async () => {
         if (!this.auditLogger) return { contents: [] };
-        
+
         const recent = await this.auditLogger.recent(100);
-        const backupStats = this.backupManager ? await this.backupManager.getStats() : undefined;
-        
+        const backupStats = this.backupManager
+          ? await this.backupManager.getStats()
+          : undefined;
+
         let tokenEstimate = 0;
         let errors = 0;
         const tools: Record<string, number> = {};
@@ -542,13 +566,15 @@ export class McpServer {
         };
 
         return {
-          contents: [{
-            uri: "mysql://audit",
-            mimeType: "application/json",
-            text: JSON.stringify({ summary, recent }, null, 2),
-          }],
+          contents: [
+            {
+              uri: "mysql://audit",
+              mimeType: "application/json",
+              text: JSON.stringify({ summary, recent }, null, 2),
+            },
+          ],
         };
-      }
+      },
     );
     logger.info("Registered audit resource: mysql://audit");
   }

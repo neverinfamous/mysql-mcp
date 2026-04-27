@@ -3,7 +3,8 @@ import type { MySQLAdapter } from "../../mysql-adapter.js";
 export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 // Valid JSON path: $, $.field, $.field.sub, $.field[0], $[0], $[*]
-export const JSON_PATH_RE = /^(\$)((\.([a-zA-Z_][a-zA-Z0-9_]*))|((\[\d+\])|(\[\*\])))*$/;
+export const JSON_PATH_RE =
+  /^(\$)((\.([a-zA-Z_][a-zA-Z0-9_]*))|((\[\d+\])|(\[\*\])))*$/;
 
 /**
  * Parse filter string into a WHERE clause.
@@ -12,7 +13,10 @@ export const JSON_PATH_RE = /^(\$)((\.([a-zA-Z_][a-zA-Z0-9_]*))|((\[\d+\])|(\[\*
  * - _id match: direct _id value (32-char hex string)
  * - Field equality: name=Alice, age=30
  */
-export function parseDocFilter(filter: string): { where: string; params: unknown[] } {
+export function parseDocFilter(filter: string): {
+  where: string;
+  params: unknown[];
+} {
   // Check if it's a direct _id (32-char hex)
   if (/^[a-f0-9]{32}$/i.test(filter)) {
     return { where: "_id = ?", params: [filter] };

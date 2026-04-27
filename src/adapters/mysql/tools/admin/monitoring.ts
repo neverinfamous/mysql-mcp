@@ -313,7 +313,10 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "";
 
         if (summary) {
-          return { success: true, summary: parseInnodbStatusSummary(rawStatus) };
+          return {
+            success: true,
+            summary: parseInnodbStatusSummary(rawStatus),
+          };
         }
 
         return { success: true, status: rawRow };
@@ -363,10 +366,8 @@ export function createReplicationStatusTool(
         row["Master_Host"] ?? row["Source_Host"] ?? row["master_host"],
       sourcePort:
         row["Master_Port"] ?? row["Source_Port"] ?? row["master_port"],
-      executedGtidSet:
-        row["Executed_Gtid_Set"] ?? row["executed_gtid_set"],
-      retrievedGtidSet:
-        row["Retrieved_Gtid_Set"] ?? row["retrieved_gtid_set"],
+      executedGtidSet: row["Executed_Gtid_Set"] ?? row["executed_gtid_set"],
+      retrievedGtidSet: row["Retrieved_Gtid_Set"] ?? row["retrieved_gtid_set"],
       channelName: row["Channel_Name"] ?? row["channel_name"],
     };
   }

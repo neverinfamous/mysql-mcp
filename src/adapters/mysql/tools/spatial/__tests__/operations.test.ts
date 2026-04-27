@@ -277,7 +277,9 @@ describe("Spatial Operations Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = await tool.handler({}, mockContext);
-      expect(result).toMatchObject({ success: false, error: expect.stringContaining(
+      expect(result).toMatchObject({
+        success: false,
+        error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
         ),
       });
@@ -295,7 +297,9 @@ describe("Spatial Operations Tools", () => {
         mockContext,
       );
 
-      expect(result).toMatchObject({ success: false, error: expect.stringContaining(
+      expect(result).toMatchObject({
+        success: false,
+        error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
         ),
       });

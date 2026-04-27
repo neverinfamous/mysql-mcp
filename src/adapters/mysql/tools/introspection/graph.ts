@@ -153,7 +153,7 @@ export function createDependencyGraphTool(
           while (currentLevel.length > 0 && depth < parsed.maxDepth) {
             const nextLevel = [];
             for (const node of currentLevel) {
-              for (const dependent of (reverseAdjacency.get(node) ?? [])) {
+              for (const dependent of reverseAdjacency.get(node) ?? []) {
                 if (!nodeDepth.has(dependent)) {
                   nodeDepth.set(dependent, depth + 1);
                   nextLevel.push(dependent);
@@ -171,14 +171,14 @@ export function createDependencyGraphTool(
               allowedNodes.add(node);
             }
           }
-          
+
           const filteredOut = new Set<string>();
           for (const node of allNodes) {
             if (!allowedNodes.has(node)) {
               filteredOut.add(node);
             }
           }
-          
+
           for (const node of filteredOut) {
             allNodes.delete(node);
           }
@@ -280,10 +280,7 @@ export function createTopologicalSortTool(
         const direction = parsed.direction ?? "create";
 
         const fks = await fetchForeignKeys(adapter, parsed.schema);
-        const tables = await fetchTableNodes(
-          adapter,
-          parsed.schema,
-        );
+        const tables = await fetchTableNodes(adapter, parsed.schema);
 
         // Build all graph structures in a single FK iteration (PERF-P3)
         const adjacency = new Map<string, string[]>();
@@ -375,7 +372,11 @@ export function createTopologicalSortTool(
             `Circular dependency cycle detected: ${cycles.map((c) => c.join(" -> ")).join(", ")}`,
             "CIRCULAR_DEPENDENCY",
             ErrorCategory.VALIDATION,
-            { suggestion: "Redesign schema to break the circular reference or defer constraints during operations", recoverable: false }
+            {
+              suggestion:
+                "Redesign schema to break the circular reference or defer constraints during operations",
+              recoverable: false,
+            },
           );
         }
 
@@ -410,12 +411,14 @@ export function createCascadeSimulatorTool(
       try {
         const parsed = CascadeSimulatorSchema.parse(params);
         let schema = parsed.schema;
-        
+
         if (!schema) {
-          const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
           schema = (dbRow?.["db"] as string) || "mysql";
         }
-        
+
         const operation = parsed.operation ?? "DELETE";
         const sourceQName = qualifiedName(schema, parsed.table);
 
@@ -435,7 +438,11 @@ export function createCascadeSimulatorTool(
             `Table '${sourceQName}' does not exist. Use mysql_list_tables to verify.`,
             "TABLE_NOT_FOUND",
             ErrorCategory.VALIDATION,
-            { suggestion: "Ensure you are specifying the correct table and schema.", recoverable: true }
+            {
+              suggestion:
+                "Ensure you are specifying the correct table and schema.",
+              recoverable: true,
+            },
           );
         }
 

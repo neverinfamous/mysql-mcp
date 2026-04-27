@@ -252,9 +252,15 @@ export function createSpatialCreateIndexTool(
         if (msg.includes("Table") && msg.includes("doesn't exist")) {
           return { success: false, error: `Table '${tbl}' does not exist` };
         }
-        if (msg.includes("Key column") && msg.includes("doesn't exist in table")) {
+        if (
+          msg.includes("Key column") &&
+          msg.includes("doesn't exist in table")
+        ) {
           const col = paramStr(params, "column");
-          return { success: false, error: `Column '${col}' does not exist on table '${tbl}'` };
+          return {
+            success: false,
+            error: `Column '${col}' does not exist on table '${tbl}'`,
+          };
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
           return formatHandlerErrorResponse(new Error(msg));

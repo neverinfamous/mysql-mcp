@@ -51,4 +51,3 @@ export {
   type AuthenticatedContext,
   type AuthMiddlewareConfig,
 } from "./middleware.js";
-

@@ -46,7 +46,7 @@ export const FindSchemaBase = z.object({
 
 export const FindSchema = z.preprocess(
   preprocessDocFilterParams,
-  FindSchemaBase
+  FindSchemaBase,
 );
 
 export const AddDocSchema = z.object({

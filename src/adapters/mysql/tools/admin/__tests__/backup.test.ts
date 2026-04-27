@@ -566,7 +566,7 @@ describe("Admin Backup Tools", () => {
 
     it("should generate mysqldump command with specific database", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ SCHEMA_NAME: "production_db" }])
+        createMockQueryResult([{ SCHEMA_NAME: "production_db" }]),
       );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -580,7 +580,10 @@ describe("Admin Backup Tools", () => {
 
     it("should include specific tables in command", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ SCHEMA_NAME: "mydb" }, { TABLE_NAME: "users" }])
+        createMockQueryResult([
+          { SCHEMA_NAME: "mydb" },
+          { TABLE_NAME: "users" },
+        ]),
       );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -597,10 +600,13 @@ describe("Admin Backup Tools", () => {
 
     it("should add --no-data flag for schema-only dump", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ SCHEMA_NAME: "mydb" }])
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
       );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({ database: "mydb", noData: true }, mockContext)) as {
+      const result = (await tool.handler(
+        { database: "mydb", noData: true },
+        mockContext,
+      )) as {
         command: string;
       };
 
@@ -609,7 +615,7 @@ describe("Admin Backup Tools", () => {
 
     it("should add --single-transaction flag when specified", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ SCHEMA_NAME: "mydb" }])
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
       );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -622,7 +628,10 @@ describe("Admin Backup Tools", () => {
 
     it("should combine multiple options", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ SCHEMA_NAME: "mydb" }, { TABLE_NAME: "users" }])
+        createMockQueryResult([
+          { SCHEMA_NAME: "mydb" },
+          { TABLE_NAME: "users" },
+        ]),
       );
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -639,8 +648,6 @@ describe("Admin Backup Tools", () => {
       expect(result.command).toContain("--single-transaction");
       expect(result.command).toContain("users");
     });
-
-
   });
 
   describe("createRestoreDumpTool", () => {
@@ -704,7 +711,5 @@ describe("Admin Backup Tools", () => {
       )) as { command: string };
       expect(result.command).toContain("backup.sql.gz");
     });
-
-
   });
 });

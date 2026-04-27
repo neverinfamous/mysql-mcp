@@ -108,23 +108,27 @@ export function createConstraintAnalysisTool(
         // Check: Circular dependencies
         if (runAll || checks.has("circular_dependency")) {
           const fks = await fetchForeignKeys(adapter, parsed.schema);
-          
+
           const adjacency = new Map<string, string[]>();
           for (const fk of fks) {
             const from = qualifiedName(fk.fromSchema, fk.fromTable);
             const to = qualifiedName(fk.toSchema, fk.toTable);
             if (from === to) continue; // Self references are not treated as system-blocking circular dependencies
-            
+
             // Only add edges matching our filters
-            if (parsed.table && fk.fromTable !== parsed.table && fk.toTable !== parsed.table) {
-                continue;
+            if (
+              parsed.table &&
+              fk.fromTable !== parsed.table &&
+              fk.toTable !== parsed.table
+            ) {
+              continue;
             }
-            
+
             const existing = adjacency.get(from) ?? [];
             existing.push(to);
             adjacency.set(from, existing);
           }
-          
+
           const cycles = detectCycles(adjacency);
           for (const cycle of cycles) {
             // A cycle is an array of tables like ['A', 'B', 'A']
@@ -132,14 +136,15 @@ export function createConstraintAnalysisTool(
             const table = cycle[0] ?? "";
             if (parsed.table && !table.includes(`.${parsed.table}`)) {
               // If filtering by table, only report cycles that involve this table
-              if (!cycle.some(t => t.includes(`.${parsed.table}`))) continue;
+              if (!cycle.some((t) => t.includes(`.${parsed.table}`))) continue;
             }
             findings.push({
               type: "circular_dependency",
               severity: "error",
               table,
               description: `Circular foreign key dependency detected: ${cycle.join(" -> ")}`,
-              suggestion: "Redesign schema to break the circular reference or defer constraints during operations",
+              suggestion:
+                "Redesign schema to break the circular reference or defer constraints during operations",
             });
           }
         }
@@ -267,8 +272,7 @@ const DDL_RISK_PATTERNS: {
     category: "constraint",
     riskLevel: "medium",
     description: "Adding a foreign key requires validating all existing rows",
-    mitigation:
-      "Ensure referenced rows exist before applying the constraint",
+    mitigation: "Ensure referenced rows exist before applying the constraint",
     requiresDowntime: false,
     lockImpact: "Shared locks on both tables",
   },
@@ -298,8 +302,7 @@ const DDL_RISK_PATTERNS: {
     riskLevel: "medium",
     description:
       "Adding a column with a DEFAULT is INSTANT in MySQL 8+, but requires table rewrite in 5.7",
-    mitigation:
-      "Be cautious if running on MySQL 5.7 or older",
+    mitigation: "Be cautious if running on MySQL 5.7 or older",
     requiresDowntime: false,
     lockImpact: "INSTANT in 8.0, requires rebuild in 5.7",
   },
@@ -329,8 +332,7 @@ const DDL_RISK_PATTERNS: {
     riskLevel: "medium",
     description:
       "DROP INDEX blocks briefly. May degrade query performance significantly",
-    mitigation:
-      "Verify no critical queries depend on the index",
+    mitigation: "Verify no critical queries depend on the index",
     requiresDowntime: false,
     lockImpact: "Exclusive metadata lock (brief)",
   },
@@ -347,10 +349,8 @@ const DDL_RISK_PATTERNS: {
     pattern: /\bDROP\s+DATABASE\b/i,
     category: "data_loss",
     riskLevel: "critical",
-    description:
-      "DROP DATABASE deletes the schema and ALL objects within it",
-    mitigation:
-      "Verify intent and back up critical data",
+    description: "DROP DATABASE deletes the schema and ALL objects within it",
+    mitigation: "Verify intent and back up critical data",
     requiresDowntime: false,
     lockImpact: "Exclusive metadata lock on all objects",
   },

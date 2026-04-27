@@ -337,7 +337,8 @@ export const JsonRemoveSchema = z
     message: "column (or col alias) is required",
   })
   .refine((data) => data.paths.length > 0, {
-    message: "paths (or path alias) is required and must contain at least one element",
+    message:
+      "paths (or path alias) is required and must contain at least one element",
   })
   .refine((data) => data.where !== "", {
     message: "where (or filter alias) is required",
@@ -587,4 +588,3 @@ export const JsonIndexSuggestSchema = z
 export const JsonValidateSchema = z.object({
   value: z.string().describe("JSON string to validate"),
 });
-

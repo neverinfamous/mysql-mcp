@@ -200,4 +200,3 @@ export const ShowVariablesSchema = z.object({
       "Maximum number of variables to return (default: 30). Set higher to see all.",
     ),
 });
-

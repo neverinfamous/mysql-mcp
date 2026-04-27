@@ -20,7 +20,11 @@ import {
 describe("Error Classes", () => {
   describe("MySQLMcpError", () => {
     it("should create error with message and code", () => {
-      const error = new MySQLMcpError("Test error", "TEST_CODE", ErrorCategory.INTERNAL);
+      const error = new MySQLMcpError(
+        "Test error",
+        "TEST_CODE",
+        ErrorCategory.INTERNAL,
+      );
       expect(error.message).toBe("Test error");
       expect(error.code).toBe("TEST_CODE");
       expect(error.name).toBe("MySQLMcpError");
@@ -28,7 +32,12 @@ describe("Error Classes", () => {
 
     it("should create error with details", () => {
       const details = { table: "users", operation: "insert" };
-      const error = new MySQLMcpError("Test error", "TEST_CODE", ErrorCategory.INTERNAL, { details });
+      const error = new MySQLMcpError(
+        "Test error",
+        "TEST_CODE",
+        ErrorCategory.INTERNAL,
+        { details },
+      );
       expect(error.details).toEqual(details);
     });
 

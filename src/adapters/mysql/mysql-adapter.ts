@@ -282,10 +282,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       if (this.isUnsupportedPreparedStatementError(error)) {
         // Fallback to text protocol
         try {
-          const [results, fields] = await connection.query(
-            sql,
-            params,
-          );
+          const [results, fields] = await connection.query(sql, params);
           return this.processExecutionResult(results, fields, startTime);
         } catch (fallbackError) {
           const err = fallbackError as Error;
@@ -357,13 +354,15 @@ export class MySQLAdapter extends DatabaseAdapter {
     try {
       if (isolationLevel) {
         // Store original isolation level to restore it later
-        const [rows] = await connection.query('SELECT @@SESSION.transaction_isolation AS iso');
+        const [rows] = await connection.query(
+          "SELECT @@SESSION.transaction_isolation AS iso",
+        );
         const results = rows as { iso: string }[];
         if (results.length > 0 && results[0]) {
-          const origIso = results[0].iso.replace('-', ' ');
+          const origIso = results[0].iso.replace("-", " ");
           this.origIsolationLevels.set(transactionId, origIso);
         }
-        
+
         await connection.query(
           `SET SESSION TRANSACTION ISOLATION LEVEL ${isolationLevel}`,
         );
@@ -394,7 +393,9 @@ export class MySQLAdapter extends DatabaseAdapter {
       const origIso = this.origIsolationLevels.get(transactionId);
       if (origIso) {
         try {
-          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${origIso}`);
+          await connection.query(
+            `SET SESSION TRANSACTION ISOLATION LEVEL ${origIso}`,
+          );
         } catch {
           // Ignore reset errors
         }
@@ -420,7 +421,9 @@ export class MySQLAdapter extends DatabaseAdapter {
       const origIso = this.origIsolationLevels.get(transactionId);
       if (origIso) {
         try {
-          await connection.query(`SET SESSION TRANSACTION ISOLATION LEVEL ${origIso}`);
+          await connection.query(
+            `SET SESSION TRANSACTION ISOLATION LEVEL ${origIso}`,
+          );
         } catch {
           // Ignore reset errors
         }

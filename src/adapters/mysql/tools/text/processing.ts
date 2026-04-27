@@ -45,7 +45,8 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, pattern, where } = RegexpMatchSchema.parse(params);
+        const { table, column, pattern, where } =
+          RegexpMatchSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -59,9 +60,16 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeReadQuery(sql, [pattern]);
 
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     },
   };
@@ -82,7 +90,8 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, pattern, where } = LikeSearchSchema.parse(params);
+        const { table, column, pattern, where } =
+          LikeSearchSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -96,9 +105,16 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeReadQuery(sql, [pattern]);
 
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     },
   };
@@ -132,9 +148,16 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeReadQuery(sql, [value]);
 
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     },
   };
@@ -177,9 +200,16 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     },
   };
@@ -199,8 +229,14 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, columns, separator, alias, where, includeSourceColumns } =
-          ConcatSchema.parse(params);
+        const {
+          table,
+          columns,
+          separator,
+          alias,
+          where,
+          includeSourceColumns,
+        } = ConcatSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -225,9 +261,16 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     },
   };
@@ -278,9 +321,16 @@ export function createCollationConvertTool(
         }
 
         const result = await adapter.executeReadQuery(sql);
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     },
   };

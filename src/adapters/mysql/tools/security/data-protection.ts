@@ -5,7 +5,11 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatZodError, stripErrorPrefix, formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatZodError,
+  stripErrorPrefix,
+  formatHandlerErrorResponse,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -192,7 +196,12 @@ export function createSecurityMaskDataTool(
             maskedValue = maskChar.repeat(value.length);
         }
 
-        return Promise.resolve({ success: true, original: value, masked: maskedValue, type });
+        return Promise.resolve({
+          success: true,
+          original: value,
+          masked: maskedValue,
+          type,
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return Promise.resolve({
@@ -393,8 +402,7 @@ export function createSecuritySensitiveTablesTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, patterns, limit } =
-          SensitiveTablesSchema.parse(params);
+        const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -403,7 +411,10 @@ export function createSecuritySensitiveTablesTool(
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { success: false, error: `Schema '${schema}' does not exist.` };
+            return {
+              success: false,
+              error: `Schema '${schema}' does not exist.`,
+            };
           }
         }
 
@@ -459,9 +470,7 @@ export function createSecuritySensitiveTablesTool(
 
         const totalAvailable = allItems.length;
         const limited = totalAvailable > limit;
-        const sensitiveItems = limited
-          ? allItems.slice(0, limit)
-          : allItems;
+        const sensitiveItems = limited ? allItems.slice(0, limit) : allItems;
 
         return {
           success: true,

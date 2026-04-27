@@ -54,7 +54,7 @@ export function createSchemaSnapshotTool(
         const schemaExclude = parsed.includeSystem
           ? ""
           : "AND TABLE_SCHEMA NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
-        
+
         const schemaParams: unknown[] = [];
         let schemaWhere = "";
         if (parsed.schema) {
@@ -222,7 +222,7 @@ export function createSchemaSnapshotTool(
             ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION`,
             qp,
           );
-          
+
           for (const row of colsResult.rows ?? []) {
             const key = `${row["TABLE_SCHEMA"] as string}.${row["TABLE_NAME"] as string}`;
             if (!columnsMap.has(key)) columnsMap.set(key, []);

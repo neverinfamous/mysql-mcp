@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { preprocessTableParams, preprocessQueryOnlyParams } from "./preprocess-utils.js";
+import {
+  preprocessTableParams,
+  preprocessQueryOnlyParams,
+} from "./preprocess-utils.js";
 
 // =============================================================================
 // Performance Schemas
@@ -192,7 +195,7 @@ export const ForceIndexSchema = z
       sql: z.string().optional(),
       indexName: z.string().optional(),
       index: z.string().optional(),
-    })
+    }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
@@ -208,4 +211,3 @@ export const ForceIndexSchema = z
   .refine((data) => data.indexName !== "", {
     message: "indexName (or index alias) is required",
   });
-

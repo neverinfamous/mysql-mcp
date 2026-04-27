@@ -22,8 +22,14 @@ import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 // =============================================================================
 
 export const DetectConnectionSpikeSchema = z.object({
-  warningPercent: z.number().optional().describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z.number().optional().describe("Idle time window in minutes to flag connections (default: 5)"),
+  warningPercent: z
+    .number()
+    .optional()
+    .describe("Percentage threshold for flagging concentration (default: 70)"),
+  windowMinutes: z
+    .number()
+    .optional()
+    .describe("Idle time window in minutes to flag connections (default: 5)"),
   thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
 });
 
@@ -53,15 +59,23 @@ export function createDetectConnectionSpikeTool(
       try {
         const parsed = DetectConnectionSpikeSchema.parse(params);
 
-        const rawPercent = parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
+        const rawPercent =
+          parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
         if (rawPercent < 0 || rawPercent > 100) {
-          return { success: false, error: "warningPercent (or thresholdPercent) must be between 0 and 100" };
+          return {
+            success: false,
+            error:
+              "warningPercent (or thresholdPercent) must be between 0 and 100",
+          };
         }
         const warningPercent = rawPercent;
         const windowMinutes = parsed.windowMinutes ?? 5;
 
         if (windowMinutes < 1 || windowMinutes > 1440) {
-          return { success: false, error: "windowMinutes must be between 1 and 1440" };
+          return {
+            success: false,
+            error: "windowMinutes must be between 1 and 1440",
+          };
         }
         const idleSeconds = windowMinutes * 60;
 
@@ -75,9 +89,11 @@ export function createDetectConnectionSpikeTool(
         ]);
 
         const processes = processlistResult.rows ?? [];
-        
+
         // Filter out the system daemon threads (e.g., event_scheduler)
-        const userProcesses = processes.filter((r) => toStr(r["USER"]) !== "system user");
+        const userProcesses = processes.filter(
+          (r) => toStr(r["USER"]) !== "system user",
+        );
 
         const totalConnections = userProcesses.length;
         const maxConnections = toNum(maxResult.rows?.[0]?.["Value"]);
@@ -93,7 +109,7 @@ export function createDetectConnectionSpikeTool(
         const commandCounts: Record<string, number> = {};
         const userCounts: Record<string, number> = {};
         const hostCounts: Record<string, number> = {};
-        
+
         for (const p of userProcesses) {
           const cmd = toStr(p["COMMAND"], "Unknown");
           const user = toStr(p["USER"], "Unknown");
@@ -105,44 +121,82 @@ export function createDetectConnectionSpikeTool(
           hostCounts[host] = (hostCounts[host] ?? 0) + 1;
         }
 
-        const byState = Object.entries(commandCounts).map(([state, count]) => ({ state, count }));
+        const byState = Object.entries(commandCounts).map(([state, count]) => ({
+          state,
+          count,
+        }));
         byState.sort((a, b) => b.count - a.count);
 
         // Check user concentration
         for (const [user, count] of Object.entries(userCounts)) {
-          const percent = totalConnections > 0 ? Math.round((count / totalConnections) * 100 * 10) / 10 : 0;
+          const percent =
+            totalConnections > 0
+              ? Math.round((count / totalConnections) * 100 * 10) / 10
+              : 0;
           if (percent >= warningPercent) {
-            concentrations.push({ dimension: "user", value: user, count, percent });
-            warnings.push(`User '${user}' holds ${String(percent)}% of connections (${String(count)}/${String(totalConnections)})`);
+            concentrations.push({
+              dimension: "user",
+              value: user,
+              count,
+              percent,
+            });
+            warnings.push(
+              `User '${user}' holds ${String(percent)}% of connections (${String(count)}/${String(totalConnections)})`,
+            );
           }
         }
 
         // Check host concentration
         for (const [host, count] of Object.entries(hostCounts)) {
-          const percent = totalConnections > 0 ? Math.round((count / totalConnections) * 100 * 10) / 10 : 0;
+          const percent =
+            totalConnections > 0
+              ? Math.round((count / totalConnections) * 100 * 10) / 10
+              : 0;
           if (percent >= warningPercent) {
-            concentrations.push({ dimension: "host", value: host, count, percent });
-            warnings.push(`Host '${host}' holds ${String(percent)}% of connections (${String(count)}/${String(totalConnections)})`);
+            concentrations.push({
+              dimension: "host",
+              value: host,
+              count,
+              percent,
+            });
+            warnings.push(
+              `Host '${host}' holds ${String(percent)}% of connections (${String(count)}/${String(totalConnections)})`,
+            );
           }
         }
 
         // Check idle (Sleep) connection buildup
-        const idleRows = userProcesses.filter((r) => toStr(r["COMMAND"]) === "Sleep");
+        const idleRows = userProcesses.filter(
+          (r) => toStr(r["COMMAND"]) === "Sleep",
+        );
         if (idleRows.length > 0) {
-          const longIdle = idleRows.filter((r) => toNum(r["TIME"]) > idleSeconds);
+          const longIdle = idleRows.filter(
+            (r) => toNum(r["TIME"]) > idleSeconds,
+          );
           if (longIdle.length > 0) {
-            warnings.push(`${String(longIdle.length)} connection(s) sleeping for >${String(windowMinutes)} minutes — these hold resources unnecessarily`);
+            warnings.push(
+              `${String(longIdle.length)} connection(s) sleeping for >${String(windowMinutes)} minutes — these hold resources unnecessarily`,
+            );
           }
-          if (idleRows.length >= 50 && (idleRows.length / totalConnections) > 0.5) {
-            warnings.push(`${String(idleRows.length)} total sleeping connections — consider lowering wait_timeout`);
+          if (
+            idleRows.length >= 50 &&
+            idleRows.length / totalConnections > 0.5
+          ) {
+            warnings.push(
+              `${String(idleRows.length)} total sleeping connections — consider lowering wait_timeout`,
+            );
           }
         }
 
         // Check overall pressure
         if (usagePercent >= 90) {
-          warnings.push(`Critical connection pressure: ${String(usagePercent)}% of max_connections in use`);
+          warnings.push(
+            `Critical connection pressure: ${String(usagePercent)}% of max_connections in use`,
+          );
         } else if (usagePercent >= 80) {
-          warnings.push(`High connection pressure: ${String(usagePercent)}% of max_connections in use`);
+          warnings.push(
+            `High connection pressure: ${String(usagePercent)}% of max_connections in use`,
+          );
         }
 
         // Calculate risk level

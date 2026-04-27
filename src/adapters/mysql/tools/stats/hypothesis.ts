@@ -10,11 +10,11 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse, formatMysqlError } from "../core/error-helpers.js";
 import {
-  calculateTTestPValue,
-  calculateZTestPValue,
-} from "./math-utils.js";
+  formatHandlerErrorResponse,
+  formatMysqlError,
+} from "../core/error-helpers.js";
+import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
 
 // =============================================================================
 // Schemas
@@ -25,7 +25,10 @@ export const StatsHypothesisSchema = z.object({
   column: z.string().describe("Numeric column to test"),
   testType: z.enum(["t_test", "z_test"]).describe("Type of test to perform"),
   hypothesizedMean: z.number().describe("Null hypothesis mean to test against"),
-  populationStdDev: z.number().optional().describe("Known population standard deviation (for z-test)"),
+  populationStdDev: z
+    .number()
+    .optional()
+    .describe("Known population standard deviation (for z-test)"),
   groupBy: z.string().optional().describe("Column to group results by"),
   where: z.string().optional().describe("Filter condition"),
 });
@@ -230,7 +233,7 @@ export function createStatsHypothesisTool(
               stddev: string | number;
             }
           | undefined;
-          
+
         if (!row) return { success: false, error: "No data found" };
 
         const n = Number(row.n);
@@ -256,7 +259,10 @@ export function createStatsHypothesisTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }

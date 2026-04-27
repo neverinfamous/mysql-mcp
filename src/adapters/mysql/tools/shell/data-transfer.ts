@@ -142,7 +142,9 @@ export function createShellImportTableTool(): ToolDefinition {
           );
         }
         if (linesTerminatedBy) {
-          options.push(`linesTerminatedBy: ${JSON.stringify(linesTerminatedBy)}`);
+          options.push(
+            `linesTerminatedBy: ${JSON.stringify(linesTerminatedBy)}`,
+          );
         }
 
         // Build JavaScript code that optionally enables local_infile
@@ -178,7 +180,8 @@ export function createShellImportTableTool(): ToolDefinition {
           return {
             success: false,
             error: "Import failed: local_infile is disabled on the server.",
-            suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+            suggestion:
+              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
           };
         }
         return {
@@ -313,7 +316,8 @@ export function createShellImportJSONTool(): ToolDefinition {
         if (result.exitCode !== 0) {
           return {
             success: false,
-            error: result.stderr || result.stdout || "MySQL Shell import failed",
+            error:
+              result.stderr || result.stdout || "MySQL Shell import failed",
             details: { protocol: "X Protocol" },
           };
         }

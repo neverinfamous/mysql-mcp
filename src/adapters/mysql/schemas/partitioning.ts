@@ -10,7 +10,12 @@ export const PartitionInfoSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  summary: z.boolean().optional().describe("If true, returns a lighter payload without column details (default: true)"),
+  summary: z
+    .boolean()
+    .optional()
+    .describe(
+      "If true, returns a lighter payload without column details (default: true)",
+    ),
 });
 
 export const PartitionInfoSchema = z
@@ -84,7 +89,10 @@ export const DropPartitionSchema = z
       const v = preprocessTableParams(val);
       if (typeof v === "object" && v !== null) {
         const obj = v as Record<string, unknown>;
-        if (obj["partitionName"] === undefined && obj["partition"] !== undefined) {
+        if (
+          obj["partitionName"] === undefined &&
+          obj["partition"] !== undefined
+        ) {
           obj["partitionName"] = obj["partition"];
         }
       }
@@ -160,4 +168,3 @@ export const ReorganizePartitionSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   });
-

@@ -18,7 +18,10 @@ import {
   preprocessQueryOnlyParams,
 } from "../../schemas/index.js";
 import { z } from "zod";
-import { formatMysqlError, formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatMysqlError,
+  formatHandlerErrorResponse,
+} from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 
 /** Trace summary decision type */
@@ -48,12 +51,22 @@ function extractTraceSummary(
   const decisions: TraceSummaryDecision[] = [];
 
   if (!rows || rows.length === 0) {
-    return { success: false, query, decisions, error: "No trace data available" };
+    return {
+      success: false,
+      query,
+      decisions,
+      error: "No trace data available",
+    };
   }
 
   const row = rows[0];
   if (!row) {
-    return { success: false, query, decisions, error: "No trace data available" };
+    return {
+      success: false,
+      query,
+      decisions,
+      error: "No trace data available",
+    };
   }
 
   const traceStr = row["TRACE"];
@@ -389,13 +402,17 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate index existence
         const indexes = await adapter.getTableIndexes(table);
         if (!indexes.some((idx) => idx.name === indexName)) {
-          throw new ValidationError(`Index '${indexName}' not found on table '${table}'`);
+          throw new ValidationError(
+            `Index '${indexName}' not found on table '${table}'`,
+          );
         }
 
         // Simple replacement - insert FORCE INDEX after table name
         const regex = new RegExp(`FROM\\s+\`?${table}\`?(?=\\s|,|$)`, "i");
         if (!regex.test(query)) {
-          throw new ValidationError(`Table '${table}' not found in query FROM clause`);
+          throw new ValidationError(
+            `Table '${table}' not found in query FROM clause`,
+          );
         }
 
         const rewritten = query.replace(

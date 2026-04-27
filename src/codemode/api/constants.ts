@@ -536,4 +536,3 @@ export const ARRAY_WRAP_MAP: Record<string, string> = {
   transactionExecute: "statements",
   execute: "statements",
 };
-

@@ -7,9 +7,7 @@ import { z } from "zod";
  * mysql_dependency_graph input
  */
 export const DependencyGraphSchemaBase = z.object({
-  schema: z
-    .string()
-    .describe("Schema to analyze"),
+  schema: z.string().describe("Schema to analyze"),
   includeRowCounts: z
     .boolean()
     .optional()
@@ -28,20 +26,19 @@ export const DependencyGraphSchemaBase = z.object({
     .describe("Maximum depth for traversal (default: no limit)"),
 });
 
-export const DependencyGraphSchema = z
-  .object({
-    schema: z.string(),
-    includeRowCounts: z.boolean().optional(),
-    compact: z.boolean().optional(),
-    limit: z.preprocess((val) => {
-      if (typeof val === "string") return parseInt(val, 10);
-      return val;
-    }, z.number().optional().default(100)),
-    maxDepth: z.preprocess((val) => {
-      if (typeof val === "string") return parseInt(val, 10);
-      return val;
-    }, z.number().optional()),
-  });
+export const DependencyGraphSchema = z.object({
+  schema: z.string(),
+  includeRowCounts: z.boolean().optional(),
+  compact: z.boolean().optional(),
+  limit: z.preprocess((val) => {
+    if (typeof val === "string") return parseInt(val, 10);
+    return val;
+  }, z.number().optional().default(100)),
+  maxDepth: z.preprocess((val) => {
+    if (typeof val === "string") return parseInt(val, 10);
+    return val;
+  }, z.number().optional()),
+});
 
 /**
  * mysql_topological_sort input
@@ -117,7 +114,9 @@ export const SchemaSnapshotSchemaBase = z.object({
   includeSystem: z
     .boolean()
     .optional()
-    .describe("Include system schemas like mysql, information_schema (default: false)"),
+    .describe(
+      "Include system schemas like mysql, information_schema (default: false)",
+    ),
   sections: z
     .array(z.string())
     .optional()

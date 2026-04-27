@@ -5,10 +5,12 @@
  * 4 tools: partition_info, add_partition, drop_partition, reorganize_partition.
  */
 
-
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { formatMysqlError, formatHandlerErrorResponse } from "./core/error-helpers.js";
+import {
+  formatMysqlError,
+  formatHandlerErrorResponse,
+} from "./core/error-helpers.js";
 import {
   PartitionInfoSchema,
   PartitionInfoSchemaBase,

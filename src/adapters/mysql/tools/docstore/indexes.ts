@@ -1,15 +1,16 @@
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
-import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
   checkCollectionExists,
   escapeTableRef,
 } from "./helpers.js";
-import {
-  CreateDocIndexSchema,
-} from "../../schemas/index.js";
+import { CreateDocIndexSchema } from "../../schemas/index.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -39,8 +40,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!idxCheck.exists) {
             return idxCheck.reason === "schema"
-              ? { success: false, error: `Schema '${idxCheck.name}' does not exist`, code: "SCHEMA_NOT_FOUND", category: "domain" }
-              : { success: false, error: `Collection '${collection}' does not exist`, code: "TABLE_NOT_FOUND", category: "domain" };
+              ? {
+                  success: false,
+                  error: `Schema '${idxCheck.name}' does not exist`,
+                  code: "SCHEMA_NOT_FOUND",
+                  category: "domain",
+                }
+              : {
+                  success: false,
+                  error: `Collection '${collection}' does not exist`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "domain",
+                };
           }
 
           const tableRef = escapeTableRef(collection, schema);
@@ -81,6 +92,6 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           return { success: false, error: message };
         }
       },
-    }
+    },
   ];
 }

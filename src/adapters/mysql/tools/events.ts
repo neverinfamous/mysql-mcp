@@ -128,15 +128,8 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const {
-          name,
-          newName,
-          schedule,
-          body,
-          onCompletion,
-          status,
-          comment,
-        } = EventAlterSchema.parse(params);
+        const { name, newName, schedule, body, onCompletion, status, comment } =
+          EventAlterSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
           return { success: false, error: "Invalid event name" };

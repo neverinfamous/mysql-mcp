@@ -409,7 +409,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     if (auditBackup || process.env["AUDIT_BACKUP"] === "true") {
       config.auditConfig.backup = {
         enabled: true,
-        includeData: auditBackupData || process.env["AUDIT_BACKUP_DATA"] === "true",
+        includeData:
+          auditBackupData || process.env["AUDIT_BACKUP_DATA"] === "true",
         maxAgeDays: 30, // Fixed default for now
         maxCount: 1000, // Fixed default for now
         maxDataSizeBytes: auditBackupMaxSize,

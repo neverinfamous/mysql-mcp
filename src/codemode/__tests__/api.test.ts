@@ -296,7 +296,10 @@ describe("MysqlApi", () => {
       const bindings = readonlyApi.createSandboxBindings();
 
       // Core write method (mysql_write_query) should be stubbed to return error
-      const coreApi = bindings.core as Record<string, (...args: unknown[]) => { success: boolean; error: string }>;
+      const coreApi = bindings.core as Record<
+        string,
+        (...args: unknown[]) => { success: boolean; error: string }
+      >;
       const writeResult = coreApi.writeQuery();
       expect(writeResult).toHaveProperty("success", false);
       expect(writeResult.error).toContain("Readonly mode");
@@ -304,10 +307,16 @@ describe("MysqlApi", () => {
       // Core read method (mysql_read_query) should remain intact
       // We can't easily test the exact function, but it shouldn't return the stub error object synchronously
       const readResult = coreApi.readQuery();
-      expect(readResult).not.toHaveProperty("error", expect.stringContaining("Readonly mode"));
+      expect(readResult).not.toHaveProperty(
+        "error",
+        expect.stringContaining("Readonly mode"),
+      );
 
       // Migration write method should be stubbed
-      const migrationApi = bindings.migration as Record<string, (...args: unknown[]) => { success: boolean; error: string }>;
+      const migrationApi = bindings.migration as Record<
+        string,
+        (...args: unknown[]) => { success: boolean; error: string }
+      >;
       const initResult = migrationApi.init();
       expect(initResult).toHaveProperty("success", false);
       expect(initResult.error).toContain("Readonly mode");

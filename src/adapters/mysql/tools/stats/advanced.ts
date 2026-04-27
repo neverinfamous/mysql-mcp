@@ -11,7 +11,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse, formatMysqlError } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  formatMysqlError,
+} from "../core/error-helpers.js";
 
 // =============================================================================
 // Constants
@@ -49,29 +52,55 @@ const NUMERIC_TYPES = new Set([
 export const StatsTopNSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column to sort by"),
-  n: z.number().min(1).max(100).default(10).describe("Number of rows to return (default: 10, max: 100)"),
-  direction: z.enum(["asc", "desc"]).default("desc").describe("Sort direction (default: desc)"),
-  selectColumns: z.array(z.string()).optional().describe("Columns to include (defaults to all except long text/blobs)"),
+  n: z
+    .number()
+    .min(1)
+    .max(100)
+    .default(10)
+    .describe("Number of rows to return (default: 10, max: 100)"),
+  direction: z
+    .enum(["asc", "desc"])
+    .default("desc")
+    .describe("Sort direction (default: desc)"),
+  selectColumns: z
+    .array(z.string())
+    .optional()
+    .describe("Columns to include (defaults to all except long text/blobs)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsDistinctSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column to get distinct values for"),
-  limit: z.number().min(1).max(1000).default(100).describe("Maximum values to return (default: 100)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(100)
+    .describe("Maximum values to return (default: 100)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsFrequencySchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Column to get frequency distribution for"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsSummarySchema = z.object({
   table: z.string().describe("Table name"),
-  columns: z.array(z.string()).optional().describe("Specific numeric columns to summarize (defaults to all numeric columns)"),
+  columns: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Specific numeric columns to summarize (defaults to all numeric columns)",
+    ),
   where: z.string().optional().describe("Filter condition"),
 });
 
@@ -174,7 +203,10 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -186,9 +218,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
 // DISTINCT VALUES
 // =============================================================================
 
-export function createStatsDistinctTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
+export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_distinct",
     description:
@@ -235,7 +265,8 @@ export function createStatsDistinctTool(
         `;
         const countResult = await adapter.executeQuery(countSql);
         const distinctCount = Number(
-          (countResult.rows?.[0] as { cnt: string | number } | undefined)?.cnt ?? 0,
+          (countResult.rows?.[0] as { cnt: string | number } | undefined)
+            ?.cnt ?? 0,
         );
 
         return {
@@ -248,7 +279,10 @@ export function createStatsDistinctTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -315,7 +349,8 @@ export function createStatsFrequencyTool(
         `;
         const countResult = await adapter.executeQuery(countSql);
         const distinctValues = Number(
-          (countResult.rows?.[0] as { cnt: string | number } | undefined)?.cnt ?? 0,
+          (countResult.rows?.[0] as { cnt: string | number } | undefined)
+            ?.cnt ?? 0,
         );
 
         return {
@@ -328,7 +363,10 @@ export function createStatsFrequencyTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -340,9 +378,7 @@ export function createStatsFrequencyTool(
 // SUMMARY STATISTICS
 // =============================================================================
 
-export function createStatsSummaryTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
+export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_summary",
     description:
@@ -392,8 +428,11 @@ export function createStatsSummaryTool(
             ORDER BY ORDINAL_POSITION
           `;
           const colResult = await adapter.executeQuery(colQuery, [table]);
-          const colRows = (colResult.rows ?? []) as { COLUMN_NAME: string, DATA_TYPE: string }[];
-          
+          const colRows = (colResult.rows ?? []) as {
+            COLUMN_NAME: string;
+            DATA_TYPE: string;
+          }[];
+
           targetColumns = colRows
             .filter((row) => NUMERIC_TYPES.has(row.DATA_TYPE.toLowerCase()))
             .map((row) => row.COLUMN_NAME);
@@ -451,7 +490,10 @@ export function createStatsSummaryTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }

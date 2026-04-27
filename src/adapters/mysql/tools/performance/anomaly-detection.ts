@@ -2,7 +2,7 @@
  * MySQL Performance Tools - Anomaly Detection
  *
  * Lightweight anomaly detectors that compare current state against
- * norms using MySQL system views. Returns risk scores, trend analysis, 
+ * norms using MySQL system views. Returns risk scores, trend analysis,
  * and actionable recommendations.
  *
  * Tools:
@@ -45,15 +45,27 @@ export function riskFromScore(score: number): RiskLevel {
 // =============================================================================
 
 export const DetectQueryAnomaliesSchema = z.object({
-  threshold: z.number().optional().describe("Max/Avg variance multiplier threshold (default: 10.0)"),
+  threshold: z
+    .number()
+    .optional()
+    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
   stdDevThreshold: z.number().optional().describe("Alias for threshold"),
-  minCalls: z.number().optional().describe("Minimum call count to filter noise (default: 50)"),
+  minCalls: z
+    .number()
+    .optional()
+    .describe("Minimum call count to filter noise (default: 50)"),
   minExecutions: z.number().optional().describe("Alias for minCalls"),
 });
 
 export const DetectBloatRiskSchema = z.object({
-  schema: z.string().optional().describe("Filter to a specific database schema"),
-  minSizeMb: z.number().optional().describe("Minimum table size in MB to include (default: 10)"),
+  schema: z
+    .string()
+    .optional()
+    .describe("Filter to a specific database schema"),
+  minSizeMb: z
+    .number()
+    .optional()
+    .describe("Minimum table size in MB to include (default: 10)"),
 });
 
 // =============================================================================
@@ -79,15 +91,23 @@ export function createDetectQueryAnomaliesTool(
         const minCalls = parsed.minExecutions ?? parsed.minCalls ?? 50;
 
         if (threshold < 2 || threshold > 10000) {
-          return { success: false, error: "threshold (or stdDevThreshold) must be between 2 and 10000" };
+          return {
+            success: false,
+            error: "threshold (or stdDevThreshold) must be between 2 and 10000",
+          };
         }
         if (minCalls < 1 || minCalls > 100000) {
-          return { success: false, error: "minCalls (or minExecutions) must be between 1 and 100000" };
+          return {
+            success: false,
+            error: "minCalls (or minExecutions) must be between 1 and 100000",
+          };
         }
 
         // Check if performance_schema is available
         try {
-          await adapter.executeQuery(`SELECT 1 FROM performance_schema.events_statements_summary_by_digest LIMIT 1`);
+          await adapter.executeQuery(
+            `SELECT 1 FROM performance_schema.events_statements_summary_by_digest LIMIT 1`,
+          );
         } catch {
           return {
             success: false,
@@ -129,7 +149,8 @@ export function createDetectQueryAnomaliesTool(
         }));
 
         const anomalyCount = anomalies.length;
-        const maxVariance = anomalies.length > 0 ? (anomalies[0]?.varianceRatio ?? 0) : 0;
+        const maxVariance =
+          anomalies.length > 0 ? (anomalies[0]?.varianceRatio ?? 0) : 0;
 
         let riskScore = 0;
         if (anomalyCount >= 10) riskScore += 40;
@@ -234,15 +255,20 @@ export function createDetectBloatRiskTool(
 
           let sizeScore = 0;
           const freeMb = freeBytes / (1024 * 1024);
-          if (freeMb >= 1000) sizeScore = 100; // > 1GB wasted
+          if (freeMb >= 1000)
+            sizeScore = 100; // > 1GB wasted
           else if (freeMb >= 500) sizeScore = 70;
           else if (freeMb >= 100) sizeScore = 40;
 
-          const riskScore = Math.round(fragmentationScore * 0.6 + sizeScore * 0.4);
+          const riskScore = Math.round(
+            fragmentationScore * 0.6 + sizeScore * 0.4,
+          );
 
           const recommendations: string[] = [];
           if (riskScore >= 60) {
-            recommendations.push(`High fragmentation. Consider running OPTIMIZE TABLE \`${toStr(row["db_schema"])}\`.\`${toStr(row["table_name"])}\``);
+            recommendations.push(
+              `High fragmentation. Consider running OPTIMIZE TABLE \`${toStr(row["db_schema"])}\`.\`${toStr(row["table_name"])}\``,
+            );
           }
 
           return {

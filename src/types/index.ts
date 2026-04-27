@@ -72,4 +72,3 @@ export {
 // Error types (harmonized standard)
 export { ErrorCategory } from "./modules/error-types.js";
 export type { ErrorResponse, ErrorContext } from "./modules/error-types.js";
-

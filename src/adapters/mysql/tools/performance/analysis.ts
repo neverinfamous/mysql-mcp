@@ -124,7 +124,8 @@ export function createExplainAnalyzeTool(
         if (format === "JSON") {
           return {
             success: false,
-            error: "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
+            error:
+              "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
           };
         }
 

@@ -21,7 +21,10 @@ const ListViewsSchema = z.object({
 
 const CreateViewSchemaBase = z.object({
   name: z.string().describe("View name"),
-  definition: z.string().optional().describe("SELECT statement defining the view"),
+  definition: z
+    .string()
+    .optional()
+    .describe("SELECT statement defining the view"),
   query: z.string().optional().describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
@@ -30,7 +33,10 @@ const CreateViewSchemaBase = z.object({
 
 const CreateViewSchema = z.object({
   name: z.string().describe("View name"),
-  definition: z.string().optional().describe("SELECT statement defining the view"),
+  definition: z
+    .string()
+    .optional()
+    .describe("SELECT statement defining the view"),
   query: z.string().optional().describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z
@@ -71,7 +77,10 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return { success: false, error: `Schema '${targetSchema}' does not exist` };
+            return {
+              success: false,
+              error: `Schema '${targetSchema}' does not exist`,
+            };
           }
         }
 
@@ -88,7 +97,9 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY TABLE_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [targetSchema ?? null]);
+        const result = await adapter.executeQuery(query, [
+          targetSchema ?? null,
+        ]);
         return {
           success: true,
           views: result.rows,
@@ -128,7 +139,10 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
 
         const finalDefinition = definition ?? query;
         if (finalDefinition === undefined || finalDefinition === "") {
-          return { success: false, error: "Validation error: definition or query must be provided" };
+          return {
+            success: false,
+            error: "Validation error: definition or query must be provided",
+          };
         }
 
         try {

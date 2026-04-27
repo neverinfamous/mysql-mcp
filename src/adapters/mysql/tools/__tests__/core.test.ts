@@ -308,7 +308,9 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ database: "fake_db" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).error).toContain("does not exist");
+      expect((result as Record<string, unknown>).error).toContain(
+        "does not exist",
+      );
     });
   });
 
@@ -781,7 +783,9 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect((result as Record<string, unknown>).error).toContain("does not exist");
+      expect((result as Record<string, unknown>).error).toContain(
+        "does not exist",
+      );
     });
 
     it("should return structured error for non-index errors in create index", async () => {

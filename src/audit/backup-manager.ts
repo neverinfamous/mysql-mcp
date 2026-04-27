@@ -145,7 +145,8 @@ export class BackupManager {
       const rawTarget = args[mapping.targetKey];
       const target = typeof rawTarget === "string" ? rawTarget : "unknown";
       const rawSchema = mapping.schemaKey ? args[mapping.schemaKey] : undefined;
-      let schema: string | undefined = typeof rawSchema === "string" ? rawSchema : undefined;
+      let schema: string | undefined =
+        typeof rawSchema === "string" ? rawSchema : undefined;
 
       // Determine default schema if not explicitly provided
       if (!schema) {
@@ -399,7 +400,7 @@ export class BackupManager {
   ): Promise<string> {
     try {
       const result = await adapter.executeQuery(
-        `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\``
+        `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\``,
       );
       if (result.rows && result.rows.length > 0) {
         const row = result.rows[0];
@@ -439,7 +440,7 @@ export class BackupManager {
         [tableName, schemaName],
       );
       const sizeRow = sizeResult.rows?.[0];
-      
+
       if (sizeRow) {
         let rowCount: number | undefined;
         const rawRowCount = sizeRow["row_count"];
@@ -524,7 +525,7 @@ export class BackupManager {
                   if (typeof v === "number" || typeof v === "boolean")
                     return String(v);
                   if (v instanceof Date)
-                    return `'${v.toISOString().slice(0, 19).replace('T', ' ')}'`;
+                    return `'${v.toISOString().slice(0, 19).replace("T", " ")}'`;
                   return `'${JSON.stringify(v).replace(/'/g, "''").replace(/\\/g, "\\\\")}'`;
                 })
                 .join(", ");

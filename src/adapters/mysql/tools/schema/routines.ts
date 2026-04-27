@@ -44,7 +44,10 @@ export function createListStoredProceduresTool(
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return { success: false, error: `Schema '${targetSchema}' does not exist` };
+            return {
+              success: false,
+              error: `Schema '${targetSchema}' does not exist`,
+            };
           }
         }
 
@@ -75,7 +78,9 @@ export function createListStoredProceduresTool(
                 ORDER BY r.ROUTINE_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [targetSchema ?? null]);
+        const result = await adapter.executeQuery(query, [
+          targetSchema ?? null,
+        ]);
         return {
           success: true,
           procedures: result.rows,
@@ -116,7 +121,10 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return { success: false, error: `Schema '${targetSchema}' does not exist` };
+            return {
+              success: false,
+              error: `Schema '${targetSchema}' does not exist`,
+            };
           }
         }
 
@@ -137,7 +145,9 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY r.ROUTINE_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [targetSchema ?? null]);
+        const result = await adapter.executeQuery(query, [
+          targetSchema ?? null,
+        ]);
         return {
           success: true,
           functions: result.rows,

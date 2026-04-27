@@ -45,7 +45,11 @@ export const ExportTableSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      format: z.enum(["SQL", "CSV", "JSON", "sql", "csv", "json"]).transform(val => val.toUpperCase() as "SQL" | "CSV" | "JSON").optional().default("SQL"),
+      format: z
+        .enum(["SQL", "CSV", "JSON", "sql", "csv", "json"])
+        .transform((val) => val.toUpperCase() as "SQL" | "CSV" | "JSON")
+        .optional()
+        .default("SQL"),
       where: z.string().optional(),
       filter: z.string().optional(),
       limit: z.number().int().positive().optional().default(5),
@@ -90,4 +94,3 @@ export const ImportDataSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   });
-

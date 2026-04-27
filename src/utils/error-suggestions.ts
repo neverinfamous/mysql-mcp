@@ -112,8 +112,7 @@ const ERROR_SUGGESTIONS: {
   },
   {
     pattern: /Incorrect (?:integer|decimal|double|float) value/i,
-    suggestion:
-      "The provided value is not valid for the numeric column type.",
+    suggestion: "The provided value is not valid for the numeric column type.",
     category: ErrorCategory.VALIDATION,
     code: "VALIDATION_ERROR",
   },

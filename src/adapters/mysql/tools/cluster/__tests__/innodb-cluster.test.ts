@@ -132,7 +132,9 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as any;
 
-      expect(result.error).toBe("Primary Error: Metadata query failed. Fallback Error: GR query also failed");
+      expect(result.error).toBe(
+        "Primary Error: Metadata query failed. Fallback Error: GR query also failed",
+      );
     });
 
     it("should fallback to GR members when InnoDB Cluster metadata query fails", async () => {

@@ -7,7 +7,6 @@
 import { createHash } from "node:crypto";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 
-
 // =============================================================================
 // Migration tracking — shared helpers
 // =============================================================================
@@ -46,7 +45,8 @@ export async function ensureTrackingTable(
 ): Promise<boolean> {
   let targetSchema = schema;
   if (!targetSchema) {
-    const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+    const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db"))
+      .rows?.[0];
     targetSchema = (dbRow?.["db"] as string) || "mysql";
   }
 
@@ -57,13 +57,16 @@ export async function ensureTrackingTable(
     ) AS table_exists`,
     [targetSchema, TRACKING_TABLE],
   );
-  
+
   const firstRow = (check.rows ?? [])[0];
-  const existed = firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
+  const existed =
+    firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
 
   if (!existed) {
     const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
-    await adapter.executeWriteQuery(buildCreateTrackingTableSql(qualifiedTable));
+    await adapter.executeWriteQuery(
+      buildCreateTrackingTableSql(qualifiedTable),
+    );
   }
   return !existed;
 }
@@ -93,17 +96,18 @@ export async function checkDuplicateHash(
 }> {
   let targetSchema = schema;
   if (!targetSchema) {
-    const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+    const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db"))
+      .rows?.[0];
     targetSchema = (dbRow?.["db"] as string) || "mysql";
   }
   const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
   const migrationHash = hashMigrationSql(migrationSql);
-  
+
   // Check for checksum mismatch on the same version
   const versionCheck = await adapter.executeReadQuery(
     `SELECT id, migration_hash FROM ${qualifiedTable} WHERE version = ? AND status IN ('applied', 'recorded')`,
-    [version]
+    [version],
   );
   if (versionCheck.rows && versionCheck.rows.length > 0) {
     for (const row of versionCheck.rows) {
@@ -116,7 +120,7 @@ export async function checkDuplicateHash(
             code: "CHECKSUM_MISMATCH",
             category: "validation",
             recoverable: false,
-          }
+          },
         };
       }
     }
@@ -133,20 +137,20 @@ export async function checkDuplicateHash(
     const dup = dupRows[0] ?? {};
     const dupId = dup["id"] as number;
     const dupVersion = dup["version"] as string;
-    
+
     if (dupVersion === version) {
-       return {
-         migrationHash,
-         duplicateError: {
-           success: false,
-           error: `Migration "${version}" has already been applied.`,
-           code: "ALREADY_APPLIED",
-           category: "validation",
-           recoverable: true,
-         }
-       };
+      return {
+        migrationHash,
+        duplicateError: {
+          success: false,
+          error: `Migration "${version}" has already been applied.`,
+          code: "ALREADY_APPLIED",
+          category: "validation",
+          recoverable: true,
+        },
+      };
     }
-    
+
     return {
       migrationHash,
       duplicateError: {

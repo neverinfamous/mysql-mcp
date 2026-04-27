@@ -151,11 +151,19 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             csvLines.push(values.join(","));
           }
 
-          return { success: true, csv: csvLines.join("\n"), rowCount: rows.length };
+          return {
+            success: true,
+            csv: csvLines.join("\n"),
+            rowCount: rows.length,
+          };
         }
 
         if (format === "JSON") {
-          return { success: true, json: JSON.stringify(rows, null, 2), rowCount: rows.length };
+          return {
+            success: true,
+            json: JSON.stringify(rows, null, 2),
+            rowCount: rows.length,
+          };
         }
 
         // SQL format
@@ -179,7 +187,11 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        return { success: true, sql: insertStatements.join("\n"), rowCount: rows.length };
+        return {
+          success: true,
+          sql: insertStatements.join("\n"),
+          rowCount: rows.length,
+        };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -250,9 +262,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
 export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
-    database: z
-      .string()
-      .describe("Database name"),
+    database: z.string().describe("Database name"),
     tables: z.array(z.string()).optional().describe("Specific tables to dump"),
     noData: z
       .boolean()
@@ -286,12 +296,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         try {
           const dbCheck = await _adapter.executeReadQuery(
             `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
-            [database]
+            [database],
           );
           if (!dbCheck.rows || dbCheck.rows.length === 0) {
             return {
               success: false,
-              error: `Database '${database}' does not exist.`
+              error: `Database '${database}' does not exist.`,
             };
           }
         } catch (dbErr) {
@@ -304,12 +314,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             try {
               const tableCheck = await _adapter.executeReadQuery(
                 `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
-                [database, table]
+                [database, table],
               );
               if (!tableCheck.rows || tableCheck.rows.length === 0) {
                 return {
                   success: false,
-                  error: `Table '${table}' does not exist in database '${database}'.`
+                  error: `Table '${table}' does not exist in database '${database}'.`,
                 };
               }
             } catch (tableErr) {

@@ -7,7 +7,10 @@
 
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../schemas/index.js";
+import {
+  BinlogEventsSchemaBase,
+  BinlogEventsSchema,
+} from "../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 
@@ -49,7 +52,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: true, status: result.rows?.[0] };
         } catch (e) {
           return formatHandlerErrorResponse(
-            `Binary logging may not be enabled: ${String(e)}`
+            `Binary logging may not be enabled: ${String(e)}`,
           );
         }
       }
@@ -90,7 +93,9 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
           // Fall through to not-configured response
         }
       }
-      return formatHandlerErrorResponse("This server is not configured as a replica");
+      return formatHandlerErrorResponse(
+        "This server is not configured as a replica",
+      );
     },
   };
 }
@@ -113,7 +118,9 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         const { logFile, position, limit } = BinlogEventsSchema.parse(params);
 
         if (logFile === "") {
-          return formatHandlerErrorResponse("Invalid logFile: cannot be an empty string");
+          return formatHandlerErrorResponse(
+            "Invalid logFile: cannot be an empty string",
+          );
         }
 
         // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
@@ -165,21 +172,21 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           const targetFile = effectiveLogFile || logFile;
           if (targetFile && message.includes("Could not find target log")) {
             return formatHandlerErrorResponse(
-              `Binlog file '${targetFile}' not found`
+              `Binlog file '${targetFile}' not found`,
             );
           }
           return formatHandlerErrorResponse(
-            `Failed to read binlog events: ${message}`
+            `Failed to read binlog events: ${message}`,
           );
         }
       } catch (e) {
         if (e instanceof z.ZodError) {
           return formatHandlerErrorResponse(
-            e.issues.map((i) => i.message).join("; ")
+            e.issues.map((i) => i.message).join("; "),
           );
         }
         return formatHandlerErrorResponse(
-          `Failed to read binlog events: ${String(e)}`
+          `Failed to read binlog events: ${String(e)}`,
         );
       }
     },
@@ -225,7 +232,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
         };
       } catch (e) {
         return formatHandlerErrorResponse(
-          `Failed to retrieve GTID status: ${String(e)}`
+          `Failed to retrieve GTID status: ${String(e)}`,
         );
       }
     },
@@ -284,7 +291,9 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      return formatHandlerErrorResponse("This server is not configured as a replica");
+      return formatHandlerErrorResponse(
+        "This server is not configured as a replica",
+      );
     },
   };
 }

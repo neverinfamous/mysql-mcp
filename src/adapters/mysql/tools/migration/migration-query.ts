@@ -47,14 +47,17 @@ export function createMigrationRollbackTool(
       try {
         const parsed = MigrationRollbackSchema.parse(params);
 
-        const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+        const dbRow = (
+          await adapter.executeReadQuery("SELECT DATABASE() as db")
+        ).rows?.[0];
         const targetSchema = (dbRow?.["db"] as string) || "mysql";
         await ensureTrackingTable(adapter, targetSchema);
 
         if (parsed.id === undefined && parsed.version === undefined) {
           return {
             success: false,
-            error: "Either 'id' or 'version' is required to identify the migration to roll back.",
+            error:
+              "Either 'id' or 'version' is required to identify the migration to roll back.",
             code: "VALIDATION_ERROR",
             category: "validation",
             recoverable: true,
@@ -80,8 +83,7 @@ export function createMigrationRollbackTool(
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         // Find the migration
-        const whereClause =
-          coercedId !== undefined ? "id = ?" : "version = ?";
+        const whereClause = coercedId !== undefined ? "id = ?" : "version = ?";
         const whereValue = coercedId ?? parsed.version;
 
         const findResult = await adapter.executeReadQuery(
@@ -146,7 +148,6 @@ export function createMigrationRollbackTool(
             [rowId],
           );
 
-
           return {
             success: true,
             dryRun: false,
@@ -180,7 +181,6 @@ export function createMigrationRollbackTool(
 export function createMigrationHistoryTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-
   return {
     name: "mysql_migration_history",
     description:
@@ -192,11 +192,13 @@ export function createMigrationHistoryTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationHistorySchema.parse(params);
-        
-        const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+
+        const dbRow = (
+          await adapter.executeReadQuery("SELECT DATABASE() as db")
+        ).rows?.[0];
         const targetSchema = (dbRow?.["db"] as string) || "mysql";
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
-        
+
         await ensureTrackingTable(adapter, targetSchema);
 
         // Coerce limit/offset: wrong-type values silently default
@@ -233,7 +235,7 @@ export function createMigrationHistoryTool(
                 m.migration_hash, m.source_system, m.rollback_sql IS NOT NULL AS has_rollback, m.status, m.error_information,
                 (SELECT EXISTS(SELECT 1 FROM ${qualifiedTable} prev WHERE prev.status IN ('applied', 'recorded') AND prev.id < m.id AND prev.version > m.version)) AS out_of_order
          FROM ${qualifiedTable} m
-         ${whereClause ? whereClause.replace(/status/g, 'm.status').replace(/source_system/g, 'm.source_system') : ""}
+         ${whereClause ? whereClause.replace(/status/g, "m.status").replace(/source_system/g, "m.source_system") : ""}
          ORDER BY m.applied_at DESC
          LIMIT ${limit} OFFSET ${offset}`,
           values.length > 0 ? values : undefined,
@@ -262,7 +264,6 @@ export function createMigrationHistoryTool(
 export function createMigrationStatusTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-
   return {
     name: "mysql_migration_status",
     description:
@@ -275,9 +276,11 @@ export function createMigrationStatusTool(
       try {
         const parsed = MigrationStatusSchema.parse(params);
         let targetSchema = parsed.schema;
-        
+
         if (!targetSchema) {
-          const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
 
@@ -290,7 +293,9 @@ export function createMigrationStatusTool(
           [targetSchema, TRACKING_TABLE],
         );
         const firstRow = (check.rows ?? [])[0];
-        const tableExists = firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
+        const tableExists =
+          firstRow?.["table_exists"] === 1 ||
+          firstRow?.["table_exists"] === true;
 
         if (!tableExists) {
           return {

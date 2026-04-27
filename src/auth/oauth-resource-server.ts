@@ -84,10 +84,7 @@ export class OAuthResourceServer {
   /**
    * Generate WWW-Authenticate header for 401 responses
    */
-  getWWWAuthenticateHeader(
-    error?: string,
-    errorDescription?: string,
-  ): string {
+  getWWWAuthenticateHeader(error?: string, errorDescription?: string): string {
     const parts = [`Bearer realm="${this.config.resource}"`];
 
     if (error) {

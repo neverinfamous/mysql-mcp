@@ -110,7 +110,9 @@ describe("ConnectionPool", () => {
         query: vi.fn().mockResolvedValue([]),
         release: vi.fn(),
       };
-      vi.spyOn(internalPool, "getConnection").mockResolvedValueOnce(mockConn).mockResolvedValueOnce(mockConn);
+      vi.spyOn(internalPool, "getConnection")
+        .mockResolvedValueOnce(mockConn)
+        .mockResolvedValueOnce(mockConn);
 
       await poolWithInit.getConnection();
       expect(mockConn.query).toHaveBeenCalledWith(initSql[0]);
@@ -136,7 +138,7 @@ describe("ConnectionPool", () => {
       vi.spyOn(internalPool, "getConnection").mockResolvedValueOnce(mockConn);
 
       await expect(poolWithInit.getConnection()).rejects.toThrow(
-        "Failed to initialize connection: Syntax error"
+        "Failed to initialize connection: Syntax error",
       );
       expect(mockConn.release).toHaveBeenCalled();
     });

@@ -205,9 +205,7 @@ describe("JSON Helper Tools", () => {
 
     it("should strip Query failed and Execute failed prefixes from generic errors", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error(
-          'Query failed: Execute failed: Table metadata lock timeout.',
-        ),
+        new Error("Query failed: Execute failed: Table metadata lock timeout."),
       );
 
       const tool = createJsonValidateTool(
@@ -235,7 +233,10 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", id: 1 },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_update should return exists: false for nonexistent table", async () => {
@@ -245,7 +246,10 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", value: 1, id: 1 },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_search should return exists: false for nonexistent table", async () => {
@@ -255,7 +259,10 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", searchValue: "test" },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Table or column does not exist" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("should return success: false for generic errors", async () => {
@@ -267,7 +274,9 @@ describe("JSON Helper Tools", () => {
         { table: "data", column: "doc", path: "$.x", id: 1 },
         mockContext,
       );
-      expect(result).toEqual(expect.objectContaining({ success: false, error: "Connection lost" }));
+      expect(result).toEqual(
+        expect.objectContaining({ success: false, error: "Connection lost" }),
+      );
     });
   });
 });

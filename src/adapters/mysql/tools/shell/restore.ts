@@ -144,22 +144,28 @@ export function createShellLoadDumpTool(): ToolDefinition {
                 continue;
               }
               if (!parsed.success) {
-                const errorMessage = typeof parsed.error === "string" ? parsed.error : "Unknown MySQL Shell error";
+                const errorMessage =
+                  typeof parsed.error === "string"
+                    ? parsed.error
+                    : "Unknown MySQL Shell error";
                 if (
                   errorMessage.includes("local_infile") ||
                   errorMessage.includes("Loading local data is disabled")
                 ) {
                   return {
                     success: false,
-                    error: "Load failed: local_infile is disabled on the server.",
-                    suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+                    error:
+                      "Load failed: local_infile is disabled on the server.",
+                    suggestion:
+                      "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
                   };
                 }
                 if (errorMessage.includes("Duplicate objects")) {
                   return {
                     success: false,
                     error: errorMessage,
-                    suggestion: "Use ignoreExistingObjects: true to skip existing objects",
+                    suggestion:
+                      "Use ignoreExistingObjects: true to skip existing objects",
                   };
                 }
                 return { success: false, error: errorMessage };
@@ -198,14 +204,16 @@ export function createShellLoadDumpTool(): ToolDefinition {
           return {
             success: false,
             error: "Load failed: local_infile is disabled on the server.",
-            suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+            suggestion:
+              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
           };
         }
         if (errorMessage.includes("Duplicate objects")) {
           return {
             success: false,
             error: errorMessage,
-            suggestion: "Use ignoreExistingObjects: true to skip existing objects",
+            suggestion:
+              "Use ignoreExistingObjects: true to skip existing objects",
           };
         }
         return { success: false, error: errorMessage };
@@ -278,7 +286,9 @@ export function createShellRunScriptTool(): ToolDefinition {
         if (result.exitCode !== 0) {
           return {
             success: false,
-            error: result.stderr ? result.stderr.trim() : `Script failed with exit code ${result.exitCode}`,
+            error: result.stderr
+              ? result.stderr.trim()
+              : `Script failed with exit code ${result.exitCode}`,
             details: {
               language,
               exitCode: result.exitCode,

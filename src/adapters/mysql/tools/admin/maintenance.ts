@@ -34,7 +34,9 @@ function isRecord(val: unknown): val is Record<string, unknown> {
   return typeof val === "object" && val !== null;
 }
 
-function extractMaintenanceError(rows: unknown[] | undefined): ErrorResponse | null {
+function extractMaintenanceError(
+  rows: unknown[] | undefined,
+): ErrorResponse | null {
   if (!rows || rows.length === 0) return null;
   const errorRow = rows.find((r: unknown) => {
     if (isRecord(r) && typeof r["Msg_type"] === "string") {
@@ -43,7 +45,10 @@ function extractMaintenanceError(rows: unknown[] | undefined): ErrorResponse | n
     return false;
   });
   if (errorRow !== undefined && isRecord(errorRow)) {
-    const errorMsg = typeof errorRow["Msg_text"] === "string" ? errorRow["Msg_text"] : "Maintenance operation failed";
+    const errorMsg =
+      typeof errorRow["Msg_text"] === "string"
+        ? errorRow["Msg_text"]
+        : "Maintenance operation failed";
     return {
       success: false,
       error: errorMsg,
@@ -51,7 +56,7 @@ function extractMaintenanceError(rows: unknown[] | undefined): ErrorResponse | n
       category: ErrorCategory.QUERY,
       suggestion: undefined,
       recoverable: false,
-      details: undefined
+      details: undefined,
     };
   }
   return null;
@@ -73,9 +78,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { tables } = OptimizeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.rawQuery(
-          `OPTIMIZE TABLE ${tableList}`,
-        );
+        const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
         const error = extractMaintenanceError(rows);
         if (error) return error;
@@ -230,7 +233,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
               details: {
                 notFound,
                 flushed: validTables,
-              }
+              },
             };
           }
 
@@ -279,7 +282,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             category: ErrorCategory.RESOURCE,
             suggestion: undefined,
             recoverable: false,
-            details: undefined
+            details: undefined,
           };
         }
         return {
@@ -289,7 +292,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
           category: ErrorCategory.QUERY,
           suggestion: undefined,
           recoverable: false,
-          details: undefined
+          details: undefined,
         };
       }
     },

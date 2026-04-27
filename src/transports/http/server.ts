@@ -279,11 +279,7 @@ export class HttpTransport {
     }
 
     // Check rate limit (after health check bypass)
-    const rateLimitResult = checkRateLimit(
-      req,
-      this.config,
-      this.rateLimitMap,
-    );
+    const rateLimitResult = checkRateLimit(req, this.config, this.rateLimitMap);
     if (!rateLimitResult.allowed) {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -407,19 +403,30 @@ export class HttpTransport {
    * Check if the authenticated context has the required scope for a tool call.
    * Returns true if authorized, false if unauthorized (and sends response).
    */
-  private checkToolScope(body: unknown, authContext: AuthenticatedContext, res: ServerResponse): boolean {
-    interface JsonRpcBody { method?: string; params?: { name?: string } }
+  private checkToolScope(
+    body: unknown,
+    authContext: AuthenticatedContext,
+    res: ServerResponse,
+  ): boolean {
+    interface JsonRpcBody {
+      method?: string;
+      params?: { name?: string };
+    }
     const jsonBody = body as JsonRpcBody | null | undefined;
-    
+
     if (jsonBody?.method === "tools/call") {
       const toolName = jsonBody.params?.name;
       if (toolName) {
         const requiredScope = getRequiredScope(toolName);
         const granted = hasScope(authContext.scopes, requiredScope);
-        
+
         if (!granted) {
           const error = new InsufficientScopeError([requiredScope]);
-          logger.warn(`Insufficient scope for tool: ${toolName}`, { module: "AUTH", operation: "scope-check", entityId: toolName });
+          logger.warn(`Insufficient scope for tool: ${toolName}`, {
+            module: "AUTH",
+            operation: "scope-check",
+            entityId: toolName,
+          });
           const { status, body: errBody } = formatOAuthError(error);
           res.writeHead(status, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ ...errBody, tool: toolName }));
@@ -603,9 +610,7 @@ export class HttpTransport {
       return;
     }
 
-    const transport = new StreamableHTTPServerTransport(
-      {},
-    );
+    const transport = new StreamableHTTPServerTransport({});
 
     if (this.onConnect) {
       await this.onConnect(transport);

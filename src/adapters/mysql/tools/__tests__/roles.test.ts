@@ -213,7 +213,8 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: false,
-        error: "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
+        error:
+          "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
       });
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });

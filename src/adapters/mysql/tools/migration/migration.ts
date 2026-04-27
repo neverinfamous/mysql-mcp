@@ -33,9 +33,7 @@ import {
 // mysql_migration_init
 // =============================================================================
 
-export function createMigrationInitTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
+export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_migration_init",
     description:
@@ -47,10 +45,12 @@ export function createMigrationInitTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationInitSchema.parse(params);
-        
+
         let targetSchema = parsed.schema;
         if (!targetSchema) {
-          const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
 
@@ -64,7 +64,9 @@ export function createMigrationInitTool(
           [targetSchema, TRACKING_TABLE],
         );
         const firstRow = (check.rows ?? [])[0];
-        const existed = firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
+        const existed =
+          firstRow?.["table_exists"] === 1 ||
+          firstRow?.["table_exists"] === true;
 
         if (!existed) {
           await adapter.executeWriteQuery(
@@ -76,7 +78,7 @@ export function createMigrationInitTool(
           `SELECT COUNT(*) AS count FROM ${qualifiedTable}`,
         );
         const countRow = (countResult.rows ?? [])[0];
-        const existingRecords = (Number(countRow?.["count"]) || 0);
+        const existingRecords = Number(countRow?.["count"]) || 0;
 
         return {
           success: true,
@@ -120,7 +122,9 @@ export function createMigrationRecordTool(
         );
         if (duplicateError) return duplicateError;
 
-        const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+        const dbRow = (
+          await adapter.executeReadQuery("SELECT DATABASE() as db")
+        ).rows?.[0];
         const targetSchema = (dbRow?.["db"] as string) || "mysql";
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
@@ -138,11 +142,11 @@ export function createMigrationRecordTool(
             parsed.rollbackSql ?? null,
           ],
         );
-        
+
         // Fetch the newly inserted record since MySQL doesn't support RETURNING
         const result = await adapter.executeReadQuery(
           `SELECT * FROM ${qualifiedTable} WHERE version = ? AND migration_hash = ? ORDER BY id DESC LIMIT 1`,
-          [parsed.version, migrationHash]
+          [parsed.version, migrationHash],
         );
 
         const resultRows = result.rows ?? [];
@@ -192,7 +196,9 @@ export function createMigrationApplyTool(
         );
         if (duplicateError) return duplicateError;
 
-        const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+        const dbRow = (
+          await adapter.executeReadQuery("SELECT DATABASE() as db")
+        ).rows?.[0];
         const targetSchema = (dbRow?.["db"] as string) || "mysql";
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
@@ -218,11 +224,9 @@ export function createMigrationApplyTool(
             ],
           );
 
-
-
           const result = await adapter.executeReadQuery(
             `SELECT * FROM ${qualifiedTable} WHERE version = ? AND migration_hash = ? ORDER BY id DESC LIMIT 1`,
-            [parsed.version, migrationHash]
+            [parsed.version, migrationHash],
           );
 
           const resultRows = result.rows ?? [];

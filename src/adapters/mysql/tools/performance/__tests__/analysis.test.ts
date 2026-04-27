@@ -614,7 +614,10 @@ describe("Performance Analysis Tools", () => {
       const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ table: "nonexistent" }, mockContext);
 
-      expect(result).toEqual({ success: false, error: "Table 'nonexistent' doesn't exist" });
+      expect(result).toEqual({
+        success: false,
+        error: "Table 'nonexistent' doesn't exist",
+      });
       // Should only call once (existence check), not the index usage query
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(1);
     });

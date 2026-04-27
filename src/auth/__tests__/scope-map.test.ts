@@ -32,7 +32,8 @@ describe("scope-map", () => {
     it("should map tools to the scope defined in TOOL_GROUP_SCOPES", () => {
       const map = getToolScopeMap();
       for (const [group, tools] of Object.entries(TOOL_GROUPS)) {
-        const expectedScope = TOOL_GROUP_SCOPES[group as keyof typeof TOOL_GROUP_SCOPES];
+        const expectedScope =
+          TOOL_GROUP_SCOPES[group as keyof typeof TOOL_GROUP_SCOPES];
         for (const tool of tools) {
           expect(map.get(tool)).toBe(expectedScope);
         }

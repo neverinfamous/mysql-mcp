@@ -11,7 +11,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse, formatMysqlError } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  formatMysqlError,
+} from "../core/error-helpers.js";
 
 // =============================================================================
 // Schemas
@@ -20,11 +23,25 @@ import { formatHandlerErrorResponse, formatMysqlError } from "../core/error-help
 export const StatsOutliersSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Numeric column to check for outliers"),
-  method: z.enum(["iqr", "zscore"]).default("iqr").describe("Detection method to use"),
-  threshold: z.number().optional().describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
+  method: z
+    .enum(["iqr", "zscore"])
+    .default("iqr")
+    .describe("Detection method to use"),
+  threshold: z
+    .number()
+    .optional()
+    .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().max(100000).default(10000).describe("Maximum rows to process (default: 10000)"),
-  maxOutliers: z.number().max(1000).default(50).describe("Maximum number of outliers to return (default: 50)"),
+  limit: z
+    .number()
+    .max(100000)
+    .default(10000)
+    .describe("Maximum rows to process (default: 10000)"),
+  maxOutliers: z
+    .number()
+    .max(1000)
+    .default(50)
+    .describe("Maximum number of outliers to return (default: 50)"),
 });
 
 // =============================================================================
@@ -34,9 +51,7 @@ export const StatsOutliersSchema = z.object({
 /**
  * Outlier detection via IQR or Z-score
  */
-export function createStatsOutliersTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
+export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_outliers",
     description:
@@ -84,7 +99,10 @@ export function createStatsOutliersTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -207,8 +225,10 @@ async function detectIqrOutliers(
     ${whereClause}
   `;
   const countResult = await adapter.executeQuery(countSql);
-  const countRow = countResult.rows?.[0] as { total_count: unknown } | undefined;
-  
+  const countRow = countResult.rows?.[0] as
+    | { total_count: unknown }
+    | undefined;
+
   const totalRows = Number(countRow?.total_count ?? 0);
 
   if (totalRows === 0) {

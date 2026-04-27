@@ -11,7 +11,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse, formatMysqlError } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  formatMysqlError,
+} from "../core/error-helpers.js";
 
 // =============================================================================
 // Schemas
@@ -26,7 +29,12 @@ export const StatsRowNumberSchema = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
 });
 
 export const StatsRankSchema = z.object({
@@ -42,7 +50,12 @@ export const StatsRankSchema = z.object({
     .default("rank")
     .describe("Rank function type (default: rank)"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
 });
 
 export const StatsLagLeadSchema = z.object({
@@ -52,7 +65,11 @@ export const StatsLagLeadSchema = z.object({
   direction: z
     .enum(["lag", "lead"])
     .describe("LAG (previous row) or LEAD (next row)"),
-  offset: z.number().min(1).default(1).describe("Number of rows to look back/ahead (default: 1)"),
+  offset: z
+    .number()
+    .min(1)
+    .default(1)
+    .describe("Number of rows to look back/ahead (default: 1)"),
   defaultValue: z
     .string()
     .optional()
@@ -63,7 +80,12 @@ export const StatsLagLeadSchema = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
 });
 
 export const StatsRunningTotalSchema = z.object({
@@ -79,36 +101,58 @@ export const StatsRunningTotalSchema = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
 });
 
 export const StatsMovingAvgSchema = z.object({
   table: z.string().describe("Table name"),
   column: z.string().describe("Numeric column to average"),
   orderBy: z.string().describe("Column(s) to order by"),
-  windowSize: z.number().min(1).default(3).describe("Number of rows in the moving window"),
+  windowSize: z
+    .number()
+    .min(1)
+    .default(3)
+    .describe("Number of rows in the moving window"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z
     .array(z.string())
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
 });
 
 export const StatsNtileSchema = z.object({
   table: z.string().describe("Table name"),
   orderBy: z.string().describe("Column(s) to order by"),
-  buckets: z.number().min(1).default(4).describe("Number of buckets (e.g., 4 for quartiles)"),
+  buckets: z
+    .number()
+    .min(1)
+    .default(4)
+    .describe("Number of buckets (e.g., 4 for quartiles)"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z
     .array(z.string())
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.number().min(1).max(1000).default(20).describe("Maximum rows to return (default: 20)"),
+  limit: z
+    .number()
+    .min(1)
+    .max(1000)
+    .default(20)
+    .describe("Maximum rows to return (default: 20)"),
 });
-
 
 // =============================================================================
 // Helpers
@@ -135,7 +179,6 @@ function whereClause(where?: string): string {
   if (!where) return "";
   return `WHERE ${where}`;
 }
-
 
 // =============================================================================
 // ROW_NUMBER
@@ -187,7 +230,10 @@ export function createStatsRowNumberTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -222,7 +268,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const rankType = parsed.method;
         const partition = partitionClause(parsed.partitionBy);
         const fnName = rankType.toUpperCase();
-        
+
         const windowExpr = `${fnName}() OVER(${partition} ORDER BY \`${parsed.orderBy}\`)`;
 
         const sql = `
@@ -246,7 +292,10 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -258,9 +307,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
 // LAG / LEAD
 // =============================================================================
 
-export function createStatsLagLeadTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
+export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_lag_lead",
     description:
@@ -289,7 +336,7 @@ export function createStatsLagLeadTool(
           parsed.defaultValue !== undefined
             ? `, '${parsed.defaultValue.replace(/'/g, "''")}'`
             : "";
-            
+
         const windowExpr = `${fnName}(\`${parsed.column}\`, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY \`${parsed.orderBy}\`)`;
         const alias = `${parsed.direction}_value`;
 
@@ -315,7 +362,10 @@ export function createStatsLagLeadTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -376,7 +426,10 @@ export function createStatsRunningTotalTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -440,7 +493,10 @@ export function createStatsMovingAvgTool(
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }
@@ -497,7 +553,10 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-           return { success: false, error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist` };
+          return {
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          };
         }
         return formatHandlerErrorResponse(error);
       }

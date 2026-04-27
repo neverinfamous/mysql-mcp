@@ -107,5 +107,3 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     error: formatMysqlError(err),
   };
 }
-
-

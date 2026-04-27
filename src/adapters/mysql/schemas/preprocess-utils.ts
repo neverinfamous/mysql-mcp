@@ -102,10 +102,12 @@ export function preprocessCreateTableParams(input: unknown): unknown {
 export function preprocessTransactionExecuteParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
-  
+
   if (result["statements"] === undefined) {
-    if (result["queries"] !== undefined) result["statements"] = result["queries"];
-    else if (result["sqls"] !== undefined) result["statements"] = result["sqls"];
+    if (result["queries"] !== undefined)
+      result["statements"] = result["queries"];
+    else if (result["sqls"] !== undefined)
+      result["statements"] = result["sqls"];
   }
 
   // Handle arrays of {sql: "..."} objects gracefully
@@ -114,7 +116,8 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
       if (typeof s === "object" && s !== null) {
         const obj = s as Record<string, unknown>;
         if ("sql" in obj && typeof obj["sql"] === "string") return obj["sql"];
-        if ("query" in obj && typeof obj["query"] === "string") return obj["query"];
+        if ("query" in obj && typeof obj["query"] === "string")
+          return obj["query"];
       }
       return s;
     });
@@ -126,7 +129,6 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
 
   return result;
 }
-
 
 // =============================================================================
 // Preprocess: JSON/Text column params (table, column, where aliases)
@@ -151,7 +153,6 @@ export function preprocessQueryOnlyParams(val: unknown): unknown {
     query: v["query"] ?? v["sql"],
   };
 }
-
 
 // =============================================================================
 // Preprocess: Admin table params (normalizes singular 'table' to 'tables' array)
@@ -182,7 +183,11 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
   if (v["filter"] !== undefined) {
-    if (typeof v["filter"] === "object" && v["filter"] !== null && Object.keys(v["filter"]).length === 0) {
+    if (
+      typeof v["filter"] === "object" &&
+      v["filter"] !== null &&
+      Object.keys(v["filter"]).length === 0
+    ) {
       return { ...v, filter: undefined };
     }
     if (v["filter"] === "{}" || v["filter"] === "[]" || v["filter"] === "") {
@@ -191,5 +196,3 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   }
   return v;
 }
-
-

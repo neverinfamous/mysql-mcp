@@ -547,7 +547,10 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Table or column does not exist" });
+        expect(result).toEqual({
+          success: false,
+          error: "Table or column does not exist",
+        });
       });
 
       it("json_stats should return exists: false for nonexistent table", async () => {
@@ -559,7 +562,10 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Table or column does not exist" });
+        expect(result).toEqual({
+          success: false,
+          error: "Table or column does not exist",
+        });
       });
 
       it("json_index_suggest should return exists: false for nonexistent table", async () => {
@@ -571,7 +577,10 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Table or column does not exist" });
+        expect(result).toEqual({
+          success: false,
+          error: "Table or column does not exist",
+        });
       });
 
       it("json_merge should return success: false for invalid input", async () => {
@@ -585,7 +594,10 @@ describe("JSON Enhanced Tools", () => {
           { json1: "not-json", json2: "{}" },
           mockContext,
         );
-        expect(result).toMatchObject({ success: false, error: "Invalid JSON text" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Invalid JSON text",
+        });
       });
 
       it("json_diff should return success: false for invalid input", async () => {
@@ -597,7 +609,10 @@ describe("JSON Enhanced Tools", () => {
           { json1: "not-json", json2: "{}" },
           mockContext,
         );
-        expect(result).toMatchObject({ success: false, error: "Invalid JSON text" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Invalid JSON text",
+        });
       });
     });
   });

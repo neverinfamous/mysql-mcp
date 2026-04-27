@@ -235,7 +235,9 @@ describe("Schema Management Tools", () => {
 
     it("should drop schema without IF EXISTS if requested", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([{ SCHEMA_NAME: "db" }]));
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "db" }]),
+      );
 
       await tool.handler({ name: "db", ifExists: false }, mockContext);
 
@@ -247,7 +249,9 @@ describe("Schema Management Tools", () => {
     it("should return success false when schema does not exist", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ SCHEMA_NAME: "gone_db" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ SCHEMA_NAME: "gone_db" }]),
+        )
         .mockRejectedValueOnce(
           new Error("Can't drop database 'gone_db'; database doesn't exist"),
         );
@@ -278,7 +282,7 @@ describe("Schema Management Tools", () => {
       expect(result.success).toBe(true);
       expect(result.skipped).toBe(true);
       expect(result.reason).toBe("Schema did not exist");
-      
+
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
   });

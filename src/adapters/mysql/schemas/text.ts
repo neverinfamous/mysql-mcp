@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { preprocessTableParams, preprocessJsonColumnParams, preprocessQueryOnlyParams } from "./preprocess-utils.js";
+import {
+  preprocessTableParams,
+  preprocessJsonColumnParams,
+  preprocessQueryOnlyParams,
+} from "./preprocess-utils.js";
 
 // =============================================================================
 // Text Schemas
@@ -468,4 +472,3 @@ export const FulltextExpandSchema = z
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
   .refine((data) => data.query !== "", { message: "query is required" });
-

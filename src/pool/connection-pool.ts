@@ -149,7 +149,9 @@ export class ConnectionPool {
         } catch (error) {
           connection.release();
           const err = error as Error;
-          throw new PoolError(`Failed to initialize connection: ${err.message}`);
+          throw new PoolError(
+            `Failed to initialize connection: ${err.message}`,
+          );
         }
       }
 

@@ -240,8 +240,14 @@ export function createClusterInstancesTool(
             count: grResult.rows?.length ?? 0,
           };
         } catch (fallbackError) {
-          const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
-          const primaryMsg = primaryError instanceof Error ? primaryError.message : String(primaryError);
+          const fallbackMsg =
+            fallbackError instanceof Error
+              ? fallbackError.message
+              : String(fallbackError);
+          const primaryMsg =
+            primaryError instanceof Error
+              ? primaryError.message
+              : String(primaryError);
           return {
             success: false,
             error: `Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`,
@@ -479,11 +485,12 @@ export function createClusterRouterStatusTool(
           staleCount,
         };
       } catch (error) {
-        const baseError = error instanceof ZodError
+        const baseError =
+          error instanceof ZodError
             ? error.issues.map((i) => i.message).join(", ")
             : error instanceof Error
-            ? error.message
-            : String(error);
+              ? error.message
+              : String(error);
         return {
           success: false,
           error: `Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`,

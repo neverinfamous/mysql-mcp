@@ -191,7 +191,8 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
           [name],
         );
-        const schemaAbsent = check.rows === undefined || check.rows.length === 0;
+        const schemaAbsent =
+          check.rows === undefined || check.rows.length === 0;
 
         if (schemaAbsent) {
           if (ifExists) {
@@ -213,7 +214,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery(
             `DROP DATABASE ${ifExistsClause}\`${name}\``,
           );
-          
+
           return { success: true, schemaName: name };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);

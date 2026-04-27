@@ -18,9 +18,7 @@ import {
 
 import { createSchemaSnapshotTool } from "./snapshot.js";
 
-export function getIntrospectionTools(
-  adapter: MySQLAdapter,
-): ToolDefinition[] {
+export function getIntrospectionTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
     createDependencyGraphTool(adapter),
     createTopologicalSortTool(adapter),

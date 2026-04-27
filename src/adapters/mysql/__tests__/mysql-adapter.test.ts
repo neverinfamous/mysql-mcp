@@ -340,7 +340,10 @@ describe("MySQLAdapter", () => {
 
     it("should accept valid isolation levels", async () => {
       // Mock the SELECT query to return the current isolation level
-      mockConnection.query.mockResolvedValueOnce([[{ iso: "REPEATABLE-READ" }], undefined]);
+      mockConnection.query.mockResolvedValueOnce([
+        [{ iso: "REPEATABLE-READ" }],
+        undefined,
+      ]);
       mockConnection.query.mockResolvedValueOnce([[], undefined]);
 
       const txId = await adapter.beginTransaction("READ COMMITTED");

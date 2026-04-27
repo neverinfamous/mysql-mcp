@@ -33,68 +33,68 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
       try {
         const { targetVersion, outputFormat } =
           ShellCheckUpgradeInputSchema.parse(params);
-      const config = getShellConfig();
+        const config = getShellConfig();
 
-      // Use connection URI string instead of session object
-      // The util.checkForServerUpgrade() accepts a URI string as first arg
-      const escapedUri = escapeForJS(config.connectionUri);
+        // Use connection URI string instead of session object
+        // The util.checkForServerUpgrade() accepts a URI string as first arg
+        const escapedUri = escapeForJS(config.connectionUri);
 
-      // Force JSON output format to ensure parseable results
-      const options: string[] = ['outputFormat: "JSON"'];
-      if (targetVersion) {
-        options.push(`targetVersion: "${targetVersion}"`);
-      }
+        // Force JSON output format to ensure parseable results
+        const options: string[] = ['outputFormat: "JSON"'];
+        if (targetVersion) {
+          options.push(`targetVersion: "${targetVersion}"`);
+        }
 
-      const jsCode = `return util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
+        const jsCode = `return util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
 
-      let result;
-      try {
-        result = await execShellJS(jsCode, { timeout: 120000 });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        return { success: false, error: errorMessage };
-      }
+        let result;
+        try {
+          result = await execShellJS(jsCode, { timeout: 120000 });
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          return { success: false, error: errorMessage };
+        }
 
-      // Parse the upgrade check result
-      // util.checkForServerUpgrade returns { errorCount, warningCount, noticeCount, ... }
-      if (
-        result !== null &&
-        result !== undefined &&
-        typeof result === "object"
-      ) {
-        const checkResult = result as {
-          errorCount?: number;
-          warningCount?: number;
-          noticeCount?: number;
-          checksPerformed?: unknown[];
-          targetVersion?: string;
-          serverVersion?: string;
-        };
+        // Parse the upgrade check result
+        // util.checkForServerUpgrade returns { errorCount, warningCount, noticeCount, ... }
+        if (
+          result !== null &&
+          result !== undefined &&
+          typeof result === "object"
+        ) {
+          const checkResult = result as {
+            errorCount?: number;
+            warningCount?: number;
+            noticeCount?: number;
+            checksPerformed?: unknown[];
+            targetVersion?: string;
+            serverVersion?: string;
+          };
+
+          return {
+            success: true,
+            targetVersion: checkResult.targetVersion ?? targetVersion,
+            serverVersion: checkResult.serverVersion,
+            errorCount: checkResult.errorCount ?? 0,
+            warningCount: checkResult.warningCount ?? 0,
+            noticeCount: checkResult.noticeCount ?? 0,
+            checksPerformed: checkResult.checksPerformed?.length ?? 0,
+            upgradeCheck:
+              outputFormat === "TEXT"
+                ? "Use outputFormat: JSON for detailed results"
+                : checkResult,
+          };
+        }
 
         return {
           success: true,
-          targetVersion: checkResult.targetVersion ?? targetVersion,
-          serverVersion: checkResult.serverVersion,
-          errorCount: checkResult.errorCount ?? 0,
-          warningCount: checkResult.warningCount ?? 0,
-          noticeCount: checkResult.noticeCount ?? 0,
-          checksPerformed: checkResult.checksPerformed?.length ?? 0,
-          upgradeCheck:
-            outputFormat === "TEXT"
-              ? "Use outputFormat: JSON for detailed results"
-              : checkResult,
+          targetVersion: targetVersion ?? "latest",
+          errorCount: 0,
+          warningCount: 0,
+          noticeCount: 0,
+          upgradeCheck: result,
         };
-      }
-
-      return {
-        success: true,
-        targetVersion: targetVersion ?? "latest",
-        errorCount: 0,
-        warningCount: 0,
-        noticeCount: 0,
-        upgradeCheck: result,
-      };
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

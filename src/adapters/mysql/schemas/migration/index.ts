@@ -107,10 +107,12 @@ export const MigrationRollbackSchemaBase = z.object({
 });
 
 export const MigrationRollbackSchema = z.object({
-  id: z.preprocess((val) => {
-    if (typeof val === "string") return parseInt(val, 10);
-    return val;
-  }, z.number().optional()).optional(),
+  id: z
+    .preprocess((val) => {
+      if (typeof val === "string") return parseInt(val, 10);
+      return val;
+    }, z.number().optional())
+    .optional(),
   version: z.string().optional(),
   dryRun: z.boolean().optional(),
 });
@@ -135,14 +137,18 @@ export const MigrationHistorySchema = z
   .object({
     status: z.enum(["applied", "recorded", "rolled_back", "failed"]).optional(),
     sourceSystem: z.string().optional(),
-    limit: z.preprocess((val) => {
-      if (typeof val === "string") return parseInt(val, 10);
-      return val;
-    }, z.number().optional()).optional(),
-    offset: z.preprocess((val) => {
-      if (typeof val === "string") return parseInt(val, 10);
-      return val;
-    }, z.number().optional()).optional(),
+    limit: z
+      .preprocess((val) => {
+        if (typeof val === "string") return parseInt(val, 10);
+        return val;
+      }, z.number().optional())
+      .optional(),
+    offset: z
+      .preprocess((val) => {
+        if (typeof val === "string") return parseInt(val, 10);
+        return val;
+      }, z.number().optional())
+      .optional(),
   })
   .default({});
 

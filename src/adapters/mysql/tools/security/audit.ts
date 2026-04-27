@@ -5,7 +5,10 @@
  */
 
 import { z, ZodError } from "zod";
-import { stripErrorPrefix, formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  stripErrorPrefix,
+  formatHandlerErrorResponse,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,

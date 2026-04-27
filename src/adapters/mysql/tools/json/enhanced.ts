@@ -99,9 +99,8 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-      const { json1, json2, mode } = JsonMergeSchema.parse(params);
+        const { json1, json2, mode } = JsonMergeSchema.parse(params);
 
-      
         const mergeFunction =
           mode === "patch" ? "JSON_MERGE_PATCH" : "JSON_MERGE_PRESERVE";
         const sql = `SELECT ${mergeFunction}(?, ?) as merged`;
@@ -140,9 +139,8 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-      const { json1, json2 } = JsonDiffSchema.parse(params);
+        const { json1, json2 } = JsonDiffSchema.parse(params);
 
-      
         // MySQL doesn't have native JSON_DIFF, so we compare key-by-key
         const sql = `
                 SELECT 
@@ -273,13 +271,13 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-      const { table, column, where, limit } = JsonNormalizeSchema.parse(params);
+        const { table, column, where, limit } =
+          JsonNormalizeSchema.parse(params);
 
-      // Validate identifiers
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
 
-      
         const whereClause = where ? `WHERE ${where}` : "";
 
         // Get all unique top-level keys
@@ -352,14 +350,13 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-      const { table, column, where, sampleSize } =
-        JsonStatsSchema.parse(params);
+        const { table, column, where, sampleSize } =
+          JsonStatsSchema.parse(params);
 
-      // Validate identifiers
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
 
-      
         const whereClause = where ? `WHERE ${where}` : "";
 
         const statsQuery = `
@@ -429,14 +426,13 @@ export function createJsonIndexSuggestTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-      const { table, column, sampleSize } =
-        JsonIndexSuggestSchema.parse(params);
+        const { table, column, sampleSize } =
+          JsonIndexSuggestSchema.parse(params);
 
-      // Validate identifiers
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
 
-      
         // Get top-level keys and their types
         const keysQuery = `
                 SELECT DISTINCT jt.key_name
@@ -516,7 +512,8 @@ export function createJsonIndexSuggestTool(
           table,
           column,
           suggestions: suggestions.slice(0, 5), // Top 5 suggestions
-          suggestion: "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
+          suggestion:
+            "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
         };
       } catch (error: unknown) {
         if (error instanceof ZodError) {

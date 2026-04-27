@@ -44,12 +44,12 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path, id, idColumn } = JsonGetSchema.parse(params);
+        const { table, column, path, id, idColumn } =
+          JsonGetSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
         validateIdentifier(idColumn, "column");
-
 
         const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
         const result = await adapter.executeReadQuery(sql, [path, id]);
@@ -112,7 +112,6 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
         validateIdentifier(idColumn, "column");
-
 
         // Normalize value to valid JSON (bare strings get wrapped automatically)
         let jsonValue: string;
@@ -178,7 +177,6 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
 
-
         const sql = `SELECT id, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
 
         const result = await adapter.executeReadQuery(sql, [
@@ -187,7 +185,11 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
           mode,
           searchValue,
         ]);
-        return { success: true, rows: result.rows, count: result.rows?.length ?? 0 };
+        return {
+          success: true,
+          rows: result.rows,
+          count: result.rows?.length ?? 0,
+        };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -217,7 +219,6 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { value } = JsonValidateSchema.parse(params);
-
 
         const sql = `SELECT JSON_VALID(?) as is_valid`;
         const result = await adapter.executeReadQuery(sql, [value]);

@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { preprocessTableParams, preprocessQueryParams, preprocessCreateTableParams } from "./preprocess-utils.js";
+import {
+  preprocessTableParams,
+  preprocessQueryParams,
+  preprocessCreateTableParams,
+} from "./preprocess-utils.js";
 
 // =============================================================================
 // Core Tools Schemas
@@ -276,4 +280,3 @@ export const GetIndexesSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName alias) is required",
   });
-

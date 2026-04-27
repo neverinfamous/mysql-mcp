@@ -498,7 +498,9 @@ describe("Admin Maintenance Tools", () => {
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ processId: 999999 }, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Process ID 999999 not found",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Process ID 999999 not found",
       });
     });
 
@@ -508,7 +510,10 @@ describe("Admin Maintenance Tools", () => {
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ processId: 123 }, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Connection lost" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Connection lost",
+      });
     });
   });
 
@@ -523,7 +528,9 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Table storage engine mismatch",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table storage engine mismatch",
       });
     });
 
@@ -547,7 +554,9 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["products"] }, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Access denied for user",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Access denied for user",
       });
     });
 
@@ -569,7 +578,9 @@ describe("Admin Maintenance Tools", () => {
       const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ tables: ["orders"] }, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Lock wait timeout exceeded",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Lock wait timeout exceeded",
       });
     });
 
@@ -582,16 +593,16 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("mysql_repair_table should return structured error on adapter failure", async () => {
-      mockAdapter.rawQuery.mockRejectedValue(
-        new Error("Table is read only"),
-      );
+      mockAdapter.rawQuery.mockRejectedValue(new Error("Table is read only"));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = await tool.handler({ tables: ["broken"] }, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Table is read only",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table is read only",
       });
     });
 
@@ -615,9 +626,7 @@ describe("Admin Maintenance Tools", () => {
       );
       await tool.handler({ table: "users" }, mockContext);
 
-      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
-        "REPAIR TABLE `users`",
-      );
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith("REPAIR TABLE `users`");
     });
 
     it("should accept tableName alias", async () => {
@@ -740,11 +749,13 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toMatchObject({ success: false, error: "Tables not found: nonexistent_xyz",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Tables not found: nonexistent_xyz",
         details: {
           notFound: ["nonexistent_xyz"],
           flushed: ["users"],
-        }
+        },
       });
       // Should have flushed the valid table
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -763,11 +774,13 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toMatchObject({ success: false, error: "Tables not found: nonexistent_a, nonexistent_b",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Tables not found: nonexistent_a, nonexistent_b",
         details: {
           notFound: ["nonexistent_a", "nonexistent_b"],
           flushed: [],
-        }
+        },
       });
       // Should NOT have called executeQuery (no valid tables to flush)
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
@@ -822,7 +835,9 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toMatchObject({ success: false, error: "Access denied; you need the RELOAD privilege",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Access denied; you need the RELOAD privilege",
       });
     });
   });
