@@ -19,6 +19,7 @@
 - Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
 - Simplified `events` schema definitions to accept standard MySQL syntax strings.
 - Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`).
+- Reduced default limits from 10 to 5 for `mysql_query_stats`, `mysql_slow_queries`, and `mysql_index_usage` to optimize token payload efficiency (< 500 tokens).
 
 ## Removed
 

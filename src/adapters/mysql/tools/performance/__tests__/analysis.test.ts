@@ -445,7 +445,7 @@ describe("Performance Analysis Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("ORDER BY SUM_TIMER_WAIT DESC");
       expect(call).toContain("LEFT(DIGEST_TEXT, 200)");
-      expect(call).toContain("LIMIT 10");
+      expect(call).toContain("LIMIT 5");
     });
 
     it("should order by executions when requested", async () => {
@@ -626,7 +626,7 @@ describe("Performance Analysis Tools", () => {
       await tool.handler({}, mockContext);
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      expect(call).toContain("LIMIT 10");
+      expect(call).toContain("LIMIT 5");
     });
 
     it("should use custom limit", async () => {
