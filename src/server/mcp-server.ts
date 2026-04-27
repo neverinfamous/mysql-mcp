@@ -11,7 +11,7 @@ import { INSTRUCTIONS, HELP_CONTENT } from "../constants/server-instructions.js"
 import { VERSION } from "../utils/version.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import type { DatabaseAdapter } from "../adapters/database-adapter.js";
-import { MySQLMcpError, ErrorCategory } from "../types/index.js";
+import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import type {
   McpServerConfig,
   TransportType,
@@ -262,7 +262,7 @@ export class McpServer {
         break;
       }
       default:
-        throw new MySQLMcpError(`Unknown transport: ${String(transport)}`, "UNKNOWN_TRANSPORT", ErrorCategory.INTERNAL);
+        throw new McpError(ErrorCode.InvalidRequest, `Unknown transport: ${String(transport)}`);
     }
   }
 
@@ -353,7 +353,7 @@ export class McpServer {
    */
   private createOAuthResourceServer(): OAuthResourceServer {
     if (!this.config.oauth?.enabled) {
-      throw new MySQLMcpError("OAuth is not enabled", "OAUTH_DISABLED", ErrorCategory.INTERNAL);
+      throw new McpError(ErrorCode.InvalidParams, "OAuth is not enabled");
     }
 
     // Use audience as resource ID if not explicitly configured in future
@@ -361,7 +361,7 @@ export class McpServer {
 
     const issuer = this.config.oauth.issuer;
     if (!issuer) {
-      throw new MySQLMcpError("OAuth issuer is required", "OAUTH_ISSUER_REQUIRED", ErrorCategory.INTERNAL);
+      throw new McpError(ErrorCode.InvalidParams, "OAuth issuer is required");
     }
 
     return new OAuthResourceServer({
@@ -377,17 +377,17 @@ export class McpServer {
    */
   private createTokenValidator(): TokenValidator {
     if (!this.config.oauth?.enabled) {
-      throw new MySQLMcpError("OAuth is not enabled", "OAUTH_DISABLED", ErrorCategory.INTERNAL);
+      throw new McpError(ErrorCode.InvalidParams, "OAuth is not enabled");
     }
 
     if (!this.config.oauth.jwksUri) {
-      throw new MySQLMcpError("OAuth JWKS URI is required for validation", "OAUTH_JWKS_REQUIRED", ErrorCategory.INTERNAL);
+      throw new McpError(ErrorCode.InvalidParams, "OAuth JWKS URI is required for validation");
     }
 
     const issuer = this.config.oauth.issuer;
     const audience = this.config.oauth.audience;
     if (!issuer || !audience) {
-      throw new MySQLMcpError("OAuth issuer and audience are required", "OAUTH_ISSUER_REQUIRED", ErrorCategory.INTERNAL);
+      throw new McpError(ErrorCode.InvalidParams, "OAuth issuer and audience are required");
     }
 
     return new TokenValidator({
