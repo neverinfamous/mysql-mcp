@@ -112,6 +112,10 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { logFile, position, limit } = BinlogEventsSchema.parse(params);
 
+        if (logFile === "") {
+          return formatHandlerErrorResponse("Invalid logFile: cannot be an empty string");
+        }
+
         // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
         if (limit === 0) {
           return { success: true, events: [] };
