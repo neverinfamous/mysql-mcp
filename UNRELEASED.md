@@ -81,6 +81,7 @@
 - Certified `partitioning` tool group for production readiness by completing advanced Code Mode stress tests. Added `partition` as an accepted alias parameter for `partitionName` in `mysql_drop_partition` to resolve validation errors, and optimized token payload efficiency in `mysql_partition_info` by defaulting to `summary: true`, omitting large metadata columns (e.g. `DATA_LENGTH`, `CREATE_TIME`) to ensure payloads remain below 500 tokens.
 - Certified `replication` tool group for production readiness by completing advanced Code Mode stress tests. Fixed `mysql_binlog_events` to return a structured error response for empty string `logFile` parameters.
 - Certified `roles` tool group for production readiness by completing advanced Code Mode stress tests. Fixed `mysql_role_revoke` to support revoking privileges from roles (in addition to revoking roles from users), resolving the corresponding `RoleRevokeSchema` validation errors and fixing parameter alias parity.
+- Certified `schema` tool group for production readiness by completing advanced Code Mode stress tests. Fixed idempotency handlers in `mysql_create_schema` and `mysql_drop_schema` to correctly return `{ success: true, skipped: true }` when `ifNotExists`/`ifExists` is true instead of raising errors.
 
 ## Security
 

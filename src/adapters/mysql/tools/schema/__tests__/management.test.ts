@@ -121,6 +121,7 @@ describe("Schema Management Tools", () => {
       const tool = createCreateSchemaTool(
         mockAdapter as unknown as MySQLAdapter,
       );
+      // Pre-check returns empty, CREATE returns empty
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       await tool.handler(
@@ -133,7 +134,8 @@ describe("Schema Management Tools", () => {
         mockContext,
       );
 
-      const sql = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const sql = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(sql).toContain("CREATE DATABASE `custom_db`"); // no IF NOT EXISTS
       expect(sql).toContain("latin1");
       expect(sql).toContain("latin1_swedish_ci");
@@ -143,9 +145,11 @@ describe("Schema Management Tools", () => {
       const tool = createCreateSchemaTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Can't create database 'existing_db'; database exists"),
-      );
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([]))
+        .mockRejectedValueOnce(
+          new Error("Can't create database 'existing_db'; database exists"),
+        );
 
       const result = (await tool.handler(
         { name: "existing_db", ifNotExists: false },
@@ -170,11 +174,13 @@ describe("Schema Management Tools", () => {
         mockContext,
       )) as {
         success: boolean;
-        error?: string;
+        skipped?: boolean;
+        reason?: string;
       };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Schema 'existing_db' already exists");
+      expect(result.success).toBe(true);
+      expect(result.skipped).toBe(true);
+      expect(result.reason).toBe("Schema already exists");
       // Only the pre-check query should have been called
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -229,19 +235,22 @@ describe("Schema Management Tools", () => {
 
     it("should drop schema without IF EXISTS if requested", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([{ SCHEMA_NAME: "db" }]));
 
       await tool.handler({ name: "db", ifExists: false }, mockContext);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      const sql = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(sql).toBe("DROP DATABASE `db`");
     });
 
     it("should return success false when schema does not exist", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
-      mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Can't drop database 'gone_db'; database doesn't exist"),
-      );
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ SCHEMA_NAME: "gone_db" }]))
+        .mockRejectedValueOnce(
+          new Error("Can't drop database 'gone_db'; database doesn't exist"),
+        );
 
       const result = (await tool.handler(
         { name: "gone_db", ifExists: false },
@@ -256,23 +265,21 @@ describe("Schema Management Tools", () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
       // Pre-check finds no schema
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
-      // DROP DATABASE IF EXISTS succeeds
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const result = (await tool.handler(
         { name: "gone_db", ifExists: true },
         mockContext,
       )) as {
         success: boolean;
-        error?: string;
+        skipped?: boolean;
+        reason?: string;
       };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Schema 'gone_db' does not exist");
+      expect(result.success).toBe(true);
+      expect(result.skipped).toBe(true);
+      expect(result.reason).toBe("Schema did not exist");
       
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const sql = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      expect(sql).toContain("DROP DATABASE IF EXISTS `gone_db`");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
   });
 });

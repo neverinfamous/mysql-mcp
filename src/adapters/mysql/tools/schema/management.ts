@@ -108,12 +108,20 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Pre-check: detect no-op when ifNotExists is true
-        if (ifNotExists) {
-          const check = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [name],
-          );
-          if (check.rows !== undefined && check.rows.length > 0) {
+        const check = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [name],
+        );
+        const schemaExists = check.rows !== undefined && check.rows.length > 0;
+
+        if (schemaExists) {
+          if (ifNotExists) {
+            return {
+              success: true,
+              skipped: true,
+              reason: `Schema already exists`,
+            };
+          } else {
             return {
               success: false,
               error: `Schema '${name}' already exists`,
@@ -179,14 +187,24 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Pre-check: detect no-op when ifExists is true
-        let schemaAbsent = false;
-        if (ifExists) {
-          const check = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [name],
-          );
-          if (check.rows === undefined || check.rows.length === 0) {
-            schemaAbsent = true;
+        const check = await adapter.executeQuery(
+          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+          [name],
+        );
+        const schemaAbsent = check.rows === undefined || check.rows.length === 0;
+
+        if (schemaAbsent) {
+          if (ifExists) {
+            return {
+              success: true,
+              skipped: true,
+              reason: `Schema did not exist`,
+            };
+          } else {
+            return {
+              success: false,
+              error: `Schema '${name}' does not exist`,
+            };
           }
         }
 
@@ -195,13 +213,6 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery(
             `DROP DATABASE ${ifExistsClause}\`${name}\``,
           );
-          
-          if (schemaAbsent) {
-            return {
-              success: false,
-              error: `Schema '${name}' does not exist`,
-            };
-          }
           
           return { success: true, schemaName: name };
         } catch (err: unknown) {
