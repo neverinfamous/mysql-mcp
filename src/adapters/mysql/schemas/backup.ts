@@ -21,10 +21,11 @@ export const ExportTableSchemaBase = z.object({
   limit: z
     .number()
     .int()
+    .positive()
     .optional()
-    .default(100)
+    .default(5)
     .describe(
-      "Maximum number of rows to export (default: 100). Set higher to export more rows.",
+      "Maximum number of rows to export (default: 5). Set higher to export more rows.",
     ),
   batch: z
     .number()
@@ -47,7 +48,7 @@ export const ExportTableSchema = z
       format: z.enum(["SQL", "CSV", "JSON", "sql", "csv", "json"]).transform(val => val.toUpperCase() as "SQL" | "CSV" | "JSON").optional().default("SQL"),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.number().int().positive().optional().default(100),
+      limit: z.number().int().positive().optional().default(5),
       batch: z.number().int().positive().optional().default(1),
     }),
   )
