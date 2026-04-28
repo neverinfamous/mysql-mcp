@@ -17,8 +17,8 @@ export const BinlogEventsSchemaBase = z.object({
 
 export const BinlogEventsSchema = z.object({
   logFile: z.string().optional().describe("Binlog file name"),
-  position: z.number().optional().describe("Starting position"),
-  limit: z
+  position: z.coerce.number().optional().describe("Starting position"),
+  limit: z.coerce
     .number()
     .nonnegative()
     .optional()
