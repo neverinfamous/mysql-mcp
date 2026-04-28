@@ -19,20 +19,14 @@ export const ExportTableSchemaBase = z.object({
   where: z.string().optional().describe("WHERE clause to filter rows"),
   filter: z.string().optional().describe("Alias for where"),
   limit: z
-    .number()
-    .int()
-    .positive()
+    .unknown()
     .optional()
-    .default(5)
     .describe(
       "Maximum number of rows to export (default: 5). Set higher to export more rows.",
     ),
   batch: z
-    .number()
-    .int()
-    .positive()
+    .unknown()
     .optional()
-    .default(1)
     .describe(
       "Rows per INSERT statement (default: 1). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
     ),
@@ -52,17 +46,25 @@ export const ExportTableSchema = z
         .default("SQL"),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.number().int().positive().optional().default(5),
-      batch: z.number().int().positive().optional().default(1),
+      limit: z.unknown().optional(),
+      batch: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     format: data.format,
     where: data.where ?? data.filter,
-    limit: data.limit,
-    batch: data.batch,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
+    batch: data.batch !== undefined ? Number(data.batch) : 1,
   }))
+  .refine(
+    (data) => !Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0,
+    { message: "limit must be a positive integer" },
+  )
+  .refine(
+    (data) => !Number.isNaN(data.batch) && Number.isInteger(data.batch) && data.batch > 0,
+    { message: "batch must be a positive integer" },
+  )
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   });
