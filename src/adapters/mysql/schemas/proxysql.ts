@@ -165,9 +165,9 @@ export const ProxySQLBaseInputSchema = z.object({});
 export const ProxySQLStatusInputSchema = z.object({
   summary: z
     .boolean()
-    .optional()
+    .default(true)
     .describe(
-      "If true, returns only key metrics (version, uptime, queries, connections) instead of all status variables",
+      "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Set to false to get all variables.",
     ),
 });
 
@@ -214,7 +214,7 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of variables to return (default: 50)"),
+    .describe("Maximum number of variables to return (default: 25)"),
 });
 
 export const ProxySQLVariableFilterSchema = z.object({
@@ -233,7 +233,7 @@ export const ProxySQLVariableFilterSchema = z.object({
     .int()
     .min(0)
     .optional()
-    .describe("Maximum number of variables to return (default: 50)"),
+    .describe("Maximum number of variables to return (default: 25)"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({

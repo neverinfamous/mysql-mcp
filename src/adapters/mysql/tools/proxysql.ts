@@ -509,7 +509,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         const countRow = countRows[0] ?? { cnt: 0 };
         const totalVarsAvailable = Number(countRow["cnt"]);
 
-        const maxRows = Math.max(0, Math.floor(limit ?? 50));
+        const maxRows = Math.max(0, Math.floor(limit ?? 25));
         const rows = await proxySQLQuery(
           `SELECT * FROM global_variables${whereClause} LIMIT ${maxRows}`,
         );
@@ -616,17 +616,19 @@ function createProxySQLProcessListTool(): ToolDefinition {
     description:
       "Get active client sessions similar to MySQL SHOW PROCESSLIST. Shows session ID, user, database, client/server hosts, and current command.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLLimitInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { limit } = ProxySQLLimitInputSchema.parse(params);
+        const maxRows = Math.max(0, Math.floor(limit ?? 50));
         const rows = await proxySQLQuery(
-          "SELECT * FROM stats_mysql_processlist",
+          `SELECT * FROM stats_mysql_processlist LIMIT ${maxRows}`,
         );
         return {
           success: true,

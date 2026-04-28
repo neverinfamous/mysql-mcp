@@ -145,7 +145,7 @@ describe("Handler Execution", () => {
       mockQuery.mockResolvedValue([mockStats]);
 
       const tool = tools.find((t) => t.name === "proxysql_status")!;
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ summary: false }, mockContext);
 
       expect(mockCreateConnection).toHaveBeenCalled();
       expect(mockQuery).toHaveBeenCalledWith(
@@ -170,7 +170,7 @@ describe("Handler Execution", () => {
         ]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ summary: false }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
@@ -208,7 +208,7 @@ describe("Handler Execution", () => {
         ]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler({}, mockContext)) as {
+      const result = (await tool.handler({ summary: false }, mockContext)) as {
         adminVariables: { variable_name: string; variable_value: string }[];
       };
 
@@ -477,7 +477,7 @@ describe("Handler Execution", () => {
         "SELECT COUNT(*) AS cnt FROM global_variables",
       );
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables LIMIT 50",
+        "SELECT * FROM global_variables LIMIT 25",
       );
       expect(result).toHaveProperty("variables", mockVars);
       expect(result).toHaveProperty("totalVarsAvailable", 1);
@@ -495,7 +495,7 @@ describe("Handler Execution", () => {
         "SELECT COUNT(*) AS cnt FROM global_variables WHERE variable_name LIKE 'mysql-%'",
       );
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 50",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 25",
       );
     });
 
@@ -511,7 +511,7 @@ describe("Handler Execution", () => {
         "SELECT COUNT(*) AS cnt FROM global_variables WHERE variable_name LIKE 'admin-%'",
       );
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 50",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 25",
       );
     });
 
@@ -654,7 +654,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM stats_mysql_processlist",
+        "SELECT * FROM stats_mysql_processlist LIMIT 50",
       );
       expect(result).toEqual({
         success: true,
