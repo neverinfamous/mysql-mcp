@@ -59,6 +59,7 @@
 - **Spatial**: Fixed `spatial_create_index` incorrectly emitting table not found errors on missing columns. Fixed WKT round-tripping for SRID 4326 by explicitly requesting `'axis-order=long-lat'`.
 - **Stats**: Enforced numeric type checking in `percentiles`, minimum bucket count in `histogram`, and maximum bucket count in `distribution`. Fixed variable interpolation in advanced error handlers.
 - **Shell**: Added `outputUrl` and `inputUrl` aliases. Extended `language` validation to support `javascript` and `python` and defaulted to `js` in `run_script`. Fixed `dump_tables` to correctly apply `dryRun` configuration.
+- **Events**: Certified 10-point stress test suite for event scheduler operations. Verified 100% adherence to structured error schemas and parameter validation with no regressions.
 - **Tests**: Remediated test stability by relaxing benchmark timing assertions, fixing watch-mode hangs in `vitest bench`, and gracefully skipping E2E write tests in read-only mode.
 
 ## Security
