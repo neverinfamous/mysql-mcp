@@ -261,8 +261,8 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    database: z.string().describe("Database name"),
+  const schemaBase = z.object({
+    database: z.string().optional().describe("Database name"),
     tables: z.array(z.string()).optional().describe("Specific tables to dump"),
     noData: z
       .boolean()
@@ -276,12 +276,23 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       .describe("Use single transaction for dump (no locking)"),
   });
 
+  const schema = schemaBase
+    .transform((data) => ({
+      database: data.database ?? "",
+      tables: data.tables,
+      noData: data.noData,
+      singleTransaction: data.singleTransaction,
+    }))
+    .refine((data) => data.database !== "", {
+      message: "database is required",
+    });
+
   return {
     name: "mysql_create_dump",
     title: "MySQL Create Dump",
     description: "Generate mysqldump command for backing up database.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: schemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
@@ -357,17 +368,26 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 }
 
 export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
-    database: z.string().describe("Target database"),
-    filename: z.string().default("backup.sql").describe("Dump file to restore"),
+  const schemaBase = z.object({
+    database: z.string().optional().describe("Target database"),
+    filename: z.string().optional().default("backup.sql").describe("Dump file to restore"),
   });
+
+  const schema = schemaBase
+    .transform((data) => ({
+      database: data.database ?? "",
+      filename: data.filename,
+    }))
+    .refine((data) => data.database !== "", {
+      message: "database is required",
+    });
 
   return {
     name: "mysql_restore_dump",
     title: "MySQL Restore Dump",
     description: "Generate command for restoring from mysqldump backup.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: schemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
