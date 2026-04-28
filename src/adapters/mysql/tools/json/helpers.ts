@@ -138,7 +138,7 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         if (result.rowsAffected === 0) {
           return {
             success: false,
-            error: `No row found with ${idColumn} = ${id}`,
+            error: `No row found with ${idColumn} = ${String(id)}`,
           };
         }
         return { success: true };

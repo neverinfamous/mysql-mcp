@@ -324,7 +324,7 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         const queryParams: unknown[] = [jsonValue];
 
         const whereClause = where ? ` AND ${where}` : "";
-        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${Number(limit)}` : "";
+        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${limit}` : "";
 
         if (path) {
           sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
@@ -378,7 +378,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         const jsonPath = path ?? "$";
         const whereClause = where ? `WHERE ${where}` : "";
-        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${Number(limit)}` : "";
+        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${limit}` : "";
         
         const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
 

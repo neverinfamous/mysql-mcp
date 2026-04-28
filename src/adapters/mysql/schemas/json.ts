@@ -12,7 +12,7 @@ export const JsonExtractSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path (e.g., $.name or $[0])"),
+  path: z.unknown().optional().describe("JSON path (e.g., $.name or $[0])"),
   where: z.string().optional().describe("WHERE clause for filtering rows"),
   filter: z.string().optional().describe("Alias for where"),
 });
@@ -26,7 +26,7 @@ export const JsonExtractSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
+      path: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
     }),
@@ -42,6 +42,9 @@ export const JsonExtractSchema = z
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
   });
 
 // --- JsonSet ---
@@ -51,8 +54,8 @@ export const JsonSetSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path to set"),
-  value: z.unknown().describe("Value to set"),
+  path: z.unknown().optional().describe("JSON path to set"),
+  value: z.unknown().optional().describe("Value to set"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
 });
@@ -66,8 +69,8 @@ export const JsonSetSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
-      value: z.unknown(),
+      path: z.unknown().optional(),
+      value: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
     }),
@@ -87,6 +90,12 @@ export const JsonSetSchema = z
   })
   .refine((data) => data.where !== "", {
     message: "where (or filter alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
+  })
+  .refine((data) => data.value !== undefined && data.value !== "", {
+    message: "value is required",
   });
 
 // --- JsonContains ---
@@ -118,7 +127,7 @@ export const JsonContainsSchema = z
       path: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.unknown().optional(),
+      limit: z.number().optional(),
     }),
   )
   .transform((data) => ({
@@ -164,7 +173,7 @@ export const JsonKeysSchema = z
       path: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.unknown().optional(),
+      limit: z.number().optional(),
     }),
   )
   .transform((data) => ({
@@ -188,7 +197,7 @@ export const JsonSearchSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  searchValue: z.string().describe("String value to search for"),
+  searchValue: z.unknown().optional().describe("String value to search for"),
   mode: z
     .enum(["one", "all"])
     .optional()
@@ -205,7 +214,7 @@ export const JsonSearchSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      searchValue: z.string(),
+      searchValue: z.unknown().optional(),
       mode: z.enum(["one", "all"]).optional().default("one"),
     }),
   )
@@ -220,6 +229,9 @@ export const JsonSearchSchema = z
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
+  })
+  .refine((data) => data.searchValue !== undefined && data.searchValue !== "", {
+    message: "searchValue is required",
   });
 
 // --- JsonInsert ---
@@ -229,8 +241,8 @@ export const JsonInsertSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path to insert at"),
-  value: z.unknown().describe("Value to insert"),
+  path: z.unknown().optional().describe("JSON path to insert at"),
+  value: z.unknown().optional().describe("Value to insert"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
 });
@@ -244,8 +256,8 @@ export const JsonInsertSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
-      value: z.unknown(),
+      path: z.unknown().optional(),
+      value: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
     }),
@@ -265,6 +277,12 @@ export const JsonInsertSchema = z
   })
   .refine((data) => data.where !== "", {
     message: "where (or filter alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
+  })
+  .refine((data) => data.value !== undefined && data.value !== "", {
+    message: "value is required",
   });
 
 // --- JsonReplace ---
@@ -274,8 +292,8 @@ export const JsonReplaceSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path to replace"),
-  value: z.unknown().describe("Replacement value"),
+  path: z.unknown().optional().describe("JSON path to replace"),
+  value: z.unknown().optional().describe("Replacement value"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
 });
@@ -289,8 +307,8 @@ export const JsonReplaceSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
-      value: z.unknown(),
+      path: z.unknown().optional(),
+      value: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
     }),
@@ -310,6 +328,12 @@ export const JsonReplaceSchema = z
   })
   .refine((data) => data.where !== "", {
     message: "where (or filter alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
+  })
+  .refine((data) => data.value !== undefined && data.value !== "", {
+    message: "value is required",
   });
 
 // --- JsonRemove ---
@@ -367,8 +391,8 @@ export const JsonArrayAppendSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path to array"),
-  value: z.unknown().describe("Value to append"),
+  path: z.unknown().optional().describe("JSON path to array"),
+  value: z.unknown().optional().describe("Value to append"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
 });
@@ -382,8 +406,8 @@ export const JsonArrayAppendSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
-      value: z.unknown(),
+      path: z.unknown().optional(),
+      value: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
     }),
@@ -403,6 +427,12 @@ export const JsonArrayAppendSchema = z
   })
   .refine((data) => data.where !== "", {
     message: "where (or filter alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
+  })
+  .refine((data) => data.value !== undefined && data.value !== "", {
+    message: "value is required",
   });
 
 // --- JsonGet ---
@@ -412,7 +442,7 @@ export const JsonGetSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path to extract"),
+  path: z.unknown().optional().describe("JSON path to extract"),
   id: z.union([z.string(), z.number()]).describe("Row ID"),
   idColumn: z.string().default("id").describe("ID column name"),
 });
@@ -426,8 +456,8 @@ export const JsonGetSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
-      id: z.union([z.string(), z.number()]),
+      path: z.unknown().optional(),
+      id: z.unknown().optional(),
       idColumn: z.string().default("id"),
     }),
   )
@@ -443,6 +473,12 @@ export const JsonGetSchema = z
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
+  })
+  .refine((data) => data.id !== undefined && data.id !== "", {
+    message: "id is required",
   });
 
 // --- JsonUpdate ---
@@ -452,8 +488,8 @@ export const JsonUpdateSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  path: z.string().describe("JSON path to update"),
-  value: z.unknown().describe("New value"),
+  path: z.unknown().optional().describe("JSON path to update"),
+  value: z.unknown().optional().describe("New value"),
   id: z.union([z.string(), z.number()]).describe("Row ID"),
   idColumn: z.string().default("id").describe("ID column name"),
 });
@@ -467,9 +503,9 @@ export const JsonUpdateSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      path: z.string(),
-      value: z.unknown(),
-      id: z.union([z.string(), z.number()]),
+      path: z.unknown().optional(),
+      value: z.unknown().optional(),
+      id: z.unknown().optional(),
       idColumn: z.string().default("id"),
     }),
   )
@@ -486,6 +522,15 @@ export const JsonUpdateSchema = z
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
+  })
+  .refine((data) => data.path !== undefined && data.path !== "", {
+    message: "path is required",
+  })
+  .refine((data) => data.value !== undefined && data.value !== "", {
+    message: "value is required",
+  })
+  .refine((data) => data.id !== undefined && data.id !== "", {
+    message: "id is required",
   });
 
 // --- JsonNormalize ---
@@ -601,8 +646,16 @@ export const JsonIndexSuggestSchema = z
   });
 
 // --- JsonValidate (no table/column — no aliases needed) ---
+export const JsonValidateSchemaBase = z.object({
+  value: z.unknown().optional().describe("JSON string to validate"),
+});
+
 export const JsonValidateSchema = z.object({
-  value: z.string().describe("JSON string to validate"),
+  value: z.unknown().optional(),
+}).transform(data => ({
+  value: data.value ?? ""
+})).refine(data => data.value !== "", {
+  message: "value is required"
 });
 
 // --- JsonMerge ---
