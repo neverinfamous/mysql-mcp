@@ -91,6 +91,7 @@
 - Certified `roles` tool group for production readiness by completing advanced Code Mode stress tests. Fixed `mysql_role_revoke` to support revoking privileges from roles (in addition to revoking roles from users), resolving the corresponding `RoleRevokeSchema` validation errors and fixing parameter alias parity.
 - Certified `schema` tool group for production readiness by completing advanced Code Mode stress tests. Fixed idempotency handlers in `mysql_create_schema` and `mysql_drop_schema` to correctly return `{ success: true, skipped: true }` when `ifNotExists`/`ifExists` is true instead of raising errors.
 - Certified `sysschema` tool group for production readiness by completing advanced Code Mode stress tests. Reduced default limits from 5 to 2 in `LimitSchema` (affecting `mysql_sys_schema_stats`, `mysql_sys_memory_summary`, and `mysql_sys_innodb_lock_waits`) to resolve remaining payload bloat and ensure all responses stay strictly below 500 tokens. Verified structured response schemas, clean empty state handling for lock waits, and stable rapid sequential execution without connection leaks.
+- Certified `cluster` tool group for production readiness by completing advanced Code Mode stress tests. Verified robust cluster topology visualization, happy-path stress stability, and token payload optimization via summary flags in `mysql_cluster_status` and `mysql_cluster_router_status`.
 
 ## Security
 
