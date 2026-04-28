@@ -174,32 +174,56 @@ export const KillQuerySchema = z
     connection: data.connection,
   }));
 
-export const ShowProcesslistSchema = z.object({
+export const ShowProcesslistSchemaBase = z.object({
   full: z.boolean().optional().default(false).describe("Show full query text"),
   limit: z
-    .number()
-    .int()
-    .positive()
+    .unknown()
     .optional()
-    .default(50)
     .describe(
       "Maximum number of processes to return (default: 50). Set higher to see all.",
     ),
 });
 
-export const ShowStatusSchema = z.object({
+export const ShowProcesslistSchema = z.object({
+  full: z.boolean().optional().default(false),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  full: data.full,
+  limit: data.limit !== undefined ? Number(data.limit) : 50,
+}))
+.refine(
+  (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+  { message: "limit must be a positive integer" }
+);
+
+export const ShowStatusSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern"),
   global: z.boolean().optional().default(true).describe("Show global status"),
   limit: z
-    .number()
-    .int()
+    .unknown()
     .optional()
     .describe(
       "Maximum number of variables to return (default: 30). Set higher to see all.",
     ),
 });
 
-export const ShowVariablesSchema = z.object({
+export const ShowStatusSchema = z.object({
+  like: z.string().optional(),
+  global: z.boolean().optional().default(true),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  like: data.like,
+  global: data.global,
+  limit: data.limit !== undefined ? Number(data.limit) : 30,
+}))
+.refine(
+  (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+  { message: "limit must be a positive integer" }
+);
+
+export const ShowVariablesSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern"),
   global: z
     .boolean()
@@ -207,10 +231,24 @@ export const ShowVariablesSchema = z.object({
     .default(true)
     .describe("Show global variables"),
   limit: z
-    .number()
-    .int()
+    .unknown()
     .optional()
     .describe(
       "Maximum number of variables to return (default: 30). Set higher to see all.",
     ),
 });
+
+export const ShowVariablesSchema = z.object({
+  like: z.string().optional(),
+  global: z.boolean().optional().default(true),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  like: data.like,
+  global: data.global,
+  limit: data.limit !== undefined ? Number(data.limit) : 30,
+}))
+.refine(
+  (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+  { message: "limit must be a positive integer" }
+);

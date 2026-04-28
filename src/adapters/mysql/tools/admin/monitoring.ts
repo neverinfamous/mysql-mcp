@@ -12,8 +12,11 @@ import type {
 } from "../../../../types/index.js";
 import {
   ShowProcesslistSchema,
+  ShowProcesslistSchemaBase,
   ShowStatusSchema,
+  ShowStatusSchemaBase,
   ShowVariablesSchema,
+  ShowVariablesSchemaBase,
 } from "../../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
@@ -26,7 +29,7 @@ export function createShowProcesslistTool(
     title: "MySQL Show Processlist",
     description: "Show all running processes and queries.",
     group: "monitoring",
-    inputSchema: ShowProcesslistSchema,
+    inputSchema: ShowProcesslistSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -60,7 +63,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Show Status",
     description: "Show server status variables.",
     group: "monitoring",
-    inputSchema: ShowStatusSchema,
+    inputSchema: ShowStatusSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -133,7 +136,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Show Variables",
     description: "Show server configuration variables.",
     group: "monitoring",
-    inputSchema: ShowVariablesSchema,
+    inputSchema: ShowVariablesSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -283,7 +286,7 @@ const InnodbStatusSchema = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(true)
+    .default(false)
     .describe(
       "Return parsed summary with key metrics instead of raw output (recommended)",
     ),
