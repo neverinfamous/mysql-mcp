@@ -44,39 +44,59 @@ const UserPrivilegesSchema = z.object({
     ),
 });
 
-const SensitiveTablesSchema = z.object({
+const SensitiveTablesSchemaBase = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema to scan (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   patterns: z
     .array(z.string())
-    .default([
-      "password",
-      "secret",
-      "token",
-      "key",
-      "ssn",
-      "credit",
-      "card",
-      "phone",
-      "email",
-      "address",
-      "salary",
-      "medical",
-      "health",
-    ])
+    .optional()
     .describe("Column name patterns to consider sensitive"),
   limit: z
     .number()
-    .int()
-    .positive()
     .optional()
-    .default(20)
     .describe(
       "Maximum number of tables to return (default: 20). Set higher for full scan.",
     ),
 });
+
+const SensitiveTablesSchema = z
+  .preprocess((val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const v = val as Record<string, unknown>;
+    if (v["schema"] === undefined && v["database"] !== undefined) {
+      v["schema"] = v["database"];
+    }
+    return v;
+  }, z.object({
+    schema: z.string().optional(),
+    database: z.string().optional(),
+    patterns: z
+      .array(z.string())
+      .default([
+        "password",
+        "secret",
+        "token",
+        "key",
+        "ssn",
+        "credit",
+        "card",
+        "phone",
+        "email",
+        "address",
+        "salary",
+        "medical",
+        "health",
+      ]),
+    limit: z.number().int().positive().optional().default(20),
+  }))
+  .transform((data) => ({
+    schema: data.schema ?? data.database,
+    patterns: data.patterns,
+    limit: data.limit,
+  }));
 
 // =============================================================================
 // Tool Creation Functions
@@ -394,7 +414,7 @@ export function createSecuritySensitiveTablesTool(
     title: "MySQL Sensitive Tables",
     description: "Identify tables and columns that may contain sensitive data.",
     group: "security",
-    inputSchema: SensitiveTablesSchema,
+    inputSchema: SensitiveTablesSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

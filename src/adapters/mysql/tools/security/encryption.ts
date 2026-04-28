@@ -21,7 +21,7 @@ import type {
 // =============================================================================
 
 const PasswordValidateSchema = z.object({
-  password: z.string().describe("Password to validate"),
+  password: z.string().min(1, "Password cannot be empty").describe("Password to validate"),
 });
 
 // =============================================================================
