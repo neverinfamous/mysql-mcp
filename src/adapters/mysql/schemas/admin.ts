@@ -143,8 +143,8 @@ export const FlushTablesSchema = z
   }));
 
 export const KillQuerySchemaBase = z.object({
-  processId: z.any().optional().describe("Process ID to kill"),
-  id: z.any().optional().describe("Alias for process ID to kill"),
+  processId: z.unknown().optional().describe("Process ID to kill"),
+  id: z.unknown().optional().describe("Alias for process ID to kill"),
   connection: z
     .boolean()
     .optional()
@@ -154,8 +154,8 @@ export const KillQuerySchemaBase = z.object({
 
 export const KillQuerySchema = z
   .object({
-    processId: z.any().optional(),
-    id: z.any().optional(),
+    processId: z.unknown().optional(),
+    id: z.unknown().optional(),
     connection: z.boolean().optional().default(false),
   })
   .transform((data) => ({
