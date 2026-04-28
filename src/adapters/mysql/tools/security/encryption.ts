@@ -21,7 +21,7 @@ import type {
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.string().describe("Password to validate"),
+  password: z.string().optional().describe("Password to validate"),
 });
 
 const PasswordValidateSchema = z.object({
