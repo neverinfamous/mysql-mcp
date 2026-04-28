@@ -16,6 +16,7 @@ import {
   JsonSearchSchema,
   JsonSearchSchemaBase,
   JsonValidateSchema,
+  JsonValidateSchemaBase,
   JsonGetSchema,
   JsonGetSchemaBase,
   JsonUpdateSchema,
@@ -210,7 +211,7 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL JSON Validate",
     description: "Validate if a string is valid JSON.",
     group: "json",
-    inputSchema: JsonValidateSchema,
+    inputSchema: JsonValidateSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
