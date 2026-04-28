@@ -126,11 +126,25 @@ async function routerFetch(
             reject(new Error(`Invalid JSON response: ${data}`));
           }
         } else {
+          let errorDetail = "";
+          let parsedData: unknown;
+          try {
+            if (data) {
+              parsedData = JSON.parse(data) as unknown;
+              errorDetail = JSON.stringify(parsedData);
+            }
+          } catch {
+            errorDetail = data.substring(0, 100);
+          }
           const err = new Error(
-            `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}`,
+            `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}${errorDetail ? ` - ${errorDetail}` : ""}`,
           );
-          (err as Error & { statusCode: number }).statusCode = statusCode;
-          reject(err);
+          const extendedErr = err as Error & { statusCode: number; responseData?: unknown };
+          extendedErr.statusCode = statusCode;
+          if (parsedData !== undefined) {
+            extendedErr.responseData = parsedData;
+          }
+          reject(extendedErr);
         }
       });
     });
@@ -180,17 +194,11 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
     const data = (await routerFetch(path)) as T;
     return { success: true, data };
   } catch (error) {
-    const msg =
-      error instanceof Error
-        ? error.message
-        : "Unknown error connecting to Router API";
+    const extendedErr = error as Error & { statusCode?: number; responseData?: unknown };
+    const msg = error instanceof Error ? error.message : "Unknown error connecting to Router API";
+    
     // 404 = valid Router response for nonexistent route/metadata/pool
-    // Return { success: false, error } instead of { available: false } to
-    // distinguish "not found" from "Router is down"
-    if (
-      error instanceof Error &&
-      (error as Error & { statusCode?: number }).statusCode === 404
-    ) {
+    if (extendedErr.statusCode === 404) {
       return {
         success: false,
         response: {
@@ -199,6 +207,19 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
         },
       };
     }
+    
+    const resData = extendedErr.responseData as Record<string, unknown> | undefined;
+    // Recovery for health checks: Router returns 500 with {"isAlive": false} if the route is down
+    if (
+      extendedErr.statusCode === 500 &&
+      resData !== undefined &&
+      resData !== null &&
+      typeof resData === "object" &&
+      typeof resData["isAlive"] === "boolean"
+    ) {
+      return { success: true, data: resData as T };
+    }
+
     return {
       success: false,
       response: {
