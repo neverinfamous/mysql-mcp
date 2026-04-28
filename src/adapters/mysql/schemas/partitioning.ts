@@ -41,12 +41,14 @@ export const AddPartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  partitionName: z.string().describe("New partition name"),
+  partitionName: z.string().optional().describe("New partition name"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY"])
+    .optional()
     .describe("Partition type"),
   value: z
     .string()
+    .optional()
     .describe(
       'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
     ),
@@ -59,19 +61,28 @@ export const AddPartitionSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      partitionName: z.string(),
-      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY"]),
-      value: z.string(),
+      partitionName: z.string().optional(),
+      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY"]).optional(),
+      value: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    partitionName: data.partitionName,
-    partitionType: data.partitionType,
-    value: data.value,
+    partitionName: data.partitionName ?? "",
+    partitionType: data.partitionType ?? "",
+    value: data.value ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.partitionName !== "", {
+    message: "partitionName is required",
+  })
+  .refine((data) => data.partitionType !== "", {
+    message: "partitionType is required",
+  })
+  .refine((data) => data.value !== "", {
+    message: "value is required",
   });
 
 // --- DropPartition ---
@@ -122,9 +133,10 @@ export const ReorganizePartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  fromPartitions: z.array(z.string()).describe("Source partition names"),
+  fromPartitions: z.array(z.string()).optional().describe("Source partition names"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY"])
+    .optional()
     .describe(
       "Partition type (RANGE or LIST). HASH/KEY partitions cannot be reorganized.",
     ),
@@ -139,6 +151,7 @@ export const ReorganizePartitionSchemaBase = z.object({
           ),
       }),
     )
+    .optional()
     .describe("New partition definitions"),
 });
 
@@ -149,22 +162,31 @@ export const ReorganizePartitionSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      fromPartitions: z.array(z.string()),
-      partitionType: z.enum(["RANGE", "LIST"]),
+      fromPartitions: z.array(z.string()).optional(),
+      partitionType: z.enum(["RANGE", "LIST"]).optional(),
       toPartitions: z.array(
         z.object({
           name: z.string(),
           value: z.string(),
         }),
-      ),
+      ).optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    fromPartitions: data.fromPartitions,
-    partitionType: data.partitionType,
-    toPartitions: data.toPartitions,
+    fromPartitions: data.fromPartitions ?? [],
+    partitionType: data.partitionType ?? "",
+    toPartitions: data.toPartitions ?? [],
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.fromPartitions.length > 0, {
+    message: "fromPartitions is required",
+  })
+  .refine((data) => data.partitionType !== "", {
+    message: "partitionType is required",
+  })
+  .refine((data) => data.toPartitions.length > 0, {
+    message: "toPartitions is required",
   });

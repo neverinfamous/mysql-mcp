@@ -166,7 +166,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             sql = `ALTER TABLE \`${table}\` ADD PARTITION PARTITIONS ${value}`;
             break;
           default: {
-            const unexpectedType: never = partitionType;
+            const unexpectedType: never = partitionType as never;
             return {
               success: false,
               error: `Unsupported partition type: ${String(unexpectedType)}`,
