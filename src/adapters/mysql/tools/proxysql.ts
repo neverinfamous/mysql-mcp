@@ -320,7 +320,7 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
-        const maxRows = Math.max(0, Math.floor(limit ?? 100));
+        const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
           `SELECT * FROM mysql_query_rules LIMIT ${maxRows}`,
         );
@@ -356,7 +356,7 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
-        const maxRows = Math.max(0, Math.floor(limit ?? 50));
+        const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
           `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
         );
@@ -509,7 +509,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         const countRow = countRows[0] ?? { cnt: 0 };
         const totalVarsAvailable = Number(countRow["cnt"]);
 
-        const maxRows = Math.max(0, Math.floor(limit ?? 25));
+        const maxRows = Math.max(0, Math.floor(limit ?? 10));
         const rows = await proxySQLQuery(
           `SELECT * FROM global_variables${whereClause} LIMIT ${maxRows}`,
         );
@@ -626,7 +626,7 @@ function createProxySQLProcessListTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
-        const maxRows = Math.max(0, Math.floor(limit ?? 50));
+        const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
           `SELECT * FROM stats_mysql_processlist LIMIT ${maxRows}`,
         );

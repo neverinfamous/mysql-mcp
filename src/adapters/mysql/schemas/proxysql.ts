@@ -175,7 +175,7 @@ export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of results to return (default: 100)"),
+    .describe("Maximum number of results to return (default: 20)"),
 });
 
 export const ProxySQLLimitInputSchema = z.object({
@@ -184,7 +184,7 @@ export const ProxySQLLimitInputSchema = z.object({
     .int()
     .min(0)
     .optional()
-    .describe("Maximum number of results to return (default: 100)"),
+    .describe("Maximum number of results to return (default: 20)"),
 });
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
@@ -214,7 +214,7 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of variables to return (default: 25)"),
+    .describe("Maximum number of variables to return (default: 10)"),
 });
 
 export const ProxySQLVariableFilterSchema = z.object({
@@ -233,7 +233,7 @@ export const ProxySQLVariableFilterSchema = z.object({
     .int()
     .min(0)
     .optional()
-    .describe("Maximum number of variables to return (default: 25)"),
+    .describe("Maximum number of variables to return (default: 10)"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({

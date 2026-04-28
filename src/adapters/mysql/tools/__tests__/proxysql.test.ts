@@ -334,7 +334,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM mysql_query_rules LIMIT 100",
+        "SELECT * FROM mysql_query_rules LIMIT 20",
       );
       expect(result).toHaveProperty("queryRules", mockRules);
     });
@@ -477,7 +477,7 @@ describe("Handler Execution", () => {
         "SELECT COUNT(*) AS cnt FROM global_variables",
       );
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables LIMIT 25",
+        "SELECT * FROM global_variables LIMIT 10",
       );
       expect(result).toHaveProperty("variables", mockVars);
       expect(result).toHaveProperty("totalVarsAvailable", 1);
@@ -495,7 +495,7 @@ describe("Handler Execution", () => {
         "SELECT COUNT(*) AS cnt FROM global_variables WHERE variable_name LIKE 'mysql-%'",
       );
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 25",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-%' LIMIT 10",
       );
     });
 
@@ -511,7 +511,7 @@ describe("Handler Execution", () => {
         "SELECT COUNT(*) AS cnt FROM global_variables WHERE variable_name LIKE 'admin-%'",
       );
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 25",
+        "SELECT * FROM global_variables WHERE variable_name LIKE 'admin-%' LIMIT 10",
       );
     });
 
@@ -654,7 +654,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "SELECT * FROM stats_mysql_processlist LIMIT 50",
+        "SELECT * FROM stats_mysql_processlist LIMIT 20",
       );
       expect(result).toEqual({
         success: true,
