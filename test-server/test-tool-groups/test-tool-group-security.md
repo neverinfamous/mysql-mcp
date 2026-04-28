@@ -53,19 +53,19 @@ security Tool Group (9 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
-1. `mysql_security_audit()` → verify audit results with privilege analysis
-2. `mysql_security_ssl_status()` → verify SSL/TLS status information
-3. `mysql_security_user_privileges({user: "root"})` → verify privileges listed
-4. `mysql_security_user_privileges({user: "root", summary: true})` → verify summarized output
-5. `mysql_security_sensitive_tables({database: "testdb"})` → verify scan results
-6. `mysql_security_password_validate({password: "weak"})` → verify strength assessment (should flag as weak)
-7. `mysql_security_password_validate({password: "Str0ng!Pass#2026"})` → verify passes validation
-8. `mysql_security_encryption_status()` → verify encryption status
+1. ✅ `mysql_security_audit()` → Passed (13 events, 670 tokens)
+2. ✅ `mysql_security_ssl_status()` → Passed (SSL disabled on test db, 101 tokens)
+3. ✅ `mysql_security_user_privileges({user: "root"})` → Passed (2 users, full grants, 798 tokens)
+4. ✅ `mysql_security_user_privileges({user: "root", summary: true})` → Passed (summarized payload, 291 tokens)
+5. ✅ `mysql_security_sensitive_tables({database: "testdb"})` → Passed (3 tables identified, 434 tokens)
+6. ✅ `mysql_security_password_validate({password: "weak"})` → Passed (strength: 25, meetsPolicy: false, 130 tokens)
+7. ✅ `mysql_security_password_validate({password: "Str0ng!Pass#2026"})` → Passed (strength: 100, meetsPolicy: true, 132 tokens)
+8. ✅ `mysql_security_encryption_status()` → Passed (keyringPlugins: [], 133 tokens)
 
 **Domain error paths (🔴):**
 
-9. 🔴 `mysql_security_user_privileges({user: "nonexistent_user_xyz"})` → `{success: false, error: "..."}` or empty results
+9. ✅ 🔴 `mysql_security_user_privileges({user: "nonexistent_user_xyz"})` → Passed (returned `{success: false, error: "User 'nonexistent_user_xyz' does not exist."}`)
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql_security_password_validate({})` → `{success: false, error: "..."}` (Zod validation)
+10. ✅ 🔴 `mysql_security_password_validate({})` → Passed (returned `{success: false, error: "Validation error: password: Invalid input: expected string, received undefined"}`)
