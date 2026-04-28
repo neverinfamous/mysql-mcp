@@ -393,7 +393,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 key: String(r["key_name"]),
                 count: Number(r["count"])
             }));
-        } catch (e) {
+        } catch {
             // Ignore if JSON_TABLE is not supported or errors out
         }
 
