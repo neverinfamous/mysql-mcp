@@ -23,6 +23,7 @@ import {
   GetIndexesSchema,
   GetIndexesSchemaBase,
   ListTablesSchema,
+  ListTablesSchemaBase,
 } from "../schemas/index.js";
 import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 
@@ -157,7 +158,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL List Tables",
     description: "List all tables and views in the database with metadata.",
     group: "core",
-    inputSchema: ListTablesSchema,
+    inputSchema: ListTablesSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -182,8 +183,10 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         let tables = await adapter.listTables(database);
-        if (limit !== undefined) {
+        let truncated = false;
+        if (limit !== undefined && tables.length > limit) {
           tables = tables.slice(0, limit);
+          truncated = true;
         }
 
         return {
@@ -196,6 +199,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
             comment: t.comment,
           })),
           count: tables.length,
+          ...(truncated ? { truncated: true } : {}),
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -283,7 +287,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Build column definitions
-        const columnDefs = columns.map((col) => {
+        const columnDefs = (columns ?? []).map((col) => {
           let def = `\`${col.name}\` ${col.type}`;
 
           if (!col.nullable) {
@@ -329,7 +333,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         });
 
         // Add primary key
-        const pkCols = columns
+        const pkCols = (columns ?? [])
           .filter((c) => c.primaryKey)
           .map((c) => `\`${c.name}\``);
         if (pkCols.length > 0) {
@@ -504,14 +508,14 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
           CreateIndexSchema.parse(params);
 
         // Validate names
-        if (!VALID_INDEX_NAME_PATTERN.test(name)) {
+        if (!name || !VALID_INDEX_NAME_PATTERN.test(name)) {
           return { success: false, error: "Invalid index name" };
         }
         if (!isValidId(table)) {
           return { success: false, error: "Invalid table name" };
         }
 
-        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
         const tableName = escapeId(table);
 
         // FULLTEXT and SPATIAL are index type prefixes (CREATE FULLTEXT INDEX ...)

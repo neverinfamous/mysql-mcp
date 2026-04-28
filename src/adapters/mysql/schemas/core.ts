@@ -109,18 +109,32 @@ export const WriteQuerySchema = z
 
 // --- ListTables ---
 
-export const ListTablesSchema = z.object({
+// Base schema for MCP visibility
+export const ListTablesSchemaBase = z.object({
   database: z
     .string()
     .optional()
     .describe("Database name (defaults to connected database)"),
   limit: z
-    .number()
-    .int()
-    .positive()
+    .unknown()
     .optional()
     .describe("Maximum number of tables to return"),
 });
+
+// Transformed schema for handler parsing
+export const ListTablesSchema = z
+  .object({
+    database: z.string().optional(),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    database: data.database,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
+  }))
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- DescribeTable ---
 
@@ -167,6 +181,7 @@ export const CreateTableSchemaBase = z.object({
         comment: z.string().optional().describe("Column comment"),
       }),
     )
+    .optional()
     .describe("Column definitions"),
   engine: z
     .enum(["InnoDB", "MyISAM", "MEMORY", "CSV", "ARCHIVE"])
@@ -200,7 +215,10 @@ export const CreateTableSchema = z
     ifNotExists: data.ifNotExists,
   }))
   .refine((data) => data.name !== "", {
-    message: "name (or table/tableName alias) is required",
+    message: "Validation error: name (or table/tableName alias) is required",
+  })
+  .refine((data) => data.columns !== undefined && data.columns.length > 0, {
+    message: "Validation error: columns array is required and must not be empty",
   });
 
 // --- DropTable ---
@@ -232,10 +250,10 @@ export const DropTableSchema = z
 
 // Base schema for MCP visibility
 export const CreateIndexSchemaBase = z.object({
-  name: z.string().describe("Index name"),
+  name: z.string().optional().describe("Index name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).describe("Column names to index"),
+  columns: z.array(z.string()).optional().describe("Column names to index"),
   unique: z.boolean().optional().default(false).describe("Create unique index"),
   type: z
     .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
@@ -259,8 +277,14 @@ export const CreateIndexSchema = z
     type: data.type,
     ifNotExists: data.ifNotExists,
   }))
+  .refine((data) => data.name !== undefined && data.name !== "", {
+    message: "Validation error: name is required",
+  })
   .refine((data) => data.table !== "", {
-    message: "table (or tableName alias) is required",
+    message: "Validation error: table (or tableName alias) is required",
+  })
+  .refine((data) => data.columns !== undefined && data.columns.length > 0, {
+    message: "Validation error: columns array is required and must not be empty",
   });
 
 // --- GetIndexes ---
