@@ -62,7 +62,7 @@ const RoleGrantsSchema = RoleGrantsSchemaBase
   });
 
 const RoleGrantPrivilegeSchemaBase = z.object({
-  role: z.string(),
+  role: z.string().optional(),
   privileges: z.array(z.string()).optional(),
   privilege: z.string().optional(),
   database: z.string().default("*"),
@@ -71,7 +71,11 @@ const RoleGrantPrivilegeSchemaBase = z.object({
 });
 
 const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase
+  .refine((val) => val.role, {
+    message: "Must provide 'role'",
+  })
   .transform((val) => {
+    const role = val.role || "";
     const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
     let database = val.database;
     let table = val.table;
@@ -86,14 +90,14 @@ const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase
       }
     }
 
-    return { ...val, privileges, database, table };
+    return { ...val, role, privileges, database, table };
   })
   .refine((val) => val.privileges.length > 0, {
     message: "Must provide 'privileges' array or single 'privilege' string",
   });
 
 const RoleAssignSchemaBase = z.object({
-  role: z.string(),
+  role: z.string().optional(),
   user: z.string().optional(),
   toUser: z.string().optional(),
   host: z.string().default("%"),
@@ -101,16 +105,20 @@ const RoleAssignSchemaBase = z.object({
 });
 
 const RoleAssignSchema = RoleAssignSchemaBase
+  .refine((val) => val.role, {
+    message: "Must provide 'role'",
+  })
   .refine((val) => val.user || val.toUser, {
     message: "Must provide 'user' or 'toUser'",
   })
   .transform((val) => {
+    const role = val.role || "";
     const user = val.user || val.toUser || "";
-    return { ...val, user };
+    return { ...val, role, user };
   });
 
 const RoleRevokeSchemaBase = z.object({
-  role: z.string(),
+  role: z.string().optional(),
   user: z.string().optional(),
   fromUser: z.string().optional(),
   host: z.string().default("%"),
@@ -122,6 +130,9 @@ const RoleRevokeSchemaBase = z.object({
 });
 
 const RoleRevokeSchema = RoleRevokeSchemaBase
+  .refine((val) => val.role, {
+    message: "Must provide 'role'",
+  })
   .refine(
     (val) =>
       Boolean(val.user) ||
@@ -133,6 +144,7 @@ const RoleRevokeSchema = RoleRevokeSchemaBase
     },
   )
   .transform((val) => {
+    const role = val.role || "";
     const user = val.user || val.fromUser || "";
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
@@ -149,7 +161,7 @@ const RoleRevokeSchema = RoleRevokeSchemaBase
       }
     }
 
-    return { ...val, user, privileges, database, table };
+    return { ...val, role, user, privileges, database, table };
   });
 
 const UserRolesSchemaBase = z.object({
