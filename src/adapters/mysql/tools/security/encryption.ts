@@ -20,8 +20,12 @@ import type {
 // Zod Schemas
 // =============================================================================
 
+const PasswordValidateSchemaBase = z.object({
+  password: z.string().describe("Password to validate"),
+});
+
 const PasswordValidateSchema = z.object({
-  password: z.string().min(1, "Password cannot be empty").describe("Password to validate"),
+  password: z.string().min(1, "Password cannot be empty"),
 });
 
 // =============================================================================
@@ -208,7 +212,7 @@ export function createSecurityPasswordValidateTool(
     description:
       "Validate password strength using MySQL validate_password component.",
     group: "security",
-    inputSchema: PasswordValidateSchema,
+    inputSchema: PasswordValidateSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

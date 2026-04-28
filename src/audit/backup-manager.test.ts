@@ -122,6 +122,8 @@ describe("BackupManager", () => {
         adapter,
       );
 
+      await mgr.flush();
+
       expect(filename).toBeDefined();
       expect(filename).toContain("mysql_drop_table");
       expect(filename).toContain("users");
@@ -269,6 +271,8 @@ describe("BackupManager", () => {
         "req-008",
         adapter,
       );
+
+      await mgr.flush();
 
       expect(filename).toBeDefined();
       expect(filename).toContain("unknown");
