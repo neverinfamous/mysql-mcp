@@ -240,7 +240,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, tables, outputDir, outputUrl, threads, compression, where, all } =
+        const { schema, tables, outputDir, outputUrl, threads, compression, where, all, dryRun } =
           ShellDumpTablesInputSchema.parse(params);
 
         if (tables.length === 0) {
@@ -262,6 +262,9 @@ export function createShellDumpTablesTool(): ToolDefinition {
         }
         if (compression && compression !== "zstd") {
           options.push(`compression: "${compression}"`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
         }
         if (where && Object.keys(where).length > 0) {
           const whereEntries = Object.entries(where)

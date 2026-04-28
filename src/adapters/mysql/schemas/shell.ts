@@ -250,6 +250,10 @@ export const ShellDumpTablesInputSchema = z
       .record(z.string(), z.string())
       .optional()
       .describe('WHERE clauses per table ({tableName: "condition"})'),
+    dryRun: booleanCoerce
+      .optional()
+      .default(false)
+      .describe("Simulate dump without writing files"),
     all: booleanCoerce
       .optional()
       .default(false)
@@ -319,9 +323,11 @@ export const ShellLoadDumpInputSchema = z
 
 export const ShellRunScriptInputSchema = z
   .object({
-    script: z.string().min(1).describe("Script content to execute"),
+    script: z.string().min(0).describe("Script content to execute"),
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
+      .optional()
+      .default("js")
       .describe("Script language (JavaScript, Python, or SQL)"),
     timeout: z
       .number()
