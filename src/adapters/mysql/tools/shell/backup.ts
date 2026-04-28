@@ -289,6 +289,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
           schema,
           tables,
           outputDir: finalOutputDir,
+          dryRun: dryRun ?? false,
           triggersExcluded: !all,
           result,
         };
