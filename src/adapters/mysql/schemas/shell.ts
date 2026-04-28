@@ -67,7 +67,9 @@ export const ShellExportTableInputSchema = z
     table: z.string().describe("Table name to export"),
     outputPath: z
       .string()
+      .optional()
       .describe("Output file path (absolute path recommended)"),
+    outputUrl: z.string().optional().describe("Alias for outputPath"),
     format: z
       .enum(["csv", "tsv"])
       .optional()
@@ -82,7 +84,8 @@ export const ShellExportTableInputSchema = z
 
 export const ShellImportTableInputSchema = z
   .object({
-    inputPath: z.string().describe("Input file path (absolute path)"),
+    inputPath: z.string().optional().describe("Input file path (absolute path)"),
+    inputUrl: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().describe("Target schema (database) name"),
     table: z.string().describe("Target table name"),
     threads: z
@@ -123,7 +126,8 @@ export const ShellImportTableInputSchema = z
 
 export const ShellImportJSONInputSchema = z
   .object({
-    inputPath: z.string().describe("JSON file path (absolute path)"),
+    inputPath: z.string().optional().describe("JSON file path (absolute path)"),
+    inputUrl: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().describe("Target schema (database) name"),
     collection: z.string().describe("Target collection or table name"),
     tableColumn: z
@@ -145,7 +149,9 @@ export const ShellDumpInstanceInputSchema = z
   .object({
     outputDir: z
       .string()
+      .optional()
       .describe("Output directory for dump (must be empty or non-existent)"),
+    outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -185,7 +191,8 @@ export const ShellDumpInstanceInputSchema = z
 export const ShellDumpSchemasInputSchema = z
   .object({
     schemas: z.array(z.string()).describe("Schema names to dump"),
-    outputDir: z.string().describe("Output directory for dump"),
+    outputDir: z.string().optional().describe("Output directory for dump"),
+    outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -224,7 +231,8 @@ export const ShellDumpTablesInputSchema = z
   .object({
     schema: z.string().describe("Schema containing tables"),
     tables: z.array(z.string()).describe("Table names to dump"),
-    outputDir: z.string().describe("Output directory for dump"),
+    outputDir: z.string().optional().describe("Output directory for dump"),
+    outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -257,7 +265,8 @@ export const ShellDumpTablesInputSchema = z
 
 export const ShellLoadDumpInputSchema = z
   .object({
-    inputDir: z.string().describe("Directory containing MySQL Shell dump"),
+    inputDir: z.string().optional().describe("Directory containing MySQL Shell dump"),
+    inputUrl: z.string().optional().describe("Alias for inputDir"),
     threads: z
       .number()
       .int()
@@ -312,7 +321,7 @@ export const ShellRunScriptInputSchema = z
   .object({
     script: z.string().min(1).describe("Script content to execute"),
     language: z
-      .enum(["js", "py", "sql"])
+      .enum(["js", "py", "sql", "javascript", "python"])
       .describe("Script language (JavaScript, Python, or SQL)"),
     timeout: z
       .number()

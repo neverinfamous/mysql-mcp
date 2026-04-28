@@ -40,11 +40,15 @@ export function createShellExportTableTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, table, outputPath, format, where } =
+        const { schema, table, outputPath, outputUrl, format, where } =
           ShellExportTableInputSchema.parse(params);
 
         // Escape path for JavaScript
-        const escapedPath = outputPath.replace(/\\/g, "\\\\");
+        const finalOutputPath = outputPath ?? outputUrl;
+        if (!finalOutputPath) {
+          return { success: false, error: "Validation error: outputPath or outputUrl is required" };
+        }
+        const escapedPath = finalOutputPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (format === "csv") {
@@ -66,7 +70,7 @@ export function createShellExportTableTool(): ToolDefinition {
           success: true,
           schema,
           table,
-          outputPath,
+          outputPath: finalOutputPath,
           format,
           result,
         };
@@ -112,6 +116,7 @@ export function createShellImportTableTool(): ToolDefinition {
       try {
         const {
           inputPath,
+          inputUrl,
           schema,
           table,
           threads,
@@ -122,7 +127,11 @@ export function createShellImportTableTool(): ToolDefinition {
           updateServerSettings,
         } = ShellImportTableInputSchema.parse(params);
 
-        const escapedPath = inputPath.replace(/\\/g, "\\\\");
+        const finalInputPath = inputPath ?? inputUrl;
+        if (!finalInputPath) {
+          return { success: false, error: "Validation error: inputPath or inputUrl is required" };
+        }
+        const escapedPath = finalInputPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         options.push(`schema: "${schema}"`);
@@ -161,7 +170,7 @@ export function createShellImportTableTool(): ToolDefinition {
         const result = await execShellJS(jsCode);
         return {
           success: true,
-          inputPath,
+          inputPath: finalInputPath,
           schema,
           table,
           localInfileEnabled: updateServerSettings,
@@ -211,11 +220,15 @@ export function createShellImportJSONTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { inputPath, schema, collection, tableColumn, convertBsonTypes } =
+        const { inputPath, inputUrl, schema, collection, tableColumn, convertBsonTypes } =
           ShellImportJSONInputSchema.parse(params);
         const config = getShellConfig();
 
-        const escapedPath = inputPath.replace(/\\/g, "\\\\");
+        const finalInputPath = inputPath ?? inputUrl;
+        if (!finalInputPath) {
+          return { success: false, error: "Validation error: inputPath or inputUrl is required" };
+        }
+        const escapedPath = finalInputPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         options.push(`schema: "${schema}"`);
@@ -304,7 +317,7 @@ export function createShellImportJSONTool(): ToolDefinition {
             }
             return {
               success: true,
-              inputPath,
+              inputPath: finalInputPath,
               schema,
               collection,
               protocol: "X Protocol",
@@ -324,7 +337,7 @@ export function createShellImportJSONTool(): ToolDefinition {
 
         return {
           success: true,
-          inputPath,
+          inputPath: finalInputPath,
           schema,
           collection,
           protocol: "X Protocol",

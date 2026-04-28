@@ -37,6 +37,7 @@ export function createShellDumpInstanceTool(): ToolDefinition {
       try {
         const {
           outputDir,
+          outputUrl,
           threads,
           compression,
           dryRun,
@@ -46,7 +47,11 @@ export function createShellDumpInstanceTool(): ToolDefinition {
           users,
         } = ShellDumpInstanceInputSchema.parse(params);
 
-        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+        const finalOutputDir = outputDir ?? outputUrl;
+        if (!finalOutputDir) {
+          return { success: false, error: "Validation error: outputDir or outputUrl is required" };
+        }
+        const escapedPath = finalOutputDir.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -79,7 +84,7 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 
         return {
           success: true,
-          outputDir,
+          outputDir: finalOutputDir,
           dryRun: dryRun ?? false,
           result,
         };
@@ -135,6 +140,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         const {
           schemas,
           outputDir,
+          outputUrl,
           threads,
           compression,
           dryRun,
@@ -150,7 +156,11 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           };
         }
 
-        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+        const finalOutputDir = outputDir ?? outputUrl;
+        if (!finalOutputDir) {
+          return { success: false, error: "Validation error: outputDir or outputUrl is required" };
+        }
+        const escapedPath = finalOutputDir.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -183,7 +193,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         return {
           success: true,
           schemas,
-          outputDir,
+          outputDir: finalOutputDir,
           dryRun: dryRun ?? false,
           ddlOnly: ddlOnly ?? false,
           result,
@@ -230,7 +240,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, tables, outputDir, threads, compression, where, all } =
+        const { schema, tables, outputDir, outputUrl, threads, compression, where, all } =
           ShellDumpTablesInputSchema.parse(params);
 
         if (tables.length === 0) {
@@ -240,7 +250,11 @@ export function createShellDumpTablesTool(): ToolDefinition {
           };
         }
 
-        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+        const finalOutputDir = outputDir ?? outputUrl;
+        if (!finalOutputDir) {
+          return { success: false, error: "Validation error: outputDir or outputUrl is required" };
+        }
+        const escapedPath = finalOutputDir.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -271,7 +285,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
           success: true,
           schema,
           tables,
-          outputDir,
+          outputDir: finalOutputDir,
           triggersExcluded: !all,
           result,
         };

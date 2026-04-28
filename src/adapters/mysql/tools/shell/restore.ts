@@ -39,6 +39,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
       try {
         const {
           inputDir,
+          inputUrl,
           threads,
           dryRun,
           includeSchemas,
@@ -51,7 +52,11 @@ export function createShellLoadDumpTool(): ToolDefinition {
           updateServerSettings,
         } = ShellLoadDumpInputSchema.parse(params);
 
-        const escapedPath = inputDir.replace(/\\/g, "\\\\");
+        const finalInputDir = inputDir ?? inputUrl;
+        if (!finalInputDir) {
+          return { success: false, error: "Validation error: inputDir or inputUrl is required" };
+        }
+        const escapedPath = finalInputDir.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -176,7 +181,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
 
           return {
             success: true,
-            inputDir,
+            inputDir: finalInputDir,
             dryRun: true,
             localInfileEnabled: updateServerSettings,
             dryRunOutput: stderrClean || undefined,
@@ -186,7 +191,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
-          inputDir,
+          inputDir: finalInputDir,
           dryRun: false,
           localInfileEnabled: updateServerSettings,
           result,
@@ -245,14 +250,18 @@ export function createShellRunScriptTool(): ToolDefinition {
         let langFlag: string;
         switch (language) {
           case "js":
+          case "javascript":
             langFlag = "--js";
             break;
           case "py":
+          case "python":
             langFlag = "--py";
             break;
           case "sql":
             langFlag = "--sql";
             break;
+          default:
+            return { success: false, error: "Invalid language" };
         }
 
         let result;
