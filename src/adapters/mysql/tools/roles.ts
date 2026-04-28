@@ -17,12 +17,13 @@ const RoleListSchema = z.object({
   pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
 });
 
-const RoleCreateSchema = z
-  .object({
-    name: z.string().optional().describe("Role name"),
-    role: z.string().optional().describe("Alias for name"),
-    ifNotExists: z.boolean().default(false),
-  })
+const RoleCreateSchemaBase = z.object({
+  name: z.string().optional().describe("Role name"),
+  role: z.string().optional().describe("Alias for name"),
+  ifNotExists: z.boolean().default(false),
+});
+
+const RoleCreateSchema = RoleCreateSchemaBase
   .refine((val) => val.name || val.role, {
     message: "Must provide 'name' or 'role'",
   })
@@ -31,12 +32,13 @@ const RoleCreateSchema = z
     return { ...val, name };
   });
 
-const RoleDropSchema = z
-  .object({
-    name: z.string().optional().describe("Role name"),
-    role: z.string().optional().describe("Alias for name"),
-    ifExists: z.boolean().default(false),
-  })
+const RoleDropSchemaBase = z.object({
+  name: z.string().optional().describe("Role name"),
+  role: z.string().optional().describe("Alias for name"),
+  ifExists: z.boolean().default(false),
+});
+
+const RoleDropSchema = RoleDropSchemaBase
   .refine((val) => val.name || val.role, {
     message: "Must provide 'name' or 'role'",
   })
@@ -45,11 +47,12 @@ const RoleDropSchema = z
     return { ...val, name };
   });
 
-const RoleGrantsSchema = z
-  .object({
-    role: z.string().optional(),
-    name: z.string().optional(),
-  })
+const RoleGrantsSchemaBase = z.object({
+  role: z.string().optional(),
+  name: z.string().optional(),
+});
+
+const RoleGrantsSchema = RoleGrantsSchemaBase
   .refine((val) => val.role || val.name, {
     message: "Must provide 'role' or 'name'",
   })
@@ -58,15 +61,16 @@ const RoleGrantsSchema = z
     return { ...val, role };
   });
 
-const RoleGrantPrivilegeSchema = z
-  .object({
-    role: z.string(),
-    privileges: z.array(z.string()).optional(),
-    privilege: z.string().optional(),
-    database: z.string().default("*"),
-    table: z.string().default("*"),
-    on: z.string().optional(),
-  })
+const RoleGrantPrivilegeSchemaBase = z.object({
+  role: z.string(),
+  privileges: z.array(z.string()).optional(),
+  privilege: z.string().optional(),
+  database: z.string().default("*"),
+  table: z.string().default("*"),
+  on: z.string().optional(),
+});
+
+const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase
   .transform((val) => {
     const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
     let database = val.database;
@@ -88,14 +92,15 @@ const RoleGrantPrivilegeSchema = z
     message: "Must provide 'privileges' array or single 'privilege' string",
   });
 
-const RoleAssignSchema = z
-  .object({
-    role: z.string(),
-    user: z.string().optional(),
-    toUser: z.string().optional(),
-    host: z.string().default("%"),
-    withAdminOption: z.boolean().default(false),
-  })
+const RoleAssignSchemaBase = z.object({
+  role: z.string(),
+  user: z.string().optional(),
+  toUser: z.string().optional(),
+  host: z.string().default("%"),
+  withAdminOption: z.boolean().default(false),
+});
+
+const RoleAssignSchema = RoleAssignSchemaBase
   .refine((val) => val.user || val.toUser, {
     message: "Must provide 'user' or 'toUser'",
   })
@@ -104,18 +109,19 @@ const RoleAssignSchema = z
     return { ...val, user };
   });
 
-const RoleRevokeSchema = z
-  .object({
-    role: z.string(),
-    user: z.string().optional(),
-    fromUser: z.string().optional(),
-    host: z.string().default("%"),
-    privileges: z.union([z.string(), z.array(z.string())]).optional(),
-    privilege: z.string().optional(),
-    database: z.string().default("*"),
-    table: z.string().default("*"),
-    on: z.string().optional(),
-  })
+const RoleRevokeSchemaBase = z.object({
+  role: z.string(),
+  user: z.string().optional(),
+  fromUser: z.string().optional(),
+  host: z.string().default("%"),
+  privileges: z.union([z.string(), z.array(z.string())]).optional(),
+  privilege: z.string().optional(),
+  database: z.string().default("*"),
+  table: z.string().default("*"),
+  on: z.string().optional(),
+});
+
+const RoleRevokeSchema = RoleRevokeSchemaBase
   .refine(
     (val) =>
       Boolean(val.user) ||
@@ -146,12 +152,13 @@ const RoleRevokeSchema = z
     return { ...val, user, privileges, database, table };
   });
 
-const UserRolesSchema = z
-  .object({
-    user: z.string().optional(),
-    targetUser: z.string().optional(),
-    host: z.string().default("%"),
-  })
+const UserRolesSchemaBase = z.object({
+  user: z.string().optional(),
+  targetUser: z.string().optional(),
+  host: z.string().default("%"),
+});
+
+const UserRolesSchema = UserRolesSchemaBase
   .refine((val) => val.user || val.targetUser, {
     message: "Must provide 'user' or 'targetUser'",
   })
@@ -197,7 +204,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Create Role",
       description: "Create a new role.",
       group: "roles",
-      inputSchema: RoleCreateSchema,
+      inputSchema: RoleCreateSchemaBase,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -254,7 +261,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Drop Role",
       description: "Drop a role.",
       group: "roles",
-      inputSchema: RoleDropSchema,
+      inputSchema: RoleDropSchemaBase,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false, destructiveHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -318,7 +325,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Role Grants",
       description: "List privileges granted to a role.",
       group: "roles",
-      inputSchema: RoleGrantsSchema,
+      inputSchema: RoleGrantsSchemaBase,
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -355,7 +362,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Grant to Role",
       description: "Grant privileges to a role.",
       group: "roles",
-      inputSchema: RoleGrantPrivilegeSchema,
+      inputSchema: RoleGrantPrivilegeSchemaBase,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -442,7 +449,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Assign Role",
       description: "Assign a role to a user.",
       group: "roles",
-      inputSchema: RoleAssignSchema,
+      inputSchema: RoleAssignSchemaBase,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -494,7 +501,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Revoke Role",
       description: "Revoke a role from a user, or privileges from a role.",
       group: "roles",
-      inputSchema: RoleRevokeSchema,
+      inputSchema: RoleRevokeSchemaBase,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -614,7 +621,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL User Roles",
       description: "List roles assigned to a user.",
       group: "roles",
-      inputSchema: UserRolesSchema,
+      inputSchema: UserRolesSchemaBase,
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
