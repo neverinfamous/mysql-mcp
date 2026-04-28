@@ -118,7 +118,7 @@ export const ListTablesSchemaBase = z.object({
   limit: z
     .unknown()
     .optional()
-    .describe("Maximum number of tables to return"),
+    .describe("Maximum number of tables to return (default: 50)"),
 });
 
 // Transformed schema for handler parsing
@@ -129,7 +129,7 @@ export const ListTablesSchema = z
   })
   .transform((data) => ({
     database: data.database,
-    limit: data.limit !== undefined ? Number(data.limit) : undefined,
+    limit: data.limit !== undefined ? Number(data.limit) : 50,
   }))
   .refine(
     (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),

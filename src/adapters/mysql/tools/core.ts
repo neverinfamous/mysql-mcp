@@ -194,9 +194,9 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           tables: tables.map((t) => ({
             name: t.name,
             type: t.type,
-            engine: t.engine,
-            rowCount: t.rowCount,
-            comment: t.comment,
+            ...(t.engine != null ? { engine: t.engine } : {}),
+            ...(t.rowCount != null ? { rowCount: t.rowCount } : {}),
+            ...(t.comment != null && t.comment !== "" ? { comment: t.comment } : {}),
           })),
           count: tables.length,
           ...(truncated ? { truncated: true } : {}),
@@ -235,7 +235,28 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${table}' does not exist or has no columns`,
           };
         }
-        return { success: true, ...tableInfo, exists: true };
+        // Sanitize to reduce token bloat
+        const sanitizedColumns = tableInfo.columns?.map((c) => {
+          const { comment, characterSet, collation, defaultValue, autoIncrement, ...rest } = c;
+          return {
+            ...rest,
+            ...(comment != null && comment !== "" ? { comment } : {}),
+            ...(characterSet != null ? { characterSet } : {}),
+            ...(collation != null ? { collation } : {}),
+            ...(defaultValue !== null ? { defaultValue } : {}),
+            ...(autoIncrement === true ? { autoIncrement } : {}),
+          };
+        });
+        
+        const { comment: tableComment, collation: tableCollation, ...restInfo } = tableInfo;
+        const sanitizedInfo = {
+            ...restInfo,
+            columns: sanitizedColumns,
+            ...(tableComment != null && tableComment !== "" ? { comment: tableComment } : {}),
+            ...(tableCollation != null && tableCollation !== "" ? { collation: tableCollation } : {}),
+        };
+
+        return { success: true, ...sanitizedInfo, exists: true };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
