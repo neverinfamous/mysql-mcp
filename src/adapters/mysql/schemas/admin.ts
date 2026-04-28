@@ -143,7 +143,8 @@ export const FlushTablesSchema = z
   }));
 
 export const KillQuerySchemaBase = z.object({
-  processId: z.number().describe("Process ID to kill"),
+  processId: z.any().optional().describe("Process ID to kill"),
+  id: z.any().optional().describe("Alias for process ID to kill"),
   connection: z
     .boolean()
     .optional()
@@ -151,14 +152,27 @@ export const KillQuerySchemaBase = z.object({
     .describe("Kill connection instead of query"),
 });
 
-export const KillQuerySchema = z.object({
-  processId: z.number().describe("Process ID to kill"),
-  connection: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Kill connection instead of query"),
-});
+export const KillQuerySchema = z
+  .object({
+    processId: z.any().optional(),
+    id: z.any().optional(),
+    connection: z.boolean().optional().default(false),
+  })
+  .transform((data) => ({
+    processId: data.processId ?? data.id,
+    connection: data.connection,
+  }))
+  .refine(
+    (data) =>
+      data.processId !== undefined &&
+      data.processId !== null &&
+      !Number.isNaN(Number(data.processId)),
+    { message: "processId (or id alias) is required and must be a valid number" },
+  )
+  .transform((data) => ({
+    processId: Number(data.processId),
+    connection: data.connection,
+  }));
 
 export const ShowProcesslistSchema = z.object({
   full: z.boolean().optional().default(false).describe("Show full query text"),

@@ -63,7 +63,3 @@ When tasked with running tests from this folder, adhere to the following optimiz
 ## Execution
 
 Begin with any requested group prompt from this folder (e.g. `test-tool-group-admin.md`), and execute the deterministic checklist line-by-line using direct tool calls only.
-
-## Test Results
-
-Token consumption metrics and final summaries from executing the above tests are persisted in [`test-results.md`](./test-results.md).

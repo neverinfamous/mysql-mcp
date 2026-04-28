@@ -38,6 +38,7 @@
 ## Fixed
 
 - **Global Error Handling**: Unified error reporting across all tool groups to strictly adhere to the `ErrorResponse` schema (`{ success: boolean }`). Replaced custom try/catch blocks with `formatHandlerErrorResponse`, eliminated legacy property leakages on existence checks across all domains, and enforced `success: true` on all successful operations. Standardized Zod error formats and fixed `MySQLMcpError` property stripping.
+- **Admin**: Updated `KillQuerySchema` to use Zod parameter coercion and `id` aliasing, ensuring type validation failures return structured handler errors instead of raw MCP exceptions.
 - **Admin DDL**: Switched to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
 - **Cluster**: Fixed auto-recovery by changing `group_replication_start_on_boot=ON` to persist state across restarts. Merged contextual fallback strings into standard `error` properties for multiple failure scenarios in instance and router status tools.
 - **Core**: Added missing `limit` parameter support to `list_tables`. Enforced `database` as a required parameter in dump tools. Relaxed `export_table` format parameter to accept case-insensitive values (including `JSON`). Fixed `killQuery` dropping positional arguments.
