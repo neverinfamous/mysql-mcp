@@ -68,6 +68,11 @@ export const ExplainAnalyzeSchema = z
   });
 
 // --- SlowQuery (no table/query aliases — simple passthrough) ---
+export const SlowQuerySchemaBase = z.object({
+  limit: z.unknown().optional().describe("Number of slow queries to return"),
+  minTime: z.unknown().optional().describe("Minimum query time in seconds"),
+});
+
 export const SlowQuerySchema = z.object({
   limit: z
     .number()
@@ -78,6 +83,11 @@ export const SlowQuerySchema = z.object({
 });
 
 // --- QueryStats (no table/query aliases — simple passthrough) ---
+export const QueryStatsSchemaBase = z.object({
+  orderBy: z.unknown().optional().describe("Order results by metric"),
+  limit: z.unknown().optional().describe("Maximum number of queries to return"),
+});
+
 export const QueryStatsSchema = z.object({
   orderBy: z
     .enum(["total_time", "avg_time", "executions"])

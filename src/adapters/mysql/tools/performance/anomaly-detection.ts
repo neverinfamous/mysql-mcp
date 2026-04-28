@@ -44,6 +44,13 @@ export function riskFromScore(score: number): RiskLevel {
 // Schemas
 // =============================================================================
 
+export const DetectQueryAnomaliesSchemaBase = z.object({
+  threshold: z.unknown().optional().describe("Max/Avg variance multiplier threshold (default: 10.0)"),
+  stdDevThreshold: z.unknown().optional().describe("Alias for threshold"),
+  minCalls: z.unknown().optional().describe("Minimum call count to filter noise (default: 50)"),
+  minExecutions: z.unknown().optional().describe("Alias for minCalls"),
+});
+
 export const DetectQueryAnomaliesSchema = z.object({
   threshold: z
     .number()
@@ -57,6 +64,11 @@ export const DetectQueryAnomaliesSchema = z.object({
   minExecutions: z.number().optional().describe("Alias for minCalls"),
 });
 
+export const DetectBloatRiskSchemaBase = z.object({
+  schema: z.unknown().optional().describe("Filter to a specific database schema"),
+  minSizeMb: z.unknown().optional().describe("Minimum table size in MB to include (default: 10)"),
+});
+
 export const DetectBloatRiskSchema = z.object({
   schema: z
     .string()
@@ -67,6 +79,7 @@ export const DetectBloatRiskSchema = z.object({
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
 });
+
 
 // =============================================================================
 // 1. mysql_detect_query_anomalies
@@ -79,7 +92,7 @@ export function createDetectQueryAnomaliesTool(
     name: "mysql_detect_query_anomalies",
     description:
       "Detects queries deviating from their historical execution time norms using MAX/AVG variance analysis. Requires performance_schema.",
-    inputSchema: DetectQueryAnomaliesSchema,
+    inputSchema: DetectQueryAnomaliesSchemaBase,
     group: "performance",
     requiredScopes: ["read"],
     annotations: { readOnlyHint: true },
@@ -194,7 +207,7 @@ export function createDetectBloatRiskTool(
     name: "mysql_detect_bloat_risk",
     description:
       "Scores tables by bloat/fragmentation risk using information_schema DATA_FREE vs DATA_LENGTH metrics. Returns per-table risk scores (0-100) with recommendations.",
-    inputSchema: DetectBloatRiskSchema,
+    inputSchema: DetectBloatRiskSchemaBase,
     group: "performance",
     requiredScopes: ["read"],
     annotations: { readOnlyHint: true },

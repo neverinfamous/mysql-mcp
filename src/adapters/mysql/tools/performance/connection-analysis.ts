@@ -21,6 +21,12 @@ import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 // Schemas
 // =============================================================================
 
+export const DetectConnectionSpikeSchemaBase = z.object({
+  warningPercent: z.unknown().optional().describe("Percentage threshold for flagging concentration (default: 70)"),
+  windowMinutes: z.unknown().optional().describe("Idle time window in minutes to flag connections (default: 5)"),
+  thresholdPercent: z.unknown().optional().describe("Alias for warningPercent"),
+});
+
 export const DetectConnectionSpikeSchema = z.object({
   warningPercent: z
     .number()
@@ -51,7 +57,7 @@ export function createDetectConnectionSpikeTool(
     name: "mysql_detect_connection_spike",
     description:
       "Detects unusual connection patterns by analyzing concentration by user, host, and state. Flags when a single user monopolizes the pool or idle connections accumulate.",
-    inputSchema: DetectConnectionSpikeSchema,
+    inputSchema: DetectConnectionSpikeSchemaBase,
     group: "performance",
     requiredScopes: ["read"],
     annotations: { readOnlyHint: true },

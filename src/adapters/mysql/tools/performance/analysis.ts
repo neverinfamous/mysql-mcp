@@ -16,7 +16,9 @@ import {
   ExplainAnalyzeSchema,
   ExplainAnalyzeSchemaBase,
   SlowQuerySchema,
+  SlowQuerySchemaBase,
   QueryStatsSchema,
+  QueryStatsSchemaBase,
   IndexUsageSchema,
   IndexUsageSchemaBase,
   TableStatsSchema,
@@ -145,7 +147,7 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Slow Queries",
     description: "Get slow queries from performance_schema (if available).",
     group: "performance",
-    inputSchema: SlowQuerySchema,
+    inputSchema: SlowQuerySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -192,7 +194,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Query Stats",
     description: "Get query statistics from performance_schema.",
     group: "performance",
-    inputSchema: QueryStatsSchema,
+    inputSchema: QueryStatsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
