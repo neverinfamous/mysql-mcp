@@ -22,7 +22,7 @@ import {
   FulltextExpandSchema,
   FulltextExpandSchemaBase,
 } from "../../schemas/index.js";
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   validateIdentifier,
@@ -192,15 +192,6 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
   };
 }
 
-const FulltextSearchWithTruncateSchema = FulltextSearchSchemaBase.extend({
-  maxLength: z
-    .number()
-    .optional()
-    .describe(
-      "Optional max characters per text column in results. Truncates with '...' if exceeded.",
-    ),
-});
-
 export function createFulltextSearchTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
@@ -209,7 +200,7 @@ export function createFulltextSearchTool(
     title: "MySQL FULLTEXT Search",
     description: "Perform FULLTEXT search with relevance ranking.",
     group: "fulltext",
-    inputSchema: FulltextSearchWithTruncateSchema,
+    inputSchema: FulltextSearchSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -218,10 +209,7 @@ export function createFulltextSearchTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = FulltextSearchSchema.parse(params);
-        const { table, columns, query, mode } = parsed;
-        const maxLength = (params as Record<string, unknown>)["maxLength"] as
-          | number
-          | undefined;
+        const { table, columns, query, mode, maxLength } = parsed;
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
