@@ -8,7 +8,7 @@ import type {
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 const ListConstraintsSchemaBase = z.object({
-  table: z.string().describe("Table name"),
+  table: z.string().optional().describe("Table name"),
   type: z.string().optional().describe("Filter by constraint type"),
 });
 

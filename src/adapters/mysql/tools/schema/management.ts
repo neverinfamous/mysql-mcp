@@ -14,16 +14,28 @@ const ListSchemasSchema = z.object({
     .describe('Filter pattern (LIKE syntax, e.g. "app_%")'),
 });
 
+const CreateSchemaSchemaBase = z.object({
+  name: z.string().optional().describe("Schema/database name"),
+  charset: z.string().optional().describe("Character set"),
+  collation: z.string().optional().describe("Collation"),
+  ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
+});
+
 const CreateSchemaSchema = z.object({
   name: z.string().describe("Schema/database name"),
   charset: z.string().default("utf8mb4").describe("Character set"),
   collation: z.string().default("utf8mb4_unicode_ci").describe("Collation"),
-  ifNotExists: z.boolean().default(true).describe("Add IF NOT EXISTS clause"),
+  ifNotExists: z.boolean().default(false).describe("Add IF NOT EXISTS clause"),
+});
+
+const DropSchemaSchemaBase = z.object({
+  name: z.string().optional().describe("Schema/database name to drop"),
+  ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 
 const DropSchemaSchema = z.object({
   name: z.string().describe("Schema/database name to drop"),
-  ifExists: z.boolean().default(true).describe("Add IF EXISTS clause"),
+  ifExists: z.boolean().default(false).describe("Add IF EXISTS clause"),
 });
 
 /**
@@ -86,7 +98,7 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create a new database/schema with specified charset and collation.",
     group: "schema",
-    inputSchema: CreateSchemaSchema,
+    inputSchema: CreateSchemaSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -162,7 +174,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Drop a database/schema. WARNING: This permanently deletes all data.",
     group: "schema",
-    inputSchema: DropSchemaSchema,
+    inputSchema: DropSchemaSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

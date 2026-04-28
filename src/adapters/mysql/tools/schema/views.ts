@@ -20,7 +20,7 @@ const ListViewsSchema = z.object({
 });
 
 const CreateViewSchemaBase = z.object({
-  name: z.string().describe("View name"),
+  name: z.string().optional().describe("View name"),
   definition: z
     .string()
     .optional()
