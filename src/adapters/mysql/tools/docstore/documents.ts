@@ -13,9 +13,13 @@ import {
 } from "./helpers.js";
 import {
   FindSchema,
+  FindSchemaBase,
   AddDocSchema,
+  AddDocSchemaBase,
   ModifyDocSchema,
+  ModifyDocSchemaBase,
   RemoveDocSchema,
+  RemoveDocSchemaBase,
 } from "../../schemas/index.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
@@ -25,7 +29,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Find Documents",
       description: "Query documents in a collection.",
       group: "docstore",
-      inputSchema: FindSchema,
+      inputSchema: FindSchemaBase,
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -112,7 +116,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Add Documents",
       description: "Add documents to a collection.",
       group: "docstore",
-      inputSchema: AddDocSchema,
+      inputSchema: AddDocSchemaBase,
       requiredScopes: ["write"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -168,7 +172,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Modify Documents",
       description: "Update documents in a collection.",
       group: "docstore",
-      inputSchema: ModifyDocSchema,
+      inputSchema: ModifyDocSchemaBase,
       requiredScopes: ["write"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -254,7 +258,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Remove Documents",
       description: "Remove documents from a collection.",
       group: "docstore",
-      inputSchema: RemoveDocSchema,
+      inputSchema: RemoveDocSchemaBase,
       requiredScopes: ["write"],
       annotations: { readOnlyHint: false, destructiveHint: true },
       handler: async (params: unknown, _context: RequestContext) => {

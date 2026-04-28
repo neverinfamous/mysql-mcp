@@ -10,7 +10,7 @@ import {
   checkCollectionExists,
   escapeTableRef,
 } from "./helpers.js";
-import { CreateDocIndexSchema } from "../../schemas/index.js";
+import { CreateDocIndexSchema, CreateDocIndexSchemaBase } from "../../schemas/index.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -19,7 +19,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Create Doc Index",
       description: "Create an index on document fields.",
       group: "docstore",
-      inputSchema: CreateDocIndexSchema,
+      inputSchema: CreateDocIndexSchemaBase,
       requiredScopes: ["write"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {

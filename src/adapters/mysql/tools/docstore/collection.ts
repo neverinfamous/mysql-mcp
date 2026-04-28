@@ -12,9 +12,13 @@ import {
 } from "./helpers.js";
 import {
   ListCollectionsSchema,
+  ListCollectionsSchemaBase,
   CreateCollectionSchema,
+  CreateCollectionSchemaBase,
   DropCollectionSchema,
+  DropCollectionSchemaBase,
   CollectionInfoSchema,
+  CollectionInfoSchemaBase,
 } from "../../schemas/index.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
@@ -24,7 +28,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL List Collections",
       description: "List JSON document collections in a schema.",
       group: "docstore",
-      inputSchema: ListCollectionsSchema,
+      inputSchema: ListCollectionsSchemaBase,
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -80,7 +84,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Create Collection",
       description: "Create a new JSON document collection.",
       group: "docstore",
-      inputSchema: CreateCollectionSchema,
+      inputSchema: CreateCollectionSchemaBase,
       requiredScopes: ["write"],
       annotations: { readOnlyHint: false },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -167,7 +171,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Drop Collection",
       description: "Drop a document collection.",
       group: "docstore",
-      inputSchema: DropCollectionSchema,
+      inputSchema: DropCollectionSchemaBase,
       requiredScopes: ["admin"],
       annotations: { readOnlyHint: false, destructiveHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
@@ -234,7 +238,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       title: "MySQL Collection Info",
       description: "Get collection statistics.",
       group: "docstore",
-      inputSchema: CollectionInfoSchema,
+      inputSchema: CollectionInfoSchemaBase,
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true, idempotentHint: true },
       handler: async (params: unknown, _context: RequestContext) => {
