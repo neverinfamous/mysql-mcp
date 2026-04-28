@@ -7,7 +7,7 @@ import { z } from "zod";
  * mysql_dependency_graph input
  */
 export const DependencyGraphSchemaBase = z.object({
-  schema: z.string().describe("Schema to analyze"),
+  schema: z.string().optional().describe("Schema to analyze"),
   includeRowCounts: z
     .boolean()
     .optional()
