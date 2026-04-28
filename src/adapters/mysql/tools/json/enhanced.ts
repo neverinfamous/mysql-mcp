@@ -18,6 +18,8 @@ import {
   JsonStatsSchemaBase,
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
+  JsonMergeSchemaBase,
+  JsonDiffSchemaBase,
 } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
@@ -91,7 +93,7 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Merge two JSON documents using JSON_MERGE_PATCH or JSON_MERGE_PRESERVE.",
     group: "json",
-    inputSchema: JsonMergeSchema,
+    inputSchema: JsonMergeSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -131,7 +133,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL JSON Diff",
     description: "Compare two JSON documents and identify differences.",
     group: "json",
-    inputSchema: JsonDiffSchema,
+    inputSchema: JsonDiffSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -376,6 +378,25 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(statsQuery);
         const row = result.rows?.[0];
 
+        const topKeysQuery = `
+            SELECT jt.key_name as key_name, COUNT(*) as count
+            FROM (SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} ${whereClause} LIMIT ${String(sampleSize)}) as sample,
+            JSON_TABLE(JSON_KEYS(sample.\`${column}\`), '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')) as jt
+            GROUP BY jt.key_name
+            ORDER BY count DESC
+            LIMIT 10
+        `;
+        let topKeys: { key: string; count: number }[] = [];
+        try {
+            const topKeysResult = await adapter.executeQuery(topKeysQuery);
+            topKeys = (topKeysResult.rows ?? []).map(r => ({
+                key: String(r["key_name"]),
+                count: Number(r["count"])
+            }));
+        } catch (e) {
+            // Ignore if JSON_TABLE is not supported or errors out
+        }
+
         return {
           success: true,
           totalSampled: Number(row?.["total_rows"] ?? 0),
@@ -394,6 +415,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
             max: Number(row?.["max_size_bytes"] ?? 0),
           },
           sampleSize,
+          topKeys,
         };
       } catch (error: unknown) {
         if (error instanceof ZodError) {

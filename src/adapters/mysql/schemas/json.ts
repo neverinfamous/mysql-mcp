@@ -99,6 +99,9 @@ export const JsonContainsSchemaBase = z.object({
   value: z.unknown().optional().describe("Value to search for"),
   contains: z.unknown().optional().describe("Alias for value"),
   path: z.string().optional().describe("Optional JSON path to search within"),
+  where: z.string().optional().describe("Optional WHERE clause"),
+  filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum rows to return"),
 });
 
 export const JsonContainsSchema = z
@@ -113,6 +116,9 @@ export const JsonContainsSchema = z
       value: z.unknown().optional(),
       contains: z.unknown().optional(),
       path: z.string().optional(),
+      where: z.string().optional(),
+      filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -120,6 +126,8 @@ export const JsonContainsSchema = z
     column: data.column ?? data.col ?? "",
     value: data.value ?? data.contains,
     path: data.path,
+    where: data.where ?? data.filter,
+    limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -139,6 +147,9 @@ export const JsonKeysSchemaBase = z.object({
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   path: z.string().optional().describe("Optional JSON path (defaults to root)"),
+  where: z.string().optional().describe("Optional WHERE clause"),
+  filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum rows to return"),
 });
 
 export const JsonKeysSchema = z
@@ -151,12 +162,17 @@ export const JsonKeysSchema = z
       column: z.string().optional(),
       col: z.string().optional(),
       path: z.string().optional(),
+      where: z.string().optional(),
+      filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
     path: data.path,
+    where: data.where ?? data.filter,
+    limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -481,7 +497,7 @@ export const JsonNormalizeSchemaBase = z.object({
   col: z.string().optional().describe("Alias for column"),
   where: z.string().optional().describe("WHERE clause"),
   filter: z.string().optional().describe("Alias for where"),
-  limit: z.number().default(100).describe("Maximum rows to process"),
+  limit: z.unknown().optional().describe("Maximum rows to process"),
 });
 
 export const JsonNormalizeSchema = z
@@ -520,7 +536,7 @@ export const JsonStatsSchemaBase = z.object({
   col: z.string().optional().describe("Alias for column"),
   where: z.string().optional().describe("Optional WHERE clause"),
   filter: z.string().optional().describe("Alias for where"),
-  sampleSize: z.number().default(1000).describe("Sample size for statistics"),
+  sampleSize: z.unknown().optional().describe("Sample size for statistics"),
 });
 
 export const JsonStatsSchema = z
@@ -557,7 +573,7 @@ export const JsonIndexSuggestSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
-  sampleSize: z.number().default(100).describe("Sample size to analyze"),
+  sampleSize: z.unknown().optional().describe("Sample size to analyze"),
 });
 
 export const JsonIndexSuggestSchema = z
@@ -587,4 +603,24 @@ export const JsonIndexSuggestSchema = z
 // --- JsonValidate (no table/column — no aliases needed) ---
 export const JsonValidateSchema = z.object({
   value: z.string().describe("JSON string to validate"),
+});
+
+// --- JsonMerge ---
+export const JsonMergeSchemaBase = z.object({
+  json1: z.unknown().optional().describe("First JSON document"),
+  doc1: z.unknown().optional().describe("Alias for json1"),
+  json2: z.unknown().optional().describe("Second JSON document"),
+  doc2: z.unknown().optional().describe("Alias for json2"),
+  mode: z
+    .enum(["patch", "preserve"])
+    .optional()
+    .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
+});
+
+// --- JsonDiff ---
+export const JsonDiffSchemaBase = z.object({
+  json1: z.unknown().optional().describe("First JSON document"),
+  doc1: z.unknown().optional().describe("Alias for json1"),
+  json2: z.unknown().optional().describe("Second JSON document"),
+  doc2: z.unknown().optional().describe("Alias for json2"),
 });

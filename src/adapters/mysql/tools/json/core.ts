@@ -308,11 +308,14 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, value, path } = JsonContainsSchema.parse(params);
+        const { table, column, value, path, where, limit } = JsonContainsSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
 
         // JSON_CONTAINS expects the value to be a valid JSON document
         // We ensure strict validation so that strings must be quoted (e.g. '"green"')
@@ -320,11 +323,14 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         let sql: string;
         const queryParams: unknown[] = [jsonValue];
 
+        const whereClause = where ? ` AND ${where}` : "";
+        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${Number(limit)}` : "";
+
         if (path) {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)`;
+          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
           queryParams.push(path);
         } else {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)`;
+          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)${whereClause}${limitClause}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -361,14 +367,20 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path } = JsonKeysSchema.parse(params);
+        const { table, column, path, where, limit } = JsonKeysSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
 
         const jsonPath = path ?? "$";
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} HAVING json_keys IS NOT NULL`;
+        const whereClause = where ? `WHERE ${where}` : "";
+        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${Number(limit)}` : "";
+        
+        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
         return {
