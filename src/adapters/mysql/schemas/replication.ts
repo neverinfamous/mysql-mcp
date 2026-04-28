@@ -5,12 +5,11 @@ import { z } from "zod";
 // =============================================================================
 
 export const BinlogEventsSchemaBase = z.object({
-  logFile: z.string().optional().describe("Binlog file name"),
-  position: z.number().optional().describe("Starting position"),
+  logFile: z.unknown().optional().describe("Binlog file name"),
+  position: z.unknown().optional().describe("Starting position"),
   limit: z
-    .number()
+    .unknown()
     .optional()
-    .default(20)
     .describe(
       "Maximum events to return (default: 20). Set higher for more events.",
     ),
