@@ -45,22 +45,22 @@ roles Tool Group (8 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
-1. `mysql_role_list()` → verify response structure (may be empty)
+1. `mysql_role_list()` → verify response structure (may be empty) ✅ PASS
 
 **Create → Use → Drop lifecycle:**
 
-2. `mysql_role_create({name: "temp_test_role"})` → `{success: true}`
-3. `mysql_role_grants({role: "temp_test_role"})` → verify grants (initially empty)
-4. `mysql_role_grant({role: "temp_test_role", privilege: "SELECT", on: "testdb.*"})` → `{success: true}`
-5. `mysql_role_grants({role: "temp_test_role"})` → verify SELECT privilege appears
-6. `mysql_role_drop({name: "temp_test_role"})` → `{success: true}`
+2. `mysql_role_create({name: "temp_test_role"})` → `{success: true}` ✅ PASS
+3. `mysql_role_grants({role: "temp_test_role"})` → verify grants (initially empty) ✅ PASS
+4. `mysql_role_grant({role: "temp_test_role", privilege: "SELECT", on: "testdb.*"})` → `{success: true}` ✅ PASS
+5. `mysql_role_grants({role: "temp_test_role"})` → verify SELECT privilege appears ✅ PASS
+6. `mysql_role_drop({name: "temp_test_role"})` → `{success: true}` ✅ PASS
 
 **Domain error paths (🔴):**
 
-7. 🔴 `mysql_role_grants({role: "nonexistent_role_xyz"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_role_drop({name: "nonexistent_role_xyz"})` → `{success: false, error: "..."}` handler error
+7. 🔴 `mysql_role_grants({role: "nonexistent_role_xyz"})` → `{success: false, error: "..."}` handler error ✅ PASS
+8. 🔴 `mysql_role_drop({name: "nonexistent_role_xyz"})` → `{success: false, error: "..."}` handler error ✅ PASS
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_role_create({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_role_grant({})` → `{success: false, error: "..."}` (missing required params)
+9. 🔴 `mysql_role_create({})` → `{success: false, error: "..."}` (Zod validation) ✅ PASS
+10. 🔴 `mysql_role_grant({})` → `{success: false, error: "..."}` (missing required params) ✅ PASS
