@@ -73,7 +73,8 @@ describe("Schema Management Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       const sql = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      expect(sql).toContain("CREATE DATABASE IF NOT EXISTS `new_db`");
+      expect(sql).toContain("CREATE DATABASE `new_db`");
+      expect(sql).not.toContain("IF NOT EXISTS");
       expect(sql).toContain("utf8mb4"); // defaults
       expect(result).toHaveProperty("success", true);
     });
@@ -187,7 +188,7 @@ describe("Schema Management Tools", () => {
   });
 
   describe("mysql_drop_schema", () => {
-    it("should drop schema with IF EXISTS by default", async () => {
+    it("should drop schema without IF EXISTS by default", async () => {
       const tool = createDropSchemaTool(mockAdapter as unknown as MySQLAdapter);
       // Pre-check returns schema exists
       mockAdapter.executeQuery.mockResolvedValueOnce(
@@ -200,7 +201,7 @@ describe("Schema Management Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       const sql = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      expect(sql).toContain("DROP DATABASE IF EXISTS `old_db`");
+      expect(sql).toBe("DROP DATABASE `old_db`");
       expect(result).toHaveProperty("success", true);
     });
 

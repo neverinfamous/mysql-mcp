@@ -15,7 +15,7 @@ const ListSchemasSchema = z.object({
 });
 
 const CreateSchemaSchemaBase = z.object({
-  name: z.string().optional().describe("Schema/database name"),
+  name: z.string().describe("Schema/database name"),
   charset: z.string().optional().describe("Character set"),
   collation: z.string().optional().describe("Collation"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
@@ -23,19 +23,19 @@ const CreateSchemaSchemaBase = z.object({
 
 const CreateSchemaSchema = z.object({
   name: z.string().describe("Schema/database name"),
-  charset: z.string().default("utf8mb4").describe("Character set"),
-  collation: z.string().default("utf8mb4_unicode_ci").describe("Collation"),
-  ifNotExists: z.boolean().default(false).describe("Add IF NOT EXISTS clause"),
+  charset: z.string().optional().default("utf8mb4").describe("Character set"),
+  collation: z.string().optional().default("utf8mb4_unicode_ci").describe("Collation"),
+  ifNotExists: z.boolean().optional().default(false).describe("Add IF NOT EXISTS clause"),
 });
 
 const DropSchemaSchemaBase = z.object({
-  name: z.string().optional().describe("Schema/database name to drop"),
+  name: z.string().describe("Schema/database name to drop"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 
 const DropSchemaSchema = z.object({
   name: z.string().describe("Schema/database name to drop"),
-  ifExists: z.boolean().default(false).describe("Add IF EXISTS clause"),
+  ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
 
 /**
@@ -64,12 +64,11 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
                     DEFAULT_CHARACTER_SET_NAME as charset,
                     DEFAULT_COLLATION_NAME as collation
                 FROM information_schema.SCHEMATA
-                WHERE SCHEMA_NAME NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')
             `;
 
         const queryParams: unknown[] = [];
         if (pattern) {
-          query += " AND SCHEMA_NAME LIKE ?";
+          query += " WHERE SCHEMA_NAME LIKE ?";
           queryParams.push(pattern);
         }
 
