@@ -51,17 +51,17 @@ shell Tool Group (10 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
-1. `mysqlsh_version()` → verify MySQL Shell version and installation status
-2. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
-3. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
-4. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_tables", dryRun: true})` → verify table dump command
+1. ✅ `mysqlsh_version()` → verify MySQL Shell version and installation status
+2. ✅ `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
+3. ✅ `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
+4. ✅ `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_tables", dryRun: true})` → verify table dump command
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test"})` → `{success: false, error: "..."}` handler error
+5. ✅ 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-6. 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
-7. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
-8. 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
+6. ✅ 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
+7. ✅ 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
+8. ✅ 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
