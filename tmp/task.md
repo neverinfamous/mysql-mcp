@@ -1,21 +1,17 @@
-# Migration Tool Group Code Mode Certification
+# monitoring Tool Group Code Mode Certification
 
 ## Coverage Matrix
 
-All tests executed via Code Mode (`mcp_mysql_mysql_execute_code`).
+1. `mysql.monitoring.help()`: ✅ Passed. Returns correct method list.
+2. `mysql.monitoring.showProcesslist()`: ✅ Passed. Valid processlist object returned.
+3. `mysql.monitoring.showStatus({like: "Uptime"})`: ✅ Passed. Key-value pair returned with valid value.
+4. `mysql.monitoring.showVariables({like: "max_connections"})`: ✅ Passed. Key-value pair returned.
+5. `mysql.monitoring.innodbStatus()`: ✅ Passed. Returns correct status string.
+6. `mysql.monitoring.innodbStatus({summary: true})`: ✅ Passed. Returns correct summary string.
+7. `mysql.monitoring.poolStats()`: ✅ Passed. Returns pool stats.
+8. `mysql.monitoring.serverHealth()`: ✅ Passed. Valid health status returned without wrapper.
+9. `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})`: ✅ Passed (Domain Error). Returns empty object without raw error as expected.
 
-| Tool | Happy Path | Domain Error | Zod Validation | Result |
-| :--- | :--- | :--- | :--- | :--- |
-| `mysql_migration_help` | ✅ | N/A | N/A | PASS |
-| `mysql_migration_init` | ✅ | N/A | N/A | PASS |
-| `mysql_migration_record` | ✅ | N/A | ✅ (Missing required params) | PASS |
-| `mysql_migration_apply` | ✅ | ✅ (Duplicate hash block) | ✅ (Missing required params) | PASS |
-| `mysql_migration_status` | ✅ | N/A | N/A | PASS |
-| `mysql_migration_history` | ✅ | N/A | N/A | PASS |
-| `mysql_migration_rollback` | ✅ | ✅ (Nonexistent version) | N/A | PASS |
+## Failures
 
-## Test Artifacts
-- The migration table `_mcp_schema_versions` was properly instantiated and populated.
-- Domain error blocks (duplicate apply hash, nonexistent rollback version) were strictly validated and gracefully handled with `{ success: false, error: ... }`.
-- Zod schema validation correctly caught and returned descriptive error responses for missing required arguments in `record` and `apply` operations.
-- Token utilization metrics met the `< 500` threshold criteria across the board.
+None.
