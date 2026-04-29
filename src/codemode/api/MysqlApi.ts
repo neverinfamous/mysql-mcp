@@ -593,6 +593,9 @@ export class MysqlApi {
       }
     }
 
+    // Expose 'sys' as an alias for 'sysschema'
+    bindings["sys"] = bindings["sysschema"];
+
     return bindings;
   }
 }
