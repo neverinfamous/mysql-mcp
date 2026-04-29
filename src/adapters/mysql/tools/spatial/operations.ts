@@ -74,12 +74,6 @@ const BufferSchemaBase = z.object({
     .describe(
       "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Must be >= 1. Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
     ),
-  precision: z
-    .unknown()
-    .optional()
-    .describe(
-      "Decimal precision for GeoJSON output coordinates (default: 6, ~0.11m accuracy). Lower values reduce payload size.",
-    ),
 });
 
 const BufferSchema = z.object({
@@ -87,14 +81,12 @@ const BufferSchema = z.object({
   distance: z.unknown().optional(),
   srid: z.unknown().optional(),
   segments: z.unknown().optional(),
-  precision: z.unknown().optional(),
 })
 .transform((data) => ({
   geometry: data.geometry,
   distance: Number(data.distance),
   srid: data.srid !== undefined ? Number(data.srid) : 4326,
   segments: data.segments !== undefined ? Number(data.segments) : 8,
-  precision: data.precision !== undefined ? Number(data.precision) : 6,
 }))
 .refine(
   (data) => !Number.isNaN(data.distance),
@@ -107,10 +99,6 @@ const BufferSchema = z.object({
 .refine(
   (data) => !Number.isNaN(data.segments) && data.segments >= 1,
   { message: "segments must be a valid number >= 1" }
-)
-.refine(
-  (data) => !Number.isNaN(data.precision) && data.precision >= 0 && data.precision <= 15,
-  { message: "precision must be a valid number between 0 and 15" }
 );
 
 const TransformSchemaBase = z.object({
@@ -242,7 +230,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { geometry, distance, srid, segments, precision } =
+        const { geometry, distance, srid, segments } =
           BufferSchema.parse(params);
 
         // Handler-level validation for segments (replaces schema .min(1))
@@ -257,21 +245,17 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           ? ""
           : `, ST_Buffer_Strategy('point_circle', ${String(segments)})`;
         const result = await adapter.executeQuery(
-          `SELECT
-                    ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), 'axis-order=long-lat') as buffer_wkt,
-                    ST_AsGeoJSON(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), ${String(precision)}) as buffer_geojson`,
-          [geometry, distance, geometry, distance],
+          `SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ?${strategyClause}), 'axis-order=long-lat') as buffer_wkt`,
+          [geometry, distance],
         );
 
         const row = result.rows?.[0];
         return {
           success: true,
           bufferWkt: row?.["buffer_wkt"],
-          bufferGeoJson: parseGeoJsonResult(row?.["buffer_geojson"]),
           bufferDistance: distance,
           segments,
           segmentsApplied: !isGeographic,
-          precision,
           srid,
         };
       } catch (error) {
