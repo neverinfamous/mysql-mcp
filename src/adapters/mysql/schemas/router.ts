@@ -116,14 +116,44 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 
 export const RouterBaseInputSchema = z.object({});
 
+export const RouteNameInputSchemaBase = z.object({
+  routeName: z.string().optional().describe("Name of the route to query"),
+});
+
 export const RouteNameInputSchema = z.object({
-  routeName: z.string().describe("Name of the route to query"),
+  routeName: z.string().optional(),
+})
+.transform((data) => ({
+  routeName: data.routeName ?? "",
+}))
+.refine((data) => data.routeName !== "", {
+  message: "Validation error: routeName must not be empty",
+});
+
+export const MetadataNameInputSchemaBase = z.object({
+  metadataName: z.string().optional().describe("Name of the metadata cache instance"),
 });
 
 export const MetadataNameInputSchema = z.object({
-  metadataName: z.string().describe("Name of the metadata cache instance"),
+  metadataName: z.string().optional(),
+})
+.transform((data) => ({
+  metadataName: data.metadataName ?? "",
+}))
+.refine((data) => data.metadataName !== "", {
+  message: "Validation error: metadataName must not be empty",
+});
+
+export const ConnectionPoolNameInputSchemaBase = z.object({
+  poolName: z.string().optional().describe("Name of the connection pool"),
 });
 
 export const ConnectionPoolNameInputSchema = z.object({
-  poolName: z.string().describe("Name of the connection pool"),
+  poolName: z.string().optional(),
+})
+.transform((data) => ({
+  poolName: data.poolName ?? "",
+}))
+.refine((data) => data.poolName !== "", {
+  message: "Validation error: poolName must not be empty",
 });

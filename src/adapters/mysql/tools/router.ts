@@ -19,8 +19,11 @@ import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
+  RouteNameInputSchemaBase,
   MetadataNameInputSchema,
+  MetadataNameInputSchemaBase,
   ConnectionPoolNameInputSchema,
+  ConnectionPoolNameInputSchemaBase,
 } from "../schemas/router.js";
 
 // =============================================================================
@@ -330,7 +333,7 @@ function createRouterRouteStatusTool(): ToolDefinition {
     description:
       "Get operational status of a specific route including active connections, total connections, and blocked hosts count.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -368,7 +371,7 @@ function createRouterRouteHealthTool(): ToolDefinition {
     description:
       "Check if a route is alive and functioning. Returns isAlive boolean indicating route health.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -406,7 +409,7 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
     description:
       "List active connections on a route including source/destination addresses, bytes transferred, and connection times.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -444,7 +447,7 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
     description:
       "List backend MySQL server destinations for a route. Shows address and port of each destination server.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -482,7 +485,7 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
     description:
       "List IP addresses that have been blocked for a route due to too many failed connection attempts.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -524,7 +527,7 @@ function createRouterMetadataStatusTool(): ToolDefinition {
     description:
       "Get InnoDB Cluster metadata cache status including refresh statistics and last refresh host.",
     group: "router",
-    inputSchema: MetadataNameInputSchema,
+    inputSchema: MetadataNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -566,7 +569,7 @@ function createRouterPoolStatusTool(): ToolDefinition {
     description:
       "Get MySQL Router connection pool status including idle and stashed server connections.",
     group: "router",
-    inputSchema: ConnectionPoolNameInputSchema,
+    inputSchema: ConnectionPoolNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
