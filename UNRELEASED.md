@@ -3,10 +3,10 @@
 ## Added
 
 - **Introspection** tools for dependency mapping, topological sort, schema snapshots, and risk assessment.
-- 6 **Migration** tools for tracking, applying, and rolling back schema versions.
+- **Migration** tools for tracking, applying, and rolling back schema versions.
 - **Insights Subsystem**: `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
 - **Token Estimation**: `_meta.tokenEstimate` (4 bytes/token heuristic) in all tool responses.
-- **Code Mode Certification**: Completed rigorous code mode verification for the Shell tool group, validating 10 tools for functional parity, structured error adherence, and payload token efficiency.
+- **Code Mode Certification**: Completed rigorous code mode verification for the Shell, ProxySQL, Router, and Cluster tool groups, validating functional parity, structured error adherence, payload token efficiency, and graceful degradation.
 - **Audit Observability** (parity with `postgres-mcp`):
   - Activated audit logging via `--audit-log` and `--audit-backup` CLI flags in `mcp_config.json`.
   - Exposed `getAuditInterceptor()` on `DatabaseAdapter` for Code Mode API integration.
