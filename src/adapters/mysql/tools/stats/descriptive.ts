@@ -25,52 +25,87 @@ import type {
 // Schemas
 // =============================================================================
 
+const DescriptiveStatsSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Numeric column name"),
+  where: z.string().optional().describe("Optional WHERE clause condition"),
+});
+
 const DescriptiveStatsSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Numeric column name"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
+  where: z.string().optional(),
+});
+
+const PercentilesSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Numeric column name"),
+  percentiles: z.unknown().optional().describe("Percentiles to calculate"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const PercentilesSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Numeric column name"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   percentiles: z
     .array(z.number().min(0).max(100))
-    .default([25, 50, 75, 90, 95, 99])
-    .describe("Percentiles to calculate"),
+    .default([25, 50, 75, 90, 95, 99]),
+  where: z.string().optional(),
+});
+
+const DistributionSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Column to analyze"),
+  buckets: z.unknown().optional().describe("Number of histogram buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const DistributionSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column to analyze"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   buckets: z
     .number()
     .max(500)
-    .default(10)
-    .describe("Number of histogram buckets"),
+    .default(10),
+  where: z.string().optional(),
+});
+
+const TimeSeriesSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  valueColumn: z.string().optional().describe("Numeric column for values"),
+  timeColumn: z.string().optional().describe("Timestamp/datetime column"),
+  interval: z.string().optional().describe("Aggregation interval"),
+  aggregation: z.string().optional().describe("Aggregation function"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  limit: z.unknown().optional().describe("Maximum number of data points"),
 });
 
 const TimeSeriesSchema = z.object({
-  table: z.string().describe("Table name"),
-  valueColumn: z.string().describe("Numeric column for values"),
-  timeColumn: z.string().describe("Timestamp/datetime column"),
-  interval: z.string().default("day").describe("Aggregation interval"),
-  aggregation: z.string().default("avg").describe("Aggregation function"),
+  table: z.string().min(1, "table is required"),
+  valueColumn: z.string().min(1, "valueColumn is required"),
+  timeColumn: z.string().min(1, "timeColumn is required"),
+  interval: z.string().default("day"),
+  aggregation: z.string().default("avg"),
+  where: z.string().optional(),
+  limit: z.number().default(100),
+});
+
+const SamplingSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  sampleSize: z.unknown().optional().describe("Number of rows to sample"),
+  columns: z.unknown().optional().describe("Columns to include (all if not specified)"),
+  seed: z.unknown().optional().describe("Random seed for reproducibility"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
-  limit: z.number().default(100).describe("Maximum number of data points"),
 });
 
 const SamplingSchema = z.object({
-  table: z.string().describe("Table name"),
-  sampleSize: z.number().default(100).describe("Number of rows to sample"),
+  table: z.string().min(1, "table is required"),
+  sampleSize: z.number().default(100),
   columns: z
     .array(z.string())
-    .optional()
-    .describe("Columns to include (all if not specified)"),
-  seed: z.number().optional().describe("Random seed for reproducibility"),
-  where: z.string().optional().describe("Optional WHERE clause condition"),
+    .optional(),
+  seed: z.number().optional(),
+  where: z.string().optional(),
 });
 
 // =============================================================================
@@ -89,7 +124,7 @@ export function createDescriptiveStatsTool(
     description:
       "Calculate descriptive statistics (mean, median, stddev, min, max, count) for a numeric column.",
     group: "stats",
-    inputSchema: DescriptiveStatsSchema,
+    inputSchema: DescriptiveStatsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -207,7 +242,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Percentiles",
     description: "Calculate percentile values for a numeric column.",
     group: "stats",
-    inputSchema: PercentilesSchema,
+    inputSchema: PercentilesSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -320,7 +355,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Analyze the distribution of values in a column with histogram buckets.",
     group: "stats",
-    inputSchema: DistributionSchema,
+    inputSchema: DistributionSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -435,7 +470,7 @@ export function createTimeSeriesToolStats(
     description:
       "Aggregate and analyze time series data with specified intervals.",
     group: "stats",
-    inputSchema: TimeSeriesSchema,
+    inputSchema: TimeSeriesSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -553,7 +588,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Random Sampling",
     description: "Get a random sample of rows from a table.",
     group: "stats",
-    inputSchema: SamplingSchema,
+    inputSchema: SamplingSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

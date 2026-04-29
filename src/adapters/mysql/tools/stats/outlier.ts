@@ -20,28 +20,34 @@ import {
 // Schemas
 // =============================================================================
 
+export const StatsOutliersSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Numeric column to check for outliers"),
+  method: z.unknown().optional().describe("Detection method to use"),
+  threshold: z.unknown().optional().describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
+  where: z.string().optional().describe("Filter condition"),
+  limit: z.unknown().optional().describe("Maximum rows to process (default: 10000)"),
+  maxOutliers: z.unknown().optional().describe("Maximum number of outliers to return (default: 50)"),
+});
+
 export const StatsOutliersSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Numeric column to check for outliers"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   method: z
     .enum(["iqr", "zscore"])
-    .default("iqr")
-    .describe("Detection method to use"),
+    .default("iqr"),
   threshold: z
     .number()
-    .optional()
-    .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
-  where: z.string().optional().describe("Filter condition"),
+    .optional(),
+  where: z.string().optional(),
   limit: z
     .number()
     .max(100000)
-    .default(10000)
-    .describe("Maximum rows to process (default: 10000)"),
+    .default(10000),
   maxOutliers: z
     .number()
     .max(1000)
-    .default(50)
-    .describe("Maximum number of outliers to return (default: 50)"),
+    .default(50),
 });
 
 // =============================================================================
@@ -57,7 +63,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Detect statistical outliers in a numeric column using IQR (interquartile range) or Z-score method. IQR is robust against non-normal distributions.",
     group: "stats",
-    inputSchema: StatsOutliersSchema,
+    inputSchema: StatsOutliersSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

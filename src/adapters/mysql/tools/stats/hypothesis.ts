@@ -20,17 +20,26 @@ import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
 // Schemas
 // =============================================================================
 
-export const StatsHypothesisSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Numeric column to test"),
-  testType: z.enum(["t_test", "z_test"]).describe("Type of test to perform"),
-  hypothesizedMean: z.number().describe("Null hypothesis mean to test against"),
-  populationStdDev: z
-    .number()
-    .optional()
-    .describe("Known population standard deviation (for z-test)"),
+export const StatsHypothesisSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Numeric column to test"),
+  testType: z.unknown().optional().describe("Type of test to perform"),
+  hypothesizedMean: z.unknown().optional().describe("Null hypothesis mean to test against"),
+  populationStdDev: z.unknown().optional().describe("Known population standard deviation (for z-test)"),
   groupBy: z.string().optional().describe("Column to group results by"),
   where: z.string().optional().describe("Filter condition"),
+});
+
+export const StatsHypothesisSchema = z.object({
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
+  testType: z.enum(["t_test", "z_test"]),
+  hypothesizedMean: z.number(),
+  populationStdDev: z
+    .number()
+    .optional(),
+  groupBy: z.string().optional(),
+  where: z.string().optional(),
 });
 
 // =============================================================================
@@ -48,7 +57,7 @@ export function createStatsHypothesisTool(
     description:
       "Perform one-sample t-test or z-test against a hypothesized mean. For z-test, provide populationStdDev (sigma) for accurate results. Use groupBy to test each group separately.",
     group: "stats",
-    inputSchema: StatsHypothesisSchema,
+    inputSchema: StatsHypothesisSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

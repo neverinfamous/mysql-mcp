@@ -24,32 +24,51 @@ import type {
 // Schemas
 // =============================================================================
 
+const CorrelationSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column1: z.string().optional().describe("First numeric column"),
+  column2: z.string().optional().describe("Second numeric column"),
+  where: z.string().optional().describe("Optional WHERE clause condition"),
+});
+
 const CorrelationSchema = z.object({
-  table: z.string().describe("Table name"),
-  column1: z.string().describe("First numeric column"),
-  column2: z.string().describe("Second numeric column"),
+  table: z.string().min(1, "table is required"),
+  column1: z.string().min(1, "column1 is required"),
+  column2: z.string().min(1, "column2 is required"),
+  where: z.string().optional(),
+});
+
+const RegressionSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  xColumn: z.string().optional().describe("Independent variable column"),
+  yColumn: z.string().optional().describe("Dependent variable column"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const RegressionSchema = z.object({
-  table: z.string().describe("Table name"),
-  xColumn: z.string().describe("Independent variable column"),
-  yColumn: z.string().describe("Dependent variable column"),
-  where: z.string().optional().describe("Optional WHERE clause condition"),
+  table: z.string().min(1, "table is required"),
+  xColumn: z.string().min(1, "xColumn is required"),
+  yColumn: z.string().min(1, "yColumn is required"),
+  where: z.string().optional(),
+});
+
+const HistogramSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Column for histogram"),
+  buckets: z.unknown().optional().describe("Number of histogram buckets (max 1024)"),
+  update: z.unknown().optional().describe("Whether to create/update the histogram"),
 });
 
 const HistogramSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column for histogram"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   buckets: z
     .number()
     .min(1)
-    .default(16)
-    .describe("Number of histogram buckets (max 1024)"),
+    .default(16),
   update: z
     .boolean()
-    .default(false)
-    .describe("Whether to create/update the histogram"),
+    .default(false),
 });
 
 // =============================================================================
@@ -66,7 +85,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Calculate Pearson correlation coefficient between two numeric columns.",
     group: "stats",
-    inputSchema: CorrelationSchema,
+    inputSchema: CorrelationSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -88,6 +107,28 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
+
+        // Verify columns are numeric (P154)
+        const colCheck = await adapter.executeQuery(
+          `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? 
+           AND COLUMN_NAME IN (?, ?)`,
+          [table, column1, column2]
+        );
+        
+        const NUMERIC_TYPES = new Set(['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'numeric', 'float', 'double']);
+        const validCols = new Set();
+        for (const row of colCheck.rows || []) {
+          const type = (row as any).DATA_TYPE;
+          const colName = (row as any).COLUMN_NAME;
+          if (type && NUMERIC_TYPES.has(type.toLowerCase())) {
+            validCols.add(colName);
+          }
+        }
+        
+        if (!validCols.has(column1) || !validCols.has(column2)) {
+          return { success: false, error: "Both columns must be numeric types" };
+        }
 
         // Calculate Pearson correlation coefficient
         const query = `
@@ -162,7 +203,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Perform simple linear regression analysis (y = mx + b) between two columns.",
     group: "stats",
-    inputSchema: RegressionSchema,
+    inputSchema: RegressionSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -184,6 +225,28 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
+
+        // Verify columns are numeric (P154)
+        const colCheck = await adapter.executeQuery(
+          `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? 
+           AND COLUMN_NAME IN (?, ?)`,
+          [table, xColumn, yColumn]
+        );
+        
+        const NUMERIC_TYPES = new Set(['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'numeric', 'float', 'double']);
+        const validCols = new Set();
+        for (const row of colCheck.rows || []) {
+          const type = (row as any).DATA_TYPE;
+          const colName = (row as any).COLUMN_NAME;
+          if (type && NUMERIC_TYPES.has(type.toLowerCase())) {
+            validCols.add(colName);
+          }
+        }
+        
+        if (!validCols.has(xColumn) || !validCols.has(yColumn)) {
+          return { success: false, error: "Both columns must be numeric types" };
+        }
 
         // Simpler approach for MySQL
         const statsQuery = `
@@ -270,7 +333,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Histogram Statistics",
     description: "View or update column histogram statistics (MySQL 8.0+).",
     group: "stats",
-    inputSchema: HistogramSchema,
+    inputSchema: HistogramSchemaBase,
     requiredScopes: ["read"], // read for view, admin for update
     annotations: {
       readOnlyHint: false, // Can update histogram

@@ -49,59 +49,80 @@ const NUMERIC_TYPES = new Set([
 // Schemas
 // =============================================================================
 
+export const StatsTopNSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Column to sort by"),
+  n: z.unknown().optional().describe("Number of rows to return (default: 10, max: 100)"),
+  direction: z.unknown().optional().describe("Sort direction (default: desc)"),
+  selectColumns: z.unknown().optional().describe("Columns to include (defaults to all except long text/blobs)"),
+  where: z.string().optional().describe("Filter condition"),
+});
+
 export const StatsTopNSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column to sort by"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   n: z
     .number()
     .min(1)
     .max(100)
-    .default(10)
-    .describe("Number of rows to return (default: 10, max: 100)"),
+    .default(10),
   direction: z
     .enum(["asc", "desc"])
-    .default("desc")
-    .describe("Sort direction (default: desc)"),
+    .default("desc"),
   selectColumns: z
     .array(z.string())
-    .optional()
-    .describe("Columns to include (defaults to all except long text/blobs)"),
+    .optional(),
+  where: z.string().optional(),
+});
+
+export const StatsDistinctSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Column to get distinct values for"),
+  limit: z.unknown().optional().describe("Maximum values to return (default: 100)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsDistinctSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column to get distinct values for"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   limit: z
     .number()
     .min(1)
     .max(1000)
-    .default(100)
-    .describe("Maximum values to return (default: 100)"),
+    .default(100),
+  where: z.string().optional(),
+});
+
+export const StatsFrequencySchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Column to get frequency distribution for"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsFrequencySchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column to get frequency distribution for"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   limit: z
     .number()
     .min(1)
     .max(1000)
-    .default(20)
-    .describe("Maximum rows to return (default: 20)"),
+    .default(20),
+  where: z.string().optional(),
+});
+
+export const StatsSummarySchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  columns: z.unknown().optional().describe("Specific numeric columns to summarize (defaults to all numeric columns)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsSummarySchema = z.object({
-  table: z.string().describe("Table name"),
+  table: z.string().min(1, "table is required"),
   columns: z
     .array(z.string())
-    .optional()
-    .describe(
-      "Specific numeric columns to summarize (defaults to all numeric columns)",
-    ),
-  where: z.string().optional().describe("Filter condition"),
+    .optional(),
+  where: z.string().optional(),
 });
 
 // =============================================================================
@@ -114,7 +135,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get the top N rows ranked by a column. Auto-excludes long-content columns (text, json, blob) from output unless selectColumns is specified.",
     group: "stats",
-    inputSchema: StatsTopNSchema,
+    inputSchema: StatsTopNSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -224,7 +245,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get distinct values from a column with count. Useful for understanding cardinality and unique value distribution.",
     group: "stats",
-    inputSchema: StatsDistinctSchema,
+    inputSchema: StatsDistinctSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -302,7 +323,7 @@ export function createStatsFrequencyTool(
     description:
       "Get value frequency distribution (count per unique value) ordered by frequency descending. Shows the most common values first.",
     group: "stats",
-    inputSchema: StatsFrequencySchema,
+    inputSchema: StatsFrequencySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -384,7 +405,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get summary statistics (count, avg, min, max, stddev) for multiple numeric columns. Defaults to all numeric columns if none specified.",
     group: "stats",
-    inputSchema: StatsSummarySchema,
+    inputSchema: StatsSummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
