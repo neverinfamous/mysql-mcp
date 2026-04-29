@@ -121,13 +121,13 @@ export const RouteNameInputSchemaBase = z.object({
 });
 
 export const RouteNameInputSchema = z.object({
-  routeName: z.string().optional(),
+  routeName: z.unknown().optional(),
 })
 .transform((data) => ({
-  routeName: data.routeName ?? "",
+  routeName: data.routeName === undefined ? "" : String(data.routeName as string | number | boolean),
 }))
 .refine((data) => data.routeName !== "", {
-  message: "Validation error: routeName must not be empty",
+  message: "routeName must not be empty",
 });
 
 export const MetadataNameInputSchemaBase = z.object({
@@ -135,13 +135,13 @@ export const MetadataNameInputSchemaBase = z.object({
 });
 
 export const MetadataNameInputSchema = z.object({
-  metadataName: z.string().optional(),
+  metadataName: z.unknown().optional(),
 })
 .transform((data) => ({
-  metadataName: data.metadataName ?? "",
+  metadataName: data.metadataName === undefined ? "" : String(data.metadataName as string | number | boolean),
 }))
 .refine((data) => data.metadataName !== "", {
-  message: "Validation error: metadataName must not be empty",
+  message: "metadataName must not be empty",
 });
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
@@ -149,11 +149,11 @@ export const ConnectionPoolNameInputSchemaBase = z.object({
 });
 
 export const ConnectionPoolNameInputSchema = z.object({
-  poolName: z.string().optional(),
+  poolName: z.unknown().optional(),
 })
 .transform((data) => ({
-  poolName: data.poolName ?? "",
+  poolName: data.poolName === undefined ? "" : String(data.poolName as string | number | boolean),
 }))
 .refine((data) => data.poolName !== "", {
-  message: "Validation error: poolName must not be empty",
+  message: "poolName must not be empty",
 });
