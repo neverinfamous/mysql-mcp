@@ -121,6 +121,22 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     FROM mysql_innodb_cluster_metadata.routers
                 `);
 
+        // Compute status and topology
+        const grResult = await adapter.executeQuery(`
+            SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
+            FROM performance_schema.replication_group_members
+        `);
+        const members = grResult.rows ?? [];
+        const isOnline = members.length > 0 && members.some(m => m["state"] === "ONLINE");
+        const status = isOnline ? (members.every(m => m["state"] === "ONLINE") ? "OK" : "OK_PARTIAL") : "OFFLINE";
+        const topology = members.reduce<Record<string, unknown>>((acc, m) => {
+            acc[`${String(m["host"])}:${String(m["port"])}`] = {
+                status: m["state"],
+                role: m["role"]
+            };
+            return acc;
+        }, {});
+
         // Summary mode: return only essential metadata
         if (summary) {
           return {
@@ -129,6 +145,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
             cluster: clusterBasic ?? null,
             instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
             routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+            status,
+            topology,
           };
         }
 
@@ -163,6 +181,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           cluster,
           instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
           routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+          status,
+          topology,
         };
       } catch (error) {
         return {

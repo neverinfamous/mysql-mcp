@@ -44,6 +44,11 @@ describe("InnoDB Cluster Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ count: 2 }])) // Router count
         .mockResolvedValueOnce(
           createMockQueryResult([
+            { host: "node1", port: 3306, state: "ONLINE", role: "PRIMARY" }
+          ])
+        ) // GR result for status and topology
+        .mockResolvedValueOnce(
+          createMockQueryResult([
             {
               cluster_name: "myCluster",
               cluster_id: 1,
@@ -271,6 +276,11 @@ describe("InnoDB Cluster Tools", () => {
         )
         .mockResolvedValueOnce(createMockQueryResult([{ count: 3 }]))
         .mockResolvedValueOnce(createMockQueryResult([{ count: 1 }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { host: "node1", port: 3306, state: "ONLINE", role: "PRIMARY" }
+          ])
+        )
         .mockResolvedValueOnce(
           createMockQueryResult([
             {
