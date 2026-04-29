@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
+import * as path from "path";
 import * as fsModule from "fs";
 import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 import {
@@ -84,7 +85,8 @@ describe("Shell Restore and Script Tools", () => {
       expect(result.success).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('util.loadDump("/backup/full"');
+      const expectedPath = path.resolve("/backup/full").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.loadDump("${expectedPath}"`);
       expect(jsArg).toContain("ignoreVersion: true");
       expect(jsArg).toContain("resetProgress: true");
     });

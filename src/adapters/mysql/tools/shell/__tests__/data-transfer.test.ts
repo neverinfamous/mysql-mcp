@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
+import * as path from "path";
 import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 import {
   createShellExportTableTool,
@@ -198,7 +199,8 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(true);
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('util.importTable("/tmp/data.csv"');
+      const expectedPath = path.resolve("/tmp/data.csv").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.importTable("${expectedPath}"`);
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain("skipRows: 1");
       expect(jsArg).toContain('fieldsTerminatedBy: ","');
