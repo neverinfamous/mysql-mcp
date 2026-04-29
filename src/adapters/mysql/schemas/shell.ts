@@ -323,7 +323,7 @@ export const ShellLoadDumpInputSchema = z
 
 export const ShellRunScriptInputSchema = z
   .object({
-    script: z.string().min(0).describe("Script content to execute"),
+    script: z.string().min(1, "Script content cannot be empty").describe("Script content to execute"),
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
