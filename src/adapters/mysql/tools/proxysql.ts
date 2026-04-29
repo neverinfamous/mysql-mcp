@@ -15,6 +15,7 @@ import type { MySQLAdapter } from "../mysql-adapter.js";
 import {
   ProxySQLBaseInputSchema,
   ProxySQLStatusInputSchema,
+  ProxySQLStatusInputSchemaBase,
   ProxySQLLimitInputSchema,
   ProxySQLLimitInputSchemaBase,
   ProxySQLHostgroupInputSchema,
@@ -22,6 +23,7 @@ import {
   ProxySQLVariableFilterSchema,
   ProxySQLVariableFilterSchemaBase,
   ProxySQLCommandInputSchema,
+  ProxySQLCommandInputSchemaBase,
   type ProxySQLConfig,
 } from "../schemas/proxysql.js";
 
@@ -135,7 +137,7 @@ function createProxySQLStatusTool(): ToolDefinition {
     description:
       "Get ProxySQL version, uptime, and runtime statistics. Returns global status variables from stats_mysql_global. Use summary: true for condensed key metrics.",
     group: "proxysql",
-    inputSchema: ProxySQLStatusInputSchema,
+    inputSchema: ProxySQLStatusInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -197,7 +199,7 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
     description:
       "Get ProxySQL runtime configuration status including version info and admin variables. Use summary: true for condensed key variables only.",
     group: "proxysql",
-    inputSchema: ProxySQLStatusInputSchema,
+    inputSchema: ProxySQLStatusInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -580,7 +582,7 @@ function createProxySQLCommandsTool(): ToolDefinition {
     description:
       "Execute ProxySQL admin commands like LOAD/SAVE for users, servers, query rules, and variables. Also supports FLUSH commands.",
     group: "proxysql",
-    inputSchema: ProxySQLCommandInputSchema,
+    inputSchema: ProxySQLCommandInputSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

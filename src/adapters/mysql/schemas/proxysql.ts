@@ -162,6 +162,15 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 
 export const ProxySQLBaseInputSchema = z.object({});
 
+export const ProxySQLStatusInputSchemaBase = z.object({
+  summary: z
+    .unknown()
+    .optional()
+    .describe(
+      "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Set to false to get all variables.",
+    ),
+});
+
 export const ProxySQLStatusInputSchema = z.object({
   summary: z
     .boolean()
@@ -173,7 +182,7 @@ export const ProxySQLStatusInputSchema = z.object({
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .number()
+    .unknown()
     .optional()
     .describe("Maximum number of results to return (default: 20)"),
 });
@@ -188,7 +197,7 @@ export const ProxySQLLimitInputSchema = z.object({
 });
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID"),
+  hostgroup_id: z.unknown().optional().describe("Filter by hostgroup ID"),
 });
 
 export const ProxySQLHostgroupInputSchema = z.object({
@@ -202,17 +211,17 @@ export const ProxySQLHostgroupInputSchema = z.object({
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
   prefix: z
-    .enum(["mysql", "admin", "all"])
+    .unknown()
     .optional()
     .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
   like: z
-    .string()
+    .unknown()
     .optional()
     .describe(
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
   limit: z
-    .number()
+    .unknown()
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
 });
@@ -234,6 +243,13 @@ export const ProxySQLVariableFilterSchema = z.object({
     .min(0)
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
+});
+
+export const ProxySQLCommandInputSchemaBase = z.object({
+  command: z
+    .unknown()
+    .optional()
+    .describe("ProxySQL admin command to execute"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({
