@@ -1,29 +1,36 @@
-# Introspection Tool Group Certification
+# Code Mode Certification: json
 
-## Test Summary
-- **Execution Strategy**: Code Mode (`mysql_execute_code`)
-- **Total Tools Tested**: 6 (`dependencyGraph`, `topologicalSort`, `cascadeSimulator`, `schemaSnapshot`, `constraintAnalysis`, `migrationRisks`) + 1 (`help`)
-- **Total Assertions**: 11
-- **Status**: ✅ 100% PASS
+**Date:** 2026-04-29
+**Tool Group:** `json`
+**Total Tools Certified:** 17
 
-## Coverage Matrix
+## Test Methodology
+Exhaustive stress-testing via `mysql_execute_code` covering the complete `json` tool group. The test suite validated functional stability across all JSON operation types (read, write, structural, array manipulation, and validation), enforced adherence to the `{success: boolean, error?: string}` error contract, and verified robust Zod input schema validation for domain-error paths.
 
-| Tool | Happy Path | Domain Error | Zod Error | Status |
-|------|------------|--------------|-----------|--------|
-| `help` | ✅ | N/A | N/A | ✅ PASS |
-| `dependencyGraph` | ✅ | ✅ | ✅ | ✅ PASS |
-| `topologicalSort` | ✅ | N/A | N/A | ✅ PASS |
-| `cascadeSimulator` | ✅ | ✅ | N/A | ✅ PASS |
-| `schemaSnapshot` | ✅ | N/A | N/A | ✅ PASS |
-| `constraintAnalysis`| ✅ | N/A | N/A | ✅ PASS |
-| `migrationRisks` | ✅ | N/A | ✅ | ✅ PASS |
+## Tools Tested & Verified
+1. `mysql_json_extract`
+2. `mysql_json_set`
+3. `mysql_json_insert`
+4. `mysql_json_replace`
+5. `mysql_json_remove`
+6. `mysql_json_contains`
+7. `mysql_json_keys`
+8. `mysql_json_array_append`
+9. `mysql_json_get`
+10. `mysql_json_update`
+11. `mysql_json_search`
+12. `mysql_json_validate`
+13. `mysql_json_merge`
+14. `mysql_json_diff`
+15. `mysql_json_normalize`
+16. `mysql_json_stats`
+17. `mysql_json_index_suggest`
 
-## Result Details
-All 6 introspection tools passed cleanly. 
-- Gracefully returned `{success: false, error: ...}` on domain errors (e.g., nonexistent schema, nonexistent table).
-- Gracefully handled Zod input validation via `{success: false, error: "Validation error: ..."}`.
-- Payload responses complied fully with expected schemas.
-- `tokenEstimate` for test payload was efficient and below threshold limits.
+## Results
+- **Coverage**: 100% (17/17 tools tested).
+- **Functional Stability**: All tools return `{ success: true }` with accurate MySQL JSON driver outputs. Note: Replaced `where: "id = 1"` with `id: 1` in `json_get` validation to correctly pass Zod schema requirements.
+- **Error Handling**: Missing tables, missing columns, and missing required parameters (Zod boundary violations) return structured `{ success: false, error: ... }` responses natively. No raw exceptions or MCP framework errors leaked.
+- **Token Efficiency**: Code mode aggregated payloads were extremely efficient with token estimations successfully monitored.
 
-## Changes
-- No remediation required; functionally stable as-is.
+## Conclusion
+The `json` tool group meets all high-fidelity requirements for Code Mode usage, dual-path compatibility, and error handling. No functional code regressions were discovered, and the entire tool group is formally certified for production.
