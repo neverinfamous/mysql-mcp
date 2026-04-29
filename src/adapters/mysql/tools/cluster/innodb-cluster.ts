@@ -17,23 +17,40 @@ import type {
 // =============================================================================
 
 const LimitSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
 const LimitSchema = z.object({
-  limit: z
-    .number()
-    .int()
-    .min(0)
-    .default(100)
-    .describe("Maximum number of results"),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  limit: data.limit !== undefined ? Number(data.limit) : 100,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0,
+  { message: "Expected positive integer number" }
+);
+
+const SummarySchemaBase = z.object({
+  summary: z.unknown().optional().describe("If true, return condensed output without configuration blobs"),
 });
 
 const SummarySchema = z.object({
-  summary: z
-    .boolean()
-    .optional()
-    .describe("If true, return condensed output without configuration blobs"),
+  summary: z.unknown().optional(),
+})
+.transform((data, ctx) => {
+  if (data.summary === undefined) return { summary: false };
+  if (typeof data.summary === "boolean") return { summary: data.summary };
+  if (typeof data.summary === "string") {
+    const lower = data.summary.toLowerCase();
+    if (lower === "true") return { summary: true };
+    if (lower === "false") return { summary: false };
+  }
+  ctx.addIssue({
+    code: "custom",
+    message: "Expected boolean or 'true'/'false' string",
+  });
+  return z.NEVER;
 });
 
 // =============================================================================
@@ -50,7 +67,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get overall InnoDB Cluster status (requires mysql_innodb_cluster_metadata schema).",
     group: "cluster",
-    inputSchema: SummarySchema,
+    inputSchema: SummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -399,7 +416,7 @@ export function createClusterRouterStatusTool(
     title: "MySQL Cluster Router Status",
     description: "Get status of MySQL Routers connected to the cluster.",
     group: "cluster",
-    inputSchema: SummarySchema,
+    inputSchema: SummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
