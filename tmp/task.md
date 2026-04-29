@@ -1,30 +1,24 @@
-# MySQL-MCP Certification Matrix: `performance` Tool Group
+# Replication Tools Code Mode Test Results
 
-## Overview
-- **Status**: ✅ PASSED (100% Coverage)
-- **Tool Group**: `performance`
-- **Total Tools Tested**: 11
-- **Code Mode Parity**: ✅ Verified
+## Coverage Matrix
 
-## Test Results
-1. `mysql_explain`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-2. `mysql_explain_analyze`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-3. `mysql_slow_queries`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-4. `mysql_query_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-5. `mysql_index_usage`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-6. `mysql_table_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-7. `mysql_buffer_pool_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-8. `mysql_thread_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-9. `mysql_detect_query_anomalies`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-10. `mysql_detect_bloat_risk`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-11. `mysql_detect_connection_spike`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
-12. `mysql.performance.help()`: ✅ Verified method listing
-
-## Remediation & Payload Analysis
-- Zero functional failures during testing.
-- `help()` method output validated as correctly returning an object.
-- Token payloads effectively tracked and monitored.
-- No schema or Zod validation errors reported natively.
+- **`mysql_master_status`**
+  - Happy Path: PASS
+  - Domain Error: PASS (Returns structured success boolean format)
+- **`mysql_slave_status`**
+  - Happy Path: PASS
+  - Domain Error: PASS (Returns structured success boolean format)
+- **`mysql_gtid_status`**
+  - Happy Path: PASS
+  - Domain Error: PASS (Returns structured success boolean format)
+- **`mysql_binlog_events`**
+  - Happy Path: PASS
+  - Domain Error: PASS (Returns structured success boolean format)
+  - 🔴 Zod Error (`{ logFile: 123 }`): PASS (Returned `{success: false, error: "..."}` properly instead of raw exception)
+- **`mysql_replication_lag`**
+  - Happy Path: PASS
+  - Domain Error: PASS (Returns structured success boolean format)
 
 ## Conclusion
-The `performance` tool group exhibits stable behavior, handles domain-specific failures robustly, and adheres precisely to the `{success: boolean, error?: string}` error contract.
+
+Exhaustive code-mode testing across all replication tools yielded a `0` length failures array. All endpoints passed the happy path and domain-error scenarios with correct structured `{success: boolean, error?: string}` format. Zod validation properly threw structured errors instead of raw MCP exceptions.
