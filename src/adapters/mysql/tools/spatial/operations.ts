@@ -43,50 +43,126 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
 // Zod Schemas
 // =============================================================================
 
-const IntersectionSchema = z.object({
-  geometry1: z.string().describe("First WKT geometry"),
-  geometry2: z.string().describe("Second WKT geometry"),
-  srid: z.number().default(4326).describe("SRID"),
+const IntersectionSchemaBase = z.object({
+  geometry1: z.unknown().optional().describe("First WKT geometry"),
+  geometry2: z.unknown().optional().describe("Second WKT geometry"),
+  srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-const BufferSchema = z.object({
-  geometry: z.string().describe("WKT geometry"),
-  distance: z.number().describe("Buffer distance in meters"),
-  srid: z.number().default(4326).describe("SRID"),
+const IntersectionSchema = z.object({
+  geometry1: z.string(),
+  geometry2: z.string(),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  geometry1: data.geometry1,
+  geometry2: data.geometry2,
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
+
+const BufferSchemaBase = z.object({
+  geometry: z.unknown().optional().describe("WKT geometry"),
+  distance: z.unknown().optional().describe("Buffer distance in meters"),
+  srid: z.unknown().optional().describe("SRID (default: 4326)"),
   segments: z
-    .number()
-    .int()
-    .default(8)
+    .unknown()
+    .optional()
     .describe(
       "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Must be >= 1. Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
     ),
   precision: z
-    .number()
-    .int()
-    .min(0)
-    .max(15)
-    .default(6)
+    .unknown()
+    .optional()
     .describe(
       "Decimal precision for GeoJSON output coordinates (default: 6, ~0.11m accuracy). Lower values reduce payload size.",
     ),
 });
 
-const TransformSchema = z.object({
-  geometry: z.string().describe("WKT geometry"),
-  fromSrid: z.number().describe("Source SRID"),
-  toSrid: z.number().describe("Target SRID"),
+const BufferSchema = z.object({
+  geometry: z.string(),
+  distance: z.unknown().optional(),
+  srid: z.unknown().optional(),
+  segments: z.unknown().optional(),
+  precision: z.unknown().optional(),
+})
+.transform((data) => ({
+  geometry: data.geometry,
+  distance: Number(data.distance),
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  segments: data.segments !== undefined ? Number(data.segments) : 8,
+  precision: data.precision !== undefined ? Number(data.precision) : 6,
+}))
+.refine(
+  (data) => !Number.isNaN(data.distance),
+  { message: "distance must be a valid number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.segments) && data.segments >= 1,
+  { message: "segments must be a valid number >= 1" }
+)
+.refine(
+  (data) => !Number.isNaN(data.precision) && data.precision >= 0 && data.precision <= 15,
+  { message: "precision must be a valid number between 0 and 15" }
+);
+
+const TransformSchemaBase = z.object({
+  geometry: z.unknown().optional().describe("WKT geometry"),
+  fromSrid: z.unknown().optional().describe("Source SRID"),
+  toSrid: z.unknown().optional().describe("Target SRID"),
 });
+
+const TransformSchema = z.object({
+  geometry: z.string(),
+  fromSrid: z.unknown().optional(),
+  toSrid: z.unknown().optional(),
+})
+.transform((data) => ({
+  geometry: data.geometry,
+  fromSrid: Number(data.fromSrid),
+  toSrid: Number(data.toSrid),
+}))
+.refine(
+  (data) => !Number.isNaN(data.fromSrid),
+  { message: "fromSrid must be a valid number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.toSrid),
+  { message: "toSrid must be a valid number" }
+);
 
 const GeoJSONSchemaBase = z.object({
   geometry: z
-    .string()
+    .unknown()
     .optional()
     .describe("WKT geometry to convert to GeoJSON"),
-  geoJson: z.string().optional().describe("GeoJSON to convert to WKT"),
-  srid: z.number().default(4326).describe("SRID for conversion"),
+  geoJson: z.unknown().optional().describe("GeoJSON to convert to WKT"),
+  srid: z.unknown().optional().describe("SRID for conversion (default: 4326)"),
 });
 
-const GeoJSONSchema = GeoJSONSchemaBase.refine(
+const GeoJSONSchemaStrict = z.object({
+  geometry: z.string().optional(),
+  geoJson: z.string().optional(),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  geometry: data.geometry,
+  geoJson: data.geoJson,
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
+
+const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),
   "Either geometry or geoJson must be provided, but not both",
 );
@@ -102,7 +178,7 @@ export function createSpatialIntersectionTool(
     title: "MySQL Spatial Intersection",
     description: "Calculate the intersection of two geometries.",
     group: "spatial",
-    inputSchema: IntersectionSchema,
+    inputSchema: IntersectionSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -158,7 +234,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Spatial Buffer",
     description: "Create a buffer (expanded area) around a geometry.",
     group: "spatial",
-    inputSchema: BufferSchema,
+    inputSchema: BufferSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -221,7 +297,7 @@ export function createSpatialTransformTool(
     description:
       "Transform a geometry from one spatial reference system to another.",
     group: "spatial",
-    inputSchema: TransformSchema,
+    inputSchema: TransformSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

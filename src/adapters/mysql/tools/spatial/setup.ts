@@ -51,25 +51,55 @@ const VALID_GEOMETRY_TYPES = new Set([
   "GEOMETRYCOLLECTION",
 ]);
 
-const SpatialColumnSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column name"),
-  type: z.string().default("GEOMETRY").describe("Geometry type"),
+const SpatialColumnSchemaBase = z.object({
+  table: z.unknown().optional().describe("Table name"),
+  column: z.unknown().optional().describe("Column name"),
+  type: z.unknown().optional().describe("Geometry type (default: GEOMETRY)"),
   srid: z
-    .number()
-    .default(4326)
+    .unknown()
+    .optional()
     .describe("Spatial Reference System ID (4326 = WGS84)"),
-  nullable: z.boolean().default(true).describe("Allow NULL values"),
+  nullable: z.unknown().optional().describe("Allow NULL values (default: true)"),
 });
 
-const SpatialIndexSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Spatial column name"),
+const SpatialColumnSchema = z.object({
+  table: z.string(),
+  column: z.string(),
+  type: z.unknown().optional(),
+  srid: z.unknown().optional(),
+  nullable: z.unknown().optional(),
+})
+.transform((data) => ({
+  table: data.table,
+  column: data.column,
+  type: typeof data.type === "string" ? data.type : "GEOMETRY",
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  nullable: data.nullable !== undefined ? Boolean(data.nullable) : true,
+}))
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
+
+const SpatialIndexSchemaBase = z.object({
+  table: z.unknown().optional().describe("Table name"),
+  column: z.unknown().optional().describe("Spatial column name"),
   indexName: z
-    .string()
+    .unknown()
     .optional()
     .describe("Index name (auto-generated if not provided)"),
 });
+
+const SpatialIndexSchema = z.object({
+  table: z.string(),
+  column: z.string(),
+  indexName: z.unknown().optional(),
+})
+.transform((data) => ({
+  table: data.table,
+  column: data.column,
+  indexName: typeof data.indexName === "string" ? data.indexName : undefined,
+}));
 
 /**
  * Add a spatial column to a table
@@ -82,7 +112,7 @@ export function createSpatialCreateColumnTool(
     title: "MySQL Create Spatial Column",
     description: "Add a geometry/spatial column to an existing table.",
     group: "spatial",
-    inputSchema: SpatialColumnSchema,
+    inputSchema: SpatialColumnSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -163,7 +193,7 @@ export function createSpatialCreateIndexTool(
     description:
       "Create a SPATIAL index on a geometry column for faster queries.",
     group: "spatial",
-    inputSchema: SpatialIndexSchema,
+    inputSchema: SpatialIndexSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,

@@ -40,41 +40,127 @@ function paramStr(params: unknown, key: string): string {
 // Zod Schemas
 // =============================================================================
 
-const DistanceSchema = z.object({
-  table: z.string().describe("Table name"),
-  spatialColumn: z.string().describe("Spatial column name"),
+const DistanceSchemaBase = z.object({
+  table: z.unknown().optional().describe("Table name"),
+  spatialColumn: z.unknown().optional().describe("Spatial column name"),
   point: z
     .object({
-      longitude: z.number(),
-      latitude: z.number(),
+      longitude: z.unknown().optional(),
+      latitude: z.unknown().optional(),
     })
+    .optional()
     .describe("Reference point"),
-  maxDistance: z.number().optional().describe("Maximum distance in meters"),
-  limit: z.number().default(20).describe("Maximum results"),
-  srid: z.number().default(4326).describe("SRID"),
+  maxDistance: z.unknown().optional().describe("Maximum distance in meters"),
+  limit: z.unknown().optional().describe("Maximum results (default: 20)"),
+  srid: z.unknown().optional().describe("SRID (default: 4326)"),
+});
+
+const DistanceSchema = z.object({
+  table: z.string(),
+  spatialColumn: z.string(),
+  point: z.object({
+    longitude: z.unknown().optional(),
+    latitude: z.unknown().optional(),
+  }),
+  maxDistance: z.unknown().optional(),
+  limit: z.unknown().optional(),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  table: data.table,
+  spatialColumn: data.spatialColumn,
+  point: {
+    longitude: Number(data.point?.longitude),
+    latitude: Number(data.point?.latitude),
+  },
+  maxDistance: data.maxDistance !== undefined ? Number(data.maxDistance) : undefined,
+  limit: data.limit !== undefined ? Number(data.limit) : 20,
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude),
+  { message: "point.longitude and point.latitude must be valid numbers" }
+)
+.refine(
+  (data) => data.maxDistance === undefined || !Number.isNaN(data.maxDistance),
+  { message: "maxDistance must be a valid number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
+
+const ContainsSchemaBase = z.object({
+  table: z.unknown().optional().describe("Table name"),
+  spatialColumn: z.unknown().optional().describe("Spatial column name"),
+  polygon: z.unknown().optional().describe("WKT polygon to test containment"),
+  limit: z.unknown().optional().describe("Maximum results (default: 100)"),
+  srid: z
+    .unknown()
+    .optional()
+    .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
 });
 
 const ContainsSchema = z.object({
-  table: z.string().describe("Table name"),
-  spatialColumn: z.string().describe("Spatial column name"),
-  polygon: z.string().describe("WKT polygon to test containment"),
-  limit: z.number().default(100).describe("Maximum results"),
+  table: z.string(),
+  spatialColumn: z.string(),
+  polygon: z.string(),
+  limit: z.unknown().optional(),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  table: data.table,
+  spatialColumn: data.spatialColumn,
+  polygon: data.polygon,
+  limit: data.limit !== undefined ? Number(data.limit) : 100,
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
+
+const WithinSchemaBase = z.object({
+  table: z.unknown().optional().describe("Table name"),
+  spatialColumn: z.unknown().optional().describe("Spatial column name"),
+  geometry: z.unknown().optional().describe("WKT geometry to test within"),
+  limit: z.unknown().optional().describe("Maximum results (default: 100)"),
   srid: z
-    .number()
-    .default(4326)
+    .unknown()
+    .optional()
     .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
 });
 
 const WithinSchema = z.object({
-  table: z.string().describe("Table name"),
-  spatialColumn: z.string().describe("Spatial column name"),
-  geometry: z.string().describe("WKT geometry to test within"),
-  limit: z.number().default(100).describe("Maximum results"),
-  srid: z
-    .number()
-    .default(4326)
-    .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
-});
+  table: z.string(),
+  spatialColumn: z.string(),
+  geometry: z.string(),
+  limit: z.unknown().optional(),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  table: data.table,
+  spatialColumn: data.spatialColumn,
+  geometry: data.geometry,
+  limit: data.limit !== undefined ? Number(data.limit) : 100,
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+)
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
 
 /**
  * Calculate distance between geometries
@@ -88,7 +174,7 @@ export function createSpatialDistanceTool(
     description:
       "Find rows within a certain distance from a point (Cartesian distance).",
     group: "spatial",
-    inputSchema: DistanceSchema,
+    inputSchema: DistanceSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -169,7 +255,7 @@ export function createSpatialDistanceSphereTool(
     description:
       "Calculate distance on a sphere (for geographic coordinates). Returns distance in meters.",
     group: "spatial",
-    inputSchema: DistanceSchema,
+    inputSchema: DistanceSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -251,7 +337,7 @@ export function createSpatialContainsTool(
     description:
       "Find rows where the geometry is contained within a specified polygon.",
     group: "spatial",
-    inputSchema: ContainsSchema,
+    inputSchema: ContainsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -317,7 +403,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Spatial Within",
     description: "Find rows where the geometry is within a specified geometry.",
     group: "spatial",
-    inputSchema: WithinSchema,
+    inputSchema: WithinSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

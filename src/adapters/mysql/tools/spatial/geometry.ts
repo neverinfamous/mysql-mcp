@@ -43,20 +43,53 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
 // Zod Schemas
 // =============================================================================
 
-const PointSchema = z.object({
-  longitude: z.number().describe("Longitude coordinate"),
-  latitude: z.number().describe("Latitude coordinate"),
-  srid: z.number().default(4326).describe("SRID"),
+const PointSchemaBase = z.object({
+  longitude: z.unknown().optional().describe("Longitude coordinate"),
+  latitude: z.unknown().optional().describe("Latitude coordinate"),
+  srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-const PolygonSchema = z.object({
+const PointSchema = z.object({
+  longitude: z.unknown().optional(),
+  latitude: z.unknown().optional(),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  longitude: Number(data.longitude),
+  latitude: Number(data.latitude),
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.longitude) && !Number.isNaN(data.latitude),
+  { message: "longitude and latitude must be valid numbers" }
+)
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
+
+const PolygonSchemaBase = z.object({
   coordinates: z
-    .array(z.array(z.array(z.number()).min(2).max(2)))
+    .unknown()
+    .optional()
     .describe(
       "Polygon coordinates as array of rings, each ring is array of [lon, lat] pairs",
     ),
-  srid: z.number().default(4326).describe("SRID"),
+  srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
+
+const PolygonSchema = z.object({
+  coordinates: z.array(z.array(z.array(z.number()).min(2).max(2))),
+  srid: z.unknown().optional(),
+})
+.transform((data) => ({
+  coordinates: data.coordinates,
+  srid: data.srid !== undefined ? Number(data.srid) : 4326,
+}))
+.refine(
+  (data) => !Number.isNaN(data.srid),
+  { message: "srid must be a valid number" }
+);
 
 /**
  * Create a POINT geometry
@@ -67,7 +100,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Create Point",
     description: "Create a POINT geometry from longitude/latitude coordinates.",
     group: "spatial",
-    inputSchema: PointSchema,
+    inputSchema: PointSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -113,7 +146,7 @@ export function createSpatialPolygonTool(
     title: "MySQL Create Polygon",
     description: "Create a POLYGON geometry from coordinates.",
     group: "spatial",
-    inputSchema: PolygonSchema,
+    inputSchema: PolygonSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
