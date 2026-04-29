@@ -18,6 +18,7 @@
 - `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
 - `initializationSql` in connection pool config to execute setup queries once per checkout (#94).
 - `scripts/reboot-cluster.ps1` utility for recovering InnoDB Clusters from complete outages.
+- Certified `backup` tool group for Code Mode functional stability and strict domain error handling with 100% test pass rate.
 
 ## Changed
 
