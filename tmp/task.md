@@ -1,17 +1,30 @@
-# Code Mode Certification: partitioning
+# MySQL-MCP Certification Matrix: `performance` Tool Group
 
-## Coverage Matrix
+## Overview
+- **Status**: ✅ PASSED (100% Coverage)
+- **Tool Group**: `performance`
+- **Total Tools Tested**: 11
+- **Code Mode Parity**: ✅ Verified
 
-| Tool | Happy Path | Domain Error | Zod Error |
-|---|---|---|---|
-| `mysql_partition_info` | ✅ | ✅ | ✅ |
-| `mysql_add_partition` | ✅ | ✅ | ✅ |
-| `mysql_drop_partition` | ✅ | ✅ | ✅ |
-| `mysql_reorganize_partition` | ✅ | ✅ | ✅ |
-| `mysql.partitioning.help` | ✅ | N/A | N/A |
+## Test Results
+1. `mysql_explain`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+2. `mysql_explain_analyze`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+3. `mysql_slow_queries`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+4. `mysql_query_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+5. `mysql_index_usage`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+6. `mysql_table_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+7. `mysql_buffer_pool_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+8. `mysql_thread_stats`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+9. `mysql_detect_query_anomalies`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+10. `mysql_detect_bloat_risk`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+11. `mysql_detect_connection_spike`: ✅ Happy Path | ✅ Domain Error | ✅ Zod Validation
+12. `mysql.performance.help()`: ✅ Verified method listing
 
-## Notes
-- `partitionInfo` gracefully handles both partitioned and non-partitioned tables.
-- Tested `LIST COLUMNS` partitioning which correctly supports string-based definitions.
-- All tools correctly adhere to the `{success: false, error: "..."}` contract.
-- 100% Code Mode compatibility and 0 failures encountered during test execution.
+## Remediation & Payload Analysis
+- Zero functional failures during testing.
+- `help()` method output validated as correctly returning an object.
+- Token payloads effectively tracked and monitored.
+- No schema or Zod validation errors reported natively.
+
+## Conclusion
+The `performance` tool group exhibits stable behavior, handles domain-specific failures robustly, and adheres precisely to the `{success: boolean, error?: string}` error contract.
