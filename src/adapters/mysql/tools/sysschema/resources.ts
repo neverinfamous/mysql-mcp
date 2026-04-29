@@ -21,8 +21,22 @@ import type {
 // Zod Schemas
 // =============================================================================
 
+const LimitSchemaBase = z.object({
+  limit: z.unknown().optional().describe("Maximum number of results to return"),
+});
+
 const LimitSchema = z.object({
-  limit: z.number().default(2).describe("Maximum number of results to return"),
+  limit: z.number().default(2),
+});
+
+const SchemaStatsSchemaBase = z.object({
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
+const SchemaStatsSchema = z.object({
+  schema: z.string().optional(),
+  limit: z.number().default(2),
 });
 
 /**
@@ -37,13 +51,7 @@ export function createSysSchemaStatsTool(
     description:
       "Get aggregated statistics for a schema including tables, indexes, and auto-increment status.",
     group: "sysschema",
-    inputSchema: z.object({
-      schema: z
-        .string()
-        .optional()
-        .describe("Schema name (defaults to current database)"),
-      limit: z.number().default(2).describe("Maximum number of results"),
-    }),
+    inputSchema: SchemaStatsSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -51,12 +59,7 @@ export function createSysSchemaStatsTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, limit } = z
-          .object({
-            schema: z.string().optional(),
-            limit: z.number().default(2),
-          })
-          .parse(params);
+        const { schema, limit } = SchemaStatsSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -160,6 +163,9 @@ export function createSysSchemaStatsTool(
           schemaName: resolvedSchema,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -178,7 +184,7 @@ export function createSysInnoDBLockWaitsTool(
     description:
       "Get current InnoDB lock contention information from sys schema.",
     group: "sysschema",
-    inputSchema: LimitSchema,
+    inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -222,6 +228,9 @@ export function createSysInnoDBLockWaitsTool(
           hasContention: (result.rows?.length ?? 0) > 0,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -239,7 +248,7 @@ export function createSysMemorySummaryTool(
     title: "MySQL Memory Summary",
     description: "Get memory usage summary by allocation type from sys schema.",
     group: "sysschema",
-    inputSchema: LimitSchema,
+    inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -291,6 +300,9 @@ export function createSysMemorySummaryTool(
           memoryByUserCount: (userStats.rows ?? []).length,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },

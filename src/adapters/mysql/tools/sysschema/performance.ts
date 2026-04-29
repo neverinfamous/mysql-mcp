@@ -29,9 +29,14 @@ const VALID_ORDER_BY = [
   "rows_examined",
 ] as const;
 
+const StatementSummarySchemaBase = z.object({
+  orderBy: z.string().optional().describe("Order results by"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
 const StatementSummarySchema = z.object({
-  orderBy: z.string().default("total_latency").describe("Order results by"),
-  limit: z.number().default(5).describe("Maximum number of results"),
+  orderBy: z.string().default("total_latency"),
+  limit: z.number().default(5),
 });
 
 const VALID_WAIT_TYPES = [
@@ -41,16 +46,26 @@ const VALID_WAIT_TYPES = [
   "by_instance",
 ] as const;
 
+const WaitSummarySchemaBase = z.object({
+  type: z.string().optional().describe("Type of wait summary"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
 const WaitSummarySchema = z.object({
-  type: z.string().default("global").describe("Type of wait summary"),
-  limit: z.number().default(5).describe("Maximum number of results"),
+  type: z.string().default("global"),
+  limit: z.number().default(5),
 });
 
 const VALID_IO_TYPES = ["file", "table", "global"] as const;
 
+const IOSummarySchemaBase = z.object({
+  type: z.string().optional().describe("Type of I/O summary"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
 const IOSummarySchema = z.object({
-  type: z.string().default("table").describe("Type of I/O summary"),
-  limit: z.number().default(5).describe("Maximum number of results"),
+  type: z.string().default("table"),
+  limit: z.number().default(5),
 });
 
 /**
@@ -65,7 +80,7 @@ export function createSysStatementSummaryTool(
     description:
       "Get statement execution statistics including latency and row counts from sys schema.",
     group: "sysschema",
-    inputSchema: StatementSummarySchema,
+    inputSchema: StatementSummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -109,6 +124,9 @@ export function createSysStatementSummaryTool(
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -127,7 +145,7 @@ export function createSysWaitSummaryTool(
     description:
       "Get wait event summary for performance analysis from sys schema.",
     group: "sysschema",
-    inputSchema: WaitSummarySchema,
+    inputSchema: WaitSummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -211,6 +229,9 @@ export function createSysWaitSummaryTool(
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -227,7 +248,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get I/O usage summary by file, table, or global from sys schema.",
     group: "sysschema",
-    inputSchema: IOSummarySchema,
+    inputSchema: IOSummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -306,6 +327,9 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },

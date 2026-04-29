@@ -21,14 +21,24 @@ import type {
 // Zod Schemas
 // =============================================================================
 
-const UserSummarySchema = z.object({
+const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user"),
-  limit: z.number().default(5).describe("Maximum number of results"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
+const UserSummarySchema = z.object({
+  user: z.string().optional(),
+  limit: z.number().default(5),
+});
+
+const HostSummarySchemaBase = z.object({
+  host: z.string().optional().describe("Filter by specific host"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
 const HostSummarySchema = z.object({
-  host: z.string().optional().describe("Filter by specific host"),
-  limit: z.number().default(5).describe("Maximum number of results"),
+  host: z.string().optional(),
+  limit: z.number().default(5),
 });
 
 /**
@@ -43,7 +53,7 @@ export function createSysUserSummaryTool(
     description:
       "Get user activity summary including statements, connections, and latency from sys schema.",
     group: "sysschema",
-    inputSchema: UserSummarySchema,
+    inputSchema: UserSummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -82,6 +92,9 @@ export function createSysUserSummaryTool(
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
@@ -99,7 +112,7 @@ export function createSysHostSummaryTool(
     title: "MySQL Host Summary",
     description: "Get connection and activity summary by host from sys schema.",
     group: "sysschema",
-    inputSchema: HostSummarySchema,
+    inputSchema: HostSummarySchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -138,6 +151,9 @@ export function createSysHostSummaryTool(
           count: result.rows?.length ?? 0,
         };
       } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
         return formatHandlerErrorResponse(err);
       }
     },
