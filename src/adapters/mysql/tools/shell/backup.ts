@@ -5,6 +5,7 @@
  */
 
 import { ZodError } from "zod";
+import * as path from "path";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
@@ -53,7 +54,8 @@ export function createShellDumpInstanceTool(): ToolDefinition {
         if (!finalOutputDir) {
           return { success: false, error: "Validation error: outputDir or outputUrl is required" };
         }
-        const escapedPath = finalOutputDir.replace(/\\/g, "\\\\");
+        const resolvedPath = path.resolve(finalOutputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -162,7 +164,8 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         if (!finalOutputDir) {
           return { success: false, error: "Validation error: outputDir or outputUrl is required" };
         }
-        const escapedPath = finalOutputDir.replace(/\\/g, "\\\\");
+        const resolvedPath = path.resolve(finalOutputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -256,7 +259,8 @@ export function createShellDumpTablesTool(): ToolDefinition {
         if (!finalOutputDir) {
           return { success: false, error: "Validation error: outputDir or outputUrl is required" };
         }
-        const escapedPath = finalOutputDir.replace(/\\/g, "\\\\");
+        const resolvedPath = path.resolve(finalOutputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {

@@ -5,6 +5,7 @@
  */
 
 import { ZodError } from "zod";
+import * as path from "path";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
@@ -51,7 +52,8 @@ export function createShellExportTableTool(): ToolDefinition {
         if (!finalOutputPath) {
           return { success: false, error: "Validation error: outputPath or outputUrl is required" };
         }
-        const escapedPath = finalOutputPath.replace(/\\/g, "\\\\");
+        const resolvedPath = path.resolve(finalOutputPath);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (format === "csv") {
@@ -134,7 +136,8 @@ export function createShellImportTableTool(): ToolDefinition {
         if (!finalInputPath) {
           return { success: false, error: "Validation error: inputPath or inputUrl is required" };
         }
-        const escapedPath = finalInputPath.replace(/\\/g, "\\\\");
+        const resolvedPath = path.resolve(finalInputPath);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         options.push(`schema: "${schema}"`);
@@ -231,7 +234,8 @@ export function createShellImportJSONTool(): ToolDefinition {
         if (!finalInputPath) {
           return { success: false, error: "Validation error: inputPath or inputUrl is required" };
         }
-        const escapedPath = finalInputPath.replace(/\\/g, "\\\\");
+        const resolvedPath = path.resolve(finalInputPath);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         options.push(`schema: "${schema}"`);

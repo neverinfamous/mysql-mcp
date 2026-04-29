@@ -6,7 +6,7 @@
 
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
+import { join, resolve } from "path";
 import { ZodError } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import type {
@@ -57,7 +57,8 @@ export function createShellLoadDumpTool(): ToolDefinition {
         if (!finalInputDir) {
           return { success: false, error: "Validation error: inputDir or inputUrl is required" };
         }
-        const escapedPath = finalInputDir.replace(/\\/g, "\\\\");
+        const resolvedPath = resolve(finalInputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
