@@ -26,8 +26,15 @@ const LimitSchemaBase = z.object({
 });
 
 const LimitSchema = z.object({
-  limit: z.number().default(2),
-});
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  limit: data.limit !== undefined ? Number(data.limit) : 2,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 const SchemaStatsSchemaBase = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
@@ -36,8 +43,16 @@ const SchemaStatsSchemaBase = z.object({
 
 const SchemaStatsSchema = z.object({
   schema: z.string().optional(),
-  limit: z.number().default(2),
-});
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  schema: data.schema,
+  limit: data.limit !== undefined ? Number(data.limit) : 2,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 /**
  * Get schema object statistics

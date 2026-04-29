@@ -36,8 +36,16 @@ const StatementSummarySchemaBase = z.object({
 
 const StatementSummarySchema = z.object({
   orderBy: z.string().default("total_latency"),
-  limit: z.number().default(5),
-});
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  orderBy: data.orderBy,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 const VALID_WAIT_TYPES = [
   "global",
@@ -53,8 +61,16 @@ const WaitSummarySchemaBase = z.object({
 
 const WaitSummarySchema = z.object({
   type: z.string().default("global"),
-  limit: z.number().default(5),
-});
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  type: data.type,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 const VALID_IO_TYPES = ["file", "table", "global"] as const;
 
@@ -65,8 +81,16 @@ const IOSummarySchemaBase = z.object({
 
 const IOSummarySchema = z.object({
   type: z.string().default("table"),
-  limit: z.number().default(5),
-});
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  type: data.type,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 /**
  * Get statement execution summary
