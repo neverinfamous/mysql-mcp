@@ -45,7 +45,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, pattern, where } =
+        const { table, column, pattern, where, limit } =
           RegexpMatchSchema.parse(params);
 
         // Validate inputs
@@ -55,10 +55,15 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Return only id and matched column for minimal payload
         let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+        const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const result = await adapter.executeReadQuery(sql, [pattern]);
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
+        }
+        const result = await adapter.executeReadQuery(sql, queryParams);
 
         return {
           success: true,
@@ -90,7 +95,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, pattern, where } =
+        const { table, column, pattern, where, limit } =
           LikeSearchSchema.parse(params);
 
         // Validate inputs
@@ -100,10 +105,15 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Return only id and matched column for minimal payload
         let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+        const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const result = await adapter.executeReadQuery(sql, [pattern]);
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
+        }
+        const result = await adapter.executeReadQuery(sql, queryParams);
 
         return {
           success: true,
@@ -134,7 +144,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, value, where } = SoundexSchema.parse(params);
+        const { table, column, value, where, limit } = SoundexSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -143,10 +153,15 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Return only id, matched column, and soundex value for minimal payload
         let sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+        const queryParams: unknown[] = [value];
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const result = await adapter.executeReadQuery(sql, [value]);
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
+        }
+        const result = await adapter.executeReadQuery(sql, queryParams);
 
         return {
           success: true,
@@ -177,7 +192,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, start, length, where } =
+        const { table, column, start, length, where, limit } =
           SubstringSchema.parse(params);
 
         // Validate inputs
@@ -197,6 +212,10 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
+        }
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -236,6 +255,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
           alias,
           where,
           includeSourceColumns,
+          limit,
         } = ConcatSchema.parse(params);
 
         // Validate inputs
@@ -258,6 +278,10 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
+        }
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -293,7 +317,7 @@ export function createCollationConvertTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, charset, collation, where } =
+        const { table, column, charset, collation, where, limit } =
           CollationConvertSchema.parse(params);
 
         // Validate inputs
@@ -315,12 +339,17 @@ export function createCollationConvertTool(
 
         // Return only id, source column, and converted result for minimal payload
         let sql = `SELECT id, \`${column}\`, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
+        const queryParams: unknown[] = [];
 
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
+        }
 
-        const result = await adapter.executeReadQuery(sql);
+        const result = await adapter.executeReadQuery(sql, queryParams);
         return {
           success: true,
           rows: result.rows,

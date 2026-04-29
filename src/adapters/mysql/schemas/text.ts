@@ -22,6 +22,7 @@ export const RegexpMatchSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const RegexpMatchSchema = z
@@ -36,6 +37,7 @@ export const RegexpMatchSchema = z
       pattern: z.string(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -43,13 +45,18 @@ export const RegexpMatchSchema = z
     column: data.column ?? data.col ?? "",
     pattern: data.pattern,
     where: data.where ?? data.filter,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
-  });
+  })
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- LikeSearch ---
 export const LikeSearchSchemaBase = z.object({
@@ -64,6 +71,7 @@ export const LikeSearchSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const LikeSearchSchema = z
@@ -78,6 +86,7 @@ export const LikeSearchSchema = z
       pattern: z.string(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -85,13 +94,18 @@ export const LikeSearchSchema = z
     column: data.column ?? data.col ?? "",
     pattern: data.pattern,
     where: data.where ?? data.filter,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
-  });
+  })
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- Soundex ---
 export const SoundexSchemaBase = z.object({
@@ -106,6 +120,7 @@ export const SoundexSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const SoundexSchema = z
@@ -120,6 +135,7 @@ export const SoundexSchema = z
       value: z.string(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -127,13 +143,18 @@ export const SoundexSchema = z
     column: data.column ?? data.col ?? "",
     value: data.value,
     where: data.where ?? data.filter,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
-  });
+  })
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- Substring ---
 export const SubstringSchemaBase = z.object({
@@ -141,13 +162,14 @@ export const SubstringSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().describe("Column name"),
-  start: z.number().describe("Starting position (1-indexed)"),
-  length: z.number().optional().describe("Number of characters"),
+  start: z.unknown().describe("Starting position (1-indexed)"),
+  length: z.unknown().optional().describe("Number of characters"),
   where: z
     .string()
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const SubstringSchema = z
@@ -162,6 +184,7 @@ export const SubstringSchema = z
       length: z.number().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -170,10 +193,15 @@ export const SubstringSchema = z
     start: data.start,
     length: data.length,
     where: data.where ?? data.filter,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
-  });
+  })
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- Concat ---
 export const ConcatSchemaBase = z.object({
@@ -203,6 +231,7 @@ export const ConcatSchemaBase = z.object({
     .describe(
       "Include individual source columns in output (default: true). Set to false for minimal payload.",
     ),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const ConcatSchema = z
@@ -218,6 +247,7 @@ export const ConcatSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumns: z.boolean().optional().default(true),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -227,10 +257,15 @@ export const ConcatSchema = z
     alias: data.alias,
     where: data.where ?? data.filter,
     includeSourceColumns: data.includeSourceColumns,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
-  });
+  })
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- CollationConvert ---
 export const CollationConvertSchemaBase = z.object({
@@ -246,6 +281,7 @@ export const CollationConvertSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const CollationConvertSchema = z
@@ -261,6 +297,7 @@ export const CollationConvertSchema = z
       collation: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      limit: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -269,13 +306,18 @@ export const CollationConvertSchema = z
     charset: data.charset,
     collation: data.collation,
     where: data.where ?? data.filter,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
-  });
+  })
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
+  );
 
 // --- FulltextCreate ---
 export const FulltextCreateSchemaBase = z.object({
