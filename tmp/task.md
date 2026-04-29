@@ -1,28 +1,25 @@
-# Security Tool Group Certification
+# MySQL-MCP Spatial Tool Group Certification
 
-## 1. Test Execution Summary
-- **Execution Strategy:** Code Mode (`mysql_execute_code`)
-- **Total Tools Evaluated:** 9
-- **Total Tests Run:** 11 (including domain and Zod validations)
-- **Failures:** 0
+## Coverage Matrix
 
-## 2. Test Coverage Matrix
+| Tool / Method | Happy Path | Domain Error Path | Zod Validation Error |
+|---------------|------------|-------------------|----------------------|
+| `mysql_spatial_create_column` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_spatial_create_index` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_spatial_point` | ✅ Passed | N/A | ✅ Passed |
+| `mysql_spatial_polygon` | ✅ Passed | N/A | ✅ Passed |
+| `mysql_spatial_distance` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_spatial_distance_sphere` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_spatial_contains` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_spatial_within` | ✅ Passed | ✅ Passed | ✅ Passed |
+| `mysql_spatial_intersection` | ✅ Passed | N/A | ✅ Passed |
+| `mysql_spatial_buffer` | ✅ Passed | N/A | ✅ Passed |
+| `mysql_spatial_transform` | ✅ Passed | N/A | ✅ Passed |
+| `mysql_spatial_geojson` | ✅ Passed | ✅ Passed | ✅ Passed |
 
-| Test Case | Tool | Path Type | Status | Result |
-| :--- | :--- | :--- | :--- | :--- |
-| `help()` | `mysql.security.help` | Happy Path | ✅ PASS | `{ success: true, methods: [...] }` |
-| `audit()` | `mysql.security.audit` | Happy Path | ✅ PASS | `{ success: true, auditLog: [...] }` |
-| `sslStatus()` | `mysql.security.sslStatus` | Happy Path | ✅ PASS | `{ success: true, sslEnabled: ... }` |
-| `userPrivileges({user: "root"})` | `mysql.security.userPrivileges` | Happy Path | ✅ PASS | `{ success: true, privileges: [...] }` |
-| `userPrivileges({user: "root", summary: true})` | `mysql.security.userPrivileges` | Happy Path | ✅ PASS | `{ success: true, privileges: [...] }` |
-| `sensitiveTables({database: "testdb"})` | `mysql.security.sensitiveTables` | Happy Path | ✅ PASS | `{ success: true, tables: [...] }` |
-| `passwordValidate({password: "weak"})` | `mysql.security.passwordValidate` | Happy Path | ✅ PASS | `{ success: true, meetsPolicy: false }` |
-| `passwordValidate({password: "Str0ng!Pass#2026"})` | `mysql.security.passwordValidate` | Happy Path | ✅ PASS | `{ success: true, meetsPolicy: true }` |
-| `encryptionStatus()` | `mysql.security.encryptionStatus` | Happy Path | ✅ PASS | `{ success: true, masterKeyId: ... }` |
-| `userPrivileges({user: "nonexistent_xyz"})` | `mysql.security.userPrivileges` | Domain Error | ✅ PASS | `{ success: false, error: "..." }` |
-| `passwordValidate({})` | `mysql.security.passwordValidate` | Zod Error | ✅ PASS | `{ success: false, error: "Validation error: ..." }` |
-
-## 3. Observations & Remediation
-- The `security` tools exhibited perfect functional stability and strict adherence to the `{ success: boolean, error?: string }` contract.
-- Parameter aliasing and structured handler errors operated correctly without regressions.
-- No source code modifications were required; all 11 test cases passed.
+## Notes
+- `createColumn` and `createIndex` tested successfully on a fresh empty table since adding a `NOT NULL` GEOMETRY column to a table with rows violates MySQL constraints without a default value.
+- All spatial query tools successfully return `ErrorResponse` structured objects for non-existent tables/columns.
+- All tools strictly enforce valid numbers and SRIDs via Zod schemas.
+- `geojson` properly validates exclusive input (`geometry` XOR `geoJson`).
+- All tools adhere to the standard structured error contract (`{ success: false, error: "..." }`).
