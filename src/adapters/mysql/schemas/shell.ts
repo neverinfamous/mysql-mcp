@@ -61,10 +61,10 @@ export const ShellCheckUpgradeInputSchema = z
 // Data Transfer Tools
 // =============================================================================
 
-export const ShellExportTableInputSchema = z
+export const ShellExportTableInputSchemaBase = z
   .object({
-    schema: z.string().describe("Source schema (database) name"),
-    table: z.string().describe("Table name to export"),
+    schema: z.string().optional().describe("Source schema (database) name"),
+    table: z.string().optional().describe("Table name to export"),
     outputPath: z
       .string()
       .optional()
@@ -82,12 +82,29 @@ export const ShellExportTableInputSchema = z
   })
   .describe("Export table to file using util.exportTable()");
 
-export const ShellImportTableInputSchema = z
+export const ShellExportTableInputSchema = z
+  .object({
+    schema: z.unknown().optional(),
+    table: z.unknown().optional(),
+    outputPath: z.string().optional(),
+    outputUrl: z.string().optional(),
+    format: z.enum(["csv", "tsv"]).optional().default("csv"),
+    where: z.string().optional(),
+  })
+  .transform((data) => ({
+    ...data,
+    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
+    table: data.table === undefined ? "" : String(data.table as string | number | boolean),
+  }))
+  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
+  .refine((data) => data.table !== "", { message: "table must not be empty" });
+
+export const ShellImportTableInputSchemaBase = z
   .object({
     inputPath: z.string().optional().describe("Input file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
-    schema: z.string().describe("Target schema (database) name"),
-    table: z.string().describe("Target table name"),
+    schema: z.string().optional().describe("Target schema (database) name"),
+    table: z.string().optional().describe("Target table name"),
     threads: z
       .number()
       .int()
@@ -124,12 +141,33 @@ export const ShellImportTableInputSchema = z
   })
   .describe("Parallel table import using util.importTable()");
 
-export const ShellImportJSONInputSchema = z
+export const ShellImportTableInputSchema = z
+  .object({
+    inputPath: z.string().optional(),
+    inputUrl: z.string().optional(),
+    schema: z.unknown().optional(),
+    table: z.unknown().optional(),
+    threads: z.number().int().optional().default(4),
+    skipRows: z.number().int().optional(),
+    columns: z.array(z.string()).optional(),
+    fieldsTerminatedBy: z.string().optional(),
+    linesTerminatedBy: z.string().optional(),
+    updateServerSettings: booleanCoerce.optional().default(false),
+  })
+  .transform((data) => ({
+    ...data,
+    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
+    table: data.table === undefined ? "" : String(data.table as string | number | boolean),
+  }))
+  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
+  .refine((data) => data.table !== "", { message: "table must not be empty" });
+
+export const ShellImportJSONInputSchemaBase = z
   .object({
     inputPath: z.string().optional().describe("JSON file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
-    schema: z.string().describe("Target schema (database) name"),
-    collection: z.string().describe("Target collection or table name"),
+    schema: z.string().optional().describe("Target schema (database) name"),
+    collection: z.string().optional().describe("Target collection or table name"),
     tableColumn: z
       .string()
       .optional()
@@ -140,6 +178,23 @@ export const ShellImportJSONInputSchema = z
       .describe("Convert BSON types from MongoDB exports"),
   })
   .describe("Import JSON documents using util.importJson()");
+
+export const ShellImportJSONInputSchema = z
+  .object({
+    inputPath: z.string().optional(),
+    inputUrl: z.string().optional(),
+    schema: z.unknown().optional(),
+    collection: z.unknown().optional(),
+    tableColumn: z.string().optional(),
+    convertBsonTypes: booleanCoerce.optional().default(false),
+  })
+  .transform((data) => ({
+    ...data,
+    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
+    collection: data.collection === undefined ? "" : String(data.collection as string | number | boolean),
+  }))
+  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
+  .refine((data) => data.collection !== "", { message: "collection must not be empty" });
 
 // =============================================================================
 // Backup Tools
@@ -188,9 +243,9 @@ export const ShellDumpInstanceInputSchema = z
   })
   .describe("Dump entire MySQL instance using util.dumpInstance()");
 
-export const ShellDumpSchemasInputSchema = z
+export const ShellDumpSchemasInputSchemaBase = z
   .object({
-    schemas: z.array(z.string()).describe("Schema names to dump"),
+    schemas: z.array(z.string()).optional().describe("Schema names to dump"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
@@ -227,10 +282,30 @@ export const ShellDumpSchemasInputSchema = z
   })
   .describe("Dump selected schemas using util.dumpSchemas()");
 
-export const ShellDumpTablesInputSchema = z
+export const ShellDumpSchemasInputSchema = z
   .object({
-    schema: z.string().describe("Schema containing tables"),
-    tables: z.array(z.string()).describe("Table names to dump"),
+    schemas: z.unknown().optional(),
+    outputDir: z.string().optional(),
+    outputUrl: z.string().optional(),
+    threads: z.number().int().optional().default(4),
+    compression: z.enum(["none", "zstd", "gzip"]).optional().default("zstd"),
+    dryRun: booleanCoerce.optional().default(false),
+    includeTables: z.array(z.string()).optional(),
+    excludeTables: z.array(z.string()).optional(),
+    ddlOnly: booleanCoerce.optional().default(false),
+  })
+  .transform((data) => ({
+    ...data,
+    schemas: Array.isArray(data.schemas) ? data.schemas.map(String) : [],
+  }))
+  .refine((data) => data.schemas.length > 0, {
+    message: "At least one schema name is required",
+  });
+
+export const ShellDumpTablesInputSchemaBase = z
+  .object({
+    schema: z.string().optional().describe("Schema containing tables"),
+    tables: z.array(z.string()).optional().describe("Table names to dump"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
@@ -262,6 +337,26 @@ export const ShellDumpTablesInputSchema = z
       ),
   })
   .describe("Dump specific tables using util.dumpTables()");
+
+export const ShellDumpTablesInputSchema = z
+  .object({
+    schema: z.unknown().optional(),
+    tables: z.unknown().optional(),
+    outputDir: z.string().optional(),
+    outputUrl: z.string().optional(),
+    threads: z.number().int().optional().default(4),
+    compression: z.enum(["none", "zstd", "gzip"]).optional().default("zstd"),
+    where: z.record(z.string(), z.string()).optional(),
+    dryRun: booleanCoerce.optional().default(false),
+    all: booleanCoerce.optional().default(false),
+  })
+  .transform((data) => ({
+    ...data,
+    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
+    tables: Array.isArray(data.tables) ? data.tables.map(String) : [],
+  }))
+  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
+  .refine((data) => data.tables.length > 0, { message: "At least one table name is required" });
 
 // =============================================================================
 // Restore Tools
@@ -321,9 +416,9 @@ export const ShellLoadDumpInputSchema = z
 // Scripting Tools
 // =============================================================================
 
-export const ShellRunScriptInputSchema = z
+export const ShellRunScriptInputSchemaBase = z
   .object({
-    script: z.string().min(1, "Script content cannot be empty").describe("Script content to execute"),
+    script: z.string().optional().describe("Script content to execute"),
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
@@ -339,3 +434,18 @@ export const ShellRunScriptInputSchema = z
       .describe("Timeout in milliseconds (default: 60 seconds)"),
   })
   .describe("Execute JavaScript, Python, or SQL script via MySQL Shell");
+
+export const ShellRunScriptInputSchema = z
+  .object({
+    script: z.unknown().optional(),
+    language: z.enum(["js", "py", "sql", "javascript", "python"]).optional().default("js"),
+    timeout: z.number().int().optional().default(60000),
+  })
+  .transform((data) => ({
+    script: data.script === undefined ? "" : String(data.script as string | number | boolean),
+    language: data.language,
+    timeout: data.timeout,
+  }))
+  .refine((data) => data.script !== "", {
+    message: "Script content cannot be empty",
+  });

@@ -12,8 +12,11 @@ import type {
 } from "../../../../types/index.js";
 import {
   ShellExportTableInputSchema,
+  ShellExportTableInputSchemaBase,
   ShellImportTableInputSchema,
+  ShellImportTableInputSchemaBase,
   ShellImportJSONInputSchema,
+  ShellImportJSONInputSchemaBase,
 } from "../../schemas/shell.js";
 import {
   getShellConfig,
@@ -32,7 +35,7 @@ export function createShellExportTableTool(): ToolDefinition {
     description:
       "Export a MySQL table to a file using util.exportTable(). Supports CSV and TSV formats with WHERE clause filtering.",
     group: "shell",
-    inputSchema: ShellExportTableInputSchema,
+    inputSchema: ShellExportTableInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -106,7 +109,7 @@ export function createShellImportTableTool(): ToolDefinition {
     description:
       "Parallel table import using util.importTable(). For CSV files, explicitly set fieldsTerminatedBy to ',' as the delimiter is not auto-detected. Target table must already exist.",
     group: "shell",
-    inputSchema: ShellImportTableInputSchema,
+    inputSchema: ShellImportTableInputSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
@@ -212,7 +215,7 @@ export function createShellImportJSONTool(): ToolDefinition {
     description:
       "Import JSON documents from a file using util.importJson(). Supports NDJSON (one JSON object per line) and multi-line JSON objects (not JSON arrays). REQUIRES X Protocol (port 33060).",
     group: "shell",
-    inputSchema: ShellImportJSONInputSchema,
+    inputSchema: ShellImportJSONInputSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,

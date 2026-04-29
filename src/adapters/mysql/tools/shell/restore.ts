@@ -16,6 +16,7 @@ import type {
 import {
   ShellLoadDumpInputSchema,
   ShellRunScriptInputSchema,
+  ShellRunScriptInputSchemaBase,
 } from "../../schemas/shell.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
 
@@ -234,7 +235,7 @@ export function createShellRunScriptTool(): ToolDefinition {
     description:
       "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features.",
     group: "shell",
-    inputSchema: ShellRunScriptInputSchema,
+    inputSchema: ShellRunScriptInputSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

@@ -13,7 +13,9 @@ import type {
 import {
   ShellDumpInstanceInputSchema,
   ShellDumpSchemasInputSchema,
+  ShellDumpSchemasInputSchemaBase,
   ShellDumpTablesInputSchema,
+  ShellDumpTablesInputSchemaBase,
 } from "../../schemas/shell.js";
 import { escapeForJS, execShellJS } from "./common.js";
 
@@ -129,7 +131,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
     description:
       "Dump selected schemas using util.dumpSchemas(). Creates a compressed, parallel dump of specified schemas. Use for partial backups.",
     group: "shell",
-    inputSchema: ShellDumpSchemasInputSchema,
+    inputSchema: ShellDumpSchemasInputSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
@@ -232,7 +234,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
     description:
       "Dump specific tables using util.dumpTables(). Creates a compressed, parallel dump of specified tables from a schema.",
     group: "shell",
-    inputSchema: ShellDumpTablesInputSchema,
+    inputSchema: ShellDumpTablesInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
