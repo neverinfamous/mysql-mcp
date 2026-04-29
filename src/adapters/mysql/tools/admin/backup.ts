@@ -238,7 +238,12 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             const placeholders = Object.keys(row)
               .map(() => "?")
               .join(", ");
-            const values = Object.values(row);
+            const values = Object.values(row).map(val => {
+              if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)) {
+                return val.replace('T', ' ').replace('Z', '').split('.')[0];
+              }
+              return val;
+            });
 
             const sql = `INSERT INTO \`${table}\` (${columns}) VALUES (${placeholders})`;
             await adapter.executeWriteQuery(sql, values);

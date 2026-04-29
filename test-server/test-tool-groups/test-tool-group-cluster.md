@@ -20,10 +20,10 @@
 
 ## Structured Error Response Pattern
 
-| Type | What you see | Verdict |
-|------|-------------|---------|
+| Type                 | What you see                                     | Verdict |
+| -------------------- | ------------------------------------------------ | ------- |
 | **Handler error** ✅ | Parseable JSON with `success` and `error` fields | Correct |
-| **MCP error** ❌ | Raw text error string with `isError: true` | Bug |
+| **MCP error** ❌     | Raw text error string with `isError: true`       | Bug     |
 
 ## P154 / Cleanup / Post-Test
 
@@ -51,16 +51,16 @@ cluster Tool Group (10 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY. In a non-cluster environment, verify the tools return structured error or empty-state responses.
 
-1. ✅ `mysql_gr_status()` → verified GR status returns correctly.
-2. ✅ `mysql_gr_members()` → verified members list returns successfully.
-3. ✅ `mysql_cluster_status()` → verified full cluster status returns.
-4. ✅ `mysql_cluster_status({summary: true})` → verified summarized output.
-5. ✅ `mysql_cluster_instances()` → verified instance details return.
-6. ✅ `mysql_cluster_topology()` → verified topology map returns correctly.
-7. ✅ `mysql_cluster_router_status()` → verified router status returns correctly.
-8. ✅ `mysql_cluster_router_status({summary: true})` → verified summarized router status.
-9. ✅ `mysql_cluster_switchover()` → verified readiness check without performing switchover.
+1. `mysql_gr_status()` → verify GR status or structured "not configured" message
+2. `mysql_gr_members()` → verify members list or structured empty response
+3. `mysql_cluster_status()` → verify cluster status or structured error
+4. `mysql_cluster_status({summary: true})` → verify summarized output (if cluster running)
+5. `mysql_cluster_instances()` → verify instance details
+6. `mysql_cluster_topology()` → verify topology map
+7. `mysql_cluster_router_status()` → verify router status or structured error
+8. `mysql_cluster_router_status({summary: true})` → verify summarized output
+9. `mysql_cluster_switchover()` → verify readiness check (should not actually perform switchover without params)
 
 **Zod validation error paths (🔴):**
 
-10. ✅ 🔴 `mysql_gr_primary({})` → behavior verified, successfully accepted empty params for read-only mode.
+10. 🔴 `mysql_gr_primary({})` → verify behavior (may accept empty params for read-only mode)
