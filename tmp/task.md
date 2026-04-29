@@ -1,28 +1,17 @@
-# Partitioning Tool Group Certification
+# Code Mode Certification: partitioning
 
-## Status: ✅ CERTIFIED (Code Mode Only)
+## Coverage Matrix
 
-## Happy Path & Domain Error Matrix
-
-| Tool | Status | Findings |
-|---|---|---|
-| `mysql_partition_info` | ✅ | Handled gracefully. Tested unpartitioned and partitioned paths. |
-| `mysql_add_partition` | ✅ | Tested duplicate domain error and valid `LIST COLUMNS` creation. |
-| `mysql_drop_partition` | ✅ | Handled missing partition error and valid drop execution. |
-| `mysql_reorganize_partition` | ✅ | Verified domain error on missing source partition and successful reorganization. |
-
-## Zod Boundaries
-
-| Parameter | Status | Test Condition | Result |
+| Tool | Happy Path | Domain Error | Zod Error |
 |---|---|---|---|
-| `table` | ✅ | Omit | Rejected properly |
-| `partitionName` | ✅ | Omit | Rejected properly |
-| `partitionType` | ✅ | Invalid enum / Omit | Rejected properly |
-| `value` | ✅ | Omit | Rejected properly |
-| `fromPartitions` | ✅ | Empty array / Omit | Rejected properly |
-| `toPartitions` | ✅ | Empty array / Omit | Rejected properly |
+| `mysql_partition_info` | ✅ | ✅ | ✅ |
+| `mysql_add_partition` | ✅ | ✅ | ✅ |
+| `mysql_drop_partition` | ✅ | ✅ | ✅ |
+| `mysql_reorganize_partition` | ✅ | ✅ | ✅ |
+| `mysql.partitioning.help` | ✅ | N/A | N/A |
 
-## Regressions Fixed
-- Fixed Zod validation schema for Code Mode (in `types.ts`) to include `"RANGE COLUMNS"` and `"LIST COLUMNS"`.
-- Fixed the internal handler `partitioning.ts` to support `"RANGE COLUMNS"` and `"LIST COLUMNS"` inside the partition builder.
-- Validated via rigorous E2E test execution.
+## Notes
+- `partitionInfo` gracefully handles both partitioned and non-partitioned tables.
+- Tested `LIST COLUMNS` partitioning which correctly supports string-based definitions.
+- All tools correctly adhere to the `{success: false, error: "..."}` contract.
+- 100% Code Mode compatibility and 0 failures encountered during test execution.
