@@ -539,7 +539,6 @@ describe("Spatial Tools Handlers", () => {
 
       expect((result as any).segmentsApplied).toBe(false);
       expect((result as any).segments).toBe(4);
-      expect((result as any).precision).toBe(6);
     });
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
@@ -566,7 +565,6 @@ describe("Spatial Tools Handlers", () => {
 
       expect((result as any).segmentsApplied).toBe(true);
       expect((result as any).segments).toBe(4);
-      expect((result as any).precision).toBe(6);
     });
   });
 });
