@@ -1,24 +1,28 @@
-# MySQL-MCP Code Mode Certification: `optimization`
+# Partitioning Tool Group Certification
 
-## 1. Objective
-Complete an exhaustive certification of the `optimization` tool group using **ONLY** code mode (`mysql_execute_code`). Verify functional stability, structural error compliance, and Zod input validation.
+## Status: ✅ CERTIFIED (Code Mode Only)
 
-## 2. Coverage Matrix
+## Happy Path & Domain Error Matrix
 
-| Tool | Happy Path | Domain Error | Validation Error | Status |
-|------|------------|--------------|------------------|--------|
-| `mysql.optimization.help()` | ✅ Passed | N/A | N/A | 🟢 Certified |
-| `mysql.optimization.indexRecommendation()` | ✅ Passed | ✅ Passed | ✅ Passed | 🟢 Certified |
-| `mysql.optimization.queryRewrite()` | ✅ Passed | N/A | N/A | 🟢 Certified |
-| `mysql.optimization.forceIndex()` | ✅ Passed | N/A | N/A | 🟢 Certified |
-| `mysql.optimization.optimizerTrace()` | ✅ Passed | N/A | ✅ Passed | 🟢 Certified |
+| Tool | Status | Findings |
+|---|---|---|
+| `mysql_partition_info` | ✅ | Handled gracefully. Tested unpartitioned and partitioned paths. |
+| `mysql_add_partition` | ✅ | Tested duplicate domain error and valid `LIST COLUMNS` creation. |
+| `mysql_drop_partition` | ✅ | Handled missing partition error and valid drop execution. |
+| `mysql_reorganize_partition` | ✅ | Verified domain error on missing source partition and successful reorganization. |
 
-## 3. Key Findings & Resolutions
-- **Token Efficiency**: The entire test suite completed with a highly efficient payload token estimate (`1195` total tokens).
-- **Error Contract**: All domain and validation errors consistently returned the `{success: false, error: string}` structured format. No raw unhandled exceptions were leaked.
-- **Summary Mode**: `optimizerTrace` successfully executed with the `summary: true` flag, reducing payload overhead.
+## Zod Boundaries
 
-## 4. Final Certification
-- **Status**: 100% Certified.
-- **Failures**: `[]`
-- **Actions Taken**: Documented coverage, updated `UNRELEASED.md`, committed changes. No code regressions required fixing.
+| Parameter | Status | Test Condition | Result |
+|---|---|---|---|
+| `table` | ✅ | Omit | Rejected properly |
+| `partitionName` | ✅ | Omit | Rejected properly |
+| `partitionType` | ✅ | Invalid enum / Omit | Rejected properly |
+| `value` | ✅ | Omit | Rejected properly |
+| `fromPartitions` | ✅ | Empty array / Omit | Rejected properly |
+| `toPartitions` | ✅ | Empty array / Omit | Rejected properly |
+
+## Regressions Fixed
+- Fixed Zod validation schema for Code Mode (in `types.ts`) to include `"RANGE COLUMNS"` and `"LIST COLUMNS"`.
+- Fixed the internal handler `partitioning.ts` to support `"RANGE COLUMNS"` and `"LIST COLUMNS"` inside the partition builder.
+- Validated via rigorous E2E test execution.

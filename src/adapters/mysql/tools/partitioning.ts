@@ -156,9 +156,11 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
 
         switch (partitionType) {
           case "RANGE":
+          case "RANGE COLUMNS":
             sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
             break;
           case "LIST":
+          case "LIST COLUMNS":
             sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
             break;
           case "HASH":
@@ -317,7 +319,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
         const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
         const toList = toPartitions
           .map((p) => {
-            if (partitionType === "RANGE") {
+            if (partitionType === "RANGE" || partitionType === "RANGE COLUMNS") {
               return `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`;
             } else {
               return `PARTITION \`${p.name}\` VALUES IN (${p.value})`;

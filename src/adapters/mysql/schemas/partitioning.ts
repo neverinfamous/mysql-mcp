@@ -43,7 +43,7 @@ export const AddPartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   partitionName: z.string().optional().describe("New partition name"),
   partitionType: z
-    .enum(["RANGE", "LIST", "HASH", "KEY"])
+    .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe("Partition type"),
   value: z
@@ -62,7 +62,7 @@ export const AddPartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       partitionName: z.string().optional(),
-      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY"]).optional(),
+      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"]).optional(),
       value: z.string().optional(),
     }),
   )
@@ -135,10 +135,10 @@ export const ReorganizePartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   fromPartitions: z.array(z.string()).optional().describe("Source partition names"),
   partitionType: z
-    .enum(["RANGE", "LIST", "HASH", "KEY"])
+    .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe(
-      "Partition type (RANGE or LIST). HASH/KEY partitions cannot be reorganized.",
+      "Partition type (RANGE, LIST, RANGE COLUMNS, LIST COLUMNS). HASH/KEY partitions cannot be reorganized.",
     ),
   toPartitions: z
     .array(
@@ -163,7 +163,7 @@ export const ReorganizePartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       fromPartitions: z.array(z.string()).optional(),
-      partitionType: z.enum(["RANGE", "LIST"]).optional(),
+      partitionType: z.enum(["RANGE", "LIST", "RANGE COLUMNS", "LIST COLUMNS"]).optional(),
       toPartitions: z.array(
         z.object({
           name: z.string(),
