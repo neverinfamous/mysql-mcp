@@ -117,11 +117,11 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         );
         
         const NUMERIC_TYPES = new Set(['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'numeric', 'float', 'double']);
-        const validCols = new Set();
-        for (const row of colCheck.rows || []) {
-          const type = (row as any).DATA_TYPE;
-          const colName = (row as any).COLUMN_NAME;
-          if (type && NUMERIC_TYPES.has(type.toLowerCase())) {
+        const validCols = new Set<string>();
+        for (const row of colCheck.rows ?? []) {
+          const type = typeof row['DATA_TYPE'] === "string" ? row['DATA_TYPE'] : undefined;
+          const colName = typeof row['COLUMN_NAME'] === "string" ? row['COLUMN_NAME'] : undefined;
+          if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
             validCols.add(colName);
           }
         }
@@ -235,11 +235,11 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         );
         
         const NUMERIC_TYPES = new Set(['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'numeric', 'float', 'double']);
-        const validCols = new Set();
-        for (const row of colCheck.rows || []) {
-          const type = (row as any).DATA_TYPE;
-          const colName = (row as any).COLUMN_NAME;
-          if (type && NUMERIC_TYPES.has(type.toLowerCase())) {
+        const validCols = new Set<string>();
+        for (const row of colCheck.rows ?? []) {
+          const type = typeof row['DATA_TYPE'] === "string" ? row['DATA_TYPE'] : undefined;
+          const colName = typeof row['COLUMN_NAME'] === "string" ? row['COLUMN_NAME'] : undefined;
+          if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
             validCols.add(colName);
           }
         }

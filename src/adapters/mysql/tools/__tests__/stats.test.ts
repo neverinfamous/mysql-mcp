@@ -200,8 +200,13 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_correlation", () => {
     it("should calculate correlation coefficient", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'height';
+          const col2 = params?.[2] || 'weight';
+          return createMockQueryResult([{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([
           {
             correlation: 0.85,
             sample_size: 100,
@@ -210,8 +215,8 @@ describe("Handler Execution", () => {
             std_x: 10,
             std_y: 12,
           },
-        ]),
-      );
+        ]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
       const result = await tool.handler(
@@ -275,8 +280,13 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_regression", () => {
     it("should perform linear regression", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return createMockQueryResult([{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([
           {
             n: 100,
             avg_x: 50,
@@ -287,8 +297,8 @@ describe("Handler Execution", () => {
             sum_x2: 260000,
             sum_y2: 370000,
           },
-        ]),
-      );
+        ]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
       const result = await tool.handler(
@@ -689,15 +699,20 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should return error for insufficient data points", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return createMockQueryResult([{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([
           {
             n: 1,
             sum_x: 1,
             sum_y: 1,
           },
-        ]),
-      );
+        ]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
       const result = (await tool.handler(
