@@ -148,6 +148,13 @@ function createProxySQLStatusTool(): ToolDefinition {
       try {
         const { summary } = ProxySQLStatusInputSchema.parse(params);
         const rows = await proxySQLQuery("SELECT * FROM stats_mysql_global");
+        const [versionRow] = await proxySQLQuery(
+          "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
+        );
+        const version = (versionRow?.["variable_value"] as string) ?? "unknown";
+        
+        const uptimeRow = rows.find(r => r["Variable_Name"] === "ProxySQL_Uptime");
+        const uptime = (uptimeRow?.["Variable_Value"] as string) ?? "0";
 
         if (summary) {
           // Key metrics for summary mode
@@ -171,6 +178,8 @@ function createProxySQLStatusTool(): ToolDefinition {
           return {
             success: true,
             summary: true,
+            version,
+            uptime,
             stats: filteredRows,
             totalVarsAvailable: rows.length,
           };
@@ -179,6 +188,8 @@ function createProxySQLStatusTool(): ToolDefinition {
         return {
           success: true,
           summary: false,
+          version,
+          uptime,
           stats: rows,
           totalVarsAvailable: rows.length,
         };

@@ -141,8 +141,11 @@ describe("Handler Execution", () => {
       const mockStats = [
         { Variable_Name: "Client_Connections_connected", Variable_Value: "10" },
         { Variable_Name: "Server_Connections_connected", Variable_Value: "5" },
+        { Variable_Name: "ProxySQL_Uptime", Variable_Value: "12345" },
       ];
-      mockQuery.mockResolvedValue([mockStats]);
+      mockQuery
+        .mockResolvedValueOnce([mockStats])
+        .mockResolvedValueOnce([[{ variable_value: "3.0.3" }]]);
 
       const tool = tools.find((t) => t.name === "proxysql_status")!;
       const result = await tool.handler({ summary: false }, mockContext);
@@ -151,12 +154,17 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM stats_mysql_global",
       );
+      expect(mockQuery).toHaveBeenCalledWith(
+        "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
+      );
       expect(mockEnd).toHaveBeenCalled();
       expect(result).toEqual({
         success: true,
         summary: false,
+        version: "3.0.3",
+        uptime: "12345",
         stats: mockStats,
-        totalVarsAvailable: 2,
+        totalVarsAvailable: 3,
       });
     });
   });
