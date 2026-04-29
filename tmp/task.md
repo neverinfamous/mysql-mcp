@@ -1,25 +1,29 @@
-# MySQL-MCP Fulltext Tool Group Certification
+# Introspection Tool Group Certification
 
-## Overview
-Exhaustive code-mode certification of the `fulltext` tool group for `mysql-mcp`. The test suite validated all 5 tools for both happy paths and domain/Zod validation error handling.
+## Test Summary
+- **Execution Strategy**: Code Mode (`mysql_execute_code`)
+- **Total Tools Tested**: 6 (`dependencyGraph`, `topologicalSort`, `cascadeSimulator`, `schemaSnapshot`, `constraintAnalysis`, `migrationRisks`) + 1 (`help`)
+- **Total Assertions**: 11
+- **Status**: ✅ 100% PASS
 
 ## Coverage Matrix
 
-| Tool | Status | Tests | Notes |
-|------|--------|-------|-------|
-| `mysql_fulltext_create` | ✅ Pass | Happy Path, Zod Error | Successfully creates FTS index. Handles auto-generated name if `indexName` is omitted (ignored invalid param `index_name`). Zod rejects empty objects. |
-| `mysql_fulltext_drop` | ✅ Pass | Happy Path, Domain Error | Successfully drops index when valid `indexName` provided. Properly handles non-existent index. |
-| `mysql_fulltext_search` | ✅ Pass | Happy Path, No Results, Domain Error, Zod Error | Returns relevance scores. Handles missing tables or missing FTS indexes with `{success: false}`. |
-| `mysql_fulltext_boolean`| ✅ Pass | Happy Path | Successfully executes boolean mode FTS query (`+MySQL +database`). |
-| `mysql_fulltext_expand` | ✅ Pass | Happy Path | Successfully executes query expansion FTS search. |
+| Tool | Happy Path | Domain Error | Zod Error | Status |
+|------|------------|--------------|-----------|--------|
+| `help` | ✅ | N/A | N/A | ✅ PASS |
+| `dependencyGraph` | ✅ | ✅ | ✅ | ✅ PASS |
+| `topologicalSort` | ✅ | N/A | N/A | ✅ PASS |
+| `cascadeSimulator` | ✅ | ✅ | N/A | ✅ PASS |
+| `schemaSnapshot` | ✅ | N/A | N/A | ✅ PASS |
+| `constraintAnalysis`| ✅ | N/A | N/A | ✅ PASS |
+| `migrationRisks` | ✅ | N/A | ✅ | ✅ PASS |
 
-## Raw Failures Array
-```json
-[]
-```
+## Result Details
+All 6 introspection tools passed cleanly. 
+- Gracefully returned `{success: false, error: ...}` on domain errors (e.g., nonexistent schema, nonexistent table).
+- Gracefully handled Zod input validation via `{success: false, error: "Validation error: ..."}`.
+- Payload responses complied fully with expected schemas.
+- `tokenEstimate` for test payload was efficient and below threshold limits.
 
-## Summary
-- **Total Tools Tested:** 5
-- **Regressions Found:** None
-- **Token Efficiency:** Multi-step code mode used ~1.4s wall time and low token consumption for 12 distinct assertions.
-- **Status:** **100% Certified**
+## Changes
+- No remediation required; functionally stable as-is.
