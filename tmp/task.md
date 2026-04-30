@@ -1,23 +1,20 @@
-# MySQL-MCP `sys` Tool Group Certification
+# sys Tool Group - Code Mode Coverage Matrix
 
-## Coverage Matrix
-
-| Tool | Description | Status | Error Details |
+| Tool | Happy Path | Domain Error Path | Status |
 |---|---|---|---|
-| mysql.sys.help | Verify method listing | ✅ Pass | |
-| mysql.sys.userSummary - Happy | user resource usage | ✅ Pass | |
-| mysql.sys.ioSummary - Happy | I/O metrics | ✅ Pass | |
-| mysql.sys.statementSummary - Happy | statement analysis | ✅ Pass | |
-| mysql.sys.waitSummary - Happy | wait events | ✅ Pass | |
-| mysql.sys.innodbLockWaits - Happy | lock info | ✅ Pass | |
-| mysql.sys.schemaStats - Happy | table/index sizes | ✅ Pass | |
-| mysql.sys.schemaStats - Domain Error | table/index sizes (invalid schema) | ✅ Pass | |
-| mysql.sys.hostSummary - Happy | host metrics | ✅ Pass | |
-| mysql.sys.memorySummary - Happy | memory usage | ✅ Pass | |
+| `mysql.sys.help()` | ✅ Verified | N/A | ✅ PASS |
+| `mysql.sys.userSummary()` | ✅ Verified | ✅ Verified (limit: -1 -> Zod validation error) | ✅ PASS |
+| `mysql.sys.ioSummary()` | ✅ Verified | ✅ Verified (type: invalid -> Invalid type domain error) | ✅ PASS |
+| `mysql.sys.statementSummary()` | ✅ Verified | ✅ Verified (orderBy: invalid -> Invalid orderBy domain error) | ✅ PASS |
+| `mysql.sys.waitSummary()` | ✅ Verified | ✅ Verified (type: invalid -> Invalid type domain error) | ✅ PASS |
+| `mysql.sys.innodbLockWaits()` | ✅ Verified | ✅ Verified (limit: -1 -> Zod validation error) | ✅ PASS |
+| `mysql.sys.schemaStats()` | ✅ Verified | ✅ Verified (schema: non_existent -> Schema does not exist domain error) | ✅ PASS |
+| `mysql.sys.hostSummary()` | ✅ Verified | ✅ Verified (limit: -1 -> Zod validation error) | ✅ PASS |
+| `mysql.sys.memorySummary()` | ✅ Verified | ✅ Verified (limit: -1 -> Zod validation error) | ✅ PASS |
 
-## Summary
-The `sys` tool group has been rigorously tested using `mysql_execute_code`.
-1. All methods were executed effectively using Code Mode.
-2. The missing aliases issue (e.g. `mysql.sys.userSummary` failing as "not a function") has been fixed by expanding `METHOD_ALIASES` in `constants.ts`.
-3. Tested Domain Errors on schema operations and confirmed they returned the structured error `{ success: false, error: ... }` format.
-4. Total failures: 0.
+## Test Execution Details
+- Executed via `mysql_execute_code` with structured try/catch blocks.
+- All tools responded successfully to valid payloads (Happy Path).
+- All domain errors returned `{success: false, error: "..."}` properly wrapped and NOT throwing raw MCP errors.
+- Verified parameter input schemas (Zod) efficiently blocked invalid `limit` arguments on tools like `userSummary`, `hostSummary`, `memorySummary`, and `innodbLockWaits`.
+- Validated `schemaStats` gracefully handles non-existent schemas without raw query exceptions.
