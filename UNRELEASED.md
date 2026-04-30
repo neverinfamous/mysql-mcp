@@ -19,6 +19,8 @@
 
 ## Changed
 
+- **Admin**: Certified the Admin tool group using Code Mode, validating handler-level structured errors and payload footprint token limits.
+
 - **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
 - **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
