@@ -1,42 +1,41 @@
-# MySQL-MCP Advanced Text Tools Stress Tests
+# MySQL-MCP Advanced Stress Tests: [transactions]
 
-## Overview
+## 📝 Test Execution Summary
+- **Target**: `mysql-mcp` (transactions tool group)
+- **Method**: Code Mode (`mysql_execute_code`)
+- **Status**: ✅ Passed (with 1 alias parity issue)
 
-A rigorous 16-point stress test suite was executed against the `text` tool group in Code Mode (`mysql_execute_code`). The tests successfully validated string manipulation edge cases, regular expression boundaries, collation errors, and correct multi-byte string handling. 
+## 📊 Findings & Metrics
 
-All text manipulation methods demonstrated correct behavior with the project's structured error response format (`{ success: false, error: ... }`) instead of raw unhandled MCP errors.
+### Category 1: Rollback Recovery
+- **Test 1**: ✅ Rollback Recovery OK (Row does not exist after rollback)
+- **Test 2**: ✅ Savepoint Rollback OK (Preserves first row, drops second)
+- **Test 3**: ✅ Empty commit OK (No error on empty transaction commit)
 
-## Test Results
+### Category 2: Abandoned Transactions
+- **Test 4**: ✅ Second begin succeeded with new ID, previous transaction state isolated (returns structured error or successfully creates new transaction)
+- **Test 5**: ✅ Explicit isolation OK (via `isolationLevel: 'READ COMMITTED'`)
+  - ⚠️ **Issue**: Parameter alias `isolation_level` is ignored, silently falling back to default isolation level (REPEATABLE-READ) instead of applying the requested isolation.
 
-### Category 1: Regex Edge Cases
-- ✅ **1. Invalid regex pattern**: Correctly returned structured error (`Validation error...` or MySQL regex error).
-- ✅ **2. Empty regex pattern**: Correctly handled the empty pattern `""` by gracefully returning the structured database error: `Illegal argument to a regular expression.`
-- ✅ **3. MySQL specific metacharacters**: Successfully executed pattern `\\bworld\\b` handling MySQL-specific regex parsing constraints.
+### Category 3: Rapid State Transitions
+- **Test 6**: ✅ Rapid state transitions OK (5 sequential begin/commit cycles completed without connection pool exhaustion)
+- **Test 7**: ✅ Large transaction_execute OK (15 bulk statements executed and validated successfully)
 
-### Category 2: Unicode & Encoding
-- ✅ **4. Create stress_text_unicode table**: Created multi-byte string testing table with `utf8mb4` encoding.
-- ✅ **5. substring on multi-byte column**: Extracted sub-characters safely (e.g., extracted `日本` from `日本語` length 2), correctly preserving encoding and avoiding byte slicing artifacts.
-- ✅ **6. concat on multi-byte rows**: Concatenated multi-byte strings correctly across rows, maintaining encoding consistency.
-- ✅ **7. soundex on non-ASCII values**: Executed `soundex` against Japanese characters. Handled without raw exceptions (returns empty/matching behavior accordingly).
-
-### Category 3: Boundary Lengths
-- ✅ **8. substring with start: 0**: Processed boundaries appropriately, returning standard error or empty payload as defined by MySQL 1-indexing.
-- ✅ **9. substring with length: 0**: Executed `substring` with zero length gracefully.
-- ✅ **10. substring with length: 99999**: Prevented bounds exceptions; smoothly truncated to the column's string length without errors.
-- ✅ **11. concat with empty strings array**: Correctly caught via Zod validation logic (`Validation error`).
-- ✅ **12. concat with single column in array**: Handled the single-column target array without appending extraneous separator artifacts.
-
-### Category 4: Collation Stress
-- ✅ **13. collationConvert with invalid collation**: Caught the invalid collation mapping cleanly, returning a structured error instead of failing the protocol.
-- ✅ **14. likeSearch with % only pattern**: Executed wildcard query and returned the full result set safely.
-- ✅ **15. likeSearch with _ pattern**: Executed single-character wildcard constraints and executed standard matching logic securely.
+### Category 4: Mixed Statement Failures
+- **Test 8**: ✅ Mixed validity rollback OK (Rolls back valid statements on batch failure, returns structured error)
+- **Test 9**: ✅ Empty statements error OK (Returns structured error on empty `statements: []` input)
+- **Test 10**: ✅ PK violation rollback OK (Auto-rollback and structured error on duplicate insert)
 
 ### Cleanup
-- ✅ **16. Cleanup**: Dropped all `stress_*` test tables completely.
+- **Test 11**: ✅ Cleanup OK (No lingering `stress_tx` tables or dangling connections)
 
-## Summary
+## ❌ Failures
+- `[]` (None)
 
-- **Total Tests Run**: 16
-- **Failures**: 0
-- **Test Payload Integrity**: 📦 Maintained within limits; the largest query matrix token payload safely consumed ~350 tokens per batch sequence.
-- **Verdict**: The `text` tool group successfully adheres to the Structured Error Response pattern and demonstrates perfect stability for Code Mode interactions. It handles boundary lengths and complex multi-byte/encoding cases safely.
+## 📦 Payload Metrics
+- **Token Estimate**: ~226 tokens per full verification pass
+- **Execution Time**: ~3045ms (11 combined transactional steps)
+- **Memory Used**: ~0MB overhead reported
+
+## 🛠 Required Actions
+- Add schema/parameter alias parity for `isolation_level` -> `isolationLevel` in the `transactions.begin` tool.

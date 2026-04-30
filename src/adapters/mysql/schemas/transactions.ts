@@ -1,9 +1,9 @@
 import { z } from "zod";
 import {
-  defaultToEmpty,
   preprocessTransactionIdParams,
   preprocessSavepointParams,
   preprocessTransactionExecuteParams,
+  preprocessTransactionBeginParams,
 } from "./preprocess-utils.js";
 
 // =============================================================================
@@ -15,11 +15,12 @@ import {
 // Base schema for MCP visibility
 export const TransactionBeginSchemaBase = z.object({
   isolationLevel: z.string().optional().describe("Transaction isolation level"),
+  isolation_level: z.string().optional().describe("Alias for isolationLevel"),
 });
 
 // Transformed schema for handler parsing
 export const TransactionBeginSchema = z.preprocess(
-  defaultToEmpty,
+  preprocessTransactionBeginParams,
   z.object({
     isolationLevel: z
       .enum([
@@ -89,6 +90,7 @@ export const TransactionExecuteSchemaBase = z.object({
     .describe("SQL statements to execute atomically"),
   queries: z.array(z.string()).optional().describe("Alias for statements"),
   isolationLevel: z.string().optional().describe("Transaction isolation level"),
+  isolation_level: z.string().optional().describe("Alias for isolationLevel"),
 });
 
 export const TransactionExecuteSchema = z
