@@ -11,7 +11,7 @@
 
 ## Reporting Format
 
-> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
+> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly unless there is an error in it.
 
 - ❌ Fail: Tool errors or produces incorrect results (include error message)
 - ⚠️ Issue: Unexpected behavior or improvement opportunity

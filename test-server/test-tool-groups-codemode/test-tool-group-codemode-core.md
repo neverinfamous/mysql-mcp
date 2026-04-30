@@ -10,7 +10,8 @@
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
-> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
+
+> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly unless there is an error in it.
 
 - ❌ Fail: Tool errors or produces incorrect results (include error message)
 - ⚠️ Issue: Unexpected behavior or improvement opportunity
@@ -20,18 +21,18 @@
 
 ## Test Database Schema
 
-| Table | Rows | Key Columns | JSON Columns |
-|-------|------|-------------|--------------|
-| `test_products` | 16 | id, name, price, category | metadata |
-| `test_orders` | 20 | id, product_id (FK), customer_name, status (ENUM) | notes |
-| `test_json_docs` | 8 | id, doc, metadata, tags | doc, metadata, tags |
-| `test_articles` | 10 | id, title, body, author (FULLTEXT) | — |
-| `test_users` | 10 | id, username, email, phone, bio, role | — |
-| `test_measurements` | 200 | id, sensor_id (INT 1-5), temperature, humidity | — |
-| `test_locations` | 15 | id, name, city, latitude, longitude, geom (POINT) | — |
-| `test_events` | 100 | id, event_type (ENUM), user_id (1-8), event_date | payload |
-| `test_documents` | 10 | id, collection_name, doc, \_id (UUID) | doc |
-| `test_partitioned` | 26 | id, region, created_at | data |
+| Table               | Rows | Key Columns                                       | JSON Columns        |
+| ------------------- | ---- | ------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                         | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                            | data                |
 
 ## Testing Requirements
 
@@ -39,8 +40,8 @@
 2. Create temporary tables with `temp_*` prefix for write operations
 3. Clean up any `temp_*` tables after testing
 4. Report all failures, unexpected behaviors, or unnecessarily large payloads
-6. **Scripting Efficiency**: Bundle multiple tool checks into a single `mysql_execute_code` call. Use conditional checks to aggregate errors and return a `failures` array.
-7. **Pacing**: Test up to an entire tool group in a single script if feasible, but limit scripts to ~10-15 steps to remain manageable.
+5. **Scripting Efficiency**: Bundle multiple tool checks into a single `mysql_execute_code` call. Use conditional checks to aggregate errors and return a `failures` array.
+6. **Pacing**: Test up to an entire tool group in a single script if feasible, but limit scripts to ~10-15 steps to remain manageable.
 
 ## Structured Error Response Pattern
 
@@ -52,10 +53,10 @@ All tools must return errors as structured objects:
 
 ### Handler Error vs MCP Error
 
-| Type | What you see | Verdict |
-|------|-------------|---------|
-| **Handler error** ✅ | Parseable JSON with `success` and `error` fields | Correct |
-| **MCP error** ❌ | Raw error string, no `success` field | Bug — report as ❌ |
+| Type                 | What you see                                     | Verdict            |
+| -------------------- | ------------------------------------------------ | ------------------ |
+| **Handler error** ✅ | Parseable JSON with `success` and `error` fields | Correct            |
+| **MCP error** ❌     | Raw error string, no `success` field             | Bug — report as ❌ |
 
 During error path testing, if an invalid Code Mode call returns a raw error string instead of a JSON object with `success` and `error` fields, report it as ❌.
 

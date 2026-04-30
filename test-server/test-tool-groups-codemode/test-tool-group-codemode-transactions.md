@@ -10,7 +10,8 @@
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
-> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
+
+> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly unless there is an error in it.
 
 - ❌ Fail: Tool errors or produces incorrect results (include error message)
 - ⚠️ Issue: Unexpected behavior or improvement opportunity
@@ -20,24 +21,24 @@
 
 ## Test Database Schema
 
-| Table | Rows | Key Columns |
-|-------|------|-------------|
-| `test_products` | 16 | id, name, price, category |
-| `test_orders` | 20 | id, product_id (FK), customer_name, status (ENUM) |
+| Table           | Rows | Key Columns                                       |
+| --------------- | ---- | ------------------------------------------------- |
+| `test_products` | 16   | id, name, price, category                         |
+| `test_orders`   | 20   | id, product_id (FK), customer_name, status (ENUM) |
 
 ## Testing Requirements
 
 1. Use existing `test_*` tables for read operations
 2. Create temporary tables with `temp_*` prefix for write operations; clean up after
-4. **Scripting Efficiency**: Bundle checks into a single `mysql_execute_code` call with `failures` array.
-5. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
+3. **Scripting Efficiency**: Bundle checks into a single `mysql_execute_code` call with `failures` array.
+4. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
 
 ## Structured Error Response Pattern
 
-| Type | What you see | Verdict |
-|------|-------------|---------|
+| Type                 | What you see                                     | Verdict |
+| -------------------- | ------------------------------------------------ | ------- |
 | **Handler error** ✅ | Parseable JSON with `success` and `error` fields | Correct |
-| **MCP error** ❌ | Raw error string, no `success` field | Bug |
+| **MCP error** ❌     | Raw error string, no `success` field             | Bug     |
 
 ## Post-Test: Fix findings, read `../code-map.md`, update changelog, commit without pushing.
 

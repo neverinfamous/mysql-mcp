@@ -8,16 +8,17 @@
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
-> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
+
+> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly unless there is an error in it.
 
 - ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
 
 ## Test Database Schema
 
-| Table | Rows | Key Columns |
-|-------|------|-------------|
-| `test_products` | 16 | id, name, price, category |
-| `test_orders` | 20 | id, product_id (FK), customer_name, status |
+| Table           | Rows | Key Columns                                |
+| --------------- | ---- | ------------------------------------------ |
+| `test_products` | 16   | id, name, price, category                  |
+| `test_orders`   | 20   | id, product_id (FK), customer_name, status |
 
 ## Testing Requirements
 
@@ -34,8 +35,8 @@
 schema Tool Group (10 tools +1 code mode):
 
 1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema` 4. `mysql_list_views`
-5. `mysql_create_view` 6. `mysql_list_stored_procedures` 7. `mysql_list_functions`
-8. `mysql_list_triggers` 9. `mysql_list_constraints` 10. `mysql_list_events`
+2. `mysql_create_view` 6. `mysql_list_stored_procedures` 7. `mysql_list_functions`
+3. `mysql_list_triggers` 9. `mysql_list_constraints` 10. `mysql_list_events`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
