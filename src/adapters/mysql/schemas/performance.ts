@@ -76,6 +76,8 @@ export const SlowQuerySchemaBase = z.object({
 export const SlowQuerySchema = z.object({
   limit: z
     .number()
+    .int()
+    .positive()
     .optional()
     .default(5)
     .describe("Number of slow queries to return"),
@@ -96,6 +98,8 @@ export const QueryStatsSchema = z.object({
     .describe("Order results by metric"),
   limit: z
     .number()
+    .int()
+    .positive()
     .optional()
     .default(5)
     .describe("Maximum number of queries to return"),
