@@ -41,7 +41,6 @@ The original monolithic advanced stress testing suite was split into 27 granular
 | `test-tools-advanced-replication.md`    | Replication         | Single-server resilience, binlog boundary values, happy-path, payload monitoring                     |
 | `test-tools-advanced-admin.md`          | Admin/Error Quality | Cross-group error message quality, type mismatches, invalid parameter values, payload sizes           |
 | `test-tools-advanced-performance.md`    | Performance/Payload | Truncation indicators, summary mode, anomaly detection bounds                                        |
-| `test-tools-advanced-cross-group.md`    | Cross-Group         | Code Mode parity, discovery methods, multi-group integration workflows                               |
 
 ## Agent Execution Protocol
 

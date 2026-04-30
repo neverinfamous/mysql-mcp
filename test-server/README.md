@@ -8,9 +8,9 @@
 |------------------|---------|--------------|
 | `test-tools.md` | **Entry-point protocol** — connection details, testing rules, structured error patterns, Zod/P154/Split Schema verification, reporting format | Always read first |
 | `test-preflight.md` | **Pre-flight check** — validates slim instructions, help resources, data resources, and tool-filter alignment in 5 steps | Before any test pass |
-| `test-tool-groups/` | **Standard tests** — 25 self-contained per-group prompts for direct MCP tool call validation | When testing individual tool groups |
-| `test-tool-groups-codemode/` | **Code Mode tests** — 26 per-group prompts for `mysql_execute_code` validation (including cross-group) | When testing Code Mode parity |
-| `test-advanced/` | **Advanced stress tests** — 9 files for boundary values, state pollution, payload monitoring, cross-group integration (Code Mode only) | After group checklists pass |
+| `test-tool-groups/` | **Standard tests** — 26 self-contained per-group prompts for direct MCP tool call validation | When testing individual tool groups |
+| `test-tool-groups-codemode/` | **Code Mode tests** — 26 per-group prompts for `mysql_execute_code` validation | When testing Code Mode parity |
+| `test-advanced/` | **Advanced stress tests** — 26 files for boundary values, state pollution, and payload monitoring (Code Mode only) | After group checklists pass |
 | `Tool-Reference.md` | Complete 192-tool reference mapped to 25 groups | Reference |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns | When debugging source code or making changes |
 | `test-resources.md` | Resource testing plan (18 `mysql://` resources) | When testing resources |

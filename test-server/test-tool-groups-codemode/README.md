@@ -58,7 +58,6 @@ Never proceed to the final step until every tool in a given group has both colum
 24. `sys` (8 tools)
 25. `text` (6 tools)
 26. `transactions` (7 tools)
-27. `cross-group` (multi-group integration)
 
 Execute these sequentially, updating the Changelog and resolving bugs systematically before moving to the next.
 
