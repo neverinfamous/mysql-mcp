@@ -268,7 +268,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Database name"),
-    tables: z.array(z.string()).optional().describe("Specific tables to dump"),
+    tables: z.array(z.string()).min(1, "Tables array cannot be empty if provided").optional().describe("Specific tables to dump"),
     noData: z
       .boolean()
       .optional()
