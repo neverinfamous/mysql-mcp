@@ -20,16 +20,16 @@
 
 ## Category 1: Complex Query Rewrites
 
-21. ✅ Pass: `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions
-22. ✅ Pass: `mysql_query_rewrite` with a multi-table JOIN: `"SELECT p.name, o.status FROM test_products p JOIN test_orders o ON p.id = o.product_id WHERE o.status = 'completed'"` → verify hints
-23. ✅ Pass: `mysql_query_rewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
+1. ✅ Pass: `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions
+2. ✅ Pass: `mysql_query_rewrite` with a multi-table JOIN: `"SELECT p.name, o.status FROM test_products p JOIN test_orders o ON p.id = o.product_id WHERE o.status = 'completed'"` → verify hints
+3. ✅ Pass: `mysql_query_rewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
 
 ## Category 2: Optimizer Trace Payload
 
-4. ✅ Pass: `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (full) (approx 669 tokens)
-5. ✅ Pass: `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → log token estimate (summary) (approx 20 tokens)
+4. ✅ Pass: `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (full)
+5. ✅ Pass: `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → log token estimate (summary)
 6. ✅ Pass: Verify summary token estimate is ≥ 30% smaller than full trace
-7. ✅ Pass: `mysql_optimizer_trace` with complex JOIN query → log token estimate, flag > 500 tokens as 📦 (approx 132 tokens)
+7. ✅ Pass: `mysql_optimizer_trace` with complex JOIN query → log token estimate, flag > 500 tokens as 📦
 
 ## Category 3: Force Index Edge Cases
 
