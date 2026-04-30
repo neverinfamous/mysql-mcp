@@ -19,10 +19,10 @@
 
 ## Changed
 
+- **Fulltext**: Certified tool group for Code Mode reliability, achieving 100% test coverage with zero regressions.
 - **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
 - **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
-- **Events**: Certified 100% Code Mode test coverage and verified strict structured error enforcement.
 - **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
 - **Dependencies**: Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`, `jose`, `zod`, `typescript-eslint`, and `minimatch` in Dockerfile).
 - **Token Optimization**:
