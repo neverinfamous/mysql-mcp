@@ -2,21 +2,26 @@
 
 **ESSENTIAL INSTRUCTIONS**
 
-- Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
-- Do not modify or skip tests. Return an aggregated `failures` array.
+- Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
+- Do not use scripts or terminal to replace planned tests.
+- Do not modify or skip tests.
+- Ensure your validation script returns an aggregated array of failures if any exist.
+- Group multiple tests into a single script to save context window tokens.
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
-## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+## Reporting Format
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
+
+- ❌ Fail: Tool errors or produces incorrect results (include error message)
+- ⚠️ Issue: Unexpected behavior or improvement opportunity
+- 📦 Payload: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. **You MUST monitor `metrics.tokenEstimate` for every operation**.
+
+> **Token estimates**: Code Mode responses include `metrics.tokenEstimate`. Report as ⚠️ if absent.
 
 ## Infrastructure Prerequisite
 
 > **Note:** Requires MySQL Shell 8.0+ installed. Configure `mysql-ecosystem` MCP server.
-
-## Requirements
-
-1. 
-2. 
 
 ---
 
@@ -25,9 +30,9 @@
 shell Tool Group (10 tools +1 code mode):
 
 1. `mysqlsh_version` 2. `mysqlsh_check_upgrade` 3. `mysqlsh_export_table`
-4. `mysqlsh_import_table` 5. `mysqlsh_import_json` 6. `mysqlsh_dump_instance`
-7. `mysqlsh_dump_schemas` 8. `mysqlsh_dump_tables` 9. `mysqlsh_load_dump`
-10. `mysqlsh_run_script`
+2. `mysqlsh_import_table` 5. `mysqlsh_import_json` 6. `mysqlsh_dump_instance`
+3. `mysqlsh_dump_schemas` 8. `mysqlsh_dump_tables` 9. `mysqlsh_load_dump`
+4. `mysqlsh_run_script`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

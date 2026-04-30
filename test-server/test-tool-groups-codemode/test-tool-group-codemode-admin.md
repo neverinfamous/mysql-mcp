@@ -2,17 +2,22 @@
 
 **ESSENTIAL INSTRUCTIONS**
 
-- Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
-- Do not modify or skip tests. Return an aggregated `failures` array.
+- Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
+- Do not use scripts or terminal to replace planned tests.
+- Do not modify or skip tests.
+- Ensure your validation script returns an aggregated array of failures if any exist.
+- Group multiple tests into a single script to save context window tokens.
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
-## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+## Reporting Format
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
 
-## Requirements
+- ❌ Fail: Tool errors or produces incorrect results (include error message)
+- ⚠️ Issue: Unexpected behavior or improvement opportunity
+- 📦 Payload: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. **You MUST monitor `metrics.tokenEstimate` for every operation**.
 
-1. 
-2. 
+> **Token estimates**: Code Mode responses include `metrics.tokenEstimate`. Report as ⚠️ if absent.
 
 ---
 
@@ -21,7 +26,7 @@
 admin Tool Group (6 tools +1 code mode):
 
 1. `mysql_optimize_table` 2. `mysql_analyze_table` 3. `mysql_check_table`
-4. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`
+2. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

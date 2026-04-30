@@ -2,20 +2,22 @@
 
 **ESSENTIAL INSTRUCTIONS**
 
-- Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
-- Do not modify or skip tests. Return an aggregated `failures` array.
+- Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
+- Do not use scripts or terminal to replace planned tests.
+- Do not modify or skip tests.
+- Ensure your validation script returns an aggregated array of failures if any exist.
 - Group multiple tests into a single script to save context window tokens.
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
-## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+## Reporting Format
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
 
-## Test Data: `test_json_docs` (8 rows, columns: doc, metadata, tags)
+- ❌ Fail: Tool errors or produces incorrect results (include error message)
+- ⚠️ Issue: Unexpected behavior or improvement opportunity
+- 📦 Payload: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. **You MUST monitor `metrics.tokenEstimate` for every operation**.
 
-## Requirements
-
-1. 
-2. 
+> **Token estimates**: Code Mode responses include `metrics.tokenEstimate`. Report as ⚠️ if absent.
 
 ---
 
@@ -24,10 +26,10 @@
 json Tool Group (17 tools +1 code mode):
 
 1. `mysql_json_extract` 2. `mysql_json_set` 3. `mysql_json_insert` 4. `mysql_json_replace`
-5. `mysql_json_remove` 6. `mysql_json_contains` 7. `mysql_json_keys` 8. `mysql_json_array_append`
-9. `mysql_json_get` 10. `mysql_json_update` 11. `mysql_json_search` 12. `mysql_json_validate`
-13. `mysql_json_merge` 14. `mysql_json_diff` 15. `mysql_json_normalize` 16. `mysql_json_stats`
-17. `mysql_json_index_suggest`
+2. `mysql_json_remove` 6. `mysql_json_contains` 7. `mysql_json_keys` 8. `mysql_json_array_append`
+3. `mysql_json_get` 10. `mysql_json_update` 11. `mysql_json_search` 12. `mysql_json_validate`
+4. `mysql_json_merge` 14. `mysql_json_diff` 15. `mysql_json_normalize` 16. `mysql_json_stats`
+5. `mysql_json_index_suggest`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

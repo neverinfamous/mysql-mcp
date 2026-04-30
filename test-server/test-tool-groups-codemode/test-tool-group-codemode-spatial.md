@@ -2,19 +2,24 @@
 
 **ESSENTIAL INSTRUCTIONS**
 
-- Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
-- Do not modify or skip tests. Return an aggregated `failures` array.
+- Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
+- Do not use scripts or terminal to replace planned tests.
+- Do not modify or skip tests.
+- Ensure your validation script returns an aggregated array of failures if any exist.
+- Group multiple tests into a single script to save context window tokens.
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
-## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+## Reporting Format
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
 
+- ❌ Fail: Tool errors or produces incorrect results (include error message)
+- ⚠️ Issue: Unexpected behavior or improvement opportunity
+- 📦 Payload: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. **You MUST monitor `metrics.tokenEstimate` for every operation**.
+
+> **Token estimates**: Code Mode responses include `metrics.tokenEstimate`. Report as ⚠️ if absent.
+
 ## Test Data: `test_locations` (15 rows, geom POINT SRID 4326)
-
-## Requirements
-
-1. 
-2. 
 
 ---
 
@@ -23,9 +28,9 @@
 spatial Tool Group (12 tools +1 code mode):
 
 1. `mysql_spatial_create_column` 2. `mysql_spatial_create_index` 3. `mysql_spatial_point`
-4. `mysql_spatial_polygon` 5. `mysql_spatial_distance` 6. `mysql_spatial_distance_sphere`
-7. `mysql_spatial_contains` 8. `mysql_spatial_within` 9. `mysql_spatial_intersection`
-10. `mysql_spatial_buffer` 11. `mysql_spatial_transform` 12. `mysql_spatial_geojson`
+2. `mysql_spatial_polygon` 5. `mysql_spatial_distance` 6. `mysql_spatial_distance_sphere`
+3. `mysql_spatial_contains` 8. `mysql_spatial_within` 9. `mysql_spatial_intersection`
+4. `mysql_spatial_buffer` 11. `mysql_spatial_transform` 12. `mysql_spatial_geojson`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

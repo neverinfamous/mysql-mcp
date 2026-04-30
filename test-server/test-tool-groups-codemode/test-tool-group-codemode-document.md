@@ -2,20 +2,22 @@
 
 **ESSENTIAL INSTRUCTIONS**
 
-- Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
-- Do not modify or skip tests. Return an aggregated `failures` array.
+- Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
+- Do not use scripts or terminal to replace planned tests.
+- Do not modify or skip tests.
+- Ensure your validation script returns an aggregated array of failures if any exist.
 - Group multiple tests into a single script to save context window tokens.
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
-## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+## Reporting Format
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
 
-## Test Data: `test_documents` (10 rows, collection_name, doc JSON, _id UUID)
+- ❌ Fail: Tool errors or produces incorrect results (include error message)
+- ⚠️ Issue: Unexpected behavior or improvement opportunity
+- 📦 Payload: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. **You MUST monitor `metrics.tokenEstimate` for every operation**.
 
-## Requirements
-
-1. 
-2. 
+> **Token estimates**: Code Mode responses include `metrics.tokenEstimate`. Report as ⚠️ if absent.
 
 ---
 
@@ -24,8 +26,8 @@
 document Tool Group (9 tools +1 code mode):
 
 1. `mysql_doc_list_collections` 2. `mysql_doc_create_collection` 3. `mysql_doc_drop_collection`
-4. `mysql_doc_find` 5. `mysql_doc_add` 6. `mysql_doc_modify`
-7. `mysql_doc_remove` 8. `mysql_doc_create_index` 9. `mysql_doc_collection_info`
+2. `mysql_doc_find` 5. `mysql_doc_add` 6. `mysql_doc_modify`
+3. `mysql_doc_remove` 8. `mysql_doc_create_index` 9. `mysql_doc_collection_info`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
