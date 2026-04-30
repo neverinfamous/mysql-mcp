@@ -40,7 +40,7 @@
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
-- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
+- **Docstore**: Certified tool group via advanced code-mode stress tests. Migrated `doc_find` to use `parseDocFilter` for query parity.
 - **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations.
 - **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`. Fixed Zod schema validation regression for `limit` preprocessing in schema snapshots and dependency graphs. Restored missing stats tools from previous test sessions.
 - **JSON**: Fixed parameter visibility in `json_validate` and handled malformed JSON/empty strings gracefully. Added `path` alias for `paths` in `json_remove`. Implemented missing `where` and `limit` clauses for `json_contains` and `json_keys`.
@@ -56,7 +56,7 @@
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
 - **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
-- **Tests**: Certified the Core tools group with an exhaustive 16-point stress test suite via Code Mode covering boundary values, state pollution, idempotency, and alias combinations. Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
 
 ## Security
 
