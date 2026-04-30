@@ -7,6 +7,7 @@
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
+> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
 
 ## Test Data: `test_locations` (15 rows, geom POINT SRID 4326)
 

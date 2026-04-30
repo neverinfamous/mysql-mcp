@@ -8,6 +8,7 @@
 - All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
+> **Important**: ALWAYS use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify this testing prompt file directly.
 
 - ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
 
