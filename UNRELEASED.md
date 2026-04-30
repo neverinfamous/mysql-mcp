@@ -2,7 +2,6 @@
 
 ## Added
 
-- **Monitoring**: Certified tool group using advanced Code Mode stress tests.
 - **Introspection**: Tools for dependency mapping, topological sort, schema snapshots, and risk assessment.
 - **Migration**: Tools for tracking, applying, and rolling back schema versions.
 - **Insights Subsystem**: `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
@@ -13,6 +12,7 @@
   - Wired `AuditInterceptor` through sandbox operations to close audit blindspots.
   - Ported 51-test audit unit test suite.
 - **Benchmarks**: Code Mode performance and throughput benchmark suite.
+- **Certification**: Certified `optimization` tool group via advanced code-mode stress tests.
 - **Help Architecture**: Dynamically registered group-specific help resources (`mysql://help/{group}`).
 - **Error Mapping**: `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
 - **Connection Pool**: `initializationSql` config to execute setup queries once per checkout.
