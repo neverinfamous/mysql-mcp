@@ -32,7 +32,7 @@
 
 - All tools accepting table names must return structured errors for nonexistent tables.
 - Prefix temp tables with `temp_*`, drop after testing.
-- After testing: fix findings, read `code-map.md` before changes, update changelog, commit without pushing.
+- After testing: fix findings, read `../code-map.md` before changes, update changelog, commit without pushing.
 
 ---
 

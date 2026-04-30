@@ -5,7 +5,7 @@
 - Execute ALL tests below using ONLY code mode (`mysql_execute_code`).
 - These are second-pass stress tests — basic checklists must pass first.
 - Do not skip tests. Return an aggregated `failures` array.
-- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
 

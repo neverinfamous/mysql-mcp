@@ -38,7 +38,7 @@
 ## P154 / Cleanup / Post-Test
 
 - All tools accepting table names must return structured errors for nonexistent tables.
-- After testing: fix findings, read `code-map.md` before changes, update changelog, commit without pushing.
+- After testing: fix findings, read `../code-map.md` before changes, update changelog, commit without pushing.
 
 ---
 

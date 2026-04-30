@@ -65,7 +65,7 @@ For tools with optional numeric parameters, call with `param: "abc"`. Must NOT r
 
 - All tools accepting table names must return structured errors for nonexistent tables.
 - Prefix temp tables with `temp_*`, views with `test_view_*`, drop after testing.
-- After testing: fix findings, read `code-map.md` before changes, update changelog, commit without pushing.
+- After testing: fix findings, read `../code-map.md` before changes, update changelog, commit without pushing.
 - Include total token usage in final summary.
 
 ---

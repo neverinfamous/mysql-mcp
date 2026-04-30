@@ -28,7 +28,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 - Direct write tests should operate on temporary tables or objects prefixed with `temp_`.
 - When completed, explicitly drop all `temp_` artifacts.
-- Update `code-map.md`, handlers, and instructions if bugs are uncovered, then update the Changelog with fixes before summarizing your work.
+- Update `../code-map.md`, handlers, and instructions if bugs are uncovered, then update the Changelog with fixes before summarizing your work.
 
 ## Tool Groups Available
 

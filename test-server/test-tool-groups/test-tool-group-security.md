@@ -30,7 +30,7 @@
 
 ## P154 / Cleanup / Post-Test
 
-- After testing: fix findings, read `code-map.md` before changes, update changelog, commit without pushing.
+- After testing: fix findings, read `../code-map.md` before changes, update changelog, commit without pushing.
 
 ---
 

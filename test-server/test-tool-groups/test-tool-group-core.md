@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS temp_my_test_table;
 1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
 2. **Cleanup**: Confirm all `temp_*` tables and temporary testing data are removed.
 3. **Fix EVERY finding** — not just ❌ Fails, but also ⚠️ Issues and 📦 Payload problems.
-4. **Read `code-map.md` before making changes and make all changes consistent with other tools.**
+4. **Read `../code-map.md` before making changes and make all changes consistent with other tools.**
 5. **Scope of fixes** includes corrections to any of:
    - Handler code
    - `ServerInstructions.ts`

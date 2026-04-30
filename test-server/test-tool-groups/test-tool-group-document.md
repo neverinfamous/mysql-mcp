@@ -50,7 +50,7 @@
 
 - All tools accepting table/collection names must return structured errors for nonexistent objects.
 - Prefix temp collections with `temp_*`, drop after testing.
-- After testing: fix findings, read `code-map.md` before changes, update changelog, commit without pushing.
+- After testing: fix findings, read `../code-map.md` before changes, update changelog, commit without pushing.
 
 ---
 
