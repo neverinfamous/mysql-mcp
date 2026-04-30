@@ -33,6 +33,7 @@
 | `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
 | `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
 | `test_partitioned`  | 26   | id, region, created_at                            | data                |
+| `test_categories`   | 17   | id, name, parent_id (FK self-ref)                 | —                   |
 
 ## Testing Requirements
 
