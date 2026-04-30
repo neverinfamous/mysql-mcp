@@ -15,7 +15,7 @@ export const ExplainSchemaBase = z.object({
   format: z
     .enum(["TRADITIONAL", "JSON", "TREE"])
     .optional()
-    .default("JSON")
+    .default("TREE")
     .describe("Output format"),
 });
 
@@ -28,7 +28,7 @@ export const ExplainSchema = z
       format: z
         .enum(["TRADITIONAL", "JSON", "TREE"])
         .optional()
-        .default("JSON"),
+        .default("TREE"),
     }),
   )
   .transform((data) => ({
@@ -79,7 +79,7 @@ export const SlowQuerySchema = z.object({
     .int()
     .positive()
     .optional()
-    .default(5)
+    .default(3)
     .describe("Number of slow queries to return"),
   minTime: z.number().optional().describe("Minimum query time in seconds"),
 });
@@ -101,7 +101,7 @@ export const QueryStatsSchema = z.object({
     .int()
     .positive()
     .optional()
-    .default(5)
+    .default(3)
     .describe("Maximum number of queries to return"),
 });
 
@@ -126,7 +126,7 @@ export const IndexUsageSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      limit: z.number().int().positive().optional().default(5),
+      limit: z.number().int().positive().optional().default(3),
     }),
   )
   .transform((data) => ({

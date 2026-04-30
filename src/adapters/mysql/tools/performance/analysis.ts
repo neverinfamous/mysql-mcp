@@ -171,7 +171,9 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE AVG_TIMER_WAIT > ${minTime * 1000000000000}`;
         }
 
-        sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${limit}`;
+        const actualLimit = Math.min(limit, 100);
+
+        sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${actualLimit}`;
 
         const result = await adapter.executeReadQuery(sql);
         return {
@@ -224,7 +226,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.events_statements_summary_by_digest
                 WHERE DIGEST_TEXT IS NOT NULL
                 ORDER BY ${orderColumn} DESC
-                LIMIT ${limit}
+                LIMIT ${Math.min(limit, 100)}
             `;
 
         const result = await adapter.executeReadQuery(sql);
@@ -292,7 +294,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND object_name = ?`;
         }
 
-        sql += ` ORDER BY count_read + count_write DESC LIMIT ${limit}`;
+        sql += ` ORDER BY count_read + count_write DESC LIMIT ${Math.min(limit, 100)}`;
 
         const result = await adapter.executeReadQuery(
           sql,

@@ -34,6 +34,8 @@ export const DetectConnectionSpikeSchema = z.object({
     .describe("Percentage threshold for flagging concentration (default: 70)"),
   windowMinutes: z
     .number()
+    .int()
+    .min(1)
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
   thresholdPercent: z.number().optional().describe("Alias for warningPercent"),

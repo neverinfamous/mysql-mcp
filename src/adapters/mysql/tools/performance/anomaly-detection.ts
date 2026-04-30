@@ -59,9 +59,11 @@ export const DetectQueryAnomaliesSchema = z.object({
   stdDevThreshold: z.number().optional().describe("Alias for threshold"),
   minCalls: z
     .number()
+    .int()
+    .min(1)
     .optional()
     .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.number().optional().describe("Alias for minCalls"),
+  minExecutions: z.number().int().min(1).optional().describe("Alias for minCalls"),
 });
 
 export const DetectBloatRiskSchemaBase = z.object({
