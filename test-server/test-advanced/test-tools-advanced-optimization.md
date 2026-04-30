@@ -20,30 +20,30 @@
 
 ## Category 1: Complex Query Rewrites
 
-1. `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions
-2. `mysql_query_rewrite` with a multi-table JOIN: `"SELECT p.name, o.status FROM test_products p JOIN test_orders o ON p.id = o.product_id WHERE o.status = 'completed'"` → verify hints
-3. `mysql_query_rewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
+21. ✅ Pass: `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions
+22. ✅ Pass: `mysql_query_rewrite` with a multi-table JOIN: `"SELECT p.name, o.status FROM test_products p JOIN test_orders o ON p.id = o.product_id WHERE o.status = 'completed'"` → verify hints
+23. ✅ Pass: `mysql_query_rewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
 
 ## Category 2: Optimizer Trace Payload
 
-4. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (full)
-5. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → log token estimate (summary)
-6. Verify summary token estimate is ≥ 30% smaller than full trace
-7. `mysql_optimizer_trace` with complex JOIN query → log token estimate, flag > 500 tokens as 📦
+4. ✅ Pass: `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (full) (approx 669 tokens)
+5. ✅ Pass: `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → log token estimate (summary) (approx 20 tokens)
+6. ✅ Pass: Verify summary token estimate is ≥ 30% smaller than full trace
+7. ✅ Pass: `mysql_optimizer_trace` with complex JOIN query → log token estimate, flag > 500 tokens as 📦 (approx 132 tokens)
 
 ## Category 3: Force Index Edge Cases
 
-8. `mysql_force_index({table: "test_orders", index: "nonexistent_idx_xyz", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
-9. `mysql_force_index({table: "nonexistent_xyz", index: "idx_orders_status", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
-10. `mysql_force_index` with valid table/index but query referencing a different table → verify behavior
+8. ✅ Pass: `mysql_force_index({table: "test_orders", index: "nonexistent_idx_xyz", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
+9. ✅ Pass: `mysql_force_index({table: "nonexistent_xyz", index: "idx_orders_status", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
+10. ✅ Pass: `mysql_force_index` with valid table/index but query referencing a different table → verify behavior
 
 ## Category 4: Index Recommendation Comparison
 
-11. `mysql_index_recommendation({table: "test_orders"})` → log recommendations (table has indexes)
-12. Create `stress_no_idx` table with columns but no indexes, insert 10 rows
-13. `mysql_index_recommendation({table: "stress_no_idx"})` → verify recommendations differ from indexed table
-14. Verify recommendations include actionable column suggestions
+11. ✅ Pass: `mysql_index_recommendation({table: "test_orders"})` → log recommendations (table has indexes)
+12. ✅ Pass: Create `stress_no_idx` table with columns but no indexes, insert 10 rows
+13. ✅ Pass: `mysql_index_recommendation({table: "stress_no_idx"})` → verify recommendations differ from indexed table
+14. ✅ Pass: Verify recommendations include actionable column suggestions
 
 ## Cleanup
 
-15. Drop all `stress_*` tables
+15. ✅ Pass: Drop all `stress_*` tables
