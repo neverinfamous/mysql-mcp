@@ -40,7 +40,7 @@
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
-- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
+- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity. Certified 100% Code Mode compatibility for all 9 document management tools. Verified exact parity for Zod validation limits, domain errors, JSON path filter structure parsing, and uniform response payload attributes (e.g. `inserted`/`modified`/`removed` instead of raw `affectedRows`).
 - **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations.
 - **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`.
 - **JSON**: Fixed parameter visibility in `json_validate` and handled malformed JSON/empty strings gracefully. Added `path` alias for `paths` in `json_remove`. Implemented missing `where` and `limit` clauses for `json_contains` and `json_keys`.
@@ -55,7 +55,7 @@
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls.
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
-- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, gracefully skipped E2E write tests in read-only mode, and certified `backup` tool group via exhaustive code-mode stress testing.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
 
 ## Security
 
