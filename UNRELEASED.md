@@ -52,11 +52,11 @@
 - **Security**: Enforced `.min(1)` constraint on `password` parameter in `password_validate` to reject empty strings.
 - **Spatial**: Fixed `spatial_create_index` emitting table not found errors on missing columns. Fixed WKT round-tripping for SRID 4326. Optimized `mysql_spatial_buffer` payload by removing massive GeoJSON generation.
 - **Stats**: Enforced numeric type checking, minimum/maximum bucket counts in histogram/distribution. Fixed variable interpolation in advanced error handlers.
-- **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls.
+- **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls. Certified payload efficiency, sequential stability, and clean empty state handling in Code Mode.
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
 - **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
-- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode. Certified `replication` and `stats` tool group payload boundaries, single-server resilience, and advanced code mode handling.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode. Certified `replication` tool group payload boundaries and single-server resilience.
 - **Performance**: Added `LIMIT 50` to `threadStats` query to cap payload size and prevent unbounded token consumption.
 
 ## Security
