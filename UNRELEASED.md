@@ -55,6 +55,7 @@
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls.
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
+- **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
 - **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
 
 ## Security

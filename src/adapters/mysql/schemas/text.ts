@@ -275,6 +275,7 @@ export const CollationConvertSchemaBase = z.object({
   column: z.string().optional().describe("Column name"),
   col: z.string().optional().describe("Alias for column"),
   charset: z.string().describe("Target character set (e.g., utf8mb4)"),
+  targetCharset: z.string().optional().describe("Alias for charset"),
   collation: z.string().optional().describe("Target collation"),
   where: z
     .string()
@@ -286,7 +287,14 @@ export const CollationConvertSchemaBase = z.object({
 
 export const CollationConvertSchema = z
   .preprocess(
-    preprocessJsonColumnParams,
+    (val) => {
+      const v1 = preprocessJsonColumnParams(val);
+      // Alias targetCharset to charset
+      if (v1 !== null && typeof v1 === "object" && "targetCharset" in v1 && !("charset" in v1)) {
+        (v1 as Record<string, unknown>)["charset"] = (v1 as Record<string, unknown>)["targetCharset"];
+      }
+      return v1;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),

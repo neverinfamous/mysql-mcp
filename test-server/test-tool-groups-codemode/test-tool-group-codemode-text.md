@@ -91,6 +91,7 @@ text Tool Group (6 tools +1 code mode):
 4. `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
 5. `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
 6. `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
 
 **Domain error paths (🔴):**
 
