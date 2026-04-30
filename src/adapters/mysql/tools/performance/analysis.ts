@@ -429,6 +429,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.threads
                 WHERE PROCESSLIST_ID IS NOT NULL
                 ORDER BY PROCESSLIST_TIME DESC
+                LIMIT 50
             `);
 
         return { success: true, threads: result.rows };

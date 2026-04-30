@@ -28,7 +28,6 @@
   - Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table`.
   - Defaulted `mysql_optimizer_trace` and `partition_info` to `summary: true`.
   - Defaulted `ShowProcesslistSchema`, `ShowStatusSchema`, and `ShowVariablesSchema` to prevent payload bloat.
-- **Partitioning**: Certified tool group for production-grade Code Mode reliability, boundary validation, and structured error compliance.
 
 ## Removed
 
@@ -58,6 +57,7 @@
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
 - **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
 - **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
+- **Performance**: Added `LIMIT 50` to `threadStats` query to cap payload size and prevent unbounded token consumption.
 
 ## Security
 
