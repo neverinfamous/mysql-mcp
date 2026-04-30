@@ -19,8 +19,6 @@
 
 ## Changed
 
-- **Admin**: Certified the Admin tool group using Code Mode, validating handler-level structured errors and payload footprint token limits.
-
 - **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
 - **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
@@ -39,7 +37,7 @@
 
 - **Global Error Handling**: Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, and fixed `MySQLMcpError` property stripping.
 - **Validation & Coercion**: Applied the Split Schema and SchemaBase patterns across all tool groups. This ensures missing required parameters and invalid types (e.g., numeric limits) are properly coerced via `z.unknown()` or gracefully return structured handler errors instead of raw MCP exceptions.
-- **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
+- **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`. Enforced strict positive integer validation for `limit` in `mysql_export_table`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
