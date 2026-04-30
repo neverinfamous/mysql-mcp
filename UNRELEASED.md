@@ -64,7 +64,6 @@
 - **Shell**: Added `outputUrl` and `inputUrl` aliases. Extended `language` validation to support `javascript` and `python` and defaulted to `js` in `run_script`. Fixed `dump_tables` to correctly apply `dryRun` configuration. Applied Split Schema pattern across all shell tools (`mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_run_script`) to enable robust Zod validation and type coercion. Fixed ESLint `no-base-to-string` warnings in schema transforms by casting unknowns before conversion. This ensures missing required parameters and empty strings properly return structured handler errors instead of raw MCP exceptions. Fixed path resolution in dump, restore, and data-transfer tools by using `path.resolve` to ensure robust Windows path handling.
 - **ProxySQL**: Added missing `version` and `uptime` properties to the top-level response of `proxysql_status` by executing an additional query against `global_variables` to fetch `admin-version` and extracting `ProxySQL_Uptime` from the global stats array.
 - **Tests**: Remediated test stability by relaxing benchmark timing assertions, fixing watch-mode hangs in `vitest bench`, and gracefully skipping E2E write tests in read-only mode.
-- **Events**: Certified functional stability and structured error handling for all event-related tools via Code Mode stress tests.
 
 ## Security
 
