@@ -7,7 +7,7 @@
 - Do not modify or skip tests.
 - Ensure your validation script returns an aggregated array of failures if any exist.
 - Group multiple tests into a single script to save context window tokens.
-- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
 
@@ -38,7 +38,7 @@
 | **Handler error** ✅ | Parseable JSON with `success` and `error` fields | Correct |
 | **MCP error** ❌ | Raw error string, no `success` field | Bug |
 
-## Post-Test: Fix findings, read `code-map.md`, update changelog, commit without pushing.
+## Post-Test: Fix findings, read `../code-map.md`, update changelog, commit without pushing.
 
 ---
 

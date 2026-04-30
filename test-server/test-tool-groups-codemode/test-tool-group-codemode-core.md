@@ -7,7 +7,7 @@
 - Do not modify or skip tests.
 - Ensure your validation script returns an aggregated array of failures if any exist.
 - Group multiple tests into a single script to save context window tokens.
-- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
 
@@ -67,7 +67,7 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 
 1. **Cleanup**: Confirm all `temp_*` tables removed.
 2. **Fix EVERY finding** — ❌ Fails, ⚠️ Issues, 📦 Payload.
-3. **Read `code-map.md` before making changes.**
+3. **Read `../code-map.md` before making changes.**
 4. Update the changelog if changes were made, commit without pushing.
 5. Briefly summarize results with total token count prominently displayed.
 

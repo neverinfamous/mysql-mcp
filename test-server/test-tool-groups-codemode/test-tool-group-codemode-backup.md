@@ -4,7 +4,7 @@
 
 - Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
 - Do not modify or skip tests. Return an aggregated `failures` array.
-- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
 

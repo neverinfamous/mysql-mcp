@@ -5,7 +5,7 @@
 - Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
 - Do not modify or skip tests. Return an aggregated `failures` array.
 - Group multiple tests into a single script to save context window tokens.
-- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting Format
 
@@ -24,7 +24,7 @@
 3. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
 4. Handler errors must return `{success: false, error: "..."}` — NOT raw MCP errors.
 
-## Post-Test: Fix findings, read `code-map.md`, update changelog, commit without pushing.
+## Post-Test: Fix findings, read `../code-map.md`, update changelog, commit without pushing.
 
 ---
 

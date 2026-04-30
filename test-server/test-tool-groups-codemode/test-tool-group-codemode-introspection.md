@@ -4,7 +4,7 @@
 
 - Conduct an exhaustive test using ONLY code mode (`mysql_execute_code`).
 - Do not modify or skip tests. Return an aggregated `failures` array.
-- All changes MUST be consistent with other mysql-mcp tools and `code-map.md`.
+- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
 
 ## Reporting: ❌ Fail | ⚠️ Issue | 📦 Payload (monitor `metrics.tokenEstimate`)
 
@@ -26,7 +26,7 @@
 introspection Tool Group (6 tools +1 code mode):
 
 1. `mysql_dependency_graph` 2. `mysql_topological_sort` 3. `mysql_cascade_simulator`
-4. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`
+2. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
