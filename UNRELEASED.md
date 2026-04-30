@@ -22,6 +22,7 @@
 - **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
 - **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
+- **Events**: Certified 100% Code Mode test coverage and verified strict structured error enforcement.
 - **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
 - **Dependencies**: Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`, `jose`, `zod`, `typescript-eslint`, and `minimatch` in Dockerfile).
 - **Token Optimization**:
@@ -40,7 +41,7 @@
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
-- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity. Certified 100% Code Mode compatibility for all 9 document management tools. Verified exact parity for Zod validation limits, domain errors, JSON path filter structure parsing, and uniform response payload attributes (e.g. `inserted`/`modified`/`removed` instead of raw `affectedRows`).
+- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
 - **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations.
 - **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`.
 - **JSON**: Fixed parameter visibility in `json_validate` and handled malformed JSON/empty strings gracefully. Added `path` alias for `paths` in `json_remove`. Implemented missing `where` and `limit` clauses for `json_contains` and `json_keys`.
