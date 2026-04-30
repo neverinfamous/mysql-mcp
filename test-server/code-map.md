@@ -133,8 +133,8 @@ src/
 | | `schema/constraints.ts` | 1 | `list_constraints` |
 | | `schema/scheduled_events.ts` | 1 | `list_events` |
 | **transactions** | `transactions.ts` | 7 | `transaction_begin/commit/rollback/savepoint/release/rollback_to/execute` |
-| **introspection**| `introspection/graph.ts` | 3 | `dependency_graph`, `topological_sort`, `foreign_key_cycles` |
-| | `introspection/analysis.ts` | 2 | `table_relationships`, `migration_risks` |
+| **introspection**| `introspection/graph.ts` | 3 | `dependency_graph`, `topological_sort`, `cascade_simulator` |
+| | `introspection/analysis.ts` | 2 | `constraint_analysis`, `migration_risks` |
 | | `introspection/snapshot.ts` | 1 | `schema_snapshot` |
 | **migration** | `migration/migration.ts` | 3 | `migration_init`, `migration_record`, `migration_apply` |
 | | `migration/migration-query.ts` | 3 | `migration_rollback`, `migration_history`, `migration_status` |
