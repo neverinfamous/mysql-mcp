@@ -387,7 +387,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: false, error: "Event does not exist" };
         }
 
-        return { success: true, ...result.rows[0] };
+        return { success: true, event: result.rows[0] };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -447,6 +447,7 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
           success: true,
           schedulerEnabled: schedulerStatus?.["Value"] === "ON",
           schedulerStatus: schedulerStatus?.["Value"] ?? "UNKNOWN",
+          status: schedulerStatus?.["Value"] ?? "UNKNOWN",
           eventCounts: countResult.rows ?? [],
           recentlyExecuted: recentResult.rows ?? [],
         };

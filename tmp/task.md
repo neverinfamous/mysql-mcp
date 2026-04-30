@@ -1,24 +1,19 @@
-# Advanced Stress Tests: Transactions
-
-All 11 tests executed successfully via `mysql_execute_code`.
-
-## Results
-- ✅ [PASS] Test 1: Rollback Recovery
-- ✅ [PASS] Test 2: Savepoint Recovery
-- ✅ [PASS] Test 3: Empty Commit
-- ✅ [PASS] Test 4: Concurrent Transactions
-- ✅ [PASS] Test 5: Isolation Level (including parameter alias parity: `isolation_level`)
-- ✅ [PASS] Test 6: Rapid Sequential Cycles
-- ✅ [PASS] Test 7: 10+ Statements Batch
-- ✅ [PASS] Test 8: Mixed Invalid SQL Rollback
-- ✅ [PASS] Test 9: Empty Statements Array
-- ✅ [PASS] Test 10: PK Violation Rollback
-- ✅ [PASS] Test 11: Cleanup
-
-## Payload Metrics
-- `metrics.tokenEstimate`: 112 (Payload was extremely efficient)
+# MySQL Events Tool Group Test Results
 
 ## Findings
-- 0 failures. Structured error contract is perfectly adhered to.
-- Rollback bounds and parameter aliases (`isolation_level`) work seamlessly.
-- No database pollution occurred.
+
+1. `events.help`: ⚠️ Missing `metrics.tokenEstimate`.
+2. `events.schedulerStatus`: ⚠️ Missing `metrics.tokenEstimate`. ❌ Returns incorrectly structured data (missing `status` field).
+3. `events.list`: ⚠️ Missing `metrics.tokenEstimate`.
+4. `events.create`: ⚠️ Missing `metrics.tokenEstimate`.
+5. `events.status`: ⚠️ Missing `metrics.tokenEstimate`. ❌ Returns incorrectly structured data (missing `event` field).
+6. `events.alter`: ⚠️ Missing `metrics.tokenEstimate`.
+7. `events.drop`: ⚠️ Missing `metrics.tokenEstimate`.
+8. `events.status` (nonexistent): ✅ Correctly returns `{success: false}`.
+9. `events.drop` (nonexistent): ✅ Correctly returns `{success: false}`.
+10. `events.create` (validation): ✅ Correctly returns `{success: false}`.
+
+## Plan
+1. Find and update all `events` tools to return `metrics` object with `tokenEstimate`.
+2. Fix `events.schedulerStatus` to return `status` field in its `result`.
+3. Fix `events.status` to return `event` object in its `result`.
