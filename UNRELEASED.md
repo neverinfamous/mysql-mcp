@@ -24,7 +24,7 @@
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
 - **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
 - **Dependencies**: Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`, `jose`, `zod`, `typescript-eslint`, and `minimatch` in Dockerfile).
-- **Token Optimization**: 
+- **Token Optimization**:
   - Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table`.
   - Defaulted `mysql_optimizer_trace` and `partition_info` to `summary: true`.
   - Defaulted `ShowProcesslistSchema`, `ShowStatusSchema`, and `ShowVariablesSchema` to prevent payload bloat.
@@ -38,8 +38,8 @@
 - **Global Error Handling**: Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, and fixed `MySQLMcpError` property stripping.
 - **Validation & Coercion**: Applied the Split Schema and SchemaBase patterns across all tool groups. This ensures missing required parameters and invalid types (e.g., numeric limits) are properly coerced via `z.unknown()` or gracefully return structured handler errors instead of raw MCP exceptions.
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
-- **Admin**: Switched DDL operations to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses. Certified 100% Code Mode test coverage and structured error enforcement for the tool group.
-- **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts. 
+- **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
+- **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
 - **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations.
 - **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`.
@@ -55,7 +55,7 @@
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls.
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
-- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, gracefully skipped E2E write tests in read-only mode, and certified `backup` tool group via exhaustive code-mode stress testing.
 
 ## Security
 
