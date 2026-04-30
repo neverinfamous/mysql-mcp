@@ -332,7 +332,7 @@ describe("Text Fulltext Tools", () => {
       expect(result.rows[1].body).toBe("Short text"); // Not truncated
     });
 
-    it("should not truncate when maxLength is not specified", async () => {
+    it("should truncate to 250 characters by default when maxLength is not specified", async () => {
       const longText = "A".repeat(500);
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ id: 1, body: longText, relevance: 1.0 }]),
@@ -350,7 +350,8 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       )) as { rows: Record<string, unknown>[] };
 
-      expect(result.rows[0].body).toBe(longText);
+      expect((result.rows[0].body as string).length).toBe(253); // 250 + "..."
+      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
     });
 
     it("should return success:false for nonexistent table", async () => {

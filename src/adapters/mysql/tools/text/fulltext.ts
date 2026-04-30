@@ -128,7 +128,9 @@ export function createFulltextCreateTool(
         }
 
         adapter.clearSchemaCache();
-        return { success: true, indexName: name, columns };
+        const response = { success: true, indexName: name, columns };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -181,7 +183,9 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         adapter.clearSchemaCache();
-        return { success: true, indexName, table };
+        const response = { success: true, indexName, table };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -209,7 +213,7 @@ export function createFulltextSearchTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = FulltextSearchSchema.parse(params);
-        const { table, columns, query, mode, maxLength } = parsed;
+        const { table, columns, query, mode, maxLength, limit } = parsed;
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -232,12 +236,18 @@ export function createFulltextSearchTool(
         }
 
         // Return searched columns and relevance for minimal payload
-        const sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        const queryArgs: (string | number)[] = [query, query];
 
+        const finalLimit = limit !== undefined && limit > 0 ? limit : 10;
+        sql += ` LIMIT ${Math.floor(finalLimit)}`;
+        
         try {
-          const result = await adapter.executeReadQuery(sql, [query, query]);
-          const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-          return { success: true, rows, count: rows.length };
+          const result = await adapter.executeReadQuery(sql, queryArgs);
+          const rows = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const response = { success: true, rows, count: rows.length };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
@@ -281,7 +291,7 @@ export function createFulltextBooleanTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, columns, query, maxLength } =
+        const { table, columns, query, maxLength, limit } =
           FulltextBooleanSchema.parse(params);
 
         // Validate inputs
@@ -294,12 +304,18 @@ export function createFulltextBooleanTool(
         const matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
 
         // Return searched columns and relevance for minimal payload
-        const sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        const queryArgs: (string | number)[] = [query, query];
+
+        const finalLimit = limit !== undefined && limit > 0 ? limit : 10;
+        sql += ` LIMIT ${Math.floor(finalLimit)}`;
 
         try {
-          const result = await adapter.executeReadQuery(sql, [query, query]);
-          const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-          return { success: true, rows, count: rows.length };
+          const result = await adapter.executeReadQuery(sql, queryArgs);
+          const rows = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const response = { success: true, rows, count: rows.length };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
@@ -343,7 +359,7 @@ export function createFulltextExpandTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, columns, query, maxLength } =
+        const { table, columns, query, maxLength, limit } =
           FulltextExpandSchema.parse(params);
 
         // Validate inputs
@@ -356,12 +372,18 @@ export function createFulltextExpandTool(
         const matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
 
         // Return searched columns and relevance for minimal payload
-        const sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        const queryArgs: (string | number)[] = [query, query];
+
+        const finalLimit = limit !== undefined && limit > 0 ? limit : 10;
+        sql += ` LIMIT ${Math.floor(finalLimit)}`;
 
         try {
-          const result = await adapter.executeReadQuery(sql, [query, query]);
-          const rows = truncateRowValues(result.rows ?? [], columns, maxLength);
-          return { success: true, rows, count: rows.length };
+          const result = await adapter.executeReadQuery(sql, queryArgs);
+          const rows = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const response = { success: true, rows, count: rows.length };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {

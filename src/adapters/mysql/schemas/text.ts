@@ -337,6 +337,7 @@ export const FulltextCreateSchemaBase = z.object({
     .optional()
     .describe("Columns to include in index"),
   indexName: z.string().optional().describe("Optional index name"),
+  index_name: z.string().optional().describe("Alias for indexName"),
 });
 
 export const FulltextCreateSchema = z
@@ -348,12 +349,13 @@ export const FulltextCreateSchema = z
       name: z.string().optional(),
       columns: z.array(z.string()).optional(),
       indexName: z.string().optional(),
+      index_name: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? [],
-    indexName: data.indexName,
+    indexName: data.indexName ?? data.index_name,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -379,7 +381,7 @@ export const FulltextSearchSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Optional max characters per text column in results. Truncates with '...' if exceeded."),
-  limit: z.unknown().optional().describe("Alias for maxLength"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const FulltextSearchSchema = z
@@ -408,7 +410,8 @@ export const FulltextSearchSchema = z
     columns: data.columns ?? [],
     query: data.query ?? data.sql ?? "",
     mode: data.mode,
-    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : (data.limit !== undefined ? Number(data.limit) : undefined),
+    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : undefined,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -419,7 +422,11 @@ export const FulltextSearchSchema = z
   })
   .refine(
     (data) => data.maxLength === undefined || (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength (or limit) must be a positive number" }
+    { message: "Validation error: maxLength must be a positive number" }
+  )
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
   );
 
 // --- FulltextDrop ---
@@ -431,6 +438,7 @@ export const FulltextDropSchemaBase = z.object({
     .string()
     .optional()
     .describe("Name of the FULLTEXT index to drop"),
+  index_name: z.string().optional().describe("Alias for indexName"),
 });
 
 export const FulltextDropSchema = z
@@ -441,11 +449,12 @@ export const FulltextDropSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       indexName: z.string().optional(),
+      index_name: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    indexName: data.indexName ?? "",
+    indexName: data.indexName ?? data.index_name ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -470,7 +479,7 @@ export const FulltextBooleanSchemaBase = z.object({
     .describe(
       "Optional max characters per text column in results. Truncates with '...' if exceeded.",
     ),
-  limit: z.unknown().optional().describe("Alias for maxLength"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const FulltextBooleanSchema = z
@@ -490,7 +499,8 @@ export const FulltextBooleanSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? [],
     query: data.query ?? "",
-    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : (data.limit !== undefined ? Number(data.limit) : undefined),
+    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : undefined,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -499,7 +509,11 @@ export const FulltextBooleanSchema = z
   .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
     (data) => data.maxLength === undefined || (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength (or limit) must be a positive number" }
+    { message: "Validation error: maxLength must be a positive number" }
+  )
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
   );
 
 // --- FulltextExpand ---
@@ -515,7 +529,7 @@ export const FulltextExpandSchemaBase = z.object({
     .describe(
       "Optional max characters per text column in results. Truncates with '...' if exceeded.",
     ),
-  limit: z.unknown().optional().describe("Alias for maxLength"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
 export const FulltextExpandSchema = z
@@ -535,7 +549,8 @@ export const FulltextExpandSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? [],
     query: data.query ?? "",
-    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : (data.limit !== undefined ? Number(data.limit) : undefined),
+    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : undefined,
+    limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -544,5 +559,9 @@ export const FulltextExpandSchema = z
   .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
     (data) => data.maxLength === undefined || (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength (or limit) must be a positive number" }
+    { message: "Validation error: maxLength must be a positive number" }
+  )
+  .refine(
+    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" }
   );
