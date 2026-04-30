@@ -65,7 +65,7 @@ const DistributionSchema = z.object({
   column: z.string().min(1, "column is required"),
   buckets: z
     .number()
-    .max(1000)
+    .max(100)
     .default(10),
   where: z.string().optional(),
 });

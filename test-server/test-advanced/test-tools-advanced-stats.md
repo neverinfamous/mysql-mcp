@@ -27,7 +27,7 @@
 ## Category 2: Distribution & Histogram Edge Cases
 
 29. ✅ Run `mysql_stats_histogram` on `val3` with `buckets: 0`. Verify it returns a structured validation error.
-30. 📦 Run `mysql_stats_distribution` on `val3` with `buckets: 1000`. Verify performance boundaries; (Issue avoided by Zod schema limit of max 500. Limit bumped to 1000 in code but requires MCP server restart. Kept as 📦 for tracking payload size monitoring).
+30. 📦 Run `mysql_stats_distribution` on `val3` with `buckets: 1000`. Verify performance boundaries; (Payload Issue: Confirmed massive ~96KB / ~24k token payload for 1000 buckets. Recommended to reduce Zod max).
 31. ✅ Run `mysql_stats_frequency` on a column where every row is identical. Verify single-bucket output without division-by-zero crashes.
 
 ## Category 3: Hypothesis Testing Edge Cases
