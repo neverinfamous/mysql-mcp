@@ -2,34 +2,32 @@
 
 ## Added
 
-- **Introspection** tools for dependency mapping, topological sort, schema snapshots, and risk assessment.
-- **Migration** tools for tracking, applying, and rolling back schema versions.
+- **Introspection**: Tools for dependency mapping, topological sort, schema snapshots, and risk assessment.
+- **Migration**: Tools for tracking, applying, and rolling back schema versions.
 - **Insights Subsystem**: `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
-- **Token Estimation**: `_meta.tokenEstimate` (4 bytes/token heuristic) in all tool responses.
-- **Audit Observability** (parity with `postgres-mcp`):
-  - Activated audit logging via `--audit-log` and `--audit-backup` CLI flags in `mcp_config.json`.
+- **Token Estimation**: `_meta.tokenEstimate` heuristic (4 bytes/token) in all tool responses and Code Mode metrics.
+- **Audit Observability**:
+  - Activated logging via `--audit-log` and `--audit-backup` CLI flags.
   - Exposed `getAuditInterceptor()` on `DatabaseAdapter` for Code Mode API integration.
-  - Wired `AuditInterceptor` through `MysqlApi` → `createGroupApi()` → every inner sandbox tool call, closing the Code Mode audit blindspot where sandbox operations previously bypassed the audit trail.
-  - Enriched Code Mode output schema with `metrics.tokenEstimate` (~4 bytes/token) for consistent telemetry.
-  - Ported 51-test audit unit test suite: `audit-interceptor.test.ts` (13 tests), `audit-logger.test.ts` (15 tests), `backup-manager.test.ts` (23 tests).
-  - Configured `.gitignore` to protect audit JSONL files and snapshots while preserving `logs/` structure.
-- **Benchmark Suite**: Code Mode performance and throughput benchmarks.
+  - Wired `AuditInterceptor` through sandbox operations to close audit blindspots.
+  - Ported 51-test audit unit test suite.
+- **Benchmarks**: Code Mode performance and throughput benchmark suite.
 - **Help Architecture**: Dynamically registered group-specific help resources (`mysql://help/{group}`).
-- `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
-- `initializationSql` in connection pool config to execute setup queries once per checkout (#94).
-- `scripts/reboot-cluster.ps1` utility for recovering InnoDB Clusters from complete outages.
+- **Error Mapping**: `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
+- **Connection Pool**: `initializationSql` config to execute setup queries once per checkout.
+- **Cluster Recovery**: `scripts/reboot-cluster.ps1` utility for recovering InnoDB Clusters from complete outages.
 
 ## Changed
 
-- Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability and build times.
-- Hardened `MysqlApi` bindings in Code Mode Sandbox to stub write-methods in `readonly` mode and auto-return the last expression.
-- Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
-- Simplified `events` schema definitions to accept standard MySQL syntax strings.
-- **Dependency Updates**
-  - Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`, `jose`, `zod`, `typescript-eslint`).
-  - Updated `minimatch` in Dockerfile to `10.2.5`.
-- Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table` to optimize token payload efficiency (< 500 tokens).
-- Optimized token payload for `mysql_optimizer_trace` by defaulting `summary: true`, preventing massive payloads from exceeding context windows.
+- **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
+- **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
+- **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
+- **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
+- **Dependencies**: Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`, `jose`, `zod`, `typescript-eslint`, and `minimatch` in Dockerfile).
+- **Token Optimization**: 
+  - Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table`.
+  - Defaulted `mysql_optimizer_trace` and `partition_info` to `summary: true`.
+  - Defaulted `ShowProcesslistSchema`, `ShowStatusSchema`, and `ShowVariablesSchema` to prevent payload bloat.
 
 ## Removed
 
@@ -37,39 +35,30 @@
 
 ## Fixed
 
-- **Global Error Handling**: Unified error reporting across all tool groups to strictly adhere to the `ErrorResponse` schema (`{ success: boolean }`). Replaced custom try/catch blocks with `formatHandlerErrorResponse`, eliminated legacy property leakages on existence checks across all domains, and enforced `success: true` on all successful operations. Standardized Zod error formats and fixed `MySQLMcpError` property stripping.
-- **Admin**: Updated `KillQuerySchema` to use Zod parameter coercion and `id` aliasing, ensuring type validation failures return structured handler errors instead of raw MCP exceptions.
-- **Monitoring**: Fixed `InnodbStatusSchema.summary` to default to `true` to prevent massive token payload bloat, ensuring outputs remain well under 500 tokens. Applied Split Schema pattern to `ShowProcesslistSchema`, `ShowStatusSchema`, and `ShowVariablesSchema` to enable numeric coercion for the `limit` parameter, returning structured handler errors for invalid types instead of raw MCP exceptions.
-- **Backup**: Fixed a regression in `importData` where `DATETIME` ISO 8601 strings from JSON payloads output by `exportTable` failed to parse in MySQL strict mode by adding a regex transformation to normalize these strings into MySQL-compatible `YYYY-MM-DD HH:MM:SS` format. Fixed `limit` and `batch` numeric parameter schemas in `mysql_export_table` to use `z.unknown()` coercion. Refactored `mysql_create_dump` and `mysql_restore_dump` to use `.optional()` schemas with internal `.refine()` validation, ensuring missing required parameters return structured handler errors instead of raw MCP exceptions. Added a `.min(1)` constraint to the `tables` array in `mysql_create_dump` to ensure empty arrays are properly rejected instead of falling back to a full database dump.
-- **Admin DDL**: Switched to `rawQuery` and hardened `processExecutionResult` to prevent `mysql2` from corrupting multi-row array responses.
-- **Cluster**: Fixed auto-recovery by changing `group_replication_start_on_boot=ON` to persist state across restarts. Merged contextual fallback strings into standard `error` properties for multiple failure scenarios in instance and router status tools. Handled validation edge-cases seamlessly using structured `{ success: false, error: "..." }` schemas without raw MCP framework exceptions. Applied Split Schema pattern to `innodb-cluster.ts` schemas (`LimitSchema`, `SummarySchema`) to enable robust Zod validation and type coercion for `limit` and `summary` parameters, ensuring invalid string inputs from MCP clients are handled gracefully.
-- **Core**: Added `truncated: true` metadata to `mysql_list_tables` when returning constrained results. Refactored `mysql_list_tables`, `mysql_create_table`, and `mysql_create_index` schemas to use internal validation and `z.unknown()` coercion, ensuring invalid parameter types and missing required fields return structured handler errors instead of raw MCP exceptions. Optimized token payloads for `mysql_list_tables` by enforcing a default `limit: 50` and dynamically omitting empty metadata properties alongside `mysql_describe_table`.
-- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity with other docstore tools. Supported empty filter objects (`{}`) to return all documents. Refactored docstore schemas (`mysql_doc_add`, `mysql_doc_find`, `mysql_doc_create_collection`, etc.) to use the SchemaBase pattern with internal `.refine()` validation, ensuring missing required fields and invalid parameters return structured handler errors instead of raw MCP exceptions.
-- **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations. Refactored schemas to strictly parse and coerce `maxLength`/`limit` numeric parameters, fixing a bug where `maxLength` bypassed Zod validation.
-- **Text**: Refactored schemas across all six text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`) to use the Split Schema pattern with `z.unknown()` coercion. This fixes a bug where numeric `limit` parameters were completely stripped instead of validated, and ensures invalid properties (like strings passed to `start`/`length`) return structured handler errors instead of raw MCP exceptions. Additionally, updated all 6 tools to use `formatHandlerErrorResponse()` in their catch blocks instead of custom error serialization, guaranteeing structured `{success: false, error: "Validation error: ..."}` formatting for Zod validation failures. Certified the tool group via exhaustive Code Mode stress tests for multi-byte Unicode boundary handling, invalid regex patterns, zero-indexed start arguments, out-of-bounds length operations, and phonetic SOUNDEX edge cases without generating empty separator artifacts.
-- **Introspection**: Fixed circular dependency detection by standardizing domain errors in `topological_sort` and `constraint_analysis`. Fixed `dependency_graph` failing to truncate early by implementing active `maxDepth` traversal filtering. Refactored `mysql_dependency_graph` schema to use the SchemaBase pattern with internal validation, ensuring missing required fields return structured handler errors instead of raw MCP exceptions.
-- **JSON**: Fixed `json_validate` to use `JsonValidateSchemaBase` for its `inputSchema` to resolve parameter visibility issues in MCP. Fixed `json_validate` to catch malformed JSON errors gracefully, and allowed empty strings (`""`) to properly return `{ valid: false }` rather than failing Zod validation. Added `path` alias for `paths` in `json_remove` and fixed informational field mapping in `json_insert` and `json_index_suggest`. Refactored schema bases (`JsonStatsSchemaBase`, `JsonNormalizeSchemaBase`, `JsonIndexSuggestSchemaBase`) to use `z.unknown()` coercion for numeric fields (`limit`, `sampleSize`), ensuring missing or invalid types return structured handler errors instead of raw MCP exceptions. Exported missing schema bases (`JsonDiffSchemaBase`, `JsonMergeSchemaBase`) to fix tool parameter visibility in MCP. Implemented missing `where` and `limit` clauses for `json_contains` and `json_keys` to ensure correct filtering. Added `topKeys` aggregation support to `mysql_json_stats`.
-- **Migration**: Fixed read-only mode false positives by utilizing `executeWriteQuery`. Fixed `mysql2` prepared statement constraint errors in `migration_history` by interpolating `LIMIT` and `OFFSET`. Enforced strict validation of conflicting schema hashes and out-of-order execution flagging.
-- **Monitoring & ProxySQL**: Reduced default limits across multiple tools (e.g., `show_status`, `show_variables`, `sys_schema_stats`, `proxysql_status`) and defaulted others to `summary: true` to prevent token payload bloat. Applied Split Schema pattern to ProxySQL schemas (`proxysql_commands`, `proxysql_query_digest`, etc.) to enable robust Zod validation and type coercion, ensuring missing required parameters or invalid numeric inputs return structured handler errors instead of raw MCP exceptions.
-- **Optimization & Performance**: Fixed domain error reporting for missing tables/indexes in `index_recommendation` and `force_index`. Added preprocessing aliases (`index`, `sql`) to `force_index`. Fixed `query_rewrite` to surface the `rewrittenQuery` property. Fixed anomaly detection boundary validation and alias usage (`minExecutions`). Refactored performance and optimization schemas (`mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`, `mysql_query_stats`, `mysql_slow_queries`, `mysql_explain`, `mysql_explain_analyze`, `mysql_table_stats`, `mysql_index_usage`, `mysql_buffer_pool_stats`, `mysql_thread_stats`) to use the SchemaBase pattern with `z.unknown()` coercion, ensuring invalid parameters and missing fields return structured handler errors instead of raw MCP exceptions. Certified the tool groups via exhaustive Code Mode stress tests for query rewrite logic, optimizer trace payload efficiency, index recommendation edge cases, stats boundary limits (e.g., enforcing `int().positive()` for `limit: 0` and bounding it gracefully via `Math.min(limit, 100)` in `mysql_query_stats` and `mysql_slow_queries`), anomaly detection robustness, and EXPLAIN payload token optimization by changing the default format to `TREE`.
-- **Partitioning**: Removed leaked properties in error paths and updated `partition_info` to return `{ success: true, partitioned: false }` for unpartitioned tables. Added `partition` alias to `drop_partition`. Optimized token payloads by defaulting to `summary: true` in `partition_info`. Refactored schemas (`mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition`) to use the SchemaBase pattern with internal `.refine()` validation, ensuring missing required fields return structured handler errors instead of raw MCP exceptions.
-- **Replication & Transactions**: Fixed `binlog_events` to return a structured error for empty string `logFile` parameters. Applied Split Schema pattern to `mysql_binlog_events` to enable robust Zod type coercion for `limit` and `logFile` parameters, ensuring invalid types return structured handler errors instead of raw MCP exceptions. Rewired Code Mode API `help()` generation over RPC bridge. Fixed isolation level configurations to prevent connection poisoning. Certified the `transactions` tool group via exhaustive Code Mode stress tests for rollback recovery, savepoint boundaries, explicit isolation levels, rapid state transitions, and mixed statement error handling (verifying batch auto-rollback functionality).
-- **Roles**: Refactored schemas (`mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`) to use the Split Schema pattern, fixing parameter visibility regressions in MCP caused by Zod `.transform()` wrappers. Fixed MCP error leakage in `mysql_role_grant`, `mysql_role_assign`, and `mysql_role_revoke` by ensuring the `role` parameter is optional in base schemas before applying refinement logic. Added aliases (`privilege`, `on`, `name`, `role`, `user`, `toUser`) and supported revoking privileges from roles in `role_revoke`. Fixed Code Mode API help filtering bug.
-- **Router**: Fixed `router_route_health` to gracefully return `{ success: true, health: { isAlive: false } }` on 500 errors for offline routes. Applied Split Schema pattern to all router schemas (`mysql_router_route_status`, `mysql_router_route_health`, `mysql_router_route_connections`, etc.) by correctly configuring `.optional()` in base schemas to bypass strict MCP SDK validation, enabling robust Zod validation and type coercion while ensuring missing or empty required parameters return structured handler errors instead of raw MCP exceptions.
-- **Schema**: Fixed DDL operations (`create_schema`, `drop_schema`) to correctly return `{ success: true, skipped: true }` when `ifNotExists`/`ifExists` conditions are met. Fixed `mysql_drop_schema` and `mysql_create_schema` to default `ifExists` and `ifNotExists` to `false` to properly surface domain errors when schemas don't exist or already exist. Applied Split Schema pattern to `mysql_create_schema`, `mysql_drop_schema`, `mysql_create_view`, and `mysql_list_constraints` to ensure missing required parameters return structured handler errors instead of raw MCP exceptions.
-- **Security**: Fixed property leakages in audit, firewall, and encryption tools. Added Split Schema pattern to `mysql_security_sensitive_tables` to support `database` as an alias for the `schema` parameter. Applied Split Schema pattern to `mysql_security_password_validate` to handle missing required parameters gracefully. Enforced `.min(1)` constraint on the `password` parameter in `mysql_security_password_validate` to properly throw structured handler errors on empty strings instead of returning `Very Weak` via Zod validation.
-- **Spatial**: Fixed `spatial_create_index` incorrectly emitting table not found errors on missing columns. Fixed WKT round-tripping for SRID 4326 by explicitly requesting `'axis-order=long-lat'`. Applied Split Schema pattern across all spatial tools (setup, queries, operations, geometry) to enable robust Zod validation and type coercion, ensuring missing required fields and invalid numeric parameters return structured handler errors instead of raw MCP exceptions. Optimized `mysql_spatial_buffer` payload by removing massive GeoJSON polygon generation, saving ~800 tokens per call.
-- **Stats**: Enforced numeric type checking in `percentiles`, minimum bucket count in `histogram`, and maximum bucket count in `distribution`. Fixed variable interpolation in advanced error handlers.
-- **Sys Schema**: Fixed an integration gap by registering `mysql.sys` as a direct API alias for `mysql.sysschema` in the Code Mode sandbox bindings, and expanded `METHOD_ALIASES` in `constants.ts` to support intuitive shorthand calls (e.g., `userSummary`, `ioSummary`).
-- **Shell**: Added `outputUrl` and `inputUrl` aliases. Extended `language` validation to support `javascript` and `python` and defaulted to `js` in `run_script`. Fixed `dump_tables` to correctly apply `dryRun` configuration. Applied Split Schema pattern across all shell tools (`mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_run_script`) to enable robust Zod validation and type coercion. Fixed ESLint `no-base-to-string` warnings in schema transforms by casting unknowns before conversion. This ensures missing required parameters and empty strings properly return structured handler errors instead of raw MCP exceptions. Fixed path resolution in dump, restore, and data-transfer tools by using `path.resolve` to ensure robust Windows path handling.
-- **ProxySQL**: Added missing `version` and `uptime` properties to the top-level response of `proxysql_status` by executing an additional query against `global_variables` to fetch `admin-version` and extracting `ProxySQL_Uptime` from the global stats array.
-- **Tests**: Remediated test stability by relaxing benchmark timing assertions, fixing watch-mode hangs in `vitest bench`, and gracefully skipping E2E write tests in read-only mode.
+- **Global Error Handling**: Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, and fixed `MySQLMcpError` property stripping.
+- **Validation & Coercion**: Applied the Split Schema and SchemaBase patterns across all tool groups. This ensures missing required parameters and invalid types (e.g., numeric limits) are properly coerced via `z.unknown()` or gracefully return structured handler errors instead of raw MCP exceptions.
+- **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
+- **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
+- **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts. 
+- **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
+- **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations.
+- **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`.
+- **JSON**: Fixed parameter visibility in `json_validate` and handled malformed JSON/empty strings gracefully. Added `path` alias for `paths` in `json_remove`. Implemented missing `where` and `limit` clauses for `json_contains` and `json_keys`.
+- **Migration**: Fixed read-only mode false positives using `executeWriteQuery`. Fixed prepared statement constraint errors in `migration_history`. Enforced strict validation of schema hashes and out-of-order execution.
+- **Optimization**: Fixed domain error reporting in `index_recommendation` and `force_index`. Surfaced `rewrittenQuery` in `query_rewrite`. Fixed EXPLAIN payload optimization by defaulting to `TREE` format.
+- **Roles**: Fixed parameter visibility regressions in MCP caused by Zod wrappers. Supported revoking privileges from roles in `role_revoke`.
+- **Router**: Fixed `router_route_health` to return graceful health object on 500 errors for offline routes.
+- **Schema**: Fixed DDL operations to correctly return `{ success: true, skipped: true }` when conditions (`ifExists`, `ifNotExists`) are met.
+- **Security**: Enforced `.min(1)` constraint on `password` parameter in `password_validate` to reject empty strings.
+- **Spatial**: Fixed `spatial_create_index` emitting table not found errors on missing columns. Fixed WKT round-tripping for SRID 4326. Optimized `mysql_spatial_buffer` payload by removing massive GeoJSON generation.
+- **Stats**: Enforced numeric type checking, minimum/maximum bucket counts in histogram/distribution. Fixed variable interpolation in advanced error handlers.
+- **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls.
+- **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
+- **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
 
 ## Security
 
-- Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
-- Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution.
-- Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, and `@hono/node-server` to patch ReDoS, prototype pollution, and bypass vulnerabilities.
-- Updated `tar` and `minimatch` in Dockerfile to patch npm-bundled dependency vulnerabilities.
-- Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`.
-- Repositioned Trivy vulnerability scanning to run before image pushes instead of after.
+- **Scope Enforcement**: Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
+- **Dependency Patches**: Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities.
+- **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
