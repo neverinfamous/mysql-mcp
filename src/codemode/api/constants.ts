@@ -211,12 +211,19 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   sysschema: {
     schemaStats: "sysSchemaStats",
     lockWaits: "sysInnodbLockWaits",
+    innodbLockWaits: "sysInnodbLockWaits",
     memory: "sysMemorySummary",
+    memorySummary: "sysMemorySummary",
     statements: "sysStatementSummary",
+    statementSummary: "sysStatementSummary",
     waits: "sysWaitSummary",
+    waitSummary: "sysWaitSummary",
     io: "sysIoSummary",
+    ioSummary: "sysIoSummary",
     users: "sysUserSummary",
+    userSummary: "sysUserSummary",
     hosts: "sysHostSummary",
+    hostSummary: "sysHostSummary",
   },
   // Router: shorter aliases
   router: {

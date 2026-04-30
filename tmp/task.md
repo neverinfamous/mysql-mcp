@@ -1,20 +1,23 @@
-# Code Mode Test Coverage Matrix
+# MySQL-MCP `sys` Tool Group Certification
 
-## sys Group (mysql.sysschema / mysql.sys)
+## Coverage Matrix
 
-| Tool | Happy Path Tested | Domain Error Tested | Notes |
+| Tool | Description | Status | Error Details |
 |---|---|---|---|
-| mysql.sys.help() | ✅ Yes | N/A | Added `sys` as an alias for `sysschema` in `MysqlApi.ts` |
-| mysql.sys.sysUserSummary() | ✅ Yes | ✅ Yes | Invalid user format (number) |
-| mysql.sys.sysIoSummary() | ✅ Yes | ✅ Yes | Invalid type format (number) |
-| mysql.sys.sysStatementSummary() | ✅ Yes | ✅ Yes | Invalid limit (negative) |
-| mysql.sys.sysWaitSummary() | ✅ Yes | ✅ Yes | Invalid type format (number) |
-| mysql.sys.sysInnodbLockWaits() | ✅ Yes | N/A | No parameters to test domain error |
-| mysql.sys.sysSchemaStats() | ✅ Yes | ✅ Yes | Invalid schema format (number) |
-| mysql.sys.sysHostSummary() | ✅ Yes | ✅ Yes | Invalid host format (number) |
-| mysql.sys.sysMemorySummary() | ✅ Yes | N/A | No parameters to test domain error |
+| mysql.sys.help | Verify method listing | ✅ Pass | |
+| mysql.sys.userSummary - Happy | user resource usage | ✅ Pass | |
+| mysql.sys.ioSummary - Happy | I/O metrics | ✅ Pass | |
+| mysql.sys.statementSummary - Happy | statement analysis | ✅ Pass | |
+| mysql.sys.waitSummary - Happy | wait events | ✅ Pass | |
+| mysql.sys.innodbLockWaits - Happy | lock info | ✅ Pass | |
+| mysql.sys.schemaStats - Happy | table/index sizes | ✅ Pass | |
+| mysql.sys.schemaStats - Domain Error | table/index sizes (invalid schema) | ✅ Pass | |
+| mysql.sys.hostSummary - Happy | host metrics | ✅ Pass | |
+| mysql.sys.memorySummary - Happy | memory usage | ✅ Pass | |
 
-### Summary
-- All handlers tested exclusively via Code Mode (`mysql_execute_code`).
-- Handlers strictly adhere to the `{ success: false, error: ... }` format instead of throwing raw errors.
-- Discovered that `mysql.sys` was undefined (only `mysql.sysschema` existed). Aliased `sys` to `sysschema` in `MysqlApi.ts`.
+## Summary
+The `sys` tool group has been rigorously tested using `mysql_execute_code`.
+1. All methods were executed effectively using Code Mode.
+2. The missing aliases issue (e.g. `mysql.sys.userSummary` failing as "not a function") has been fixed by expanding `METHOD_ALIASES` in `constants.ts`.
+3. Tested Domain Errors on schema operations and confirmed they returned the structured error `{ success: false, error: ... }` format.
+4. Total failures: 0.
