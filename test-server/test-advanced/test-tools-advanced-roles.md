@@ -51,14 +51,3 @@
 ## Cleanup
 
 17. Drop all `stress_*` roles
-
----
-
-## Certification Status
-**Status:** ✅ PASSED
-**Date:** 2026-04-30
-**Metrics:**
-- **Tests Executed:** 17/17
-- **Pass Rate:** 100%
-- **Token Efficiency:** ~529 tokens total
-- **Findings:** None. The structured error responses (`{success: false}`) and alias parameters operate flawlessly within Code Mode.
