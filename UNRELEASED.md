@@ -56,7 +56,7 @@
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
 - **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
-- **Tests**: Certified `performance`, `optimization`, `monitoring`, and `cluster` tool groups against advanced code-mode stress tests. Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode. Certified `replication` tool group payload boundaries and single-server resilience.
 - **Performance**: Added `LIMIT 50` to `threadStats` query to cap payload size and prevent unbounded token consumption.
 
 ## Security
