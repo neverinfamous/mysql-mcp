@@ -2,6 +2,7 @@
 
 ## Added
 
+- **Monitoring**: Certified tool group using advanced Code Mode stress tests.
 - **Introspection**: Tools for dependency mapping, topological sort, schema snapshots, and risk assessment.
 - **Migration**: Tools for tracking, applying, and rolling back schema versions.
 - **Insights Subsystem**: `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
@@ -56,7 +57,7 @@
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
 - **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
-- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode. Completed 14-point Code Mode stress test suite for `migration` tool group.
+- **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
 
 ## Security
 
