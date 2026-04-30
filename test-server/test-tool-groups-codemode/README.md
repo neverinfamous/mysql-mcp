@@ -21,7 +21,6 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ### 3. Tracking Progress
 
-You must maintain a **Strict Coverage Matrix** in `tmp/task.md` logging completion for:
 `| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |`
 Never proceed to the final step until every tool in a given group has both columns marked as ✅.
 

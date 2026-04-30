@@ -13,9 +13,8 @@
 
 ## Requirements
 
-1. **Coverage Matrix**: Track in `tmp/task.md`. Log Happy Path + Domain Error for EVERY tool.
-2. Handler errors must return `{success: false, error: "..."}` — NOT raw MCP errors.
-3. Post-Test: Fix findings, read `code-map.md`, update changelog, commit without pushing.
+1. 
+2. 
 
 ---
 

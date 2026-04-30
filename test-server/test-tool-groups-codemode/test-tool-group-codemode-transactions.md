@@ -28,7 +28,6 @@
 
 1. Use existing `test_*` tables for read operations
 2. Create temporary tables with `temp_*` prefix for write operations; clean up after
-3. **Code Mode Strict Coverage Matrix**: Track in `tmp/task.md`. Log Code Mode (Happy Path) and Code Mode (Domain Error) for EVERY tool.
 4. **Scripting Efficiency**: Bundle checks into a single `mysql_execute_code` call with `failures` array.
 5. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
 

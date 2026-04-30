@@ -20,7 +20,6 @@
 
 ## Testing Requirements
 
-1. **Code Mode Strict Coverage Matrix**: Track in `tmp/task.md`. Log Happy Path + Domain Error for EVERY tool.
 2. **Scripting Efficiency**: Bundle checks into a single `mysql_execute_code` call with `failures` array.
 3. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
 4. Handler errors must return `{success: false, error: "..."}` — NOT raw MCP errors.

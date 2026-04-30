@@ -38,10 +38,8 @@
 2. Create temporary tables with `temp_*` prefix for write operations
 3. Clean up any `temp_*` tables after testing
 4. Report all failures, unexpected behaviors, or unnecessarily large payloads
-5. **Code Mode Strict Coverage Matrix**: You must create a markdown table tracking your progress in your `task.md` in C:\Users\chris\Desktop\mysql-mcp\tmp. For EVERY tool in the group, you must explicitly log: Code Mode (Happy Path) and Code Mode (Domain Error). Do not proceed to the final summary until every cell in this matrix is marked with a ✅.
 6. **Scripting Efficiency**: Bundle multiple tool checks into a single `mysql_execute_code` call. Use conditional checks to aggregate errors and return a `failures` array.
 7. **Pacing**: Test up to an entire tool group in a single script if feasible, but limit scripts to ~10-15 steps to remain manageable.
-8. **Deterministic checklist first**: Complete ALL items in the Deterministic Checklist below using Code Mode before moving to the Strict Coverage Matrix exploration.
 
 ## Structured Error Response Pattern
 
