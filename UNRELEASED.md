@@ -19,7 +19,6 @@
 
 ## Changed
 
-- **Fulltext**: Certified tool group for Code Mode reliability, achieving 100% test coverage with zero regressions.
 - **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
 - **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
@@ -43,7 +42,7 @@
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
 - **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations.
-- **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`.
+- **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`. Fixed Zod schema validation regression for `limit` preprocessing in schema snapshots and dependency graphs. Restored missing stats tools from previous test sessions.
 - **JSON**: Fixed parameter visibility in `json_validate` and handled malformed JSON/empty strings gracefully. Added `path` alias for `paths` in `json_remove`. Implemented missing `where` and `limit` clauses for `json_contains` and `json_keys`.
 - **Migration**: Fixed read-only mode false positives using `executeWriteQuery`. Fixed prepared statement constraint errors in `migration_history`. Enforced strict validation of schema hashes and out-of-order execution.
 - **Optimization**: Fixed domain error reporting in `index_recommendation` and `force_index`. Surfaced `rewrittenQuery` in `query_rewrite`. Fixed EXPLAIN payload optimization by defaulting to `TREE` format.
