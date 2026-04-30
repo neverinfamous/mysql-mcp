@@ -30,6 +30,7 @@ import {
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -71,10 +72,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -121,10 +119,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -169,10 +164,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -225,10 +217,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -291,10 +280,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -356,10 +342,7 @@ export function createCollationConvertTool(
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
