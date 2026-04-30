@@ -6,7 +6,7 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 
 ## Pre-requisites
 
-1. Basic deterministic tool group checklists (located in `../test-tool-groups/*.md`) MUST be successfully passed before running these advanced tests.
+1. Basic deterministic tool group checklists (located in `../test-tool-groups-codemode/*.md`) MUST be successfully passed before running these advanced tests.
 2. The testing database MUST be freshly seeded or reset to the baseline schema utilizing the `../reset-database.ps1` script to ensure deterministic results.
 
 ## Execution Parts
@@ -48,7 +48,7 @@ The original monolithic advanced stress testing suite was split into 27 granular
 When testing the contents of this directory, you MUST adhere to the following rules:
 
 1. **Strict Code Mode Only:** All advanced stress tests must be executed entirely within the `node:worker_threads` sandbox via `mysql_execute_code`. Direct component tool calls are explicitly forbidden here unless specifically instructed for baseline comparison.
-2. **Sequential Grouping:** Because these operations are intensive, execute only **one markdown file at a time**. Report findings, fix errors, apply updates to the changelog, and commit the changes before advancing to the next file segment.
+2. **Sequential Grouping:** Because these operations are intensive, execute only **one markdown file at a time**. Report findings in `tmp/task.md` (the project-level scratchpad), fix errors, apply updates to the changelog, and commit the changes before advancing to the next file segment.
 3. **Payload Optimization (Token Monitoring):**
    - These tests deliberately trigger large responses and deep architectural nesting.
    - You MUST closely monitor the `metrics.tokenEstimate` value returned from the `mysql_execute_code` payloads.
