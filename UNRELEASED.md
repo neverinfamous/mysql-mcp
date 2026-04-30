@@ -12,7 +12,6 @@
   - Wired `AuditInterceptor` through sandbox operations to close audit blindspots.
   - Ported 51-test audit unit test suite.
 - **Benchmarks**: Code Mode performance and throughput benchmark suite.
-- **Certification**: Certified `optimization` tool group via advanced code-mode stress tests.
 - **Help Architecture**: Dynamically registered group-specific help resources (`mysql://help/{group}`).
 - **Error Mapping**: `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
 - **Connection Pool**: `initializationSql` config to execute setup queries once per checkout.
@@ -29,6 +28,7 @@
   - Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table`.
   - Defaulted `mysql_optimizer_trace` and `partition_info` to `summary: true`.
   - Defaulted `ShowProcesslistSchema`, `ShowStatusSchema`, and `ShowVariablesSchema` to prevent payload bloat.
+- **Partitioning**: Certified tool group for production-grade Code Mode reliability, boundary validation, and structured error compliance.
 
 ## Removed
 
