@@ -37,7 +37,6 @@
 2. Create temporary tables with `temp_*` prefix for write operations
 3. Clean up any `temp_*` tables after testing
 4. **Error path testing**: For **every** tool, test (a) domain error and (b) Zod validation error (`{}`). Both must return `{success: false, error: "..."}`.
-5. **Strict Coverage Matrix**: Track progress in `tmp/task.md`.
 6. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
 
 ## Structured Error Response Pattern

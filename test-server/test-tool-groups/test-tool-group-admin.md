@@ -35,8 +35,7 @@
 
 1. Use existing `test_*` tables for read operations
 2. **Error path testing**: For **every** tool, test (a) domain error and (b) Zod validation error (`{}`). Both must return `{success: false, error: "..."}`.
-3. **Strict Coverage Matrix**: Track progress in `tmp/task.md`.
-4. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
+3. 
 
 ## Structured Error Response Pattern
 

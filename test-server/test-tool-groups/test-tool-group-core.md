@@ -42,10 +42,8 @@ The test database (`testdb`) contains these tables:
 5. Report all failures, unexpected behaviors, improvement opportunities, or unnecessarily large payloads
 6. Do not mention what already works or issues well documented in ServerInstructions and runtime hints
 7. **Error path testing**: For **every** tool, test at least **two** invalid inputs: (a) a domain error (nonexistent table, invalid column, bad parameter value) and (b) a **Zod validation error** (call the tool with `{}` empty params if it has required parameters, or pass the wrong type). Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
-8. **Strict Coverage Matrix**: You must create a markdown table tracking your progress in your `task.md`. For EVERY tool in the group, you must explicitly log: Direct Call (Happy Path), Domain Error (Direct Call), Zod Empty Param (Direct Call), and Alias Acceptance (if applicable). Do not proceed to the final summary until every cell in this matrix is marked with a ✅.
 9. **No Scripted Loops**: You must test each error path by writing an individual, distinct tool call.
 10. **Pacing**: Test a maximum of 3-5 tools at a time. Report the results, update your matrix, and then move on to the next chunk.
-11. **Deterministic checklist first**: Complete ALL items in the Deterministic Checklist below before moving to the Strict Coverage Matrix exploration.
 
 ## Structured Error Response Pattern
 

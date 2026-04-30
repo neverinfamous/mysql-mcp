@@ -25,7 +25,6 @@
 ## Testing Requirements
 
 1. **Error path testing**: For **every** tool, test (a) domain error and (b) Zod validation error (`{}`). Both must return `{success: false, error: "..."}`.
-2. **Strict Coverage Matrix**: Track progress in `tmp/task.md`.
 3. **Deterministic checklist first**: Complete ALL items below before freeform exploration.
 
 ## Structured Error Response Pattern

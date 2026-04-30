@@ -20,7 +20,6 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ### 3. Tracking Metrics & Progress
 
-- **Strict Coverage Matrix**: You must maintain a table tracking your progress in `tmp/task.md` logging completion for:
   `| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |`
   Never proceed to the final step until every tool in a given group is fully checked off.
 - **Session Token Usage**: Use `read_resource` on `mysql://audit` at the end of your test group to capture the total `sessionTokenEstimate` and log it in your summaries.
