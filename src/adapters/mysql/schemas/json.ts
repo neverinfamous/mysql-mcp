@@ -653,8 +653,8 @@ export const JsonValidateSchemaBase = z.object({
 export const JsonValidateSchema = z.object({
   value: z.unknown().optional(),
 }).transform(data => ({
-  value: data.value ?? ""
-})).refine(data => data.value !== "", {
+  value: data.value
+})).refine(data => data.value !== undefined && data.value !== null, {
   message: "value is required"
 });
 
