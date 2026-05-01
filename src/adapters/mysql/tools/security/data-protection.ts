@@ -6,9 +6,8 @@
 
 import { z, ZodError } from "zod";
 import {
-  formatZodError,
-  stripErrorPrefix,
   formatHandlerErrorResponse,
+  withTokenEstimate,
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
@@ -133,10 +132,9 @@ export function createSecurityMaskDataTool(
           "partial",
         ] as const;
         if (!validTypes.includes(type as (typeof validTypes)[number])) {
-          return Promise.resolve({
-            success: false,
-            error: `Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`,
-          });
+          return Promise.resolve(formatHandlerErrorResponse(
+            new Error(`Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`)
+          ));
         }
 
         let maskedValue: string;
@@ -177,14 +175,14 @@ export function createSecurityMaskDataTool(
             // Show first 4 and last 4
             const ccDigits = value.replace(/\D/g, "");
             if (ccDigits.length <= 8) {
-              return Promise.resolve({
+              return Promise.resolve(withTokenEstimate({
                 success: true,
                 original: value,
                 masked: maskChar.repeat(value.length),
                 type,
                 warning:
                   "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
-              });
+              }));
             }
             maskedValue =
               ccDigits.slice(0, 4) +
@@ -195,14 +193,14 @@ export function createSecurityMaskDataTool(
           case "partial": {
             // When keepFirst + keepLast covers the entire value, return unchanged with warning
             if (keepFirst + keepLast >= value.length) {
-              return Promise.resolve({
+              return Promise.resolve(withTokenEstimate({
                 success: true,
                 original: value,
                 masked: value,
                 type,
                 warning:
                   "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
-              });
+              }));
             } else {
               const maskLength = value.length - keepFirst - keepLast;
               maskedValue =
@@ -216,24 +214,17 @@ export function createSecurityMaskDataTool(
             maskedValue = maskChar.repeat(value.length);
         }
 
-        return Promise.resolve({
+        return Promise.resolve(withTokenEstimate({
           success: true,
           original: value,
           masked: maskedValue,
           type,
-        });
+        }));
       } catch (error) {
         if (error instanceof ZodError) {
-          return Promise.resolve({
-            success: false,
-            error: formatZodError(error),
-          });
+          return Promise.resolve(formatHandlerErrorResponse(error));
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return Promise.resolve({
-          success: false,
-          error: stripErrorPrefix(message),
-        });
+        return Promise.resolve(formatHandlerErrorResponse(error));
       }
     },
   };
@@ -268,7 +259,7 @@ export function createSecurityUserPrivilegesTool(
             [user],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return { success: false, error: `User '${user}' does not exist.` };
+            return formatHandlerErrorResponse(new Error(`User '${user}' does not exist.`));
           }
         }
 
@@ -390,12 +381,12 @@ export function createSecurityUserPrivilegesTool(
           }
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           users: userPrivileges,
           count: userPrivileges.length,
           summary,
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -431,10 +422,7 @@ export function createSecuritySensitiveTablesTool(
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return {
-              success: false,
-              error: `Schema '${schema}' does not exist.`,
-            };
+            return formatHandlerErrorResponse(new Error(`Schema '${schema}' does not exist.`));
           }
         }
 
@@ -492,14 +480,14 @@ export function createSecuritySensitiveTablesTool(
         const limited = totalAvailable > limit;
         const sensitiveItems = limited ? allItems.slice(0, limit) : allItems;
 
-        return {
+        return withTokenEstimate({
           success: true,
           sensitiveTables: sensitiveItems,
           tableCount: sensitiveItems.length,
           totalSensitiveColumns: result.rows?.length ?? 0,
           patternsUsed: patterns,
           ...(limited ? { limited: true, totalAvailable } : {}),
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

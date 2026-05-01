@@ -50,7 +50,7 @@
 - **Roles**: Fixed parameter visibility regressions in MCP caused by Zod wrappers. Supported revoking privileges from roles in `role_revoke`. Added missing `metrics.tokenEstimate` payloads to all success and error paths.
 - **Router**: Fixed `router_route_health` to return graceful health object on 500 errors for offline routes.
 - **Schema**: Fixed missing `metrics.tokenEstimate` payloads in success paths and domain errors across all schema tools by explicitly injecting token estimates into success payloads and enforcing `formatHandlerErrorResponse`. Fixed DDL operations to correctly return `{ success: true, skipped: true }` when conditions (`ifExists`, `ifNotExists`) are met.
-- **Security**: Enforced `.min(1)` constraint on `password` parameter in `password_validate` to reject empty strings.
+- **Security**: Enforced `.min(1)` constraint on `password` parameter in `password_validate` to reject empty strings. Fixed missing `metrics.tokenEstimate` payloads in success paths and domain errors across all security tools by centralizing metrics injection via `withTokenEstimate` and enforcing `formatHandlerErrorResponse`.
 - **Spatial**: Fixed `spatial_create_index` emitting table not found errors on missing columns. Fixed WKT round-tripping for SRID 4326. Optimized `mysql_spatial_buffer` payload by removing massive GeoJSON generation.
 - **Stats**: Enforced numeric type checking, minimum/maximum bucket counts in histogram/distribution. Fixed variable interpolation in advanced error handlers.
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls.

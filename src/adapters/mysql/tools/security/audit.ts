@@ -8,6 +8,7 @@ import { z, ZodError } from "zod";
 import {
   stripErrorPrefix,
   formatHandlerErrorResponse,
+  withTokenEstimate,
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
@@ -129,7 +130,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
             response["note"] =
               "startTime filter not applied: performance_schema uses picosecond counters, not ISO timestamps";
           }
-          return response;
+          return withTokenEstimate(response);
         }
 
         // Query actual audit log
@@ -162,12 +163,12 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         queryParams.push(limit);
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           source: "mysql.audit_log",
           events: result.rows ?? [],
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -180,13 +181,11 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           lower.includes("does not exist") ||
           lower.includes("access denied")
         ) {
-          return {
-            success: false,
-            error:
-              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
-          };
+          return formatHandlerErrorResponse(
+            new Error("Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.")
+          );
         }
-        return { success: false, error: stripped };
+        return formatHandlerErrorResponse(new Error(stripped));
       }
     },
   };
@@ -219,13 +218,13 @@ export function createSecurityFirewallStatusTool(
                 `);
 
         if (!pluginResult.rows || pluginResult.rows.length === 0) {
-          return {
+          return withTokenEstimate({
             success: true,
             installed: false,
             message: "MySQL Enterprise Firewall is not installed",
             suggestion:
               'Install with: INSTALL PLUGIN mysql_firewall SONAME "firewall.so"',
-          };
+          });
         }
 
         // Get firewall variables
@@ -242,21 +241,20 @@ export function createSecurityFirewallStatusTool(
           }),
         );
 
-        return {
+        return withTokenEstimate({
           success: true,
           installed: true,
           plugins: pluginResult.rows,
           configuration: variables,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
-        return {
-          success: false,
-          error: `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
-        };
+        return formatHandlerErrorResponse(
+          new Error(`Firewall plugin check failed: ${stripErrorPrefix(message)}`)
+        );
       }
     },
   };
@@ -290,10 +288,9 @@ export function createSecurityFirewallRulesTool(
           "OFF",
         ] as const;
         if (mode && !validModes.includes(mode as (typeof validModes)[number])) {
-          return {
-            success: false,
-            error: `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,
-          };
+          return formatHandlerErrorResponse(
+            new Error(`Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`)
+          );
         }
         // Get firewall users
         let usersQuery = `
@@ -334,22 +331,20 @@ export function createSecurityFirewallRulesTool(
           user ? [`%${user}%`] : [],
         );
 
-        return {
+        return withTokenEstimate({
           success: true,
           users: usersResult.rows ?? [],
           rules: rulesResult.rows ?? [],
           userCount: usersResult.rows?.length ?? 0,
           ruleCount: rulesResult.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        return {
-          success: false,
-          error:
-            "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
-        };
+        return formatHandlerErrorResponse(
+          new Error("Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.")
+        );
       }
     },
   };

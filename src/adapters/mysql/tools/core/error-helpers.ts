@@ -115,3 +115,14 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
 
   return response;
 }
+
+/**
+ * Helper to add tokenEstimate metrics to a successful tool response.
+ */
+export function withTokenEstimate(response: Record<string, unknown>): Record<string, unknown> {
+  const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+  return {
+    ...response,
+    metrics: { tokenEstimate },
+  };
+}

@@ -5,7 +5,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -87,7 +87,7 @@ export function createSecuritySSLStatusTool(
         const str = (val: unknown, defaultVal = ""): string =>
           typeof val === "string" && val !== "" ? val : defaultVal;
 
-        return {
+        return withTokenEstimate({
           success: true,
           sslEnabled: str(status["Ssl_cipher"]) !== "",
           currentCipher: str(status["Ssl_cipher"], "None"),
@@ -106,7 +106,7 @@ export function createSecuritySSLStatusTool(
             acceptedConnects: str(status["Ssl_accepts"], "0"),
             finishedConnects: str(status["Ssl_finished_accepts"], "0"),
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -181,7 +181,7 @@ export function createSecurityEncryptionStatusTool(
           }),
         );
 
-        return {
+        return withTokenEstimate({
           success: true,
           keyringPlugins: keyringResult.rows ?? [],
           keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
@@ -192,7 +192,7 @@ export function createSecurityEncryptionStatusTool(
             ...innodbVars,
           },
           tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -241,11 +241,9 @@ export function createSecurityPasswordValidateTool(
 
         // If no validate_password variables exist, component is not installed
         if (Object.keys(policy).length === 0) {
-          return {
-            success: false,
-            error:
-              'Password validation component not installed. Install with: INSTALL COMPONENT "file://component_validate_password"',
-          };
+          return formatHandlerErrorResponse(
+            new Error('Password validation component not installed. Install with: INSTALL COMPONENT "file://component_validate_password"')
+          );
         }
 
         // Use validate_password function
@@ -264,13 +262,13 @@ export function createSecurityPasswordValidateTool(
         else if (strength >= 25) interpretation = "Weak";
         else interpretation = "Very Weak";
 
-        return {
+        return withTokenEstimate({
           success: true,
           strength,
           interpretation,
           meetsPolicy: strength >= 50, // General guideline
           policy,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -282,11 +280,9 @@ export function createSecurityPasswordValidateTool(
           lower.includes("validate_password_strength") ||
           lower.includes("function")
         ) {
-          return {
-            success: false,
-            error:
-              'Password validation function failed. Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
-          };
+          return formatHandlerErrorResponse(
+            new Error('Password validation function failed. Reinstall with: INSTALL COMPONENT "file://component_validate_password"')
+          );
         }
         return formatHandlerErrorResponse(new Error(message));
       }
