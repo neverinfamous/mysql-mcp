@@ -7,8 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { ZodError } from "zod";
-import { formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 import {
   TransactionBeginSchema,
   TransactionBeginSchemaBase,
@@ -54,19 +53,15 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { isolationLevel } = TransactionBeginSchema.parse(params);
         const transactionId = await adapter.beginTransaction(isolationLevel);
-        return {
+        return withTokenEstimate({
           success: true,
           transactionId,
           isolationLevel: isolationLevel ?? "REPEATABLE READ (default)",
           message:
             "Transaction started. Use transactionId for commit/rollback operations.",
-        };
+        });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -92,17 +87,13 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = TransactionIdSchema.parse(params);
         transactionId = parsed.transactionId;
         await adapter.commitTransaction(transactionId);
-        return {
+        return withTokenEstimate({
           success: true,
           transactionId,
           message: "Transaction committed successfully.",
-        };
+        });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -128,17 +119,13 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = TransactionIdSchema.parse(params);
         transactionId = parsed.transactionId;
         await adapter.rollbackTransaction(transactionId);
-        return {
+        return withTokenEstimate({
           success: true,
           transactionId,
           message: "Transaction rolled back.",
-        };
+        });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -179,13 +166,9 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
         await connection.query(`SAVEPOINT ${savepoint}`);
-        return { success: true, transactionId, savepoint };
+        return withTokenEstimate({ success: true, transactionId, savepoint });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -224,18 +207,14 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
         await connection.query(`RELEASE SAVEPOINT ${savepoint}`);
-        return {
+        return withTokenEstimate({
           success: true,
           transactionId,
           savepoint,
           message: "Savepoint released.",
-        };
+        });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -276,18 +255,14 @@ function createTransactionRollbackToTool(
 
         // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
         await connection.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
-        return {
+        return withTokenEstimate({
           success: true,
           transactionId,
           savepoint,
           message: "Rolled back to savepoint.",
-        };
+        });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -313,31 +288,22 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         parsedParams = TransactionExecuteSchema.parse(params);
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = String(error instanceof Error ? error.message : error);
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
 
       const { statements, isolationLevel } = parsedParams;
 
       if (statements.length === 0) {
-        return {
-          success: false,
-          error:
-            "No statements provided. Pass at least one SQL statement in statements (or queries alias).",
-        };
+        return formatHandlerErrorResponse(
+          new Error("No statements provided. Pass at least one SQL statement in statements (or queries alias).")
+        );
       }
 
       const transactionId = await adapter.beginTransaction(isolationLevel);
       const connection = adapter.getTransactionConnection(transactionId);
 
       if (!connection) {
-        return {
-          success: false,
-          error: "Failed to get transaction connection",
-        };
+        return formatHandlerErrorResponse(new Error("Failed to get transaction connection"));
       }
 
       const results: {
@@ -368,19 +334,19 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
 
         await adapter.commitTransaction(transactionId);
 
-        return {
+        return withTokenEstimate({
           success: true,
           statementsExecuted: statements.length,
           results,
-        };
+        });
       } catch (error) {
         await adapter.rollbackTransaction(transactionId);
         const msg = String(error instanceof Error ? error.message : error);
-        return {
+        return withTokenEstimate({
           success: false,
           error: `Transaction failed and was rolled back: ${msg}`,
           rolledBack: true,
-        };
+        });
       }
     },
   };
