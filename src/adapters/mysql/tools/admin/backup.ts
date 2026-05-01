@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -130,17 +130,17 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeReadQuery(sql);
           rows = result.rows ?? [];
         } catch (error) {
-          return formatHandlerErrorResponse(error);
+          return withTokenEstimate(formatHandlerErrorResponse(error) as unknown as Record<string, unknown>);
         }
 
         if (format === "CSV") {
           if (rows.length === 0) {
-            return { success: true, csv: "", rowCount: 0 };
+            return withTokenEstimate({ success: true, csv: "", rowCount: 0 });
           }
 
           const firstRow = rows[0];
           if (!firstRow) {
-            return { success: true, csv: "", rowCount: 0 };
+            return withTokenEstimate({ success: true, csv: "", rowCount: 0 });
           }
 
           const headers = Object.keys(firstRow);
@@ -151,25 +151,25 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             csvLines.push(values.join(","));
           }
 
-          return {
+          return withTokenEstimate({
             success: true,
             csv: csvLines.join("\n"),
             rowCount: rows.length,
-          };
+          });
         }
 
         if (format === "JSON") {
-          return {
+          return withTokenEstimate({
             success: true,
             json: JSON.stringify(rows, null, 2),
             rowCount: rows.length,
-          };
+          });
         }
 
         // SQL format
         const firstRow = rows[0];
         if (!firstRow) {
-          return { success: true, sql: "", rowCount: 0 };
+          return withTokenEstimate({ success: true, sql: "", rowCount: 0 });
         }
 
         const columns = Object.keys(firstRow)
@@ -187,13 +187,13 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           sql: insertStatements.join("\n"),
           rowCount: rows.length,
-        };
+        });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };
@@ -218,7 +218,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(table, "table");
 
         if (data.length === 0) {
-          return { success: true, rowsInserted: 0 };
+          return withTokenEstimate({ success: true, rowsInserted: 0 });
         }
 
         // Validate all column names upfront (throws for SQL injection - must not be caught)
@@ -251,15 +251,15 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
           }
         } catch (error) {
           const response = formatHandlerErrorResponse(error);
-          return {
+          return withTokenEstimate({
             ...response,
             rowsInserted: totalInserted,
-          };
+          });
         }
 
-        return { success: true, rowsInserted: totalInserted };
+        return withTokenEstimate({ success: true, rowsInserted: totalInserted });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };
@@ -315,13 +315,13 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             [database],
           );
           if (!dbCheck.rows || dbCheck.rows.length === 0) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Database '${database}' does not exist.`,
-            };
+            });
           }
         } catch (dbErr) {
-          return formatHandlerErrorResponse(dbErr);
+          return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
         }
 
         // Verify tables exist if provided
@@ -333,13 +333,13 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
                 [database, table],
               );
               if (!tableCheck.rows || tableCheck.rows.length === 0) {
-                return {
+                return withTokenEstimate({
                   success: false,
                   error: `Table '${table}' does not exist in database '${database}'.`,
-                };
+                });
               }
             } catch (tableErr) {
-              return formatHandlerErrorResponse(tableErr);
+              return withTokenEstimate(formatHandlerErrorResponse(tableErr) as unknown as Record<string, unknown>);
             }
           }
         }
@@ -360,13 +360,13 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
         command += " > backup.sql";
 
-        return {
+        return withTokenEstimate({
           success: true,
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-        };
+        });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };
@@ -404,13 +404,13 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
         const command = `mysql -u [username] -p ${database} < ${filename}`;
 
-        return Promise.resolve({
+        return Promise.resolve(withTokenEstimate({
           success: true,
           command,
           note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-        });
+        }));
       } catch (err) {
-        return Promise.resolve(formatHandlerErrorResponse(err));
+        return Promise.resolve(withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>));
       }
     },
   };
