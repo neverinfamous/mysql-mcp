@@ -353,7 +353,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for all tables when undefined", async () => {
@@ -365,7 +365,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: undefined }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for all tables when empty array", async () => {
@@ -377,7 +377,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: [] }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for specific table", async () => {
@@ -394,7 +394,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "FLUSH TABLES `users`",
       );
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for multiple specific tables", async () => {
@@ -439,7 +439,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ processId: 12345 }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 12345");
-      expect(result).toEqual({ success: true, killed: 12345, type: "QUERY" });
+      expect(result).toMatchObject({ success: true, killed: 12345, type: "QUERY" });
     });
 
     it("should execute KILL QUERY when connection is false", async () => {
@@ -452,7 +452,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 999");
-      expect(result).toEqual({ success: true, killed: 999, type: "QUERY" });
+      expect(result).toMatchObject({ success: true, killed: 999, type: "QUERY" });
     });
 
     it("should execute KILL CONNECTION when connection is true", async () => {
@@ -467,7 +467,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "KILL CONNECTION 54321",
       );
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: true,
         killed: 54321,
         type: "CONNECTION",
@@ -803,7 +803,7 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "FLUSH TABLES `users`, `orders`",
       );

@@ -6,7 +6,7 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -49,7 +49,7 @@ function extractMaintenanceError(
       typeof errorRow["Msg_text"] === "string"
         ? errorRow["Msg_text"]
         : "Maintenance operation failed";
-    return {
+    return withTokenEstimate({
       success: false,
       error: errorMsg,
       code: "MAINTENANCE_ERROR",
@@ -57,7 +57,7 @@ function extractMaintenanceError(
       suggestion: undefined,
       recoverable: false,
       details: undefined,
-    };
+    }) as unknown as ErrorResponse;
   }
   return null;
 }
@@ -82,7 +82,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const rows = result.rows ?? [];
         const error = extractMaintenanceError(rows);
         if (error) return error;
-        return { success: true, results: rows, rowCount: rows.length };
+        return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -111,7 +111,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const rows = result.rows ?? [];
         const error = extractMaintenanceError(rows);
         if (error) return error;
-        return { success: true, results: rows, rowCount: rows.length };
+        return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -143,11 +143,11 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
         const rows = result.rows ?? [];
         const error = extractMaintenanceError(rows);
         if (error) return error;
-        return {
+        return withTokenEstimate({
           success: true,
           results: rows,
           rowCount: rows.length,
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -178,7 +178,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
         const rows = result.rows ?? [];
         const error = extractMaintenanceError(rows);
         if (error) return error;
-        return { success: true, results: rows, rowCount: rows.length };
+        return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -223,7 +223,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
               const validList = validTables.map((t) => `\`${t}\``).join(", ");
               await adapter.executeQuery(`FLUSH TABLES ${validList}`);
             }
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Tables not found: ${notFound.join(", ")}`,
               code: "MAINTENANCE_ERROR",
@@ -234,7 +234,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
                 notFound,
                 flushed: validTables,
               },
-            };
+            });
           }
 
           const tableList = tables.map((t) => `\`${t}\``).join(", ");
@@ -243,7 +243,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery("FLUSH TABLES");
         }
 
-        return { success: true };
+        return withTokenEstimate({ success: true });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -268,14 +268,14 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         const { processId, connection } = KillQuerySchema.parse(params);
         const killType = connection ? "CONNECTION" : "QUERY";
         await adapter.executeQuery(`KILL ${killType} ${processId}`);
-        return { success: true, killed: processId, type: killType };
+        return withTokenEstimate({ success: true, killed: processId, type: killType });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Process ID ${/\d+/.exec(message)?.[0] ?? "unknown"} not found`,
             code: "KILL_ERROR",
@@ -283,9 +283,9 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             suggestion: undefined,
             recoverable: false,
             details: undefined,
-          };
+          });
         }
-        return {
+        return withTokenEstimate({
           success: false,
           error: message,
           code: "KILL_ERROR",
@@ -293,7 +293,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
           suggestion: undefined,
           recoverable: false,
           details: undefined,
-        };
+        });
       }
     },
   };

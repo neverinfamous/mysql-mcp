@@ -39,6 +39,7 @@
 - **Validation & Coercion**: Applied the Split Schema and SchemaBase patterns across all tool groups. This ensures missing required parameters and invalid types (e.g., numeric limits) are properly coerced via `z.unknown()` or gracefully return structured handler errors instead of raw MCP exceptions.
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
+- **Admin**: Remediated missing `metrics.tokenEstimate` payloads in success paths and domain errors across all admin tools (`mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`) by integrating `withTokenEstimate` into the return paths. Updated test assertions to properly validate against the newly added metrics payloads.
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - **Code Mode**: Replaced `_meta.tokenEstimate` with `metrics.tokenEstimate` in all group-level and top-level `help()` responses in `MysqlApi.ts` to ensure consistency with structured metrics payload validation.
 - **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
