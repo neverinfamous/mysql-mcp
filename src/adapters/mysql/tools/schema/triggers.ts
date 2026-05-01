@@ -87,11 +87,13 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION";
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           triggers: result.rows,
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

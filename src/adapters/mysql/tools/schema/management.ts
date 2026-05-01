@@ -75,11 +75,13 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
         query += " ORDER BY SCHEMA_NAME";
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           schemas: result.rows,
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -127,11 +129,13 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (schemaExists) {
           if (ifNotExists) {
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               skipped: true,
               reason: `Schema already exists`,
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           } else {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' already exists`)
@@ -144,7 +148,9 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           await adapter.executeQuery(sql);
-          return { success: true, schemaName: name };
+          const response = { success: true as const, schemaName: name };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("database exists")) {
@@ -205,11 +211,13 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (schemaAbsent) {
           if (ifExists) {
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               skipped: true,
               reason: `Schema did not exist`,
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           } else {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' does not exist`)
@@ -223,7 +231,9 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             `DROP DATABASE ${ifExistsClause}\`${name}\``,
           );
 
-          return { success: true, schemaName: name };
+          const response = { success: true as const, schemaName: name };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (

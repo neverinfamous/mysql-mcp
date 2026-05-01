@@ -99,11 +99,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
         ]);
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           views: result.rows,
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -161,7 +163,9 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          return { success: true, viewName: name };
+          const response = { success: true as const, viewName: name };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("already exists")) {
