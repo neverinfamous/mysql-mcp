@@ -421,12 +421,10 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: update
-              ? "Histogram created but not yet visible in metadata"
-              : "No histogram exists for this column",
-          });
+          if (update) {
+            return withTokenEstimate({ success: false, error: "Histogram created but not yet visible in metadata" });
+          }
+          return withTokenEstimate({ success: true, exists: false, table, column, updated: false });
         }
 
         const histogramRow = result.rows[0];

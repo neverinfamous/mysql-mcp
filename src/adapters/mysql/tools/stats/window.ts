@@ -280,6 +280,9 @@ export function createStatsRowNumberTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+        }
         return withTokenEstimate({ success: false, error: msg });
       }
     },
@@ -341,6 +344,9 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
+        }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -412,6 +418,9 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+        }
         return withTokenEstimate({ success: false, error: msg });
       }
     },
@@ -475,6 +484,9 @@ export function createStatsRunningTotalTool(
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
+        }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -543,6 +555,9 @@ export function createStatsMovingAvgTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+        }
         return withTokenEstimate({ success: false, error: msg });
       }
     },
@@ -602,6 +617,9 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
+        }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
         }
         return withTokenEstimate({ success: false, error: msg });
       }

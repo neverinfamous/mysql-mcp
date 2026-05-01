@@ -201,8 +201,8 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("No histogram exists");
+      expect(result.success).toBe(true);
+      expect(result.exists).toBe(false);
     });
 
     it("should handle non-existent column", async () => {
