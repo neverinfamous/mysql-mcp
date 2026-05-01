@@ -221,6 +221,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Event does not exist",
+        metrics: expect.any(Object),
       });
       // Should only have the pre-check query, no DROP
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -275,6 +276,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Schema does not exist",
+        metrics: expect.any(Object),
       });
       // Should only have the schema check query, no event list query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -316,7 +318,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ success: false, error: "Event does not exist" });
+      expect(result).toEqual({ success: false, error: "Event does not exist", metrics: expect.any(Object) });
     });
 
     it("should return exists false for nonexistent schema", async () => {
@@ -331,6 +333,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Schema does not exist",
+        metrics: expect.any(Object),
       });
       // Should only have the schema check query, no event status query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -407,6 +410,7 @@ describe("Event Create Advanced", () => {
     expect(result).toEqual({
       success: false,
       error: "Event already exists",
+      metrics: expect.any(Object),
     });
     // Should only have the pre-check query, no CREATE
     expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);

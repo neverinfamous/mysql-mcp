@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 import {
   EventCreateSchema,
   EventAlterSchema,
@@ -59,15 +59,15 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         } = EventCreateSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return { success: false, error: "Invalid event name" };
+          return withTokenEstimate({ success: false, error: "Invalid event name" });
         }
 
         const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
         if (!validOnCompletion.includes(onCompletion)) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
-          };
+          });
         }
 
         if (ifNotExists) {
@@ -76,10 +76,10 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
             [name],
           );
           if (existsCheck.rows && existsCheck.rows.length > 0) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: "Event already exists",
-            };
+            });
           }
         }
 
@@ -96,14 +96,14 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         sql += `\nDO ${body}`;
 
         await adapter.executeQuery(sql);
-        return { success: true, eventName: name };
+        return withTokenEstimate({ success: true, eventName: name });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("already exists")) {
-          return { success: false, error: "Event already exists" };
+          return withTokenEstimate({ success: false, error: "Event already exists" });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -132,17 +132,17 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
           EventAlterSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return { success: false, error: "Invalid event name" };
+          return withTokenEstimate({ success: false, error: "Invalid event name" });
         }
 
         // Validate enum fields at handler level
         if (onCompletion !== undefined) {
           const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
           if (!validOnCompletion.includes(onCompletion)) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
-            };
+            });
           }
         }
 
@@ -159,7 +159,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (newName) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
-            return { success: false, error: "Invalid new event name" };
+            return withTokenEstimate({ success: false, error: "Invalid new event name" });
           }
           clauses.push(`RENAME TO \`${newName}\``);
         }
@@ -177,20 +177,20 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (clauses.length === 0) {
-          return { success: false, error: "No modifications specified" };
+          return withTokenEstimate({ success: false, error: "No modifications specified" });
         }
 
         sql += "\n" + clauses.join("\n");
 
         await adapter.executeQuery(sql);
-        return { success: true, eventName: newName ?? name };
+        return withTokenEstimate({ success: true, eventName: newName ?? name });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return { success: false, error: "Event does not exist" };
+          return withTokenEstimate({ success: false, error: "Event does not exist" });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -218,7 +218,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, ifExists } = EventDropSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return { success: false, error: "Invalid event name" };
+          return withTokenEstimate({ success: false, error: "Invalid event name" });
         }
 
         if (ifExists) {
@@ -227,21 +227,21 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
             [name],
           );
           if (!existsCheck.rows || existsCheck.rows.length === 0) {
-            return { success: false, error: "Event does not exist" };
+            return withTokenEstimate({ success: false, error: "Event does not exist" });
           }
         }
 
         const ifExistsClause = ifExists ? "IF EXISTS " : "";
 
         await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
-        return { success: true, eventName: name };
+        return withTokenEstimate({ success: true, eventName: name });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return { success: false, error: "Event does not exist" };
+          return withTokenEstimate({ success: false, error: "Event does not exist" });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -276,7 +276,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { success: false, error: "Schema does not exist" };
+            return withTokenEstimate({ success: false, error: "Schema does not exist" });
           }
         }
 
@@ -308,11 +308,11 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
         query += " ORDER BY EVENT_NAME";
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           events: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -350,7 +350,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { success: false, error: "Schema does not exist" };
+            return withTokenEstimate({ success: false, error: "Schema does not exist" });
           }
         }
 
@@ -384,10 +384,10 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return { success: false, error: "Event does not exist" };
+          return withTokenEstimate({ success: false, error: "Event does not exist" });
         }
 
-        return { success: true, event: result.rows[0] };
+        return withTokenEstimate({ success: true, event: result.rows[0] });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -443,14 +443,14 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         const schedulerStatus = statusResult.rows?.[0];
 
-        return {
+        return withTokenEstimate({
           success: true,
           schedulerEnabled: schedulerStatus?.["Value"] === "ON",
           schedulerStatus: schedulerStatus?.["Value"] ?? "UNKNOWN",
           status: schedulerStatus?.["Value"] ?? "UNKNOWN",
           eventCounts: countResult.rows ?? [],
           recentlyExecuted: recentResult.rows ?? [],
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
