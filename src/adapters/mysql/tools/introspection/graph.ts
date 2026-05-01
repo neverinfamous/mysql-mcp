@@ -229,7 +229,7 @@ export function createDependencyGraphTool(
               onUpdate: fk.onUpdate,
             }));
 
-        return {
+        const response = {
           success: true,
           ...(nodes.length > 0 ? { nodes } : {}),
           ...(edges.length > 0 ? { edges } : {}),
@@ -249,6 +249,8 @@ export function createDependencyGraphTool(
             ? `Result truncated to ${String(limit)} nodes. Use 'schema' filter to narrow the graph.`
             : undefined,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -380,12 +382,14 @@ export function createTopologicalSortTool(
           );
         }
 
-        return {
+        const response = {
           success: true,
           ...(order.length > 0 ? { order } : {}),
           direction,
           hasCycles: false,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -550,7 +554,7 @@ export function createCascadeSimulatorTool(
           severity = "low";
         }
 
-        return {
+        const response = {
           success: true,
           sourceTable: sourceQName,
           operation,
@@ -564,6 +568,8 @@ export function createCascadeSimulatorTool(
             maxDepth,
           },
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

@@ -197,7 +197,7 @@ export function createConstraintAnalysisTool(
           bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
         }
 
-        return {
+        const response = {
           success: true,
           ...(findings.length > 0 ? { findings } : {}),
           summary: {
@@ -206,6 +206,8 @@ export function createConstraintAnalysisTool(
             ...(Object.keys(bySeverity).length > 0 ? { bySeverity } : {}),
           },
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -416,7 +418,7 @@ export function createMigrationRisksTool(
           }
         }
 
-        return {
+        const response = {
           success: true,
           ...(risks.length > 0 ? { risks } : {}),
           summary: {
@@ -428,6 +430,8 @@ export function createMigrationRisksTool(
               lockImpacts.size > 0 ? [...lockImpacts].join("; ") : "None",
           },
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

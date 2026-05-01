@@ -288,13 +288,15 @@ export function createSchemaSnapshotTool(
             ? `Result truncated to ${String(limit)} objects per section. Use more specific schema filters or request fewer sections.`
             : undefined;
 
-        return {
+        const response = {
           success: true,
           ...(Object.keys(snapshot).length > 0 ? { snapshot } : {}),
           ...(Object.keys(finalStats).length > 0 ? { stats: finalStats } : {}),
           hint: finalHint,
           generatedAt: new Date().toISOString(),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
