@@ -136,10 +136,12 @@ describe("Sys Schema Resource Tools", () => {
         mockContext,
       )) as { success: boolean; error: string };
 
-      expect(result).toEqual({
-        success: false,
-        error: "Schema 'nonexistent_db' does not exist",
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: "Schema 'nonexistent_db' does not exist",
+        }),
+      );
       // Should only call the schema check, not the 3 stats queries
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });

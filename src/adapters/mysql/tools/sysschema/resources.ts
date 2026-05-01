@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -83,10 +83,10 @@ export function createSysSchemaStatsTool(
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Schema '${schema}' does not exist`,
-            };
+            });
           }
         }
 
@@ -167,7 +167,7 @@ export function createSysSchemaStatsTool(
           adapter.executeQuery(autoIncQuery, [schema ?? null]),
         ]);
 
-        return {
+        return withTokenEstimate({
           success: true,
           tableStatistics: tableStats.rows ?? [],
           indexStatistics: indexStats.rows ?? [],
@@ -176,7 +176,7 @@ export function createSysSchemaStatsTool(
           indexStatisticsCount: (indexStats.rows ?? []).length,
           autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
           schemaName: resolvedSchema,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);
@@ -236,12 +236,12 @@ export function createSysInnoDBLockWaitsTool(
             `;
 
         const result = await adapter.executeQuery(query);
-        return {
+        return withTokenEstimate({
           success: true,
           lockWaits: result.rows,
           count: result.rows?.length ?? 0,
           hasContention: (result.rows?.length ?? 0) > 0,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);
@@ -307,13 +307,13 @@ export function createSysMemorySummaryTool(
           adapter.executeQuery(userQuery),
         ]);
 
-        return {
+        return withTokenEstimate({
           success: true,
           globalMemory: globalStats.rows ?? [],
           memoryByUser: userStats.rows ?? [],
           globalMemoryCount: (globalStats.rows ?? []).length,
           memoryByUserCount: (userStats.rows ?? []).length,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);

@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -117,10 +117,10 @@ export function createSysStatementSummaryTool(
         if (
           !VALID_ORDER_BY.includes(orderBy as (typeof VALID_ORDER_BY)[number])
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid orderBy: '${orderBy}' — expected one of: ${VALID_ORDER_BY.join(", ")}`,
-          };
+          });
         }
 
         const query = `
@@ -141,12 +141,12 @@ export function createSysStatementSummaryTool(
             `;
 
         const result = await adapter.executeQuery(query);
-        return {
+        return withTokenEstimate({
           success: true,
           statements: result.rows,
           orderedBy: orderBy,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);
@@ -182,10 +182,10 @@ export function createSysWaitSummaryTool(
         if (
           !VALID_WAIT_TYPES.includes(type as (typeof VALID_WAIT_TYPES)[number])
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_WAIT_TYPES.join(", ")}`,
-          };
+          });
         }
 
         let query: string;
@@ -246,12 +246,12 @@ export function createSysWaitSummaryTool(
         }
 
         const result = await adapter.executeQuery(query);
-        return {
+        return withTokenEstimate({
           success: true,
           waits: result.rows,
           type,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);
@@ -283,10 +283,10 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const { type, limit } = IOSummarySchema.parse(params);
 
         if (!VALID_IO_TYPES.includes(type as (typeof VALID_IO_TYPES)[number])) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_IO_TYPES.join(", ")}`,
-          };
+          });
         }
 
         let query: string;
@@ -344,12 +344,12 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeQuery(query);
-        return {
+        return withTokenEstimate({
           success: true,
           ioStats: result.rows,
           type,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);

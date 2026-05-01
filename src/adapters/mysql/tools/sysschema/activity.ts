@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -102,11 +102,11 @@ export function createSysUserSummaryTool(
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           users: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);
@@ -161,11 +161,11 @@ export function createSysHostSummaryTool(
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           hosts: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (err) {
         if (err instanceof z.ZodError) {
           return formatHandlerErrorResponse(err);
