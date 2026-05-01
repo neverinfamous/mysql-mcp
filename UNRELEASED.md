@@ -63,6 +63,7 @@
 - **Transactions**: Fixed parameter alias parsing in `mysql_transaction_begin` and `mysql_transaction_execute` to correctly map `isolation_level` to `isolationLevel`.
 - **Monitoring**: Fixed missing `metrics.tokenEstimate` payloads across all monitoring tools (`mysql_show_processlist`, `mysql_show_status`, `mysql_show_variables`, `mysql_innodb_status`, `mysql_replication_status`, `mysql_pool_stats`, `mysql_server_health`) by explicitly injecting token estimates into all success payloads and unifying domain validation errors via `formatHandlerErrorResponse`. Cleaned up unnecessary TypeScript type assertions in `createReplicationStatusTool`.
 - **Partitioning**: Fixed missing `metrics.tokenEstimate` payloads in success and domain error paths across all partitioning tools (`mysql_partition_info`, `mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition`).
+- **Replication**: Fixed missing `metrics.tokenEstimate` payloads in success paths for all replication tools (`mysql_master_status`, `mysql_slave_status`, `mysql_binlog_events`, `mysql_gtid_status`, `mysql_replication_lag`).
 
 ## Security
 

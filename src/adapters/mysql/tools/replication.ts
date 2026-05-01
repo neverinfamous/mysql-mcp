@@ -45,11 +45,15 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
-        return { success: true, status: result.rows?.[0] };
+        const response = { success: true as const, status: result.rows?.[0] };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          return { success: true, status: result.rows?.[0] };
+          const response = { success: true as const, status: result.rows?.[0] };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (e) {
           return formatHandlerErrorResponse(
             `Binary logging may not be enabled: ${String(e)}`,
@@ -80,14 +84,18 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
         const status = result.rows?.[0];
         if (status) {
-          return { success: true, status };
+          const response = { success: true as const, status };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
           const status = result.rows?.[0];
           if (status) {
-            return { success: true, status };
+            const response = { success: true as const, status };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
         } catch {
           // Fall through to not-configured response
@@ -125,7 +133,9 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
         if (limit === 0) {
-          return { success: true, events: [] };
+          const response = { success: true as const, events: [] };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         // Resolve effective log file: use provided or fetch current from master status
@@ -166,7 +176,9 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
-          return { success: true, events: result.rows };
+          const response = { success: true as const, events: result.rows };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (e) {
           const message = String(e);
           const targetFile = effectiveLogFile || logFile;
@@ -224,12 +236,14 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT @@global.gtid_mode as gtid_mode",
         );
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
           gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
           gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (e) {
         return formatHandlerErrorResponse(
           `Failed to retrieve GTID status: ${String(e)}`,
@@ -260,8 +274,8 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         const status = result.rows?.[0];
 
         if (status != null) {
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             lagSeconds:
               status["Seconds_Behind_Source"] ??
               status["Seconds_Behind_Master"],
@@ -271,6 +285,8 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
               status["Replica_SQL_Running"] ?? status["Slave_SQL_Running"],
             lastError: status["Last_Error"],
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       } catch {
         try {
@@ -278,13 +294,15 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
           const status = result.rows?.[0];
 
           if (status != null) {
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               lagSeconds: status["Seconds_Behind_Master"],
               ioRunning: status["Slave_IO_Running"],
               sqlRunning: status["Slave_SQL_Running"],
               lastError: status["Last_Error"],
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
         } catch {
           // Not a replica
