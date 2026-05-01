@@ -92,11 +92,14 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   if (err instanceof MySQLMcpError) {
     response = err.toResponse();
     response.error = formatMysqlError(response.error);
-  } else if (err instanceof ZodError) {
+  } else if (
+    err instanceof ZodError ||
+    (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError")
+  ) {
     // Zod validation error
     response = {
       success: false,
-      error: formatZodError(err),
+      error: formatZodError(err as ZodError),
     };
   } else {
     // Raw MySQL / unknown error

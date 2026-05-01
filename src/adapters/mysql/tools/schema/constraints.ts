@@ -57,10 +57,9 @@ export function createListConstraintsTool(
           [schemaName, tableName],
         );
         if (existsResult.rows === undefined || existsResult.rows.length === 0) {
-          return {
-            success: false,
-            error: `Table '${tableName}' does not exist`,
-          };
+          return formatHandlerErrorResponse(
+            new Error(`Table '${tableName}' does not exist`)
+          );
         }
 
         // Query for table constraints

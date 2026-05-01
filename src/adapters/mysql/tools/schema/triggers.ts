@@ -44,10 +44,9 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return {
-              success: false,
-              error: `Schema '${targetSchema}' does not exist`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`)
+            );
           }
         }
 
@@ -58,7 +57,9 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema ?? null, table],
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return formatHandlerErrorResponse(
+              new Error(`Table '${table}' does not exist`)
+            );
           }
         }
 

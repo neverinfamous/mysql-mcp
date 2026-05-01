@@ -35,7 +35,7 @@
 
 ## Fixed
 
-- **Global Error Handling**: Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, fixed `MySQLMcpError` property stripping, and ensured that all structured error responses consistently include `metrics.tokenEstimate` payloads.
+- **Error Handling**: Fixed Zod error duck-typing in `formatHandlerErrorResponse` to correctly intercept validation errors regardless of module duplication. Fixed `strict-boolean-expressions` ESLint violations in error helpers. Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, fixed `MySQLMcpError` property stripping, and ensured that all structured error responses consistently include `metrics.tokenEstimate` payloads.
 - **Validation & Coercion**: Applied the Split Schema and SchemaBase patterns across all tool groups. This ensures missing required parameters and invalid types (e.g., numeric limits) are properly coerced via `z.unknown()` or gracefully return structured handler errors instead of raw MCP exceptions.
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
@@ -49,7 +49,7 @@
 - **Optimization**: Fixed domain error reporting in `index_recommendation` and `force_index`. Surfaced `rewrittenQuery` in `query_rewrite`. Fixed EXPLAIN payload optimization by defaulting to `TREE` format. Added missing `metrics.tokenEstimate` payloads across all optimization operations.
 - **Roles**: Fixed parameter visibility regressions in MCP caused by Zod wrappers. Supported revoking privileges from roles in `role_revoke`. Added missing `metrics.tokenEstimate` payloads to all success and error paths.
 - **Router**: Fixed `router_route_health` to return graceful health object on 500 errors for offline routes.
-- **Schema**: Fixed DDL operations to correctly return `{ success: true, skipped: true }` when conditions (`ifExists`, `ifNotExists`) are met.
+- **Schema**: Fixed missing `metrics.tokenEstimate` payloads in domain errors across all schema tools by enforcing `formatHandlerErrorResponse`. Fixed DDL operations to correctly return `{ success: true, skipped: true }` when conditions (`ifExists`, `ifNotExists`) are met.
 - **Security**: Enforced `.min(1)` constraint on `password` parameter in `password_validate` to reject empty strings.
 - **Spatial**: Fixed `spatial_create_index` emitting table not found errors on missing columns. Fixed WKT round-tripping for SRID 4326. Optimized `mysql_spatial_buffer` payload by removing massive GeoJSON generation.
 - **Stats**: Enforced numeric type checking, minimum/maximum bucket counts in histogram/distribution. Fixed variable interpolation in advanced error handlers.

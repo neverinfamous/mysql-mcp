@@ -77,10 +77,9 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return {
-              success: false,
-              error: `Schema '${targetSchema}' does not exist`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`)
+            );
           }
         }
 
@@ -139,17 +138,15 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
 
         const finalDefinition = definition ?? query;
         if (finalDefinition === undefined || finalDefinition === "") {
-          return {
-            success: false,
-            error: "Validation error: definition or query must be provided",
-          };
+          return formatHandlerErrorResponse(
+            new Error("Validation error: definition or query must be provided")
+          );
         }
 
         try {
           validateQualifiedIdentifier(name, "view");
         } catch (err: unknown) {
-          const message = err instanceof Error ? err.message : String(err);
-          return { success: false, error: message };
+          return formatHandlerErrorResponse(err);
         }
 
         const fullViewName = escapeQualifiedTable(name);
@@ -168,10 +165,9 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("already exists")) {
-            return {
-              success: false,
-              error: `View '${name}' already exists`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`View '${name}' already exists`)
+            );
           }
           return formatHandlerErrorResponse(err);
         }

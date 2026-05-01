@@ -57,10 +57,9 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
             [targetSchema],
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-            return {
-              success: false,
-              error: `Schema '${targetSchema}' does not exist`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`)
+            );
           }
         }
 

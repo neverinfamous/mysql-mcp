@@ -108,14 +108,14 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           CreateSchemaSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return { success: false, error: "Invalid schema name" };
+          return formatHandlerErrorResponse(new Error("Invalid schema name"));
         }
 
         if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
-          return { success: false, error: `Invalid charset: ${charset}` };
+          return formatHandlerErrorResponse(new Error(`Invalid charset: ${charset}`));
         }
         if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
-          return { success: false, error: `Invalid collation: ${collation}` };
+          return formatHandlerErrorResponse(new Error(`Invalid collation: ${collation}`));
         }
 
         // Pre-check: detect no-op when ifNotExists is true
@@ -133,10 +133,9 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
               reason: `Schema already exists`,
             };
           } else {
-            return {
-              success: false,
-              error: `Schema '${name}' already exists`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' already exists`)
+            );
           }
         }
 
@@ -149,10 +148,9 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("database exists")) {
-            return {
-              success: false,
-              error: `Schema '${name}' already exists`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' already exists`)
+            );
           }
           return formatHandlerErrorResponse(err);
         }
@@ -184,7 +182,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, ifExists } = DropSchemaSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return { success: false, error: "Invalid schema name" };
+          return formatHandlerErrorResponse(new Error("Invalid schema name"));
         }
 
         const systemSchemas = [
@@ -194,7 +192,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
           "sys",
         ];
         if (systemSchemas.includes(name.toLowerCase())) {
-          return { success: false, error: "Cannot drop system schema" };
+          return formatHandlerErrorResponse(new Error("Cannot drop system schema"));
         }
 
         // Pre-check: detect no-op when ifExists is true
@@ -213,10 +211,9 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
               reason: `Schema did not exist`,
             };
           } else {
-            return {
-              success: false,
-              error: `Schema '${name}' does not exist`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' does not exist`)
+            );
           }
         }
 
@@ -233,10 +230,9 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             message.toLowerCase().includes("database doesn't exist") ||
             message.toLowerCase().includes("database does not exist")
           ) {
-            return {
-              success: false,
-              error: `Schema '${name}' does not exist`,
-            };
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' does not exist`)
+            );
           }
           return formatHandlerErrorResponse(err);
         }
