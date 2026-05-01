@@ -3,7 +3,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { stripErrorPrefix, formatZodError } from "./core/error-helpers.js";
+import { stripErrorPrefix, formatZodError, formatHandlerErrorResponse } from "./core/error-helpers.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
@@ -197,17 +197,14 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (pattern)
             query += ` AND u.User LIKE '${escapeLikePattern(pattern)}'`;
           const result = await adapter.executeQuery(query);
-          return {
-            success: true,
+          const response = { success: true as const,
             roles: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
-          if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
-          const message =
-            error instanceof Error ? error.message : String(error);
-          return { success: false, error: stripErrorPrefix(message) };
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -223,7 +220,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { name, ifNotExists } = RoleCreateSchema.parse(params);
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
-            return { success: false, error: "Invalid role name" };
+{
+              const response = { success: false, error: "Invalid role name" };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
 
           // Pre-check existence for skipped indicator when ifNotExists is true
           if (ifNotExists) {
@@ -232,21 +233,28 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               [name],
             );
             if (checkResult.rows && checkResult.rows.length > 0) {
-              return {
-                success: true,
+              const response = { success: true as const,
                 skipped: true,
                 roleName: name,
                 reason: "Role already exists",
               };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
             }
           }
 
           const clause = ifNotExists ? "IF NOT EXISTS " : "";
           await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
-          return { success: true, roleName: name };
+          const response = { success: true, roleName: name };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
+{
+              const response = { success: false, error: formatZodError(error) };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation CREATE ROLE failed")) {
@@ -259,12 +267,15 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const pRole =
               typeof parsed["role"] === "string" ? parsed["role"] : undefined;
             const roleName = pName ?? pRole ?? "unknown";
-            return {
-              success: false,
+            const response = { success: false,
               error: `Role '${roleName}' already exists`,
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { success: false, error: stripErrorPrefix(message) };
+          const response = { success: false, error: stripErrorPrefix(message) };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       },
     },
@@ -280,7 +291,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { name, ifExists } = RoleDropSchema.parse(params);
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name))
-            return { success: false, error: "Invalid role name" };
+{
+              const response = { success: false, error: "Invalid role name" };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
 
           // Pre-check existence for skipped indicator when ifExists is true
           let roleAbsent = false;
@@ -299,18 +314,25 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
 
           if (roleAbsent) {
-            return {
-              success: true,
+            const response = { success: true as const,
               skipped: true,
               roleName: name,
               reason: "Role did not exist",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
 
-          return { success: true, roleName: name };
+          const response = { success: true, roleName: name };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
+{
+              const response = { success: false, error: formatZodError(error) };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Operation DROP ROLE failed")) {
@@ -323,12 +345,15 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const pRole =
               typeof parsed["role"] === "string" ? parsed["role"] : undefined;
             const roleName = pName ?? pRole ?? "unknown";
-            return {
-              success: false,
+            const response = { success: false,
               error: `Role '${roleName}' does not exist`,
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { success: false, error: stripErrorPrefix(message) };
+          const response = { success: false, error: stripErrorPrefix(message) };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       },
     },
@@ -353,19 +378,19 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return { success: false, error: "Role does not exist" };
+            const response = { success: false, error: "Role does not exist" };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
 
           // SHOW GRANTS cannot be always prepared
           const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
           const grants = (result.rows ?? []).map((r) => Object.values(r)[0]);
-          return { success: true, role, grants, exists: true };
+          const response = { success: true, role, grants, exists: true };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
-          if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
-          const message =
-            error instanceof Error ? error.message : String(error);
-          return { success: false, error: stripErrorPrefix(message) };
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -382,7 +407,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { role, privileges, database, table } =
             RoleGrantPrivilegeSchema.parse(params);
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(role))
-            return { success: false, error: "Invalid role name" };
+{
+              const response = { success: false, error: "Invalid role name" };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
 
           // Validate each privilege against allowlist
           for (const priv of privileges) {
@@ -395,10 +424,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return {
-              success: false,
+            const response = { success: false,
               error: "Role does not exist",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
 
           let targetDb = database;
@@ -430,16 +460,21 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           await adapter.rawQuery(
             `GRANT ${privileges.join(", ")} ON ${onClause} TO '${role}'`,
           );
-          return {
-            success: true,
+          const response = { success: true as const,
             role,
             privileges,
             database: targetDb,
             table: targetTable,
           };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
+{
+              const response = { success: false, error: formatZodError(error) };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
           const message =
             error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(message);
@@ -450,9 +485,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const pRole =
             typeof parsed["role"] === "string" ? parsed["role"] : undefined;
           if (pRole !== undefined) {
-            return { success: false, role: pRole, error: cleanMsg };
+            const response = { success: false, role: pRole, error: cleanMsg };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { success: false, error: cleanMsg };
+          const response = { success: false, error: cleanMsg };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       },
     },
@@ -480,10 +519,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return {
-              success: false,
+            const response = { success: false,
               error: "Role does not exist",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
 
           let sql = `GRANT '${role}' TO '${user}'@'${host}'`;
@@ -492,19 +532,28 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           await adapter.rawQuery(
             `SET DEFAULT ROLE '${role}' TO '${user}'@'${host}'`,
           );
-          return { success: true, role, user, host };
+          const response = { success: true, role, user, host };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
+{
+              const response = { success: false, error: formatZodError(error) };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
-            return {
-              success: false,
+            const response = { success: false,
               error: "User does not exist",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { success: false, error: stripErrorPrefix(message) };
+          const response = { success: false, error: stripErrorPrefix(message) };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       },
     },
@@ -527,10 +576,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return {
-              success: false,
+            const response = { success: false,
               error: "Role does not exist",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
 
           if (user) {
@@ -540,10 +590,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               [user, host],
             );
             if (!userCheck.rows || userCheck.rows.length === 0) {
-              return {
-                success: false,
+              const response = { success: false,
                 error: "User does not exist",
               };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
             }
 
             // Check if the role is actually assigned to this user
@@ -552,10 +603,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               [role, user, host],
             );
             if (!assignCheck.rows || assignCheck.rows.length === 0) {
-              return {
-                success: false,
+              const response = { success: false,
                 error: `Role '${role}' is not assigned to user '${user}'@'${host}'`,
               };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
             }
 
             // Validate before interpolation (role/user/host already validated by earlier checks
@@ -565,7 +617,9 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             validateMySQLUserHost(host, "host");
 
             await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
-            return { success: true, role, user, host };
+            const response = { success: true, role, user, host };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           } else if (privileges.length > 0) {
             // Validate each privilege against allowlist
             for (const priv of privileges) {
@@ -589,30 +643,37 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             await adapter.rawQuery(
               `REVOKE ${privileges.join(", ")} ON ${onClause} FROM '${role}'`,
             );
-            return {
-              success: true,
+            const response = { success: true as const,
               role,
               privileges,
               database: targetDb,
               table: targetTable,
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           } else {
-            return {
-              success: false,
+            const response = { success: false,
               error:
                 "Must provide 'user' to revoke role from user, or 'privileges' to revoke privileges from role",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
         } catch (error: unknown) {
           if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
+{
+              const response = { success: false, error: formatZodError(error) };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+          }
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
-            return {
-              success: false,
+            const response = { success: false,
               error: "User does not exist",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
           const cleanMsg = stripErrorPrefix(message);
           const parsed =
@@ -622,9 +683,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const pRole =
             typeof parsed["role"] === "string" ? parsed["role"] : undefined;
           if (pRole !== undefined) {
-            return { success: false, role: pRole, error: cleanMsg };
+            const response = { success: false, role: pRole, error: cleanMsg };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { success: false, error: cleanMsg };
+          const response = { success: false, error: cleanMsg };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
       },
     },
@@ -646,7 +711,9 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return { success: false, error: "User does not exist" };
+            const response = { success: false, error: "User does not exist" };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
 
           const result = await adapter.executeQuery(
@@ -654,13 +721,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
                        FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?`,
             [user, host],
           );
-          return { success: true, user, host, roles: result.rows ?? [] };
+          const response = { success: true, user, host, roles: result.rows ?? [] };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
-          if (error instanceof ZodError)
-            return { success: false, error: formatZodError(error) };
-          const message =
-            error instanceof Error ? error.message : String(error);
-          return { success: false, error: stripErrorPrefix(message) };
+          return formatHandlerErrorResponse(error);
         }
       },
     },
