@@ -236,7 +236,7 @@ export function createIndexRecommendationTool(
           }
         }
 
-        return {
+        const response = {
           success: true,
           exists: true,
           table,
@@ -246,6 +246,10 @@ export function createIndexRecommendationTool(
           })),
           recommendations,
         };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -369,7 +373,10 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
           response["explainError"] = explainError;
         }
 
-        return response;
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -420,12 +427,16 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
           `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
         );
 
-        return {
+        const response = {
           success: true,
           originalQuery: query,
           rewrittenQuery: rewritten,
           hint: `FORCE INDEX (\`${indexName}\`)`,
         };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -489,9 +500,13 @@ export function createOptimizerTraceTool(
         } catch (err: unknown) {
           const errorMsg = formatMysqlError(err);
           if (summary) {
-            return { success: false, error: errorMsg, query, decisions: [] };
+            const response = { success: false, error: errorMsg, query, decisions: [] };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { success: false, error: errorMsg, query, trace: null };
+          const response = { success: false, error: errorMsg, query, trace: null };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         // Get the trace
@@ -501,10 +516,14 @@ export function createOptimizerTraceTool(
 
         if (summary) {
           // Extract key decisions from the trace
-          return extractTraceSummary(traceResult.rows, query);
+          const response = extractTraceSummary(traceResult.rows, query);
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
-        return { success: true, trace: traceResult.rows };
+        const response = { success: true, trace: traceResult.rows };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       } finally {
