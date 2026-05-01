@@ -7,10 +7,7 @@
  */
 
 import { z, ZodError } from "zod";
-import {
-  formatMysqlError,
-  formatHandlerErrorResponse,
-} from "../core/error-helpers.js";
+import { formatMysqlError, formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -135,10 +132,10 @@ export function createDescriptiveStatsTool(
         const { table, column, where } = DescriptiveStatsSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -150,7 +147,7 @@ export function createDescriptiveStatsTool(
         const totalCount = (countResult.rows?.[0]?.["count"] as number) ?? 0;
 
         if (totalCount === 0) {
-          return {
+          return withTokenEstimate({
             success: true,
             column,
             count: 0,
@@ -162,7 +159,7 @@ export function createDescriptiveStatsTool(
             max: null,
             range: null,
             sum: null,
-          };
+          });
         }
 
         // Calculate median offset/limit
@@ -203,7 +200,7 @@ export function createDescriptiveStatsTool(
         const stats = statsResult.rows?.[0];
         const medianRow = medianResult.rows?.[0];
 
-        return {
+        return withTokenEstimate({
           success: true,
           column,
           count: stats?.["count"] ?? 0,
@@ -215,19 +212,19 @@ export function createDescriptiveStatsTool(
           max: stats?.["max"] ?? null,
           range: stats?.["range"] ?? null,
           sum: stats?.["sum"] ?? null,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -254,10 +251,10 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           PercentilesSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -283,10 +280,10 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
             "double",
           ].includes(dataType)
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Column type mismatch: '${column}' is not a numeric column`,
-          };
+          });
         }
 
         // Get total count
@@ -296,12 +293,12 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const totalCount = (countResult.rows?.[0]?.["cnt"] as number) ?? 0;
 
         if (totalCount === 0) {
-          return {
+          return withTokenEstimate({
             success: true,
             column,
             totalCount: 0,
             percentiles: {},
-          };
+          });
         }
 
         // Calculate each percentile
@@ -322,24 +319,24 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           percentileResults[`p${String(p)}`] = valueRow?.["value"] ?? null;
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           column,
           totalCount,
           percentiles: percentileResults,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -367,13 +364,13 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           DistributionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
         if (buckets < 1) {
-          return { success: false, error: "buckets must be at least 1" };
+          return withTokenEstimate({ success: false, error: "buckets must be at least 1" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -388,7 +385,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         const maxVal = Number(rangeRow?.["max_val"]) || 0;
 
         if (minVal === maxVal) {
-          return {
+          return withTokenEstimate({
             success: true,
             column,
             distribution: [
@@ -397,7 +394,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
             bucketCount: 1,
             minValue: minVal,
             maxValue: maxVal,
-          };
+          });
         }
 
         const bucketSize = (maxVal - minVal) / buckets;
@@ -426,13 +423,13 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
             bucket: bucketNum,
             rangeStart: minVal + bucketNum * bucketSize,
             rangeEnd: minVal + (bucketNum + 1) * bucketSize,
-            count: r["count"] as number,
+            count: Number(r["count"]),
             bucketMin: r["bucket_min"],
             bucketMax: r["bucket_max"],
           };
         });
 
-        return {
+        return withTokenEstimate({
           success: true,
           column,
           distribution,
@@ -440,19 +437,19 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           bucketSize,
           minValue: minVal,
           maxValue: maxVal,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -490,28 +487,28 @@ export function createTimeSeriesToolStats(
 
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
         ) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const validIntervals = ["minute", "hour", "day", "week", "month"];
         if (!validIntervals.includes(interval)) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`,
-          };
+          });
         }
         const validAggregations = ["avg", "sum", "count", "min", "max"];
         if (!validAggregations.includes(aggregation)) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`,
-          };
+          });
         }
 
         let dateFormat: string;
@@ -553,7 +550,7 @@ export function createTimeSeriesToolStats(
             `;
         const result = await adapter.executeQuery(query);
 
-        return {
+        return withTokenEstimate({
           success: true,
           interval,
           aggregation,
@@ -561,19 +558,19 @@ export function createTimeSeriesToolStats(
           timeColumn,
           dataPoints: result.rows ?? [],
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -600,19 +597,19 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
           SamplingSchema.parse(params);
 
         if (sampleSize < 0) {
-          return { success: false, error: "sampleSize must be >= 0" };
+          return withTokenEstimate({ success: false, error: "sampleSize must be >= 0" });
         }
 
         // Validate table name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         // Validate column names if provided
         if (columns) {
           for (const c of columns) {
             if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
-              return { success: false, error: `Invalid column name: ${c}` };
+              return withTokenEstimate({ success: false, error: `Invalid column name: ${c}` });
             }
           }
         }
@@ -649,25 +646,25 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeQuery(query);
 
-        return {
+        return withTokenEstimate({
           success: true,
           sample: result.rows ?? [],
           sampleSize: result.rows?.length ?? 0,
           requestedSize: sampleSize,
           seed: seed ?? null,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };

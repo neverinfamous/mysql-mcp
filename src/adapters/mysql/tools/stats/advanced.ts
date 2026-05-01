@@ -14,6 +14,7 @@ import type {
 import {
   formatHandlerErrorResponse,
   formatMysqlError,
+  withTokenEstimate,
 } from "../core/error-helpers.js";
 
 // =============================================================================
@@ -149,7 +150,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         let columnList: string;
@@ -219,15 +220,15 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
           response["hint"] = hint;
         }
 
-        return response;
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -259,10 +260,10 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const sql = `
@@ -290,20 +291,20 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
             ?.cnt ?? 0,
         );
 
-        return {
+        return withTokenEstimate({
           success: true,
           column,
           distinctCount,
           values,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -337,10 +338,10 @@ export function createStatsFrequencyTool(
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const sql = `
@@ -374,20 +375,20 @@ export function createStatsFrequencyTool(
             ?.cnt ?? 0,
         );
 
-        return {
+        return withTokenEstimate({
           success: true,
           column,
           distinctValues,
           distribution,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -419,7 +420,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         // Check if table exists (P154)
@@ -430,7 +431,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { success: false, error: `Table '${table}' doesn't exist` };
+          return withTokenEstimate({ success: false, error: `Table '${table}' doesn't exist` });
         }
 
         // Determine columns to summarize
@@ -460,11 +461,11 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (targetColumns.length === 0) {
-          return {
+          return withTokenEstimate({
             success: true,
             table,
             summaries: [],
-          };
+          });
         }
 
         // Build a single query for all columns
@@ -502,19 +503,19 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           };
         });
 
-        return {
+        return withTokenEstimate({
           success: true,
           table,
           summaries,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }

@@ -14,6 +14,7 @@ import type {
 import {
   formatHandlerErrorResponse,
   formatMysqlError,
+  withTokenEstimate,
 } from "../core/error-helpers.js";
 
 // =============================================================================
@@ -247,7 +248,7 @@ export function createStatsRowNumberTool(
         const parsed = StatsRowNumberSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         const partition = partitionClause(parsed.partitionBy);
@@ -265,19 +266,19 @@ export function createStatsRowNumberTool(
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        return {
+        return withTokenEstimate({
           success: true,
           rowCount: rows.length,
           rows,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -306,7 +307,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsRankSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         const rankType = parsed.method;
@@ -326,20 +327,20 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        return {
+        return withTokenEstimate({
           success: true,
           rankType,
           rowCount: rows.length,
           rows,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -368,10 +369,10 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsLagLeadSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const partition = partitionClause(parsed.partitionBy);
@@ -395,21 +396,21 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        return {
+        return withTokenEstimate({
           success: true,
           direction: parsed.direction,
           offset: parsed.offset,
           rowCount: rows.length,
           rows,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -440,10 +441,10 @@ export function createStatsRunningTotalTool(
         const parsed = StatsRunningTotalSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const partition = partitionClause(parsed.partitionBy);
@@ -460,20 +461,20 @@ export function createStatsRunningTotalTool(
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        return {
+        return withTokenEstimate({
           success: true,
           valueColumn: parsed.column,
           rowCount: rows.length,
           rows,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -504,10 +505,10 @@ export function createStatsMovingAvgTool(
         const parsed = StatsMovingAvgSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const windowSize = parsed.windowSize;
@@ -526,21 +527,21 @@ export function createStatsMovingAvgTool(
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        return {
+        return withTokenEstimate({
           success: true,
           valueColumn: parsed.column,
           windowSize,
           rowCount: rows.length,
           rows,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -569,7 +570,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsNtileSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         const buckets = parsed.buckets;
@@ -587,20 +588,20 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        return {
+        return withTokenEstimate({
           success: true,
           buckets,
           rowCount: rows.length,
           rows,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }

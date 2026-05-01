@@ -6,10 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import {
-  formatMysqlError,
-  formatHandlerErrorResponse,
-} from "../core/error-helpers.js";
+import { formatMysqlError, formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -97,13 +94,13 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           CorrelationSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
         ) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -127,7 +124,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         }
         
         if (!validCols.has(column1) || !validCols.has(column2)) {
-          return { success: false, error: "Both columns must be numeric types" };
+          return withTokenEstimate({ success: false, error: "Both columns must be numeric types" });
         }
 
         // Calculate Pearson correlation coefficient
@@ -160,7 +157,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           else interpretation = "Very weak / No correlation";
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           column1,
           column2,
@@ -175,19 +172,19 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
             mean: stats?.["mean_y"] ?? null,
             stddev: stats?.["std_y"] ?? null,
           },
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -215,13 +212,13 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           RegressionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
         ) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -245,7 +242,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         }
         
         if (!validCols.has(xColumn) || !validCols.has(yColumn)) {
-          return { success: false, error: "Both columns must be numeric types" };
+          return withTokenEstimate({ success: false, error: "Both columns must be numeric types" });
         }
 
         // Simpler approach for MySQL
@@ -267,10 +264,10 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const stats = result.rows?.[0];
 
         if (!stats || (stats["n"] as number) < 2) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "Insufficient data points for regression (need at least 2)",
-          };
+          });
         }
 
         const n = stats["n"] as number;
@@ -289,7 +286,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const ssResidual = sumY2 - intercept * sumY - slope * sumXY;
         const rSquared = ssTotal > 0 ? 1 - ssResidual / ssTotal : 0;
 
-        return {
+        return withTokenEstimate({
           success: true,
           xColumn,
           yColumn,
@@ -306,19 +303,19 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
               : rSquared >= 0.5
                 ? "Moderate fit"
                 : "Poor fit",
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -344,10 +341,10 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           HistogramSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // Check if table exists (P154)
@@ -358,7 +355,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return { success: false, error: `Table '${table}' doesn't exist` };
+          return withTokenEstimate({ success: false, error: `Table '${table}' doesn't exist` });
         }
 
         // Check if column exists on the table
@@ -369,10 +366,10 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!columnCheck.rows || columnCheck.rows.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Column '${column}' does not exist on table '${table}'`,
-          };
+          });
         }
 
         let warning: string | undefined;
@@ -410,37 +407,37 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: update
               ? "Histogram created but not yet visible in metadata"
               : "No histogram exists for this column",
-          };
+          });
         }
 
         const histogramRow = result.rows[0];
         if (!histogramRow) {
-          return { success: false, error: "Histogram data is empty" };
+          return withTokenEstimate({ success: false, error: "Histogram data is empty" });
         }
-        return {
+        return withTokenEstimate({
           success: true,
           exists: true,
           ...histogramRow,
           updated: update,
           ...(warning && { warning }),
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

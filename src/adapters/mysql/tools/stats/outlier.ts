@@ -14,6 +14,7 @@ import type {
 import {
   formatHandlerErrorResponse,
   formatMysqlError,
+  withTokenEstimate,
 } from "../core/error-helpers.js";
 
 // =============================================================================
@@ -76,39 +77,39 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, column, method, limit, maxOutliers, where } = parsed;
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (method === "zscore") {
-          return await detectZScoreOutliers(
+          return withTokenEstimate(await detectZScoreOutliers(
             adapter,
             { table, column, whereClause },
             parsed.threshold ?? 3,
             limit,
             maxOutliers,
-          );
+          ));
         }
 
-        return await detectIqrOutliers(
+        return withTokenEstimate(await detectIqrOutliers(
           adapter,
           { table, column, whereClause },
           parsed.threshold ?? 1.5,
           limit,
           maxOutliers,
-        );
+        ));
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }

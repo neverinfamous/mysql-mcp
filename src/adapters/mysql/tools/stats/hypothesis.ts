@@ -13,6 +13,7 @@ import type {
 import {
   formatHandlerErrorResponse,
   formatMysqlError,
+  withTokenEstimate,
 } from "../core/error-helpers.js";
 import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
 
@@ -76,13 +77,13 @@ export function createStatsHypothesisTool(
         } = StatsHypothesisSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
         if (groupBy && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
-          return { success: false, error: "Invalid groupBy column name" };
+          return withTokenEstimate({ success: false, error: "Invalid groupBy column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -212,7 +213,7 @@ export function createStatsHypothesisTool(
             };
           });
 
-          return {
+          return withTokenEstimate({
             success: true,
             table,
             column,
@@ -221,7 +222,7 @@ export function createStatsHypothesisTool(
             groupBy,
             groups,
             count: groups.length,
-          };
+          });
         }
 
         // Ungrouped hypothesis test
@@ -253,25 +254,25 @@ export function createStatsHypothesisTool(
 
         // If error, return at top level (not nested in results)
         if ("error" in testResults) {
-          return { success: false, error: testResults.error };
+          return withTokenEstimate({ success: false, error: testResults.error });
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           table,
           column,
           testType,
           hypothesizedMean,
           results: testResults,
-        };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(error);
       }
