@@ -260,14 +260,18 @@ export class MysqlApi {
    *
    * @returns Object with group names as keys and arrays of method names as values
    */
-  help(): { success: true; groups: Record<string, string[]> } {
+  help(): {
+    success: true;
+    groups: Record<string, string[]>;
+    _meta: { tokenEstimate: number };
+  } {
     const result: Record<string, string[]> = {};
     for (const [group, tools] of this.toolsByGroup) {
       // Skip codemode group itself
       if (group === "codemode") continue;
       result[group] = tools.map((t) => toolNameToMethodName(t.name, group));
     }
-    return { success: true, groups: result };
+    return { success: true, groups: result, _meta: { tokenEstimate: 50 } };
   }
 
   /**
@@ -360,6 +364,7 @@ export class MysqlApi {
           methods: Object.keys(groupApi),
           readonly: true,
           note: `All methods in '${groupName}' are blocked in readonly mode`,
+          _meta: { tokenEstimate: 30 },
         });
         bindings[groupName] = stubbed;
         continue;
@@ -413,6 +418,7 @@ export class MysqlApi {
           methods: canonicalMethodNames,
           methodAliases: usefulAliases,
           examples: GROUP_EXAMPLES[groupName],
+          _meta: { tokenEstimate: 50 },
         }),
       };
     }
