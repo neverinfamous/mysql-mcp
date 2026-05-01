@@ -11,7 +11,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { insightsManager } from "../../../../utils/insights-manager.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/index.js";
 
 // =============================================================================
@@ -50,26 +50,30 @@ export function createAppendInsightTool(): ToolDefinition {
 
         if (!parsed.insight?.trim()) {
           return Promise.resolve(
-            new ValidationError("Insight text cannot be empty").toResponse(),
+            formatHandlerErrorResponse(new ValidationError("Insight text cannot be empty")),
           );
         }
 
         if (parsed.insight.length > 1000) {
           const lenStr = parsed.insight.length.toString(10);
           return Promise.resolve(
-            new ValidationError(
-              `Insight text is too long (${lenStr} chars). Maximum allowed is 1000 characters.`,
-            ).toResponse(),
+            formatHandlerErrorResponse(
+              new ValidationError(
+                `Insight text is too long (${lenStr} chars). Maximum allowed is 1000 characters.`,
+              )
+            )
           );
         }
 
         insightsManager.append(parsed.insight);
 
-        return Promise.resolve({
-          success: true,
-          insightCount: insightsManager.count(),
-          message: `Insight recorded (${String(insightsManager.count())} total)`,
-        });
+        return Promise.resolve(
+          withTokenEstimate({
+            success: true,
+            insightCount: insightsManager.count(),
+            message: `Insight recorded (${String(insightsManager.count())} total)`,
+          })
+        );
       } catch (err: unknown) {
         return Promise.resolve(formatHandlerErrorResponse(err));
       }
