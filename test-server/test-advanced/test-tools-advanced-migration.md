@@ -57,12 +57,12 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 1. Run `mysql_migration_init()` to prepare tracking tables.
 2. Record a migration `001_base` with `checksum: "ABC"`.
 3. Attempt to `mysql_migration_apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
-4. Manually update the `_mcp_migrations` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql_migration_status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
+4. Manually update the `_mcp_schema_versions` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql_migration_status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
 
 ## Category 2: Rollback Boundaries & Idempotency
 
 5. Run `mysql_migration_init()` again. Verify it is idempotent and does not wipe existing tracking data.
-6. Apply a valid migration `002_new_col` that adds a column.
+6. Apply a valid migration `002_new_col` that adds a column (ensure you provide `rollbackSql`).
 7. Run `mysql_migration_rollback` for `002_new_col`. Verify success.
 8. Attempt to run `mysql_migration_rollback` for `002_new_col` _again_. Verify it returns a structured `{success: false, error: "..."}` stating the migration is already rolled back.
 9. Attempt to run `mysql_migration_rollback` for a version that was never applied (`003_ghost`). Verify structured failure.
@@ -76,4 +76,4 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 
 ## Category 4: Cleanup Verification
 
-14. Drop all test columns generated and explicitly `DROP TABLE _mcp_migrations`. Verify clean removal.
+14. Drop all test columns generated and explicitly `DROP TABLE _mcp_schema_versions`. Verify clean removal.
