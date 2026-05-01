@@ -26,6 +26,7 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
   validateIdentifier,
+  validateWhereClause,
 } from "../../../../utils/validators.js";
 
 /**
@@ -45,15 +46,15 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path, id, idColumn } =
+        const { table, column, path, where } =
           JsonGetSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
-        validateIdentifier(idColumn, "column");
+        validateWhereClause(where);
 
-        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
-        const result = await adapter.executeReadQuery(sql, [path, id]);
+        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const result = await adapter.executeReadQuery(sql, [path]);
 
         let response;
         if (!result.rows || result.rows.length === 0) {
@@ -103,12 +104,12 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path, value, id, idColumn } =
+        const { table, column, path, value, where } =
           JsonUpdateSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
-        validateIdentifier(idColumn, "column");
+        validateWhereClause(where);
 
         // Normalize value to valid JSON (bare strings get wrapped automatically)
         let jsonValue: string;
@@ -125,17 +126,16 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE \`${idColumn}\` = ?`;
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql, [
           path,
           jsonValue,
-          id,
         ]);
         if (result.rowsAffected === 0) {
           const response = {
             success: false as const,
-            error: `No row found with ${idColumn} = ${String(id)}`,
+            error: `No row found matching WHERE ${where}`,
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };

@@ -40,7 +40,7 @@ describe("JSON Helper Tools", () => {
           table: "data",
           column: "json_col",
           path: "$.a",
-          id: 1,
+          where: "`id` = 1",
         },
         mockContext,
       )) as { value: any };
@@ -48,7 +48,7 @@ describe("JSON Helper Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_EXTRACT");
-      expect(call).toContain("WHERE `id` = ?");
+      expect(call).toContain("WHERE `id` = 1");
       // Value is parsed from JSON string
       expect(result.value).toEqual({ a: 1 });
     });
@@ -62,7 +62,7 @@ describe("JSON Helper Tools", () => {
           table: "data",
           column: "json_col",
           path: "$.a",
-          id: 999,
+          where: "`id` = 999",
         },
         mockContext,
       )) as { value: null; rowFound: boolean };
@@ -109,7 +109,7 @@ describe("JSON Helper Tools", () => {
           column: "json_col",
           path: "$.a",
           value: 2,
-          id: 1,
+          where: "`id` = 1",
         },
         mockContext,
       )) as { success: boolean };
@@ -131,7 +131,7 @@ describe("JSON Helper Tools", () => {
           column: "json_col",
           path: "$.a",
           value: 2,
-          id: 999,
+          where: "`id` = 999",
         },
         mockContext,
       )) as { success: boolean; error: string };
@@ -230,7 +230,7 @@ describe("JSON Helper Tools", () => {
       mockAdapter.executeReadQuery.mockRejectedValue(tableError);
       const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", id: 1 },
+        { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
       expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
@@ -240,7 +240,7 @@ describe("JSON Helper Tools", () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
       const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", value: 1, id: 1 },
+        { table: "nonexistent", column: "doc", path: "$.x", value: 1, where: "`id` = 1" },
         mockContext,
       );
       expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
@@ -262,7 +262,7 @@ describe("JSON Helper Tools", () => {
       );
       const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "data", column: "doc", path: "$.x", id: 1 },
+        { table: "data", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
       expect(result).toEqual(

@@ -142,7 +142,7 @@ describe("JSON Helper Handler Execution", () => {
           table: "users",
           column: "profile",
           path: "$.name",
-          id: 1,
+          where: "`id` = 1",
         },
         mockContext,
       )) as { value: string };
@@ -166,8 +166,7 @@ describe("JSON Helper Handler Execution", () => {
           table: "products",
           column: "specs",
           path: "$.weight",
-          id: "ABC123",
-          idColumn: "sku",
+          where: "`sku` = 'ABC123'",
         },
         mockContext,
       );
@@ -192,7 +191,7 @@ describe("JSON Helper Handler Execution", () => {
           column: "profile",
           path: "$.name",
           value: "Jane Doe",
-          id: 1,
+          where: "`id` = 1",
         },
         mockContext,
       )) as { success: boolean };
@@ -215,7 +214,7 @@ describe("JSON Helper Handler Execution", () => {
           column: "profile",
           path: "$.name",
           value: "Jane Doe",
-          id: 999,
+          where: "`id` = 999",
         },
         mockContext,
       )) as { success: boolean };

@@ -446,8 +446,8 @@ export const JsonGetSchemaBase = z.object({
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to extract"),
-  id: z.union([z.string(), z.number()]).describe("Row ID"),
-  idColumn: z.string().default("id").describe("ID column name"),
+  where: z.string().optional().describe("WHERE clause to identify rows"),
+  filter: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonGetSchema = z
@@ -460,16 +460,15 @@ export const JsonGetSchema = z
       column: z.string().optional(),
       col: z.string().optional(),
       path: z.unknown().optional(),
-      id: z.unknown().optional(),
-      idColumn: z.string().default("id"),
+      where: z.string().optional(),
+      filter: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
     path: data.path,
-    id: data.id,
-    idColumn: data.idColumn,
+    where: data.where ?? data.filter ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -480,8 +479,8 @@ export const JsonGetSchema = z
   .refine((data) => data.path !== undefined && data.path !== "", {
     message: "path is required",
   })
-  .refine((data) => data.id !== undefined && data.id !== "", {
-    message: "id is required",
+  .refine((data) => data.where !== "", {
+    message: "where (or filter alias) is required",
   });
 
 // --- JsonUpdate ---
@@ -493,8 +492,8 @@ export const JsonUpdateSchemaBase = z.object({
   col: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to update"),
   value: z.unknown().optional().describe("New value"),
-  id: z.union([z.string(), z.number()]).describe("Row ID"),
-  idColumn: z.string().default("id").describe("ID column name"),
+  where: z.string().optional().describe("WHERE clause to identify rows"),
+  filter: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonUpdateSchema = z
@@ -508,8 +507,8 @@ export const JsonUpdateSchema = z
       col: z.string().optional(),
       path: z.unknown().optional(),
       value: z.unknown().optional(),
-      id: z.unknown().optional(),
-      idColumn: z.string().default("id"),
+      where: z.string().optional(),
+      filter: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -517,8 +516,7 @@ export const JsonUpdateSchema = z
     column: data.column ?? data.col ?? "",
     path: data.path,
     value: data.value,
-    id: data.id,
-    idColumn: data.idColumn,
+    where: data.where ?? data.filter ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -532,8 +530,8 @@ export const JsonUpdateSchema = z
   .refine((data) => data.value !== undefined && data.value !== "", {
     message: "value is required",
   })
-  .refine((data) => data.id !== undefined && data.id !== "", {
-    message: "id is required",
+  .refine((data) => data.where !== "", {
+    message: "where (or filter alias) is required",
   });
 
 // --- JsonNormalize ---
