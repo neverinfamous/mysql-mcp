@@ -90,11 +90,15 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
           const explainRow = result.rows[0];
           const jsonStr = explainRow["EXPLAIN"];
           if (typeof jsonStr === "string") {
-            return { success: true, plan: JSON.parse(jsonStr) as unknown };
+            const response = { success: true, plan: JSON.parse(jsonStr) as unknown };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
           }
         }
 
-        return { success: true, plan: result.rows };
+        const response = { success: true, plan: result.rows };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -124,16 +128,20 @@ export function createExplainAnalyzeTool(
         // (requires explain_json_format_version=2 which is not widely available).
         // Return a descriptive error for JSON format requests.
         if (format === "JSON") {
-          return {
+          const response = {
             success: false,
             error:
               "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
         const result = await adapter.executeReadQuery(sql);
-        return { success: true, analysis: result.rows };
+        const response = { success: true, analysis: result.rows };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -176,13 +184,15 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
         sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${actualLimit}`;
 
         const result = await adapter.executeReadQuery(sql);
-        return {
+        const response = {
           success: true,
           slowQueries: sanitizeTimerRows(result.rows, [
             "avg_time_ms",
             "total_time_ms",
           ]),
         };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -230,7 +240,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
             `;
 
         const result = await adapter.executeReadQuery(sql);
-        return {
+        const response = {
           success: true,
           queries: sanitizeTimerRows(result.rows, [
             "avg_time_ms",
@@ -238,6 +248,8 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
             "total_time_ms",
           ]),
         };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -268,7 +280,9 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
             [table],
           );
           if (!check.rows || check.rows.length === 0) {
-            return { success: false, error: `Table '${table}' doesn't exist` };
+            const response = { success: false, error: `Table '${table}' doesn't exist` };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
           }
         }
 
@@ -300,7 +314,9 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           sql,
           table ? [table] : [],
         );
-        return { success: true, indexUsage: result.rows };
+        const response = { success: true, indexUsage: result.rows };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -347,10 +363,14 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [table]);
 
         if (!result.rows || result.rows.length === 0) {
-          return { success: false, error: `Table '${table}' doesn't exist` };
+          const response = { success: false, error: `Table '${table}' doesn't exist` };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
-        return { success: true, stats: result.rows[0] };
+        const response = { success: true, stats: result.rows[0] };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -389,7 +409,9 @@ export function createBufferPoolStatsTool(
          FROM information_schema.INNODB_BUFFER_POOL_STATS`,
         );
 
-        return { success: true, bufferPoolStats: result.rows };
+        const response = { success: true, bufferPoolStats: result.rows };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -432,7 +454,9 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 LIMIT 50
             `);
 
-        return { success: true, threads: result.rows };
+        const response = { success: true, threads: result.rows };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

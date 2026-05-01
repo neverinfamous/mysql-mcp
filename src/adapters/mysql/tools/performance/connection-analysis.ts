@@ -70,20 +70,24 @@ export function createDetectConnectionSpikeTool(
         const rawPercent =
           parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
         if (rawPercent < 0 || rawPercent > 100) {
-          return {
+          const response = {
             success: false,
             error:
               "warningPercent (or thresholdPercent) must be between 0 and 100",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
         const warningPercent = rawPercent;
         const windowMinutes = parsed.windowMinutes ?? 5;
 
         if (windowMinutes < 1 || windowMinutes > 1440) {
-          return {
+          const response = {
             success: false,
             error: "windowMinutes must be between 1 and 1440",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
         const idleSeconds = windowMinutes * 60;
 
@@ -226,7 +230,7 @@ export function createDetectConnectionSpikeTool(
             ? `No connection anomalies detected (${String(totalConnections)}/${String(maxConnections)} connections, ${String(usagePercent)}% usage)`
             : `${String(warnings.length)} warning(s) detected: ${String(totalConnections)}/${String(maxConnections)} connections (${String(usagePercent)}% usage)`;
 
-        return {
+        const response = {
           success: true,
           totalConnections,
           maxConnections,
@@ -237,6 +241,8 @@ export function createDetectConnectionSpikeTool(
           riskLevel,
           summary,
         };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         return formatHandlerErrorResponse(error);

@@ -614,7 +614,7 @@ describe("Performance Analysis Tools", () => {
       const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ table: "nonexistent" }, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' doesn't exist",
       });

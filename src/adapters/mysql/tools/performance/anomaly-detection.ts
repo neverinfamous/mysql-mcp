@@ -106,16 +106,20 @@ export function createDetectQueryAnomaliesTool(
         const minCalls = parsed.minExecutions ?? parsed.minCalls ?? 50;
 
         if (threshold < 2 || threshold > 10000) {
-          return {
+          const response = {
             success: false,
             error: "threshold (or stdDevThreshold) must be between 2 and 10000",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
         if (minCalls < 1 || minCalls > 100000) {
-          return {
+          const response = {
             success: false,
             error: "minCalls (or minExecutions) must be between 1 and 100000",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         // Check if performance_schema is available
@@ -124,10 +128,12 @@ export function createDetectQueryAnomaliesTool(
             `SELECT 1 FROM performance_schema.events_statements_summary_by_digest LIMIT 1`,
           );
         } catch {
-          return {
+          const response = {
             success: false,
             error: "performance_schema is disabled or inaccessible.",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         const countResult = await adapter.executeQuery(
@@ -182,7 +188,7 @@ export function createDetectQueryAnomaliesTool(
             ? `No query anomalies detected (analyzed ${String(totalAnalyzed)} queries with variance threshold ${String(threshold)}x)`
             : `${String(anomalyCount)} anomalous queries detected out of ${String(totalAnalyzed)} analyzed (threshold: ${String(threshold)}x, max variance: ${String(maxVariance)}x)`;
 
-        return {
+        const response = {
           success: true,
           anomalies,
           riskLevel,
@@ -190,6 +196,8 @@ export function createDetectQueryAnomaliesTool(
           anomalyCount,
           summary,
         };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         return formatHandlerErrorResponse(error);
@@ -223,7 +231,9 @@ export function createDetectBloatRiskTool(
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
-            return { success: false, error: "Invalid schema name" };
+            const response = { success: false, error: "Invalid schema name" };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
           }
           schemaFilter = `TABLE_SCHEMA = '${schema}'`;
         }
@@ -310,13 +320,15 @@ export function createDetectBloatRiskTool(
             ? `No high-risk table bloat detected across ${String(tables.length)} tables`
             : `${String(highRiskCount)} table(s) at high fragmentation risk out of ${String(tables.length)} analyzed`;
 
-        return {
+        const response = {
           success: true,
           tables,
           highRiskCount,
           totalAnalyzed: tables.length,
           summary,
         };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         return formatHandlerErrorResponse(error);
