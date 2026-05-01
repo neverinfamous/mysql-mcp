@@ -78,7 +78,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path, where } = JsonExtractSchema.parse(params);
+        const { table, column, path, where, limit } = JsonExtractSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -93,9 +93,13 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         if (where) {
           sql += ` WHERE ${where}`;
         }
+        
+        if (limit !== undefined && limit !== null) {
+          sql += ` LIMIT ${limit}`;
+        }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        const response = { success: true, rows: result.rows };
+        const response = { success: true as const, rows: result.rows, count: result.rows?.length ?? 0 };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {

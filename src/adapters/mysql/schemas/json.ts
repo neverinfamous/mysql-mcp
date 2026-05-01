@@ -15,6 +15,7 @@ export const JsonExtractSchemaBase = z.object({
   path: z.unknown().optional().describe("JSON path (e.g., $.name or $[0])"),
   where: z.string().optional().describe("WHERE clause for filtering rows"),
   filter: z.string().optional().describe("Alias for where"),
+  limit: z.unknown().optional().describe("Maximum rows to return"),
 });
 
 export const JsonExtractSchema = z
@@ -29,6 +30,7 @@ export const JsonExtractSchema = z
       path: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      limit: z.number().optional(),
     }),
   )
   .transform((data) => ({
@@ -36,6 +38,7 @@ export const JsonExtractSchema = z
     column: data.column ?? data.col ?? "",
     path: data.path,
     where: data.where ?? data.filter,
+    limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
