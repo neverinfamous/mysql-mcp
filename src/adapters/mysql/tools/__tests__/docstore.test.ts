@@ -123,7 +123,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -149,7 +149,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should add validation when specified", async () => {
@@ -210,7 +210,7 @@ describe("Handler Execution", () => {
         skipped: true,
         collection: "my_collection",
         reason: "Collection already exists",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
       // Should NOT have called CREATE TABLE
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -263,7 +263,7 @@ describe("Handler Execution", () => {
         error: "Schema 'fake_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -317,7 +317,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful error when collection does not exist", async () => {
@@ -353,7 +353,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -466,7 +466,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent_col' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should handle pre-parsed JSON documents", async () => {
@@ -533,7 +533,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -550,7 +550,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -570,7 +570,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -626,7 +626,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -646,7 +646,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -669,7 +669,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -784,7 +784,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "No modifications specified",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should reject invalid collection names", async () => {
@@ -800,7 +800,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -821,7 +821,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -845,7 +845,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -906,7 +906,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -926,7 +926,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -949,7 +949,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -1059,7 +1059,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should reject invalid index names", async () => {
@@ -1072,7 +1072,7 @@ describe("Handler Execution", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Invalid index name" });
+      expect(result).toEqual({ success: false, error: "Invalid index name" , metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -1093,7 +1093,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -1117,7 +1117,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -1196,7 +1196,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -1213,7 +1213,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -1232,7 +1232,7 @@ describe("Handler Execution", () => {
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
         category: "domain",
-      });
+       metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 });

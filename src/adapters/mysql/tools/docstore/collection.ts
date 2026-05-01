@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -41,12 +41,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               [schema],
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return {
+              return withTokenEstimate({
                 success: false,
                 error: `Schema '${schema}' does not exist`,
                 code: "SCHEMA_NOT_FOUND",
                 category: "domain",
-              };
+              });
             }
           }
 
@@ -66,11 +66,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema ?? null,
             schema ?? null,
           ]);
-          return {
+          return withTokenEstimate({
             success: true,
             collections: result.rows ?? [],
             count: result.rows?.length ?? 0,
-          };
+          });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -92,9 +92,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { name, schema, ifNotExists, validation } =
             CreateCollectionSchema.parse(params);
           if (!IDENTIFIER_RE.test(name))
-            return { success: false, error: "Invalid collection name" };
+            return withTokenEstimate({ success: false, error: "Invalid collection name" });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return { success: false, error: "Invalid schema name" };
+            return withTokenEstimate({ success: false, error: "Invalid schema name" });
 
           const tableRef = escapeTableRef(name, schema);
 
@@ -102,21 +102,21 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (ifNotExists) {
             const check = await checkCollectionExists(adapter, name, schema);
             if (check.exists) {
-              return {
+              return withTokenEstimate({
                 success: true,
                 skipped: true,
                 collection: name,
                 reason: "Collection already exists",
-              };
+              });
             }
             // If schema doesn't exist, report it even with ifNotExists
             if (check.reason === "schema") {
-              return {
+              return withTokenEstimate({
                 success: false,
                 error: `Schema '${check.name}' does not exist`,
                 code: "SCHEMA_NOT_FOUND",
                 category: "domain",
-              };
+              });
             }
           }
 
@@ -141,7 +141,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          return { success: true, collection: name };
+          return withTokenEstimate({ success: true, collection: name });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -149,20 +149,20 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes("unknown database")) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Schema '${(params as { schema?: string })?.schema ?? "unknown"}' does not exist`,
               code: "SCHEMA_NOT_FOUND",
               category: "domain",
-            };
+            });
           }
           if (message.toLowerCase().includes("already exists")) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Collection '${(params as { name?: string })?.name ?? "unknown"}' already exists`,
-            };
+            });
           }
-          return { success: false, error: message };
+          return withTokenEstimate({ success: false, error: message });
         }
       },
     },
@@ -178,9 +178,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { name, schema, ifExists } = DropCollectionSchema.parse(params);
           if (!IDENTIFIER_RE.test(name))
-            return { success: false, error: "Invalid collection name" };
+            return withTokenEstimate({ success: false, error: "Invalid collection name" });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return { success: false, error: "Invalid schema name" };
+            return withTokenEstimate({ success: false, error: "Invalid schema name" });
 
           const tableRef = escapeTableRef(name, schema);
 
@@ -191,12 +191,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               [schema],
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return {
+              return withTokenEstimate({
                 success: false,
                 error: `Schema '${schema}' does not exist`,
                 code: "SCHEMA_NOT_FOUND",
                 category: "domain",
-              };
+              });
             }
           }
 
@@ -204,11 +204,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (ifExists) {
             const check = await checkCollectionExists(adapter, name, schema);
             if (!check.exists) {
-              return {
+              return withTokenEstimate({
                 success: true,
                 collection: name,
                 message: "Collection did not exist",
-              };
+              });
             }
           }
 
@@ -216,7 +216,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             `DROP TABLE ${ifExists ? "IF EXISTS " : ""}${tableRef}`,
           );
           adapter.clearSchemaCache();
-          return { success: true, collection: name };
+          return withTokenEstimate({ success: true, collection: name });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -224,12 +224,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes("unknown table")) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Collection '${(params as { name?: string })?.name ?? "unknown"}' does not exist`,
-            };
+            });
           }
-          return { success: false, error: message };
+          return withTokenEstimate({ success: false, error: message });
         }
       },
     },
@@ -245,7 +245,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema } = CollectionInfoSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return { success: false, error: "Invalid collection name" };
+            return withTokenEstimate({ success: false, error: "Invalid collection name" });
 
           // Check collection existence (with schema detection)
           const infoCheck = await checkCollectionExists(
@@ -255,18 +255,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!infoCheck.exists) {
             return infoCheck.reason === "schema"
-              ? {
+              ? withTokenEstimate({
                   success: false,
                   error: `Schema '${infoCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
                   category: "domain",
-                }
-              : {
+                })
+              : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
                   category: "domain",
-                };
+                });
           }
 
           // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
@@ -298,12 +298,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
 
           const stats = tableInfo.rows?.[0] ?? {};
-          return {
+          return withTokenEstimate({
             success: true,
             collection,
             stats: { rowCount, ...stats },
             indexes: indexInfo.rows ?? [],
-          };
+          });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
