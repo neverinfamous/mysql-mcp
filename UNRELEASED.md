@@ -35,7 +35,7 @@
 
 ## Fixed
 
-- **Global Error Handling**: Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, and fixed `MySQLMcpError` property stripping.
+- **Global Error Handling**: Unified reporting across all tool groups to adhere to the `ErrorResponse` schema (`{ success: boolean }`). Eliminated legacy property leakages, standardized Zod error formats, fixed `MySQLMcpError` property stripping, and ensured that all structured error responses consistently include `metrics.tokenEstimate` payloads.
 - **Validation & Coercion**: Applied the Split Schema and SchemaBase patterns across all tool groups. This ensures missing required parameters and invalid types (e.g., numeric limits) are properly coerced via `z.unknown()` or gracefully return structured handler errors instead of raw MCP exceptions.
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.

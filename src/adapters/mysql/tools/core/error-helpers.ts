@@ -86,24 +86,29 @@ export function stripErrorPrefix(msg: string): string {
  * ```
  */
 export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
+  let response: ErrorResponse;
+
   // MySQLMcpError — already enriched
   if (err instanceof MySQLMcpError) {
-    const response = err.toResponse();
+    response = err.toResponse();
     response.error = formatMysqlError(response.error);
-    return response;
-  }
-
-  // Zod validation error
-  if (err instanceof ZodError) {
-    return {
+  } else if (err instanceof ZodError) {
+    // Zod validation error
+    response = {
       success: false,
       error: formatZodError(err),
     };
+  } else {
+    // Raw MySQL / unknown error
+    response = {
+      success: false,
+      error: formatMysqlError(err),
+    };
   }
 
-  // Raw MySQL / unknown error
-  return {
-    success: false,
-    error: formatMysqlError(err),
-  };
+  // Calculate payload token cost (JSON byte length / 4)
+  const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+  response.metrics = { tokenEstimate };
+
+  return response;
 }

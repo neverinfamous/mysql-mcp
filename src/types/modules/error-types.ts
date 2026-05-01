@@ -40,6 +40,10 @@ export interface ErrorResponse {
   suggestion?: string;
   recoverable?: boolean;
   details?: Record<string, unknown>;
+  metrics?: {
+    tokenEstimate: number;
+    [key: string]: number;
+  };
 }
 
 /**
