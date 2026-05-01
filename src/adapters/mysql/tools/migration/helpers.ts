@@ -92,6 +92,7 @@ export async function checkDuplicateHash(
     code: string;
     category: string;
     recoverable: boolean;
+    metrics?: { tokenEstimate: number };
   };
 }> {
   let targetSchema = schema;
@@ -112,15 +113,17 @@ export async function checkDuplicateHash(
   if (versionCheck.rows && versionCheck.rows.length > 0) {
     for (const row of versionCheck.rows) {
       if (row["migration_hash"] !== migrationHash) {
+        const duplicateError = {
+          success: false as const,
+          error: `Checksum mismatch for migration "${version}". The version already exists but with a different SQL hash.`,
+          code: "CHECKSUM_MISMATCH",
+          category: "validation",
+          recoverable: false,
+        };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4);
         return {
           migrationHash,
-          duplicateError: {
-            success: false,
-            error: `Checksum mismatch for migration "${version}". The version already exists but with a different SQL hash.`,
-            code: "CHECKSUM_MISMATCH",
-            category: "validation",
-            recoverable: false,
-          },
+          duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
         };
       }
     }
@@ -139,29 +142,33 @@ export async function checkDuplicateHash(
     const dupVersion = dup["version"] as string;
 
     if (dupVersion === version) {
+      const duplicateError = {
+        success: false as const,
+        error: `Migration "${version}" has already been applied.`,
+        code: "ALREADY_APPLIED",
+        category: "validation",
+        recoverable: true,
+      };
+      const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4);
       return {
         migrationHash,
-        duplicateError: {
-          success: false,
-          error: `Migration "${version}" has already been applied.`,
-          code: "ALREADY_APPLIED",
-          category: "validation",
-          recoverable: true,
-        },
+        duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
       };
     }
 
+    const duplicateError = {
+      success: false as const,
+      error:
+        `Duplicate migration detected: version "${dupVersion}" (id: ${String(dupId)}) has the same SQL hash. ` +
+        `Use a different migration SQL or roll back the existing one first.`,
+      code: "DUPLICATE_MIGRATION",
+      category: "validation",
+      recoverable: true,
+    };
+    const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4);
     return {
       migrationHash,
-      duplicateError: {
-        success: false,
-        error:
-          `Duplicate migration detected: version "${dupVersion}" (id: ${String(dupId)}) has the same SQL hash. ` +
-          `Use a different migration SQL or roll back the existing one first.`,
-        code: "DUPLICATE_MIGRATION",
-        category: "validation",
-        recoverable: true,
-      },
+      duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
     };
   }
   return { migrationHash, duplicateError: null };

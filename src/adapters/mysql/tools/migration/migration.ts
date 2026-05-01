@@ -80,12 +80,14 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
         const countRow = (countResult.rows ?? [])[0];
         const existingRecords = Number(countRow?.["count"]) || 0;
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           tableCreated: !existed,
           tableName: qualifiedTable,
           existingRecords,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -151,16 +153,20 @@ export function createMigrationRecordTool(
 
         const resultRows = result.rows ?? [];
         if (resultRows.length === 0) {
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: "Failed to insert migration record.",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
         const row = resultRows[0] ?? {};
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           record: formatRecord(row),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -231,17 +237,21 @@ export function createMigrationApplyTool(
 
           const resultRows = result.rows ?? [];
           if (resultRows.length === 0) {
-            return {
-              success: false,
+            const errorResponse = {
+              success: false as const,
               error:
                 "Migration was applied but failed to insert tracking record.",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            return { ...errorResponse, metrics: { tokenEstimate } };
           }
           const row = resultRows[0] ?? {};
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             record: formatRecord(row),
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
 
@@ -266,13 +276,15 @@ export function createMigrationApplyTool(
             // Best-effort: if we can't record the failure, still return the error
           }
 
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: `Migration "${parsed.version}" failed: ${message}. Warning: If this was a DDL statement, partial changes may exist.`,
             code: "QUERY_ERROR",
             category: "query",
             recoverable: false,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

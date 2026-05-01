@@ -54,14 +54,16 @@ export function createMigrationRollbackTool(
         await ensureTrackingTable(adapter, targetSchema);
 
         if (parsed.id === undefined && parsed.version === undefined) {
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error:
               "Either 'id' or 'version' is required to identify the migration to roll back.",
             code: "VALIDATION_ERROR",
             category: "validation",
             recoverable: true,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
         // Coerce id: functional param, return error on wrong type
@@ -69,13 +71,15 @@ export function createMigrationRollbackTool(
         if (parsed.id !== undefined) {
           const num = parsed.id;
           if (isNaN(num)) {
-            return {
-              success: false,
+            const errorResponse = {
+              success: false as const,
               error: `Invalid migration id: expected a number, got "${String(parsed.id)}"`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: true,
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            return { ...errorResponse, metrics: { tokenEstimate } };
           }
           coercedId = num;
         }
@@ -97,13 +101,15 @@ export function createMigrationRollbackTool(
             coercedId !== undefined
               ? `id ${String(coercedId)}`
               : `version "${parsed.version ?? ""}"`;
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: `Migration not found: ${identifier}`,
             code: "NOT_FOUND",
             category: "validation",
             recoverable: true,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
         const row = findRows[0] ?? {};
@@ -113,32 +119,38 @@ export function createMigrationRollbackTool(
         const rollbackSql = (row["rollback_sql"] as string | null) ?? null;
 
         if (rowStatus === "rolled_back") {
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: `Migration "${rowVersion}" (id: ${String(rowId)}) has already been rolled back.`,
             code: "VALIDATION_ERROR",
             category: "validation",
             recoverable: true,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
         if (rollbackSql === null) {
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: `Migration "${rowVersion}" (id: ${String(rowId)}) has no rollback SQL stored. Manual rollback required.`,
             code: "VALIDATION_ERROR",
             category: "validation",
             recoverable: true,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
         if (parsed.dryRun === true) {
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             dryRun: true,
             rollbackSql,
             record: formatRecord(row),
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         try {
@@ -148,8 +160,8 @@ export function createMigrationRollbackTool(
             [rowId],
           );
 
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             dryRun: false,
             rollbackSql,
             record: {
@@ -157,15 +169,19 @@ export function createMigrationRollbackTool(
               status: "rolled_back",
             },
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
-          return {
-            success: false,
+          const errorResponse = {
+            success: false as const,
             error: `Rollback failed for migration "${rowVersion}" (id: ${String(rowId)}): ${msg}.`,
             code: "QUERY_ERROR",
             category: "query",
             recoverable: false,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          return { ...errorResponse, metrics: { tokenEstimate } };
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -243,13 +259,15 @@ export function createMigrationHistoryTool(
 
         const records = (dataResult.rows ?? []).map(formatRecord);
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           records,
           total,
           limit,
           offset,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -298,8 +316,8 @@ export function createMigrationStatusTool(
           firstRow?.["table_exists"] === true;
 
         if (!tableExists) {
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             initialized: false,
             latestVersion: null,
             latestAppliedAt: null,
@@ -312,6 +330,8 @@ export function createMigrationStatusTool(
             },
             sourceSystems: [],
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
@@ -355,8 +375,8 @@ export function createMigrationStatusTool(
               : ((appliedAt as string | null) ?? "");
         }
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           initialized: true,
           latestVersion:
             latestRow != null ? (latestRow["version"] as string) : null,
@@ -370,6 +390,8 @@ export function createMigrationStatusTool(
           },
           sourceSystems,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
