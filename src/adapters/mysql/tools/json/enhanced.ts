@@ -109,14 +109,16 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [json1, json2]);
 
         const merged = result.rows?.[0]?.["merged"];
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           merged:
             typeof merged === "string"
               ? (JSON.parse(merged) as Record<string, unknown>)
               : merged,
           mode,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err: unknown) {
         if (err instanceof ZodError) {
           return formatHandlerErrorResponse(err);
@@ -235,8 +237,8 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           identical,
           json1ContainsJson2: row?.["json1_contains_json2"] === 1,
           json2ContainsJson1: row?.["json2_contains_json1"] === 1,
@@ -248,6 +250,8 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           removedKeys,
           differences,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err: unknown) {
         if (err instanceof ZodError) {
           return formatHandlerErrorResponse(err);
@@ -316,20 +320,22 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           uniqueKeys,
           keyCount: uniqueKeys.length,
           keyStats,
           truncated: uniqueKeys.length > 20,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { success: false, error: "Table or column does not exist" };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -397,8 +403,8 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
             // Ignore if JSON_TABLE is not supported or errors out
         }
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           totalSampled: Number(row?.["total_rows"] ?? 0),
           nullCount: Number(row?.["null_count"] ?? 0),
           length: {
@@ -417,13 +423,15 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
           sampleSize,
           topKeys,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { success: false, error: "Table or column does not exist" };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -529,21 +537,23 @@ export function createJsonIndexSuggestTool(
         // Sort by cardinality (higher is better for indexing)
         suggestions.sort((a, b) => b.cardinality - a.cardinality);
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           table,
           column,
           suggestions: suggestions.slice(0, 5), // Top 5 suggestions
           suggestion:
             "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { success: false, error: "Table or column does not exist" };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
         return formatHandlerErrorResponse(error);
       }

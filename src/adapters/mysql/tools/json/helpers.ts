@@ -55,38 +55,34 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE \`${idColumn}\` = ?`;
         const result = await adapter.executeReadQuery(sql, [path, id]);
 
-        // No rows = row ID doesn't exist (distinct from null JSON path)
+        let response;
         if (!result.rows || result.rows.length === 0) {
-          return { success: true, value: null, rowFound: false };
-        }
-
-        const rawValue = result.rows?.[0]?.["value"];
-        // Parse JSON value for consistency with mysql_json_extract
-        // Return null for missing paths, parse objects/arrays, return primitives as-is
-        if (rawValue === null || rawValue === undefined) {
-          return { success: true, value: null };
-        }
-        // If result is already an object (MySQL driver parsed it), return as-is
-        if (typeof rawValue === "object") {
-          return { success: true, value: rawValue };
-        }
-        // Try to parse string values as JSON
-        if (typeof rawValue === "string") {
-          try {
-            return { success: true, value: JSON.parse(rawValue) as unknown };
-          } catch {
-            // Return unquoted string for primitive string values
-            return { success: true, value: rawValue };
+          response = { success: true as const, value: null, rowFound: false };
+        } else {
+          const rawValue = result.rows?.[0]?.["value"];
+          if (rawValue === null || rawValue === undefined) {
+            response = { success: true as const, value: null };
+          } else if (typeof rawValue === "object") {
+            response = { success: true as const, value: rawValue };
+          } else if (typeof rawValue === "string") {
+            try {
+              response = { success: true as const, value: JSON.parse(rawValue) as unknown };
+            } catch {
+              response = { success: true as const, value: rawValue };
+            }
+          } else {
+            response = { success: true as const, value: rawValue };
           }
         }
-        return { success: true, value: rawValue };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { success: false, error: "Table or column does not exist" };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -137,19 +133,23 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           id,
         ]);
         if (result.rowsAffected === 0) {
-          return {
-            success: false,
+          const response = {
+            success: false as const,
             error: `No row found with ${idColumn} = ${String(id)}`,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
-        return { success: true };
+        const response = { success: true as const };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { success: false, error: "Table or column does not exist" };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -186,18 +186,20 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
           mode,
           searchValue,
         ]);
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           rows: result.rows,
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { success: false, error: "Table or column does not exist" };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -225,14 +227,18 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [value]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
-        return { success: true, valid: isValid };
+        const response = { success: true as const, valid: isValid };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Invalid JSON text")) {
-          return { success: true, valid: false };
+          const response = { success: true as const, valid: false };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
         return formatHandlerErrorResponse(error);
       }

@@ -233,10 +233,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", id: 1 },
         mockContext,
       );
-      expect(result).toEqual({
-        success: false,
-        error: "Table or column does not exist",
-      });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_update should return exists: false for nonexistent table", async () => {
@@ -246,10 +243,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", value: 1, id: 1 },
         mockContext,
       );
-      expect(result).toEqual({
-        success: false,
-        error: "Table or column does not exist",
-      });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_search should return exists: false for nonexistent table", async () => {
@@ -259,10 +253,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", searchValue: "test" },
         mockContext,
       );
-      expect(result).toEqual({
-        success: false,
-        error: "Table or column does not exist",
-      });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("should return success: false for generic errors", async () => {
