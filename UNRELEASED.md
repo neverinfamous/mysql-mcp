@@ -61,6 +61,7 @@
 - **Performance**: Added `LIMIT 50` to `threadStats` query to cap payload size and prevent unbounded token consumption.
 - **Events**: Fixed `mysql_scheduler_status` missing `status` field and `mysql_event_status` missing `event` object in response payloads.
 - **Transactions**: Fixed parameter alias parsing in `mysql_transaction_begin` and `mysql_transaction_execute` to correctly map `isolation_level` to `isolationLevel`.
+- **Monitoring**: Fixed missing `metrics.tokenEstimate` payloads across all monitoring tools (`mysql_show_processlist`, `mysql_show_status`, `mysql_show_variables`, `mysql_innodb_status`, `mysql_replication_status`, `mysql_pool_stats`, `mysql_server_health`) by explicitly injecting token estimates into all success payloads and unifying domain validation errors via `formatHandlerErrorResponse`. Cleaned up unnecessary TypeScript type assertions in `createReplicationStatusTool`.
 
 ## Security
 

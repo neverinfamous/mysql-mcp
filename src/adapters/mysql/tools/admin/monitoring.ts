@@ -44,12 +44,14 @@ export function createShowProcesslistTool(
         const totalAvailable = allRows.length;
         const limited = totalAvailable > limit;
         const processes = limited ? allRows.slice(0, limit) : allRows;
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           processes,
           count: processes.length,
           ...(limited ? { limited: true, totalAvailable } : {}),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -73,10 +75,12 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { like, global, limit } = ShowStatusSchema.parse(params);
         if (limit !== undefined && limit < 1) {
-          return {
+          const response = {
             success: false as const,
             error: "limit must be a positive integer",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
         const effectiveLimit = limit ?? 30;
 
@@ -116,13 +120,15 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
           ? Object.fromEntries(entries.slice(0, effectiveLimit))
           : status;
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           status: truncated,
           rowCount: Object.keys(truncated).length,
           totalAvailable,
           ...(limited && { limited: true }),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -146,10 +152,12 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
         if (limit !== undefined && limit < 1) {
-          return {
+          const response = {
             success: false as const,
             error: "limit must be a positive integer",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
         const effectiveLimit = limit ?? 30;
 
@@ -186,13 +194,15 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
           ? Object.fromEntries(entries.slice(0, effectiveLimit))
           : variables;
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           variables: truncated,
           rowCount: Object.keys(truncated).length,
           totalAvailable,
           ...(limited && { limited: true }),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -316,13 +326,17 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "";
 
         if (summary) {
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             summary: parseInnodbStatusSummary(rawStatus),
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
-        return { success: true, status: rawRow };
+        const response = { success: true as const, status: rawRow };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -395,56 +409,70 @@ export function createReplicationStatusTool(
         try {
           const result = await adapter.executeQuery("SHOW REPLICA STATUS");
           if (!result.rows || result.rows.length === 0) {
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               configured: false,
               message: "Replication is not configured on this server",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
           const first = result.rows[0];
           if (!first) {
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               configured: false,
               message: "Replication is not configured on this server",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return {
-            success: true,
+          const response = {
+            success: true as const,
             configured: true,
             status: summary ? extractReplicationSummary(first) : first,
             ...(summary ? { summary: true } : {}),
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         } catch {
           try {
             const result = await adapter.executeQuery("SHOW SLAVE STATUS");
             if (!result.rows || result.rows.length === 0) {
-              return {
-                success: true,
+              const response = {
+                success: true as const,
                 configured: false,
                 message: "Replication is not configured on this server",
               };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
             }
             const first = result.rows[0];
             if (!first) {
-              return {
-                success: true,
+              const response = {
+                success: true as const,
                 configured: false,
                 message: "Replication is not configured on this server",
               };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
             }
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               configured: true,
               status: summary ? extractReplicationSummary(first) : first,
               ...(summary ? { summary: true } : {}),
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           } catch {
-            return {
-              success: true,
+            const response = {
+              success: true as const,
               configured: false,
               message: "Replication is not configured on this server",
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
         }
       } catch (err) {
@@ -472,9 +500,11 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const pool = await Promise.resolve(adapter.getPool());
         if (!pool) {
-          return { success: false as const, error: "Pool not available" };
+          return formatHandlerErrorResponse(new Error("Pool not available"));
         }
-        return { success: true, poolStats: pool.getStats() };
+        const response = { success: true as const, poolStats: pool.getStats() };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -516,8 +546,8 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
         );
         const queries = queriesResult.rows?.[0]?.["Value"];
 
-        return {
-          success: true,
+        const response = {
+          success: true as const,
           ...health,
           uptime:
             uptime != null && typeof uptime === "string"
@@ -532,6 +562,8 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
               ? parseInt(queries, 10)
               : undefined,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
