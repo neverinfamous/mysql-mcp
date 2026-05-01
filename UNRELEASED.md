@@ -56,7 +56,7 @@
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for `mysql.sysschema` in Code Mode bindings, supporting intuitive shorthand calls. Remediated missing `metrics.tokenEstimate` payloads across all sysschema tools (`user_summary`, `host_summary`, `statement_summary`, `wait_summary`, `io_summary`, `schema_stats`, `innodb_lock_waits`, `memory_summary`) by enforcing `withTokenEstimate` wrappers in success paths and early domain errors. Updated test suite assertions to validate the newly included token metrics.
 - **Shell**: Extended language validation to support JavaScript and Python. Fixed `dump_tables` dry run configuration. Fixed Windows path resolution using `path.resolve`.
 - **ProxySQL**: Added missing `version` and `uptime` properties to `proxysql_status` response.
-- **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience.
+- **Text**: Added `targetCharset` alias mapping for `charset` parameter in `collationConvert` schema validation to improve agent tool-calling resilience. Remediated missing `metrics.tokenEstimate` payloads across all text tools (`regexp_match`, `like_search`, `soundex`, `substring`, `concat`, `collation_convert`) by enforcing `withTokenEstimate` wrappers in success paths.
 - **Tests**: Remediated benchmark timing assertions, fixed `vitest bench` watch-mode hangs, and gracefully skipped E2E write tests in read-only mode.
 - **Performance**: Added `LIMIT 50` to `threadStats` query to cap payload size and prevent unbounded token consumption.
 - **Events**: Fixed `mysql_scheduler_status` missing `status` field and `mysql_event_status` missing `event` object in response payloads.

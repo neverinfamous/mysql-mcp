@@ -30,7 +30,7 @@ import {
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -66,11 +66,11 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -113,11 +113,11 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -158,11 +158,11 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -211,11 +211,11 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -274,11 +274,11 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -336,11 +336,11 @@ export function createCollationConvertTool(
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           count: result.rows?.length ?? 0,
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
