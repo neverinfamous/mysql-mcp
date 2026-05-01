@@ -40,7 +40,7 @@
 - **Backup**: Fixed `DATETIME` ISO 8601 string parsing for MySQL strict mode in `importData`. Added `.min(1)` constraint to `tables` array in `mysql_create_dump`.
 - **Admin DDL**: Switched to `rawQuery` to prevent `mysql2` from corrupting multi-row array responses.
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
-- **Code Mode**: Added missing `_meta.tokenEstimate` properties to group-level `help()` responses and read-only stubs in `MysqlApi.ts`.
+- **Code Mode**: Replaced `_meta.tokenEstimate` with `metrics.tokenEstimate` in all group-level and top-level `help()` responses in `MysqlApi.ts` to ensure consistency with structured metrics payload validation.
 - **Docstore**: Migrated `doc_find` to use `parseDocFilter` for query parity.
 - **Fulltext**: Removed the hardcoded `id` column requirement from the SELECT clause for FULLTEXT operations. Fixed `Incorrect arguments to mysqld_stmt_execute` regression by removing prepared statement parameterization for the `LIMIT` clause in search operations. Added missing `metrics.tokenEstimate` properties to index creation and drop payloads.
 - **Introspection**: Fixed circular dependency detection and implemented active `maxDepth` traversal filtering in `dependency_graph`. Fixed Zod schema validation regression for `limit` preprocessing in schema snapshots and dependency graphs. Restored missing stats tools from previous test sessions. Added missing `metrics.tokenEstimate` properties to all introspection payloads (`dependencyGraph`, `topologicalSort`, `cascadeSimulator`, `schemaSnapshot`, `constraintAnalysis`, `migrationRisks`).
