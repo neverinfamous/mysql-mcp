@@ -25,7 +25,7 @@ import {
   ListTablesSchema,
   ListTablesSchemaBase,
 } from "../schemas/index.js";
-import { formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -96,12 +96,12 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams,
           transactionId,
         );
-        return {
+        return withTokenEstimate({
           success: true,
           rows: result.rows,
           rowCount: result.rows?.length ?? 0,
           executionTimeMs: result.executionTimeMs,
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -136,12 +136,12 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams,
           transactionId,
         );
-        return {
+        return withTokenEstimate({
           success: true,
           rowsAffected: result.rowsAffected,
           lastInsertId: result.lastInsertId?.toString(),
           executionTimeMs: result.executionTimeMs,
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -175,10 +175,10 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
             [database],
           );
           if (!dbCheck.rows || dbCheck.rows.length === 0) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Database '${database}' does not exist`,
-            };
+            });
           }
         }
 
@@ -189,7 +189,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           truncated = true;
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           tables: tables.map((t) => ({
             name: t.name,
@@ -200,7 +200,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
           })),
           count: tables.length,
           ...(truncated ? { truncated: true } : {}),
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -230,10 +230,10 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableInfo = await adapter.describeTable(table);
         // Graceful handling for non-existent tables
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${table}' does not exist or has no columns`,
-          };
+          });
         }
         // Sanitize to reduce token bloat
         const sanitizedColumns = tableInfo.columns?.map((c) => {
@@ -256,7 +256,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
             ...(tableCollation != null && tableCollation !== "" ? { collation: tableCollation } : {}),
         };
 
-        return { success: true, ...sanitizedInfo, exists: true };
+        return withTokenEstimate({ success: true, ...sanitizedInfo, exists: true });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -298,12 +298,12 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
             : name;
           const tableInfo = await adapter.describeTable(checkName);
           if (tableInfo.columns && tableInfo.columns.length > 0) {
-            return {
+            return withTokenEstimate({
               success: true,
               skipped: true,
               tableName: name,
               reason: "Table already exists",
-            };
+            });
           }
         }
 
@@ -385,16 +385,16 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.includes("already exists")) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Table '${name}' already exists`,
-            };
+            });
           }
           return formatHandlerErrorResponse(err);
         }
 
         adapter.clearSchemaCache();
-        return { success: true, tableName: name };
+        return withTokenEstimate({ success: true, tableName: name });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -423,7 +423,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Validate table name
         if (!isValidId(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         // Pre-check existence for skipped indicator when ifExists is true
@@ -445,10 +445,10 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.includes("Unknown table")) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Table '${table}' does not exist`,
-            };
+            });
           }
           return formatHandlerErrorResponse(err);
         }
@@ -456,15 +456,15 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         adapter.clearSchemaCache();
 
         if (tableAbsent) {
-          return {
+          return withTokenEstimate({
             success: true,
             skipped: true,
             tableName: table,
             reason: "Table did not exist",
-          };
+          });
         }
 
-        return { success: true, tableName: table };
+        return withTokenEstimate({ success: true, tableName: table });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -494,13 +494,13 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
         // First check if table exists by describing it
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${table}' does not exist`,
-          };
+          });
         }
         const indexes = await adapter.getTableIndexes(table);
-        return { success: true, exists: true, indexes };
+        return withTokenEstimate({ success: true, exists: true, indexes });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -530,10 +530,10 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Validate names
         if (!name || !VALID_INDEX_NAME_PATTERN.test(name)) {
-          return { success: false, error: "Invalid index name" };
+          return withTokenEstimate({ success: false, error: "Invalid index name" });
         }
         if (!isValidId(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
@@ -551,12 +551,12 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         if (ifNotExists) {
           const existing = await adapter.getTableIndexes(table); // Pass original unescaped name to getTableIndexes (it expects string)
           if (existing.some((idx) => idx.name === name)) {
-            return {
+            return withTokenEstimate({
               success: true,
               skipped: true,
               indexName: name,
               reason: "Index already exists",
-            };
+            });
           }
         }
 
@@ -567,23 +567,23 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.includes("Duplicate key name")) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Index '${name}' already exists on table '${table}'`,
-            };
+            });
           }
           // Distinguish column errors from table errors
           if (message.includes("Key column")) {
             const colMatch = /Key column '([^']+)'/.exec(message);
-            return {
+            return withTokenEstimate({
               success: false,
               error: colMatch
                 ? `Column '${colMatch[1]}' does not exist in table '${table}'`
                 : `Column does not exist in table '${table}'`,
-            };
+            });
           }
           if (message.includes("doesn't exist")) {
-            return { success: false, error: `Table '${table}' does not exist` };
+            return withTokenEstimate({ success: false, error: `Table '${table}' does not exist` });
           }
           return formatHandlerErrorResponse(err);
         }
@@ -592,15 +592,15 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)
         if (type === "HASH") {
-          return {
+          return withTokenEstimate({
             success: true,
             indexName: name,
             warning:
               "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
-          };
+          });
         }
 
-        return { success: true, indexName: name };
+        return withTokenEstimate({ success: true, indexName: name });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
