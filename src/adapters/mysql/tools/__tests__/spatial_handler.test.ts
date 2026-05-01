@@ -265,7 +265,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' does not exist",
       });
@@ -286,7 +286,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' does not exist",
       });
@@ -307,7 +307,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' does not exist",
       });
@@ -328,7 +328,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' does not exist",
       });
@@ -348,7 +348,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' does not exist",
       });
@@ -368,7 +368,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table 'nonexistent' does not exist",
       });

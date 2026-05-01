@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -125,16 +125,16 @@ export function createSpatialCreateColumnTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // Validate geometry type
         const upperType = type.toUpperCase();
         if (!VALID_GEOMETRY_TYPES.has(upperType)) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${[...VALID_GEOMETRY_TYPES].join(", ")}`,
-          };
+          });
         }
 
         const nullClause = nullable ? "" : " NOT NULL";
@@ -145,35 +145,35 @@ export function createSpatialCreateColumnTool(
         );
 
         adapter.clearSchemaCache();
-        return {
+        return withTokenEstimate({
           success: true,
           table,
           column,
           type,
           srid: srid ?? null,
           nullable,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${paramStr(params, "table")}' does not exist`,
-          };
+          });
         }
         if (msg.includes("Duplicate column name")) {
           const col = paramStr(params, "column");
           const tbl = paramStr(params, "table");
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Column '${col}' already exists on table '${tbl}'`,
-          };
+          });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -205,7 +205,7 @@ export function createSpatialCreateIndexTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // For qualified names (schema.table), split for information_schema queries
@@ -217,7 +217,7 @@ export function createSpatialCreateIndexTool(
 
         const idxName = indexName ?? `idx_spatial_${bareTable}_${column}`;
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
-          return { success: false, error: "Invalid index name" };
+          return withTokenEstimate({ success: false, error: "Invalid index name" });
         }
 
         // Check if column is nullable - SPATIAL indexes require NOT NULL
@@ -232,13 +232,13 @@ export function createSpatialCreateIndexTool(
           const isNullable = colRow["IS_NULLABLE"] === "YES";
           const dataType = String(colRow["DATA_TYPE"]).toUpperCase();
           if (isNullable) {
-            return {
+            return withTokenEstimate({
               success: false,
               error:
                 `Cannot create SPATIAL index on nullable column '${column}'. ` +
                 `Alter the column to NOT NULL first: ` +
                 `ALTER TABLE ${escapeQualifiedTable(table)} MODIFY \`${column}\` ${dataType} NOT NULL`,
-            };
+            });
           }
         }
 
@@ -253,10 +253,10 @@ export function createSpatialCreateIndexTool(
         const existingRow = existingIdx.rows?.[0];
         if (existingRow) {
           const existingName = String(existingRow["INDEX_NAME"]);
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`,
-          };
+          });
         }
 
         await adapter.executeQuery(
@@ -264,33 +264,33 @@ export function createSpatialCreateIndexTool(
         );
 
         adapter.clearSchemaCache();
-        return {
+        return withTokenEstimate({
           success: true,
           table,
           column,
           indexName: idxName,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         const tbl = paramStr(params, "table");
         if (msg.includes("Table") && msg.includes("doesn't exist")) {
-          return { success: false, error: `Table '${tbl}' does not exist` };
+          return withTokenEstimate({ success: false, error: `Table '${tbl}' does not exist` });
         }
         if (
           msg.includes("Key column") &&
           msg.includes("doesn't exist in table")
         ) {
           const col = paramStr(params, "column");
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Column '${col}' does not exist on table '${tbl}'`,
-          };
+          });
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
           return formatHandlerErrorResponse(new Error(msg));
@@ -299,10 +299,10 @@ export function createSpatialCreateIndexTool(
         const idx =
           idxFromParams || `idx_spatial_${tbl}_${paramStr(params, "column")}`;
         if (msg.includes("Duplicate key name")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Index '${idx}' already exists on table '${tbl}'`,
-          };
+          });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }

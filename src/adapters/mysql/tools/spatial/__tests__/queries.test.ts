@@ -106,7 +106,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining("Invalid table name"),
       });
@@ -125,7 +125,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });
@@ -215,7 +215,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });
@@ -284,7 +284,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining("Invalid table name"),
       });
@@ -353,7 +353,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });

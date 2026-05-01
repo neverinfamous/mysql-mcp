@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -188,7 +188,7 @@ export function createSpatialDistanceTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
@@ -217,25 +217,25 @@ export function createSpatialDistanceTool(
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
+        return withTokenEstimate({
           success: true,
           results: rows,
           count: rows.length,
           referencePoint: point,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${paramStr(params, "table")}' does not exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -269,7 +269,7 @@ export function createSpatialDistanceSphereTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
@@ -298,26 +298,26 @@ export function createSpatialDistanceSphereTool(
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
+        return withTokenEstimate({
           success: true,
           results: rows,
           count: rows.length,
           referencePoint: point,
           unit: "meters",
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${paramStr(params, "table")}' does not exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -351,7 +351,7 @@ export function createSpatialContainsTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const escapedTable = escapeQualifiedTable(table);
@@ -369,24 +369,24 @@ export function createSpatialContainsTool(
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
+        return withTokenEstimate({
           success: true,
           results: rows,
           count: rows.length,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${paramStr(params, "table")}' does not exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
@@ -417,7 +417,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const escapedTable = escapeQualifiedTable(table);
@@ -435,24 +435,24 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
+        return withTokenEstimate({
           success: true,
           results: rows,
           count: rows.length,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Table '${paramStr(params, "table")}' does not exist`,
-          };
+          });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }

@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -116,14 +116,14 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         const row = result.rows?.[0];
-        return {
+        return withTokenEstimate({
           success: true,
           wkt: row?.["wkt"],
           geoJson: parseGeoJsonResult(row?.["geoJson"]),
           srid,
           longitude,
           latitude,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -175,13 +175,13 @@ export function createSpatialPolygonTool(
         );
 
         const row = result.rows?.[0];
-        return {
+        return withTokenEstimate({
           success: true,
           wkt: row?.["wkt"],
           geoJson: parseGeoJsonResult(row?.["geoJson"]),
           area: row?.["area"],
           srid,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

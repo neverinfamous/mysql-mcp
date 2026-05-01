@@ -6,7 +6,7 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -194,14 +194,14 @@ export function createSpatialIntersectionTool(
         );
 
         const row = result.rows?.[0];
-        return {
+        return withTokenEstimate({
           success: true,
           intersects: Boolean(row?.["intersects"]),
           intersectionWkt: row?.["intersection_wkt"],
           intersectionGeoJson: parseGeoJsonResult(
             row?.["intersection_geojson"],
           ),
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -235,7 +235,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Handler-level validation for segments (replaces schema .min(1))
         if (segments < 1) {
-          return { success: false, error: "segments must be >= 1" };
+          return withTokenEstimate({ success: false, error: "segments must be >= 1" });
         }
 
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
@@ -250,14 +250,14 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         const row = result.rows?.[0];
-        return {
+        return withTokenEstimate({
           success: true,
           bufferWkt: row?.["buffer_wkt"],
           bufferDistance: distance,
           segments,
           segmentsApplied: !isGeographic,
           srid,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -299,14 +299,14 @@ export function createSpatialTransformTool(
         );
 
         const row = result.rows?.[0];
-        return {
+        return withTokenEstimate({
           success: true,
           originalWkt: geometry,
           transformedWkt: row?.["transformed_wkt"],
           transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
           fromSrid,
           toSrid,
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -347,12 +347,12 @@ export function createSpatialGeoJSONTool(
           );
 
           const row = result.rows?.[0];
-          return {
+          return withTokenEstimate({
             success: true,
             wkt: geometry,
             geoJson: parseGeoJsonResult(row?.["geoJson"]),
             conversion: "WKT to GeoJSON",
-          };
+          });
         } else if (geoJson) {
           // Convert GeoJSON to WKT
           const result = await adapter.executeQuery(
@@ -361,18 +361,18 @@ export function createSpatialGeoJSONTool(
           );
 
           const row = result.rows?.[0];
-          return {
+          return withTokenEstimate({
             success: true,
             wkt: row?.["wkt"],
             geoJson: JSON.parse(geoJson) as Record<string, unknown>,
             conversion: "GeoJSON to WKT",
-          };
+          });
         }
 
-        return {
+        return withTokenEstimate({
           success: false,
           error: "Either geometry or geoJson must be provided",
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
