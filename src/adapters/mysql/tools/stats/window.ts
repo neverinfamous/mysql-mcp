@@ -280,7 +280,7 @@ export function createStatsRowNumberTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -342,7 +342,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -412,7 +412,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -476,7 +476,7 @@ export function createStatsRunningTotalTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -543,7 +543,7 @@ export function createStatsMovingAvgTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -603,7 +603,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };

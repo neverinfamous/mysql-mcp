@@ -230,7 +230,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -306,7 +306,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -314,11 +314,8 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
 
 // =============================================================================
 // FREQUENCY DISTRIBUTION
-// =============================================================================
 
-export function createStatsFrequencyTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
+export function createStatsFrequencyTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_frequency",
     description:
@@ -390,7 +387,7 @@ export function createStatsFrequencyTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -517,7 +514,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };

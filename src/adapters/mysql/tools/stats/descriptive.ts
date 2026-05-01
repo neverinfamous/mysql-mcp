@@ -267,6 +267,13 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
         const dataType =
           typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
+        // Empty result means column doesn't exist; non-empty result with non-numeric type means wrong type
+        if (!colCheck.rows || colCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Column '${column}' not found on table '${table}'`,
+          });
+        }
         if (
           ![
             "tinyint",
@@ -282,7 +289,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         ) {
           return withTokenEstimate({
             success: false,
-            error: `Column type mismatch: '${column}' is not a numeric column`,
+            error: `Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`,
           });
         }
 

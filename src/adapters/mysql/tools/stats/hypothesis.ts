@@ -274,7 +274,7 @@ export function createStatsHypothesisTool(
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };

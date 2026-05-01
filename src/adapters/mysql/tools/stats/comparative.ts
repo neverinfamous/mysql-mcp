@@ -123,8 +123,15 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
         
-        if (!validCols.has(column1) || !validCols.has(column2)) {
-          return withTokenEstimate({ success: false, error: "Both columns must be numeric types" });
+        const missingCols = [column1, column2].filter(c => !validCols.has(c));
+        if (missingCols.length > 0) {
+          const notFound = missingCols.filter(
+            c => !(colCheck.rows ?? []).some(r => r['COLUMN_NAME'] === c)
+          );
+          if (notFound.length > 0) {
+            return withTokenEstimate({ success: false, error: `Column(s) not found: ${notFound.join(', ')}` });
+          }
+          return withTokenEstimate({ success: false, error: `Both columns must be numeric types. Non-numeric: ${missingCols.join(', ')}` });
         }
 
         // Calculate Pearson correlation coefficient
@@ -184,7 +191,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -241,8 +248,15 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
         
-        if (!validCols.has(xColumn) || !validCols.has(yColumn)) {
-          return withTokenEstimate({ success: false, error: "Both columns must be numeric types" });
+        const missingRegCols = [xColumn, yColumn].filter(c => !validCols.has(c));
+        if (missingRegCols.length > 0) {
+          const notFoundReg = missingRegCols.filter(
+            c => !(colCheck.rows ?? []).some(r => r['COLUMN_NAME'] === c)
+          );
+          if (notFoundReg.length > 0) {
+            return withTokenEstimate({ success: false, error: `Column(s) not found: ${notFoundReg.join(', ')}` });
+          }
+          return withTokenEstimate({ success: false, error: `Both columns must be numeric types. Non-numeric: ${missingRegCols.join(', ')}` });
         }
 
         // Simpler approach for MySQL
@@ -315,7 +329,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -437,7 +451,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };

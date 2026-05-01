@@ -111,7 +111,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
           });
         }
-        return formatHandlerErrorResponse(error);
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
