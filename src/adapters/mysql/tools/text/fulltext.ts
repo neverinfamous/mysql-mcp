@@ -262,6 +262,11 @@ export function createFulltextSearchTool(
               new Error("No FULLTEXT index found for the specified columns"),
             );
           }
+          if (msg.includes("syntax error, unexpected")) {
+            return formatHandlerErrorResponse(
+              new Error(`Invalid search syntax: ${query}`),
+            );
+          }
           return formatHandlerErrorResponse(error);
         }
       } catch (error: unknown) {
@@ -330,6 +335,11 @@ export function createFulltextBooleanTool(
               new Error("No FULLTEXT index found for the specified columns"),
             );
           }
+          if (msg.includes("syntax error, unexpected")) {
+            return formatHandlerErrorResponse(
+              new Error(`Invalid search syntax: ${query}`),
+            );
+          }
           return formatHandlerErrorResponse(error);
         }
       } catch (error: unknown) {
@@ -396,6 +406,11 @@ export function createFulltextExpandTool(
           ) {
             return formatHandlerErrorResponse(
               new Error("No FULLTEXT index found for the specified columns"),
+            );
+          }
+          if (msg.includes("syntax error, unexpected")) {
+            return formatHandlerErrorResponse(
+              new Error(`Invalid search syntax: ${query}`),
             );
           }
           return formatHandlerErrorResponse(error);
