@@ -49,6 +49,18 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
+        }
         return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -76,6 +88,18 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
+        }
         return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -106,6 +130,18 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           `CHECK TABLE ${tableList}${optionClause}`,
         );
         const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
+        }
         return withTokenEstimate({
           success: true,
           results: rows,
@@ -139,6 +175,18 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
         const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
+        }
         return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
