@@ -28,39 +28,8 @@ import {
 } from "../../schemas/index.js";
 
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
-import type { ErrorResponse } from "../../../../types/modules/error-types.js";
 
-function isRecord(val: unknown): val is Record<string, unknown> {
-  return typeof val === "object" && val !== null;
-}
 
-function extractMaintenanceError(
-  rows: unknown[] | undefined,
-): ErrorResponse | null {
-  if (!rows || rows.length === 0) return null;
-  const errorRow = rows.find((r: unknown) => {
-    if (isRecord(r) && typeof r["Msg_type"] === "string") {
-      return r["Msg_type"].toLowerCase() === "error";
-    }
-    return false;
-  });
-  if (errorRow !== undefined && isRecord(errorRow)) {
-    const errorMsg =
-      typeof errorRow["Msg_text"] === "string"
-        ? errorRow["Msg_text"]
-        : "Maintenance operation failed";
-    return withTokenEstimate({
-      success: false,
-      error: errorMsg,
-      code: "MAINTENANCE_ERROR",
-      category: ErrorCategory.QUERY,
-      suggestion: undefined,
-      recoverable: false,
-      details: undefined,
-    }) as unknown as ErrorResponse;
-  }
-  return null;
-}
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -80,8 +49,6 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
-        const error = extractMaintenanceError(rows);
-        if (error) return error;
         return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -109,8 +76,6 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
-        const error = extractMaintenanceError(rows);
-        if (error) return error;
         return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -141,8 +106,6 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           `CHECK TABLE ${tableList}${optionClause}`,
         );
         const rows = result.rows ?? [];
-        const error = extractMaintenanceError(rows);
-        if (error) return error;
         return withTokenEstimate({
           success: true,
           results: rows,
@@ -176,8 +139,6 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
         const rows = result.rows ?? [];
-        const error = extractMaintenanceError(rows);
-        if (error) return error;
         return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
       } catch (err) {
         return formatHandlerErrorResponse(err);
