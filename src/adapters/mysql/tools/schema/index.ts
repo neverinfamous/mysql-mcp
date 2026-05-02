@@ -13,7 +13,7 @@ import {
   createDropSchemaTool,
 } from "./management.js";
 
-import { createListViewsTool, createCreateViewTool } from "./views.js";
+import { createListViewsTool, createCreateViewTool, createDropViewTool } from "./views.js";
 
 import {
   createListStoredProceduresTool,
@@ -36,6 +36,7 @@ export function getSchemaTools(adapter: MySQLAdapter): ToolDefinition[] {
     createDropSchemaTool(adapter),
     createListViewsTool(adapter),
     createCreateViewTool(adapter),
+    createDropViewTool(adapter),
     createListStoredProceduresTool(adapter),
     createListFunctionsTool(adapter),
     createListTriggersTool(adapter),

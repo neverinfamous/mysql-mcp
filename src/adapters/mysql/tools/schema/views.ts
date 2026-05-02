@@ -49,6 +49,11 @@ const CreateViewSchema = z.object({
     .describe("WITH CHECK OPTION"),
 });
 
+const DropViewSchema = z.object({
+  name: z.string().describe("View name"),
+  ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
+});
+
 /**
  * List all views
  */
@@ -173,6 +178,49 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
               new Error(`View '${name}' already exists`)
             );
           }
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
+    },
+  };
+}
+
+/**
+ * Drop a view
+ */
+export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
+  return {
+    name: "mysql_drop_view",
+    title: "MySQL Drop View",
+    description: "Drop a view.",
+    group: "schema",
+    inputSchema: DropViewSchema,
+    requiredScopes: ["write"],
+    annotations: {
+      readOnlyHint: false,
+    },
+    handler: async (params: unknown, _context: RequestContext) => {
+      try {
+        const parsedParams = DropViewSchema.parse(params);
+        try {
+          validateQualifiedIdentifier(parsedParams.name, "view");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
+        }
+        
+        const fullViewName = escapeQualifiedTable(parsedParams.name);
+        const ifExistsClause = parsedParams.ifExists ? "IF EXISTS " : "";
+        const sql = `DROP VIEW ${ifExistsClause}${fullViewName}`;
+        
+        try {
+          await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
+          const response = { success: true as const, viewName: parsedParams.name };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+        } catch (err: unknown) {
           return formatHandlerErrorResponse(err);
         }
       } catch (err) {
