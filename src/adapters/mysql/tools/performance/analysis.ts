@@ -256,7 +256,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.events_statements_summary_by_digest
                 WHERE DIGEST_TEXT IS NOT NULL
                 ORDER BY ${orderColumn} DESC
-                LIMIT ${Math.min(limit, 100)}
+                LIMIT ${Math.min(limit, 20)}
             `;
 
         const result = await adapter.executeReadQuery(sql);
@@ -471,7 +471,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.threads
                 WHERE PROCESSLIST_ID IS NOT NULL
                 ORDER BY PROCESSLIST_TIME DESC
-                LIMIT 50
+                LIMIT 20
             `);
 
         const response = { success: true, threads: result.rows };

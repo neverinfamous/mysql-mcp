@@ -144,7 +144,7 @@ export function createDetectQueryAnomaliesTool(
         // PICO_TO_MS = 1,000,000,000
         const result = await adapter.executeQuery(`
           SELECT
-            DIGEST_TEXT AS query_preview,
+            LEFT(DIGEST_TEXT, 150) AS query_preview,
             SCHEMA_NAME AS db_schema,
             COUNT_STAR AS calls,
             ROUND(AVG_TIMER_WAIT / 1000000000, 3) AS avg_exec_time_ms,
@@ -157,7 +157,7 @@ export function createDetectQueryAnomaliesTool(
             AND MAX_TIMER_WAIT < 86400000000000000
             AND (MAX_TIMER_WAIT / AVG_TIMER_WAIT) > ${String(threshold)}
           ORDER BY (MAX_TIMER_WAIT / AVG_TIMER_WAIT) DESC
-          LIMIT 20
+          LIMIT 10
         `);
 
         const anomalies = (result.rows ?? []).map((row) => ({
