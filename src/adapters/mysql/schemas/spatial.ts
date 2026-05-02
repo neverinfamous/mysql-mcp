@@ -19,7 +19,7 @@ export const SpatialColumnSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Spatial Reference System ID (4326 = WGS84)"),
-  nullable: z.unknown().optional().describe("Allow NULL values (default: true)"),
+  nullable: z.unknown().optional().describe("Allow NULL values (default: false for spatial compatibility)"),
 });
 
 export const SpatialColumnSchema = z.object({
@@ -34,7 +34,7 @@ export const SpatialColumnSchema = z.object({
   column: data.column,
   type: typeof data.type === "string" ? data.type : "GEOMETRY",
   srid: data.srid !== undefined ? Number(data.srid) : 4326,
-  nullable: data.nullable !== undefined ? Boolean(data.nullable) : true,
+  nullable: data.nullable !== undefined ? Boolean(data.nullable) : false,
 }))
 .refine(
   (data) => !Number.isNaN(data.srid),
