@@ -18,3 +18,4 @@ export * from "./text.js";
 export * from "./transactions.js";
 export * from "./introspection/index.js";
 export * from "./migration/index.js";
+export * from "./spatial.js";

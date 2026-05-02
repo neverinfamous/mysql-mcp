@@ -5,7 +5,7 @@
  * 2 tools: column creation and index creation.
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
@@ -17,7 +17,13 @@ import {
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
 import { ValidationError } from "../../../../utils/validators.js";
-
+import {
+  VALID_GEOMETRY_TYPES,
+  SpatialColumnSchemaBase,
+  SpatialColumnSchema,
+  SpatialIndexSchemaBase,
+  SpatialIndexSchema,
+} from "../../schemas/spatial.js";
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -37,69 +43,6 @@ function paramStr(params: unknown, key: string): string {
 }
 
 // =============================================================================
-// Zod Schemas
-// =============================================================================
-
-const VALID_GEOMETRY_TYPES = new Set([
-  "POINT",
-  "LINESTRING",
-  "POLYGON",
-  "GEOMETRY",
-  "MULTIPOINT",
-  "MULTILINESTRING",
-  "MULTIPOLYGON",
-  "GEOMETRYCOLLECTION",
-]);
-
-const SpatialColumnSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  column: z.unknown().optional().describe("Column name"),
-  type: z.unknown().optional().describe("Geometry type (default: GEOMETRY)"),
-  srid: z
-    .unknown()
-    .optional()
-    .describe("Spatial Reference System ID (4326 = WGS84)"),
-  nullable: z.unknown().optional().describe("Allow NULL values (default: true)"),
-});
-
-const SpatialColumnSchema = z.object({
-  table: z.string(),
-  column: z.string(),
-  type: z.unknown().optional(),
-  srid: z.unknown().optional(),
-  nullable: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  column: data.column,
-  type: typeof data.type === "string" ? data.type : "GEOMETRY",
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-  nullable: data.nullable !== undefined ? Boolean(data.nullable) : true,
-}))
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
-
-const SpatialIndexSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  column: z.unknown().optional().describe("Spatial column name"),
-  indexName: z
-    .unknown()
-    .optional()
-    .describe("Index name (auto-generated if not provided)"),
-});
-
-const SpatialIndexSchema = z.object({
-  table: z.string(),
-  column: z.string(),
-  indexName: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  column: data.column,
-  indexName: typeof data.indexName === "string" ? data.indexName : undefined,
-}));
 
 /**
  * Add a spatial column to a table

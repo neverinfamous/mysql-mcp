@@ -5,13 +5,19 @@
  * 2 tools: point and polygon creation.
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  PointSchemaBase,
+  PointSchema,
+  PolygonSchemaBase,
+  PolygonSchema,
+} from "../../schemas/spatial.js";
 
 // =============================================================================
 // Helpers
@@ -40,56 +46,6 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
 }
 
 // =============================================================================
-// Zod Schemas
-// =============================================================================
-
-const PointSchemaBase = z.object({
-  longitude: z.unknown().optional().describe("Longitude coordinate"),
-  latitude: z.unknown().optional().describe("Latitude coordinate"),
-  srid: z.unknown().optional().describe("SRID (default: 4326)"),
-});
-
-const PointSchema = z.object({
-  longitude: z.unknown().optional(),
-  latitude: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  longitude: Number(data.longitude),
-  latitude: Number(data.latitude),
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.longitude) && !Number.isNaN(data.latitude),
-  { message: "longitude and latitude must be valid numbers" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
-
-const PolygonSchemaBase = z.object({
-  coordinates: z
-    .unknown()
-    .optional()
-    .describe(
-      "Polygon coordinates as array of rings, each ring is array of [lon, lat] pairs",
-    ),
-  srid: z.unknown().optional().describe("SRID (default: 4326)"),
-});
-
-const PolygonSchema = z.object({
-  coordinates: z.array(z.array(z.array(z.number()).min(2).max(2))),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  coordinates: data.coordinates,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
 
 /**
  * Create a POINT geometry

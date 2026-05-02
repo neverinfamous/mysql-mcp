@@ -5,7 +5,7 @@
  * 4 tools: distance, distance_sphere, contains, within.
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
@@ -17,6 +17,14 @@ import {
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
 import { ValidationError } from "../../../../utils/validators.js";
+import {
+  DistanceSchemaBase,
+  DistanceSchema,
+  ContainsSchemaBase,
+  ContainsSchema,
+  WithinSchemaBase,
+  WithinSchema,
+} from "../../schemas/spatial.js";
 
 // =============================================================================
 // Helpers
@@ -37,130 +45,6 @@ function paramStr(params: unknown, key: string): string {
 }
 
 // =============================================================================
-// Zod Schemas
-// =============================================================================
-
-const DistanceSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  spatialColumn: z.unknown().optional().describe("Spatial column name"),
-  point: z
-    .object({
-      longitude: z.unknown().optional(),
-      latitude: z.unknown().optional(),
-    })
-    .optional()
-    .describe("Reference point"),
-  maxDistance: z.unknown().optional().describe("Maximum distance in meters"),
-  limit: z.unknown().optional().describe("Maximum results (default: 20)"),
-  srid: z.unknown().optional().describe("SRID (default: 4326)"),
-});
-
-const DistanceSchema = z.object({
-  table: z.string(),
-  spatialColumn: z.string(),
-  point: z.object({
-    longitude: z.unknown().optional(),
-    latitude: z.unknown().optional(),
-  }),
-  maxDistance: z.unknown().optional(),
-  limit: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  spatialColumn: data.spatialColumn,
-  point: {
-    longitude: Number(data.point?.longitude),
-    latitude: Number(data.point?.latitude),
-  },
-  maxDistance: data.maxDistance !== undefined ? Number(data.maxDistance) : undefined,
-  limit: data.limit !== undefined ? Number(data.limit) : 20,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude),
-  { message: "point.longitude and point.latitude must be valid numbers" }
-)
-.refine(
-  (data) => data.maxDistance === undefined || !Number.isNaN(data.maxDistance),
-  { message: "maxDistance must be a valid number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
-
-const ContainsSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  spatialColumn: z.unknown().optional().describe("Spatial column name"),
-  polygon: z.unknown().optional().describe("WKT polygon to test containment"),
-  limit: z.unknown().optional().describe("Maximum results (default: 100)"),
-  srid: z
-    .unknown()
-    .optional()
-    .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
-});
-
-const ContainsSchema = z.object({
-  table: z.string(),
-  spatialColumn: z.string(),
-  polygon: z.string(),
-  limit: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  spatialColumn: data.spatialColumn,
-  polygon: data.polygon,
-  limit: data.limit !== undefined ? Number(data.limit) : 100,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
-
-const WithinSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  spatialColumn: z.unknown().optional().describe("Spatial column name"),
-  geometry: z.unknown().optional().describe("WKT geometry to test within"),
-  limit: z.unknown().optional().describe("Maximum results (default: 100)"),
-  srid: z
-    .unknown()
-    .optional()
-    .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
-});
-
-const WithinSchema = z.object({
-  table: z.string(),
-  spatialColumn: z.string(),
-  geometry: z.string(),
-  limit: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  spatialColumn: data.spatialColumn,
-  geometry: data.geometry,
-  limit: data.limit !== undefined ? Number(data.limit) : 100,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
 
 /**
  * Calculate distance between geometries
