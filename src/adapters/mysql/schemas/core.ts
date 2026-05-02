@@ -133,7 +133,7 @@ export const ListTablesSchema = z
   }))
   .refine(
     (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    { message: "limit must be a positive number" }
   );
 
 // --- DescribeTable ---
@@ -215,10 +215,10 @@ export const CreateTableSchema = z
     ifNotExists: data.ifNotExists,
   }))
   .refine((data) => data.name !== "", {
-    message: "Validation error: name (or table/tableName alias) is required",
+    message: "name (or table/tableName alias) is required",
   })
   .refine((data) => data.columns !== undefined && data.columns.length > 0, {
-    message: "Validation error: columns array is required and must not be empty",
+    message: "columns array is required and must not be empty",
   });
 
 // --- DropTable ---
@@ -278,13 +278,13 @@ export const CreateIndexSchema = z
     ifNotExists: data.ifNotExists,
   }))
   .refine((data) => data.name !== undefined && data.name !== "", {
-    message: "Validation error: name is required",
+    message: "name is required",
   })
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName alias) is required",
+    message: "table (or tableName alias) is required",
   })
   .refine((data) => data.columns !== undefined && data.columns.length > 0, {
-    message: "Validation error: columns array is required and must not be empty",
+    message: "columns array is required and must not be empty",
   });
 
 // --- GetIndexes ---
