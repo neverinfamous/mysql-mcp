@@ -154,6 +154,7 @@ export function createDetectQueryAnomaliesTool(
           FROM performance_schema.events_statements_summary_by_digest
           WHERE COUNT_STAR >= ${String(minCalls)}
             AND AVG_TIMER_WAIT > 0
+            AND MAX_TIMER_WAIT < 86400000000000000
             AND (MAX_TIMER_WAIT / AVG_TIMER_WAIT) > ${String(threshold)}
           ORDER BY (MAX_TIMER_WAIT / AVG_TIMER_WAIT) DESC
           LIMIT 20

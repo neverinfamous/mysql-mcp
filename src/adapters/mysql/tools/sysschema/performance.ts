@@ -123,6 +123,8 @@ export function createSysStatementSummaryTool(
           });
         }
 
+        const actualLimit = Math.min(limit, 100);
+
         const query = `
                 SELECT
                     query,
@@ -137,7 +139,7 @@ export function createSysStatementSummaryTool(
                     full_scan
                 FROM sys.statement_analysis
                 ORDER BY ${orderBy} DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
             `;
 
         const result = await adapter.executeQuery(query);
@@ -188,6 +190,8 @@ export function createSysWaitSummaryTool(
           });
         }
 
+        const actualLimit = Math.min(limit, 100);
+
         let query: string;
 
         switch (type) {
@@ -200,7 +204,7 @@ export function createSysWaitSummaryTool(
                             avg_latency
                         FROM sys.waits_global_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_host":
@@ -213,7 +217,7 @@ export function createSysWaitSummaryTool(
                             avg_latency
                         FROM sys.waits_by_host_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_user":
@@ -226,7 +230,7 @@ export function createSysWaitSummaryTool(
                             avg_latency
                         FROM sys.waits_by_user_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_instance":
@@ -238,7 +242,7 @@ export function createSysWaitSummaryTool(
                             FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
                         FROM performance_schema.events_waits_summary_by_instance
                         ORDER BY sum_timer_wait DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           default:
@@ -289,6 +293,8 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
+        const actualLimit = Math.min(limit, 100);
+
         let query: string;
 
         switch (type) {
@@ -306,7 +312,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             write_pct
                         FROM sys.io_global_by_file_by_bytes
                         ORDER BY total DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "table":
@@ -324,7 +330,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             delete_latency
                         FROM sys.schema_table_statistics
                         ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "global":
@@ -336,7 +342,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             avg_latency
                         FROM sys.io_global_by_wait_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           default:
