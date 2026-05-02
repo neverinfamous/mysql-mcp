@@ -334,7 +334,16 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const response = { success: true as const, status: rawRow };
+        const maxRawLength = 2000;
+        const statusStr = rawStatus.length > maxRawLength 
+          ? rawStatus.substring(0, maxRawLength) + "\n... (truncated)" 
+          : rawStatus;
+
+        const response = { 
+          success: true as const, 
+          status: statusStr,
+          ...(rawStatus.length > maxRawLength && { truncated: true }) 
+        };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -502,7 +511,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
         if (!pool) {
           return formatHandlerErrorResponse(new Error("Pool not available"));
         }
-        const response = { success: true as const, stats: pool.getStats() };
+        const response = { success: true as const, poolStats: pool.getStats() };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -548,7 +557,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          health: {
+          serverHealth: {
             ...health,
             uptime:
               uptime != null && typeof uptime === "string"

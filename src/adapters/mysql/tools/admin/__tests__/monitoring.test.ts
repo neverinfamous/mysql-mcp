@@ -621,7 +621,7 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        health?: {
+        serverHealth?: {
           healthy?: boolean;
           uptime?: number;
           activeConnections?: number;
@@ -629,9 +629,9 @@ describe("Admin Monitoring Tools", () => {
         };
       };
 
-      expect(result.health?.uptime).toBe(86400);
-      expect(result.health?.activeConnections).toBe(10);
-      expect(result.health?.totalQueries).toBe(12345);
+      expect(result.serverHealth?.uptime).toBe(86400);
+      expect(result.serverHealth?.activeConnections).toBe(10);
+      expect(result.serverHealth?.totalQueries).toBe(12345);
     });
 
     it("should handle missing status variables", async () => {
@@ -644,14 +644,14 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        health?: {
+        serverHealth?: {
           uptime?: number;
           activeConnections?: number;
         };
       };
 
-      expect(result.health?.uptime).toBeUndefined();
-      expect(result.health?.activeConnections).toBeUndefined();
+      expect(result.serverHealth?.uptime).toBeUndefined();
+      expect(result.serverHealth?.activeConnections).toBeUndefined();
     });
 
     it("should handle partial status variables", async () => {
@@ -666,14 +666,14 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        health?: {
+        serverHealth?: {
           uptime?: number;
           activeConnections?: number;
         };
       };
 
-      expect(result.health?.uptime).toBe(3600);
-      expect(result.health?.activeConnections).toBeUndefined();
+      expect(result.serverHealth?.uptime).toBe(3600);
+      expect(result.serverHealth?.activeConnections).toBeUndefined();
     });
 
     it("should return structured error on connection failure", async () => {
