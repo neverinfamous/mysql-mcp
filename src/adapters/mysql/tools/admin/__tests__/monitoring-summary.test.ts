@@ -261,12 +261,12 @@ describe("Monitoring Summary & Edge Cases", () => {
     });
 
     it("should handle showVariables with LIKE and session", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       const tool = createShowVariablesTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ global: false, like: "max_%" }, mockContext);
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).not.toContain("GLOBAL");
       expect(call).toContain("LIKE 'max_%'");
     });

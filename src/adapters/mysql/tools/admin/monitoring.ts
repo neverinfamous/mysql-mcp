@@ -93,7 +93,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` LIKE '${escapedLike}'`;
         }
 
-        const result = await adapter.rawQuery(sql);
+        const result = await adapter.executeQuery(sql);
 
         // Convert to object for easier use
         // Handle both uppercase and Pascal case column names
@@ -170,7 +170,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` LIKE '${escapedLike}'`;
         }
 
-        const result = await adapter.rawQuery(sql);
+        const result = await adapter.executeQuery(sql);
 
         // Convert to object
         // Handle both uppercase and Pascal case column names
@@ -334,7 +334,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const maxRawLength = 2000;
+        const maxRawLength = 1000;
         const statusStr = rawStatus.length > maxRawLength 
           ? rawStatus.substring(0, maxRawLength) + "\n... (truncated)" 
           : rawStatus;

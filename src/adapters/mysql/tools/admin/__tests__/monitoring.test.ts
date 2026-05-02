@@ -109,7 +109,7 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should show global status without filter", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "Threads_running", Value: "5" },
           { Variable_name: "Uptime", Value: "86400" },
@@ -119,12 +119,12 @@ describe("Admin Monitoring Tools", () => {
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({}, mockContext);
 
-      expect(mockAdapter.rawQuery).toHaveBeenCalledWith("SHOW GLOBAL STATUS");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith("SHOW GLOBAL STATUS");
       expect(result).toHaveProperty("status");
     });
 
     it("should show global status with LIKE filter", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "Threads_running", Value: "5" },
           { Variable_name: "Threads_connected", Value: "10" },
@@ -134,34 +134,34 @@ describe("Admin Monitoring Tools", () => {
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ like: "Threads%" }, mockContext);
 
-      expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("LIKE 'Threads%'");
       expect(result).toHaveProperty("status");
     });
 
     it("should show session status when global is false", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       await tool.handler({ global: false }, mockContext);
 
-      expect(mockAdapter.rawQuery).toHaveBeenCalledWith("SHOW STATUS");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith("SHOW STATUS");
     });
 
     it("should handle session status with LIKE filter", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       await tool.handler({ global: false, like: "Com_%" }, mockContext);
 
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).not.toContain("GLOBAL");
       expect(call).toContain("LIKE 'Com_%'");
     });
 
     it("should transform results to key-value pairs", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "Uptime", Value: "12345" },
           { Variable_name: "Queries", Value: "98765" },
@@ -182,7 +182,7 @@ describe("Admin Monitoring Tools", () => {
         Variable_name: `Status_${i}`,
         Value: `${i}`,
       }));
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult(rows));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult(rows));
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
@@ -203,7 +203,7 @@ describe("Admin Monitoring Tools", () => {
         Variable_name: `Status_${i}`,
         Value: `${i}`,
       }));
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult(rows));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult(rows));
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({ limit: 5 }, mockContext)) as {
@@ -220,7 +220,7 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should redact RSA public key values", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "Uptime", Value: "12345" },
           {
@@ -243,7 +243,7 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should return structured error on query failure", async () => {
-      mockAdapter.rawQuery.mockRejectedValue(new Error("Access denied"));
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
@@ -283,7 +283,7 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should show global variables without filter", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "max_connections", Value: "151" },
         ]),
@@ -294,14 +294,14 @@ describe("Admin Monitoring Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW GLOBAL VARIABLES",
       );
       expect(result).toHaveProperty("variables");
     });
 
     it("should show global variables with LIKE filter", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "max_connections", Value: "151" },
           { Variable_name: "max_allowed_packet", Value: "67108864" },
@@ -313,23 +313,23 @@ describe("Admin Monitoring Tools", () => {
       );
       await tool.handler({ like: "max%" }, mockContext);
 
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("LIKE 'max%'");
     });
 
     it("should show session variables when global is false", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createShowVariablesTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ global: false }, mockContext);
 
-      expect(mockAdapter.rawQuery).toHaveBeenCalledWith("SHOW VARIABLES");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith("SHOW VARIABLES");
     });
 
     it("should transform results to key-value pairs", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(
+      mockAdapter.executeQuery.mockResolvedValue(
         createMockQueryResult([
           { Variable_name: "version", Value: "8.0.33" },
           { Variable_name: "datadir", Value: "/var/lib/mysql/" },
@@ -352,7 +352,7 @@ describe("Admin Monitoring Tools", () => {
         Variable_name: `var_${i}`,
         Value: `val_${i}`,
       }));
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult(rows));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult(rows));
 
       const tool = createShowVariablesTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -371,7 +371,7 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should return structured error on query failure", async () => {
-      mockAdapter.rawQuery.mockRejectedValue(new Error("Connection refused"));
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Connection refused"));
 
       const tool = createShowVariablesTool(
         mockAdapter as unknown as MySQLAdapter,
