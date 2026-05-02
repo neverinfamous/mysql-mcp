@@ -239,7 +239,7 @@ export function createFulltextSearchTool(
         let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [query, query];
 
-        const finalLimit = limit !== undefined && limit > 0 ? limit : 10;
+        const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
         
         try {
@@ -312,7 +312,7 @@ export function createFulltextBooleanTool(
         let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [query, query];
 
-        const finalLimit = limit !== undefined && limit > 0 ? limit : 10;
+        const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
 
         try {
@@ -385,7 +385,7 @@ export function createFulltextExpandTool(
         let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [query, query];
 
-        const finalLimit = limit !== undefined && limit > 0 ? limit : 10;
+        const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
 
         try {
