@@ -296,9 +296,9 @@ const InnodbStatusSchema = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(true)
+    .default(false)
     .describe(
-      "Return parsed summary with key metrics (default). Set to false to see raw string output.",
+      "Return parsed summary with key metrics. Set to true for parsed output, false for raw string output.",
     ),
 });
 
