@@ -165,6 +165,8 @@ export async function startServer(
     "node",
     [
       "dist/cli.js",
+      "--server-host",
+      "127.0.0.1",
       "--transport",
       "http",
       "--port",
@@ -192,10 +194,10 @@ export async function startServer(
   serverProcesses.set(port, proc);
 
   // Wait for server readiness
-  const maxAttempts = 60;
+  const maxAttempts = 120;
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const res = await fetch(`http://localhost:${port}/health`);
+      const res = await fetch(`http://127.0.0.1:${port}/health`);
       if (res.ok) return;
     } catch {
       // Not ready yet
