@@ -68,6 +68,24 @@ function sanitizeTimerRows(
   });
 }
 
+function optimizeExplainJson(node: unknown): unknown {
+  if (Array.isArray(node)) {
+    return node.map(optimizeExplainJson);
+  }
+  if (typeof node === "object" && node !== null) {
+    const optimized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(node)) {
+      // Strip verbose arrays and deep cost details to conserve tokens
+      if (key === "used_columns" || key === "cost_info") {
+        continue;
+      }
+      optimized[key] = optimizeExplainJson(value);
+    }
+    return optimized;
+  }
+  return node;
+}
+
 export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_explain",
@@ -90,7 +108,9 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
           const explainRow = result.rows[0];
           const jsonStr = explainRow["EXPLAIN"];
           if (typeof jsonStr === "string") {
-            const response = { success: true, plan: JSON.parse(jsonStr) as unknown };
+            const parsed = JSON.parse(jsonStr) as unknown;
+            const optimizedPlan = optimizeExplainJson(parsed);
+            const response = { success: true, plan: optimizedPlan };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
           }
