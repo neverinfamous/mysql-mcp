@@ -28,6 +28,7 @@ export const StatsRowNumberSchemaBase = z.object({
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
   limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsRowNumberSchema = z.object({
@@ -43,6 +44,10 @@ export const StatsRowNumberSchema = z.object({
     .min(1)
     .max(1000)
     .default(20),
+  offset: z
+    .number()
+    .min(0)
+    .default(0),
 });
 
 export const StatsRankSchemaBase = z.object({
@@ -53,6 +58,7 @@ export const StatsRankSchemaBase = z.object({
   method: z.unknown().optional().describe("Rank function type (default: rank)"),
   where: z.string().optional().describe("Filter condition"),
   limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsRankSchema = z.object({
@@ -71,6 +77,10 @@ export const StatsRankSchema = z.object({
     .min(1)
     .max(1000)
     .default(20),
+  offset: z
+    .number()
+    .min(0)
+    .default(0),
 });
 
 export const StatsLagLeadSchemaBase = z.object({
@@ -84,6 +94,7 @@ export const StatsLagLeadSchemaBase = z.object({
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
   limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  paginationOffset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsLagLeadSchema = z.object({
@@ -109,6 +120,10 @@ export const StatsLagLeadSchema = z.object({
     .min(1)
     .max(1000)
     .default(20),
+  paginationOffset: z
+    .number()
+    .min(0)
+    .default(0),
 });
 
 export const StatsRunningTotalSchemaBase = z.object({
@@ -119,6 +134,7 @@ export const StatsRunningTotalSchemaBase = z.object({
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
   limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsRunningTotalSchema = z.object({
@@ -137,6 +153,10 @@ export const StatsRunningTotalSchema = z.object({
     .min(1)
     .max(1000)
     .default(20),
+  offset: z
+    .number()
+    .min(0)
+    .default(0),
 });
 
 export const StatsMovingAvgSchemaBase = z.object({
@@ -148,6 +168,7 @@ export const StatsMovingAvgSchemaBase = z.object({
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
   limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsMovingAvgSchema = z.object({
@@ -168,6 +189,10 @@ export const StatsMovingAvgSchema = z.object({
     .min(1)
     .max(1000)
     .default(20),
+  offset: z
+    .number()
+    .min(0)
+    .default(0),
 });
 
 export const StatsNtileSchemaBase = z.object({
@@ -178,6 +203,7 @@ export const StatsNtileSchemaBase = z.object({
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
   limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsNtileSchema = z.object({
@@ -197,6 +223,10 @@ export const StatsNtileSchema = z.object({
     .min(1)
     .max(1000)
     .default(20),
+  offset: z
+    .number()
+    .min(0)
+    .default(0),
 });
 
 // =============================================================================
@@ -260,7 +290,7 @@ export function createStatsRowNumberTool(
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
           ORDER BY \`${parsed.orderBy}\`
-          LIMIT ${String(parsed.limit)}
+          LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 
         const result = await adapter.executeQuery(sql);
@@ -324,7 +354,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
           ORDER BY \`${parsed.orderBy}\`
-          LIMIT ${String(parsed.limit)}
+          LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 
         const result = await adapter.executeQuery(sql);
@@ -396,7 +426,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
           ORDER BY \`${parsed.orderBy}\`
-          LIMIT ${String(parsed.limit)}
+          LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.paginationOffset)}
         `;
 
         const result = await adapter.executeQuery(sql);
@@ -464,7 +494,7 @@ export function createStatsRunningTotalTool(
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
           ORDER BY \`${parsed.orderBy}\`
-          LIMIT ${String(parsed.limit)}
+          LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 
         const result = await adapter.executeQuery(sql);
@@ -533,7 +563,7 @@ export function createStatsMovingAvgTool(
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
           ORDER BY \`${parsed.orderBy}\`
-          LIMIT ${String(parsed.limit)}
+          LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 
         const result = await adapter.executeQuery(sql);
@@ -597,7 +627,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
           ORDER BY \`${parsed.orderBy}\`
-          LIMIT ${String(parsed.limit)}
+          LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 
         const result = await adapter.executeQuery(sql);
