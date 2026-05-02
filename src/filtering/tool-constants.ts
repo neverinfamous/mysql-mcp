@@ -167,6 +167,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_drop_schema",
     "mysql_list_views",
     "mysql_create_view",
+    "mysql_drop_view",
     "mysql_list_stored_procedures",
     "mysql_list_functions",
     "mysql_list_triggers",
@@ -299,13 +300,13 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  * Tool counts (verified):
  *   starter:       39 (core:8 + json:17 + transactions:7 + text:6 + codemode:1)
  *   essential:     16 (core:8 + transactions:7 + codemode:1)
- *   dev-power:     47 (core:8 + schema:10 + performance:8 + stats:8 + fulltext:5 + transactions:7 + codemode:1)
+ *   dev-power:     48 (core:8 + schema:11 + performance:8 + stats:8 + fulltext:5 + transactions:7 + codemode:1)
  *   ai-data:       46 (core:8 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
  *   ai-spatial:    44 (core:8 + spatial:12 + stats:8 + performance:8 + transactions:7 + codemode:1)
  *   dba-monitor:   36 (core:8 + monitoring:7 + performance:8 + sysschema:8 + optimization:4 + codemode:1)
  *   dba-manage:    35 (core:8 + admin:7 + backup:4 + replication:5 + partitioning:4 + events:6 + codemode:1)
  *   dba-secure:    33 (core:8 + security:9 + roles:8 + transactions:7 + codemode:1)
- *   base-core:     49 (core:8 + json:17 + transactions:7 + text:6 + schema:10 + codemode:1)
+ *   base-core:     50 (core:8 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)
  *   base-advanced: 41 (docstore:9 + spatial:12 + stats:8 + fulltext:5 + events:6 + codemode:1)
  *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */
