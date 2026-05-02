@@ -137,12 +137,12 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
     }
   });
 
-  test("mysql_pool_stats returns { poolStats }", async () => {
+  test("mysql_pool_stats returns { stats }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_pool_stats", {});
 
-      expect(typeof payload.poolStats).toBe("object");
+      expect(typeof payload.stats).toBe("object");
     } finally {
       await client.close();
     }
@@ -153,8 +153,8 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_server_health", {});
 
-      // Health returns { connected, version, database, uptime, ... }
-      expect(typeof payload.connected).toBe("boolean");
+      // Health returns { health: { connected, version, database, uptime, ... } }
+      expect(typeof (payload as any).health?.connected).toBe("boolean");
     } finally {
       await client.close();
     }

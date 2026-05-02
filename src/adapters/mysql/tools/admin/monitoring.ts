@@ -296,9 +296,9 @@ const InnodbStatusSchema = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(true)
+    .default(false)
     .describe(
-      "Return parsed summary with key metrics instead of raw output. Set to false to see full engine status.",
+      "Return parsed summary with key metrics instead of raw output. Set to true to see summary.",
     ),
 });
 
@@ -502,7 +502,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
         if (!pool) {
           return formatHandlerErrorResponse(new Error("Pool not available"));
         }
-        const response = { success: true as const, poolStats: pool.getStats() };
+        const response = { success: true as const, stats: pool.getStats() };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -548,19 +548,21 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          ...health,
-          uptime:
-            uptime != null && typeof uptime === "string"
-              ? parseInt(uptime, 10)
-              : undefined,
-          activeConnections:
-            connections != null && typeof connections === "string"
-              ? parseInt(connections, 10)
-              : undefined,
-          totalQueries:
-            queries != null && typeof queries === "string"
-              ? parseInt(queries, 10)
-              : undefined,
+          health: {
+            ...health,
+            uptime:
+              uptime != null && typeof uptime === "string"
+                ? parseInt(uptime, 10)
+                : undefined,
+            activeConnections:
+              connections != null && typeof connections === "string"
+                ? parseInt(connections, 10)
+                : undefined,
+            totalQueries:
+              queries != null && typeof queries === "string"
+                ? parseInt(queries, 10)
+                : undefined,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };

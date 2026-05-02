@@ -621,15 +621,17 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        healthy?: boolean;
-        uptime?: number;
-        activeConnections?: number;
-        totalQueries?: number;
+        health?: {
+          healthy?: boolean;
+          uptime?: number;
+          activeConnections?: number;
+          totalQueries?: number;
+        };
       };
 
-      expect(result.uptime).toBe(86400);
-      expect(result.activeConnections).toBe(10);
-      expect(result.totalQueries).toBe(12345);
+      expect(result.health?.uptime).toBe(86400);
+      expect(result.health?.activeConnections).toBe(10);
+      expect(result.health?.totalQueries).toBe(12345);
     });
 
     it("should handle missing status variables", async () => {
@@ -642,12 +644,14 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        uptime?: number;
-        activeConnections?: number;
+        health?: {
+          uptime?: number;
+          activeConnections?: number;
+        };
       };
 
-      expect(result.uptime).toBeUndefined();
-      expect(result.activeConnections).toBeUndefined();
+      expect(result.health?.uptime).toBeUndefined();
+      expect(result.health?.activeConnections).toBeUndefined();
     });
 
     it("should handle partial status variables", async () => {
@@ -662,12 +666,14 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        uptime?: number;
-        activeConnections?: number;
+        health?: {
+          uptime?: number;
+          activeConnections?: number;
+        };
       };
 
-      expect(result.uptime).toBe(3600);
-      expect(result.activeConnections).toBeUndefined();
+      expect(result.health?.uptime).toBe(3600);
+      expect(result.health?.activeConnections).toBeUndefined();
     });
 
     it("should return structured error on connection failure", async () => {
