@@ -268,7 +268,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `backup`       | 4     | Export, import, mysqldump                               |
 | `replication`  | 5     | Master/slave, binlog                                    |
 | `partitioning` | 4     | Partition management                                    |
-| `schema`       | 10    | Views, procedures, triggers, constraints                |
+| `schema`       | 11    | Views, procedures, triggers, constraints                |
 | `shell`        | 10    | MySQL Shell utilities                                   |
 | `events`       | 6     | Event Scheduler management                              |
 | `sysschema`    | 8     | sys schema diagnostics                                  |

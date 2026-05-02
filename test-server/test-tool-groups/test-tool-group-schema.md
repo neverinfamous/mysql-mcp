@@ -76,19 +76,20 @@ For tools with optional numeric parameters, call with `param: "abc"`. Must NOT r
 
 ### schema Group-Specific Testing
 
-schema Tool Group (10 tools +1 for code mode):
+schema Tool Group (11 tools +1 for code mode):
 
 1. 'mysql_list_schemas'
 2. 'mysql_create_schema'
 3. 'mysql_drop_schema'
 4. 'mysql_list_views'
 5. 'mysql_create_view'
-6. 'mysql_list_stored_procedures'
-7. 'mysql_list_functions'
-8. 'mysql_list_triggers'
-9. 'mysql_list_constraints'
-10. 'mysql_list_events'
-11. 'mysql_execute_code' (codemode, auto-added)
+6. 'mysql_drop_view'
+7. 'mysql_list_stored_procedures'
+8. 'mysql_list_functions'
+9. 'mysql_list_triggers'
+10. 'mysql_list_constraints'
+11. 'mysql_list_events'
+12. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY. Compare responses against the expected results. Report any deviation.
 
@@ -121,4 +122,4 @@ schema Tool Group (10 tools +1 for code mode):
 
 **Cleanup:**
 
-15. Drop `temp_view_order_totals` view via `mysql_write_query({query: "DROP VIEW IF EXISTS temp_view_order_totals"})`
+15. Drop `temp_view_order_totals` view via `mysql_drop_view({name: "temp_view_order_totals"})`

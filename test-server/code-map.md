@@ -127,7 +127,7 @@ src/
 | **core** | `core.ts` | 8 | `read_query`, `write_query`, `list_tables`, `describe_table`, `create_table`, `drop_table`, `create_index`, `get_indexes` |
 | | `core/error-helpers.ts` | — | Shared `formatHandlerError()` orchestrator (handles ZodError, MySQLMcpError, generic Error) |
 | **schema** | `schema/management.ts` | 3 | `list_schemas`, `create_schema`, `drop_schema` |
-| | `schema/views.ts` | 3 | `list_views`, `create_view` + 1 more |
+| | `schema/views.ts` | 3 | `list_views`, `create_view`, `drop_view` |
 | | `schema/routines.ts` | 2 | `list_stored_procedures`, `list_functions` |
 | | `schema/triggers.ts` | 1 | `list_triggers` |
 | | `schema/constraints.ts` | 1 | `list_constraints` |

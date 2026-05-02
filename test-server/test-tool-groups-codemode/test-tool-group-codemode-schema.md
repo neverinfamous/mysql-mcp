@@ -72,11 +72,11 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 
 ## Group Focus: schema
 
-schema Tool Group (10 tools +1 code mode):
+schema Tool Group (11 tools +1 code mode):
 
 1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema` 4. `mysql_list_views`
-2. `mysql_create_view` 6. `mysql_list_stored_procedures` 7. `mysql_list_functions`
-3. `mysql_list_triggers` 9. `mysql_list_constraints` 10. `mysql_list_events`
+5. `mysql_create_view` 6. `mysql_drop_view` 7. `mysql_list_stored_procedures` 8. `mysql_list_functions`
+9. `mysql_list_triggers` 10. `mysql_list_constraints` 11. `mysql_list_events`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
@@ -93,7 +93,7 @@ schema Tool Group (10 tools +1 code mode):
 
 9. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
 10. `mysql.schema.listViews({database: "testdb"})` → verify `temp_cm_view` present
-11. Drop via `mysql.core.writeQuery({query: "DROP VIEW IF EXISTS temp_cm_view"})`
+11. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
 
 **Domain error paths (🔴):**
 

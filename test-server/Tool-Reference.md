@@ -21,7 +21,7 @@ Complete list of all **230+ tools** across 25 categories.
 
 ---
 
-## Schema Management (10 tools)
+## Schema Management (11 tools)
 
 | Tool                           | Description                  |
 | ------------------------------ | ---------------------------- |
@@ -30,6 +30,7 @@ Complete list of all **230+ tools** across 25 categories.
 | `mysql_drop_schema`            | DROP DATABASE                |
 | `mysql_list_views`             | List views in schema         |
 | `mysql_create_view`            | CREATE OR REPLACE VIEW       |
+| `mysql_drop_view`              | DROP VIEW                    |
 | `mysql_list_stored_procedures` | List stored procedures       |
 | `mysql_list_functions`         | List stored functions        |
 | `mysql_list_triggers`          | List triggers                |

@@ -51,7 +51,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 16. `replication` (5 tools)
 17. `roles` (8 tools)
 18. `router` (9 tools)
-19. `schema` (10 tools)
+19. `schema` (11 tools)
 20. `security` (9 tools)
 21. `shell` (10 tools)
 22. `spatial` (12 tools)
