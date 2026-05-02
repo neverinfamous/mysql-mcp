@@ -73,3 +73,6 @@
 - **Scope Enforcement**: Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
 - **Dependency Patches**: Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities.
 - **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
+
+### Certified
+- `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
