@@ -80,4 +80,4 @@
 - `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `performance` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `schema` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
-- `sys` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
+- `text` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structural schema conventions, and `metrics.tokenEstimate` instrumentation via MCP direct calls.
