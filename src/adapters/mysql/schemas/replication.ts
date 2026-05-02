@@ -11,7 +11,7 @@ export const BinlogEventsSchemaBase = z.object({
     .unknown()
     .optional()
     .describe(
-      "Maximum events to return (default: 10). Set higher for more events.",
+      "Maximum events to return (default: 5). Set higher for more events.",
     ),
 });
 
@@ -22,8 +22,8 @@ export const BinlogEventsSchema = z.object({
     .number()
     .nonnegative()
     .optional()
-    .default(10)
+    .default(5)
     .describe(
-      "Maximum events to return (default: 10). Set higher for more events.",
+      "Maximum events to return (default: 5). Set higher for more events.",
     ),
 });
