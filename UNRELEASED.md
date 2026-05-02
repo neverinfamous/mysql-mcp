@@ -78,3 +78,4 @@
 ### Certified
 
 - `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
+- `introspection` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
