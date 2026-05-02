@@ -15,7 +15,7 @@ const ListSchemasSchema = z.object({
 });
 
 const CreateSchemaSchemaBase = z.object({
-  name: z.string().describe("Schema/database name"),
+  name: z.string().optional().describe("Schema/database name"),
   charset: z.string().optional().describe("Character set"),
   collation: z.string().optional().describe("Collation"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
@@ -29,7 +29,7 @@ const CreateSchemaSchema = z.object({
 });
 
 const DropSchemaSchemaBase = z.object({
-  name: z.string().describe("Schema/database name to drop"),
+  name: z.string().optional().describe("Schema/database name to drop"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 

@@ -49,6 +49,11 @@ const CreateViewSchema = z.object({
     .describe("WITH CHECK OPTION"),
 });
 
+const DropViewSchemaBase = z.object({
+  name: z.string().optional().describe("View name"),
+  ifExists: z.boolean().optional().describe("Use IF EXISTS"),
+});
+
 const DropViewSchema = z.object({
   name: z.string().describe("View name"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
@@ -196,7 +201,7 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Drop View",
     description: "Drop a view.",
     group: "schema",
-    inputSchema: DropViewSchema,
+    inputSchema: DropViewSchemaBase,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
