@@ -296,9 +296,9 @@ const InnodbStatusSchema = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
-      "Return parsed summary with key metrics instead of raw output. Set to true to see summary.",
+      "Return parsed summary with key metrics (default). Set to false to see raw string output.",
     ),
 });
 
@@ -307,7 +307,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     name: "mysql_innodb_status",
     title: "MySQL InnoDB Status",
     description:
-      "Get detailed InnoDB engine status. Use summary=true for parsed key metrics.",
+      "Get detailed InnoDB engine status. Defaults to parsed summary. Use summary=false for raw output.",
     group: "monitoring",
     inputSchema: InnodbStatusSchema,
     requiredScopes: ["read"],
