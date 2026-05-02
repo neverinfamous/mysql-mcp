@@ -80,7 +80,7 @@
 - `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `performance` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `schema` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
-- `monitoring` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
+- `monitoring` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via Code Mode direct calls, including advanced stress testing for payload efficiency and sequential stability.
 - `stats` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, server-side pagination limits, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `admin` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions (properly wrapping maintenance query errors), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `migration` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, state corruption resilience, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
