@@ -24,6 +24,7 @@
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
 - **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
 - **Dependencies**: Updated core dependencies (`@modelcontextprotocol/sdk`, `vitest`, `eslint`, `typescript`, `mysql2`, `jose`, `zod`, `typescript-eslint`, and `minimatch` in Dockerfile).
+- **Dependency Updates**: Bumped `eslint` to 10.3.0, `globals` to 17.6.0, and `zod` to 4.4.2.
 - **Token Optimization**:
   - Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table`.
   - Reduced default limit to 5 for `mysql_binlog_events` to prevent payload bloat and ensure architectural consistency.
@@ -75,5 +76,5 @@
 - **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
 
 ### Certified
+
 - `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
-- `fulltext` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
