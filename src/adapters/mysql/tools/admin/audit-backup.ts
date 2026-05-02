@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -51,7 +51,7 @@ export function createAuditListBackupsTool(
           adapter as unknown as { backupManager?: BackupManager }
         ).backupManager;
         if (!backupManager) {
-          return { error: "Backup Manager is not enabled or available" };
+          return withTokenEstimate({ success: false, error: "Backup Manager is not enabled or available" });
         }
 
         const snapshots = await backupManager.listSnapshots();
@@ -61,12 +61,13 @@ export function createAuditListBackupsTool(
           filtered = filtered.filter((s) => s.target === target);
         }
 
-        return {
+        return withTokenEstimate({
+          success: true,
           backups: filtered.slice(0, limit),
           total: filtered.length,
-        };
+        });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };
@@ -106,12 +107,12 @@ export function createAuditRestoreBackupTool(
           adapter as unknown as { backupManager?: BackupManager }
         ).backupManager;
         if (!backupManager) {
-          return { error: "Backup Manager is not enabled or available" };
+          return withTokenEstimate({ success: false, error: "Backup Manager is not enabled or available" });
         }
 
         const snapshot = await backupManager.getSnapshot(filename);
         if (!snapshot) {
-          return { error: `Snapshot not found or unreadable: ${filename}` };
+          return withTokenEstimate({ success: false, error: `Snapshot not found or unreadable: ${filename}` });
         }
 
         const operations = [snapshot.ddl];
@@ -122,11 +123,12 @@ export function createAuditRestoreBackupTool(
         const combinedSql = operations.join("\n\n");
 
         if (dryRun) {
-          return {
+          return withTokenEstimate({
+            success: true,
             dryRun: true,
             sql: combinedSql,
             metadata: snapshot.metadata,
-          };
+          });
         }
 
         // Execute the statements
@@ -137,13 +139,13 @@ export function createAuditRestoreBackupTool(
 
         await adapter.executeWriteQuery(combinedSql);
 
-        return {
+        return withTokenEstimate({
           success: true,
           restoredFilename: filename,
           metadata: snapshot.metadata,
-        };
+        });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };
@@ -177,12 +179,12 @@ export function createAuditDiffBackupTool(
           adapter as unknown as { backupManager?: BackupManager }
         ).backupManager;
         if (!backupManager) {
-          return { error: "Backup Manager is not enabled or available" };
+          return withTokenEstimate({ success: false, error: "Backup Manager is not enabled or available" });
         }
 
         const snapshot = await backupManager.getSnapshot(filename);
         if (!snapshot) {
-          return { error: `Snapshot not found or unreadable: ${filename}` };
+          return withTokenEstimate({ success: false, error: `Snapshot not found or unreadable: ${filename}` });
         }
 
         const { target, schema: schemaName } = snapshot.metadata;
@@ -229,13 +231,14 @@ export function createAuditDiffBackupTool(
           liveDdl = `-- Object "${target}" does not exist in current schema`;
         }
 
-        return {
+        return withTokenEstimate({
+          success: true,
           snapshotDdl: snapshot.ddl,
           liveDdl: liveDdl,
           metadata: snapshot.metadata,
-        };
+        });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };
