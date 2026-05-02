@@ -25,7 +25,7 @@ import type {
 // ============================================================================
 
 const AuditLogSchema = z.object({
-  limit: z.number().default(20).describe("Maximum number of records"),
+  limit: z.number().default(10).describe("Maximum number of records"),
   user: z.string().optional().describe("Filter by username"),
   eventType: z
     .string()
