@@ -5,6 +5,7 @@
  * 4 tools: index_recommendation, query_rewrite, force_index, optimizer_trace.
  */
 
+import type { PoolConnection } from "mysql2/promise";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -487,16 +488,24 @@ export function createOptimizerTraceTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       let tracingEnabled = false;
+      let connection: PoolConnection | null = null;
       try {
         const { query, summary } = schema.parse(params);
 
+        const pool = adapter.getPool();
+        if (!pool) {
+          throw new Error("Not connected to database");
+        }
+        
+        connection = await pool.getConnection();
+
         // Enable optimizer trace
-        await adapter.executeQuery('SET optimizer_trace="enabled=on"');
+        await connection.query('SET optimizer_trace="enabled=on"');
         tracingEnabled = true;
 
         // Execute the query (may fail for nonexistent tables, etc.)
         try {
-          await adapter.executeReadQuery(query);
+          await connection.query(query);
         } catch (err: unknown) {
           const errorMsg = formatMysqlError(err);
           if (summary) {
@@ -510,26 +519,34 @@ export function createOptimizerTraceTool(
         }
 
         // Get the trace
-        const traceResult = await adapter.executeReadQuery(
+        const [rows] = await connection.query(
           "SELECT * FROM information_schema.OPTIMIZER_TRACE",
         );
 
         if (summary) {
           // Extract key decisions from the trace
-          const response = extractTraceSummary(traceResult.rows, query);
+          const response = extractTraceSummary(rows as Record<string, unknown>[], query);
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const response = { success: true, trace: traceResult.rows };
+        const response = { success: true, trace: rows };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       } finally {
-        if (tracingEnabled) {
+        if (connection !== null && tracingEnabled) {
           // Disable optimizer trace
-          await adapter.executeQuery('SET optimizer_trace="enabled=off"');
+          try {
+            await connection.query('SET optimizer_trace="enabled=off"');
+          } catch {
+            // ignore
+          }
+        }
+        if (connection !== null) {
+          const pool = adapter.getPool();
+          if (pool) pool.releaseConnection(connection);
         }
       }
     },
