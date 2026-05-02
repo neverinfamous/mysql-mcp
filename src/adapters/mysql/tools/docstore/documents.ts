@@ -63,7 +63,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 });
           }
 
-          let selectClause = "doc";
+          let selectClause = "_id, doc";
           if (fields && fields.length > 0) {
             // Validate all field names to prevent SQL injection
             for (const f of fields) {
@@ -98,9 +98,17 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const docs = (result.rows ?? []).map((r) => {
             const row = r;
             const docValue = row["doc"];
-            return typeof docValue === "string"
+            const idValue = row["_id"];
+            const parsed = typeof docValue === "string"
               ? (JSON.parse(docValue) as Record<string, unknown>)
               : docValue;
+              
+            if (idValue !== undefined && parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+              if (!("_id" in (parsed as Record<string, unknown>))) {
+                (parsed as Record<string, unknown>)["_id"] = idValue;
+              }
+            }
+            return parsed;
           });
           return withTokenEstimate({ success: true, documents: docs, count: docs.length });
         } catch (error: unknown) {

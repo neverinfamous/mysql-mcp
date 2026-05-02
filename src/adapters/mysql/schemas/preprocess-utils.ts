@@ -196,17 +196,33 @@ export function preprocessAdminTableParams(val: unknown): unknown {
 export function preprocessDocFilterParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
-  if (v["filter"] !== undefined) {
+  const result = { ...v };
+
+  // Aliases
+  if (result["filter"] === undefined && result["criteria"] !== undefined) {
+    // Stringify if criteria is an object, because filter expects a string
+    result["filter"] = typeof result["criteria"] === "object" && result["criteria"] !== null
+      ? JSON.stringify(result["criteria"])
+      : result["criteria"];
+  }
+  if (result["set"] === undefined && result["update"] !== undefined) {
+    result["set"] = result["update"];
+  }
+
+  if (result["filter"] !== undefined) {
     if (
-      typeof v["filter"] === "object" &&
-      v["filter"] !== null &&
-      Object.keys(v["filter"]).length === 0
+      typeof result["filter"] === "object" &&
+      result["filter"] !== null &&
+      Object.keys(result["filter"]).length === 0
     ) {
-      return { ...v, filter: undefined };
-    }
-    if (v["filter"] === "{}" || v["filter"] === "[]" || v["filter"] === "") {
-      return { ...v, filter: undefined };
+      result["filter"] = undefined;
+    } else if (result["filter"] === "{}" || result["filter"] === "[]" || result["filter"] === "") {
+      result["filter"] = undefined;
     }
   }
-  return v;
+
+  delete result["criteria"];
+  delete result["update"];
+
+  return result;
 }

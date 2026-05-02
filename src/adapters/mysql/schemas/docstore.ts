@@ -119,7 +119,7 @@ export const ModifyDocSchemaBase = z.object({
   unset: z.array(z.string()).optional(),
 });
 
-export const ModifyDocSchema = z.object({
+export const ModifyDocSchemaStrict = z.object({
   collection: z.string(),
   schema: z.string().optional(),
   filter: z
@@ -130,6 +130,11 @@ export const ModifyDocSchema = z.object({
   set: z.record(z.string(), z.unknown()).optional().describe("Fields to set"),
   unset: z.array(z.string()).optional(),
 });
+
+export const ModifyDocSchema = z.preprocess(
+  preprocessDocFilterParams,
+  ModifyDocSchemaStrict,
+);
 
 export const RemoveDocSchemaBase = z.object({
   collection: z.string().optional(),
@@ -142,7 +147,7 @@ export const RemoveDocSchemaBase = z.object({
     ),
 });
 
-export const RemoveDocSchema = z.object({
+export const RemoveDocSchemaStrict = z.object({
   collection: z.string(),
   schema: z.string().optional(),
   filter: z
@@ -151,6 +156,11 @@ export const RemoveDocSchema = z.object({
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
     ),
 });
+
+export const RemoveDocSchema = z.preprocess(
+  preprocessDocFilterParams,
+  RemoveDocSchemaStrict,
+);
 
 export const CreateDocIndexSchemaBase = z.object({
   collection: z.string().optional(),
