@@ -300,9 +300,16 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
             [table],
           );
           if (!check.rows || check.rows.length === 0) {
-            const response = { success: false, error: `Table '${table}' doesn't exist` };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+            const response = { 
+              success: false, 
+              error: `Table '${table}' doesn't exist`,
+              code: "NOT_FOUND",
+              category: "database",
+              suggestion: "Verify the table name exists in the target database.",
+              recoverable: true
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
         }
 
@@ -383,7 +390,14 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [table]);
 
         if (!result.rows || result.rows.length === 0) {
-          const response = { success: false, error: `Table '${table}' doesn't exist` };
+          const response = { 
+            success: false, 
+            error: `Table '${table}' doesn't exist`,
+            code: "NOT_FOUND",
+            category: "database",
+            suggestion: "Verify the table name exists in the target database.",
+            recoverable: true
+          };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         }
