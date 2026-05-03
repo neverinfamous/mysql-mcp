@@ -70,7 +70,7 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        recommendations: unknown[] };
+        data: { recommendations: unknown[] };
       };
 
       expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
@@ -108,7 +108,7 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        recommendations: unknown[] };
+        data: { recommendations: unknown[] };
       };
 
       expect(result.data.recommendations).toHaveLength(0);
