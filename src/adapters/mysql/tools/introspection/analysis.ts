@@ -197,8 +197,7 @@ export function createConstraintAnalysisTool(
           bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
         }
 
-        const response = {
-          success: true,
+        const data = {
           ...(findings.length > 0 ? { findings } : {}),
           summary: {
             totalFindings: findings.length,
@@ -206,8 +205,8 @@ export function createConstraintAnalysisTool(
             ...(Object.keys(bySeverity).length > 0 ? { bySeverity } : {}),
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -418,8 +417,7 @@ export function createMigrationRisksTool(
           }
         }
 
-        const response = {
-          success: true,
+        const data = {
           ...(risks.length > 0 ? { risks } : {}),
           summary: {
             totalStatements: parsed.statements.length,
@@ -430,8 +428,8 @@ export function createMigrationRisksTool(
               lockImpacts.size > 0 ? [...lockImpacts].join("; ") : "None",
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

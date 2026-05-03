@@ -229,8 +229,7 @@ export function createDependencyGraphTool(
               onUpdate: fk.onUpdate,
             }));
 
-        const response = {
-          success: true,
+        const data = {
           ...(nodes.length > 0 ? { nodes } : {}),
           ...(edges.length > 0 ? { edges } : {}),
           ...(cycles.length > 0 ? { circularDependencies: cycles } : {}),
@@ -245,12 +244,12 @@ export function createDependencyGraphTool(
                   ...(leafTables.length > 0 ? { leafTables } : {}),
                 }),
           },
-          hint: isTruncated
-            ? `Result truncated to ${String(limit)} nodes. Use 'schema' filter to narrow the graph.`
-            : undefined,
+          ...(isTruncated
+            ? { hint: `Result truncated to ${String(limit)} nodes. Use 'schema' filter to narrow the graph.` }
+            : {}),
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -382,14 +381,13 @@ export function createTopologicalSortTool(
           );
         }
 
-        const response = {
-          success: true,
+        const data = {
           ...(order.length > 0 ? { order } : {}),
           direction,
           hasCycles: false,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -554,8 +552,7 @@ export function createCascadeSimulatorTool(
           severity = "low";
         }
 
-        const response = {
-          success: true,
+        const data = {
           sourceTable: sourceQName,
           operation,
           ...(affected.length > 0 ? { affectedTables: affected } : {}),
@@ -568,8 +565,8 @@ export function createCascadeSimulatorTool(
             maxDepth,
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

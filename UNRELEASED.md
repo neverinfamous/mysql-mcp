@@ -87,3 +87,4 @@
 - `fulltext` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, consistent data array response shapes, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `backup` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, structured error conventions (properly wrapping Zod and domain errors), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `document` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, structured error conventions, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
+- `introspection` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
