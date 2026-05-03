@@ -83,14 +83,14 @@ test.describe("Payload Contracts: Performance + Optimization", () => {
   test("mysql_optimizer_trace with summary returns decisions", async () => {
     const client = await createClient();
     try {
-      const payload = await callToolAndParse(
+      const payload = (await callToolAndParse(
         client,
         "mysql_optimizer_trace",
         {
           query: "SELECT * FROM test_products WHERE id = 1",
           summary: true,
         },
-      );
+      )) as { data: { query: string } };
 
       expect(typeof payload.data.query).toBe("string");
     } finally {
