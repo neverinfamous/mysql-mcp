@@ -173,11 +173,11 @@ export function createSysSchemaStatsTool(
             tableStatistics: tableStats.rows ?? [],
             indexStatistics: indexStats.rows ?? [],
             autoIncrementStatus: autoIncStats.rows ?? [],
-          },
-          tableStatisticsCount: (tableStats.rows ?? []).length,
-          indexStatisticsCount: (indexStats.rows ?? []).length,
-          autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
-          schemaName: resolvedSchema,
+            tableStatisticsCount: (tableStats.rows ?? []).length,
+            indexStatisticsCount: (indexStats.rows ?? []).length,
+            autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
+            schemaName: resolvedSchema,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -240,9 +240,11 @@ export function createSysInnoDBLockWaitsTool(
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          data: result.rows,
-          count: result.rows?.length ?? 0,
-          hasContention: (result.rows?.length ?? 0) > 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+            hasContention: (result.rows?.length ?? 0) > 0,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -314,9 +316,9 @@ export function createSysMemorySummaryTool(
           data: {
             globalMemory: globalStats.rows ?? [],
             memoryByUser: userStats.rows ?? [],
-          },
-          globalMemoryCount: (globalStats.rows ?? []).length,
-          memoryByUserCount: (userStats.rows ?? []).length,
+            globalMemoryCount: (globalStats.rows ?? []).length,
+            memoryByUserCount: (userStats.rows ?? []).length,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {

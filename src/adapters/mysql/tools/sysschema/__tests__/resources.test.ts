@@ -64,10 +64,10 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.data.tableStatistics).toHaveLength(1);
       expect(result.data.indexStatistics).toHaveLength(1);
       expect(result.data.autoIncrementStatus).toHaveLength(1);
-      expect(result.tableStatisticsCount).toBe(1);
-      expect(result.indexStatisticsCount).toBe(1);
-      expect(result.autoIncrementStatusCount).toBe(1);
-      expect(result.schemaName).toBe("testdb");
+      expect(result.data?.tableStatisticsCount).toBe(1);
+      expect(result.data?.indexStatisticsCount).toBe(1);
+      expect(result.data?.autoIncrementStatusCount).toBe(1);
+      expect(result.data?.schemaName).toBe("testdb");
     });
 
     it("should use default limit of 2", async () => {
@@ -121,9 +121,9 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.data.tableStatistics).toEqual([]);
       expect(result.data.indexStatistics).toEqual([]);
       expect(result.data.autoIncrementStatus).toEqual([]);
-      expect(result.tableStatisticsCount).toBe(0);
-      expect(result.indexStatisticsCount).toBe(0);
-      expect(result.autoIncrementStatusCount).toBe(0);
+      expect(result.data?.tableStatisticsCount).toBe(0);
+      expect(result.data?.indexStatisticsCount).toBe(0);
+      expect(result.data?.autoIncrementStatusCount).toBe(0);
     });
 
     it("should return structured error for nonexistent schema (P154)", async () => {
@@ -165,10 +165,10 @@ describe("Sys Schema Resource Tools", () => {
         autoIncrementStatusCount: number;
       };
 
-      expect(result.schemaName).toBe("real_db_name");
-      expect(result.tableStatisticsCount).toBe(0);
-      expect(result.indexStatisticsCount).toBe(0);
-      expect(result.autoIncrementStatusCount).toBe(0);
+      expect(result.data?.schemaName).toBe("real_db_name");
+      expect(result.data?.tableStatisticsCount).toBe(0);
+      expect(result.data?.indexStatisticsCount).toBe(0);
+      expect(result.data?.autoIncrementStatusCount).toBe(0);
       // First call should be SELECT DATABASE()
       const firstCall = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(firstCall).toContain("SELECT DATABASE()");
@@ -203,7 +203,7 @@ describe("Sys Schema Resource Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("sys.innodb_lock_waits");
-      expect(result.hasContention).toBe(true);
+      expect(result.data?.hasContention).toBe(true);
     });
 
     it("should handle empty result (no contention)", async () => {
@@ -216,7 +216,7 @@ describe("Sys Schema Resource Tools", () => {
         hasContention: boolean;
       };
 
-      expect(result.hasContention).toBe(false);
+      expect(result.data?.hasContention).toBe(false);
     });
 
     it("should handle null rows", async () => {
@@ -230,9 +230,9 @@ describe("Sys Schema Resource Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.data).toBeNull(); // or null, queryResult.rows is returned directly
-      expect(result.count).toBe(0);
-      expect(result.hasContention).toBe(false);
+      expect(result.data?.rows).toBeNull(); // or null, queryResult.rows is returned directly
+      expect(result.data?.count).toBe(0);
+      expect(result.data?.hasContention).toBe(false);
     });
   });
 
@@ -266,8 +266,8 @@ describe("Sys Schema Resource Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       expect(result.data.globalMemory).toHaveLength(1);
       expect(result.data.memoryByUser).toHaveLength(1);
-      expect(result.globalMemoryCount).toBe(1);
-      expect(result.memoryByUserCount).toBe(1);
+      expect(result.data?.globalMemoryCount).toBe(1);
+      expect(result.data?.memoryByUserCount).toBe(1);
     });
 
     it("should handle null rows", async () => {
@@ -283,8 +283,8 @@ describe("Sys Schema Resource Tools", () => {
 
       expect(result.data.globalMemory).toEqual([]);
       expect(result.data.memoryByUser).toEqual([]);
-      expect(result.globalMemoryCount).toBe(0);
-      expect(result.memoryByUserCount).toBe(0);
+      expect(result.data?.globalMemoryCount).toBe(0);
+      expect(result.data?.memoryByUserCount).toBe(0);
     });
   });
 });
