@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Payload Contract Tests: JSON
  *
  * Validates response shapes for JSON tools (17 total):
@@ -23,7 +23,7 @@ test.describe("Payload Contracts: JSON", () => {
         path: "$.type",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -39,7 +39,7 @@ test.describe("Payload Contracts: JSON", () => {
         path: "$.type",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -53,7 +53,7 @@ test.describe("Payload Contracts: JSON", () => {
         column: "doc",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -70,7 +70,7 @@ test.describe("Payload Contracts: JSON", () => {
         idColumn: "id",
       });
 
-      expect(typeof payload).toBe("object");
+      expect(typeof payload.data).toBe("object");
       // Returns { value } or { value: null, rowFound: false }
     } finally {
       await client.close();
@@ -84,7 +84,7 @@ test.describe("Payload Contracts: JSON", () => {
         value: '{"key": "value"}',
       });
 
-      expect(typeof payload.valid).toBe("boolean");
+      expect(typeof payload.data.valid).toBe("boolean");
     } finally {
       await client.close();
     }
@@ -99,7 +99,7 @@ test.describe("Payload Contracts: JSON", () => {
       });
 
       // json_stats returns stats about JSON column
-      expect(typeof payload).toBe("object");
+      expect(typeof payload.data).toBe("object");
     } finally {
       await client.close();
     }
@@ -114,7 +114,7 @@ test.describe("Payload Contracts: JSON", () => {
         searchValue: "report",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -133,9 +133,10 @@ test.describe("Payload Contracts: JSON", () => {
       );
 
       // Should return array of suggestions or analysis
-      expect(typeof payload).toBe("object");
+      expect(typeof payload.data).toBe("object");
     } finally {
       await client.close();
     }
   });
 });
+
