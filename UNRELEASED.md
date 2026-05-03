@@ -84,4 +84,4 @@
 - `stats` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, server-side pagination limits, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `admin` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions (properly wrapping maintenance query errors), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `optimization` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions (properly wrapping query errors, catching missing validations), token limits, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
-- `text` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via Code Mode advanced stress testing.
+- `transactions` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions, connection pooling stability, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
