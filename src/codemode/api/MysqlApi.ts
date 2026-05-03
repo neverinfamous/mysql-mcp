@@ -262,7 +262,7 @@ export class MysqlApi {
    */
   help(): {
     success: true;
-    groups: Record<string, string[]>;
+    data: { groups: Record<string, string[]> };
     metrics: { tokenEstimate: number };
   } {
     const result: Record<string, string[]> = {};
@@ -271,7 +271,7 @@ export class MysqlApi {
       if (group === "codemode") continue;
       result[group] = tools.map((t) => toolNameToMethodName(t.name, group));
     }
-    return { success: true, groups: result, metrics: { tokenEstimate: 50 } };
+    return { success: true, data: { groups: result }, metrics: { tokenEstimate: 50 } };
   }
 
   /**
@@ -361,9 +361,11 @@ export class MysqlApi {
         }
         stubbed["help"] = () => ({
           success: true,
-          methods: Object.keys(groupApi),
-          readonly: true,
-          note: `All methods in '${groupName}' are blocked in readonly mode`,
+          data: {
+            methods: Object.keys(groupApi),
+            readonly: true,
+            note: `All methods in '${groupName}' are blocked in readonly mode`,
+          },
           metrics: { tokenEstimate: 30 },
         });
         bindings[groupName] = stubbed;
@@ -415,9 +417,11 @@ export class MysqlApi {
         ...filteredApi,
         help: () => ({
           success: true,
-          methods: canonicalMethodNames,
-          methodAliases: usefulAliases,
-          examples: GROUP_EXAMPLES[groupName],
+          data: {
+            methods: canonicalMethodNames,
+            methodAliases: usefulAliases,
+            examples: GROUP_EXAMPLES[groupName],
+          },
           metrics: { tokenEstimate: 50 },
         }),
       };
