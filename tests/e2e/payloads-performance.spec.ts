@@ -92,7 +92,7 @@ test.describe("Payload Contracts: Performance + Optimization", () => {
         },
       );
 
-      expect(typeof payload.query).toBe("string");
+      expect(typeof payload.data.query).toBe("string");
     } finally {
       await client.close();
     }
