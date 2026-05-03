@@ -145,9 +145,11 @@ export function createMigrationRollbackTool(
         if (parsed.dryRun === true) {
           const response = {
             success: true as const,
-            dryRun: true,
-            rollbackSql,
-            record: formatRecord(row),
+            data: {
+              dryRun: true,
+              rollbackSql,
+              record: formatRecord(row),
+            },
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -162,11 +164,13 @@ export function createMigrationRollbackTool(
 
           const response = {
             success: true as const,
-            dryRun: false,
-            rollbackSql,
-            record: {
-              ...formatRecord(row),
-              status: "rolled_back",
+            data: {
+              dryRun: false,
+              rollbackSql,
+              record: {
+                ...formatRecord(row),
+                status: "rolled_back",
+              },
             },
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
@@ -261,10 +265,12 @@ export function createMigrationHistoryTool(
 
         const response = {
           success: true as const,
-          records,
-          total,
-          limit,
-          offset,
+          data: {
+            records,
+            total,
+            limit,
+            offset,
+          },
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -318,17 +324,19 @@ export function createMigrationStatusTool(
         if (!tableExists) {
           const response = {
             success: true as const,
-            initialized: false,
-            latestVersion: null,
-            latestAppliedAt: null,
-            counts: {
-              total: 0,
-              applied: 0,
-              recorded: 0,
-              rolledBack: 0,
-              failed: 0,
+            data: {
+              initialized: false,
+              latestVersion: null,
+              latestAppliedAt: null,
+              counts: {
+                total: 0,
+                applied: 0,
+                recorded: 0,
+                rolledBack: 0,
+                failed: 0,
+              },
+              sourceSystems: [],
             },
-            sourceSystems: [],
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -377,18 +385,20 @@ export function createMigrationStatusTool(
 
         const response = {
           success: true as const,
-          initialized: true,
-          latestVersion:
-            latestRow != null ? (latestRow["version"] as string) : null,
-          latestAppliedAt,
-          counts: {
-            total: Number(statsRow["total"]) || 0,
-            applied: Number(statsRow["applied"]) || 0,
-            recorded: Number(statsRow["recorded"]) || 0,
-            rolledBack: Number(statsRow["rolled_back"]) || 0,
-            failed: Number(statsRow["failed"]) || 0,
+          data: {
+            initialized: true,
+            latestVersion:
+              latestRow != null ? (latestRow["version"] as string) : null,
+            latestAppliedAt,
+            counts: {
+              total: Number(statsRow["total"]) || 0,
+              applied: Number(statsRow["applied"]) || 0,
+              recorded: Number(statsRow["recorded"]) || 0,
+              rolledBack: Number(statsRow["rolled_back"]) || 0,
+              failed: Number(statsRow["failed"]) || 0,
+            },
+            sourceSystems,
           },
-          sourceSystems,
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };

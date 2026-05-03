@@ -82,9 +82,11 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          tableCreated: !existed,
-          tableName: qualifiedTable,
-          existingRecords,
+          data: {
+            tableCreated: !existed,
+            tableName: qualifiedTable,
+            existingRecords,
+          },
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -163,7 +165,9 @@ export function createMigrationRecordTool(
         const row = resultRows[0] ?? {};
         const response = {
           success: true as const,
-          record: formatRecord(row),
+          data: {
+            record: formatRecord(row),
+          },
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -248,7 +252,9 @@ export function createMigrationApplyTool(
           const row = resultRows[0] ?? {};
           const response = {
             success: true as const,
-            record: formatRecord(row),
+            data: {
+              record: formatRecord(row),
+            },
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
