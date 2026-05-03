@@ -43,14 +43,14 @@ describe("JSON Helper Tools", () => {
           where: "`id` = 1",
         },
         mockContext,
-      )) as { value: any };
+      )) as { data: { value: any } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_EXTRACT");
       expect(call).toContain("WHERE `id` = 1");
       // Value is parsed from JSON string
-      expect(result.value).toEqual({ a: 1 });
+      expect(result.data.value).toEqual({ a: 1 });
     });
 
     it("should return rowFound: false for nonexistent row", async () => {
@@ -65,10 +65,10 @@ describe("JSON Helper Tools", () => {
           where: "`id` = 999",
         },
         mockContext,
-      )) as { value: null; rowFound: boolean };
+      )) as { data: { value: null; rowFound: boolean } };
 
-      expect(result.value).toBeNull();
-      expect(result.rowFound).toBe(false);
+      expect(result.data.value).toBeNull();
+      expect(result.data.rowFound).toBe(false);
     });
   });
 
@@ -112,10 +112,10 @@ describe("JSON Helper Tools", () => {
           where: "`id` = 1",
         },
         mockContext,
-      )) as { success: boolean };
+      )) as { data: { rowsAffected: number } };
 
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
-      expect(result.success).toBe(true);
+      expect(result.data.rowsAffected).toBe(1);
     });
 
     it("should return reason when no row matches the ID", async () => {
@@ -155,10 +155,10 @@ describe("JSON Helper Tools", () => {
           value: '{"a":1}',
         },
         mockContext,
-      )) as { valid: boolean };
+      )) as { data: { valid: boolean } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.valid).toBe(true);
+      expect(result.data.valid).toBe(true);
     });
 
     it("should pass bare strings directly without auto-conversion", async () => {
@@ -174,14 +174,14 @@ describe("JSON Helper Tools", () => {
           value: "hello",
         },
         mockContext,
-      )) as { valid: boolean };
+      )) as { data: { valid: boolean } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       // The bare string "hello" should be passed directly, not wrapped
       const sqlParam = mockAdapter.executeReadQuery.mock
         .calls[0][1] as string[];
       expect(sqlParam[0]).toBe("hello");
-      expect(result.valid).toBe(false);
+      expect(result.data.valid).toBe(false);
     });
 
     it("should return valid: false for Invalid JSON text query errors", async () => {
@@ -194,13 +194,10 @@ describe("JSON Helper Tools", () => {
       const tool = createJsonValidateTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
-        success: boolean;
-        valid?: boolean;
-      };
+      const result = (await tool.handler({ value: "{bad" }, mockContext)) as { success: boolean; data?: { valid: boolean } };
 
       expect(result.success).toBe(true);
-      expect(result.valid).toBe(false);
+      expect(result.data?.valid).toBe(false);
     });
 
     it("should strip Query failed and Execute failed prefixes from generic errors", async () => {
@@ -271,3 +268,4 @@ describe("JSON Helper Tools", () => {
     });
   });
 });
+
