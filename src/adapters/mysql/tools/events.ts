@@ -96,7 +96,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         sql += `\nDO ${body}`;
 
         await adapter.executeQuery(sql);
-        return withTokenEstimate({ success: true, eventName: name });
+        return withTokenEstimate({ success: true, data: { eventName: name } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -183,7 +183,10 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         sql += "\n" + clauses.join("\n");
 
         await adapter.executeQuery(sql);
-        return withTokenEstimate({ success: true, eventName: newName ?? name });
+        return withTokenEstimate({
+          success: true,
+          data: { eventName: newName ?? name },
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -234,7 +237,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         const ifExistsClause = ifExists ? "IF EXISTS " : "";
 
         await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
-        return withTokenEstimate({ success: true, eventName: name });
+        return withTokenEstimate({ success: true, data: { eventName: name } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -310,8 +313,10 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
-          events: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            events: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -384,10 +389,16 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return withTokenEstimate({ success: false, error: "Event does not exist" });
+          return withTokenEstimate({
+            success: false,
+            error: "Event does not exist",
+          });
         }
 
-        return withTokenEstimate({ success: true, event: result.rows[0] });
+        return withTokenEstimate({
+          success: true,
+          data: { event: result.rows[0] },
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -445,11 +456,13 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          schedulerEnabled: schedulerStatus?.["Value"] === "ON",
-          schedulerStatus: schedulerStatus?.["Value"] ?? "UNKNOWN",
-          status: schedulerStatus?.["Value"] ?? "UNKNOWN",
-          eventCounts: countResult.rows ?? [],
-          recentlyExecuted: recentResult.rows ?? [],
+          data: {
+            schedulerEnabled: schedulerStatus?.["Value"] === "ON",
+            schedulerStatus: schedulerStatus?.["Value"] ?? "UNKNOWN",
+            status: schedulerStatus?.["Value"] ?? "UNKNOWN",
+            eventCounts: countResult.rows ?? [],
+            recentlyExecuted: recentResult.rows ?? [],
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {

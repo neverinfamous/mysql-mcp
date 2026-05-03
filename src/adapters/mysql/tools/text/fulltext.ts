@@ -128,7 +128,7 @@ export function createFulltextCreateTool(
         }
 
         adapter.clearSchemaCache();
-        const response = { success: true, indexName: name, columns };
+        const response = { success: true, data: { indexName: name, columns } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -183,7 +183,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         adapter.clearSchemaCache();
-        const response = { success: true, indexName, table };
+        const response = { success: true, data: { indexName, table } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -245,7 +245,7 @@ export function createFulltextSearchTool(
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
           const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, data, count: data.length };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
@@ -318,7 +318,7 @@ export function createFulltextBooleanTool(
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
           const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, data, count: data.length };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
@@ -391,7 +391,7 @@ export function createFulltextExpandTool(
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
           const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, data, count: data.length };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {

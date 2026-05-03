@@ -48,14 +48,14 @@ describe("Text Fulltext Tools", () => {
           indexName: "ft_idx",
         },
         mockContext,
-      )) as { indexName: string };
+      )) as { data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain(
         "CREATE FULLTEXT INDEX `ft_idx` ON `articles` (`title`, `content`)",
       );
-      expect(result.indexName).toBe("ft_idx");
+      expect(result.data.indexName).toBe("ft_idx");
     });
 
     it("should generate index name if not provided", async () => {
@@ -68,14 +68,14 @@ describe("Text Fulltext Tools", () => {
           columns: ["title", "content"],
         },
         mockContext,
-      )) as { indexName: string };
+      )) as { data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain(
         "CREATE FULLTEXT INDEX `ft_articles_title_content`",
       );
-      expect(result.indexName).toBe("ft_articles_title_content");
+      expect(result.data.indexName).toBe("ft_articles_title_content");
     });
 
     it("should return graceful response for duplicate index", async () => {
@@ -173,7 +173,7 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "articles", indexName: "ft_idx" },
         mockContext,
-      )) as { success: boolean; indexName: string };
+      )) as { success: boolean; data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
@@ -324,9 +324,9 @@ describe("Text Fulltext Tools", () => {
           maxLength: 50,
         },
         mockContext,
-      )) as { data: Record<string, unknown>[]; count: number };
+      )) as { data: Record<string, unknown>[] };
 
-      expect(result.count).toBe(2);
+      expect(result.data.length).toBe(2);
       expect((result.data[0].body as string).length).toBe(53); // 50 + "..."
       expect((result.data[0].body as string).endsWith("...")).toBe(true);
       expect(result.data[1].body).toBe("Short text"); // Not truncated

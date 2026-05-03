@@ -240,7 +240,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("events");
+      expect(result).toHaveProperty("data.events");
     });
 
     it("should accept schema filter via params", async () => {
@@ -306,7 +306,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns the query result row directly
-      expect(result).toBeDefined();
+      expect(result).toHaveProperty("data.event");
     });
 
     it("should return exists false when event is not found", async () => {
@@ -353,7 +353,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns schedulerEnabled, processlist, etc
-      expect(result).toHaveProperty("schedulerEnabled");
+      expect(result).toHaveProperty("data.schedulerEnabled");
     });
   });
 });
