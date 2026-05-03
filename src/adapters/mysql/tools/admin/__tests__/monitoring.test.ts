@@ -67,7 +67,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW FULL PROCESSLIST",
       );
-      expect(result).toHaveProperty("processes");
+      expect(result).toHaveProperty("data.processes");
     });
 
     it("should handle empty processlist", async () => {
@@ -78,8 +78,8 @@ describe("Admin Monitoring Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toHaveProperty("processes");
-      expect((result as { processes: unknown[] }).processes).toEqual([]);
+      expect(result).toHaveProperty("data.processes");
+      expect((result as { data: { processes: unknown[] } }).data.processes).toEqual([]);
     });
 
     it("should return structured error on query failure", async () => {
@@ -120,7 +120,7 @@ describe("Admin Monitoring Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("SHOW GLOBAL STATUS");
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("data.status");
     });
 
     it("should show global status with LIKE filter", async () => {
@@ -137,7 +137,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("LIKE 'Threads%'");
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("data.status");
     });
 
     it("should show session status when global is false", async () => {
@@ -170,11 +170,11 @@ describe("Admin Monitoring Tools", () => {
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        status: Record<string, string>;
+        data: { status: Record<string, string> };
       };
 
-      expect(result.status).toHaveProperty("Uptime", "12345");
-      expect(result.status).toHaveProperty("Queries", "98765");
+      expect(result.data.status).toHaveProperty("Uptime", "12345");
+      expect(result.data.status).toHaveProperty("Queries", "98765");
     });
 
     it("should apply default limit of 30 when results exceed it", async () => {
@@ -186,16 +186,18 @@ describe("Admin Monitoring Tools", () => {
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        status: Record<string, string>;
-        rowCount: number;
-        totalAvailable: number;
-        limited: boolean;
+        data: {
+          status: Record<string, string>;
+          rowCount: number;
+          totalAvailable: number;
+          limited: boolean;
+        };
       };
 
-      expect(Object.keys(result.status)).toHaveLength(30);
-      expect(result.rowCount).toBe(30);
-      expect(result.totalAvailable).toBe(150);
-      expect(result.limited).toBe(true);
+      expect(Object.keys(result.data.status)).toHaveLength(30);
+      expect(result.data.rowCount).toBe(30);
+      expect(result.data.totalAvailable).toBe(150);
+      expect(result.data.limited).toBe(true);
     });
 
     it("should respect explicit limit parameter", async () => {
@@ -207,16 +209,18 @@ describe("Admin Monitoring Tools", () => {
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({ limit: 5 }, mockContext)) as {
-        status: Record<string, string>;
-        rowCount: number;
-        totalAvailable: number;
-        limited: boolean;
+        data: {
+          status: Record<string, string>;
+          rowCount: number;
+          totalAvailable: number;
+          limited: boolean;
+        };
       };
 
-      expect(Object.keys(result.status)).toHaveLength(5);
-      expect(result.rowCount).toBe(5);
-      expect(result.totalAvailable).toBe(20);
-      expect(result.limited).toBe(true);
+      expect(Object.keys(result.data.status)).toHaveLength(5);
+      expect(result.data.rowCount).toBe(5);
+      expect(result.data.totalAvailable).toBe(20);
+      expect(result.data.limited).toBe(true);
     });
 
     it("should redact RSA public key values", async () => {
@@ -233,11 +237,11 @@ describe("Admin Monitoring Tools", () => {
 
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        status: Record<string, string>;
+        data: { status: Record<string, string> };
       };
 
-      expect(result.status["Uptime"]).toBe("12345");
-      expect(result.status["Caching_sha2_password_rsa_public_key"]).toBe(
+      expect(result.data.status["Uptime"]).toBe("12345");
+      expect(result.data.status["Caching_sha2_password_rsa_public_key"]).toBe(
         "[REDACTED]",
       );
     });
@@ -297,7 +301,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW GLOBAL VARIABLES",
       );
-      expect(result).toHaveProperty("variables");
+      expect(result).toHaveProperty("data.variables");
     });
 
     it("should show global variables with LIKE filter", async () => {
@@ -340,11 +344,11 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        variables: Record<string, string>;
+        data: { variables: Record<string, string> };
       };
 
-      expect(result.variables).toHaveProperty("version", "8.0.33");
-      expect(result.variables).toHaveProperty("datadir", "/var/lib/mysql/");
+      expect(result.data.variables).toHaveProperty("version", "8.0.33");
+      expect(result.data.variables).toHaveProperty("datadir", "/var/lib/mysql/");
     });
 
     it("should apply default limit of 30 when results exceed it", async () => {
@@ -358,16 +362,18 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        variables: Record<string, string>;
-        rowCount: number;
-        totalAvailable: number;
-        limited: boolean;
+        data: {
+          variables: Record<string, string>;
+          rowCount: number;
+          totalAvailable: number;
+          limited: boolean;
+        };
       };
 
-      expect(Object.keys(result.variables)).toHaveLength(30);
-      expect(result.rowCount).toBe(30);
-      expect(result.totalAvailable).toBe(200);
-      expect(result.limited).toBe(true);
+      expect(Object.keys(result.data.variables)).toHaveLength(30);
+      expect(result.data.rowCount).toBe(30);
+      expect(result.data.totalAvailable).toBe(200);
+      expect(result.data.limited).toBe(true);
     });
 
     it("should return structured error on query failure", async () => {
@@ -417,7 +423,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "SHOW ENGINE INNODB STATUS",
       );
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("data.status");
     });
 
     it("should handle empty status result", async () => {
@@ -428,7 +434,7 @@ describe("Admin Monitoring Tools", () => {
       );
       const result = await tool.handler({ summary: false }, mockContext);
 
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("data.status");
     });
 
     it("should return structured error on query failure", async () => {
@@ -480,7 +486,7 @@ describe("Admin Monitoring Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("SHOW REPLICA STATUS");
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("data.status");
     });
 
     it("should handle no replication configured", async () => {
@@ -490,10 +496,10 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        status: unknown[];
+        data: { status: unknown[] };
       };
 
-      expect(result.status).toBeUndefined();
+      expect(result.data.status).toBeUndefined();
     });
 
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
@@ -512,7 +518,7 @@ describe("Admin Monitoring Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result).toHaveProperty("status");
+      expect(result).toHaveProperty("data.status");
     });
   });
 
@@ -621,17 +627,19 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        serverHealth?: {
-          healthy?: boolean;
-          uptime?: number;
-          activeConnections?: number;
-          totalQueries?: number;
+        data: {
+          serverHealth?: {
+            healthy?: boolean;
+            uptime?: number;
+            activeConnections?: number;
+            totalQueries?: number;
+          };
         };
       };
 
-      expect(result.serverHealth?.uptime).toBe(86400);
-      expect(result.serverHealth?.activeConnections).toBe(10);
-      expect(result.serverHealth?.totalQueries).toBe(12345);
+      expect(result.data.serverHealth?.uptime).toBe(86400);
+      expect(result.data.serverHealth?.activeConnections).toBe(10);
+      expect(result.data.serverHealth?.totalQueries).toBe(12345);
     });
 
     it("should handle missing status variables", async () => {
@@ -644,14 +652,16 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        serverHealth?: {
-          uptime?: number;
-          activeConnections?: number;
+        data: {
+          serverHealth?: {
+            uptime?: number;
+            activeConnections?: number;
+          };
         };
       };
 
-      expect(result.serverHealth?.uptime).toBeUndefined();
-      expect(result.serverHealth?.activeConnections).toBeUndefined();
+      expect(result.data.serverHealth?.uptime).toBeUndefined();
+      expect(result.data.serverHealth?.activeConnections).toBeUndefined();
     });
 
     it("should handle partial status variables", async () => {
@@ -666,14 +676,16 @@ describe("Admin Monitoring Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        serverHealth?: {
-          uptime?: number;
-          activeConnections?: number;
+        data: {
+          serverHealth?: {
+            uptime?: number;
+            activeConnections?: number;
+          };
         };
       };
 
-      expect(result.serverHealth?.uptime).toBe(3600);
-      expect(result.serverHealth?.activeConnections).toBeUndefined();
+      expect(result.data.serverHealth?.uptime).toBe(3600);
+      expect(result.data.serverHealth?.activeConnections).toBeUndefined();
     });
 
     it("should return structured error on connection failure", async () => {

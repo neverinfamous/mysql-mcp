@@ -88,9 +88,10 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         { limit: 3 },
       );
 
-      expect(Array.isArray(payload.processes)).toBe(true);
-      expect(typeof payload.count).toBe("number");
-      expect(payload.count as number).toBeLessThanOrEqual(3);
+      const data = payload.data as any;
+      expect(Array.isArray(data?.processes)).toBe(true);
+      expect(typeof data?.count).toBe("number");
+      expect(data?.count as number).toBeLessThanOrEqual(3);
     } finally {
       await client.close();
     }
@@ -103,10 +104,11 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         limit: 5,
       });
 
-      expect(typeof payload.status).toBe("object");
-      expect(typeof payload.rowCount).toBe("number");
-      expect(typeof payload.totalAvailable).toBe("number");
-      expect(payload.rowCount as number).toBeLessThanOrEqual(5);
+      const data = payload.data as any;
+      expect(typeof data?.status).toBe("object");
+      expect(typeof data?.rowCount).toBe("number");
+      expect(typeof data?.totalAvailable).toBe("number");
+      expect(data?.rowCount as number).toBeLessThanOrEqual(5);
     } finally {
       await client.close();
     }
@@ -119,9 +121,10 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         limit: 5,
       });
 
-      expect(typeof payload.variables).toBe("object");
-      expect(typeof payload.rowCount).toBe("number");
-      expect(typeof payload.totalAvailable).toBe("number");
+      const data = payload.data as any;
+      expect(typeof data?.variables).toBe("object");
+      expect(typeof data?.rowCount).toBe("number");
+      expect(typeof data?.totalAvailable).toBe("number");
     } finally {
       await client.close();
     }
@@ -134,7 +137,8 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         summary: true,
       });
 
-      expect(typeof payload.summary).toBe("object");
+      const data = payload.data as any;
+      expect(typeof data?.summary).toBe("object");
     } finally {
       await client.close();
     }
@@ -145,7 +149,8 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_pool_stats", {});
 
-      expect(typeof payload.poolStats).toBe("object");
+      const data = payload.data as any;
+      expect(typeof data?.poolStats).toBe("object");
     } finally {
       await client.close();
     }
@@ -157,7 +162,8 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
       const payload = await callToolAndParse(client, "mysql_server_health", {});
 
       // Health returns { serverHealth: { connected, version, database, uptime, ... } }
-      expect(typeof (payload as any).serverHealth?.connected).toBe("boolean");
+      const data = payload.data as any;
+      expect(typeof data?.serverHealth?.connected).toBe("boolean");
     } finally {
       await client.close();
     }
@@ -172,8 +178,9 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         { summary: true },
       );
 
+      const data = payload.data as any;
       // Should have configured boolean regardless
-      expect(typeof payload.configured).toBe("boolean");
+      expect(typeof data?.configured).toBe("boolean");
     } finally {
       await client.close();
     }

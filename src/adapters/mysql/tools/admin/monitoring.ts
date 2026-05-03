@@ -46,9 +46,11 @@ export function createShowProcesslistTool(
         const processes = limited ? allRows.slice(0, limit) : allRows;
         const response = {
           success: true as const,
-          processes,
-          count: processes.length,
-          ...(limited ? { limited: true, totalAvailable } : {}),
+          data: {
+            processes,
+            count: processes.length,
+            ...(limited ? { limited: true, totalAvailable } : {}),
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -122,10 +124,12 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          status: truncated,
-          rowCount: Object.keys(truncated).length,
-          totalAvailable,
-          ...(limited && { limited: true }),
+          data: {
+            status: truncated,
+            rowCount: Object.keys(truncated).length,
+            totalAvailable,
+            ...(limited && { limited: true }),
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -196,10 +200,12 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          variables: truncated,
-          rowCount: Object.keys(truncated).length,
-          totalAvailable,
-          ...(limited && { limited: true }),
+          data: {
+            variables: truncated,
+            rowCount: Object.keys(truncated).length,
+            totalAvailable,
+            ...(limited && { limited: true }),
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -328,7 +334,9 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
         if (summary) {
           const response = {
             success: true as const,
-            summary: parseInnodbStatusSummary(rawStatus),
+            data: {
+              summary: parseInnodbStatusSummary(rawStatus),
+            }
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -341,8 +349,10 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = { 
           success: true as const, 
-          status: statusStr,
-          ...(rawStatus.length > maxRawLength && { truncated: true }) 
+          data: {
+            status: statusStr,
+            ...(rawStatus.length > maxRawLength && { truncated: true }) 
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -420,8 +430,10 @@ export function createReplicationStatusTool(
           if (!result.rows || result.rows.length === 0) {
             const response = {
               success: true as const,
-              configured: false,
-              message: "Replication is not configured on this server",
+              data: {
+                configured: false,
+                message: "Replication is not configured on this server",
+              }
             };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
@@ -430,17 +442,21 @@ export function createReplicationStatusTool(
           if (!first) {
             const response = {
               success: true as const,
-              configured: false,
-              message: "Replication is not configured on this server",
+              data: {
+                configured: false,
+                message: "Replication is not configured on this server",
+              }
             };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
           }
           const response = {
             success: true as const,
-            configured: true,
-            status: summary ? extractReplicationSummary(first) : first,
-            ...(summary ? { summary: true } : {}),
+            data: {
+              configured: true,
+              status: summary ? extractReplicationSummary(first) : first,
+              ...(summary ? { summary: true } : {}),
+            }
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -450,8 +466,10 @@ export function createReplicationStatusTool(
             if (!result.rows || result.rows.length === 0) {
               const response = {
                 success: true as const,
-                configured: false,
-                message: "Replication is not configured on this server",
+                data: {
+                  configured: false,
+                  message: "Replication is not configured on this server",
+                }
               };
               const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
               return { ...response, metrics: { tokenEstimate } };
@@ -460,25 +478,31 @@ export function createReplicationStatusTool(
             if (!first) {
               const response = {
                 success: true as const,
-                configured: false,
-                message: "Replication is not configured on this server",
+                data: {
+                  configured: false,
+                  message: "Replication is not configured on this server",
+                }
               };
               const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
               return { ...response, metrics: { tokenEstimate } };
             }
             const response = {
               success: true as const,
-              configured: true,
-              status: summary ? extractReplicationSummary(first) : first,
-              ...(summary ? { summary: true } : {}),
+              data: {
+                configured: true,
+                status: summary ? extractReplicationSummary(first) : first,
+                ...(summary ? { summary: true } : {}),
+              }
             };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
           } catch {
             const response = {
               success: true as const,
-              configured: false,
-              message: "Replication is not configured on this server",
+              data: {
+                configured: false,
+                message: "Replication is not configured on this server",
+              }
             };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
@@ -511,7 +535,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
         if (!pool) {
           return formatHandlerErrorResponse(new Error("Pool not available"));
         }
-        const response = { success: true as const, poolStats: pool.getStats() };
+        const response = { success: true as const, data: { poolStats: pool.getStats() } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -557,20 +581,22 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          serverHealth: {
-            ...health,
-            uptime:
-              uptime != null && typeof uptime === "string"
-                ? parseInt(uptime, 10)
-                : undefined,
-            activeConnections:
-              connections != null && typeof connections === "string"
-                ? parseInt(connections, 10)
-                : undefined,
-            totalQueries:
-              queries != null && typeof queries === "string"
-                ? parseInt(queries, 10)
-                : undefined,
+          data: {
+            serverHealth: {
+              ...health,
+              uptime:
+                uptime != null && typeof uptime === "string"
+                  ? parseInt(uptime, 10)
+                  : undefined,
+              activeConnections:
+                connections != null && typeof connections === "string"
+                  ? parseInt(connections, 10)
+                  : undefined,
+              totalQueries:
+                queries != null && typeof queries === "string"
+                  ? parseInt(queries, 10)
+                  : undefined,
+            }
           }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
