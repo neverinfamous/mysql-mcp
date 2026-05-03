@@ -81,8 +81,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("collections");
-      expect(result).toHaveProperty("count");
+      expect(result).toHaveProperty("data.collections");
+      expect(result).toHaveProperty("data.count");
     });
 
     it("should filter by schema", async () => {
@@ -139,7 +139,7 @@ describe("Handler Execution", () => {
       expect(call).toContain("CREATE TABLE");
       expect(call).toContain("doc JSON");
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("collection", "products");
+      expect(result).toHaveProperty("data.collection", "products");
     });
 
     it("should reject invalid collection names", async () => {
@@ -207,9 +207,11 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual({
         success: true,
-        skipped: true,
-        collection: "my_collection",
-        reason: "Collection already exists",
+        data: {
+          skipped: true,
+          collection: "my_collection",
+          reason: "Collection already exists",
+        },
        metrics: { tokenEstimate: expect.any(Number) } });
       // Should NOT have called CREATE TABLE
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -294,8 +296,8 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("collection", "nonexistent");
-      expect(result).toHaveProperty("message", "Collection did not exist");
+      expect(result).toHaveProperty("data.collection", "nonexistent");
+      expect(result).toHaveProperty("data.message", "Collection did not exist");
     });
 
     it("should drop collection without IF EXISTS when requested", async () => {
@@ -379,7 +381,7 @@ describe("Handler Execution", () => {
       const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
       expect(call).toContain("WHERE JSON_EXTRACT(doc, ?) IS NOT NULL");
       expect(params).toContain("$.age");
-      expect(result).toHaveProperty("documents");
+      expect(result).toHaveProperty("data.documents");
     });
 
     it("should reject SQL injection in filter", async () => {
@@ -480,9 +482,9 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { collection: "users" },
         mockContext,
-      )) as { documents: any[] };
+      )) as { data: { documents: any[] } };
 
-      expect(result.documents[0]).toEqual({ id: 2, name: "test2" });
+      expect(result.data.documents[0]).toEqual({ id: 2, name: "test2" });
     });
 
     it("should apply filter", async () => {
@@ -593,7 +595,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("inserted", 1);
+      expect(result).toHaveProperty("data.inserted", 1);
     });
 
     it("should handle multiple documents", async () => {
@@ -611,7 +613,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4); // 1 existence check + 3 inserts
-      expect(result).toHaveProperty("inserted", 3);
+      expect(result).toHaveProperty("data.inserted", 3);
     });
 
     it("should reject invalid collection names", async () => {
@@ -727,7 +729,7 @@ describe("Handler Execution", () => {
       const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(call).toContain("JSON_SET");
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("modified");
+      expect(result).toHaveProperty("data.modified");
     });
 
     it("should modify with unset operation", async () => {
@@ -891,7 +893,7 @@ describe("Handler Execution", () => {
       expect(call).toContain("DELETE FROM");
       expect(call).toContain("JSON_EXTRACT");
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("removed");
+      expect(result).toHaveProperty("data.removed");
     });
 
     it("should reject invalid collection names", async () => {
@@ -994,7 +996,7 @@ describe("Handler Execution", () => {
       // existence check + adds generated column + creates index
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("index", "idx_email");
+      expect(result).toHaveProperty("data.index", "idx_email");
     });
 
     it("should create composite index with multiple fields", async () => {
@@ -1182,9 +1184,9 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ collection: "users" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
-      expect(result).toHaveProperty("collection", "users");
-      expect(result).toHaveProperty("stats");
-      expect(result).toHaveProperty("indexes");
+      expect(result).toHaveProperty("data.collection", "users");
+      expect(result).toHaveProperty("data.stats");
+      expect(result).toHaveProperty("data.indexes");
     });
 
     it("should reject invalid collection names", async () => {

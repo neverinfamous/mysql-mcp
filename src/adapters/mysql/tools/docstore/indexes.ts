@@ -73,7 +73,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
 
           adapter.clearSchemaCache();
-          return withTokenEstimate({ success: true, index: name });
+          return withTokenEstimate({ success: true, data: { index: name } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);

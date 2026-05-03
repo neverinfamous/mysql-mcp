@@ -110,7 +110,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
             return parsed;
           });
-          return withTokenEstimate({ success: true, documents: docs, count: docs.length });
+          return withTokenEstimate({ success: true, data: { documents: docs, count: docs.length } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -166,7 +166,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
             inserted++;
           }
-          return withTokenEstimate({ success: true, inserted });
+          return withTokenEstimate({ success: true, data: { inserted } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -252,7 +252,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             ...updateParams,
             ...whereParams,
           ]);
-          return withTokenEstimate({ success: true, modified: result.rowsAffected ?? 0 });
+          return withTokenEstimate({ success: true, data: { modified: result.rowsAffected ?? 0 } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -302,7 +302,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tableRef = escapeTableRef(collection, schema);
           const query = `DELETE FROM ${tableRef} WHERE ${where}`;
           const result = await adapter.executeQuery(query, whereParams);
-          return withTokenEstimate({ success: true, removed: result.rowsAffected ?? 0 });
+          return withTokenEstimate({ success: true, data: { removed: result.rowsAffected ?? 0 } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);

@@ -68,8 +68,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           ]);
           return withTokenEstimate({
             success: true,
-            collections: result.rows ?? [],
-            count: result.rows?.length ?? 0,
+            data: {
+              collections: result.rows ?? [],
+              count: result.rows?.length ?? 0,
+            },
           });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
@@ -104,9 +106,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (check.exists) {
               return withTokenEstimate({
                 success: true,
-                skipped: true,
-                collection: name,
-                reason: "Collection already exists",
+                data: {
+                  skipped: true,
+                  collection: name,
+                  reason: "Collection already exists",
+                },
               });
             }
             // If schema doesn't exist, report it even with ifNotExists
@@ -141,7 +145,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          return withTokenEstimate({ success: true, collection: name });
+          return withTokenEstimate({ success: true, data: { collection: name } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -206,8 +210,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (!check.exists) {
               return withTokenEstimate({
                 success: true,
-                collection: name,
-                message: "Collection did not exist",
+                data: {
+                  collection: name,
+                  message: "Collection did not exist",
+                },
               });
             }
           }
@@ -216,7 +222,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             `DROP TABLE ${ifExists ? "IF EXISTS " : ""}${tableRef}`,
           );
           adapter.clearSchemaCache();
-          return withTokenEstimate({ success: true, collection: name });
+          return withTokenEstimate({ success: true, data: { collection: name } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -300,9 +306,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const stats = tableInfo.rows?.[0] ?? {};
           return withTokenEstimate({
             success: true,
-            collection,
-            stats: { rowCount, ...stats },
-            indexes: indexInfo.rows ?? [],
+            data: {
+              collection,
+              stats: { rowCount, ...stats },
+              indexes: indexInfo.rows ?? [],
+            },
           });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
