@@ -99,7 +99,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        const response = { success: true as const, rows: result.rows, count: result.rows?.length ?? 0 };
+        const response = { success: true as const, data: { rows: result.rows, count: result.rows?.length ?? 0 } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -142,7 +142,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        const response = { success: true, rowsAffected: result.rowsAffected };
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -196,15 +196,19 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = pathExists
           ? {
-              success: true,
-              rowsAffected: result.rowsAffected,
-              changed: false,
-              suggestion: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+              }
             }
           : {
-              success: true,
-              rowsAffected: result.rowsAffected,
-              changed: true,
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              }
             };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -248,7 +252,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        const response = { success: true, rowsAffected: result.rowsAffected };
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -289,7 +293,7 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathPlaceholders}) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql, paths);
-        const response = { success: true, rowsAffected: result.rowsAffected };
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -348,8 +352,10 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, queryParams);
         const response = {
           success: true as const,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -399,8 +405,10 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
         const response = {
           success: true as const,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -446,7 +454,7 @@ export function createJsonArrayAppendTool(
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        const response = { success: true, rowsAffected: result.rowsAffected };
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {

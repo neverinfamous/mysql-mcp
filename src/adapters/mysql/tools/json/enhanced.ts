@@ -111,11 +111,13 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         const merged = result.rows?.[0]?.["merged"];
         const response = {
           success: true as const,
-          merged:
-            typeof merged === "string"
-              ? (JSON.parse(merged) as Record<string, unknown>)
-              : merged,
-          mode,
+          data: {
+            merged:
+              typeof merged === "string"
+                ? (JSON.parse(merged) as Record<string, unknown>)
+                : merged,
+            mode,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -239,16 +241,18 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          identical,
-          json1ContainsJson2: row?.["json1_contains_json2"] === 1,
-          json2ContainsJson1: row?.["json2_contains_json1"] === 1,
-          json1Length: row?.["json1_length"],
-          json2Length: row?.["json2_length"],
-          json1Keys,
-          json2Keys,
-          addedKeys,
-          removedKeys,
-          differences,
+          data: {
+            identical,
+            json1ContainsJson2: row?.["json1_contains_json2"] === 1,
+            json2ContainsJson1: row?.["json2_contains_json1"] === 1,
+            json1Length: row?.["json1_length"],
+            json2Length: row?.["json2_length"],
+            json1Keys,
+            json2Keys,
+            addedKeys,
+            removedKeys,
+            differences,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -322,10 +326,12 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          uniqueKeys,
-          keyCount: uniqueKeys.length,
-          keyStats,
-          truncated: uniqueKeys.length > 20,
+          data: {
+            uniqueKeys,
+            keyCount: uniqueKeys.length,
+            keyStats,
+            truncated: uniqueKeys.length > 20,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -405,23 +411,25 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          totalSampled: Number(row?.["total_rows"] ?? 0),
-          nullCount: Number(row?.["null_count"] ?? 0),
-          length: {
-            avg: Number(row?.["avg_length"] ?? 0),
-            max: Number(row?.["max_length"] ?? 0),
-            min: Number(row?.["min_length"] ?? 0),
-          },
-          depth: {
-            avg: Number(row?.["avg_depth"] ?? 0),
-            max: Number(row?.["max_depth"] ?? 0),
-          },
-          sizeBytes: {
-            avg: Number(row?.["avg_size_bytes"] ?? 0),
-            max: Number(row?.["max_size_bytes"] ?? 0),
-          },
-          sampleSize,
-          topKeys,
+          data: {
+            totalSampled: Number(row?.["total_rows"] ?? 0),
+            nullCount: Number(row?.["null_count"] ?? 0),
+            length: {
+              avg: Number(row?.["avg_length"] ?? 0),
+              max: Number(row?.["max_length"] ?? 0),
+              min: Number(row?.["min_length"] ?? 0),
+            },
+            depth: {
+              avg: Number(row?.["avg_depth"] ?? 0),
+              max: Number(row?.["max_depth"] ?? 0),
+            },
+            sizeBytes: {
+              avg: Number(row?.["avg_size_bytes"] ?? 0),
+              max: Number(row?.["max_size_bytes"] ?? 0),
+            },
+            sampleSize,
+            topKeys,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -539,11 +547,13 @@ export function createJsonIndexSuggestTool(
 
         const response = {
           success: true as const,
-          table,
-          column,
-          suggestions: suggestions.slice(0, 5), // Top 5 suggestions
-          suggestion:
-            "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
+          data: {
+            table,
+            column,
+            suggestions: suggestions.slice(0, 5), // Top 5 suggestions
+            suggestion:
+              "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };

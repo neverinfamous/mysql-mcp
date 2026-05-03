@@ -58,21 +58,21 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
 
         let response;
         if (!result.rows || result.rows.length === 0) {
-          response = { success: true as const, value: null, rowFound: false };
+          response = { success: true as const, data: { value: null, rowFound: false } };
         } else {
           const rawValue = result.rows?.[0]?.["value"];
           if (rawValue === null || rawValue === undefined) {
-            response = { success: true as const, value: null };
+            response = { success: true as const, data: { value: null } };
           } else if (typeof rawValue === "object") {
-            response = { success: true as const, value: rawValue };
+            response = { success: true as const, data: { value: rawValue } };
           } else if (typeof rawValue === "string") {
             try {
-              response = { success: true as const, value: JSON.parse(rawValue) as unknown };
+              response = { success: true as const, data: { value: JSON.parse(rawValue) as unknown } };
             } catch {
-              response = { success: true as const, value: rawValue };
+              response = { success: true as const, data: { value: rawValue } };
             }
           } else {
-            response = { success: true as const, value: rawValue };
+            response = { success: true as const, data: { value: rawValue } };
           }
         }
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
@@ -140,7 +140,7 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         }
-        const response = { success: true as const };
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -188,8 +188,10 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
         const response = {
           success: true as const,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -227,7 +229,7 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [value]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
-        const response = { success: true as const, valid: isValid };
+        const response = { success: true as const, data: { valid: isValid } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
@@ -236,7 +238,7 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Invalid JSON text")) {
-          const response = { success: true as const, valid: false };
+          const response = { success: true as const, data: { valid: false } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         }
