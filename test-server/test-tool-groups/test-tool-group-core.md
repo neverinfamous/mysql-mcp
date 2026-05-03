@@ -6,6 +6,7 @@
 - Do not use scripts or terminal to replace planned tests.
 - Do not modify or skip tests.
 - Do not put temp files in root; Use C:\Users\chris\Desktop\mysql-mcp\tmp
+- All changes MUST be consistent with `../code-map.md`.
 
 ## Reporting Format
 

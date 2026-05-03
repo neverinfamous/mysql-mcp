@@ -5,7 +5,7 @@
 - Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`).
 - Do not modify or skip tests. Return an aggregated `failures` array.
 - Group multiple tests into a single script to save context window tokens.
-- All changes MUST be consistent with other mysql-mcp tools and `../code-map.md`.
+- All changes MUST be consistent with `../code-map.md`.
 
 ## Reporting Format
 

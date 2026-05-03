@@ -5,6 +5,8 @@
 - Execute **EVERY** numbered test below using direct MCP tool calls, **NOT** codemode.
 - Do not use scripts or terminal to replace planned tests.
 - Do not modify or skip tests.
+- Do not put temp files in root; Use C:\Users\chris\Desktop\mysql-mcp\tmp
+- All changes MUST be consistent with `../code-map.md`.
 
 ## Reporting Format
 
@@ -18,26 +20,26 @@
 
 ## Test Database Schema
 
-| Table | Rows | Key Columns | JSON Columns |
-|-------|------|-------------|--------------|
-| `test_products` | 16 | id, name, price, category | metadata |
-| `test_orders` | 20 | id, product_id (FK), customer_name, status (ENUM) | notes |
-| `test_json_docs` | 8 | id, doc, metadata, tags | doc, metadata, tags |
-| `test_articles` | 10 | id, title, body, author (FULLTEXT) | — |
-| `test_users` | 10 | id, username, email, phone, bio, role | — |
-| `test_measurements` | 200 | id, sensor_id (INT 1-5), temperature, humidity | — |
-| `test_locations` | 15 | id, name, city, latitude, longitude, geom (POINT) | — |
-| `test_categories` | 17 | id, name, path, level | — |
-| `test_events` | 100 | id, event_type (ENUM), user_id (1-8), event_date | payload |
-| `test_documents` | 10 | id, collection_name, doc, \_id (UUID) | doc |
-| `test_partitioned` | 26 | id, region, created_at | data |
+| Table               | Rows | Key Columns                                       | JSON Columns        |
+| ------------------- | ---- | ------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                         | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
+| `test_categories`   | 17   | id, name, path, level                             | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                            | data                |
 
 ## Structured Error Response Pattern
 
-| Type | What you see | Verdict |
-|------|-------------|---------|
+| Type                 | What you see                                     | Verdict |
+| -------------------- | ------------------------------------------------ | ------- |
 | **Handler error** ✅ | Parseable JSON with `success` and `error` fields | Correct |
-| **MCP error** ❌ | Raw text error string with `isError: true` | Bug |
+| **MCP error** ❌     | Raw text error string with `isError: true`       | Bug     |
 
 ## P154 / Cleanup / Post-Test
 
