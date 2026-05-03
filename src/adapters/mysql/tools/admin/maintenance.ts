@@ -61,7 +61,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
             details: { results: rows },
           });
         }
-        return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
+        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -100,7 +100,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
             details: { results: rows },
           });
         }
-        return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
+        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -144,8 +144,10 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return withTokenEstimate({
           success: true,
-          results: rows,
-          rowCount: rows.length,
+          data: {
+            results: rows,
+            rowCount: rows.length,
+          },
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -187,7 +189,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
             details: { results: rows },
           });
         }
-        return withTokenEstimate({ success: true, results: rows, rowCount: rows.length });
+        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -252,7 +254,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery("FLUSH TABLES");
         }
 
-        return withTokenEstimate({ success: true });
+        return withTokenEstimate({ success: true, data: {} });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -277,7 +279,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         const { processId, connection } = KillQuerySchema.parse(params);
         const killType = connection ? "CONNECTION" : "QUERY";
         await adapter.executeQuery(`KILL ${killType} ${processId}`);
-        return withTokenEstimate({ success: true, killed: processId, type: killType });
+        return withTokenEstimate({ success: true, data: { killed: processId, type: killType } });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

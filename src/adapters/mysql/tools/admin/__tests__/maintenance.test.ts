@@ -63,8 +63,8 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "OPTIMIZE TABLE `users`",
       );
-      expect(result).toHaveProperty("results");
-      expect(Array.isArray((result as { results: unknown[] }).results)).toBe(
+      expect((result as any).data).toHaveProperty("results");
+      expect(Array.isArray((result as { data: { results: unknown[] } }).data.results)).toBe(
         true,
       );
     });
@@ -131,7 +131,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "ANALYZE TABLE `products`",
       );
-      expect(result).toHaveProperty("results");
+      expect((result as any).data).toHaveProperty("results");
     });
 
     it("should execute ANALYZE TABLE for multiple tables", async () => {
@@ -169,8 +169,8 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith("CHECK TABLE `users`");
-      expect(result).toHaveProperty("results");
-      expect(result).toHaveProperty("rowCount");
+      expect((result as any).data).toHaveProperty("results");
+      expect((result as any).data).toHaveProperty("rowCount");
     });
 
     it("should execute CHECK TABLE with EXTENDED option", async () => {
@@ -219,10 +219,10 @@ describe("Admin Maintenance Tools", () => {
       const result = (await tool.handler(
         { tables: ["users"] },
         mockContext,
-      )) as { results: unknown[]; rowCount: number };
+      )) as { data: { results: unknown[]; rowCount: number } };
 
-      expect(result.results).toEqual([]);
-      expect(result.rowCount).toBe(0);
+      expect(result.data.results).toEqual([]);
+      expect(result.data.rowCount).toBe(0);
     });
 
     it("should handle missing rows property", async () => {
@@ -236,10 +236,10 @@ describe("Admin Maintenance Tools", () => {
       const result = (await tool.handler(
         { tables: ["users"] },
         mockContext,
-      )) as { results: unknown[]; rowCount: number };
+      )) as { data: { results: unknown[]; rowCount: number } };
 
-      expect(result.results).toEqual([]);
-      expect(result.rowCount).toBe(0);
+      expect(result.data.results).toEqual([]);
+      expect(result.data.rowCount).toBe(0);
     });
 
     it("should return structured error for invalid option value", async () => {
@@ -290,7 +290,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `myisam_table`",
       );
-      expect(result).toHaveProperty("results");
+      expect((result as any).data).toHaveProperty("results");
     });
 
     it("should execute REPAIR TABLE with QUICK option", async () => {
@@ -439,7 +439,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ processId: 12345 }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 12345");
-      expect(result).toMatchObject({ success: true, killed: 12345, type: "QUERY" });
+      expect(result).toMatchObject({ success: true, data: { killed: 12345, type: "QUERY" } });
     });
 
     it("should execute KILL QUERY when connection is false", async () => {
@@ -452,7 +452,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 999");
-      expect(result).toMatchObject({ success: true, killed: 999, type: "QUERY" });
+      expect(result).toMatchObject({ success: true, data: { killed: 999, type: "QUERY" } });
     });
 
     it("should execute KILL CONNECTION when connection is true", async () => {
@@ -469,8 +469,10 @@ describe("Admin Maintenance Tools", () => {
       );
       expect(result).toMatchObject({
         success: true,
-        killed: 54321,
-        type: "CONNECTION",
+        data: {
+          killed: 54321,
+          type: "CONNECTION",
+        },
       });
     });
 
@@ -687,9 +689,9 @@ describe("Admin Maintenance Tools", () => {
       const result = (await tool.handler(
         { tables: ["t1", "t2"] },
         mockContext,
-      )) as { results: unknown[]; rowCount: number };
+      )) as { data: { results: unknown[]; rowCount: number } };
 
-      expect(result.rowCount).toBe(2);
+      expect(result.data.rowCount).toBe(2);
     });
 
     it("mysql_analyze_table should include rowCount", async () => {
@@ -703,11 +705,13 @@ describe("Admin Maintenance Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
-        results: unknown[];
-        rowCount: number;
+        data: {
+          results: unknown[];
+          rowCount: number;
+        };
       };
 
-      expect(result.rowCount).toBe(1);
+      expect(result.data.rowCount).toBe(1);
     });
 
     it("mysql_repair_table should include rowCount", async () => {
@@ -726,11 +730,13 @@ describe("Admin Maintenance Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
-        results: unknown[];
-        rowCount: number;
+        data: {
+          results: unknown[];
+          rowCount: number;
+        };
       };
 
-      expect(result.rowCount).toBe(1);
+      expect(result.data.rowCount).toBe(1);
     });
   });
 

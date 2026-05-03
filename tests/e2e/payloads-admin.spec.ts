@@ -30,8 +30,9 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         }
       }
 
-      expect(Array.isArray(payload.results)).toBe(true);
-      expect(typeof payload.rowCount).toBe("number");
+      const data = payload.data as any;
+      expect(Array.isArray(data?.results)).toBe(true);
+      expect(typeof data?.rowCount).toBe("number");
     } finally {
       await client.close();
     }
@@ -53,8 +54,9 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         }
       }
 
-      expect(Array.isArray(payload.results)).toBe(true);
-      expect(typeof payload.rowCount).toBe("number");
+      const data = payload.data as any;
+      expect(Array.isArray(data?.results)).toBe(true);
+      expect(typeof data?.rowCount).toBe("number");
     } finally {
       await client.close();
     }
@@ -67,8 +69,9 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         tables: ["test_products"],
       });
 
-      expect(Array.isArray(payload.results)).toBe(true);
-      expect(typeof payload.rowCount).toBe("number");
+      const data = payload.data as any;
+      expect(Array.isArray(data?.results)).toBe(true);
+      expect(typeof data?.rowCount).toBe("number");
     } finally {
       await client.close();
     }
