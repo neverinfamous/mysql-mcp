@@ -54,12 +54,12 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL" },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.sql).toContain("INSERT INTO `users`");
-      expect(result.sql).toContain("Alice");
-      expect(result.rowCount).toBe(2);
+      expect(result.data.sql).toContain("INSERT INTO `users`");
+      expect(result.data.sql).toContain("Alice");
+      expect(result.data.rowCount).toBe(2);
     });
 
     it("should export table as CSV format", async () => {
@@ -76,12 +76,12 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "CSV" },
         mockContext,
-      )) as { csv: string; rowCount: number };
+      )) as { data: { csv: string; rowCount: number } };
 
-      expect(result.csv).toContain("id,name,active");
-      expect(result.csv).toContain("Alice");
-      expect(result.csv).toContain("Bob");
-      expect(result.rowCount).toBe(2);
+      expect(result.data.csv).toContain("id,name,active");
+      expect(result.data.csv).toContain("Alice");
+      expect(result.data.csv).toContain("Bob");
+      expect(result.data.rowCount).toBe(2);
     });
 
     it("should export empty table", async () => {
@@ -93,10 +93,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "empty_table", format: "SQL" },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.sql).toBe("");
-      expect(result.rowCount).toBe(0);
+      expect(result.data.sql).toBe("");
+      expect(result.data.rowCount).toBe(0);
     });
 
     it("should handle WHERE clause in SQL export", async () => {
@@ -127,9 +127,9 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "products", format: "SQL" },
         mockContext,
-      )) as { sql: string };
+      )) as { data: { sql: string } };
 
-      expect(result.sql).toContain("NULL");
+      expect(result.data.sql).toContain("NULL");
     });
 
     it("should handle JSON values in SQL export", async () => {
@@ -145,10 +145,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "items", format: "SQL" },
         mockContext,
-      )) as { sql: string };
+      )) as { data: { sql: string } };
 
-      expect(result.sql).toContain("metadata");
-      expect(result.sql).toContain("key");
+      expect(result.data.sql).toContain("metadata");
+      expect(result.data.sql).toContain("key");
     });
 
     it("should handle object values in CSV export", async () => {
@@ -162,9 +162,9 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "configs", format: "CSV" },
         mockContext,
-      )) as { csv: string };
+      )) as { data: { csv: string } };
 
-      expect(result.csv).toContain("setting");
+      expect(result.data.csv).toContain("setting");
     });
 
     it("should validate table name for SQL injection", async () => {
@@ -246,10 +246,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "logs", format: "SQL" },
         mockContext,
-      )) as { sql: string };
+      )) as { data: { sql: string } };
 
-      expect(result.sql).toContain("(`id`, `email`, `created_at`)");
-      expect(result.sql).toContain("VALUES");
+      expect(result.data.sql).toContain("(`id`, `email`, `created_at`)");
+      expect(result.data.sql).toContain("VALUES");
     });
 
     it("should return structured error for Zod validation failures", async () => {
@@ -294,10 +294,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL", batch: 2 },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.rowCount).toBe(4);
-      const statements = result.sql.split("\n");
+      expect(result.data.rowCount).toBe(4);
+      const statements = result.data.sql.split("\n");
       expect(statements).toHaveLength(2);
       // Each statement should have 2 value groups
       expect(statements[0]).toContain("VALUES (1, 'Alice'), (2, 'Bob')");
@@ -319,10 +319,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL", batch: 10 },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.rowCount).toBe(3);
-      const statements = result.sql.split("\n");
+      expect(result.data.rowCount).toBe(3);
+      const statements = result.data.sql.split("\n");
       expect(statements).toHaveLength(1);
       expect(statements[0]).toContain(
         "VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie')",
@@ -343,10 +343,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL" },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.rowCount).toBe(2);
-      const statements = result.sql.split("\n");
+      expect(result.data.rowCount).toBe(2);
+      const statements = result.data.sql.split("\n");
       expect(statements).toHaveLength(2);
       expect(statements[0]).toContain("VALUES (1, 'Alice');");
       expect(statements[1]).toContain("VALUES (2, 'Bob');");
@@ -380,11 +380,11 @@ describe("Admin Backup Tools", () => {
           ],
         },
         mockContext,
-      )) as { success: boolean; rowsInserted: number };
+      )) as { success: boolean; data: { rowsInserted: number } };
 
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalledTimes(2);
       expect(result.success).toBe(true);
-      expect(result.rowsInserted).toBe(2);
+      expect(result.data.rowsInserted).toBe(2);
     });
 
     it("should handle empty data array", async () => {
@@ -395,11 +395,11 @@ describe("Admin Backup Tools", () => {
           data: [],
         },
         mockContext,
-      )) as { success: boolean; rowsInserted: number };
+      )) as { success: boolean; data: { rowsInserted: number } };
 
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
       expect(result.success).toBe(true);
-      expect(result.rowsInserted).toBe(0);
+      expect(result.data.rowsInserted).toBe(0);
     });
 
     it("should use parameterized queries", async () => {
@@ -486,11 +486,11 @@ describe("Admin Backup Tools", () => {
           ],
         },
         mockContext,
-      )) as { success: boolean; error: string; rowsInserted: number };
+      )) as { success: boolean; error: string; data: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate entry");
-      expect(result.rowsInserted).toBe(1);
+      expect(result.data.rowsInserted).toBe(1);
     });
 
     it("should return structured error for non-existent table", async () => {
@@ -505,11 +505,11 @@ describe("Admin Backup Tools", () => {
           data: [{ name: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; rowsInserted: number };
+      )) as { success: boolean; error: string; data: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
-      expect(result.rowsInserted).toBe(0);
+      expect(result.data.rowsInserted).toBe(0);
     });
 
     it("should return structured error for unknown column", async () => {
@@ -524,11 +524,11 @@ describe("Admin Backup Tools", () => {
           data: [{ nonexistent_col: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; rowsInserted: number };
+      )) as { success: boolean; error: string; data: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Unknown column");
-      expect(result.rowsInserted).toBe(0);
+      expect(result.data.rowsInserted).toBe(0);
     });
 
     it("should return structured error for Zod validation failures", async () => {
@@ -572,10 +572,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { database: "production_db" },
         mockContext,
-      )) as { command: string };
+      )) as { data: { command: string } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.command).toContain("production_db");
+      expect(result.data.command).toContain("production_db");
     });
 
     it("should include specific tables in command", async () => {
@@ -592,10 +592,10 @@ describe("Admin Backup Tools", () => {
           tables: ["users", "orders"],
         },
         mockContext,
-      )) as { command: string };
+      )) as { data: { command: string } };
 
-      expect(result.command).toContain("users");
-      expect(result.command).toContain("orders");
+      expect(result.data.command).toContain("users");
+      expect(result.data.command).toContain("orders");
     });
 
     it("should add --no-data flag for schema-only dump", async () => {
@@ -606,11 +606,9 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { database: "mydb", noData: true },
         mockContext,
-      )) as {
-        command: string;
-      };
+      )) as { data: { command: string } };
 
-      expect(result.command).toContain("--no-data");
+      expect(result.data.command).toContain("--no-data");
     });
 
     it("should add --single-transaction flag when specified", async () => {
@@ -621,9 +619,9 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { database: "mydb", singleTransaction: true },
         mockContext,
-      )) as { command: string };
+      )) as { data: { command: string } };
 
-      expect(result.command).toContain("--single-transaction");
+      expect(result.data.command).toContain("--single-transaction");
     });
 
     it("should combine multiple options", async () => {
@@ -642,11 +640,11 @@ describe("Admin Backup Tools", () => {
           singleTransaction: true,
         },
         mockContext,
-      )) as { command: string };
+      )) as { data: { command: string } };
 
-      expect(result.command).toContain("--no-data");
-      expect(result.command).toContain("--single-transaction");
-      expect(result.command).toContain("users");
+      expect(result.data.command).toContain("--no-data");
+      expect(result.data.command).toContain("--single-transaction");
+      expect(result.data.command).toContain("users");
     });
   });
 
@@ -687,11 +685,11 @@ describe("Admin Backup Tools", () => {
           filename: "dump.sql",
         },
         mockContext,
-      )) as { command: string };
+      )) as { data: { command: string } };
 
       expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
-      expect(result.command).toContain("restore_target");
-      expect(result.command).toContain("dump.sql");
+      expect(result.data.command).toContain("restore_target");
+      expect(result.data.command).toContain("dump.sql");
     });
 
     it("should handle various filename formats", async () => {
@@ -702,14 +700,14 @@ describe("Admin Backup Tools", () => {
       let result = (await tool.handler(
         { database: "mydb", filename: "/path/to/backup.sql" },
         mockContext,
-      )) as { command: string };
-      expect(result.command).toContain("/path/to/backup.sql");
+      )) as { data: { command: string } };
+      expect(result.data.command).toContain("/path/to/backup.sql");
 
       result = (await tool.handler(
         { database: "mydb", filename: "backup.sql.gz" },
         mockContext,
-      )) as { command: string };
-      expect(result.command).toContain("backup.sql.gz");
+      )) as { data: { command: string } };
+      expect(result.data.command).toContain("backup.sql.gz");
     });
   });
 });
