@@ -145,7 +145,7 @@ export function createSysStatementSummaryTool(
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          statements: result.rows,
+          data: result.rows,
           orderedBy: orderBy,
           count: result.rows?.length ?? 0,
         });
@@ -252,7 +252,7 @@ export function createSysWaitSummaryTool(
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          waits: result.rows,
+          data: result.rows,
           type,
           count: result.rows?.length ?? 0,
         });
@@ -352,7 +352,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          ioStats: result.rows,
+          data: result.rows,
           type,
           count: result.rows?.length ?? 0,
         });

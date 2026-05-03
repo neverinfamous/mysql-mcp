@@ -169,9 +169,11 @@ export function createSysSchemaStatsTool(
 
         return withTokenEstimate({
           success: true,
-          tableStatistics: tableStats.rows ?? [],
-          indexStatistics: indexStats.rows ?? [],
-          autoIncrementStatus: autoIncStats.rows ?? [],
+          data: {
+            tableStatistics: tableStats.rows ?? [],
+            indexStatistics: indexStats.rows ?? [],
+            autoIncrementStatus: autoIncStats.rows ?? [],
+          },
           tableStatisticsCount: (tableStats.rows ?? []).length,
           indexStatisticsCount: (indexStats.rows ?? []).length,
           autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
@@ -238,7 +240,7 @@ export function createSysInnoDBLockWaitsTool(
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          lockWaits: result.rows,
+          data: result.rows,
           count: result.rows?.length ?? 0,
           hasContention: (result.rows?.length ?? 0) > 0,
         });
@@ -309,8 +311,10 @@ export function createSysMemorySummaryTool(
 
         return withTokenEstimate({
           success: true,
-          globalMemory: globalStats.rows ?? [],
-          memoryByUser: userStats.rows ?? [],
+          data: {
+            globalMemory: globalStats.rows ?? [],
+            memoryByUser: userStats.rows ?? [],
+          },
           globalMemoryCount: (globalStats.rows ?? []).length,
           memoryByUserCount: (userStats.rows ?? []).length,
         });

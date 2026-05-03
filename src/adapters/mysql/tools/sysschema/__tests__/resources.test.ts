@@ -49,9 +49,11 @@ describe("Sys Schema Resource Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        tableStatistics: unknown[];
-        indexStatistics: unknown[];
-        autoIncrementStatus: unknown[];
+        data: {
+          tableStatistics: unknown[];
+          indexStatistics: unknown[];
+          autoIncrementStatus: unknown[];
+        };
         tableStatisticsCount: number;
         indexStatisticsCount: number;
         autoIncrementStatusCount: number;
@@ -59,9 +61,9 @@ describe("Sys Schema Resource Tools", () => {
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
-      expect(result.tableStatistics).toHaveLength(1);
-      expect(result.indexStatistics).toHaveLength(1);
-      expect(result.autoIncrementStatus).toHaveLength(1);
+      expect(result.data.tableStatistics).toHaveLength(1);
+      expect(result.data.indexStatistics).toHaveLength(1);
+      expect(result.data.autoIncrementStatus).toHaveLength(1);
       expect(result.tableStatisticsCount).toBe(1);
       expect(result.indexStatisticsCount).toBe(1);
       expect(result.autoIncrementStatusCount).toBe(1);
@@ -116,9 +118,9 @@ describe("Sys Schema Resource Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.tableStatistics).toEqual([]);
-      expect(result.indexStatistics).toEqual([]);
-      expect(result.autoIncrementStatus).toEqual([]);
+      expect(result.data.tableStatistics).toEqual([]);
+      expect(result.data.indexStatistics).toEqual([]);
+      expect(result.data.autoIncrementStatus).toEqual([]);
       expect(result.tableStatisticsCount).toBe(0);
       expect(result.indexStatisticsCount).toBe(0);
       expect(result.autoIncrementStatusCount).toBe(0);
@@ -228,7 +230,7 @@ describe("Sys Schema Resource Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.lockWaits).toBeNull(); // or null, queryResult.rows is returned directly
+      expect(result.data).toBeNull(); // or null, queryResult.rows is returned directly
       expect(result.count).toBe(0);
       expect(result.hasContention).toBe(false);
     });
@@ -253,15 +255,17 @@ describe("Sys Schema Resource Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        globalMemory: unknown[];
-        memoryByUser: unknown[];
+        data: {
+          globalMemory: unknown[];
+          memoryByUser: unknown[];
+        };
         globalMemoryCount: number;
         memoryByUserCount: number;
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result.globalMemory).toHaveLength(1);
-      expect(result.memoryByUser).toHaveLength(1);
+      expect(result.data.globalMemory).toHaveLength(1);
+      expect(result.data.memoryByUser).toHaveLength(1);
       expect(result.globalMemoryCount).toBe(1);
       expect(result.memoryByUserCount).toBe(1);
     });
@@ -277,8 +281,8 @@ describe("Sys Schema Resource Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.globalMemory).toEqual([]);
-      expect(result.memoryByUser).toEqual([]);
+      expect(result.data.globalMemory).toEqual([]);
+      expect(result.data.memoryByUser).toEqual([]);
       expect(result.globalMemoryCount).toBe(0);
       expect(result.memoryByUserCount).toBe(0);
     });

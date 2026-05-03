@@ -104,7 +104,7 @@ export function createSysUserSummaryTool(
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
-          users: result.rows,
+          data: result.rows,
           count: result.rows?.length ?? 0,
         });
       } catch (err) {
@@ -163,7 +163,7 @@ export function createSysHostSummaryTool(
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
-          hosts: result.rows,
+          data: result.rows,
           count: result.rows?.length ?? 0,
         });
       } catch (err) {
