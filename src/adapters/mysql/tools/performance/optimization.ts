@@ -39,8 +39,10 @@ interface TraceSummaryDecision {
 /** Trace summary result type */
 interface TraceSummaryResult {
   success?: boolean;
-  query: string;
-  decisions: TraceSummaryDecision[];
+  data?: {
+    query: string;
+    decisions: TraceSummaryDecision[];
+  };
   error?: string;
 }
 
@@ -54,9 +56,8 @@ function extractTraceSummary(
   if (!rows || rows.length === 0) {
     return {
       success: false,
-      query,
-      decisions,
       error: "No trace data available",
+      data: { query, decisions },
     };
   }
 
@@ -64,15 +65,14 @@ function extractTraceSummary(
   if (!row) {
     return {
       success: false,
-      query,
-      decisions,
       error: "No trace data available",
+      data: { query, decisions },
     };
   }
 
   const traceStr = row["TRACE"];
   if (typeof traceStr !== "string") {
-    return { success: false, query, decisions, error: "Invalid trace format" };
+    return { success: false, error: "Invalid trace format", data: { query, decisions } };
   }
 
   try {
@@ -167,10 +167,10 @@ function extractTraceSummary(
       }
     }
   } catch {
-    return { success: false, query, decisions, error: "Failed to parse trace" };
+    return { success: false, error: "Failed to parse trace", data: { query, decisions } };
   }
 
-  return { success: true, query, decisions };
+  return { success: true, data: { query, decisions } };
 }
 
 export function createIndexRecommendationTool(
@@ -239,13 +239,15 @@ export function createIndexRecommendationTool(
 
         const response = {
           success: true,
-          exists: true,
-          table,
-          existingIndexes: indexes.map((i) => ({
-            name: i.name,
-            columns: i.columns,
-          })),
-          recommendations,
+          data: {
+            exists: true,
+            table,
+            existingIndexes: indexes.map((i) => ({
+              name: i.name,
+              columns: i.columns,
+            })),
+            recommendations,
+          }
         };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -362,16 +364,18 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response: Record<string, unknown> = {
           success: true,
-          originalQuery: query,
-          rewrittenQuery: query,
-          suggestions,
-          explainPlan: explainResult,
+          data: {
+            originalQuery: query,
+            rewrittenQuery: query,
+            suggestions,
+            explainPlan: explainResult,
+          }
         };
 
         if (explainError) {
           response["success"] = false;
           response["error"] = explainError;
-          response["explainError"] = explainError;
+          (response["data"] as Record<string, unknown>)["explainError"] = explainError;
         }
 
         const tokenEstimate = Math.ceil(
@@ -430,9 +434,11 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true,
-          originalQuery: query,
-          rewrittenQuery: rewritten,
-          hint: `FORCE INDEX (\`${indexName}\`)`,
+          data: {
+            originalQuery: query,
+            rewrittenQuery: rewritten,
+            hint: `FORCE INDEX (\`${indexName}\`)`,
+          }
         };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -509,11 +515,11 @@ export function createOptimizerTraceTool(
         } catch (err: unknown) {
           const errorMsg = formatMysqlError(err);
           if (summary) {
-            const response = { success: false, error: errorMsg, query, decisions: [] };
+            const response = { success: false, error: errorMsg, data: { query, decisions: [] } };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
           }
-          const response = { success: false, error: errorMsg, query, trace: null };
+          const response = { success: false, error: errorMsg, data: { query, trace: null } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         }
@@ -530,7 +536,7 @@ export function createOptimizerTraceTool(
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const response = { success: true, trace: rows };
+        const response = { success: true, data: { trace: rows } };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {

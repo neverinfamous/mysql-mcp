@@ -70,14 +70,14 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        recommendations: unknown[];
+        recommendations: unknown[] };
       };
 
       expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
-      expect(result.recommendations).toHaveLength(3);
+      expect(result.data.recommendations).toHaveLength(3);
 
       // Check specific recommendations
-      const recs = result.recommendations as {
+      const recs = result.data.recommendations as {
         column: string;
         reason: string;
       }[];
@@ -108,10 +108,10 @@ describe("Performance Optimization Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        recommendations: unknown[];
+        recommendations: unknown[] };
       };
 
-      expect(result.recommendations).toHaveLength(0);
+      expect(result.data.recommendations).toHaveLength(0);
     });
 
     it("should return structured error for nonexistent table", async () => {
@@ -148,9 +148,9 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
-      expect(result.suggestions).toContain(
+      expect(result.data.suggestions).toContain(
         "Consider selecting only needed columns instead of SELECT *",
       );
     });
@@ -162,9 +162,9 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT id FROM users" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
-      expect(result.suggestions).toContain(
+      expect(result.data.suggestions).toContain(
         "Consider adding LIMIT to prevent large result sets",
       );
     });
@@ -176,9 +176,9 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT id FROM users WHERE name LIKE '%Bob'" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
-      expect(result.suggestions).toContain(
+      expect(result.data.suggestions).toContain(
         "Leading wildcard in LIKE prevents index usage; consider FULLTEXT search",
       );
     });
@@ -198,10 +198,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
         mockContext,
-      )) as { explainPlan: unknown };
+      )) as { data: { explainPlan: unknown } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.explainPlan).toBeDefined();
+      expect(result.data.explainPlan).toBeDefined();
     });
 
     it("should handle explain failure gracefully with explainError", async () => {
@@ -215,10 +215,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
-      )) as { explainPlan: unknown; explainError: string };
+      )) as { data: { explainPlan: unknown; explainError: string } };
 
-      expect(result.explainPlan).toBeNull();
-      expect(result.explainError).toBe(
+      expect(result.data.explainPlan).toBeNull();
+      expect(result.data.explainError).toBe(
         "Table 'testdb.nonexistent' doesn't exist",
       );
     });
@@ -230,10 +230,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { sql: "SELECT * FROM users" },
         mockContext,
-      )) as { originalQuery: string; suggestions: string[] };
+      )) as { data: { originalQuery: string; suggestions: string[] } };
 
-      expect(result.originalQuery).toBe("SELECT * FROM users");
-      expect(result.suggestions).toContain(
+      expect(result.data.originalQuery).toBe("SELECT * FROM users");
+      expect(result.data.suggestions).toContain(
         "Consider selecting only needed columns instead of SELECT *",
       );
     });
@@ -264,9 +264,9 @@ describe("Performance Optimization Tools", () => {
           indexName: "PRIMARY",
         },
         mockContext,
-      )) as { rewrittenQuery: string };
+      )) as { data: { rewrittenQuery: string } };
 
-      expect(result.rewrittenQuery).toBe(
+      expect(result.data.rewrittenQuery).toBe(
         "SELECT * FROM `users` FORCE INDEX (`PRIMARY`) WHERE id = 1",
       );
     });
@@ -290,12 +290,12 @@ describe("Performance Optimization Tools", () => {
           indexName: "idx_name",
         },
         mockContext,
-      )) as { rewrittenQuery: string; warning?: string };
+      )) as { data: { rewrittenQuery: string; warning?: string } };
 
-      expect(result.rewrittenQuery).toBe(
+      expect(result.data.rewrittenQuery).toBe(
         "SELECT * FROM `users` FORCE INDEX (`idx_name`) WHERE id = 1",
       );
-      expect(result.warning).toBeUndefined();
+      expect(result.data.warning).toBeUndefined();
     });
 
     it("should return error for nonexistent index", async () => {
@@ -389,7 +389,7 @@ describe("Performance Optimization Tools", () => {
         'SET optimizer_trace="enabled=off"',
       );
 
-      expect(result).toHaveProperty("trace");
+      expect((result as any).data).toHaveProperty("trace");
     });
 
     it("should handle query execution failure gracefully", async () => {
@@ -404,10 +404,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
-      )) as { query: string; trace: null; error: string };
+      )) as { data: { query: string; trace: null }; error: string };
 
-      expect(result.query).toBe("SELECT * FROM nonexistent");
-      expect(result.trace).toBeNull();
+      expect(result.data.query).toBe("SELECT * FROM nonexistent");
+      expect(result.data.trace).toBeNull();
       expect(result.error).toBe("Table 'testdb.nonexistent' doesn't exist");
 
       // Verify optimizer trace is still disabled
@@ -428,10 +428,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost", summary: true },
         mockContext,
-      )) as { query: string; decisions: unknown[]; error: string };
+      )) as { data: { query: string; decisions: unknown[] }; error: string };
 
-      expect(result.query).toBe("SELECT * FROM ghost");
-      expect(result.decisions).toEqual([]);
+      expect(result.data.query).toBe("SELECT * FROM ghost");
+      expect(result.data.decisions).toEqual([]);
       expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
 
       // Verify optimizer trace is still disabled
@@ -454,10 +454,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost", summary: false },
         mockContext,
-      )) as { query: string; trace: null; error: string };
+      )) as { data: { query: string; trace: null }; error: string };
 
-      expect(result.query).toBe("SELECT * FROM ghost");
-      expect(result.trace).toBeNull();
+      expect(result.data.query).toBe("SELECT * FROM ghost");
+      expect(result.data.trace).toBeNull();
       expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
     });
 
@@ -478,7 +478,7 @@ describe("Performance Optimization Tools", () => {
         1,
         "SELECT * FROM users",
       );
-      expect(result).toHaveProperty("trace");
+      expect((result as any).data).toHaveProperty("trace");
     });
 
     it("should return structured error when trace fetch fails", async () => {
@@ -527,10 +527,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { tableName: "orders" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { data: { exists: boolean; table: string } };
 
-      expect(result.exists).toBe(true);
-      expect(result.table).toBe("orders");
+      expect(result.data.exists).toBe(true);
+      expect(result.data.table).toBe("orders");
       expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
     });
 
@@ -558,9 +558,9 @@ describe("Performance Optimization Tools", () => {
           indexName: "idx_name",
         },
         mockContext,
-      )) as { rewrittenQuery: string };
+      )) as { data: { rewrittenQuery: string } };
 
-      expect(result.rewrittenQuery).toContain("FORCE INDEX");
+      expect(result.data.rewrittenQuery).toContain("FORCE INDEX");
       expect(mockAdapter.describeTable).toHaveBeenCalledWith("users");
     });
   });
@@ -641,10 +641,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost" },
         mockContext,
-      )) as { explainPlan: unknown; explainError: string };
+      )) as { data: { explainPlan: unknown; explainError: string } };
 
-      expect(result.explainPlan).toBeNull();
-      expect(result.explainError).toBe("Table 'testdb.ghost' doesn't exist");
+      expect(result.data.explainPlan).toBeNull();
+      expect(result.data.explainError).toBe("Table 'testdb.ghost' doesn't exist");
     });
   });
 });
