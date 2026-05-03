@@ -281,11 +281,11 @@ describe("Partitioning Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
         success: boolean;
-        partitioned: boolean;
+        data: { partitioned: boolean };
       };
 
       expect(result.success).toBe(true);
-      expect(result.partitioned).toBe(false);
+      expect(result.data.partitioned).toBe(false);
     });
 
     it("should detect partitioned table with method and expression", async () => {
@@ -303,12 +303,14 @@ describe("Partitioning Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "logs" }, mockContext)) as {
-        partitioned: boolean;
-        method: string;
+        data: {
+          partitioned: boolean;
+          method: string;
+        }
       };
 
-      expect(result.partitioned).toBe(true);
-      expect(result.method).toBe("RANGE");
+      expect(result.data.partitioned).toBe(true);
+      expect(result.data.method).toBe("RANGE");
     });
   });
 

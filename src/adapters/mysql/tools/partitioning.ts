@@ -93,7 +93,9 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
         if (!firstRow || firstRow["PARTITION_NAME"] === null) {
           const response = {
             success: true as const,
-            partitioned: false,
+            data: {
+              partitioned: false,
+            }
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -115,10 +117,12 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          partitioned: true,
-          method: firstRow["PARTITION_METHOD"],
-          expression: firstRow["PARTITION_EXPRESSION"],
-          partitions,
+          data: {
+            partitioned: true,
+            method: firstRow["PARTITION_METHOD"],
+            expression: firstRow["PARTITION_EXPRESSION"],
+            partitions,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -189,7 +193,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = { success: true as const, table, partitionName };
+          const response = { success: true as const, data: { table, partitionName } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
@@ -274,9 +278,11 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           adapter.clearSchemaCache();
           const response = {
             success: true as const,
-            table,
-            partitionName,
-            warning: "All data in this partition has been deleted",
+            data: {
+              table,
+              partitionName,
+              warning: "All data in this partition has been deleted",
+            }
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -366,9 +372,11 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           adapter.clearSchemaCache();
           const response = {
             success: true as const,
-            table,
-            fromPartitions,
-            toPartitions: toPartitions.map((p) => p.name),
+            data: {
+              table,
+              fromPartitions,
+              toPartitions: toPartitions.map((p) => p.name),
+            }
           };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
