@@ -57,7 +57,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
     }
   });
 
-  test("mysql_fulltext_search returns { rows, rowCount }", async () => {
+  test("mysql_fulltext_search returns { data, count }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_fulltext_search", {
@@ -66,13 +66,13 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         query: "MySQL database",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data)).toBe(true);
     } finally {
       await client.close();
     }
   });
 
-  test("mysql_fulltext_boolean returns { rows, rowCount }", async () => {
+  test("mysql_fulltext_boolean returns { data, count }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(
@@ -85,7 +85,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         },
       );
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data)).toBe(true);
     } finally {
       await client.close();
     }

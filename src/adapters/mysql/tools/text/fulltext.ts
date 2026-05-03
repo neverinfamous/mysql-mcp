@@ -244,8 +244,8 @@ export function createFulltextSearchTool(
         
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
-          const rows = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, rows, count: rows.length };
+          const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const response = { success: true, data, count: data.length };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
@@ -317,8 +317,8 @@ export function createFulltextBooleanTool(
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
-          const rows = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, rows, count: rows.length };
+          const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const response = { success: true, data, count: data.length };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
@@ -390,8 +390,8 @@ export function createFulltextExpandTool(
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
-          const rows = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, rows, count: rows.length };
+          const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const response = { success: true, data, count: data.length };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {

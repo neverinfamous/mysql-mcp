@@ -324,12 +324,12 @@ describe("Text Fulltext Tools", () => {
           maxLength: 50,
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[]; count: number };
+      )) as { data: Record<string, unknown>[]; count: number };
 
       expect(result.count).toBe(2);
-      expect((result.rows[0].body as string).length).toBe(53); // 50 + "..."
-      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
-      expect(result.rows[1].body).toBe("Short text"); // Not truncated
+      expect((result.data[0].body as string).length).toBe(53); // 50 + "..."
+      expect((result.data[0].body as string).endsWith("...")).toBe(true);
+      expect(result.data[1].body).toBe("Short text"); // Not truncated
     });
 
     it("should truncate to 250 characters by default when maxLength is not specified", async () => {
@@ -348,10 +348,10 @@ describe("Text Fulltext Tools", () => {
           query: "test",
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[] };
+      )) as { data: Record<string, unknown>[] };
 
-      expect((result.rows[0].body as string).length).toBe(253); // 250 + "..."
-      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
+      expect((result.data[0].body as string).length).toBe(253); // 250 + "..."
+      expect((result.data[0].body as string).endsWith("...")).toBe(true);
     });
 
     it("should return success:false for nonexistent table", async () => {
@@ -434,10 +434,10 @@ describe("Text Fulltext Tools", () => {
           maxLength: 100,
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[] };
+      )) as { data: Record<string, unknown>[] };
 
-      expect((result.rows[0].content as string).length).toBe(103); // 100 + "..."
-      expect((result.rows[0].content as string).endsWith("...")).toBe(true);
+      expect((result.data[0].content as string).length).toBe(103); // 100 + "..."
+      expect((result.data[0].content as string).endsWith("...")).toBe(true);
     });
 
     it("should return success:false for nonexistent table", async () => {
@@ -520,10 +520,10 @@ describe("Text Fulltext Tools", () => {
           maxLength: 80,
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[] };
+      )) as { data: Record<string, unknown>[] };
 
-      expect((result.rows[0].body as string).length).toBe(83); // 80 + "..."
-      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
+      expect((result.data[0].body as string).length).toBe(83); // 80 + "..."
+      expect((result.data[0].body as string).endsWith("...")).toBe(true);
     });
 
     it("should return success:false for nonexistent table", async () => {
