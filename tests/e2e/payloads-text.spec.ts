@@ -12,7 +12,7 @@ import { createClient, callToolAndParse } from "./helpers.js";
 test.describe.configure({ mode: "serial" });
 
 test.describe("Payload Contracts: Text + Fulltext", () => {
-  test("mysql_regexp_match returns { rows, rowCount }", async () => {
+  test("mysql_regexp_match returns { data }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_regexp_match", {
@@ -21,13 +21,13 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         pattern: "Pro.*",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
   });
 
-  test("mysql_like_search returns { rows, rowCount }", async () => {
+  test("mysql_like_search returns { data }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_like_search", {
@@ -36,13 +36,13 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         pattern: "%Pro%",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
   });
 
-  test("mysql_soundex returns { rows, rowCount }", async () => {
+  test("mysql_soundex returns { data }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_soundex", {
@@ -51,7 +51,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         value: "John",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -91,7 +91,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
     }
   });
 
-  test("mysql_substring returns { rows, rowCount }", async () => {
+  test("mysql_substring returns { data }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_substring", {
@@ -101,13 +101,13 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         length: 5,
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
   });
 
-  test("mysql_concat returns { rows, rowCount }", async () => {
+  test("mysql_concat returns { data }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_concat", {
@@ -116,7 +116,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         separator: " - ",
       });
 
-      expect(Array.isArray(payload.rows)).toBe(true);
+      expect(Array.isArray(payload.data.rows)).toBe(true);
     } finally {
       await client.close();
     }
