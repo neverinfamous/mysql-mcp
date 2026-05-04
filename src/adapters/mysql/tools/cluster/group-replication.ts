@@ -87,7 +87,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const members = memberResult.rows ?? [];
         const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
 
-        return {
+        const response = {
           success: true,
           enabled: members.length > 0,
           groupName: config?.["groupName"] ?? null,
@@ -108,6 +108,8 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
             };
           }),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -170,11 +172,13 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
+        const response = {
           success: true,
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -219,12 +223,14 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         const localUuid = localResult.rows?.[0]?.["serverUuid"];
 
-        return {
+        const response = {
           success: true,
           primary: primary ?? null,
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -287,7 +293,7 @@ export function createGRTransactionsTool(
 
         const gtid = gtidResult.rows?.[0];
 
-        return {
+        const response = {
           success: true,
           memberStats: statsResult.rows ?? [],
           gtid: {
@@ -295,6 +301,8 @@ export function createGRTransactionsTool(
             purged: gtid?.["gtidPurged"] ?? "",
           },
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -365,7 +373,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
           return certQueue > certThreshold || appQueue > appThreshold;
         });
 
-        return {
+        const response = {
           success: true,
           configuration: config ?? {},
           memberQueues: queueResult.rows ?? [],
@@ -374,6 +382,8 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             ? "Flow control is active. Consider investigating slow members or adjusting thresholds."
             : "Flow control is not currently throttling.",
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
