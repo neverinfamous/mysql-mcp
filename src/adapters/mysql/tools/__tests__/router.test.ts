@@ -170,6 +170,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: true,
         data: mockStatus,
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -190,6 +191,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: true,
         data: mockRoutes,
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -218,6 +220,7 @@ describe("Handler Execution", () => {
           routeName: "bootstrap_ro",
           status: mockRouteStatus,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
 
@@ -252,6 +255,7 @@ describe("Handler Execution", () => {
           routeName: "bootstrap_ro",
           health: mockHealth,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -286,6 +290,7 @@ describe("Handler Execution", () => {
           routeName: "bootstrap_rw",
           connections: mockConnections,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -317,6 +322,7 @@ describe("Handler Execution", () => {
           routeName: "bootstrap_ro",
           destinations: mockDestinations,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -345,6 +351,7 @@ describe("Handler Execution", () => {
           routeName: "bootstrap_rw",
           blockedHosts: mockBlockedHosts,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -375,6 +382,7 @@ describe("Handler Execution", () => {
           metadataName: "my_cluster",
           status: mockMetadata,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -399,6 +407,7 @@ describe("Handler Execution", () => {
           poolName: "default",
           status: mockPoolStatus,
         },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });

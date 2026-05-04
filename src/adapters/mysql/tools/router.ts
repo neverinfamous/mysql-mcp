@@ -16,7 +16,7 @@ import type {
 } from "../../../types/index.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import https from "node:https";
-import { formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
@@ -265,10 +265,10 @@ function createRouterStatusTool(): ToolDefinition {
       if (!result.success) {
         return result.response;
       }
-      return {
+      return withTokenEstimate({
         success: true,
         data: result.data,
-      };
+      });
     },
   };
 }
@@ -295,10 +295,10 @@ function createRouterRoutesTool(): ToolDefinition {
       if (!result.success) {
         return result.response;
       }
-      return {
+      return withTokenEstimate({
         success: true,
         data: result.data,
-      };
+      });
     },
   };
 }
@@ -333,13 +333,13 @@ function createRouterRouteStatusTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             routeName,
             status: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -373,13 +373,13 @@ function createRouterRouteHealthTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             routeName,
             health: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -413,13 +413,13 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             routeName,
             connections: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -453,13 +453,13 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             routeName,
             destinations: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -493,13 +493,13 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             routeName,
             blockedHosts: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -537,13 +537,13 @@ function createRouterMetadataStatusTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             metadataName,
             status: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -581,13 +581,13 @@ function createRouterPoolStatusTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             poolName,
             status: result.data,
           },
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
