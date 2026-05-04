@@ -68,8 +68,10 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -115,8 +117,10 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -160,8 +164,10 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -213,8 +219,10 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -276,8 +284,10 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -338,8 +348,10 @@ export function createCollationConvertTool(
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);

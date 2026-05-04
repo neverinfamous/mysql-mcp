@@ -46,12 +46,12 @@ describe("Text Processing Tools", () => {
           pattern: "^admin",
         },
         mockContext,
-      )) as { rows: unknown[] };
+      )) as { data: { rows: unknown[] } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("REGEXP ?");
-      expect(result.rows).toHaveLength(1);
+      expect(result.data.rows).toHaveLength(1);
     });
   });
 
