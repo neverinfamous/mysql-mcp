@@ -21,9 +21,9 @@ test.describe("Payload Contracts: Spatial", () => {
         limit: 5,
       });
 
-      expect(Array.isArray(payload.results)).toBe(true);
-      expect(typeof payload.count).toBe("number");
-      expect(typeof payload.referencePoint).toBe("object");
+      expect(Array.isArray(payload.data.results)).toBe(true);
+      expect(typeof payload.data.count).toBe("number");
+      expect(typeof payload.data.referencePoint).toBe("object");
     } finally {
       await client.close();
     }
@@ -43,9 +43,9 @@ test.describe("Payload Contracts: Spatial", () => {
         },
       );
 
-      expect(Array.isArray(payload.results)).toBe(true);
-      expect(typeof payload.count).toBe("number");
-      expect(payload.unit).toBe("meters");
+      expect(Array.isArray(payload.data.results)).toBe(true);
+      expect(typeof payload.data.count).toBe("number");
+      expect(payload.data.unit).toBe("meters");
     } finally {
       await client.close();
     }
@@ -55,12 +55,10 @@ test.describe("Payload Contracts: Spatial", () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_spatial_geojson", {
-        table: "test_locations",
-        geometryColumn: "geom",
-        limit: 3,
+        geometry: "POINT(-74.006 40.7128)",
       });
 
-      expect(typeof payload).toBe("object");
+      expect(typeof payload.data).toBe("object");
     } finally {
       await client.close();
     }
