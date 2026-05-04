@@ -111,8 +111,10 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
         const response = {
           success: true as const,
-          views: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            views: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -173,7 +175,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = { success: true as const, viewName: name };
+          const response = { success: true as const, data: { viewName: name } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
@@ -222,7 +224,7 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = { success: true as const, viewName: parsedParams.name };
+          const response = { success: true as const, data: { viewName: parsedParams.name } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {

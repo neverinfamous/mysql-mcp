@@ -40,8 +40,8 @@ describe("Schema Management Tools", () => {
         expect.stringContaining("LIKE ?"),
         ["db%"],
       );
-      expect(result).toHaveProperty("schemas");
-      expect(result).toHaveProperty("count", 2);
+      expect(result).toHaveProperty("data.schemas");
+      expect(result).toHaveProperty("data.count", 2);
     });
 
     it("should list all schemas if no pattern provided", async () => {
@@ -175,13 +175,15 @@ describe("Schema Management Tools", () => {
         mockContext,
       )) as {
         success: boolean;
-        skipped?: boolean;
-        reason?: string;
+        data?: {
+          skipped?: boolean;
+          reason?: string;
+        };
       };
 
       expect(result.success).toBe(true);
-      expect(result.skipped).toBe(true);
-      expect(result.reason).toBe("Schema already exists");
+      expect(result.data?.skipped).toBe(true);
+      expect(result.data?.reason).toBe("Schema already exists");
       // Only the pre-check query should have been called
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -276,13 +278,15 @@ describe("Schema Management Tools", () => {
         mockContext,
       )) as {
         success: boolean;
-        skipped?: boolean;
-        reason?: string;
+        data?: {
+          skipped?: boolean;
+          reason?: string;
+        };
       };
 
       expect(result.success).toBe(true);
-      expect(result.skipped).toBe(true);
-      expect(result.reason).toBe("Schema did not exist");
+      expect(result.data?.skipped).toBe(true);
+      expect(result.data?.reason).toBe("Schema did not exist");
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });

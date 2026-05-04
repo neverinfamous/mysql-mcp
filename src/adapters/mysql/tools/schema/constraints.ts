@@ -99,8 +99,10 @@ export function createListConstraintsTool(
         const result = await adapter.executeQuery(query, queryParams);
         const response = {
           success: true as const,
-          constraints: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            constraints: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };

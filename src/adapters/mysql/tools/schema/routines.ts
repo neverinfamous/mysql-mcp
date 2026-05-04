@@ -82,8 +82,10 @@ export function createListStoredProceduresTool(
         ]);
         const response = {
           success: true as const,
-          procedures: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            procedures: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
@@ -150,8 +152,10 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
         const response = {
           success: true as const,
-          functions: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            functions: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };

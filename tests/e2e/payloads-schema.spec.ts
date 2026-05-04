@@ -19,8 +19,8 @@ test.describe("Payload Contracts: Schema", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_list_schemas", {});
 
-      expect(Array.isArray(payload.schemas)).toBe(true);
-      expect((payload.schemas as unknown[]).length).toBeGreaterThan(0);
+      expect(Array.isArray((payload as any).data?.schemas)).toBe(true);
+      expect(((payload as any).data?.schemas as unknown[]).length).toBeGreaterThan(0);
     } finally {
       await client.close();
     }

@@ -97,8 +97,10 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, queryParams);
         const response = {
           success: true as const,
-          events: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            events: result.rows,
+            count: result.rows?.length ?? 0,
+          }
         };
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };

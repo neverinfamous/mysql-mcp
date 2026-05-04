@@ -142,7 +142,7 @@ describe("Schema Constraint Tools", () => {
       const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
       expect(params[0]).toBe("test_db");
       expect(params[1]).toBe("order_items");
-      expect(result).toHaveProperty("constraints");
+      expect(result).toHaveProperty("data.constraints");
     });
 
     it("should return exists false for nonexistent table (P154)", async () => {
