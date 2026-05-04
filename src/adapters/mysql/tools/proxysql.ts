@@ -9,7 +9,7 @@
  */
 
 import mysql from "mysql2/promise";
-import { formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import {
@@ -175,24 +175,28 @@ function createProxySQLStatusTool(): ToolDefinition {
           const filteredRows = rows.filter((row) =>
             keyMetrics.includes(row["Variable_Name"] as string),
           );
-          return {
+          return withTokenEstimate({
             success: true,
-            summary: true,
-            version,
-            uptime,
-            stats: filteredRows,
-            totalVarsAvailable: rows.length,
-          };
+            data: {
+              summary: true,
+              version,
+              uptime,
+              stats: filteredRows,
+              totalVarsAvailable: rows.length,
+            }
+          });
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
-          summary: false,
-          version,
-          uptime,
-          stats: rows,
-          totalVarsAvailable: rows.length,
-        };
+          data: {
+            summary: false,
+            version,
+            uptime,
+            stats: rows,
+            totalVarsAvailable: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -244,22 +248,26 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
           const filteredVars = redactedVars.filter((row) =>
             keyAdminVars.includes(row["variable_name"] as string),
           );
-          return {
+          return withTokenEstimate({
             success: true,
-            summary: true,
-            version: versionRow?.["variable_value"] ?? "unknown",
-            adminVariables: filteredVars,
-            totalAdminVarsAvailable: redactedVars.length,
-          };
+            data: {
+              summary: true,
+              version: versionRow?.["variable_value"] ?? "unknown",
+              adminVariables: filteredVars,
+              totalAdminVarsAvailable: redactedVars.length,
+            }
+          });
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
-          summary: false,
-          version: versionRow?.["variable_value"] ?? "unknown",
-          adminVariables: redactedVars,
-          totalAdminVarsAvailable: redactedVars.length,
-        };
+          data: {
+            summary: false,
+            version: versionRow?.["variable_value"] ?? "unknown",
+            adminVariables: redactedVars,
+            totalAdminVarsAvailable: redactedVars.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -297,11 +305,13 @@ function createProxySQLServersTool(): ToolDefinition {
           sql += ` WHERE hostgroup_id = ${safeId}`;
         }
         const rows = await proxySQLQuery(sql);
-        return {
+        return withTokenEstimate({
           success: true,
-          servers: rows,
-          count: rows.length,
-        };
+          data: {
+            servers: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -337,11 +347,13 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
         const rows = await proxySQLQuery(
           `SELECT * FROM mysql_query_rules LIMIT ${maxRows}`,
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          queryRules: rows,
-          count: rows.length,
-        };
+          data: {
+            queryRules: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -373,11 +385,13 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
         const rows = await proxySQLQuery(
           `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          queryDigests: rows,
-          count: rows.length,
-        };
+          data: {
+            queryDigests: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -415,11 +429,13 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
           sql += ` WHERE hostgroup = ${safeId}`;
         }
         const rows = await proxySQLQuery(sql);
-        return {
+        return withTokenEstimate({
           success: true,
-          connectionPools: rows,
-          count: rows.length,
-        };
+          data: {
+            connectionPools: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -454,11 +470,13 @@ function createProxySQLUsersTool(): ToolDefinition {
         const rows = await proxySQLQuery(
           "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users",
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          users: rows,
-          count: rows.length,
-        };
+          data: {
+            users: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -530,12 +548,14 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         // Redact sensitive credential values (passwords, credentials)
         const redactedRows = redactSensitiveVariables(rows);
 
-        return {
+        return withTokenEstimate({
           success: true,
-          variables: redactedRows,
-          count: redactedRows.length,
-          totalVarsAvailable,
-        };
+          data: {
+            variables: redactedRows,
+            count: redactedRows.length,
+            totalVarsAvailable,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -567,11 +587,13 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const rows = await proxySQLQuery("SELECT * FROM stats_memory_metrics");
-        return {
+        return withTokenEstimate({
           success: true,
-          memoryStats: rows,
-          count: rows.length,
-        };
+          data: {
+            memoryStats: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -603,11 +625,13 @@ function createProxySQLCommandsTool(): ToolDefinition {
       try {
         const { command } = ProxySQLCommandInputSchema.parse(params);
         await proxySQLQuery(command);
-        return {
+        return withTokenEstimate({
           success: true,
-          command,
-          message: `Command executed: ${command}`,
-        };
+          data: {
+            command,
+            message: `Command executed: ${command}`,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -643,11 +667,13 @@ function createProxySQLProcessListTool(): ToolDefinition {
         const rows = await proxySQLQuery(
           `SELECT * FROM stats_mysql_processlist LIMIT ${maxRows}`,
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          processes: rows,
-          count: rows.length,
-        };
+          data: {
+            processes: rows,
+            count: rows.length,
+          }
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
