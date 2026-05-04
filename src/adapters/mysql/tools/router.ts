@@ -12,6 +12,7 @@ import type {
   ToolDefinition,
   RequestContext,
   RouterConfig,
+  ErrorResponse,
 } from "../../../types/index.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import https from "node:https";
@@ -35,20 +36,11 @@ import {
 // =============================================================================
 
 /**
- * Response type for graceful Router API unavailability
- */
-interface RouterUnavailableResponse {
-  success: false;
-  available?: false;
-  error: string;
-}
-
-/**
  * Result type for safe Router API calls
  */
 type SafeRouterResult<T> =
   | { success: true; data: T }
-  | { success: false; response: RouterUnavailableResponse };
+  | { success: false; response: ErrorResponse };
 
 /**
  * Get Router configuration from environment variables
@@ -198,16 +190,12 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
     return { success: true, data };
   } catch (error) {
     const extendedErr = error as Error & { statusCode?: number; responseData?: unknown };
-    const msg = error instanceof Error ? error.message : "Unknown error connecting to Router API";
     
     // 404 = valid Router response for nonexistent route/metadata/pool
     if (extendedErr.statusCode === 404) {
       return {
         success: false,
-        response: {
-          success: false,
-          error: msg,
-        },
+        response: formatHandlerErrorResponse(error),
       };
     }
     
@@ -225,11 +213,7 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
 
     return {
       success: false,
-      response: {
-        success: false,
-        available: false,
-        error: msg,
-      },
+      response: formatHandlerErrorResponse(error),
     };
   }
 }
@@ -283,7 +267,7 @@ function createRouterStatusTool(): ToolDefinition {
       }
       return {
         success: true,
-        status: result.data,
+        data: result.data,
       };
     },
   };
@@ -313,7 +297,7 @@ function createRouterRoutesTool(): ToolDefinition {
       }
       return {
         success: true,
-        routes: result.data,
+        data: result.data,
       };
     },
   };
@@ -351,8 +335,10 @@ function createRouterRouteStatusTool(): ToolDefinition {
         }
         return {
           success: true,
-          routeName,
-          status: result.data,
+          data: {
+            routeName,
+            status: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -389,8 +375,10 @@ function createRouterRouteHealthTool(): ToolDefinition {
         }
         return {
           success: true,
-          routeName,
-          health: result.data,
+          data: {
+            routeName,
+            health: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -427,8 +415,10 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
         }
         return {
           success: true,
-          routeName,
-          connections: result.data,
+          data: {
+            routeName,
+            connections: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -465,8 +455,10 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
         }
         return {
           success: true,
-          routeName,
-          destinations: result.data,
+          data: {
+            routeName,
+            destinations: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -503,8 +495,10 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
         }
         return {
           success: true,
-          routeName,
-          blockedHosts: result.data,
+          data: {
+            routeName,
+            blockedHosts: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -545,8 +539,10 @@ function createRouterMetadataStatusTool(): ToolDefinition {
         }
         return {
           success: true,
-          metadataName,
-          status: result.data,
+          data: {
+            metadataName,
+            status: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -587,8 +583,10 @@ function createRouterPoolStatusTool(): ToolDefinition {
         }
         return {
           success: true,
-          poolName,
-          status: result.data,
+          data: {
+            poolName,
+            status: result.data,
+          },
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
