@@ -73,11 +73,13 @@ export function createShellExportTableTool(): ToolDefinition {
 
         return {
           success: true,
-          schema,
-          table,
-          outputPath: finalOutputPath,
-          format,
-          result,
+          data: {
+            schema,
+            table,
+            outputPath: finalOutputPath,
+            format,
+            result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {
@@ -176,11 +178,13 @@ export function createShellImportTableTool(): ToolDefinition {
         const result = await execShellJS(jsCode);
         return {
           success: true,
-          inputPath: finalInputPath,
-          schema,
-          table,
-          localInfileEnabled: updateServerSettings,
-          result,
+          data: {
+            inputPath: finalInputPath,
+            schema,
+            table,
+            localInfileEnabled: updateServerSettings,
+            result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {
@@ -324,11 +328,13 @@ export function createShellImportJSONTool(): ToolDefinition {
             }
             return {
               success: true,
-              inputPath: finalInputPath,
-              schema,
-              collection,
-              protocol: "X Protocol",
-              result: parsed.result,
+              data: {
+                inputPath: finalInputPath,
+                schema,
+                collection,
+                protocol: "X Protocol",
+                result: parsed.result,
+              }
             };
           }
         }
@@ -344,11 +350,13 @@ export function createShellImportJSONTool(): ToolDefinition {
 
         return {
           success: true,
-          inputPath: finalInputPath,
-          schema,
-          collection,
-          protocol: "X Protocol",
-          result: { raw: result.stdout },
+          data: {
+            inputPath: finalInputPath,
+            schema,
+            collection,
+            protocol: "X Protocol",
+            result: { raw: result.stdout },
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {

@@ -88,9 +88,11 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 
         return {
           success: true,
-          outputDir: finalOutputDir,
-          dryRun: dryRun ?? false,
-          result,
+          data: {
+            outputDir: finalOutputDir,
+            dryRun: dryRun ?? false,
+            result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {
@@ -197,11 +199,13 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
-          schemas,
-          outputDir: finalOutputDir,
-          dryRun: dryRun ?? false,
-          ddlOnly: ddlOnly ?? false,
-          result,
+          data: {
+            schemas,
+            outputDir: finalOutputDir,
+            dryRun: dryRun ?? false,
+            ddlOnly: ddlOnly ?? false,
+            result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {
@@ -292,12 +296,14 @@ export function createShellDumpTablesTool(): ToolDefinition {
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
-          schema,
-          tables,
-          outputDir: finalOutputDir,
-          dryRun: dryRun ?? false,
-          triggersExcluded: !all,
-          result,
+          data: {
+            schema,
+            tables,
+            outputDir: finalOutputDir,
+            dryRun: dryRun ?? false,
+            triggersExcluded: !all,
+            result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {

@@ -8,6 +8,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { ShellVersionInputSchema } from "../../schemas/shell.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
@@ -41,15 +42,14 @@ export function createShellVersionTool(): ToolDefinition {
 
         return {
           success: true,
-          version,
-          binPath: config.binPath,
-          rawOutput: result.stdout.trim(),
+          data: {
+            version,
+            binPath: config.binPath,
+            rawOutput: result.stdout.trim(),
+          }
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

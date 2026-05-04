@@ -54,7 +54,7 @@ describe("Shell Info Tools", () => {
       const result = (await tool.handler({}, mockContext)) as any;
 
       expect(result.success).toBe(true);
-      expect(result.version).toBe("8.0.35");
+      expect(result.data.version).toBe("8.0.35");
       expect(child_process.spawn).toHaveBeenCalledWith(
         "mysqlsh",
         ["--version"],
@@ -68,7 +68,7 @@ describe("Shell Info Tools", () => {
       const tool = createShellVersionTool();
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.version).toBe("unknown");
+      expect(result.data.version).toBe("unknown");
     });
   });
 });

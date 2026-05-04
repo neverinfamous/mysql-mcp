@@ -130,7 +130,7 @@ describe("Shell Restore and Script Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.localInfileEnabled).toBe(true);
+      expect(result.data.localInfileEnabled).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
@@ -214,7 +214,7 @@ describe("Shell Restore and Script Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.stdout).toBe("Script output");
+      expect(result.data.stdout).toBe("Script output");
 
       const args = mockSpawn.mock.calls[0][1];
       expect(args).toContain("--js");

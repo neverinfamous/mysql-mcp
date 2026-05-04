@@ -70,7 +70,7 @@ describe("Shell Backup Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.dryRun).toBe(true);
+      expect(result.data.dryRun).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       const expectedPath = path.resolve("/backup/full").replace(/\\/g, "\\\\");
@@ -169,7 +169,7 @@ describe("Shell Backup Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.schemas).toEqual(["db1", "db2"]);
+      expect(result.data.schemas).toEqual(["db1", "db2"]);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       const expectedPath = path.resolve("/backup/schemas").replace(/\\/g, "\\\\");
@@ -221,7 +221,7 @@ describe("Shell Backup Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.ddlOnly).toBe(true);
+      expect(result.data.ddlOnly).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("events: false");
@@ -367,7 +367,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.triggersExcluded).toBe(true);
+      expect(result.data.triggersExcluded).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("triggers: false");
@@ -386,7 +386,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.triggersExcluded).toBe(false);
+      expect(result.data.triggersExcluded).toBe(false);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).not.toContain("triggers: false");

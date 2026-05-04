@@ -71,7 +71,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result).toEqual({ rows: 100 });
+      expect(result.data.result).toEqual({ rows: 100 });
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('util.exportTable("test.users"');
@@ -227,7 +227,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.localInfileEnabled).toBe(true);
+      expect(result.data.localInfileEnabled).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
@@ -306,7 +306,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.protocol).toBe("X Protocol");
+      expect(result.data.protocol).toBe("X Protocol");
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('collection: "docs"');
@@ -354,7 +354,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result.raw).toBe("Some non-JSON success output");
+      expect(result.data.result.raw).toBe("Some non-JSON success output");
     });
 
     it("should return structured error for import failure", async () => {
@@ -467,7 +467,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result).toBe("ok");
+      expect(result.data.result).toBe("ok");
     });
 
     it("should skip empty lines when parsing JSON", async () => {
@@ -488,7 +488,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result).toBe("data");
+      expect(result.data.result).toBe("data");
     });
 
     it("should return structured error with stderr on non-zero exit code", async () => {

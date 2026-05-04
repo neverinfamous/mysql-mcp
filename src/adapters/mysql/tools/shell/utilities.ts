@@ -74,26 +74,30 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
 
           return {
             success: true,
-            targetVersion: checkResult.targetVersion ?? targetVersion,
-            serverVersion: checkResult.serverVersion,
-            errorCount: checkResult.errorCount ?? 0,
-            warningCount: checkResult.warningCount ?? 0,
-            noticeCount: checkResult.noticeCount ?? 0,
-            checksPerformed: checkResult.checksPerformed?.length ?? 0,
-            upgradeCheck:
-              outputFormat === "TEXT"
-                ? "Use outputFormat: JSON for detailed results"
-                : checkResult,
+            data: {
+              targetVersion: checkResult.targetVersion ?? targetVersion,
+              serverVersion: checkResult.serverVersion,
+              errorCount: checkResult.errorCount ?? 0,
+              warningCount: checkResult.warningCount ?? 0,
+              noticeCount: checkResult.noticeCount ?? 0,
+              checksPerformed: checkResult.checksPerformed?.length ?? 0,
+              upgradeCheck:
+                outputFormat === "TEXT"
+                  ? "Use outputFormat: JSON for detailed results"
+                  : checkResult,
+            }
           };
         }
 
         return {
           success: true,
-          targetVersion: targetVersion ?? "latest",
-          errorCount: 0,
-          warningCount: 0,
-          noticeCount: 0,
-          upgradeCheck: result,
+          data: {
+            targetVersion: targetVersion ?? "latest",
+            errorCount: 0,
+            warningCount: 0,
+            noticeCount: 0,
+            upgradeCheck: result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {

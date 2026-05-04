@@ -183,20 +183,24 @@ export function createShellLoadDumpTool(): ToolDefinition {
 
           return {
             success: true,
-            inputDir: finalInputDir,
-            dryRun: true,
-            localInfileEnabled: updateServerSettings,
-            dryRunOutput: stderrClean || undefined,
+            data: {
+              inputDir: finalInputDir,
+              dryRun: true,
+              localInfileEnabled: updateServerSettings,
+              dryRunOutput: stderrClean || undefined,
+            }
           };
         }
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return {
           success: true,
-          inputDir: finalInputDir,
-          dryRun: false,
-          localInfileEnabled: updateServerSettings,
-          result,
+          data: {
+            inputDir: finalInputDir,
+            dryRun: false,
+            localInfileEnabled: updateServerSettings,
+            result,
+          }
         };
       } catch (error) {
         if (error instanceof ZodError) {
@@ -311,10 +315,12 @@ export function createShellRunScriptTool(): ToolDefinition {
 
         return {
           success: true,
-          language,
-          exitCode: result.exitCode,
-          stdout: result.stdout,
-          stderr: result.stderr,
+          data: {
+            language,
+            exitCode: result.exitCode,
+            stdout: result.stdout,
+            stderr: result.stderr,
+          }
         };
       } catch (err) {
         return formatHandlerErrorResponse(err);
