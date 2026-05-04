@@ -159,15 +159,12 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
 
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
-          return {
-            success: false,
-            error: `Transaction not found: ${transactionId}`,
-          };
+          return formatHandlerErrorResponse(new Error(`Transaction not found: ${transactionId}`));
         }
 
         // Validate savepoint name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return { success: false, error: "Invalid savepoint name" };
+          return formatHandlerErrorResponse(new Error("Invalid savepoint name"));
         }
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
@@ -204,14 +201,11 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
 
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
-          return {
-            success: false,
-            error: `Transaction not found: ${transactionId}`,
-          };
+          return formatHandlerErrorResponse(new Error(`Transaction not found: ${transactionId}`));
         }
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return { success: false, error: "Invalid savepoint name" };
+          return formatHandlerErrorResponse(new Error("Invalid savepoint name"));
         }
 
         // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
@@ -254,14 +248,11 @@ function createTransactionRollbackToTool(
 
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
-          return {
-            success: false,
-            error: `Transaction not found: ${transactionId}`,
-          };
+          return formatHandlerErrorResponse(new Error(`Transaction not found: ${transactionId}`));
         }
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return { success: false, error: "Invalid savepoint name" };
+          return formatHandlerErrorResponse(new Error("Invalid savepoint name"));
         }
 
         // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
