@@ -48,11 +48,11 @@ describe("Security Audit Tools", () => {
           user: "test",
         },
         mockContext,
-      )) as { source: string; events: any[] };
+      )) as { data: { source: string; events: any[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result.source).toBe("mysql.audit_log");
-      expect(result.events).toHaveLength(1);
+      expect(result.data.source).toBe("mysql.audit_log");
+      expect(result.data.events).toHaveLength(1);
 
       const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(queryCall).toContain("FROM mysql.audit_log");
@@ -105,9 +105,9 @@ describe("Security Audit Tools", () => {
           limit: 10,
         },
         mockContext,
-      )) as { source: string };
+      )) as { data: { source: string } };
 
-      expect(result.source).toBe("performance_schema");
+      expect(result.data.source).toBe("performance_schema");
 
       const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
       expect(queryCall).toContain(
@@ -171,10 +171,10 @@ describe("Security Audit Tools", () => {
           startTime: "2023-01-01",
         },
         mockContext,
-      )) as { filtersIgnored?: string[]; note?: string };
+      )) as { data: { filtersIgnored?: string[]; note?: string } };
 
-      expect(result.filtersIgnored).toEqual(["startTime"]);
-      expect(result.note).toContain("picosecond");
+      expect(result.data.filtersIgnored).toEqual(["startTime"]);
+      expect(result.data.note).toContain("picosecond");
     });
 
     it("should return structured error for non-audit failures", async () => {
@@ -246,12 +246,14 @@ describe("Security Audit Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        installed: boolean;
-        configuration: any;
+        data: {
+          installed: boolean;
+          configuration: any;
+        }
       };
 
-      expect(result.installed).toBe(true);
-      expect(result.configuration).toHaveProperty("mysql_firewall_mode", "ON");
+      expect(result.data.installed).toBe(true);
+      expect(result.data.configuration).toHaveProperty("mysql_firewall_mode", "ON");
     });
 
     it("should report not installed if plugin missing", async () => {
@@ -261,10 +263,12 @@ describe("Security Audit Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        installed: boolean;
+        data: {
+          installed: boolean;
+        }
       };
 
-      expect(result.installed).toBe(false);
+      expect(result.data.installed).toBe(false);
     });
   });
 
@@ -288,11 +292,11 @@ describe("Security Audit Tools", () => {
           user: "user",
         },
         mockContext,
-      )) as { users: any[]; rules: any[] };
+      )) as { data: { users: any[]; rules: any[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result.users).toHaveLength(1);
-      expect(result.rules).toHaveLength(1);
+      expect(result.data.users).toHaveLength(1);
+      expect(result.data.rules).toHaveLength(1);
     });
 
     it("should handle errors gracefully", async () => {

@@ -48,20 +48,22 @@ describe("Security Encryption Tools", () => {
 
       expect(result).toMatchObject({
         success: true,
-        sslEnabled: true,
-        currentCipher: "AES256-SHA",
-        sslVersion: "TLSv1.3",
-        serverCertVerification: false, // Updated expectation
-        configuration: {
-          sslCa: "ca.pem",
-          sslCert: "cert.pem",
-          sslKey: "key.pem",
-          requireSecureTransport: "ON",
-        },
-        sessionStats: {
-          acceptedConnects: "10",
-          finishedConnects: "10",
-        },
+        data: {
+          sslEnabled: true,
+          currentCipher: "AES256-SHA",
+          sslVersion: "TLSv1.3",
+          serverCertVerification: false, // Updated expectation
+          configuration: {
+            sslCa: "ca.pem",
+            sslCert: "cert.pem",
+            sslKey: "key.pem",
+            requireSecureTransport: "ON",
+          },
+          sessionStats: {
+            acceptedConnects: "10",
+            finishedConnects: "10",
+          },
+        }
       });
     });
 
@@ -74,9 +76,9 @@ describe("Security Encryption Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.sslEnabled).toBe(false);
-      expect(result.currentCipher).toBe("None");
-      expect(result.sslVersion).toBe("N/A");
+      expect(result.data.sslEnabled).toBe(false);
+      expect(result.data.currentCipher).toBe("None");
+      expect(result.data.sslVersion).toBe("N/A");
     });
   });
 
@@ -103,10 +105,10 @@ describe("Security Encryption Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.keyringInstalled).toBe(true);
-      expect(result.tdeAvailable).toBe(true);
-      expect(result.encryptedTablespaces).toHaveLength(1);
-      expect(result.encryptionSettings).toMatchObject({
+      expect(result.data.keyringInstalled).toBe(true);
+      expect(result.data.tdeAvailable).toBe(true);
+      expect(result.data.encryptedTablespaces).toHaveLength(1);
+      expect(result.data.encryptionSettings).toMatchObject({
         default_table_encryption: "ON",
         innodb_redo_log_encrypt: "ON",
       });
@@ -133,8 +135,8 @@ describe("Security Encryption Tools", () => {
         {} as any,
       )) as any;
 
-      expect(result.interpretation).toBe("Very Strong");
-      expect(result.meetsPolicy).toBe(true);
+      expect(result.data.interpretation).toBe("Very Strong");
+      expect(result.data.meetsPolicy).toBe(true);
     });
 
     it("should handle weak passwords", async () => {
@@ -154,8 +156,8 @@ describe("Security Encryption Tools", () => {
         {} as any,
       )) as any;
 
-      expect(result.interpretation).toBe("Very Weak");
-      expect(result.meetsPolicy).toBe(false);
+      expect(result.data.interpretation).toBe("Very Weak");
+      expect(result.data.meetsPolicy).toBe(false);
     });
 
     it("should handle component not installed (empty policy variables)", async () => {

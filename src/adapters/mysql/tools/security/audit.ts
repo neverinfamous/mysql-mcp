@@ -118,19 +118,18 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           query += ` ORDER BY e.TIMER_START DESC LIMIT ${limit}`;
 
           const result = await adapter.executeQuery(query, []);
-          const response: Record<string, unknown> = {
-            success: true,
+          const data: Record<string, unknown> = {
             source: "performance_schema",
             message: "Using performance_schema as audit log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
           if (filtersIgnored.length > 0) {
-            response["filtersIgnored"] = filtersIgnored;
-            response["note"] =
+            data["filtersIgnored"] = filtersIgnored;
+            data["note"] =
               "startTime filter not applied: performance_schema uses picosecond counters, not ISO timestamps";
           }
-          return withTokenEstimate(response);
+          return withTokenEstimate({ success: true, data });
         }
 
         // Query actual audit log
@@ -165,9 +164,11 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
-          source: "mysql.audit_log",
-          events: result.rows ?? [],
-          count: result.rows?.length ?? 0,
+          data: {
+            source: "mysql.audit_log",
+            events: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -220,10 +221,12 @@ export function createSecurityFirewallStatusTool(
         if (!pluginResult.rows || pluginResult.rows.length === 0) {
           return withTokenEstimate({
             success: true,
-            installed: false,
-            message: "MySQL Enterprise Firewall is not installed",
-            suggestion:
-              'Install with: INSTALL PLUGIN mysql_firewall SONAME "firewall.so"',
+            data: {
+              installed: false,
+              message: "MySQL Enterprise Firewall is not installed",
+              suggestion:
+                'Install with: INSTALL PLUGIN mysql_firewall SONAME "firewall.so"',
+            }
           });
         }
 
@@ -243,9 +246,11 @@ export function createSecurityFirewallStatusTool(
 
         return withTokenEstimate({
           success: true,
-          installed: true,
-          plugins: pluginResult.rows,
-          configuration: variables,
+          data: {
+            installed: true,
+            plugins: pluginResult.rows,
+            configuration: variables,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -333,10 +338,12 @@ export function createSecurityFirewallRulesTool(
 
         return withTokenEstimate({
           success: true,
-          users: usersResult.rows ?? [],
-          rules: rulesResult.rows ?? [],
-          userCount: usersResult.rows?.length ?? 0,
-          ruleCount: rulesResult.rows?.length ?? 0,
+          data: {
+            users: usersResult.rows ?? [],
+            rules: rulesResult.rows ?? [],
+            userCount: usersResult.rows?.length ?? 0,
+            ruleCount: rulesResult.rows?.length ?? 0,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {

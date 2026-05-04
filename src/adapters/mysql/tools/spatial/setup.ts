@@ -90,11 +90,13 @@ export function createSpatialCreateColumnTool(
         adapter.clearSchemaCache();
         return withTokenEstimate({
           success: true,
-          table,
-          column,
-          type,
-          srid: srid ?? null,
-          nullable,
+          data: {
+            table,
+            column,
+            type,
+            srid: srid ?? null,
+            nullable,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -209,9 +211,11 @@ export function createSpatialCreateIndexTool(
         adapter.clearSchemaCache();
         return withTokenEstimate({
           success: true,
-          table,
-          column,
-          indexName: idxName,
+          data: {
+            table,
+            column,
+            indexName: idxName,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {

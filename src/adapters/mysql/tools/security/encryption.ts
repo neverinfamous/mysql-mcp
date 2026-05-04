@@ -89,23 +89,25 @@ export function createSecuritySSLStatusTool(
 
         return withTokenEstimate({
           success: true,
-          sslEnabled: str(status["Ssl_cipher"]) !== "",
-          currentCipher: str(status["Ssl_cipher"], "None"),
-          sslVersion: str(status["Ssl_version"], "N/A"),
-          serverCertVerification: false, // Unknown in recent versions via variables
-          configuration: {
-            sslCa: str(variables["ssl_ca"]),
-            sslCert: str(variables["ssl_cert"]),
-            sslKey: str(variables["ssl_key"]),
-            requireSecureTransport: str(
-              variables["require_secure_transport"],
-              "OFF",
-            ),
-          },
-          sessionStats: {
-            acceptedConnects: str(status["Ssl_accepts"], "0"),
-            finishedConnects: str(status["Ssl_finished_accepts"], "0"),
-          },
+          data: {
+            sslEnabled: str(status["Ssl_cipher"]) !== "",
+            currentCipher: str(status["Ssl_cipher"], "None"),
+            sslVersion: str(status["Ssl_version"], "N/A"),
+            serverCertVerification: false, // Unknown in recent versions via variables
+            configuration: {
+              sslCa: str(variables["ssl_ca"]),
+              sslCert: str(variables["ssl_cert"]),
+              sslKey: str(variables["ssl_key"]),
+              requireSecureTransport: str(
+                variables["require_secure_transport"],
+                "OFF",
+              ),
+            },
+            sessionStats: {
+              acceptedConnects: str(status["Ssl_accepts"], "0"),
+              finishedConnects: str(status["Ssl_finished_accepts"], "0"),
+            },
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -183,15 +185,17 @@ export function createSecurityEncryptionStatusTool(
 
         return withTokenEstimate({
           success: true,
-          keyringPlugins: keyringResult.rows ?? [],
-          keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
-          encryptedTablespaces: tablespaceResult.rows ?? [],
-          encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
-          encryptionSettings: {
-            ...variables,
-            ...innodbVars,
-          },
-          tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
+          data: {
+            keyringPlugins: keyringResult.rows ?? [],
+            keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
+            encryptedTablespaces: tablespaceResult.rows ?? [],
+            encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
+            encryptionSettings: {
+              ...variables,
+              ...innodbVars,
+            },
+            tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -264,10 +268,12 @@ export function createSecurityPasswordValidateTool(
 
         return withTokenEstimate({
           success: true,
-          strength,
-          interpretation,
-          meetsPolicy: strength >= 50, // General guideline
-          policy,
+          data: {
+            strength,
+            interpretation,
+            meetsPolicy: strength >= 50, // General guideline
+            policy,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {

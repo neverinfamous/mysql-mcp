@@ -56,11 +56,11 @@ describe("Spatial Operations Tools", () => {
           geometry2: "POINT(5 5)",
         },
         mockContext,
-      )) as { intersects: boolean; intersectionWkt: string };
+      )) as { data: { intersects: boolean; intersectionWkt: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.intersects).toBe(true);
-      expect(result.intersectionWkt).toBe("POINT(5 5)");
+      expect(result.data.intersects).toBe(true);
+      expect(result.data.intersectionWkt).toBe("POINT(5 5)");
     });
 
     it("should handle no intersection", async () => {
@@ -81,9 +81,9 @@ describe("Spatial Operations Tools", () => {
           geometry2: "POINT(100 100)",
         },
         mockContext,
-      )) as { intersects: boolean };
+      )) as { data: { intersects: boolean } };
 
-      expect(result.intersects).toBe(false);
+      expect(result.data.intersects).toBe(false);
     });
   });
 
@@ -120,8 +120,8 @@ describe("Spatial Operations Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       // Default SRID is 4326 (geographic) — ST_Buffer_Strategy is not used
       expect(call).not.toContain("ST_Buffer_Strategy");
-      expect(result).toHaveProperty("bufferWkt");
-      expect(result).toHaveProperty("segments", 8);
+      expect((result as any).data).toHaveProperty("bufferWkt");
+      expect((result as any).data).toHaveProperty("segments", 8);
     });
 
     it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
@@ -149,7 +149,7 @@ describe("Spatial Operations Tools", () => {
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
-      expect(result).toHaveProperty("segments", 4);
+      expect((result as any).data).toHaveProperty("segments", 4);
     });
 
   });
@@ -189,7 +189,7 @@ describe("Spatial Operations Tools", () => {
       expect(call).toContain("ST_Transform");
       expect(call).toContain("4326");
       expect(call).toContain("3857");
-      expect(result).toHaveProperty("transformedWkt");
+      expect((result as any).data).toHaveProperty("transformedWkt");
     });
   });
 
@@ -216,10 +216,10 @@ describe("Spatial Operations Tools", () => {
       const result = (await tool.handler(
         { geometry: "POINT(10 20)" },
         mockContext,
-      )) as { geoJson: any };
+      )) as { data: { geoJson: any } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.geoJson).toEqual({ type: "Point", coordinates: [10, 20] });
+      expect(result.data.geoJson).toEqual({ type: "Point", coordinates: [10, 20] });
     });
 
     it("should convert GeoJSON to WKT", async () => {
@@ -237,10 +237,10 @@ describe("Spatial Operations Tools", () => {
       const result = (await tool.handler(
         { geoJson: '{"type":"Point","coordinates":[10,20]}' },
         mockContext,
-      )) as { wkt: string };
+      )) as { data: { wkt: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.wkt).toBe("POINT(10 20)");
+      expect(result.data.wkt).toBe("POINT(10 20)");
     });
 
     it("should return structured error if neither geometry nor geoJson provided", async () => {

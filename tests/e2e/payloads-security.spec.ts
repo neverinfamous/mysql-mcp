@@ -80,8 +80,9 @@ test.describe("Payload Contracts: Security + Roles", () => {
       );
 
       expect(typeof payload).toBe("object");
-      expect(typeof payload.tableCount).toBe("number");
-      expect(payload.tableCount as number).toBeLessThanOrEqual(5);
+      const data = (payload as any).data;
+      expect(typeof data.tableCount).toBe("number");
+      expect(data.tableCount as number).toBeLessThanOrEqual(5);
     } finally {
       await client.close();
     }

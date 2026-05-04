@@ -177,11 +177,13 @@ export function createSecurityMaskDataTool(
             if (ccDigits.length <= 8) {
               return Promise.resolve(withTokenEstimate({
                 success: true,
-                original: value,
-                masked: maskChar.repeat(value.length),
-                type,
-                warning:
-                  "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
+                data: {
+                  original: value,
+                  masked: maskChar.repeat(value.length),
+                  type,
+                  warning:
+                    "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
+                }
               }));
             }
             maskedValue =
@@ -195,11 +197,13 @@ export function createSecurityMaskDataTool(
             if (keepFirst + keepLast >= value.length) {
               return Promise.resolve(withTokenEstimate({
                 success: true,
-                original: value,
-                masked: value,
-                type,
-                warning:
-                  "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
+                data: {
+                  original: value,
+                  masked: value,
+                  type,
+                  warning:
+                    "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
+                }
               }));
             } else {
               const maskLength = value.length - keepFirst - keepLast;
@@ -216,9 +220,11 @@ export function createSecurityMaskDataTool(
 
         return Promise.resolve(withTokenEstimate({
           success: true,
-          original: value,
-          masked: maskedValue,
-          type,
+          data: {
+            original: value,
+            masked: maskedValue,
+            type,
+          }
         }));
       } catch (error) {
         if (error instanceof ZodError) {
@@ -383,9 +389,11 @@ export function createSecurityUserPrivilegesTool(
 
         return withTokenEstimate({
           success: true,
-          users: userPrivileges,
-          count: userPrivileges.length,
-          summary,
+          data: {
+            users: userPrivileges,
+            count: userPrivileges.length,
+            summary,
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -482,11 +490,13 @@ export function createSecuritySensitiveTablesTool(
 
         return withTokenEstimate({
           success: true,
-          sensitiveTables: sensitiveItems,
-          tableCount: sensitiveItems.length,
-          totalSensitiveColumns: result.rows?.length ?? 0,
-          patternsUsed: patterns,
-          ...(limited ? { limited: true, totalAvailable } : {}),
+          data: {
+            sensitiveTables: sensitiveItems,
+            tableCount: sensitiveItems.length,
+            totalSensitiveColumns: result.rows?.length ?? 0,
+            patternsUsed: patterns,
+            ...(limited ? { limited: true, totalAvailable } : {}),
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);

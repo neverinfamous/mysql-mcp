@@ -93,11 +93,13 @@ export function createSpatialIntersectionTool(
         const row = result.rows?.[0];
         return withTokenEstimate({
           success: true,
-          intersects: Boolean(row?.["intersects"]),
-          intersectionWkt: row?.["intersection_wkt"],
-          intersectionGeoJson: parseGeoJsonResult(
-            row?.["intersection_geojson"],
-          ),
+          data: {
+            intersects: Boolean(row?.["intersects"]),
+            intersectionWkt: row?.["intersection_wkt"],
+            intersectionGeoJson: parseGeoJsonResult(
+              row?.["intersection_geojson"],
+            ),
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -149,11 +151,13 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         const row = result.rows?.[0];
         return withTokenEstimate({
           success: true,
-          bufferWkt: row?.["buffer_wkt"],
-          bufferDistance: distance,
-          segments,
-          segmentsApplied: !isGeographic,
-          srid,
+          data: {
+            bufferWkt: row?.["buffer_wkt"],
+            bufferDistance: distance,
+            segments,
+            segmentsApplied: !isGeographic,
+            srid,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -198,11 +202,13 @@ export function createSpatialTransformTool(
         const row = result.rows?.[0];
         return withTokenEstimate({
           success: true,
-          originalWkt: geometry,
-          transformedWkt: row?.["transformed_wkt"],
-          transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
-          fromSrid,
-          toSrid,
+          data: {
+            originalWkt: geometry,
+            transformedWkt: row?.["transformed_wkt"],
+            transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
+            fromSrid,
+            toSrid,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -246,9 +252,11 @@ export function createSpatialGeoJSONTool(
           const row = result.rows?.[0];
           return withTokenEstimate({
             success: true,
-            wkt: geometry,
-            geoJson: parseGeoJsonResult(row?.["geoJson"]),
-            conversion: "WKT to GeoJSON",
+            data: {
+              wkt: geometry,
+              geoJson: parseGeoJsonResult(row?.["geoJson"]),
+              conversion: "WKT to GeoJSON",
+            },
           });
         } else if (geoJson) {
           // Convert GeoJSON to WKT
@@ -260,9 +268,11 @@ export function createSpatialGeoJSONTool(
           const row = result.rows?.[0];
           return withTokenEstimate({
             success: true,
-            wkt: row?.["wkt"],
-            geoJson: JSON.parse(geoJson) as Record<string, unknown>,
-            conversion: "GeoJSON to WKT",
+            data: {
+              wkt: row?.["wkt"],
+              geoJson: JSON.parse(geoJson) as Record<string, unknown>,
+              conversion: "GeoJSON to WKT",
+            },
           });
         }
 

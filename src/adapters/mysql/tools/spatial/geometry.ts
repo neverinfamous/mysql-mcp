@@ -74,11 +74,13 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
         const row = result.rows?.[0];
         return withTokenEstimate({
           success: true,
-          wkt: row?.["wkt"],
-          geoJson: parseGeoJsonResult(row?.["geoJson"]),
-          srid,
-          longitude,
-          latitude,
+          data: {
+            wkt: row?.["wkt"],
+            geoJson: parseGeoJsonResult(row?.["geoJson"]),
+            srid,
+            longitude,
+            latitude,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -133,10 +135,12 @@ export function createSpatialPolygonTool(
         const row = result.rows?.[0];
         return withTokenEstimate({
           success: true,
-          wkt: row?.["wkt"],
-          geoJson: parseGeoJsonResult(row?.["geoJson"]),
-          area: row?.["area"],
-          srid,
+          data: {
+            wkt: row?.["wkt"],
+            geoJson: parseGeoJsonResult(row?.["geoJson"]),
+            area: row?.["area"],
+            srid,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {

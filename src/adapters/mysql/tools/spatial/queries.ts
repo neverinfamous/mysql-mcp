@@ -103,9 +103,11 @@ export function createSpatialDistanceTool(
         );
         return withTokenEstimate({
           success: true,
-          results: rows,
-          count: rows.length,
-          referencePoint: point,
+          data: {
+            results: rows,
+            count: rows.length,
+            referencePoint: point,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -184,10 +186,12 @@ export function createSpatialDistanceSphereTool(
         );
         return withTokenEstimate({
           success: true,
-          results: rows,
-          count: rows.length,
-          referencePoint: point,
-          unit: "meters",
+          data: {
+            results: rows,
+            count: rows.length,
+            referencePoint: point,
+            unit: "meters",
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -255,8 +259,10 @@ export function createSpatialContainsTool(
         );
         return withTokenEstimate({
           success: true,
-          results: rows,
-          count: rows.length,
+          data: {
+            results: rows,
+            count: rows.length,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -321,8 +327,10 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return withTokenEstimate({
           success: true,
-          results: rows,
-          count: rows.length,
+          data: {
+            results: rows,
+            count: rows.length,
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {

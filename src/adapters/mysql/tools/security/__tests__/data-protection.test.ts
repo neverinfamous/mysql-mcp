@@ -38,9 +38,9 @@ describe("Security Data Protection Tools", () => {
           type: "email",
         },
         mockContext,
-      )) as { masked: string };
+      )) as { data: { masked: string } };
 
-      expect(result.masked).toBe("j******e@example.com");
+      expect(result.data.masked).toBe("j******e@example.com");
     });
 
     it("should mask phone numbers", async () => {
@@ -53,9 +53,9 @@ describe("Security Data Protection Tools", () => {
           type: "phone",
         },
         mockContext,
-      )) as { masked: string };
+      )) as { data: { masked: string } };
 
-      expect(result.masked).toBe("******4567");
+      expect(result.data.masked).toBe("******4567");
     });
 
     it("should mask partial text", async () => {
@@ -70,9 +70,9 @@ describe("Security Data Protection Tools", () => {
           keepLast: 2,
         },
         mockContext,
-      )) as { masked: string };
+      )) as { data: { masked: string } };
 
-      expect(result.masked).toBe("se**********ta");
+      expect(result.data.masked).toBe("se**********ta");
     });
   });
 
@@ -119,13 +119,13 @@ describe("Security Data Protection Tools", () => {
           user: "john",
         },
         mockContext,
-      )) as { users: any[] };
+      )) as { data: { users: any[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
-      expect(result.users).toHaveLength(1);
-      expect(result.users[0].user).toBe("john");
-      expect(result.users[0].grants).toHaveLength(1);
-      expect(result.users[0].roles).toContain("admin_role@%");
+      expect(result.data.users).toHaveLength(1);
+      expect(result.data.users[0].user).toBe("john");
+      expect(result.data.users[0].grants).toHaveLength(1);
+      expect(result.data.users[0].roles).toContain("admin_role@%");
     });
   });
 
@@ -155,13 +155,13 @@ describe("Security Data Protection Tools", () => {
           schema: "test_db",
         },
         mockContext,
-      )) as { sensitiveTables: any[]; totalSensitiveColumns: number };
+      )) as { data: { sensitiveTables: any[]; totalSensitiveColumns: number } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.sensitiveTables).toHaveLength(2); // users, payments
-      expect(result.totalSensitiveColumns).toBe(3);
-      expect(result.sensitiveTables[0].table).toBe("users");
-      expect(result.sensitiveTables[0].sensitiveColumns).toHaveLength(2);
+      expect(result.data.sensitiveTables).toHaveLength(2); // users, payments
+      expect(result.data.totalSensitiveColumns).toBe(3);
+      expect(result.data.sensitiveTables[0].table).toBe("users");
+      expect(result.data.sensitiveTables[0].sensitiveColumns).toHaveLength(2);
     });
   });
 });

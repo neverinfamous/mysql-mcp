@@ -123,7 +123,7 @@ describe("Spatial Tools Handlers", () => {
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
       );
-      expect(result).toHaveProperty("indexName", "idx_spatial_users_location");
+      expect((result as any).data).toHaveProperty("indexName", "idx_spatial_users_location");
     });
 
     it("should detect existing spatial index on same column", async () => {
@@ -213,8 +213,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).conversion).toBe("WKT to GeoJSON");
-      expect((result as any).geoJson).toEqual({
+      expect((result as any).data.conversion).toBe("WKT to GeoJSON");
+      expect((result as any).data.geoJson).toEqual({
         type: "Point",
         coordinates: [1, 1],
       });
@@ -233,8 +233,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).conversion).toBe("GeoJSON to WKT");
-      expect((result as any).wkt).toBe("POINT(1 1)");
+      expect((result as any).data.conversion).toBe("GeoJSON to WKT");
+      expect((result as any).data.wkt).toBe("POINT(1 1)");
     });
 
     it("should return structured error if both inputs are missing (zod refinement)", async () => {
@@ -537,8 +537,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).segmentsApplied).toBe(false);
-      expect((result as any).segments).toBe(4);
+      expect((result as any).data.segmentsApplied).toBe(false);
+      expect((result as any).data.segments).toBe(4);
     });
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
@@ -563,8 +563,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).segmentsApplied).toBe(true);
-      expect((result as any).segments).toBe(4);
+      expect((result as any).data.segmentsApplied).toBe(true);
+      expect((result as any).data.segments).toBe(4);
     });
   });
 });
