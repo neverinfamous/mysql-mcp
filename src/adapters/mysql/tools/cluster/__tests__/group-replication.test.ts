@@ -83,6 +83,7 @@ describe("Group Replication Tools", () => {
             role: "PRIMARY",
           }),
         ],
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
 
