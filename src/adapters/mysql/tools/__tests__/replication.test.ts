@@ -723,7 +723,7 @@ describe("Replication Fallback Handling", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result).toHaveProperty("status");
+      expect((result as any).data).toHaveProperty("status");
     });
 
     it("should return structured error when binary logging is disabled", async () => {
@@ -754,7 +754,7 @@ describe("Replication Fallback Handling", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result).toHaveProperty("status");
+      expect((result as any).data).toHaveProperty("status");
     });
 
     it("should return message when not configured as replica", async () => {
@@ -839,10 +839,10 @@ describe("Replication Fallback Handling", () => {
       const result = (await tool.handler(
         { logFile: "mysql-bin.000001", limit: 0 },
         mockContext,
-      )) as { success: boolean; events: unknown[] };
+      )) as { success: boolean; data: { events: unknown[] } };
 
       expect(result.success).toBe(true);
-      expect(result.events).toEqual([]);
+      expect(result.data.events).toEqual([]);
       // Should NOT have called executeQuery — guard returns before any SQL
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
@@ -876,10 +876,10 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: number;
+        data: { lagSeconds: number };
       };
 
-      expect(result.lagSeconds).toBe(5);
+      expect(result.data.lagSeconds).toBe(5);
     });
 
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
@@ -898,10 +898,10 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: number;
+        data: { lagSeconds: number };
       };
 
-      expect(result.lagSeconds).toBe(10);
+      expect(result.data.lagSeconds).toBe(10);
     });
 
     it("should return message when not a replica after both fail", async () => {

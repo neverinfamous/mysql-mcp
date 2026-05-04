@@ -45,12 +45,12 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
-        const response = { success: true as const, status: result.rows?.[0] };
+        const response = { success: true as const, data: { status: result.rows?.[0] } };
         return withTokenEstimate(response);
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          const response = { success: true as const, status: result.rows?.[0] };
+          const response = { success: true as const, data: { status: result.rows?.[0] } };
           return withTokenEstimate(response);
         } catch (e) {
           return formatHandlerErrorResponse(
@@ -82,7 +82,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
         const status = result.rows?.[0];
         if (status) {
-          const response = { success: true as const, status };
+          const response = { success: true as const, data: { status } };
           return withTokenEstimate(response);
         }
       } catch {
@@ -90,7 +90,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
           const status = result.rows?.[0];
           if (status) {
-            const response = { success: true as const, status };
+            const response = { success: true as const, data: { status } };
             return withTokenEstimate(response);
           }
         } catch {
@@ -129,7 +129,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
         if (limit === 0) {
-          const response = { success: true as const, events: [] };
+          const response = { success: true as const, data: { events: [] } };
           return withTokenEstimate(response);
         }
 
@@ -171,7 +171,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
-          const response = { success: true as const, events: result.rows };
+          const response = { success: true as const, data: { events: result.rows } };
           return withTokenEstimate(response);
         } catch (e) {
           const message = String(e);
@@ -232,9 +232,11 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         const response = {
           success: true as const,
-          gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
-          gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
-          gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+          data: {
+            gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
+            gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
+            gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+          }
         };
         return withTokenEstimate(response);
       } catch (e) {
@@ -269,14 +271,16 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         if (status != null) {
           const response = {
             success: true as const,
-            lagSeconds:
-              status["Seconds_Behind_Source"] ??
-              status["Seconds_Behind_Master"],
-            ioRunning:
-              status["Replica_IO_Running"] ?? status["Slave_IO_Running"],
-            sqlRunning:
-              status["Replica_SQL_Running"] ?? status["Slave_SQL_Running"],
-            lastError: status["Last_Error"],
+            data: {
+              lagSeconds:
+                status["Seconds_Behind_Source"] ??
+                status["Seconds_Behind_Master"],
+              ioRunning:
+                status["Replica_IO_Running"] ?? status["Slave_IO_Running"],
+              sqlRunning:
+                status["Replica_SQL_Running"] ?? status["Slave_SQL_Running"],
+              lastError: status["Last_Error"],
+            }
           };
           return withTokenEstimate(response);
         }
@@ -288,10 +292,12 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
           if (status != null) {
             const response = {
               success: true as const,
-              lagSeconds: status["Seconds_Behind_Master"],
-              ioRunning: status["Slave_IO_Running"],
-              sqlRunning: status["Slave_SQL_Running"],
-              lastError: status["Last_Error"],
+              data: {
+                lagSeconds: status["Seconds_Behind_Master"],
+                ioRunning: status["Slave_IO_Running"],
+                sqlRunning: status["Slave_SQL_Running"],
+                lastError: status["Last_Error"],
+              }
             };
             return withTokenEstimate(response);
           }
