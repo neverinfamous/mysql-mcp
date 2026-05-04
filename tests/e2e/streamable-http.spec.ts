@@ -49,7 +49,7 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
     expect(response.content[0].type).toBe("text");
 
     const parsed = JSON.parse((response.content[0] as any).text);
-    expect(parsed).toHaveProperty("tables");
+    expect(parsed.data).toHaveProperty("tables");
   });
 
   test("should call a read tool via Streamable HTTP", async () => {

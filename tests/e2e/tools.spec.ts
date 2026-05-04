@@ -46,10 +46,10 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     expect((response.content as any[])[0].type).toBe("text");
     const textOutput = ((response.content as any[])[0] as any).text as string;
     const parsed = JSON.parse(textOutput);
-    expect(parsed).toHaveProperty("tables");
-    expect(Array.isArray(parsed.tables)).toBe(true);
-    expect(parsed).toHaveProperty("count");
-    expect(typeof parsed.count).toBe("number");
+    expect(parsed.data).toHaveProperty("tables");
+    expect(Array.isArray(parsed.data.tables)).toBe(true);
+    expect(parsed.data).toHaveProperty("count");
+    expect(typeof parsed.data.count).toBe("number");
   });
 
   test("should return formatted MCP error for validation failures (mysql_read_query)", async () => {
@@ -104,7 +104,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     const textOutput = ((response.content as any[])[0] as any).text as string;
     const parsed = JSON.parse(textOutput);
     expect(parsed).toHaveProperty("result");
-    expect(parsed.result).toHaveProperty("tables");
+    expect(parsed.result.data).toHaveProperty("tables");
   });
 
   // --- Cross-group tool coverage (all standard groups via --tool-filter -ecosystem,+codemode) ---
@@ -118,8 +118,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
     const parsed = JSON.parse(((response.content as any[])[0] as any).text);
-    expect(parsed).toHaveProperty("columns");
-    expect(Array.isArray(parsed.columns)).toBe(true);
+    expect(parsed.data).toHaveProperty("columns");
+    expect(Array.isArray(parsed.data.columns)).toBe(true);
   });
 
   test("should extract JSON (json: mysql_json_extract)", async () => {
@@ -147,8 +147,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
     const parsed = JSON.parse(((response.content as any[])[0] as any).text);
-    expect(parsed).toHaveProperty("indexes");
-    expect(Array.isArray(parsed.indexes)).toBe(true);
+    expect(parsed.data).toHaveProperty("indexes");
+    expect(Array.isArray(parsed.data.indexes)).toBe(true);
   });
 
   test("should begin and rollback transaction (transactions group)", async () => {
