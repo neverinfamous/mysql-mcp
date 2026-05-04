@@ -78,7 +78,7 @@
 
 ### Certified
 
-- `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
+- `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls and Advanced Stress Test Certification in Code Mode.
 - `performance` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `schema` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `monitoring` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
@@ -87,7 +87,7 @@
 - `optimization` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (properly wrapping query errors, catching missing validations), token limits, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `fulltext` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, consistent data array response shapes, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `backup` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, structured error conventions (properly wrapping Zod and domain errors), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
-- `document` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, structured error conventions, advanced stress test resilience, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
+- `document` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, structured error conventions, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `introspection` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `json` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `migration` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
