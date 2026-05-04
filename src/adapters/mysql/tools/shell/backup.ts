@@ -52,7 +52,7 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return { success: false, error: "Validation error: outputDir or outputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
         }
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -104,22 +104,22 @@ export function createShellDumpInstanceTool(): ToolDefinition {
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
             suggestion:
               "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
-          };
+          });
         }
         if (errorMessage.includes("Fatal error during dump")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Dump failed: ${errorMessage}.`,
             suggestion:
               "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
-          };
+          });
         }
-        return { success: false, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -156,15 +156,15 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         } = ShellDumpSchemasInputSchema.parse(params);
 
         if (schemas.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "At least one schema name is required",
-          };
+          });
         }
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return { success: false, error: "Validation error: outputDir or outputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
         }
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -218,14 +218,14 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           errorMessage.includes("TRIGGER") ||
           errorMessage.includes("privilege")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
             suggestion:
               "Set ddlOnly: true to skip events, triggers, and routines.",
-          };
+          });
         }
-        return { success: false, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -253,15 +253,15 @@ export function createShellDumpTablesTool(): ToolDefinition {
           ShellDumpTablesInputSchema.parse(params);
 
         if (tables.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "At least one table name is required",
-          };
+          });
         }
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return { success: false, error: "Validation error: outputDir or outputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
         }
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -323,32 +323,29 @@ export function createShellDumpTablesTool(): ToolDefinition {
           const privilegeMatch = privilegeRegex.exec(errorMessage);
           const specificPrivilege = privilegeMatch ? privilegeMatch[1] : null;
 
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
             suggestion:
               specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
                 ? `Set all: false to skip ${specificPrivilege.toLowerCase()}s.`
                 : "Set all: false to skip metadata that requires extra privileges.",
-          };
+          });
         }
 
         // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: errorMessage.includes("Writing schema metadata")
               ? `Dump failed while writing schema metadata: ${errorMessage}.`
               : `Dump failed: ${errorMessage}.`,
             suggestion:
               "Set all: false to skip metadata that requires extra privileges.",
-          };
+          });
         }
 
-        return {
-          success: false,
-          error: errorMessage,
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

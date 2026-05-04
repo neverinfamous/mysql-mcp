@@ -50,7 +50,7 @@ export function createShellExportTableTool(): ToolDefinition {
         // Escape path for JavaScript
         const finalOutputPath = outputPath ?? outputUrl;
         if (!finalOutputPath) {
-          return { success: false, error: "Validation error: outputPath or outputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: outputPath or outputUrl is required" });
         }
         const resolvedPath = path.resolve(finalOutputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -91,13 +91,13 @@ export function createShellExportTableTool(): ToolDefinition {
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Export failed due to insufficient privileges: ${errorMessage}.`,
             suggestion: `Ensure the user has SELECT privilege on the target table.`,
-          };
+          });
         }
-        return { success: false, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -136,7 +136,7 @@ export function createShellImportTableTool(): ToolDefinition {
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return { success: false, error: "Validation error: inputPath or inputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: inputPath or inputUrl is required" });
         }
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -196,17 +196,14 @@ export function createShellImportTableTool(): ToolDefinition {
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "Import failed: local_infile is disabled on the server.",
             suggestion:
               "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          };
+          });
         }
-        return {
-          success: false,
-          error: errorMessage,
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -236,7 +233,7 @@ export function createShellImportJSONTool(): ToolDefinition {
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return { success: false, error: "Validation error: inputPath or inputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: inputPath or inputUrl is required" });
         }
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -280,12 +277,12 @@ export function createShellImportJSONTool(): ToolDefinition {
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
-          return {
+          return withTokenEstimate({
             success: false,
             error: `X Protocol connection failed: ${errorMessage}.`,
             suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
             details: { protocol: "X Protocol" },
-          };
+          });
         }
 
         // Check for X Protocol access denied errors in stderr
@@ -293,12 +290,12 @@ export function createShellImportJSONTool(): ToolDefinition {
           result.stderr.includes("Access denied") ||
           result.stderr.includes("1045")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `X Protocol authentication failed.`,
             suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
             details: { protocol: "X Protocol" },
-          };
+          });
         }
 
         // Parse result
@@ -320,11 +317,11 @@ export function createShellImportJSONTool(): ToolDefinition {
             }
 
             if (!parsed.success) {
-              return {
+              return withTokenEstimate({
                 success: false,
                 error: parsed.error ?? "Unknown MySQL Shell error",
                 details: { protocol: "X Protocol" },
-              };
+              });
             }
             return withTokenEstimate({
               success: true,
@@ -340,12 +337,12 @@ export function createShellImportJSONTool(): ToolDefinition {
         }
 
         if (result.exitCode !== 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error:
               result.stderr || result.stdout || "MySQL Shell import failed",
             details: { protocol: "X Protocol" },
-          };
+          });
         }
 
         return withTokenEstimate({
@@ -359,12 +356,7 @@ export function createShellImportJSONTool(): ToolDefinition {
           }
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        return { success: false, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

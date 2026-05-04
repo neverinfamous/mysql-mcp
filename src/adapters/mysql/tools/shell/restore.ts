@@ -55,7 +55,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
 
         const finalInputDir = inputDir ?? inputUrl;
         if (!finalInputDir) {
-          return { success: false, error: "Validation error: inputDir or inputUrl is required" };
+          return withTokenEstimate({ success: false, error: "Validation error: inputDir or inputUrl is required" });
         }
         const resolvedPath = resolve(finalInputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -159,23 +159,23 @@ export function createShellLoadDumpTool(): ToolDefinition {
                   errorMessage.includes("local_infile") ||
                   errorMessage.includes("Loading local data is disabled")
                 ) {
-                  return {
+                  return withTokenEstimate({
                     success: false,
                     error:
                       "Load failed: local_infile is disabled on the server.",
                     suggestion:
                       "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-                  };
+                  });
                 }
                 if (errorMessage.includes("Duplicate objects")) {
-                  return {
+                  return withTokenEstimate({
                     success: false,
                     error: errorMessage,
                     suggestion:
                       "Use ignoreExistingObjects: true to skip existing objects",
-                  };
+                  });
                 }
-                return { success: false, error: errorMessage };
+                return withTokenEstimate({ success: false, error: errorMessage });
               }
               break;
             }
@@ -212,22 +212,22 @@ export function createShellLoadDumpTool(): ToolDefinition {
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "Load failed: local_infile is disabled on the server.",
             suggestion:
               "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          };
+          });
         }
         if (errorMessage.includes("Duplicate objects")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: errorMessage,
             suggestion:
               "Use ignoreExistingObjects: true to skip existing objects",
-          };
+          });
         }
-        return { success: false, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -267,7 +267,7 @@ export function createShellRunScriptTool(): ToolDefinition {
             langFlag = "--sql";
             break;
           default:
-            return { success: false, error: "Invalid language" };
+            return withTokenEstimate({ success: false, error: "Invalid language" });
         }
 
         let result;
@@ -299,7 +299,7 @@ export function createShellRunScriptTool(): ToolDefinition {
         }
 
         if (result.exitCode !== 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: result.stderr
               ? result.stderr.trim()
@@ -310,7 +310,7 @@ export function createShellRunScriptTool(): ToolDefinition {
               stdout: result.stdout,
               stderr: result.stderr,
             },
-          };
+          });
         }
 
         return withTokenEstimate({

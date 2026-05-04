@@ -51,9 +51,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
         try {
           result = await execShellJS(jsCode, { timeout: 120000 });
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          return { success: false, error: errorMessage };
+          return formatHandlerErrorResponse(error);
         }
 
         // Parse the upgrade check result
@@ -103,10 +101,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
