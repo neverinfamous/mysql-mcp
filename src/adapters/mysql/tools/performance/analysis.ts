@@ -458,21 +458,33 @@ export function createBufferPoolStatsTool(
 }
 
 export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schemaBase = z.object({
+    limit: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("Maximum number of threads to return (default: 10)"),
+  });
+
+  const schema = z.object({
+    limit: z.number().int().positive().optional().default(10),
+  });
 
   return {
     name: "mysql_thread_stats",
     title: "MySQL Thread Stats",
     description: "Get thread activity statistics.",
     group: "performance",
-    inputSchema: schema,
+    inputSchema: schemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { limit } = schema.parse(params);
         const result = await adapter.executeReadQuery(`
                 SELECT 
                     THREAD_ID,
@@ -489,10 +501,21 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.threads
                 WHERE PROCESSLIST_ID IS NOT NULL
                 ORDER BY PROCESSLIST_TIME DESC
-                LIMIT 20
+                LIMIT ${Math.min(limit, 50)}
             `);
 
-        const response = { success: true, data: { threads: result.rows } };
+        // Strip null values to conserve tokens
+        const threads = result.rows?.map((row) => {
+          const clean: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== null && value !== undefined) {
+              clean[key] = value;
+            }
+          }
+          return clean;
+        });
+
+        const response = { success: true, data: { threads } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
