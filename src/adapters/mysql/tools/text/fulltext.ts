@@ -23,7 +23,7 @@ import {
   FulltextExpandSchemaBase,
 } from "../../schemas/index.js";
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
@@ -128,9 +128,10 @@ export function createFulltextCreateTool(
         }
 
         adapter.clearSchemaCache();
-        const response = { success: true, data: { indexName: name, columns } };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({
+          success: true,
+          data: { indexName: name, columns },
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -183,9 +184,10 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         adapter.clearSchemaCache();
-        const response = { success: true, data: { indexName, table } };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({
+          success: true,
+          data: { indexName, table },
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -245,9 +247,13 @@ export function createFulltextSearchTool(
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
           const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, data };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              rows: data,
+              count: data.length,
+            },
+          });
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
@@ -318,9 +324,13 @@ export function createFulltextBooleanTool(
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
           const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, data };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              rows: data,
+              count: data.length,
+            },
+          });
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {
@@ -391,9 +401,13 @@ export function createFulltextExpandTool(
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
           const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
-          const response = { success: true, data };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              rows: data,
+              count: data.length,
+            },
+          });
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("doesn't exist")) {

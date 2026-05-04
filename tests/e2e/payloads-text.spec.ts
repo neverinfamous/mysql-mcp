@@ -69,7 +69,9 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         query: "MySQL database",
       });
 
-      expect(Array.isArray(payload.data)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
+      expect(typeof data.count).toBe("number");
     } finally {
       await client.close();
     }
@@ -88,7 +90,9 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         },
       );
 
-      expect(Array.isArray(payload.data)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
+      expect(typeof data.count).toBe("number");
     } finally {
       await client.close();
     }
