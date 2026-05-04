@@ -267,7 +267,10 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
           const response = formatHandlerErrorResponse(error);
           return withTokenEstimate({
             ...response,
-            data: { rowsInserted: totalInserted },
+            details: {
+              ...(response.details ?? {}),
+              rowsInserted: totalInserted,
+            },
           });
         }
 

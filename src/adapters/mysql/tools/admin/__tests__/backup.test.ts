@@ -480,11 +480,11 @@ describe("Admin Backup Tools", () => {
           ],
         },
         mockContext,
-      )) as { success: boolean; error: string; data: { rowsInserted: number } };
+      )) as { success: boolean; error: string; details: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate entry");
-      expect(result.data.rowsInserted).toBe(0);
+      expect(result.details.rowsInserted).toBe(0);
     });
 
     it("should return structured error for non-existent table", async () => {
@@ -499,11 +499,11 @@ describe("Admin Backup Tools", () => {
           data: [{ name: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; data: { rowsInserted: number } };
+      )) as { success: boolean; error: string; details: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
-      expect(result.data.rowsInserted).toBe(0);
+      expect(result.details.rowsInserted).toBe(0);
     });
 
     it("should return structured error for unknown column", async () => {
@@ -518,11 +518,11 @@ describe("Admin Backup Tools", () => {
           data: [{ nonexistent_col: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; data: { rowsInserted: number } };
+      )) as { success: boolean; error: string; details: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Unknown column");
-      expect(result.data.rowsInserted).toBe(0);
+      expect(result.details.rowsInserted).toBe(0);
     });
 
     it("should return structured error for Zod validation failures", async () => {
