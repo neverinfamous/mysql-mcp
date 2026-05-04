@@ -21,9 +21,9 @@ test.describe("Payload Contracts: Spatial", () => {
         limit: 5,
       });
 
-      expect(Array.isArray(payload.data.results)).toBe(true);
-      expect(typeof payload.data.count).toBe("number");
-      expect(typeof payload.data.referencePoint).toBe("object");
+      expect(Array.isArray((payload.data as any).results)).toBe(true);
+      expect(typeof (payload.data as any).count).toBe("number");
+      expect(typeof (payload.data as any).referencePoint).toBe("object");
     } finally {
       await client.close();
     }
@@ -43,9 +43,9 @@ test.describe("Payload Contracts: Spatial", () => {
         },
       );
 
-      expect(Array.isArray(payload.data.results)).toBe(true);
-      expect(typeof payload.data.count).toBe("number");
-      expect(payload.data.unit).toBe("meters");
+      expect(Array.isArray((payload.data as any).results)).toBe(true);
+      expect(typeof (payload.data as any).count).toBe("number");
+      expect((payload.data as any).unit).toBe("meters");
     } finally {
       await client.close();
     }
