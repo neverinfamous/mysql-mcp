@@ -160,11 +160,14 @@ describe("Handler Execution", () => {
       expect(mockEnd).toHaveBeenCalled();
       expect(result).toEqual({
         success: true,
-        summary: false,
-        version: "3.0.3",
-        uptime: "12345",
-        stats: mockStats,
-        totalVarsAvailable: 3,
+        data: {
+          summary: false,
+          version: "3.0.3",
+          uptime: "12345",
+          stats: mockStats,
+          totalVarsAvailable: 3,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -184,9 +187,9 @@ describe("Handler Execution", () => {
         "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
       );
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("version", "3.0.3");
-      expect(result).toHaveProperty("summary", false);
-      expect(result).toHaveProperty("totalAdminVarsAvailable", 1);
+      expect(result).toHaveProperty("data.version", "3.0.3");
+      expect(result).toHaveProperty("data.summary", false);
+      expect(result).toHaveProperty("data.totalAdminVarsAvailable", 1);
     });
 
     it("should handle missing version", async () => {
@@ -195,7 +198,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toHaveProperty("version", "unknown");
+      expect(result).toHaveProperty("data.version", "unknown");
     });
 
     it("should redact sensitive admin variables", async () => {
@@ -216,22 +219,20 @@ describe("Handler Execution", () => {
         ]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler({ summary: false }, mockContext)) as {
-        adminVariables: { variable_name: string; variable_value: string }[];
-      };
+      const result = (await tool.handler({ summary: false }, mockContext)) as any;
 
-      const credVar = result.adminVariables.find(
-        (v) => v.variable_name === "admin-admin_credentials",
+      const credVar = result.data.adminVariables.find(
+        (v: any) => v.variable_name === "admin-admin_credentials",
       );
       expect(credVar?.variable_value).toBe("********");
 
-      const pwVar = result.adminVariables.find(
-        (v) => v.variable_name === "admin-cluster_password",
+      const pwVar = result.data.adminVariables.find(
+        (v: any) => v.variable_name === "admin-cluster_password",
       );
       expect(pwVar?.variable_value).toBe("********");
 
-      const safeVar = result.adminVariables.find(
-        (v) => v.variable_name === "admin-read_only",
+      const safeVar = result.data.adminVariables.find(
+        (v: any) => v.variable_name === "admin-read_only",
       );
       expect(safeVar?.variable_value).toBe("false");
     });
@@ -264,22 +265,16 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockAdminVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler({ summary: true }, mockContext)) as {
-        success: boolean;
-        summary: boolean;
-        version: string;
-        adminVariables: { variable_name: string; variable_value: string }[];
-        totalAdminVarsAvailable: number;
-      };
+      const result = (await tool.handler({ summary: true }, mockContext)) as any;
 
       expect(result.success).toBe(true);
-      expect(result.summary).toBe(true);
-      expect(result.version).toBe("3.0.3");
+      expect(result.data.summary).toBe(true);
+      expect(result.data.version).toBe("3.0.3");
       // Should have fewer variables than the full list
-      expect(result.adminVariables.length).toBeLessThan(mockAdminVars.length);
-      expect(result.totalAdminVarsAvailable).toBe(mockAdminVars.length);
+      expect(result.data.adminVariables.length).toBeLessThan(mockAdminVars.length);
+      expect(result.data.totalAdminVarsAvailable).toBe(mockAdminVars.length);
       // Should include key variables
-      const varNames = result.adminVariables.map((v) => v.variable_name);
+      const varNames = result.data.adminVariables.map((v: any) => v.variable_name);
       expect(varNames).toContain("admin-version");
       expect(varNames).toContain("admin-read_only");
       expect(varNames).toContain("admin-mysql_ifaces");
@@ -303,8 +298,11 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith("SELECT * FROM mysql_servers");
       expect(result).toEqual({
         success: true,
-        servers: mockServers,
-        count: 2,
+        data: {
+          servers: mockServers,
+          count: 2,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
 
@@ -318,7 +316,7 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM mysql_servers WHERE hostgroup_id = 1",
       );
-      expect(result).toHaveProperty("count", 1);
+      expect(result).toHaveProperty("data.count", 1);
     });
 
     it("should return structured error for negative hostgroup_id", async () => {
@@ -344,7 +342,7 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM mysql_query_rules LIMIT 20",
       );
-      expect(result).toHaveProperty("queryRules", mockRules);
+      expect(result).toHaveProperty("data.queryRules", mockRules);
     });
 
     it("should respect custom limit", async () => {
@@ -388,7 +386,7 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.stringContaining("ORDER BY count_star DESC"),
       );
-      expect(result).toHaveProperty("queryDigests", mockDigests);
+      expect(result).toHaveProperty("data.queryDigests", mockDigests);
     });
 
     it("should respect custom limit", async () => {
@@ -425,7 +423,7 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM stats_mysql_connection_pool",
       );
-      expect(result).toHaveProperty("connectionPools", mockPools);
+      expect(result).toHaveProperty("data.connectionPools", mockPools);
     });
 
     it("should filter by hostgroup", async () => {
@@ -465,7 +463,7 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.not.stringContaining("password"),
       );
-      expect(result).toHaveProperty("users", mockUsers);
+      expect(result).toHaveProperty("data.users", mockUsers);
     });
   });
 
@@ -487,8 +485,8 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith(
         "SELECT * FROM global_variables LIMIT 10",
       );
-      expect(result).toHaveProperty("variables", mockVars);
-      expect(result).toHaveProperty("totalVarsAvailable", 1);
+      expect(result).toHaveProperty("data.variables", mockVars);
+      expect(result).toHaveProperty("data.totalVarsAvailable", 1);
     });
 
     it("should filter by mysql prefix", async () => {
@@ -557,35 +555,32 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
-      const result = (await tool.handler({}, mockContext)) as {
-        variables: { variable_name: string; variable_value: string }[];
-        totalVarsAvailable: number;
-      };
+      const result = (await tool.handler({}, mockContext)) as any;
 
       // Non-sensitive should be preserved
-      const threads = result.variables.find(
-        (v) => v.variable_name === "mysql-threads",
+      const threads = result.data.variables.find(
+        (v: any) => v.variable_name === "mysql-threads",
       );
       expect(threads?.variable_value).toBe("4");
 
       // Sensitive should be redacted
-      const creds = result.variables.find(
-        (v) => v.variable_name === "admin-admin_credentials",
+      const creds = result.data.variables.find(
+        (v: any) => v.variable_name === "admin-admin_credentials",
       );
       expect(creds?.variable_value).toBe("********");
 
-      const monPw = result.variables.find(
-        (v) => v.variable_name === "mysql-monitor_password",
+      const monPw = result.data.variables.find(
+        (v: any) => v.variable_name === "mysql-monitor_password",
       );
       expect(monPw?.variable_value).toBe("********");
 
-      const statsCreds = result.variables.find(
-        (v) => v.variable_name === "admin-stats_credentials",
+      const statsCreds = result.data.variables.find(
+        (v: any) => v.variable_name === "admin-stats_credentials",
       );
       expect(statsCreds?.variable_value).toBe("********");
 
       // totalVarsAvailable should reflect total count
-      expect(result.totalVarsAvailable).toBe(4);
+      expect(result.data.totalVarsAvailable).toBe(4);
     });
 
     it("should return structured error for negative limit", async () => {
@@ -626,8 +621,11 @@ describe("Handler Execution", () => {
       );
       expect(result).toEqual({
         success: true,
-        memoryStats: mockMemory,
-        count: 1,
+        data: {
+          memoryStats: mockMemory,
+          count: 1,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -645,8 +643,11 @@ describe("Handler Execution", () => {
       expect(mockQuery).toHaveBeenCalledWith("LOAD MYSQL USERS TO RUNTIME");
       expect(result).toEqual({
         success: true,
-        command: "LOAD MYSQL USERS TO RUNTIME",
-        message: "Command executed: LOAD MYSQL USERS TO RUNTIME",
+        data: {
+          command: "LOAD MYSQL USERS TO RUNTIME",
+          message: "Command executed: LOAD MYSQL USERS TO RUNTIME",
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -666,8 +667,11 @@ describe("Handler Execution", () => {
       );
       expect(result).toEqual({
         success: true,
-        processes: mockProcesses,
-        count: 1,
+        data: {
+          processes: mockProcesses,
+          count: 1,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
