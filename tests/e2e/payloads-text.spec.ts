@@ -21,7 +21,8 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         pattern: "Pro.*",
       });
 
-      expect(Array.isArray(payload.data.rows)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -36,7 +37,8 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         pattern: "%Pro%",
       });
 
-      expect(Array.isArray(payload.data.rows)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -51,7 +53,8 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         value: "John",
       });
 
-      expect(Array.isArray(payload.data.rows)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -101,7 +104,8 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         length: 5,
       });
 
-      expect(Array.isArray(payload.data.rows)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
     }
@@ -116,7 +120,8 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         separator: " - ",
       });
 
-      expect(Array.isArray(payload.data.rows)).toBe(true);
+      const data = payload.data as Record<string, unknown>;
+      expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
     }
