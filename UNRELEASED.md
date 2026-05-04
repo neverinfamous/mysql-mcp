@@ -28,6 +28,7 @@
 - **Token Optimization**:
   - Reduced default limits to 3 for `mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, and to 5 for `mysql_export_table`.
   - Reduced default limit to 5 for `mysql_binlog_events` to prevent payload bloat and ensure architectural consistency.
+  - Reduced default limit to 5 for `mysql_thread_stats` to keep default payload under 500 tokens.
   - Defaulted `mysql_optimizer_trace` and `partition_info` to `summary: true`.
   - Defaulted `ShowProcesslistSchema`, `ShowStatusSchema`, and `ShowVariablesSchema` to prevent payload bloat.
 

@@ -464,11 +464,11 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
       .int()
       .positive()
       .optional()
-      .describe("Maximum number of threads to return (default: 10)"),
+      .describe("Maximum number of threads to return (default: 5)"),
   });
 
   const schema = z.object({
-    limit: z.number().int().positive().optional().default(10),
+    limit: z.number().int().positive().optional().default(5),
   });
 
   return {
