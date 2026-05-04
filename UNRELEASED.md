@@ -100,3 +100,4 @@
 - `text` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `transactions` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `core` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
+- `monitoring` advanced stress tests certified for Payload Efficiency, Summary Mode Parity, Filter Edge Cases, and Sequential Stability without errors.
