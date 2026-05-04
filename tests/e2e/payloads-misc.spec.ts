@@ -114,12 +114,12 @@ test.describe("Payload Contracts: Misc", () => {
         {},
       );
 
-      expect(typeof beginPayload.transactionId).toBe("string");
+      expect(typeof (beginPayload.data as any).transactionId).toBe("string");
 
       const rollbackPayload = await callToolAndParse(
         client,
         "mysql_transaction_rollback",
-        { transactionId: beginPayload.transactionId as string },
+        { transactionId: (beginPayload.data as any).transactionId as string },
       );
 
       expect(typeof rollbackPayload.success).toBe("boolean");

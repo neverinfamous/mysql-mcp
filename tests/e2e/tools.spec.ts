@@ -42,9 +42,9 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
-    expect(response.content[0].type).toBe("text");
-    const textOutput = (response.content[0] as any).text as string;
+    expect((response.content as any[]).length).toBeGreaterThan(0);
+    expect((response.content as any[])[0].type).toBe("text");
+    const textOutput = ((response.content as any[])[0] as any).text as string;
     const parsed = JSON.parse(textOutput);
     expect(parsed).toHaveProperty("tables");
     expect(Array.isArray(parsed.tables)).toBe(true);
@@ -60,9 +60,9 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
       });
 
       expect(Array.isArray(response.content)).toBe(true);
-      if (response.content.length > 0) {
-        expect(response.content[0].type).toBe("text");
-        const errorText = (response.content[0] as any).text as string;
+      if ((response.content as any[]).length > 0) {
+        expect((response.content as any[])[0].type).toBe("text");
+        const errorText = ((response.content as any[])[0] as any).text as string;
         expect(errorText.toLowerCase()).toContain("required");
       }
     } catch (error: any) {
@@ -98,10 +98,10 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
-    expect(response.content[0].type).toBe("text");
+    expect((response.content as any[]).length).toBeGreaterThan(0);
+    expect((response.content as any[])[0].type).toBe("text");
 
-    const textOutput = (response.content[0] as any).text as string;
+    const textOutput = ((response.content as any[])[0] as any).text as string;
     const parsed = JSON.parse(textOutput);
     expect(parsed).toHaveProperty("result");
     expect(parsed.result).toHaveProperty("tables");
@@ -117,7 +117,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse((response.content[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
     expect(parsed).toHaveProperty("columns");
     expect(Array.isArray(parsed.columns)).toBe(true);
   });
@@ -134,8 +134,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
-    expect(response.content[0].type).toBe("text");
+    expect((response.content as any[]).length).toBeGreaterThan(0);
+    expect((response.content as any[])[0].type).toBe("text");
   });
 
   test("should get indexes (core: mysql_get_indexes)", async () => {
@@ -146,7 +146,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse((response.content[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
     expect(parsed).toHaveProperty("indexes");
     expect(Array.isArray(parsed.indexes)).toBe(true);
   });
@@ -159,13 +159,13 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(beginResponse.isError).toBeUndefined();
     const beginParsed = JSON.parse(
-      (beginResponse.content[0] as any).text,
+      ((beginResponse.content as any[])[0] as any).text,
     );
-    expect(beginParsed).toHaveProperty("transactionId");
+    expect(beginParsed).toHaveProperty("data.transactionId");
 
     const rollbackResponse = await client.callTool({
       name: "mysql_transaction_rollback",
-      arguments: { transactionId: beginParsed.transactionId },
+      arguments: { transactionId: beginParsed.data.transactionId },
     });
 
     expect(rollbackResponse.isError).toBeUndefined();
@@ -183,8 +183,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
-    expect(response.content[0].type).toBe("text");
+    expect((response.content as any[]).length).toBeGreaterThan(0);
+    expect((response.content as any[])[0].type).toBe("text");
   });
 
   test("should explain a query (performance: mysql_explain)", async () => {
@@ -195,7 +195,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should show server status (monitoring: mysql_show_status)", async () => {
@@ -206,7 +206,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should list schemas (schema: mysql_list_schemas)", async () => {
@@ -217,7 +217,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should check SSL status (security: mysql_security_ssl_status)", async () => {
@@ -228,7 +228,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should compute stats (stats: mysql_stats_descriptive)", async () => {
@@ -239,7 +239,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should list doc collections (docstore: mysql_doc_list_collections)", async () => {
@@ -250,7 +250,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should search fulltext (fulltext: mysql_fulltext_search)", async () => {
@@ -265,7 +265,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should check scheduler status (events: mysql_scheduler_status)", async () => {
@@ -276,6 +276,6 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 });
