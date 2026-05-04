@@ -232,14 +232,16 @@ export function createDetectConnectionSpikeTool(
 
         const response = {
           success: true,
-          totalConnections,
-          maxConnections,
-          usagePercent,
-          byState,
-          concentrations,
-          warnings,
-          riskLevel,
-          summary,
+          data: {
+            totalConnections,
+            maxConnections,
+            usagePercent,
+            byState,
+            concentrations,
+            warnings,
+            riskLevel,
+            summary,
+          },
         };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };

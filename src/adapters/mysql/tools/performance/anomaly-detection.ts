@@ -191,11 +191,13 @@ export function createDetectQueryAnomaliesTool(
 
         const response = {
           success: true,
-          anomalies,
-          riskLevel,
-          totalAnalyzed,
-          anomalyCount,
-          summary,
+          data: {
+            anomalies,
+            riskLevel,
+            totalAnalyzed,
+            anomalyCount,
+            summary,
+          },
         };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -323,10 +325,12 @@ export function createDetectBloatRiskTool(
 
         const response = {
           success: true,
-          tables,
-          highRiskCount,
-          totalAnalyzed: tables.length,
-          summary,
+          data: {
+            tables,
+            highRiskCount,
+            totalAnalyzed: tables.length,
+            summary,
+          },
         };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };

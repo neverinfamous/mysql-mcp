@@ -63,7 +63,7 @@ describe("Performance Analysis Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
         "EXPLAIN FORMAT=TRADITIONAL SELECT * FROM users",
       );
-      expect(result).toHaveProperty("plan");
+      expect(result).toHaveProperty("data.plan");
     });
 
     it("should run EXPLAIN with TREE format", async () => {
@@ -84,7 +84,7 @@ describe("Performance Analysis Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
         "EXPLAIN FORMAT=TREE SELECT * FROM users",
       );
-      expect(result).toHaveProperty("plan");
+      expect(result).toHaveProperty("data.plan");
     });
 
     it("should run EXPLAIN with JSON format", async () => {
@@ -106,12 +106,12 @@ describe("Performance Analysis Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users", format: "JSON" },
         mockContext,
-      )) as { plan: unknown };
+      )) as { data: { plan: unknown } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
         "EXPLAIN FORMAT=JSON SELECT * FROM users",
       );
-      expect(result.plan).toEqual(mockPlan);
+      expect(result.data.plan).toEqual(mockPlan);
     });
 
     it("should fall back to raw rows if JSON parsing fails or not string", async () => {
@@ -124,9 +124,9 @@ describe("Performance Analysis Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users", format: "JSON" },
         mockContext,
-      )) as { plan: unknown };
+      )) as { data: { plan: unknown } };
 
-      expect(result.plan).toBe(mockRows);
+      expect(result.data.plan).toBe(mockRows);
     });
 
     it("should return success false for nonexistent table", async () => {
@@ -192,7 +192,7 @@ describe("Performance Analysis Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
         "EXPLAIN ANALYZE FORMAT=TREE SELECT * FROM users",
       );
-      expect(result).toHaveProperty("analysis");
+      expect(result).toHaveProperty("data.analysis");
     });
 
     it("should return unsupported for JSON format", async () => {
@@ -265,7 +265,7 @@ describe("Performance Analysis Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
         "EXPLAIN ANALYZE FORMAT=TREE SELECT * FROM users",
       );
-      expect(result).toHaveProperty("analysis");
+      expect(result).toHaveProperty("data.analysis");
     });
   });
 
@@ -290,7 +290,7 @@ describe("Performance Analysis Tools", () => {
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("LEFT(DIGEST_TEXT, 200)");
       expect(call).toContain("LIMIT 5");
-      expect(result).toHaveProperty("slowQueries");
+      expect(result).toHaveProperty("data.slowQueries");
     });
 
     it("should filter by minTime", async () => {
@@ -324,12 +324,12 @@ describe("Performance Analysis Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
-        slowQueries: Record<string, unknown>[];
+        data: { slowQueries: Record<string, unknown>[] };
       };
 
-      expect(result.slowQueries[0]["avg_time_ms"]).toBe(-1);
-      expect(result.slowQueries[0]["total_time_ms"]).toBe(-1);
-      expect(result.slowQueries[0]["overflow"]).toBe(true);
+      expect(result.data.slowQueries[0]["avg_time_ms"]).toBe(-1);
+      expect(result.data.slowQueries[0]["total_time_ms"]).toBe(-1);
+      expect(result.data.slowQueries[0]["overflow"]).toBe(true);
     });
 
     it("should clamp string-typed overflowed values (MySQL DECIMAL)", async () => {
@@ -350,12 +350,12 @@ describe("Performance Analysis Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
-        slowQueries: Record<string, unknown>[];
+        data: { slowQueries: Record<string, unknown>[] };
       };
 
-      expect(result.slowQueries[0]["avg_time_ms"]).toBe(-1);
-      expect(result.slowQueries[0]["total_time_ms"]).toBe(-1);
-      expect(result.slowQueries[0]["overflow"]).toBe(true);
+      expect(result.data.slowQueries[0]["avg_time_ms"]).toBe(-1);
+      expect(result.data.slowQueries[0]["total_time_ms"]).toBe(-1);
+      expect(result.data.slowQueries[0]["overflow"]).toBe(true);
     });
 
     it("should not add overflow flag for normal timer values", async () => {
@@ -376,12 +376,12 @@ describe("Performance Analysis Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
-        slowQueries: Record<string, unknown>[];
+        data: { slowQueries: Record<string, unknown>[] };
       };
 
-      expect(result.slowQueries[0]["avg_time_ms"]).toBe(500);
-      expect(result.slowQueries[0]["total_time_ms"]).toBe(5000);
-      expect(result.slowQueries[0]["overflow"]).toBeUndefined();
+      expect(result.data.slowQueries[0]["avg_time_ms"]).toBe(500);
+      expect(result.data.slowQueries[0]["total_time_ms"]).toBe(5000);
+      expect(result.data.slowQueries[0]["overflow"]).toBeUndefined();
     });
 
     it("should convert string-typed timer values to numbers", async () => {
@@ -402,14 +402,14 @@ describe("Performance Analysis Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
-        slowQueries: Record<string, unknown>[];
+        data: { slowQueries: Record<string, unknown>[] };
       };
 
-      expect(result.slowQueries[0]["avg_time_ms"]).toBe(209241.7573);
-      expect(typeof result.slowQueries[0]["avg_time_ms"]).toBe("number");
-      expect(result.slowQueries[0]["total_time_ms"]).toBe(1046208.7865);
-      expect(typeof result.slowQueries[0]["total_time_ms"]).toBe("number");
-      expect(result.slowQueries[0]["overflow"]).toBeUndefined();
+      expect(result.data.slowQueries[0]["avg_time_ms"]).toBe(209241.7573);
+      expect(typeof result.data.slowQueries[0]["avg_time_ms"]).toBe("number");
+      expect(result.data.slowQueries[0]["total_time_ms"]).toBe(1046208.7865);
+      expect(typeof result.data.slowQueries[0]["total_time_ms"]).toBe("number");
+      expect(result.data.slowQueries[0]["overflow"]).toBeUndefined();
     });
 
     it("should return structured error on query failure", async () => {
@@ -488,13 +488,13 @@ describe("Performance Analysis Tools", () => {
 
       const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        queries: Record<string, unknown>[];
+        data: { queries: Record<string, unknown>[] };
       };
 
-      expect(result.queries[0]["avg_time_ms"]).toBe(-1);
-      expect(result.queries[0]["max_time_ms"]).toBe(-1);
-      expect(result.queries[0]["total_time_ms"]).toBe(-1);
-      expect(result.queries[0]["overflow"]).toBe(true);
+      expect(result.data.queries[0]["avg_time_ms"]).toBe(-1);
+      expect(result.data.queries[0]["max_time_ms"]).toBe(-1);
+      expect(result.data.queries[0]["total_time_ms"]).toBe(-1);
+      expect(result.data.queries[0]["overflow"]).toBe(true);
     });
 
     it("should not add overflow flag for normal timer values", async () => {
@@ -517,13 +517,13 @@ describe("Performance Analysis Tools", () => {
 
       const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        queries: Record<string, unknown>[];
+        data: { queries: Record<string, unknown>[] };
       };
 
-      expect(result.queries[0]["avg_time_ms"]).toBe(250);
-      expect(result.queries[0]["max_time_ms"]).toBe(800);
-      expect(result.queries[0]["total_time_ms"]).toBe(2500);
-      expect(result.queries[0]["overflow"]).toBeUndefined();
+      expect(result.data.queries[0]["avg_time_ms"]).toBe(250);
+      expect(result.data.queries[0]["max_time_ms"]).toBe(800);
+      expect(result.data.queries[0]["total_time_ms"]).toBe(2500);
+      expect(result.data.queries[0]["overflow"]).toBeUndefined();
     });
 
     it("should convert string-typed timer values to numbers", async () => {
@@ -546,16 +546,16 @@ describe("Performance Analysis Tools", () => {
 
       const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
-        queries: Record<string, unknown>[];
+        data: { queries: Record<string, unknown>[] };
       };
 
-      expect(result.queries[0]["avg_time_ms"]).toBe(209241.7573);
-      expect(typeof result.queries[0]["avg_time_ms"]).toBe("number");
-      expect(result.queries[0]["max_time_ms"]).toBe(412000.5);
-      expect(typeof result.queries[0]["max_time_ms"]).toBe("number");
-      expect(result.queries[0]["total_time_ms"]).toBe(1046208.7865);
-      expect(typeof result.queries[0]["total_time_ms"]).toBe("number");
-      expect(result.queries[0]["overflow"]).toBeUndefined();
+      expect(result.data.queries[0]["avg_time_ms"]).toBe(209241.7573);
+      expect(typeof result.data.queries[0]["avg_time_ms"]).toBe("number");
+      expect(result.data.queries[0]["max_time_ms"]).toBe(412000.5);
+      expect(typeof result.data.queries[0]["max_time_ms"]).toBe("number");
+      expect(result.data.queries[0]["total_time_ms"]).toBe(1046208.7865);
+      expect(typeof result.data.queries[0]["total_time_ms"]).toBe("number");
+      expect(result.data.queries[0]["overflow"]).toBeUndefined();
     });
 
     it("should return structured error on query failure", async () => {
@@ -589,7 +589,7 @@ describe("Performance Analysis Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("table_io_waits_summary_by_index_usage");
-      expect(result).toHaveProperty("indexUsage");
+      expect(result).toHaveProperty("data.indexUsage");
     });
 
     it("should filter by table name", async () => {
@@ -676,13 +676,13 @@ describe("Performance Analysis Tools", () => {
 
       const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
-        stats: unknown;
+        data: { stats: unknown };
       };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("information_schema.TABLES");
-      expect(result.stats).toBeDefined();
+      expect(result.data.stats).toBeDefined();
     });
 
     it("should return success false if table not found", async () => {
@@ -743,7 +743,7 @@ describe("Performance Analysis Tools", () => {
       expect(call).toContain("POOL_SIZE");
       expect(call).toContain("HIT_RATE");
       expect(call).not.toContain("SELECT *");
-      expect(result).toHaveProperty("bufferPoolStats");
+      expect(result).toHaveProperty("data.bufferPoolStats");
     });
 
     it("should return structured error on query failure", async () => {
@@ -790,7 +790,7 @@ describe("Performance Analysis Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("performance_schema.threads");
-      expect(result).toHaveProperty("threads");
+      expect(result).toHaveProperty("data.threads");
     });
 
     it("should return structured error on query failure", async () => {

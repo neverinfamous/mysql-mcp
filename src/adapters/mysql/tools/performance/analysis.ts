@@ -110,13 +110,13 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
           if (typeof jsonStr === "string") {
             const parsed = JSON.parse(jsonStr) as unknown;
             const optimizedPlan = optimizeExplainJson(parsed);
-            const response = { success: true, plan: optimizedPlan };
+            const response = { success: true, data: { plan: optimizedPlan } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
           }
         }
 
-        const response = { success: true, plan: result.rows };
+        const response = { success: true, data: { plan: result.rows } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
@@ -159,7 +159,7 @@ export function createExplainAnalyzeTool(
 
         const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
         const result = await adapter.executeReadQuery(sql);
-        const response = { success: true, analysis: result.rows };
+        const response = { success: true, data: { analysis: result.rows } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
@@ -206,10 +206,12 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql);
         const response = {
           success: true,
-          slowQueries: sanitizeTimerRows(result.rows, [
-            "avg_time_ms",
-            "total_time_ms",
-          ]),
+          data: {
+            slowQueries: sanitizeTimerRows(result.rows, [
+              "avg_time_ms",
+              "total_time_ms",
+            ]),
+          },
         };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -262,11 +264,13 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql);
         const response = {
           success: true,
-          queries: sanitizeTimerRows(result.rows, [
-            "avg_time_ms",
-            "max_time_ms",
-            "total_time_ms",
-          ]),
+          data: {
+            queries: sanitizeTimerRows(result.rows, [
+              "avg_time_ms",
+              "max_time_ms",
+              "total_time_ms",
+            ]),
+          },
         };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
@@ -341,7 +345,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           sql,
           table ? [table] : [],
         );
-        const response = { success: true, indexUsage: result.rows };
+        const response = { success: true, data: { indexUsage: result.rows } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -402,7 +406,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const response = { success: true, stats: result.rows[0] };
+        const response = { success: true, data: { stats: result.rows[0] } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -443,7 +447,7 @@ export function createBufferPoolStatsTool(
          FROM information_schema.INNODB_BUFFER_POOL_STATS`,
         );
 
-        const response = { success: true, bufferPoolStats: result.rows };
+        const response = { success: true, data: { bufferPoolStats: result.rows } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
@@ -488,7 +492,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 LIMIT 20
             `);
 
-        const response = { success: true, threads: result.rows };
+        const response = { success: true, data: { threads: result.rows } };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
