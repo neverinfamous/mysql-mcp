@@ -145,9 +145,11 @@ export function createSysStatementSummaryTool(
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          data: result.rows,
-          orderedBy: orderBy,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows ?? [],
+            orderedBy: orderBy,
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -252,9 +254,11 @@ export function createSysWaitSummaryTool(
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          data: result.rows,
-          type,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows ?? [],
+            type,
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -352,9 +356,11 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
-          data: result.rows,
-          type,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows ?? [],
+            type,
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {

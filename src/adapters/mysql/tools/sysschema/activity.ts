@@ -104,8 +104,10 @@ export function createSysUserSummaryTool(
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
-          data: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -163,8 +165,10 @@ export function createSysHostSummaryTool(
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
-          data: result.rows,
-          count: result.rows?.length ?? 0,
+          data: {
+            rows: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
