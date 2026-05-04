@@ -11,6 +11,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 // =============================================================================
 // Schemas
@@ -108,10 +109,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
           }),
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -178,10 +176,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           count: result.rows?.length ?? 0,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -231,10 +226,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -304,10 +296,7 @@ export function createGRTransactionsTool(
           },
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -386,10 +375,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             : "Flow control is not currently throttling.",
         };
       } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

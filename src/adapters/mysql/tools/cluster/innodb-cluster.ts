@@ -11,6 +11,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 // =============================================================================
 // Schemas
@@ -191,17 +192,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
-        const response = {
-          success: false,
-          error:
-            error instanceof ZodError
-              ? error.issues.map((i) => i.message).join(", ")
-              : error instanceof Error
-                ? error.message
-                : String(error),
-        };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -229,17 +220,7 @@ export function createClusterInstancesTool(
       try {
         ({ limit } = LimitSchema.parse(params));
       } catch (error) {
-        const response = {
-          success: false,
-          error:
-            error instanceof ZodError
-              ? error.issues.map((i) => i.message).join(", ")
-              : error instanceof Error
-                ? error.message
-                : String(error),
-        };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return formatHandlerErrorResponse(error);
       }
 
       try {
@@ -299,12 +280,7 @@ export function createClusterInstancesTool(
             primaryError instanceof Error
               ? primaryError.message
               : String(primaryError);
-          const response = {
-            success: false,
-            error: `Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`,
-          };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(new Error(`Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`));
         }
       }
     },
@@ -434,12 +410,7 @@ export function createClusterTopologyTool(
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
-        const response = {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -552,12 +523,7 @@ export function createClusterRouterStatusTool(
             : error instanceof Error
               ? error.message
               : String(error);
-        const response = {
-          success: false,
-          error: `Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`,
-        };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return formatHandlerErrorResponse(new Error(`Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`));
       }
     },
   };
@@ -668,12 +634,7 @@ export function createClusterSwitchoverTool(
         const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
         return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
-        const response = {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
