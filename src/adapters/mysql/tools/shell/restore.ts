@@ -8,7 +8,7 @@ import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -181,7 +181,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
             }
           }
 
-          return {
+          return withTokenEstimate({
             success: true,
             data: {
               inputDir: finalInputDir,
@@ -189,11 +189,11 @@ export function createShellLoadDumpTool(): ToolDefinition {
               localInfileEnabled: updateServerSettings,
               dryRunOutput: stderrClean || undefined,
             }
-          };
+          });
         }
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             inputDir: finalInputDir,
@@ -201,7 +201,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
             localInfileEnabled: updateServerSettings,
             result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -313,7 +313,7 @@ export function createShellRunScriptTool(): ToolDefinition {
           };
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             language,
@@ -321,7 +321,7 @@ export function createShellRunScriptTool(): ToolDefinition {
             stdout: result.stdout,
             stderr: result.stderr,
           }
-        };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

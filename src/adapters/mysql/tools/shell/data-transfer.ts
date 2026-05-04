@@ -6,7 +6,7 @@
 
 import { ZodError } from "zod";
 import * as path from "path";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -71,7 +71,7 @@ export function createShellExportTableTool(): ToolDefinition {
 
         const result = await execShellJS(jsCode);
 
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             schema,
@@ -80,7 +80,7 @@ export function createShellExportTableTool(): ToolDefinition {
             format,
             result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -176,7 +176,7 @@ export function createShellImportTableTool(): ToolDefinition {
         }
 
         const result = await execShellJS(jsCode);
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             inputPath: finalInputPath,
@@ -185,7 +185,7 @@ export function createShellImportTableTool(): ToolDefinition {
             localInfileEnabled: updateServerSettings,
             result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -326,7 +326,7 @@ export function createShellImportJSONTool(): ToolDefinition {
                 details: { protocol: "X Protocol" },
               };
             }
-            return {
+            return withTokenEstimate({
               success: true,
               data: {
                 inputPath: finalInputPath,
@@ -335,7 +335,7 @@ export function createShellImportJSONTool(): ToolDefinition {
                 protocol: "X Protocol",
                 result: parsed.result,
               }
-            };
+            });
           }
         }
 
@@ -348,7 +348,7 @@ export function createShellImportJSONTool(): ToolDefinition {
           };
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             inputPath: finalInputPath,
@@ -357,7 +357,7 @@ export function createShellImportJSONTool(): ToolDefinition {
             protocol: "X Protocol",
             result: { raw: result.stdout },
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

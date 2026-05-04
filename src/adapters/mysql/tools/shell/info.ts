@@ -8,7 +8,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import { ShellVersionInputSchema } from "../../schemas/shell.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
@@ -40,14 +40,14 @@ export function createShellVersionTool(): ToolDefinition {
         const versionMatch = versionRegex.exec(result.stdout);
         const version = versionMatch ? versionMatch[1] : "unknown";
 
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             version,
             binPath: config.binPath,
             rawOutput: result.stdout.trim(),
           }
-        };
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

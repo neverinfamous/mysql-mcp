@@ -5,7 +5,7 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -72,7 +72,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             serverVersion?: string;
           };
 
-          return {
+          return withTokenEstimate({
             success: true,
             data: {
               targetVersion: checkResult.targetVersion ?? targetVersion,
@@ -86,10 +86,10 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
                   ? "Use outputFormat: JSON for detailed results"
                   : checkResult,
             }
-          };
+          });
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             targetVersion: targetVersion ?? "latest",
@@ -98,7 +98,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             noticeCount: 0,
             upgradeCheck: result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

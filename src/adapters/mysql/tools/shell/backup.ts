@@ -6,7 +6,7 @@
 
 import { ZodError } from "zod";
 import * as path from "path";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -86,14 +86,14 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 
         const result = await execShellJS(jsCode, { timeout: 3600000 }); // 1 hour timeout
 
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             outputDir: finalOutputDir,
             dryRun: dryRun ?? false,
             result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -197,7 +197,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         const jsCode = `return util.dumpSchemas(${JSON.stringify(schemas)}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             schemas,
@@ -206,7 +206,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
             ddlOnly: ddlOnly ?? false,
             result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -294,7 +294,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
         const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
-        return {
+        return withTokenEstimate({
           success: true,
           data: {
             schema,
@@ -304,7 +304,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
             triggersExcluded: !all,
             result,
           }
-        };
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

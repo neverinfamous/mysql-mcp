@@ -28,7 +28,7 @@ test.describe("Payload Contracts: Ecosystem — Shell", () => {
   test("mysqlsh_version returns { success, version }", async () => {
     const payload = await callToolAndParse(client, "mysqlsh_version", {});
     expectSuccess(payload);
-    expect(typeof payload.version).toBe("string");
+    expect(typeof (payload.data as any).version).toBe("string");
   });
 
   // mysqlsh_run_script excluded — Shell subprocess can crash the MCP server
