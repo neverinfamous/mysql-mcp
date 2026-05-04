@@ -149,16 +149,18 @@ export function createDescriptiveStatsTool(
         if (totalCount === 0) {
           return withTokenEstimate({
             success: true,
-            column,
-            count: 0,
-            mean: null,
-            median: null,
-            stddev: null,
-            variance: null,
-            min: null,
-            max: null,
-            range: null,
-            sum: null,
+            data: {
+              column,
+              count: 0,
+              mean: null,
+              median: null,
+              stddev: null,
+              variance: null,
+              min: null,
+              max: null,
+              range: null,
+              sum: null,
+            }
           });
         }
 
@@ -202,16 +204,18 @@ export function createDescriptiveStatsTool(
 
         return withTokenEstimate({
           success: true,
-          column,
-          count: stats?.["count"] ?? 0,
-          mean: stats?.["mean"] ?? null,
-          median: medianRow?.["median"] ?? null,
-          stddev: stats?.["stddev"] ?? null,
-          variance: stats?.["variance"] ?? null,
-          min: stats?.["min"] ?? null,
-          max: stats?.["max"] ?? null,
-          range: stats?.["range"] ?? null,
-          sum: stats?.["sum"] ?? null,
+          data: {
+            column,
+            count: stats?.["count"] ?? 0,
+            mean: stats?.["mean"] ?? null,
+            median: medianRow?.["median"] ?? null,
+            stddev: stats?.["stddev"] ?? null,
+            variance: stats?.["variance"] ?? null,
+            min: stats?.["min"] ?? null,
+            max: stats?.["max"] ?? null,
+            range: stats?.["range"] ?? null,
+            sum: stats?.["sum"] ?? null,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -302,9 +306,11 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         if (totalCount === 0) {
           return withTokenEstimate({
             success: true,
-            column,
-            totalCount: 0,
-            percentiles: {},
+            data: {
+              column,
+              totalCount: 0,
+              percentiles: {},
+            }
           });
         }
 
@@ -328,9 +334,11 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          column,
-          totalCount,
-          percentiles: percentileResults,
+          data: {
+            column,
+            totalCount,
+            percentiles: percentileResults,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -394,13 +402,15 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         if (minVal === maxVal) {
           return withTokenEstimate({
             success: true,
-            column,
-            distribution: [
-              { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
-            ],
-            bucketCount: 1,
-            minValue: minVal,
-            maxValue: maxVal,
+            data: {
+              column,
+              distribution: [
+                { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
+              ],
+              bucketCount: 1,
+              minValue: minVal,
+              maxValue: maxVal,
+            }
           });
         }
 
@@ -438,12 +448,14 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          column,
-          distribution,
-          bucketCount: buckets,
-          bucketSize,
-          minValue: minVal,
-          maxValue: maxVal,
+          data: {
+            column,
+            distribution,
+            bucketCount: buckets,
+            bucketSize,
+            minValue: minVal,
+            maxValue: maxVal,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -559,12 +571,14 @@ export function createTimeSeriesToolStats(
 
         return withTokenEstimate({
           success: true,
-          interval,
-          aggregation,
-          valueColumn,
-          timeColumn,
-          dataPoints: result.rows ?? [],
-          count: result.rows?.length ?? 0,
+          data: {
+            interval,
+            aggregation,
+            valueColumn,
+            timeColumn,
+            dataPoints: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -655,10 +669,12 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          sample: result.rows ?? [],
-          sampleSize: result.rows?.length ?? 0,
-          requestedSize: sampleSize,
-          seed: seed ?? null,
+          data: {
+            sample: result.rows ?? [],
+            sampleSize: result.rows?.length ?? 0,
+            requestedSize: sampleSize,
+            seed: seed ?? null,
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {

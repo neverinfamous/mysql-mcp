@@ -52,8 +52,8 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.correlation).toBe(0.95);
-      expect(result.interpretation).toBe("Very strong");
+      expect(result.data.correlation).toBe(0.95);
+      expect(result.data.interpretation).toBe("Very strong");
     });
 
     it("should interpret weak correlation", async () => {
@@ -77,7 +77,7 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.interpretation).toBe("Very weak / No correlation");
+      expect(result.data.interpretation).toBe("Very weak / No correlation");
     });
 
     it("should validate inputs", async () => {
@@ -154,10 +154,10 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.slope).toBeCloseTo(1);
-      expect(result.intercept).toBeCloseTo(0);
-      expect(result.rSquared).toBeCloseTo(1);
-      expect(result.interpretation).toBe("Good fit");
+      expect(result.data.slope).toBeCloseTo(1);
+      expect(result.data.intercept).toBeCloseTo(0);
+      expect(result.data.rSquared).toBeCloseTo(1);
+      expect(result.data.interpretation).toBe("Good fit");
     });
   });
 
@@ -183,7 +183,7 @@ describe("Comparative Stats Tools", () => {
         (c: any[]) => c[0] as string,
       );
       expect(calls.some((c: string) => c.includes("ANALYZE TABLE"))).toBe(true);
-      expect(result.exists).toBe(true);
+      expect(result.data.exists).toBe(true);
     });
 
     it("should handle non-existent histogram", async () => {
@@ -202,7 +202,7 @@ describe("Comparative Stats Tools", () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.exists).toBe(false);
+      expect(result.data.exists).toBe(false);
     });
 
     it("should handle non-existent column", async () => {

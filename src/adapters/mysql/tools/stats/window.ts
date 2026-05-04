@@ -298,8 +298,10 @@ export function createStatsRowNumberTool(
 
         return withTokenEstimate({
           success: true,
-          rowCount: rows.length,
-          rows,
+          data: {
+            rowCount: rows.length,
+            rows,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -362,9 +364,11 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          rankType,
-          rowCount: rows.length,
-          rows,
+          data: {
+            rankType,
+            rowCount: rows.length,
+            rows,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -434,10 +438,12 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          direction: parsed.direction,
-          offset: parsed.offset,
-          rowCount: rows.length,
-          rows,
+          data: {
+            direction: parsed.direction,
+            offset: parsed.offset,
+            rowCount: rows.length,
+            rows,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -502,9 +508,11 @@ export function createStatsRunningTotalTool(
 
         return withTokenEstimate({
           success: true,
-          valueColumn: parsed.column,
-          rowCount: rows.length,
-          rows,
+          data: {
+            valueColumn: parsed.column,
+            rowCount: rows.length,
+            rows,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -571,10 +579,12 @@ export function createStatsMovingAvgTool(
 
         return withTokenEstimate({
           success: true,
-          valueColumn: parsed.column,
-          windowSize,
-          rowCount: rows.length,
-          rows,
+          data: {
+            valueColumn: parsed.column,
+            windowSize,
+            rowCount: rows.length,
+            rows,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -635,9 +645,11 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          buckets,
-          rowCount: rows.length,
-          rows,
+          data: {
+            buckets,
+            rowCount: rows.length,
+            rows,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);

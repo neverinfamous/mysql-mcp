@@ -153,10 +153,12 @@ async function detectZScoreOutliers(
   if (statsRow?.mean == null || statsRow.stddev == null) {
     return {
       success: true,
-      method: "zscore",
-      outlierCount: 0,
-      totalRows: 0,
-      stats: { mean: 0, stdDev: 0, lowerBound: 0, upperBound: 0 },
+      data: {
+        method: "zscore",
+        outlierCount: 0,
+        totalRows: 0,
+        stats: { mean: 0, stdDev: 0, lowerBound: 0, upperBound: 0 },
+      }
     };
   }
 
@@ -167,10 +169,12 @@ async function detectZScoreOutliers(
   if (stdDev === 0) {
     return {
       success: true,
-      method: "zscore",
-      stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
-      outlierCount: 0,
-      totalRows,
+      data: {
+        method: "zscore",
+        stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
+        outlierCount: 0,
+        totalRows,
+      }
     };
   }
 
@@ -195,8 +199,7 @@ async function detectZScoreOutliers(
   const truncated = allOutliers.length > maxOutliers;
   const outliers = truncated ? allOutliers.slice(0, maxOutliers) : allOutliers;
 
-  const response: Record<string, unknown> = {
-    success: true,
+  const data: Record<string, unknown> = {
     method: "zscore",
     stats: { mean, stdDev, lowerBound, upperBound },
     outlierCount: outliers.length,
@@ -205,11 +208,11 @@ async function detectZScoreOutliers(
   };
 
   if (truncated) {
-    response["truncated"] = true;
-    response["totalOutliers"] = allOutliers.length;
+    data["truncated"] = true;
+    data["totalOutliers"] = allOutliers.length;
   }
 
-  return response;
+  return { success: true, data };
 }
 
 // =============================================================================
@@ -241,10 +244,12 @@ async function detectIqrOutliers(
   if (totalRows === 0) {
     return {
       success: true,
-      method: "iqr",
-      outlierCount: 0,
-      totalRows: 0,
-      stats: { q1: 0, q3: 0, iqr: 0, lowerBound: 0, upperBound: 0 },
+      data: {
+        method: "iqr",
+        outlierCount: 0,
+        totalRows: 0,
+        stats: { q1: 0, q3: 0, iqr: 0, lowerBound: 0, upperBound: 0 },
+      }
     };
   }
 
@@ -287,8 +292,7 @@ async function detectIqrOutliers(
   const truncated = allOutliers.length > maxOutliers;
   const outliers = truncated ? allOutliers.slice(0, maxOutliers) : allOutliers;
 
-  const response: Record<string, unknown> = {
-    success: true,
+  const data: Record<string, unknown> = {
     method: "iqr",
     stats: { q1, q3, iqr, lowerBound, upperBound },
     outlierCount: outliers.length,
@@ -297,9 +301,9 @@ async function detectIqrOutliers(
   };
 
   if (truncated) {
-    response["truncated"] = true;
-    response["totalOutliers"] = allOutliers.length;
+    data["truncated"] = true;
+    data["totalOutliers"] = allOutliers.length;
   }
 
-  return response;
+  return { success: true, data };
 }

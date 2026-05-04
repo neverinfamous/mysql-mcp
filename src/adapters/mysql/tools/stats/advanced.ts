@@ -205,22 +205,21 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
 
-        const response: Record<string, unknown> = {
-          success: true,
+        const data: Record<string, unknown> = {
           column,
           direction,
           count: rows.length,
         };
 
         if (rows.length > 0) {
-          response["rows"] = rows;
+          data["rows"] = rows;
         }
 
         if (hint) {
-          response["hint"] = hint;
+          data["hint"] = hint;
         }
 
-        return withTokenEstimate(response);
+        return withTokenEstimate({ success: true, data });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
@@ -293,9 +292,11 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          column,
-          distinctCount,
-          values,
+          data: {
+            column,
+            distinctCount,
+            values,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -374,9 +375,11 @@ export function createStatsFrequencyTool(adapter: MySQLAdapter): ToolDefinition 
 
         return withTokenEstimate({
           success: true,
-          column,
-          distinctValues,
-          distribution,
+          data: {
+            column,
+            distinctValues,
+            distribution,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -460,8 +463,10 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         if (targetColumns.length === 0) {
           return withTokenEstimate({
             success: true,
-            table,
-            summaries: [],
+            data: {
+              table,
+              summaries: [],
+            }
           });
         }
 
@@ -502,8 +507,10 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          table,
-          summaries,
+          data: {
+            table,
+            summaries,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);

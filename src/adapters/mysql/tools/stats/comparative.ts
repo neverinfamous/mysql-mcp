@@ -166,19 +166,21 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          column1,
-          column2,
-          correlation: correlation ?? null,
-          interpretation,
-          sampleSize: stats?.["sample_size"] ?? 0,
-          column1Stats: {
-            mean: stats?.["mean_x"] ?? null,
-            stddev: stats?.["std_x"] ?? null,
-          },
-          column2Stats: {
-            mean: stats?.["mean_y"] ?? null,
-            stddev: stats?.["std_y"] ?? null,
-          },
+          data: {
+            column1,
+            column2,
+            correlation: correlation ?? null,
+            interpretation,
+            sampleSize: stats?.["sample_size"] ?? 0,
+            column1Stats: {
+              mean: stats?.["mean_x"] ?? null,
+              stddev: stats?.["std_x"] ?? null,
+            },
+            column2Stats: {
+              mean: stats?.["mean_y"] ?? null,
+              stddev: stats?.["std_y"] ?? null,
+            },
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -302,21 +304,23 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          xColumn,
-          yColumn,
-          sampleSize: n,
-          slope: isNaN(slope) ? null : slope,
-          intercept: isNaN(intercept) ? null : intercept,
-          rSquared: isNaN(rSquared) ? null : rSquared,
-          equation: isNaN(slope)
-            ? null
-            : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
-          interpretation:
-            rSquared >= 0.7
-              ? "Good fit"
-              : rSquared >= 0.5
-                ? "Moderate fit"
-                : "Poor fit",
+          data: {
+            xColumn,
+            yColumn,
+            sampleSize: n,
+            slope: isNaN(slope) ? null : slope,
+            intercept: isNaN(intercept) ? null : intercept,
+            rSquared: isNaN(rSquared) ? null : rSquared,
+            equation: isNaN(slope)
+              ? null
+              : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
+            interpretation:
+              rSquared >= 0.7
+                ? "Good fit"
+                : rSquared >= 0.5
+                  ? "Moderate fit"
+                  : "Poor fit",
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -424,7 +428,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           if (update) {
             return withTokenEstimate({ success: false, error: "Histogram created but not yet visible in metadata" });
           }
-          return withTokenEstimate({ success: true, exists: false, table, column, updated: false });
+          return withTokenEstimate({ success: true, data: { exists: false, table, column, updated: false } });
         }
 
         const histogramRow = result.rows[0];
@@ -433,10 +437,12 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         }
         return withTokenEstimate({
           success: true,
-          exists: true,
-          ...histogramRow,
-          updated: update,
-          ...(warning && { warning }),
+          data: {
+            exists: true,
+            ...histogramRow,
+            updated: update,
+            ...(warning && { warning }),
+          }
         });
       } catch (error) {
         if (error instanceof ZodError) {

@@ -215,13 +215,15 @@ export function createStatsHypothesisTool(
 
           return withTokenEstimate({
             success: true,
-            table,
-            column,
-            testType,
-            hypothesizedMean,
-            groupBy,
-            groups,
-            count: groups.length,
+            data: {
+              table,
+              column,
+              testType,
+              hypothesizedMean,
+              groupBy,
+              groups,
+              count: groups.length,
+            }
           });
         }
 
@@ -259,11 +261,13 @@ export function createStatsHypothesisTool(
 
         return withTokenEstimate({
           success: true,
-          table,
-          column,
-          testType,
-          hypothesizedMean,
-          results: testResults,
+          data: {
+            table,
+            column,
+            testType,
+            hypothesizedMean,
+            results: testResults,
+          }
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);

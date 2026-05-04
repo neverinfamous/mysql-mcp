@@ -108,10 +108,10 @@ describe("Handler Execution", () => {
       expect(calls.some((c) => c.includes("as `range`"))).toBe(true);
 
       // Returns column, count, mean, median, stddev, etc
-      expect(result).toHaveProperty("column", "total");
-      expect(result).toHaveProperty("count", 100);
-      expect(result).toHaveProperty("median", 50);
-      expect(result).toHaveProperty("range", 99);
+      expect(result).toHaveProperty("data.column", "total");
+      expect(result).toHaveProperty("data.count", 100);
+      expect(result).toHaveProperty("data.median", 50);
+      expect(result).toHaveProperty("data.range", 99);
     });
 
     it("should include where clause in all queries", async () => {
@@ -149,9 +149,9 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toHaveProperty("count", 0);
-      expect(result).toHaveProperty("mean", null);
-      expect(result).toHaveProperty("median", null);
+      expect(result).toHaveProperty("data.count", 0);
+      expect(result).toHaveProperty("data.mean", null);
+      expect(result).toHaveProperty("data.median", null);
     });
   });
 
@@ -172,8 +172,8 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns column, totalCount, percentiles
-      expect(result).toHaveProperty("totalCount");
-      expect(result).toHaveProperty("percentiles");
+      expect(result).toHaveProperty("data.totalCount");
+      expect(result).toHaveProperty("data.percentiles");
     });
 
     it("should use custom percentiles", async () => {
@@ -229,9 +229,9 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("column1", "height");
-      expect(result).toHaveProperty("column2", "weight");
-      expect(result).toHaveProperty("correlation");
+      expect(result).toHaveProperty("data.column1", "height");
+      expect(result).toHaveProperty("data.column2", "weight");
+      expect(result).toHaveProperty("data.correlation");
     });
   });
 
@@ -252,7 +252,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("distribution");
+      expect(result).toHaveProperty("data.distribution");
     });
   });
 
@@ -274,7 +274,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("dataPoints");
+      expect(result).toHaveProperty("data.dataPoints");
     });
   });
 
@@ -311,8 +311,8 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("slope");
-      expect(result).toHaveProperty("intercept");
+      expect(result).toHaveProperty("data.slope");
+      expect(result).toHaveProperty("data.intercept");
     });
   });
 
@@ -334,7 +334,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("RAND()");
-      expect(result).toHaveProperty("sample");
+      expect(result).toHaveProperty("data.sample");
     });
 
     it("should accept specific columns", async () => {
@@ -405,7 +405,7 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { table: "orders", column: "total", update: true, buckets: 2000 },
         mockContext,
-      )) as { warning?: string };
+      )) as { data: { warning?: string } };
 
       // Verify ANALYZE TABLE used clamped value
       const calls = mockAdapter.executeQuery.mock.calls.map(
@@ -414,7 +414,7 @@ describe("Handler Execution", () => {
       const analyzeCall = calls.find((c) => c.includes("ANALYZE TABLE"));
       expect(analyzeCall).toContain("1024 BUCKETS");
 
-      expect(result.warning).toBe(
+      expect(result.data.warning).toBe(
         "Requested 2000 buckets; clamped to max 1024",
       );
     });
@@ -438,9 +438,9 @@ describe("Handler Execution", () => {
           column: "total",
         },
         mockContext,
-      )) as { exists: boolean };
+      )) as { data: { exists: boolean } };
 
-      expect(result.exists).toBe(true);
+      expect(result.data.exists).toBe(true);
     });
   });
 });
@@ -531,9 +531,9 @@ describe("Stats Validation Errors", () => {
           column: "value",
         },
         mockContext,
-      )) as { totalCount: number };
+      )) as { data: { totalCount: number } };
 
-      expect(result.totalCount).toBe(0);
+      expect(result.data.totalCount).toBe(0);
     });
   });
 
@@ -610,9 +610,9 @@ describe("Stats Validation Errors", () => {
           column: "val",
         },
         mockContext,
-      )) as { bucketCount: number };
+      )) as { data: { bucketCount: number } };
 
-      expect(result.bucketCount).toBe(1);
+      expect(result.data.bucketCount).toBe(1);
     });
   });
 

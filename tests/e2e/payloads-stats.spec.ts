@@ -26,7 +26,7 @@ test.describe("Payload Contracts: Stats", () => {
 
       expect(typeof payload).toBe("object");
       // Should contain statistical measures
-      expect(typeof payload.count).toBe("number");
+      expect(typeof (payload as any).data.count).toBe("number");
     } finally {
       await client.close();
     }
