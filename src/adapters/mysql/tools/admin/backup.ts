@@ -237,23 +237,31 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         let totalInserted = 0;
 
         try {
-          for (const row of data) {
-            const columns = Object.keys(row)
-              .map((c) => `\`${c}\``)
-              .join(", ");
-            const placeholders = Object.keys(row)
-              .map(() => "?")
-              .join(", ");
-            const values = Object.values(row).map(val => {
-              if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)) {
-                return val.replace('T', ' ').replace('Z', '').split('.')[0];
-              }
-              return val;
-            });
+          const firstRow = data[0];
+          if (!firstRow) return withTokenEstimate({ success: true, data: { rowsInserted: 0 } });
+          const columnNames = Object.keys(firstRow);
+          const columns = columnNames.map((c) => `\`${c}\``).join(", ");
+          
+          const batchSize = 100;
+          for (let i = 0; i < data.length; i += batchSize) {
+            const chunk = data.slice(i, i + batchSize);
+            const valueGroups = [];
+            const flatValues: unknown[] = [];
 
-            const sql = `INSERT INTO \`${table}\` (${columns}) VALUES (${placeholders})`;
-            await adapter.executeWriteQuery(sql, values);
-            totalInserted++;
+            for (const row of chunk) {
+              valueGroups.push(`(${columnNames.map(() => "?").join(", ")})`);
+              for (const col of columnNames) {
+                let val = row[col];
+                if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)) {
+                  val = val.replace('T', ' ').replace('Z', '').split('.')[0];
+                }
+                flatValues.push(val);
+              }
+            }
+
+            const sql = `INSERT INTO \`${table}\` (${columns}) VALUES ${valueGroups.join(", ")}`;
+            await adapter.executeWriteQuery(sql, flatValues);
+            totalInserted += chunk.length;
           }
         } catch (error) {
           const response = formatHandlerErrorResponse(error);
@@ -406,21 +414,37 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       readOnlyHint: false,
       idempotentHint: true,
     },
-    handler: (params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { database, filename } = schema.parse(params);
 
+        // Verify database exists
+        try {
+          const dbCheck = await _adapter.executeReadQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            return withTokenEstimate({
+              success: false,
+              error: `Database '${database}' does not exist.`,
+            });
+          }
+        } catch (dbErr) {
+          return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
+        }
+
         const command = `mysql -u [username] -p ${database} < ${filename}`;
 
-        return Promise.resolve(withTokenEstimate({
+        return withTokenEstimate({
           success: true,
           data: {
             command,
             note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
           }
-        }));
+        });
       } catch (err) {
-        return Promise.resolve(withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>));
+        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
       }
     },
   };

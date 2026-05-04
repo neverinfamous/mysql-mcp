@@ -382,7 +382,7 @@ describe("Admin Backup Tools", () => {
         mockContext,
       )) as { success: boolean; data: { rowsInserted: number } };
 
-      expect(mockAdapter.executeWriteQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeWriteQuery).toHaveBeenCalledTimes(1);
       expect(result.success).toBe(true);
       expect(result.data.rowsInserted).toBe(2);
     });
@@ -466,15 +466,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should return structured error for duplicate key violations", async () => {
-      mockAdapter.executeWriteQuery
-        .mockResolvedValueOnce({
-          rows: [],
-          rowsAffected: 1,
-          executionTimeMs: 5,
-        })
-        .mockRejectedValueOnce(
-          new Error("Duplicate entry '1' for key 'users.PRIMARY'"),
-        );
+      mockAdapter.executeWriteQuery.mockRejectedValue(
+        new Error("Duplicate entry '1' for key 'users.PRIMARY'"),
+      );
 
       const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -490,7 +484,7 @@ describe("Admin Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate entry");
-      expect(result.data.rowsInserted).toBe(1);
+      expect(result.data.rowsInserted).toBe(0);
     });
 
     it("should return structured error for non-existent table", async () => {
@@ -676,6 +670,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should generate mysql restore command with specific database", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "restore_target" }]),
+      );
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
@@ -687,12 +684,15 @@ describe("Admin Backup Tools", () => {
         mockContext,
       )) as { data: { command: string } };
 
-      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.data.command).toContain("restore_target");
       expect(result.data.command).toContain("dump.sql");
     });
 
     it("should handle various filename formats", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
+      );
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
@@ -708,6 +708,22 @@ describe("Admin Backup Tools", () => {
         mockContext,
       )) as { data: { command: string } };
       expect(result.data.command).toContain("backup.sql.gz");
+    });
+    
+    it("should return structured error for non-existent database", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([]),
+      );
+      const tool = createRestoreDumpTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
+      const result = (await tool.handler(
+        { database: "nonexistent", filename: "backup.sql" },
+        mockContext,
+      )) as { success: boolean; error: string };
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 });
