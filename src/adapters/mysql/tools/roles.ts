@@ -197,10 +197,11 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (pattern)
             query += ` AND u.User LIKE '${escapeLikePattern(pattern)}'`;
           const result = await adapter.executeQuery(query);
-          const response = { success: true as const,
+          const data = {
             roles: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
+          const response = { success: true as const, data };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
@@ -233,11 +234,12 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               [name],
             );
             if (checkResult.rows && checkResult.rows.length > 0) {
-              const response = { success: true as const,
+              const data = {
                 skipped: true,
                 roleName: name,
                 reason: "Role already exists",
               };
+              const response = { success: true as const, data };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
             }
@@ -245,7 +247,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           const clause = ifNotExists ? "IF NOT EXISTS " : "";
           await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
-          const response = { success: true, roleName: name };
+          const data = { roleName: name };
+          const response = { success: true as const, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
@@ -314,16 +317,18 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
 
           if (roleAbsent) {
-            const response = { success: true as const,
+            const data = {
               skipped: true,
               roleName: name,
               reason: "Role did not exist",
             };
+            const response = { success: true as const, data };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
           }
 
-          const response = { success: true, roleName: name };
+          const data = { roleName: name };
+          const response = { success: true as const, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
@@ -386,7 +391,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           // SHOW GRANTS cannot be always prepared
           const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
           const grants = (result.rows ?? []).map((r) => Object.values(r)[0]);
-          const response = { success: true, role, grants, exists: true };
+          const data = { role, grants, exists: true };
+          const response = { success: true as const, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
@@ -460,12 +466,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           await adapter.rawQuery(
             `GRANT ${privileges.join(", ")} ON ${onClause} TO '${role}'`,
           );
-          const response = { success: true as const,
+          const data = {
             role,
             privileges,
             database: targetDb,
             table: targetTable,
           };
+          const response = { success: true as const, data };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
@@ -532,7 +539,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           await adapter.rawQuery(
             `SET DEFAULT ROLE '${role}' TO '${user}'@'${host}'`,
           );
-          const response = { success: true, role, user, host };
+          const data = { role, user, host };
+          const response = { success: true as const, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {
@@ -617,7 +625,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             validateMySQLUserHost(host, "host");
 
             await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
-            const response = { success: true, role, user, host };
+            const data = { role, user, host };
+            const response = { success: true as const, data };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
           } else if (privileges.length > 0) {
@@ -643,12 +652,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             await adapter.rawQuery(
               `REVOKE ${privileges.join(", ")} ON ${onClause} FROM '${role}'`,
             );
-            const response = { success: true as const,
+            const data = {
               role,
               privileges,
               database: targetDb,
               table: targetTable,
             };
+            const response = { success: true as const, data };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
             return { ...response, metrics: { tokenEstimate } };
           } else {
@@ -721,7 +731,8 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
                        FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?`,
             [user, host],
           );
-          const response = { success: true, user, host, roles: result.rows ?? [] };
+          const data = { user, host, roles: result.rows ?? [] };
+          const response = { success: true as const, data };
           const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
           return { ...response, metrics: { tokenEstimate } };
         } catch (error: unknown) {

@@ -106,8 +106,9 @@ test.describe("Payload Contracts: Security + Roles", () => {
         host: "localhost",
       });
 
-      expect(typeof payload).toBe("object");
-      expect(typeof payload.user).toBe("string");
+      const data = (payload as any).data;
+      expect(typeof data).toBe("object");
+      expect(typeof data.user).toBe("string");
     } finally {
       await client.close();
     }

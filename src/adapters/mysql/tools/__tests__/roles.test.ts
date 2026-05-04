@@ -128,9 +128,11 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual(expect.objectContaining({
         success: true,
-        skipped: true,
-        roleName: "test_role",
-        reason: "Role already exists",
+        data: expect.objectContaining({
+          skipped: true,
+          roleName: "test_role",
+          reason: "Role already exists",
+        })
       }));
       // Should NOT have issued a CREATE ROLE query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -264,9 +266,11 @@ describe("Handler Execution", () => {
 
       expect(result).toEqual(expect.objectContaining({
         success: true,
-        skipped: true,
-        roleName: "test_role",
-        reason: "Role did not exist",
+        data: expect.objectContaining({
+          skipped: true,
+          roleName: "test_role",
+          reason: "Role did not exist",
+        })
       }));
     });
   });
