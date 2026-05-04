@@ -120,8 +120,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.beginTransaction).toHaveBeenCalled();
-      expect(result).toHaveProperty("transactionId");
-      expect(result).toHaveProperty("message");
+      expect(result).toHaveProperty("data.transactionId");
+      expect(result).toHaveProperty("data.message");
     });
 
     it("should pass isolation level if provided", async () => {
@@ -132,7 +132,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.beginTransaction).toHaveBeenCalledWith("SERIALIZABLE");
-      expect(result).toHaveProperty("isolationLevel", "SERIALIZABLE");
+      expect(result).toHaveProperty("data.isolationLevel", "SERIALIZABLE");
     });
 
     it("should use default isolation level if not provided", async () => {
@@ -140,7 +140,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(result).toHaveProperty(
-        "isolationLevel",
+        "data.isolationLevel",
         "REPEATABLE READ (default)",
       );
     });
@@ -156,7 +156,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.commitTransaction).toHaveBeenCalledWith("txn-123");
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("transactionId", "txn-123");
+      expect(result).toHaveProperty("data.transactionId", "txn-123");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -185,7 +185,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.rollbackTransaction).toHaveBeenCalledWith("txn-123");
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("message");
+      expect(result).toHaveProperty("data.message");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -222,7 +222,7 @@ describe("Handler Execution", () => {
         "SAVEPOINT sp1",
       );
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("savepoint", "sp1");
+      expect(result).toHaveProperty("data.savepoint", "sp1");
     });
 
     it("should return structured error for invalid savepoint name", async () => {
@@ -277,7 +277,7 @@ describe("Handler Execution", () => {
         "RELEASE SAVEPOINT sp1",
       );
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("message", "Savepoint released.");
+      expect(result).toHaveProperty("data.message", "Savepoint released.");
     });
 
     it("should return structured error for invalid savepoint name", async () => {
@@ -334,7 +334,7 @@ describe("Handler Execution", () => {
         "ROLLBACK TO SAVEPOINT checkpoint",
       );
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("message", "Rolled back to savepoint.");
+      expect(result).toHaveProperty("data.message", "Rolled back to savepoint.");
     });
 
     it("should return structured error for invalid savepoint name with special chars", async () => {
@@ -408,10 +408,10 @@ describe("Handler Execution", () => {
       expect(mockAdapter.beginTransaction).toHaveBeenCalled();
       expect(mockAdapter.commitTransaction).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("statementsExecuted", 2);
-      expect(result).toHaveProperty("results");
-      const results = (result as { results: { rowsAffected?: number }[] })
-        .results;
+      expect(result).toHaveProperty("data.statementsExecuted", 2);
+      expect(result).toHaveProperty("data.results");
+      const results = (result as { data: { results: { rowsAffected?: number }[] } })
+        .data.results;
       expect(results[0]).toHaveProperty("rowsAffected", 1);
     });
 
@@ -436,16 +436,18 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("statementsExecuted", 2);
+      expect(result).toHaveProperty("data.statementsExecuted", 2);
       const results = (
         result as {
-          results: {
-            rows?: Record<string, unknown>[];
-            rowCount?: number;
-            rowsAffected?: number;
-          }[];
+          data: {
+            results: {
+              rows?: Record<string, unknown>[];
+              rowCount?: number;
+              rowsAffected?: number;
+            }[];
+          }
         }
-      ).results;
+      ).data.results;
       expect(results[0]).toHaveProperty("rows", mockRows);
       expect(results[0]).toHaveProperty("rowCount", 2);
       expect(results[0]).not.toHaveProperty("rowsAffected");
@@ -472,7 +474,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.rollbackTransaction).toHaveBeenCalled();
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("rolledBack", true);
+      expect((result as { rolledBack: boolean }).rolledBack).toBe(true);
       expect((result as { error: string }).error).toContain(
         "Transaction failed and was rolled back",
       );

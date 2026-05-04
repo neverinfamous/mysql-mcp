@@ -55,10 +55,12 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
         const transactionId = await adapter.beginTransaction(isolationLevel);
         return withTokenEstimate({
           success: true,
-          transactionId,
-          isolationLevel: isolationLevel ?? "REPEATABLE READ (default)",
-          message:
-            "Transaction started. Use transactionId for commit/rollback operations.",
+          data: {
+            transactionId,
+            isolationLevel: isolationLevel ?? "REPEATABLE READ (default)",
+            message:
+              "Transaction started. Use transactionId for commit/rollback operations.",
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -89,8 +91,10 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.commitTransaction(transactionId);
         return withTokenEstimate({
           success: true,
-          transactionId,
-          message: "Transaction committed successfully.",
+          data: {
+            transactionId,
+            message: "Transaction committed successfully.",
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -121,8 +125,10 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.rollbackTransaction(transactionId);
         return withTokenEstimate({
           success: true,
-          transactionId,
-          message: "Transaction rolled back.",
+          data: {
+            transactionId,
+            message: "Transaction rolled back.",
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -166,7 +172,10 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
         await connection.query(`SAVEPOINT ${savepoint}`);
-        return withTokenEstimate({ success: true, transactionId, savepoint });
+        return withTokenEstimate({
+          success: true,
+          data: { transactionId, savepoint },
+        });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -209,9 +218,11 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         await connection.query(`RELEASE SAVEPOINT ${savepoint}`);
         return withTokenEstimate({
           success: true,
-          transactionId,
-          savepoint,
-          message: "Savepoint released.",
+          data: {
+            transactionId,
+            savepoint,
+            message: "Savepoint released.",
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -257,9 +268,11 @@ function createTransactionRollbackToTool(
         await connection.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
         return withTokenEstimate({
           success: true,
-          transactionId,
-          savepoint,
-          message: "Rolled back to savepoint.",
+          data: {
+            transactionId,
+            savepoint,
+            message: "Rolled back to savepoint.",
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -336,8 +349,10 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          statementsExecuted: statements.length,
-          results,
+          data: {
+            statementsExecuted: statements.length,
+            results,
+          },
         });
       } catch (error) {
         await adapter.rollbackTransaction(transactionId);
