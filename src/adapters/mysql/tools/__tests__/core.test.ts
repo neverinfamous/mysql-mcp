@@ -359,7 +359,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("tableName", "new_table");
+      expect((result as any).data).toHaveProperty("tableName", "new_table");
     });
 
     it("should handle column defaults correctly", async () => {
@@ -510,8 +510,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("skipped", true);
-      expect(result).toHaveProperty("reason", "Table already exists");
+      expect((result as any).data).toHaveProperty("skipped", true);
+      expect((result as any).data).toHaveProperty("reason", "Table already exists");
       // Should NOT call executeQuery since it short-circuits
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
@@ -589,8 +589,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("skipped", true);
-      expect(result).toHaveProperty("reason", "Table did not exist");
+      expect((result as any).data).toHaveProperty("skipped", true);
+      expect((result as any).data).toHaveProperty("reason", "Table did not exist");
     });
 
     it("should return structured error for non-existence errors in drop table", async () => {
@@ -626,7 +626,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("indexName", "idx_users_email");
+      expect((result as any).data).toHaveProperty("indexName", "idx_users_email");
     });
 
     it("should create UNIQUE index", async () => {
@@ -669,7 +669,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toHaveProperty("skipped", true);
+      expect((result as any).data).toHaveProperty("skipped", true);
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
@@ -741,8 +741,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("warning");
-      expect((result as Record<string, unknown>).warning).toContain("MEMORY");
+      expect((result as any).data).toHaveProperty("warning");
+      expect(((result as any).data as Record<string, unknown>).warning).toContain("MEMORY");
     });
 
     it("should return graceful error when duplicate index name exists", async () => {

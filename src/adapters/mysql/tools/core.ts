@@ -98,9 +98,11 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return withTokenEstimate({
           success: true,
-          rows: result.rows,
-          rowCount: result.rows?.length ?? 0,
-          executionTimeMs: result.executionTimeMs,
+          data: {
+            rows: result.rows,
+            rowCount: result.rows?.length ?? 0,
+            executionTimeMs: result.executionTimeMs,
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -138,9 +140,11 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         return withTokenEstimate({
           success: true,
-          rowsAffected: result.rowsAffected,
-          lastInsertId: result.lastInsertId?.toString(),
-          executionTimeMs: result.executionTimeMs,
+          data: {
+            rowsAffected: result.rowsAffected,
+            lastInsertId: result.lastInsertId?.toString(),
+            executionTimeMs: result.executionTimeMs,
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -191,15 +195,17 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          tables: tables.map((t) => ({
-            name: t.name,
-            type: t.type,
-            ...(t.engine != null ? { engine: t.engine } : {}),
-            ...(t.rowCount != null ? { rowCount: t.rowCount } : {}),
-            ...(t.comment != null && t.comment !== "" ? { comment: t.comment } : {}),
-          })),
-          count: tables.length,
-          ...(truncated ? { truncated: true } : {}),
+          data: {
+            tables: tables.map((t) => ({
+              name: t.name,
+              type: t.type,
+              ...(t.engine != null ? { engine: t.engine } : {}),
+              ...(t.rowCount != null ? { rowCount: t.rowCount } : {}),
+              ...(t.comment != null && t.comment !== "" ? { comment: t.comment } : {}),
+            })),
+            count: tables.length,
+            ...(truncated ? { truncated: true } : {}),
+          }
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -256,7 +262,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
             ...(tableCollation != null && tableCollation !== "" ? { collation: tableCollation } : {}),
         };
 
-        return withTokenEstimate({ success: true, ...sanitizedInfo, exists: true });
+        return withTokenEstimate({ success: true, data: { ...sanitizedInfo, exists: true } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -300,9 +306,11 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
           if (tableInfo.columns && tableInfo.columns.length > 0) {
             return withTokenEstimate({
               success: true,
-              skipped: true,
-              tableName: name,
-              reason: "Table already exists",
+              data: {
+                skipped: true,
+                tableName: name,
+                reason: "Table already exists",
+              }
             });
           }
         }
@@ -394,7 +402,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         adapter.clearSchemaCache();
-        return withTokenEstimate({ success: true, tableName: name });
+        return withTokenEstimate({ success: true, data: { tableName: name } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -458,13 +466,15 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         if (tableAbsent) {
           return withTokenEstimate({
             success: true,
-            skipped: true,
-            tableName: table,
-            reason: "Table did not exist",
+            data: {
+              skipped: true,
+              tableName: table,
+              reason: "Table did not exist",
+            }
           });
         }
 
-        return withTokenEstimate({ success: true, tableName: table });
+        return withTokenEstimate({ success: true, data: { tableName: table } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -500,7 +510,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         const indexes = await adapter.getTableIndexes(table);
-        return withTokenEstimate({ success: true, exists: true, indexes });
+        return withTokenEstimate({ success: true, data: { exists: true, indexes } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -553,9 +563,11 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
           if (existing.some((idx) => idx.name === name)) {
             return withTokenEstimate({
               success: true,
-              skipped: true,
-              indexName: name,
-              reason: "Index already exists",
+              data: {
+                skipped: true,
+                indexName: name,
+                reason: "Index already exists",
+              }
             });
           }
         }
@@ -594,13 +606,15 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         if (type === "HASH") {
           return withTokenEstimate({
             success: true,
-            indexName: name,
-            warning:
-              "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
+            data: {
+              indexName: name,
+              warning:
+                "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
+            }
           });
         }
 
-        return withTokenEstimate({ success: true, indexName: name });
+        return withTokenEstimate({ success: true, data: { indexName: name } });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
