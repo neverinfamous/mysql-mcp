@@ -45,10 +45,10 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
-    expect(response.content[0].type).toBe("text");
+    expect((response.content as any[]).length).toBeGreaterThan(0);
+    expect((response.content as any[])[0].type).toBe("text");
 
-    const parsed = JSON.parse((response.content[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
     expect(parsed.data).toHaveProperty("tables");
   });
 
@@ -60,7 +60,7 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect((response.content as any[]).length).toBeGreaterThan(0);
   });
 
   test("should list resources via Streamable HTTP", async () => {
