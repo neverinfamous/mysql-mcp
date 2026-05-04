@@ -206,15 +206,15 @@ export function createDescriptiveStatsTool(
           success: true,
           data: {
             column,
-            count: stats?.["count"] ?? 0,
-            mean: stats?.["mean"] ?? null,
-            median: medianRow?.["median"] ?? null,
-            stddev: stats?.["stddev"] ?? null,
-            variance: stats?.["variance"] ?? null,
-            min: stats?.["min"] ?? null,
-            max: stats?.["max"] ?? null,
-            range: stats?.["range"] ?? null,
-            sum: stats?.["sum"] ?? null,
+            count: Number(stats?.["count"] ?? 0),
+            mean: stats?.["mean"] != null ? Number(stats?.["mean"]) : null,
+            median: medianRow?.["median"] != null ? Number(medianRow?.["median"]) : null,
+            stddev: stats?.["stddev"] != null ? Number(stats?.["stddev"]) : null,
+            variance: stats?.["variance"] != null ? Number(stats?.["variance"]) : null,
+            min: stats?.["min"] != null ? Number(stats?.["min"]) : null,
+            max: stats?.["max"] != null ? Number(stats?.["max"]) : null,
+            range: stats?.["range"] != null ? Number(stats?.["range"]) : null,
+            sum: stats?.["sum"] != null ? Number(stats?.["sum"]) : null,
           }
         });
       } catch (error) {
