@@ -13,11 +13,11 @@ if (!process.env.MYSQL_DATABASE) process.env.MYSQL_DATABASE = "testdb";
 
 const proc = spawn(
   "node",
-  ["dist/cli.js", "--log-level", "error", "--instruction-level", "full"],
+  ["dist/cli.js", "--log-level", "error", "--instruction-level", "full", "--tool-filter", "-nonexistent"],
   {
     cwd: projectDir,
     stdio: ["pipe", "pipe", "pipe"],
-  },
+  }
 );
 
 let buffer = "";
