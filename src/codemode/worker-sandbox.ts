@@ -110,19 +110,24 @@ export class WorkerSandbox {
           const { id, group, method, args } = msg;
           void (async () => {
             try {
-              const groupApi = apiBindings[group];
-              if (
-                typeof groupApi !== "object" ||
-                groupApi === null ||
-                typeof groupApi === "function"
-              ) {
-                rpcChannel?.port1.postMessage({
-                  id,
-                  error: `Unknown API group: '${group}'`,
-                });
-                return;
+              let fn: unknown;
+              if (group === "_topLevel") {
+                fn = apiBindings[method];
+              } else {
+                const groupApi = apiBindings[group];
+                if (
+                  typeof groupApi !== "object" ||
+                  groupApi === null ||
+                  typeof groupApi === "function"
+                ) {
+                  rpcChannel?.port1.postMessage({
+                    id,
+                    error: `Unknown API group: '${group}'`,
+                  });
+                  return;
+                }
+                fn = (groupApi as Record<string, unknown>)[method];
               }
-              const fn = (groupApi as Record<string, unknown>)[method];
               if (typeof fn !== "function") {
                 rpcChannel?.port1.postMessage({
                   id,

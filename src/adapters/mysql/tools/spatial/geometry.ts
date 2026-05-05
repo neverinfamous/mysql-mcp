@@ -5,26 +5,25 @@
  * 2 tools: point and polygon creation.
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  PointSchemaBase,
+  PointSchema,
+  PolygonSchemaBase,
+  PolygonSchema,
+} from "../../schemas/spatial.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from MySQL error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
-}
 
 /**
  * Parse GeoJSON result from MySQL.
@@ -49,23 +48,6 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
 }
 
 // =============================================================================
-// Zod Schemas
-// =============================================================================
-
-const PointSchema = z.object({
-  longitude: z.number().describe("Longitude coordinate"),
-  latitude: z.number().describe("Latitude coordinate"),
-  srid: z.number().default(4326).describe("SRID"),
-});
-
-const PolygonSchema = z.object({
-  coordinates: z
-    .array(z.array(z.array(z.number()).min(2).max(2)))
-    .describe(
-      "Polygon coordinates as array of rings, each ring is array of [lon, lat] pairs",
-    ),
-  srid: z.number().default(4326).describe("SRID"),
-});
 
 /**
  * Create a POINT geometry
@@ -76,35 +58,35 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Create Point",
     description: "Create a POINT geometry from longitude/latitude coordinates.",
     group: "spatial",
-    inputSchema: PointSchema,
+    inputSchema: PointSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { longitude, latitude, srid } = PointSchema.parse(params);
 
         const result = await adapter.executeQuery(
-          `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as wkt,
+          `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)}), 'axis-order=long-lat') as wkt,
                         ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as geoJson`,
         );
 
         const row = result.rows?.[0];
-        return {
-          wkt: row?.["wkt"],
-          geoJson: parseGeoJsonResult(row?.["geoJson"]),
-          srid,
-          longitude,
-          latitude,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            wkt: row?.["wkt"],
+            geoJson: parseGeoJsonResult(row?.["geoJson"]),
+            srid,
+            longitude,
+            latitude,
+          },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -121,12 +103,9 @@ export function createSpatialPolygonTool(
     title: "MySQL Create Polygon",
     description: "Create a POLYGON geometry from coordinates.",
     group: "spatial",
-    inputSchema: PolygonSchema,
+    inputSchema: PolygonSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { coordinates, srid } = PolygonSchema.parse(params);
@@ -143,25 +122,28 @@ export function createSpatialPolygonTool(
         const wkt = `POLYGON(${rings.join(", ")})`;
 
         const result = await adapter.executeQuery(
-          `SELECT ST_AsText(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as wkt,
+          `SELECT ST_AsText(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
                         ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson,
                         ST_Area(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as area`,
           [wkt, wkt, wkt],
         );
 
         const row = result.rows?.[0];
-        return {
-          wkt: row?.["wkt"],
-          geoJson: parseGeoJsonResult(row?.["geoJson"]),
-          area: row?.["area"],
-          srid,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            wkt: row?.["wkt"],
+            geoJson: parseGeoJsonResult(row?.["geoJson"]),
+            area: row?.["area"],
+            srid,
+          },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };

@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MysqlApi } from "../api.js";
-import type { MySQLAdapter } from "../../adapters/mysql/MySQLAdapter.js";
+import { MysqlApi } from "../api/index.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 
 // Suppress logger
 vi.mock("../../utils/logger.js", () => ({
@@ -119,6 +119,16 @@ function createMockAdapterWithTools(): MySQLAdapter {
       annotations: {},
       handler: vi.fn().mockResolvedValue({ output: "" }),
     },
+    {
+      name: "mysql_migration_init",
+      group: "migration",
+      title: "Migration Init",
+      description: "Initialize migration tracking",
+      inputSchema: { parse: (v: unknown) => v },
+      requiredScopes: ["write"],
+      annotations: {},
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
   ];
 
   return {
@@ -127,6 +137,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       timestamp: new Date(),
       requestId: "test-ctx",
     }),
+    getAuditInterceptor: vi.fn().mockReturnValue(null),
   } as unknown as MySQLAdapter;
 }
 
@@ -152,6 +163,15 @@ describe("MysqlApi", () => {
       expect(api.sysschema).toBeDefined();
       expect(api.docstore).toBeDefined();
       expect(api.shell).toBeDefined();
+      expect(api.schema).toBeDefined();
+      expect(api.events).toBeDefined();
+      expect(api.stats).toBeDefined();
+      expect(api.spatial).toBeDefined();
+      expect(api.security).toBeDefined();
+      expect(api.cluster).toBeDefined();
+      expect(api.roles).toBeDefined();
+      expect(api.introspection).toBeDefined();
+      expect(api.migration).toBeDefined();
     });
 
     it("should create methods for each tool", () => {
@@ -204,6 +224,11 @@ describe("MysqlApi", () => {
       // mysql_json_extract -> extract
       expect(api.json).toHaveProperty("extract");
     });
+
+    it("should strip mysql_migration_ prefix for migration group", () => {
+      // mysql_migration_init -> init
+      expect(api.migration).toHaveProperty("init");
+    });
   });
 
   // ===========================================================================
@@ -216,7 +241,7 @@ describe("MysqlApi", () => {
       const readTool = tools.find(
         (t: { name: string }) => t.name === "mysql_read_query",
       );
-      expect(readTool.handler).toHaveBeenCalled();
+      expect(readTool!.handler).toHaveBeenCalled();
     });
 
     it("should normalize positional string argument", async () => {
@@ -226,7 +251,7 @@ describe("MysqlApi", () => {
         (t: { name: string }) => t.name === "mysql_read_query",
       );
       // Should have been called with { sql: "SELECT 1" } after normalization
-      expect(readTool.handler).toHaveBeenCalled();
+      expect(readTool!.handler).toHaveBeenCalled();
     });
 
     it("should pass empty params for no-arg calls", async () => {
@@ -235,7 +260,7 @@ describe("MysqlApi", () => {
       const readTool = tools.find(
         (t: { name: string }) => t.name === "mysql_read_query",
       );
-      expect(readTool.handler).toHaveBeenCalled();
+      expect(readTool!.handler).toHaveBeenCalled();
     });
 
     it("should create context for each call", async () => {
@@ -260,6 +285,42 @@ describe("MysqlApi", () => {
       if (api.transactions.begin) {
         expect(api.transactions.begin).toBe(api.transactions.transactionBegin);
       }
+    });
+  });
+
+  // ===========================================================================
+  // createSandboxBindings
+  // ===========================================================================
+  describe("createSandboxBindings", () => {
+    it("should filter out write methods when readonly is true", () => {
+      const readonlyApi = new MysqlApi(mockAdapter, true);
+      const bindings = readonlyApi.createSandboxBindings();
+
+      // Core write method (mysql_write_query) should be stubbed to return error
+      const coreApi = bindings.core as Record<
+        string,
+        (...args: unknown[]) => { success: boolean; error: string }
+      >;
+      const writeResult = coreApi.writeQuery();
+      expect(writeResult).toHaveProperty("success", false);
+      expect(writeResult.error).toContain("Readonly mode");
+
+      // Core read method (mysql_read_query) should remain intact
+      // We can't easily test the exact function, but it shouldn't return the stub error object synchronously
+      const readResult = coreApi.readQuery();
+      expect(readResult).not.toHaveProperty(
+        "error",
+        expect.stringContaining("Readonly mode"),
+      );
+
+      // Migration write method should be stubbed
+      const migrationApi = bindings.migration as Record<
+        string,
+        (...args: unknown[]) => { success: boolean; error: string }
+      >;
+      const initResult = migrationApi.init();
+      expect(initResult).toHaveProperty("success", false);
+      expect(initResult.error).toContain("Readonly mode");
     });
   });
 
@@ -298,8 +359,9 @@ describe("MysqlApi", () => {
   describe("help", () => {
     it("should return all groups with their methods", () => {
       const help = api.help();
-      expect(help).toHaveProperty("core");
-      expect(help["core"]).toContain("readQuery");
+      expect(help.success).toBe(true);
+      expect(help.data.groups).toHaveProperty("core");
+      expect(help.data.groups["core"]).toContain("readQuery");
     });
 
     it("should include examples in help output", () => {
@@ -357,6 +419,7 @@ describe("normalizeParams (indirect)", () => {
         timestamp: new Date(),
         requestId: "test",
       }),
+      getAuditInterceptor: vi.fn().mockReturnValue(null),
     } as unknown as MySQLAdapter;
 
     api = new MysqlApi(mockAdapter);
@@ -368,7 +431,7 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_read_query",
     );
     await api.core.readQuery({ sql: "SELECT 1", limit: 10 });
-    expect(readTool.handler).toHaveBeenCalledWith(
+    expect(readTool!.handler).toHaveBeenCalledWith(
       { sql: "SELECT 1", limit: 10 },
       expect.anything(),
     );
@@ -380,7 +443,7 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_read_query",
     );
     await api.core.readQuery("SELECT 1");
-    const calledWith = readTool.handler.mock.calls[0][0];
+    const calledWith = vi.mocked(readTool!.handler).mock.calls[0][0];
     expect(calledWith).toHaveProperty("sql", "SELECT 1");
   });
 
@@ -390,7 +453,7 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_create_table",
     );
     await api.core.createTable("orders", [{ name: "id", type: "INT" }]);
-    const calledWith = createTool.handler.mock.calls[0][0];
+    const calledWith = vi.mocked(createTool!.handler).mock.calls[0][0];
     expect(calledWith).toHaveProperty("name", "orders");
     expect(calledWith).toHaveProperty("columns");
   });
@@ -402,7 +465,7 @@ describe("normalizeParams (indirect)", () => {
     );
     const stmts = [{ sql: "INSERT INTO t VALUES(1)" }];
     await api.transactions.transactionExecute(stmts);
-    const calledWith = execTool.handler.mock.calls[0][0];
+    const calledWith = vi.mocked(execTool!.handler).mock.calls[0][0];
     expect(calledWith).toHaveProperty("statements");
   });
 
@@ -412,6 +475,6 @@ describe("normalizeParams (indirect)", () => {
       (t: { name: string }) => t.name === "mysql_read_query",
     );
     await api.core.readQuery();
-    expect(readTool.handler).toHaveBeenCalledWith({}, expect.anything());
+    expect(readTool!.handler).toHaveBeenCalledWith({}, expect.anything());
   });
 });

@@ -2,19 +2,84 @@
  * Error Types
  *
  * Custom error classes for mysql-mcp server.
+ * Follows the harmonized error handling standard with
+ * category, suggestion, recoverable flag, and toResponse().
  */
 
+import { ErrorCategory } from "./error-types.js";
+import type { ErrorResponse } from "./error-types.js";
+import { findSuggestion } from "../../utils/error-suggestions.js";
+
 /**
- * Base error class for mysql-mcp
+ * Generic error codes that should be auto-refined when findSuggestion
+ * provides a more specific code (e.g., QUERY_ERROR → TABLE_NOT_FOUND).
+ */
+const REFINABLE_CODES = new Set([
+  "QUERY_ERROR",
+  "VALIDATION_ERROR",
+  "RESOURCE_ERROR",
+  "UNKNOWN_ERROR",
+]);
+
+/**
+ * Base error class for mysql-mcp with enhanced diagnostics
  */
 export class MySQLMcpError extends Error {
+  /** Error category for classification */
+  readonly category: ErrorCategory;
+  /** Module-prefixed error code (e.g., CONNECTION_ERROR) */
+  readonly code: string;
+  /** Actionable suggestion for resolving the error */
+  readonly suggestion: string | undefined;
+  /** Additional error details */
+  readonly details: Record<string, unknown> | undefined;
+  /** Whether the error is recoverable (can retry) */
+  readonly recoverable: boolean;
+
   constructor(
     message: string,
-    public readonly code: string,
-    public readonly details?: Record<string, unknown>,
+    code: string,
+    category: ErrorCategory,
+    options?: {
+      suggestion?: string | undefined;
+      details?: Record<string, unknown> | undefined;
+      recoverable?: boolean | undefined;
+      cause?: Error | undefined;
+    },
   ) {
-    super(message);
-    this.name = "MySQLMcpError";
+    super(message, { cause: options?.cause });
+    this.name = this.constructor.name;
+    this.recoverable = options?.recoverable ?? false;
+    this.details = options?.details;
+
+    // Auto-detect suggestion and refine generic codes
+    const match = findSuggestion(message);
+    this.suggestion = options?.suggestion ?? match?.suggestion;
+
+    // Prefer the suggestion's specific code and category over generic ones
+    this.code = match?.code && REFINABLE_CODES.has(code) ? match.code : code;
+    this.category =
+      match?.category !== undefined && REFINABLE_CODES.has(code)
+        ? match.category
+        : category;
+
+    // Capture stack trace
+    Error.captureStackTrace?.(this, this.constructor);
+  }
+
+  /**
+   * Convert to structured response object
+   */
+  toResponse(): ErrorResponse {
+    return {
+      success: false,
+      error: this.message,
+      code: this.code,
+      category: this.category,
+      suggestion: this.suggestion,
+      recoverable: this.recoverable,
+      details: this.details,
+    };
   }
 }
 
@@ -22,9 +87,18 @@ export class MySQLMcpError extends Error {
  * Database connection error
  */
 export class ConnectionError extends MySQLMcpError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, "CONNECTION_ERROR", details);
-    this.name = "ConnectionError";
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "CONNECTION_ERROR", ErrorCategory.CONNECTION, {
+      suggestion:
+        "Verify MySQL is running and connection parameters are correct.",
+      details,
+      recoverable: true,
+      cause: options?.cause,
+    });
   }
 }
 
@@ -36,9 +110,15 @@ export class PoolError extends MySQLMcpError {
     message: string,
     details?: Record<string, unknown>,
     code?: string,
+    options?: { cause?: Error },
   ) {
-    super(message, code ?? "POOL_ERROR", details);
-    this.name = "PoolError";
+    super(message, code ?? "POOL_ERROR", ErrorCategory.CONNECTION, {
+      suggestion:
+        "Check pool size limits or wait for connections to be released.",
+      details,
+      recoverable: true,
+      cause: options?.cause,
+    });
   }
 }
 
@@ -46,9 +126,16 @@ export class PoolError extends MySQLMcpError {
  * Query execution error
  */
 export class QueryError extends MySQLMcpError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, "QUERY_ERROR", details);
-    this.name = "QueryError";
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "QUERY_ERROR", ErrorCategory.QUERY, {
+      details,
+      recoverable: false,
+      cause: options?.cause,
+    });
   }
 }
 
@@ -56,9 +143,17 @@ export class QueryError extends MySQLMcpError {
  * Authentication error
  */
 export class AuthenticationError extends MySQLMcpError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, "AUTHENTICATION_ERROR", details);
-    this.name = "AuthenticationError";
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "AUTHENTICATION_ERROR", ErrorCategory.AUTHENTICATION, {
+      suggestion: "Verify database credentials and authentication method.",
+      details,
+      recoverable: false,
+      cause: options?.cause,
+    });
   }
 }
 
@@ -66,9 +161,17 @@ export class AuthenticationError extends MySQLMcpError {
  * Authorization error (insufficient permissions)
  */
 export class AuthorizationError extends MySQLMcpError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, "AUTHORIZATION_ERROR", details);
-    this.name = "AuthorizationError";
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "AUTHORIZATION_ERROR", ErrorCategory.AUTHORIZATION, {
+      suggestion: "Check the user's privileges on the target database object.",
+      details,
+      recoverable: false,
+      cause: options?.cause,
+    });
   }
 }
 
@@ -76,9 +179,16 @@ export class AuthorizationError extends MySQLMcpError {
  * Validation error for input parameters
  */
 export class ValidationError extends MySQLMcpError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, "VALIDATION_ERROR", details);
-    this.name = "ValidationError";
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "VALIDATION_ERROR", ErrorCategory.VALIDATION, {
+      details,
+      recoverable: false,
+      cause: options?.cause,
+    });
   }
 }
 
@@ -86,8 +196,17 @@ export class ValidationError extends MySQLMcpError {
  * Transaction error
  */
 export class TransactionError extends MySQLMcpError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, "TRANSACTION_ERROR", details);
-    this.name = "TransactionError";
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "TRANSACTION_ERROR", ErrorCategory.QUERY, {
+      suggestion:
+        "Use mysql_transaction_rollback to end the aborted transaction, or mysql_transaction_rollback_to to recover to a savepoint.",
+      details,
+      recoverable: true,
+      cause: options?.cause,
+    });
   }
 }

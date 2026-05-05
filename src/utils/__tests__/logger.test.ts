@@ -229,10 +229,12 @@ describe("Logger", () => {
       expect(output).toContain("Messagetest");
     });
 
-    it("should preserve tabs, newlines, and carriage returns", () => {
+    it("should sanitize newlines and carriage returns to prevent log injection", () => {
       logger.info("Line1\nLine2\tTabbed\rReturn");
       const output = consoleErrorSpy.mock.calls[0][0];
-      expect(output).toContain("Line1\nLine2\tTabbed\rReturn");
+      expect(output).toContain("Line1 Line2\tTabbed Return");
+      expect(output).not.toContain("\n");
+      expect(output).not.toContain("\r");
     });
 
     it("should remove DEL character (127)", () => {

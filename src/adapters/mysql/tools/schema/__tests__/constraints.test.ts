@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createListConstraintsTool } from "../constraints.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -142,7 +142,7 @@ describe("Schema Constraint Tools", () => {
       const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
       expect(params[0]).toBe("test_db");
       expect(params[1]).toBe("order_items");
-      expect(result).toHaveProperty("constraints");
+      expect(result).toHaveProperty("data.constraints");
     });
 
     it("should return exists false for nonexistent table (P154)", async () => {
@@ -155,10 +155,10 @@ describe("Schema Constraint Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent_table" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent_table");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
       // Should only call once (existence check), not the main query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });

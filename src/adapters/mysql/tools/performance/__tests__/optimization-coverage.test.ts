@@ -13,7 +13,7 @@ import {
   createForceIndexTool,
   createOptimizerTraceTool,
 } from "../optimization.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -48,7 +48,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT 1", summary: true },
         mockContext,
-      )) as { error?: string; decisions?: unknown[] };
+      )) as { error?: string; data?: { decisions?: unknown[] } };
 
       expect(result.error).toContain("No trace data");
     });
@@ -94,11 +94,11 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE email = 'test'", summary: true },
         mockContext,
-      )) as { decisions: { type: string; index?: string }[] };
+      )) as { data: { decisions: { type: string; index?: string }[] } };
 
-      expect(result.decisions).toHaveLength(1);
-      expect(result.decisions[0].type).toBe("index_selection");
-      expect(result.decisions[0].index).toBe("idx_email");
+      expect(result.data.decisions).toHaveLength(1);
+      expect(result.data.decisions[0].type).toBe("index_selection");
+      expect(result.data.decisions[0].index).toBe("idx_email");
     });
 
     it("should extract table scan decisions", async () => {
@@ -134,11 +134,11 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM orders", summary: true },
         mockContext,
-      )) as { decisions: { type: string; table?: string }[] };
+      )) as { data: { decisions: { type: string; table?: string }[] } };
 
-      expect(result.decisions).toHaveLength(1);
-      expect(result.decisions[0].type).toBe("table_scan");
-      expect(result.decisions[0].table).toBe("orders");
+      expect(result.data.decisions).toHaveLength(1);
+      expect(result.data.decisions[0].type).toBe("table_scan");
+      expect(result.data.decisions[0].table).toBe("orders");
     });
 
     it("should extract access path decisions", async () => {
@@ -191,11 +191,11 @@ describe("Optimization Tools — Summary & Error Paths", () => {
           summary: true,
         },
         mockContext,
-      )) as { decisions: { type: string; accessType?: string }[] };
+      )) as { data: { decisions: { type: string; accessType?: string }[] } };
 
-      expect(result.decisions).toHaveLength(1);
-      expect(result.decisions[0].type).toBe("access_path");
-      expect(result.decisions[0].accessType).toBe("ref");
+      expect(result.data.decisions).toHaveLength(1);
+      expect(result.data.decisions[0].type).toBe("access_path");
+      expect(result.data.decisions[0].accessType).toBe("ref");
     });
 
     it("should handle invalid trace JSON", async () => {
@@ -246,10 +246,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: true },
         mockContext,
-      )) as { error?: string; decisions?: unknown[] };
+      )) as { error?: string; data?: { decisions?: unknown[] } };
 
       expect(result.error).toContain("doesn't exist");
-      expect(result.decisions).toEqual([]);
+      expect(result.data.decisions).toEqual([]);
     });
 
     it("should handle query execution failure in non-summary mode", async () => {
@@ -262,12 +262,12 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler(
-        { query: "SELECT * FROM nonexistent" },
+        { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
-      )) as { error?: string; trace?: unknown };
+      )) as { error?: string; data?: { trace?: unknown } };
 
       expect(result.error).toBeDefined();
-      expect(result.trace).toBeNull();
+      expect(result.data.trace).toBeNull();
     });
   });
 
@@ -284,10 +284,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE id = 1 OR name = 'test'" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
       expect(
-        result.suggestions.some((s: string) => s.includes("OR conditions")),
+        result.data.suggestions.some((s: string) => s.includes("OR conditions")),
       ).toBe(true);
     });
 
@@ -300,9 +300,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE id NOT IN (1,2,3)" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
-      expect(result.suggestions.some((s: string) => s.includes("NOT IN"))).toBe(
+      expect(result.data.suggestions.some((s: string) => s.includes("NOT IN"))).toBe(
         true,
       );
     });
@@ -316,10 +316,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT id FROM users ORDER BY name" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
       expect(
-        result.suggestions.some((s: string) =>
+        result.data.suggestions.some((s: string) =>
           s.includes("ORDER BY without LIMIT"),
         ),
       ).toBe(true);
@@ -334,10 +334,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE name LIKE '%test'" },
         mockContext,
-      )) as { suggestions: string[] };
+      )) as { data: { suggestions: string[] } };
 
       expect(
-        result.suggestions.some((s: string) => s.includes("Leading wildcard")),
+        result.data.suggestions.some((s: string) => s.includes("Leading wildcard")),
       ).toBe(true);
     });
 
@@ -354,9 +354,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT 1 FROM dual LIMIT 1" },
         mockContext,
-      )) as { explainPlan: unknown };
+      )) as { data: { explainPlan: unknown } };
 
-      expect(result.explainPlan).toBeDefined();
+      expect(result.data.explainPlan).toBeDefined();
     });
 
     it("should handle EXPLAIN failure gracefully", async () => {
@@ -370,10 +370,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent LIMIT 1" },
         mockContext,
-      )) as { explainError: string; explainPlan: unknown };
+      )) as { data: { explainError: string; explainPlan: unknown } };
 
-      expect(result.explainError).toBeDefined();
-      expect(result.explainPlan).toBeNull();
+      expect(result.data.explainError).toBeDefined();
+      expect(result.data.explainPlan).toBeNull();
     });
 
     it("should use sql alias for query", async () => {
@@ -385,9 +385,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { sql: "SELECT 1 FROM dual LIMIT 1" },
         mockContext,
-      )) as { originalQuery: string };
+      )) as { data: { originalQuery: string } };
 
-      expect(result.originalQuery).toBe("SELECT 1 FROM dual LIMIT 1");
+      expect(result.data.originalQuery).toBe("SELECT 1 FROM dual LIMIT 1");
     });
 
     it("should return error when no query provided", async () => {
@@ -425,9 +425,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         recommendations: { column: string; reason: string }[];
       };
 
-      expect(result.recommendations).toHaveLength(1);
-      expect(result.recommendations[0].column).toBe("created_at");
-      expect(result.recommendations[0].reason).toContain("Timestamp");
+      expect(result.data.recommendations).toHaveLength(1);
+      expect(result.data.recommendations[0].column).toBe("created_at");
+      expect(result.data.recommendations[0].reason).toContain("Timestamp");
     });
 
     it("should suggest indexes for status columns", async () => {
@@ -448,7 +448,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         recommendations: { column: string; reason: string }[];
       };
 
-      const statusRec = result.recommendations.find(
+      const statusRec = result.data.recommendations.find(
         (r) => r.column === "status",
       );
       expect(statusRec).toBeDefined();
@@ -464,9 +464,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { exists: boolean };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -474,7 +475,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
   // Force Index edge cases
   // ===========================================================================
   describe("force index edge cases", () => {
-    it("should warn when index doesn't exist", async () => {
+    it("should return error when index doesn't exist", async () => {
       mockAdapter.describeTable.mockResolvedValue({
         columns: [{ name: "id", type: "int", nullable: false }],
       });
@@ -490,10 +491,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
           indexName: "nonexistent_idx",
         },
         mockContext,
-      )) as { warning?: string; rewrittenQuery: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.warning).toContain("not found");
-      expect(result.rewrittenQuery).toContain("FORCE INDEX");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not found");
     });
 
     it("should handle nonexistent table in force index", async () => {
@@ -507,9 +508,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
           indexName: "idx1",
         },
         mockContext,
-      )) as { exists: boolean };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 });

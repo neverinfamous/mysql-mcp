@@ -13,7 +13,7 @@ import {
   createShowStatusTool,
   createShowVariablesTool,
 } from "../monitoring.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -51,11 +51,11 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      expect(result.summary).toBeDefined();
-      const bp = result.summary["bufferPool"] as Record<string, unknown>;
+      expect(result.data.summary).toBeDefined();
+      const bp = result.data.summary["bufferPool"] as Record<string, unknown>;
       expect(bp).toBeDefined();
       expect(bp["size"]).toBe(16384);
       expect(bp["freeBuffers"]).toBe(1024);
@@ -74,10 +74,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      const ops = result.summary["rowOperations"] as Record<string, number>;
+      const ops = result.data.summary["rowOperations"] as Record<string, number>;
       expect(ops).toBeDefined();
       expect(ops["insertsPerSec"]).toBe(1.5);
       expect(ops["updatesPerSec"]).toBe(2.75);
@@ -99,10 +99,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      const log = result.summary["log"] as Record<string, number>;
+      const log = result.data.summary["log"] as Record<string, number>;
       expect(log).toBeDefined();
       expect(log["sequenceNumber"]).toBe(123456789);
       expect(log["lastCheckpoint"]).toBe(123456000);
@@ -122,10 +122,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      const trx = result.summary["transactions"] as Record<string, number>;
+      const trx = result.data.summary["transactions"] as Record<string, number>;
       expect(trx).toBeDefined();
       expect(trx["historyListLength"]).toBe(100);
       expect(trx["trxIdCounter"]).toBe(456789);
@@ -142,10 +142,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      const sem = result.summary["semaphores"] as Record<string, number>;
+      const sem = result.data.summary["semaphores"] as Record<string, number>;
       expect(sem).toBeDefined();
       expect(sem["osWaitReservations"]).toBe(42);
     });
@@ -159,11 +159,11 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      expect(result.summary).toBeDefined();
-      expect(Object.keys(result.summary)).toHaveLength(0);
+      expect(result.data.summary).toBeDefined();
+      expect(Object.keys(result.data.summary)).toHaveLength(0);
     });
 
     it("should handle empty rows for summary mode", async () => {
@@ -173,10 +173,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      expect(result.summary).toBeDefined();
+      expect(result.data.summary).toBeDefined();
     });
 
     it("should handle STATUS column name in uppercase", async () => {
@@ -188,10 +188,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
-        summary: Record<string, unknown>;
+        data: { summary: Record<string, unknown> };
       };
 
-      expect(result.summary).toBeDefined();
+      expect(result.data.summary).toBeDefined();
     });
   });
 
@@ -208,12 +208,11 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        configured: boolean;
-        message: string;
+        data: { configured: boolean; message: string; };
       };
 
-      expect(result.configured).toBe(false);
-      expect(result.message).toContain("not configured");
+      expect(result.data.configured).toBe(false);
+      expect(result.data.message).toContain("not configured");
     });
 
     it("should handle SHOW SLAVE STATUS returning empty rows", async () => {
@@ -225,12 +224,11 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        configured: boolean;
-        message: string;
+        data: { configured: boolean; message: string; };
       };
 
-      expect(result.configured).toBe(false);
-      expect(result.message).toContain("not configured");
+      expect(result.data.configured).toBe(false);
+      expect(result.data.message).toContain("not configured");
     });
   });
 
@@ -261,12 +259,12 @@ describe("Monitoring Summary & Edge Cases", () => {
     });
 
     it("should handle showVariables with LIKE and session", async () => {
-      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       const tool = createShowVariablesTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ global: false, like: "max_%" }, mockContext);
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).not.toContain("GLOBAL");
       expect(call).toContain("LIKE 'max_%'");
     });

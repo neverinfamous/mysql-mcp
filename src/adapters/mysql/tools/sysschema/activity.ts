@@ -5,35 +5,59 @@
  * 2 tools: user_summary, host_summary.
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { z } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
 // =============================================================================
 // Zod Schemas
 // =============================================================================
 
-const UserSummarySchema = z.object({
+const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
+const UserSummarySchema = z.object({
+  user: z.string().optional(),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  user: data.user,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
+
+const HostSummarySchemaBase = z.object({
+  host: z.string().optional().describe("Filter by specific host"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
 const HostSummarySchema = z.object({
-  host: z.string().optional().describe("Filter by specific host"),
-  limit: z.number().default(20).describe("Maximum number of results"),
-});
+  host: z.string().optional(),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  host: data.host,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 /**
  * Get user activity summary
@@ -47,18 +71,15 @@ export function createSysUserSummaryTool(
     description:
       "Get user activity summary including statements, connections, and latency from sys schema.",
     group: "sysschema",
-    inputSchema: UserSummarySchema,
+    inputSchema: UserSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, limit } = UserSummarySchema.parse(params);
 
         let query = `
-                SELECT 
+                SELECT
                     user,
                     statements,
                     statement_latency,
@@ -80,16 +101,18 @@ export function createSysUserSummaryTool(
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
-          users: result.rows,
-          count: result.rows?.length ?? 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -106,18 +129,15 @@ export function createSysHostSummaryTool(
     title: "MySQL Host Summary",
     description: "Get connection and activity summary by host from sys schema.",
     group: "sysschema",
-    inputSchema: HostSummarySchema,
+    inputSchema: HostSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { host, limit } = HostSummarySchema.parse(params);
 
         let query = `
-                SELECT 
+                SELECT
                     host,
                     statements,
                     statement_latency,
@@ -139,16 +159,18 @@ export function createSysHostSummaryTool(
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
-          hosts: result.rows,
-          count: result.rows?.length ?? 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };

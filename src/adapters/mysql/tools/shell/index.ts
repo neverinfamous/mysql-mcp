@@ -10,7 +10,7 @@
  */
 
 import type { ToolDefinition } from "../../../../types/index.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 
 // Import all tool creation functions from submodules
 import { createShellVersionTool } from "./info.js";

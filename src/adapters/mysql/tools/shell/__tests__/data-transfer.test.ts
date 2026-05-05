@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
+import * as path from "path";
 import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 import {
   createShellExportTableTool,
@@ -70,7 +71,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result).toEqual({ rows: 100 });
+      expect(result.data.result).toEqual({ rows: 100 });
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('util.exportTable("test.users"');
@@ -151,7 +152,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("privilege");
-      expect(result.hint).toContain("SELECT privilege");
+      expect(result.suggestion).toContain("SELECT privilege");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -198,7 +199,8 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(true);
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('util.importTable("/tmp/data.csv"');
+      const expectedPath = path.resolve("/tmp/data.csv").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.importTable("${expectedPath}"`);
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain("skipRows: 1");
       expect(jsArg).toContain('fieldsTerminatedBy: ","');
@@ -225,7 +227,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.localInfileEnabled).toBe(true);
+      expect(result.data.localInfileEnabled).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
@@ -246,7 +248,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error when Loading local data is disabled", async () => {
@@ -264,7 +266,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error for non-local_infile errors", async () => {
@@ -304,7 +306,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.protocol).toBe("X Protocol");
+      expect(result.data.protocol).toBe("X Protocol");
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('collection: "docs"');
@@ -352,7 +354,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result.raw).toBe("Some non-JSON success output");
+      expect(result.data.result.raw).toBe("Some non-JSON success output");
     });
 
     it("should return structured error for import failure", async () => {
@@ -387,7 +389,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("X Protocol authentication failed");
-      expect(result.hint).toContain("X Plugin");
+      expect(result.suggestion).toContain("X Plugin");
     });
 
     it("should return structured error for X Protocol 1045 error in stderr", async () => {
@@ -405,7 +407,7 @@ describe("Shell Data Transfer Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("X Protocol authentication failed");
-      expect(result.hint).toContain("X Plugin");
+      expect(result.suggestion).toContain("X Plugin");
     });
 
     it("should return structured error when JSON result has success: false", async () => {
@@ -465,7 +467,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result).toBe("ok");
+      expect(result.data.result).toBe("ok");
     });
 
     it("should skip empty lines when parsing JSON", async () => {
@@ -486,7 +488,7 @@ describe("Shell Data Transfer Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.result).toBe("data");
+      expect(result.data.result).toBe("data");
     });
 
     it("should return structured error with stderr on non-zero exit code", async () => {

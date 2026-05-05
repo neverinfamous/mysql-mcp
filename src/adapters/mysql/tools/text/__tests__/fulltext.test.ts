@@ -12,7 +12,7 @@ import {
   createFulltextBooleanTool,
   createFulltextExpandTool,
 } from "../fulltext.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -48,14 +48,14 @@ describe("Text Fulltext Tools", () => {
           indexName: "ft_idx",
         },
         mockContext,
-      )) as { indexName: string };
+      )) as { data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain(
         "CREATE FULLTEXT INDEX `ft_idx` ON `articles` (`title`, `content`)",
       );
-      expect(result.indexName).toBe("ft_idx");
+      expect(result.data.indexName).toBe("ft_idx");
     });
 
     it("should generate index name if not provided", async () => {
@@ -68,14 +68,14 @@ describe("Text Fulltext Tools", () => {
           columns: ["title", "content"],
         },
         mockContext,
-      )) as { indexName: string };
+      )) as { data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain(
         "CREATE FULLTEXT INDEX `ft_articles_title_content`",
       );
-      expect(result.indexName).toBe("ft_articles_title_content");
+      expect(result.data.indexName).toBe("ft_articles_title_content");
     });
 
     it("should return graceful response for duplicate index", async () => {
@@ -140,7 +140,7 @@ describe("Text Fulltext Tools", () => {
       expect(result.error).toContain("Key column");
     });
 
-    it("should return exists:false for nonexistent table", async () => {
+    it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -151,10 +151,10 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], indexName: "ft_idx" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -173,7 +173,7 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "articles", indexName: "ft_idx" },
         mockContext,
-      )) as { success: boolean; indexName: string };
+      )) as { success: boolean; data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
@@ -216,7 +216,7 @@ describe("Text Fulltext Tools", () => {
       expect(result.error).toContain("Access denied");
     });
 
-    it("should return exists:false for nonexistent table", async () => {
+    it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -227,10 +227,10 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", indexName: "ft_idx" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -324,15 +324,15 @@ describe("Text Fulltext Tools", () => {
           maxLength: 50,
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[]; count: number };
+      )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect(result.count).toBe(2);
-      expect((result.rows[0].body as string).length).toBe(53); // 50 + "..."
-      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
-      expect(result.rows[1].body).toBe("Short text"); // Not truncated
+      expect(result.data.rows.length).toBe(2);
+      expect((result.data.rows[0].body as string).length).toBe(53); // 50 + "..."
+      expect((result.data.rows[0].body as string).endsWith("...")).toBe(true);
+      expect(result.data.rows[1].body).toBe("Short text"); // Not truncated
     });
 
-    it("should not truncate when maxLength is not specified", async () => {
+    it("should truncate to 250 characters by default when maxLength is not specified", async () => {
       const longText = "A".repeat(500);
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ id: 1, body: longText, relevance: 1.0 }]),
@@ -348,12 +348,13 @@ describe("Text Fulltext Tools", () => {
           query: "test",
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[] };
+      )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect(result.rows[0].body).toBe(longText);
+      expect((result.data.rows[0].body as string).length).toBe(253); // 250 + "..."
+      expect((result.data.rows[0].body as string).endsWith("...")).toBe(true);
     });
 
-    it("should return exists:false for nonexistent table", async () => {
+    it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -364,10 +365,10 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], query: "test" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success:false for generic query error", async () => {
@@ -433,13 +434,13 @@ describe("Text Fulltext Tools", () => {
           maxLength: 100,
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[] };
+      )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect((result.rows[0].content as string).length).toBe(103); // 100 + "..."
-      expect((result.rows[0].content as string).endsWith("...")).toBe(true);
+      expect((result.data.rows[0].content as string).length).toBe(103); // 100 + "..."
+      expect((result.data.rows[0].content as string).endsWith("...")).toBe(true);
     });
 
-    it("should return exists:false for nonexistent table", async () => {
+    it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -450,10 +451,10 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], query: "+test" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success:false for generic query error", async () => {
@@ -519,13 +520,13 @@ describe("Text Fulltext Tools", () => {
           maxLength: 80,
         },
         mockContext,
-      )) as { rows: Record<string, unknown>[] };
+      )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect((result.rows[0].body as string).length).toBe(83); // 80 + "..."
-      expect((result.rows[0].body as string).endsWith("...")).toBe(true);
+      expect((result.data.rows[0].body as string).length).toBe(83); // 80 + "..."
+      expect((result.data.rows[0].body as string).endsWith("...")).toBe(true);
     });
 
-    it("should return exists:false for nonexistent table", async () => {
+    it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -536,10 +537,10 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], query: "test" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success:false for generic query error", async () => {

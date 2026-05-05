@@ -1,20 +1,20 @@
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { z } from "zod";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 const ListEventsSchemaBase = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   status: z.string().optional().describe("Filter by status"),
 });
 
@@ -23,6 +23,7 @@ const ListEventsSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   status: z
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
@@ -41,35 +42,28 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListEventsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListEventsSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { schema, status } = parsed;
+        const parsedParams = ListEventsSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const status = parsedParams.status;
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`)
+            );
+          }
         }
-      }
 
-      let query = `
-                SELECT 
+        let query = `
+                SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     DEFINER as definer,
@@ -90,20 +84,28 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE EVENT_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-      const queryParams: unknown[] = [schema ?? null];
+        const queryParams: unknown[] = [targetSchema ?? null];
 
-      if (status) {
-        query += " AND STATUS = ?";
-        queryParams.push(status);
+        if (status !== undefined) {
+          query += " AND STATUS = ?";
+          queryParams.push(status);
+        }
+
+        query += " ORDER BY EVENT_NAME";
+
+        const result = await adapter.executeQuery(query, queryParams);
+        const response = {
+          success: true as const,
+          data: {
+            events: result.rows,
+            count: result.rows?.length ?? 0,
+          }
+        };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-
-      query += " ORDER BY EVENT_NAME";
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        events: result.rows,
-        count: result.rows?.length ?? 0,
-      };
     },
   };
 }

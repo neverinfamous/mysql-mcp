@@ -5,35 +5,29 @@
  */
 
 import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import {
+  stripErrorPrefix,
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg
-    .replace(/^Query failed:\s*/i, "")
-    .replace(/^Execute failed:\s*/i, "")
-    .trim();
-}
 
 // =============================================================================
 // Zod Schemas
 // ============================================================================
 
 const AuditLogSchema = z.object({
-  limit: z.number().default(20).describe("Maximum number of records"),
+  limit: z.number().default(10).describe("Maximum number of records"),
   user: z.string().optional().describe("Filter by username"),
   eventType: z
     .string()
@@ -65,26 +59,23 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
     group: "security",
     inputSchema: AuditLogSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       // First check if audit log table exists
       try {
         const { limit, user, eventType, startTime } =
           AuditLogSchema.parse(params);
         const checkResult = await adapter.executeQuery(`
-                    SELECT TABLE_NAME 
-                    FROM information_schema.TABLES 
-                    WHERE TABLE_SCHEMA = 'mysql' 
+                    SELECT TABLE_NAME
+                    FROM information_schema.TABLES
+                    WHERE TABLE_SCHEMA = 'mysql'
                       AND TABLE_NAME = 'audit_log'
                 `);
 
         if (!checkResult.rows || checkResult.rows.length === 0) {
           // Try performance_schema alternative
           let query = `
-                        SELECT 
+                        SELECT
                             e.EVENT_NAME as event,
                             e.OBJECT_TYPE as objectType,
                             e.OBJECT_NAME as objectName,
@@ -126,18 +117,18 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           query += ` ORDER BY e.TIMER_START DESC LIMIT ${limit}`;
 
           const result = await adapter.executeQuery(query, []);
-          const response: Record<string, unknown> = {
+          const data: Record<string, unknown> = {
             source: "performance_schema",
             message: "Using performance_schema as audit log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
           if (filtersIgnored.length > 0) {
-            response["filtersIgnored"] = filtersIgnored;
-            response["note"] =
+            data["filtersIgnored"] = filtersIgnored;
+            data["note"] =
               "startTime filter not applied: performance_schema uses picosecond counters, not ISO timestamps";
           }
-          return response;
+          return withTokenEstimate({ success: true, data });
         }
 
         // Query actual audit log
@@ -170,14 +161,17 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         queryParams.push(limit);
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
-          source: "mysql.audit_log",
-          events: result.rows ?? [],
-          count: result.rows?.length ?? 0,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            source: "mysql.audit_log",
+            events: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         const stripped = stripErrorPrefix(msg);
@@ -187,16 +181,11 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           lower.includes("does not exist") ||
           lower.includes("access denied")
         ) {
-          return {
-            success: false,
-            available: false,
-            error:
-              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
-            suggestion:
-              'Install audit plugin with: INSTALL PLUGIN audit_log SONAME "audit_log.so"',
-          };
+          return formatHandlerErrorResponse(
+            new Error("Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.")
+          );
         }
-        return { success: false, error: stripped };
+        return formatHandlerErrorResponse(new Error(stripped));
       }
     },
   };
@@ -215,10 +204,7 @@ export function createSecurityFirewallStatusTool(
     group: "security",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if firewall plugin is installed
@@ -229,12 +215,15 @@ export function createSecurityFirewallStatusTool(
                 `);
 
         if (!pluginResult.rows || pluginResult.rows.length === 0) {
-          return {
-            installed: false,
-            message: "MySQL Enterprise Firewall is not installed",
-            suggestion:
-              'Install with: INSTALL PLUGIN mysql_firewall SONAME "firewall.so"',
-          };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              installed: false,
+              message: "MySQL Enterprise Firewall is not installed",
+              suggestion:
+                'Install with: INSTALL PLUGIN mysql_firewall SONAME "firewall.so"',
+            }
+          });
         }
 
         // Get firewall variables
@@ -251,22 +240,22 @@ export function createSecurityFirewallStatusTool(
           }),
         );
 
-        return {
-          installed: true,
-          plugins: pluginResult.rows,
-          configuration: variables,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            installed: true,
+            plugins: pluginResult.rows,
+            configuration: variables,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
-        return {
-          success: false,
-          installed: false,
-          error: `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
-          suggestion: stripErrorPrefix(message),
-        };
+        return formatHandlerErrorResponse(
+          new Error(`Firewall plugin check failed: ${stripErrorPrefix(message)}`)
+        );
       }
     },
   };
@@ -285,10 +274,7 @@ export function createSecurityFirewallRulesTool(
     group: "security",
     inputSchema: FirewallRulesSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, mode } = FirewallRulesSchema.parse(params);
@@ -300,10 +286,9 @@ export function createSecurityFirewallRulesTool(
           "OFF",
         ] as const;
         if (mode && !validModes.includes(mode as (typeof validModes)[number])) {
-          return {
-            success: false,
-            error: `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,
-          };
+          return formatHandlerErrorResponse(
+            new Error(`Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`)
+          );
         }
         // Get firewall users
         let usersQuery = `
@@ -344,22 +329,22 @@ export function createSecurityFirewallRulesTool(
           user ? [`%${user}%`] : [],
         );
 
-        return {
-          users: usersResult.rows ?? [],
-          rules: rulesResult.rows ?? [],
-          userCount: usersResult.rows?.length ?? 0,
-          ruleCount: rulesResult.rows?.length ?? 0,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            users: usersResult.rows ?? [],
+            rules: rulesResult.rows ?? [],
+            userCount: usersResult.rows?.length ?? 0,
+            ruleCount: rulesResult.rows?.length ?? 0,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
-        return {
-          success: false,
-          available: false,
-          error:
-            "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
-        };
+        return formatHandlerErrorResponse(
+          new Error("Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.")
+        );
       }
     },
   };

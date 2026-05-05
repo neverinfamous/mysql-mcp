@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
+import * as path from "path";
 import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 import {
   createShellDumpInstanceTool,
@@ -69,10 +70,11 @@ describe("Shell Backup Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.dryRun).toBe(true);
+      expect(result.data.dryRun).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('util.dumpInstance("/backup/full"');
+      const expectedPath = path.resolve("/backup/full").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.dumpInstance("${expectedPath}"`);
       expect(jsArg).toContain("dryRun: true");
       expect(jsArg).toContain("threads: 8");
     });
@@ -116,7 +118,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("mysqlsh_dump_schemas");
+      expect(result.suggestion).toContain("mysqlsh_dump_schemas");
     });
 
     it("should return structured error for Fatal error during dump", async () => {
@@ -130,7 +132,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Fatal error during dump");
-      expect(result.hint).toContain("mysqlsh_dump_schemas");
+      expect(result.suggestion).toContain("mysqlsh_dump_schemas");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -167,12 +169,11 @@ describe("Shell Backup Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.schemas).toEqual(["db1", "db2"]);
+      expect(result.data.schemas).toEqual(["db1", "db2"]);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain(
-        'util.dumpSchemas(["db1","db2"], "/backup/schemas"',
-      );
+      const expectedPath = path.resolve("/backup/schemas").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.dumpSchemas(["db1","db2"], "${expectedPath}"`);
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain('compression: "gzip"');
     });
@@ -220,7 +221,7 @@ describe("Shell Backup Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.ddlOnly).toBe(true);
+      expect(result.data.ddlOnly).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("events: false");
@@ -242,7 +243,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("ddlOnly: true");
+      expect(result.suggestion).toContain("ddlOnly: true");
     });
 
     it("should return structured error for TRIGGER privilege errors", async () => {
@@ -259,7 +260,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("ddlOnly: true");
+      expect(result.suggestion).toContain("ddlOnly: true");
     });
 
     it("should return structured error for generic privilege errors", async () => {
@@ -276,7 +277,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("ddlOnly: true");
+      expect(result.suggestion).toContain("ddlOnly: true");
     });
 
     it("should return structured error for non-privilege errors", async () => {
@@ -332,9 +333,8 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain(
-        'util.dumpTables("db1", ["t1"], "/backup/tables"',
-      );
+      const expectedPath = path.resolve("/backup/tables").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.dumpTables("db1", ["t1"], "${expectedPath}"`);
       expect(jsArg).toContain('where: { "t1": "id > 100" }');
     });
 
@@ -367,7 +367,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.triggersExcluded).toBe(true);
+      expect(result.data.triggersExcluded).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("triggers: false");
@@ -386,7 +386,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.triggersExcluded).toBe(false);
+      expect(result.data.triggersExcluded).toBe(false);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).not.toContain("triggers: false");
@@ -407,7 +407,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("all: false");
+      expect(result.suggestion).toContain("all: false");
     });
 
     it("should return structured error for TRIGGER privilege errors", async () => {
@@ -426,7 +426,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing privileges");
-      expect(result.hint).toContain("all: false");
+      expect(result.suggestion).toContain("all: false");
     });
 
     it("should return structured error for Fatal error during dump", async () => {
@@ -444,7 +444,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Fatal error during dump");
-      expect(result.hint).toContain("all: false");
+      expect(result.suggestion).toContain("all: false");
     });
 
     it("should return structured error for non-privilege errors", async () => {

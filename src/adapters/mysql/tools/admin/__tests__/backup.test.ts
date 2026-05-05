@@ -11,7 +11,7 @@ import {
   createCreateDumpTool,
   createRestoreDumpTool,
 } from "../backup.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -41,12 +41,14 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should export table as SQL format", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice", email: "alice@example.com" },
-          { id: 2, name: "Bob", email: "bob@example.com" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice", email: "alice@example.com" },
+            { id: 2, name: "Bob", email: "bob@example.com" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -54,21 +56,23 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL" },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.sql).toContain("INSERT INTO `users`");
-      expect(result.sql).toContain("Alice");
-      expect(result.rowCount).toBe(2);
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      expect(result.data.sql).toContain("INSERT INTO `users`");
+      expect(result.data.sql).toContain("Alice");
+      expect(result.data.rowCount).toBe(2);
     });
 
     it("should export table as CSV format", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice", active: true },
-          { id: 2, name: "Bob", active: false },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice", active: true },
+            { id: 2, name: "Bob", active: false },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -76,16 +80,18 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "CSV" },
         mockContext,
-      )) as { csv: string; rowCount: number };
+      )) as { data: { csv: string; rowCount: number } };
 
-      expect(result.csv).toContain("id,name,active");
-      expect(result.csv).toContain("Alice");
-      expect(result.csv).toContain("Bob");
-      expect(result.rowCount).toBe(2);
+      expect(result.data.csv).toContain("id,name,active");
+      expect(result.data.csv).toContain("Alice");
+      expect(result.data.csv).toContain("Bob");
+      expect(result.data.rowCount).toBe(2);
     });
 
     it("should export empty table", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "empty_table" }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -93,16 +99,18 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "empty_table", format: "SQL" },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.sql).toBe("");
-      expect(result.rowCount).toBe(0);
+      expect(result.data.sql).toBe("");
+      expect(result.data.rowCount).toBe(0);
     });
 
     it("should handle WHERE clause in SQL export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 5, status: "active" }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "orders" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ id: 5, status: "active" }]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -112,14 +120,16 @@ describe("Admin Backup Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0] as string;
       expect(call).toContain('WHERE status = "active"');
     });
 
     it("should handle NULL values in SQL export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1, name: "Test", description: null }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "products" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ id: 1, name: "Test", description: null }]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -127,17 +137,19 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "products", format: "SQL" },
         mockContext,
-      )) as { sql: string };
+      )) as { data: { sql: string } };
 
-      expect(result.sql).toContain("NULL");
+      expect(result.data.sql).toContain("NULL");
     });
 
     it("should handle JSON values in SQL export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, metadata: { key: "value", nested: { prop: 123 } } },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "items" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, metadata: { key: "value", nested: { prop: 123 } } },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -145,16 +157,18 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "items", format: "SQL" },
         mockContext,
-      )) as { sql: string };
+      )) as { data: { sql: string } };
 
-      expect(result.sql).toContain("metadata");
-      expect(result.sql).toContain("key");
+      expect(result.data.sql).toContain("metadata");
+      expect(result.data.sql).toContain("key");
     });
 
     it("should handle object values in CSV export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1, config: { setting: "value" } }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "configs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ id: 1, config: { setting: "value" } }]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -162,9 +176,9 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "configs", format: "CSV" },
         mockContext,
-      )) as { csv: string };
+      )) as { data: { csv: string } };
 
-      expect(result.csv).toContain("setting");
+      expect(result.data.csv).toContain("setting");
     });
 
     it("should validate table name for SQL injection", async () => {
@@ -199,10 +213,9 @@ describe("Admin Backup Tools", () => {
       expect(result.error).toContain("dangerous SQL patterns");
     });
 
-    it("should return exists: false for non-existent table", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
-      );
+    it("should return structured error for non-existent table", async () => {
+      // The first call is the existence check (P154)
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -210,16 +223,19 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", format: "SQL" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; details: { exists: boolean }; error?: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.details?.exists).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return structured error for query failures", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Unknown column 'invalid_col' in 'where clause'"),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockRejectedValueOnce(
+          new Error("Unknown column 'invalid_col' in 'where clause'"),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -234,11 +250,13 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should generate proper INSERT statements with column names", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, email: "test@example.com", created_at: "2024-01-01" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, email: "test@example.com", created_at: "2024-01-01" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -246,10 +264,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "logs", format: "SQL" },
         mockContext,
-      )) as { sql: string };
+      )) as { data: { sql: string } };
 
-      expect(result.sql).toContain("(`id`, `email`, `created_at`)");
-      expect(result.sql).toContain("VALUES");
+      expect(result.data.sql).toContain("(`id`, `email`, `created_at`)");
+      expect(result.data.sql).toContain("VALUES");
     });
 
     it("should return structured error for Zod validation failures", async () => {
@@ -279,14 +297,16 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should batch rows into multi-row INSERT statements", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" },
-          { id: 3, name: "Charlie" },
-          { id: 4, name: "Diana" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+            { id: 3, name: "Charlie" },
+            { id: 4, name: "Diana" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -294,10 +314,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL", batch: 2 },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.rowCount).toBe(4);
-      const statements = result.sql.split("\n");
+      expect(result.data.rowCount).toBe(4);
+      const statements = result.data.sql.split("\n");
       expect(statements).toHaveLength(2);
       // Each statement should have 2 value groups
       expect(statements[0]).toContain("VALUES (1, 'Alice'), (2, 'Bob')");
@@ -305,13 +325,15 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle batch larger than row count", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" },
-          { id: 3, name: "Charlie" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+            { id: 3, name: "Charlie" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -319,10 +341,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL", batch: 10 },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.rowCount).toBe(3);
-      const statements = result.sql.split("\n");
+      expect(result.data.rowCount).toBe(3);
+      const statements = result.data.sql.split("\n");
       expect(statements).toHaveLength(1);
       expect(statements[0]).toContain(
         "VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie')",
@@ -330,12 +352,14 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should default to batch: 1 producing individual INSERT statements", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -343,10 +367,10 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "users", format: "SQL" },
         mockContext,
-      )) as { sql: string; rowCount: number };
+      )) as { data: { sql: string; rowCount: number } };
 
-      expect(result.rowCount).toBe(2);
-      const statements = result.sql.split("\n");
+      expect(result.data.rowCount).toBe(2);
+      const statements = result.data.sql.split("\n");
       expect(statements).toHaveLength(2);
       expect(statements[0]).toContain("VALUES (1, 'Alice');");
       expect(statements[1]).toContain("VALUES (2, 'Bob');");
@@ -380,11 +404,11 @@ describe("Admin Backup Tools", () => {
           ],
         },
         mockContext,
-      )) as { success: boolean; rowsInserted: number };
+      )) as { success: boolean; data: { rowsInserted: number } };
 
-      expect(mockAdapter.executeWriteQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeWriteQuery).toHaveBeenCalledTimes(1);
       expect(result.success).toBe(true);
-      expect(result.rowsInserted).toBe(2);
+      expect(result.data.rowsInserted).toBe(2);
     });
 
     it("should handle empty data array", async () => {
@@ -395,11 +419,11 @@ describe("Admin Backup Tools", () => {
           data: [],
         },
         mockContext,
-      )) as { success: boolean; rowsInserted: number };
+      )) as { success: boolean; data: { rowsInserted: number } };
 
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
       expect(result.success).toBe(true);
-      expect(result.rowsInserted).toBe(0);
+      expect(result.data.rowsInserted).toBe(0);
     });
 
     it("should use parameterized queries", async () => {
@@ -466,15 +490,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should return structured error for duplicate key violations", async () => {
-      mockAdapter.executeWriteQuery
-        .mockResolvedValueOnce({
-          rows: [],
-          rowsAffected: 1,
-          executionTimeMs: 5,
-        })
-        .mockRejectedValueOnce(
-          new Error("Duplicate entry '1' for key 'users.PRIMARY'"),
-        );
+      mockAdapter.executeWriteQuery.mockRejectedValue(
+        new Error("Duplicate entry '1' for key 'users.PRIMARY'"),
+      );
 
       const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler(
@@ -486,14 +504,14 @@ describe("Admin Backup Tools", () => {
           ],
         },
         mockContext,
-      )) as { success: boolean; error: string; rowsInserted: number };
+      )) as { success: boolean; error: string; details: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate entry");
-      expect(result.rowsInserted).toBe(1);
+      expect(result.details.rowsInserted).toBe(0);
     });
 
-    it("should return exists: false for non-existent table", async () => {
+    it("should return structured error for non-existent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -505,10 +523,11 @@ describe("Admin Backup Tools", () => {
           data: [{ name: "test" }],
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string; details: { rowsInserted: number } };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
+      expect(result.details.rowsInserted).toBe(0);
     });
 
     it("should return structured error for unknown column", async () => {
@@ -523,11 +542,11 @@ describe("Admin Backup Tools", () => {
           data: [{ nonexistent_col: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; rowsInserted: number };
+      )) as { success: boolean; error: string; details: { rowsInserted: number } };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Unknown column");
-      expect(result.rowsInserted).toBe(0);
+      expect(result.details.rowsInserted).toBe(0);
     });
 
     it("should return structured error for Zod validation failures", async () => {
@@ -552,118 +571,7 @@ describe("Admin Backup Tools", () => {
       expect(tool.annotations?.readOnlyHint).toBe(true);
     });
 
-    it("should generate mysqldump command for current database", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "testdb" }]),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({}, mockContext)) as {
-        command: string;
-        note: string;
-      };
-
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT DATABASE() as db",
-      );
-      expect(result.command).toContain("mysqldump");
-      expect(result.command).toContain("testdb");
-      expect(result.note).toBeDefined();
-    });
-
-    it("should generate mysqldump command with specific database", async () => {
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler(
-        { database: "production_db" },
-        mockContext,
-      )) as { command: string };
-
-      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
-      expect(result.command).toContain("production_db");
-    });
-
-    it("should include specific tables in command", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler(
-        {
-          tables: ["users", "orders"],
-        },
-        mockContext,
-      )) as { command: string };
-
-      expect(result.command).toContain("users");
-      expect(result.command).toContain("orders");
-    });
-
-    it("should add --no-data flag for schema-only dump", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({ noData: true }, mockContext)) as {
-        command: string;
-      };
-
-      expect(result.command).toContain("--no-data");
-    });
-
-    it("should add --single-transaction flag when specified", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler(
-        { singleTransaction: true },
-        mockContext,
-      )) as { command: string };
-
-      expect(result.command).toContain("--single-transaction");
-    });
-
-    it("should combine multiple options", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler(
-        {
-          tables: ["users"],
-          noData: true,
-          singleTransaction: true,
-        },
-        mockContext,
-      )) as { command: string };
-
-      expect(result.command).toContain("--no-data");
-      expect(result.command).toContain("--single-transaction");
-      expect(result.command).toContain("users");
-    });
-
-    it("should handle missing database gracefully", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: null }]),
-      );
-
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({}, mockContext)) as {
-        command: string;
-      };
-
-      expect(result.command).toBeDefined();
-    });
-
-    it("should return structured error on query failure", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Connection lost"),
-      );
-
+    it("should return validation error when database is missing", async () => {
       const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -671,7 +579,90 @@ describe("Admin Backup Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Connection lost");
+      expect(result.error).toContain("Validation error");
+    });
+
+    it("should generate mysqldump command with specific database", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "production_db" }]),
+      );
+      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { database: "production_db" },
+        mockContext,
+      )) as { data: { command: string } };
+
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      expect(result.data.command).toContain("production_db");
+    });
+
+    it("should include specific tables in command", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { SCHEMA_NAME: "mydb" },
+          { TABLE_NAME: "users" },
+        ]),
+      );
+      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          database: "mydb",
+          tables: ["users", "orders"],
+        },
+        mockContext,
+      )) as { data: { command: string } };
+
+      expect(result.data.command).toContain("users");
+      expect(result.data.command).toContain("orders");
+    });
+
+    it("should add --no-data flag for schema-only dump", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
+      );
+      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { database: "mydb", noData: true },
+        mockContext,
+      )) as { data: { command: string } };
+
+      expect(result.data.command).toContain("--no-data");
+    });
+
+    it("should add --single-transaction flag when specified", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
+      );
+      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        { database: "mydb", singleTransaction: true },
+        mockContext,
+      )) as { data: { command: string } };
+
+      expect(result.data.command).toContain("--single-transaction");
+    });
+
+    it("should combine multiple options", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([
+          { SCHEMA_NAME: "mydb" },
+          { TABLE_NAME: "users" },
+        ]),
+      );
+      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const result = (await tool.handler(
+        {
+          database: "mydb",
+          tables: ["users"],
+          noData: true,
+          singleTransaction: true,
+        },
+        mockContext,
+      )) as { data: { command: string } };
+
+      expect(result.data.command).toContain("--no-data");
+      expect(result.data.command).toContain("--single-transaction");
+      expect(result.data.command).toContain("users");
     });
   });
 
@@ -687,11 +678,7 @@ describe("Admin Backup Tools", () => {
       expect(tool.annotations?.readOnlyHint).toBe(false);
     });
 
-    it("should generate mysql restore command for current database", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "testdb" }]),
-      );
-
+    it("should return validation error when database is missing", async () => {
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
@@ -700,18 +687,16 @@ describe("Admin Backup Tools", () => {
           filename: "backup.sql",
         },
         mockContext,
-      )) as { command: string; note: string };
+      )) as { success: boolean; error: string };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT DATABASE() as db",
-      );
-      expect(result.command).toContain("mysql");
-      expect(result.command).toContain("testdb");
-      expect(result.command).toContain("backup.sql");
-      expect(result.note).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Validation error");
     });
 
     it("should generate mysql restore command with specific database", async () => {
+      mockAdapter.executeReadQuery.mockResolvedValue(
+        createMockQueryResult([{ SCHEMA_NAME: "restore_target" }]),
+      );
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
@@ -721,66 +706,48 @@ describe("Admin Backup Tools", () => {
           filename: "dump.sql",
         },
         mockContext,
-      )) as { command: string };
+      )) as { data: { command: string } };
 
-      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
-      expect(result.command).toContain("restore_target");
-      expect(result.command).toContain("dump.sql");
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      expect(result.data.command).toContain("restore_target");
+      expect(result.data.command).toContain("dump.sql");
     });
 
     it("should handle various filename formats", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: "mydb" }]),
+        createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
       );
-
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
 
       let result = (await tool.handler(
-        { filename: "/path/to/backup.sql" },
+        { database: "mydb", filename: "/path/to/backup.sql" },
         mockContext,
-      )) as { command: string };
-      expect(result.command).toContain("/path/to/backup.sql");
+      )) as { data: { command: string } };
+      expect(result.data.command).toContain("/path/to/backup.sql");
 
       result = (await tool.handler(
-        { filename: "backup.sql.gz" },
+        { database: "mydb", filename: "backup.sql.gz" },
         mockContext,
-      )) as { command: string };
-      expect(result.command).toContain("backup.sql.gz");
+      )) as { data: { command: string } };
+      expect(result.data.command).toContain("backup.sql.gz");
     });
-
-    it("should handle missing database gracefully", async () => {
+    
+    it("should return structured error for non-existent database", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ db: null }]),
+        createMockQueryResult([]),
       );
-
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler(
-        { filename: "backup.sql" },
-        mockContext,
-      )) as { command: string };
-
-      expect(result.command).toBeDefined();
-    });
-
-    it("should return structured error on query failure", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Connection lost"),
-      );
-
-      const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler(
-        { filename: "backup.sql" },
+        { database: "nonexistent", filename: "backup.sql" },
         mockContext,
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Connection lost");
+      expect(result.error).toContain("does not exist");
     });
   });
 });

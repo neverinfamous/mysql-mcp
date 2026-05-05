@@ -10,7 +10,7 @@ import {
   createSysWaitSummaryTool,
   createSysIOSummaryTool,
 } from "../performance.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -53,7 +53,7 @@ describe("Sys Schema Performance Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("sys.statement_analysis");
-      expect(result).toHaveProperty("statements");
+      expect(result).toHaveProperty("data");
     });
 
     it("should allow custom ordering", async () => {

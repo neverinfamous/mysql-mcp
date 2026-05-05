@@ -20,13 +20,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Audit logs (runtime data — tracked structure via .gitkeep)
+logs/*.jsonl*
+logs/snapshots/
+
 # OS files
 .DS_Store
 Thumbs.db
 
 # Editor directories and files
 .gemini/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
@@ -58,6 +63,12 @@ config/secrets/
 *.sql
 *.dump
 
+# Test-server seed/schema files ARE tracked source code
+!test-server/test-prompts.sql
+!test-server/test-resources.sql
+!test-server/test-seed.sql
+!test-server/blog_schema.sql
+
 # Credentials
 *.pem
 *.key
@@ -80,4 +91,11 @@ proxysql.cnf
 *.pwd
 
 # Test server
-test-server/
+# Test server runtime files (test plans, docs, SQL seeds, and scripts are tracked)
+test-server/*.db
+test-server/*.log
+test-server/*.dump
+
+# Temporary scripts (dev only)
+tmp/
+test-results/

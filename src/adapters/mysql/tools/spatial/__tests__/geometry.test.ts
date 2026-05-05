@@ -9,7 +9,7 @@ import {
   createSpatialPointTool,
   createSpatialPolygonTool,
 } from "../geometry.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -51,15 +51,15 @@ describe("Spatial Geometry Tools", () => {
       const result = (await tool.handler(
         { longitude: 10, latitude: 20 },
         mockContext,
-      )) as { wkt: string; geoJson: any };
+      )) as { data: { wkt: string; geoJson: any } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       // With axis-order=long-lat, longitude comes first in POINT
       expect(call).toContain("POINT(10 20)");
       expect(call).toContain("axis-order=long-lat");
-      expect(result.wkt).toBe("POINT(20 10)");
-      expect(result.geoJson).toEqual({ type: "Point", coordinates: [10, 20] });
+      expect(result.data.wkt).toBe("POINT(20 10)");
+      expect(result.data.geoJson).toEqual({ type: "Point", coordinates: [10, 20] });
     });
 
     it("should use default SRID 4326", async () => {
@@ -123,8 +123,7 @@ describe("Spatial Geometry Tools", () => {
       ] as [number, number][][];
 
       const result = (await tool.handler({ coordinates }, mockContext)) as {
-        wkt: string;
-        area: number;
+        data: { wkt: string; area: number };
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -134,8 +133,8 @@ describe("Spatial Geometry Tools", () => {
       const args = mockAdapter.executeQuery.mock.calls[0][1] as any[];
       expect(args[0]).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
 
-      expect(result.wkt).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
-      expect(result.area).toBe(100);
+      expect(result.data.wkt).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
+      expect(result.data.area).toBe(100);
     });
   });
 });

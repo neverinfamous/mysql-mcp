@@ -13,7 +13,7 @@ import {
   createFlushTablesTool,
   createKillQueryTool,
 } from "../maintenance.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -44,7 +44,7 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("should execute OPTIMIZE TABLE for single table", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           {
             Table: "users",
@@ -60,17 +60,17 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "OPTIMIZE TABLE `users`",
       );
-      expect(result).toHaveProperty("results");
-      expect(Array.isArray((result as { results: unknown[] }).results)).toBe(
+      expect((result as any).data).toHaveProperty("results");
+      expect(Array.isArray((result as { data: { results: unknown[] } }).data.results)).toBe(
         true,
       );
     });
 
     it("should execute OPTIMIZE TABLE for multiple tables", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createOptimizeTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -80,20 +80,20 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "OPTIMIZE TABLE `users`, `orders`, `products`",
       );
     });
 
     it("should handle table names with special characters", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createOptimizeTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ tables: ["table-name", "table.name"] }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
       expect(call).toContain("`table-name`");
       expect(call).toContain("`table.name`");
     });
@@ -112,7 +112,7 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("should execute ANALYZE TABLE for single table", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           {
             Table: "products",
@@ -128,21 +128,21 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["products"] }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "ANALYZE TABLE `products`",
       );
-      expect(result).toHaveProperty("results");
+      expect((result as any).data).toHaveProperty("results");
     });
 
     it("should execute ANALYZE TABLE for multiple tables", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createAnalyzeTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ tables: ["table1", "table2"] }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "ANALYZE TABLE `table1`, `table2`",
       );
     });
@@ -169,8 +169,8 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith("CHECK TABLE `users`");
-      expect(result).toHaveProperty("results");
-      expect(result).toHaveProperty("rowCount");
+      expect((result as any).data).toHaveProperty("results");
+      expect((result as any).data).toHaveProperty("rowCount");
     });
 
     it("should execute CHECK TABLE with EXTENDED option", async () => {
@@ -219,10 +219,10 @@ describe("Admin Maintenance Tools", () => {
       const result = (await tool.handler(
         { tables: ["users"] },
         mockContext,
-      )) as { results: unknown[]; rowCount: number };
+      )) as { data: { results: unknown[]; rowCount: number } };
 
-      expect(result.results).toEqual([]);
-      expect(result.rowCount).toBe(0);
+      expect(result.data.results).toEqual([]);
+      expect(result.data.rowCount).toBe(0);
     });
 
     it("should handle missing rows property", async () => {
@@ -236,10 +236,10 @@ describe("Admin Maintenance Tools", () => {
       const result = (await tool.handler(
         { tables: ["users"] },
         mockContext,
-      )) as { results: unknown[]; rowCount: number };
+      )) as { data: { results: unknown[]; rowCount: number } };
 
-      expect(result.results).toEqual([]);
-      expect(result.rowCount).toBe(0);
+      expect(result.data.results).toEqual([]);
+      expect(result.data.rowCount).toBe(0);
     });
 
     it("should return structured error for invalid option value", async () => {
@@ -264,11 +264,11 @@ describe("Admin Maintenance Tools", () => {
       expect(tool.name).toBe("mysql_repair_table");
       expect(tool.group).toBe("admin");
       expect(tool.requiredScopes).toContain("admin");
-      expect(tool.annotations?.destructiveHint).toBeUndefined(); // Not destructive
+      expect(tool.annotations?.destructiveHint).toBe(false); // Not destructive
     });
 
     it("should execute REPAIR TABLE without QUICK option", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           {
             Table: "myisam_table",
@@ -287,46 +287,46 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `myisam_table`",
       );
-      expect(result).toHaveProperty("results");
+      expect((result as any).data).toHaveProperty("results");
     });
 
     it("should execute REPAIR TABLE with QUICK option", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ tables: ["old_table"], quick: true }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `old_table` QUICK",
       );
     });
 
     it("should default quick to false when not provided", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ tables: ["table1"] }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
       expect(call).not.toContain("QUICK");
     });
 
     it("should execute REPAIR TABLE for multiple tables", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ tables: ["t1", "t2"], quick: false }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `t1`, `t2`",
       );
     });
@@ -353,7 +353,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for all tables when undefined", async () => {
@@ -365,7 +365,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: undefined }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for all tables when empty array", async () => {
@@ -377,7 +377,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: [] }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for specific table", async () => {
@@ -394,7 +394,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "FLUSH TABLES `users`",
       );
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
     });
 
     it("should execute FLUSH TABLES for multiple specific tables", async () => {
@@ -439,7 +439,7 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ processId: 12345 }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 12345");
-      expect(result).toEqual({ success: true, killed: 12345, type: "QUERY" });
+      expect(result).toMatchObject({ success: true, data: { killed: 12345, type: "QUERY" } });
     });
 
     it("should execute KILL QUERY when connection is false", async () => {
@@ -452,7 +452,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 999");
-      expect(result).toEqual({ success: true, killed: 999, type: "QUERY" });
+      expect(result).toMatchObject({ success: true, data: { killed: 999, type: "QUERY" } });
     });
 
     it("should execute KILL CONNECTION when connection is true", async () => {
@@ -467,10 +467,12 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "KILL CONNECTION 54321",
       );
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: true,
-        killed: 54321,
-        type: "CONNECTION",
+        data: {
+          killed: 54321,
+          type: "CONNECTION",
+        },
       });
     });
 
@@ -498,7 +500,7 @@ describe("Admin Maintenance Tools", () => {
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ processId: 999999 }, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Process ID 999999 not found",
       });
@@ -510,13 +512,16 @@ describe("Admin Maintenance Tools", () => {
       const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ processId: 123 }, mockContext);
 
-      expect(result).toEqual({ success: false, error: "Connection lost" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Connection lost",
+      });
     });
   });
 
   describe("DDL handler error handling", () => {
     it("mysql_optimize_table should return structured error on adapter failure", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
+      mockAdapter.rawQuery.mockRejectedValue(
         new Error("Table storage engine mismatch"),
       );
 
@@ -525,7 +530,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table storage engine mismatch",
       });
@@ -542,7 +547,7 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("mysql_analyze_table should return structured error on adapter failure", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
+      mockAdapter.rawQuery.mockRejectedValue(
         new Error("Access denied for user"),
       );
 
@@ -551,7 +556,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: ["products"] }, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Access denied for user",
       });
@@ -575,7 +580,7 @@ describe("Admin Maintenance Tools", () => {
       const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({ tables: ["orders"] }, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Lock wait timeout exceeded",
       });
@@ -590,16 +595,14 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("mysql_repair_table should return structured error on adapter failure", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table is read only"),
-      );
+      mockAdapter.rawQuery.mockRejectedValue(new Error("Table is read only"));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = await tool.handler({ tables: ["broken"] }, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Table is read only",
       });
@@ -618,46 +621,44 @@ describe("Admin Maintenance Tools", () => {
 
   describe("repair_table alias support", () => {
     it("should accept table alias (singular string)", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ table: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
-        "REPAIR TABLE `users`",
-      );
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith("REPAIR TABLE `users`");
     });
 
     it("should accept tableName alias", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ tableName: "orders" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `orders`",
       );
     });
 
     it("should accept name alias", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
       );
       await tool.handler({ name: "products" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `products`",
       );
     });
 
     it("should prefer tables array over aliases", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -667,7 +668,7 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `t1`, `t2`",
       );
     });
@@ -675,7 +676,7 @@ describe("Admin Maintenance Tools", () => {
 
   describe("rowCount consistency", () => {
     it("mysql_optimize_table should include rowCount", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           { Table: "t1", Op: "optimize", Msg_type: "status", Msg_text: "OK" },
           { Table: "t2", Op: "optimize", Msg_type: "status", Msg_text: "OK" },
@@ -688,13 +689,13 @@ describe("Admin Maintenance Tools", () => {
       const result = (await tool.handler(
         { tables: ["t1", "t2"] },
         mockContext,
-      )) as { results: unknown[]; rowCount: number };
+      )) as { data: { results: unknown[]; rowCount: number } };
 
-      expect(result.rowCount).toBe(2);
+      expect(result.data.rowCount).toBe(2);
     });
 
     it("mysql_analyze_table should include rowCount", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           { Table: "t1", Op: "analyze", Msg_type: "status", Msg_text: "OK" },
         ]),
@@ -704,15 +705,17 @@ describe("Admin Maintenance Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
-        results: unknown[];
-        rowCount: number;
+        data: {
+          results: unknown[];
+          rowCount: number;
+        };
       };
 
-      expect(result.rowCount).toBe(1);
+      expect(result.data.rowCount).toBe(1);
     });
 
     it("mysql_repair_table should include rowCount", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           {
             Table: "t1",
@@ -727,11 +730,13 @@ describe("Admin Maintenance Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
-        results: unknown[];
-        rowCount: number;
+        data: {
+          results: unknown[];
+          rowCount: number;
+        };
       };
 
-      expect(result.rowCount).toBe(1);
+      expect(result.data.rowCount).toBe(1);
     });
   });
 
@@ -750,11 +755,13 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Tables not found: nonexistent_xyz",
-        notFound: ["nonexistent_xyz"],
-        flushed: ["users"],
+        details: {
+          notFound: ["nonexistent_xyz"],
+          flushed: ["users"],
+        },
       });
       // Should have flushed the valid table
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -773,11 +780,13 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Tables not found: nonexistent_a, nonexistent_b",
-        notFound: ["nonexistent_a", "nonexistent_b"],
-        flushed: [],
+        details: {
+          notFound: ["nonexistent_a", "nonexistent_b"],
+          flushed: [],
+        },
       });
       // Should NOT have called executeQuery (no valid tables to flush)
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
@@ -800,7 +809,7 @@ describe("Admin Maintenance Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ success: true });
+      expect(result).toMatchObject({ success: true });
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         "FLUSH TABLES `users`, `orders`",
       );
@@ -832,7 +841,7 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Access denied; you need the RELOAD privilege",
       });

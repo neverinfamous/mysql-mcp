@@ -5,7 +5,7 @@
  * 6 tools: regexp_match, like_search, soundex, substring, concat, collation_convert.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -23,13 +23,16 @@ import {
   ConcatSchemaBase,
   CollationConvertSchema,
   CollationConvertSchemaBase,
-} from "../../types.js";
+} from "../../schemas/index.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -39,33 +42,38 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: RegexpMatchSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, pattern, where } = RegexpMatchSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, pattern, where, limit } =
+          RegexpMatchSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Return only id and matched column for minimal payload
         let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+        const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const result = await adapter.executeReadQuery(sql, [pattern]);
-
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
         }
-        return { success: false, error: msg };
+        const result = await adapter.executeReadQuery(sql, queryParams);
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
+        });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -80,33 +88,38 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: LikeSearchSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, pattern, where } = LikeSearchSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, pattern, where, limit } =
+          LikeSearchSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Return only id and matched column for minimal payload
         let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+        const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const result = await adapter.executeReadQuery(sql, [pattern]);
-
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
         }
-        return { success: false, error: msg };
+        const result = await adapter.executeReadQuery(sql, queryParams);
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
+        });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -120,33 +133,37 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: SoundexSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, value, where } = SoundexSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, value, where, limit } = SoundexSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Return only id, matched column, and soundex value for minimal payload
         let sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+        const queryParams: unknown[] = [value];
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const result = await adapter.executeReadQuery(sql, [value]);
-
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
         }
-        return { success: false, error: msg };
+        const result = await adapter.executeReadQuery(sql, queryParams);
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
+        });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -160,25 +177,22 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: SubstringSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, start, length, where } =
-        SubstringSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
-      const substringExpr =
-        length !== undefined
-          ? `SUBSTRING(\`${column}\`, ?, ?)`
-          : `SUBSTRING(\`${column}\`, ?)`;
-
       try {
+        const { table, column, start, length, where, limit } =
+          SubstringSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
+        const substringExpr =
+          length !== undefined
+            ? `SUBSTRING(\`${column}\`, ?, ?)`
+            : `SUBSTRING(\`${column}\`, ?)`;
+
         // Return only id, source column, and substring result for minimal payload
         let sql = `SELECT id, \`${column}\`, ${substringExpr} as substring_value FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] =
@@ -187,15 +201,21 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
+        }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
+        });
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
-        }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -209,26 +229,30 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: ConcatSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, columns, separator, alias, where, includeSourceColumns } =
-        ConcatSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      for (const col of columns) {
-        validateIdentifier(col, "column");
-      }
-      validateIdentifier(alias, "column");
-      validateWhereClause(where);
-
-      const columnList = columns.map((c) => `\`${c}\``).join(", ");
-      const concatExpr = `CONCAT_WS(?, ${columnList})`;
-
       try {
+        const {
+          table,
+          columns,
+          separator,
+          alias,
+          where,
+          includeSourceColumns,
+          limit,
+        } = ConcatSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        for (const col of columns) {
+          validateIdentifier(col, "column");
+        }
+        validateIdentifier(alias, "column");
+        validateWhereClause(where);
+
+        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        const concatExpr = `CONCAT_WS(?, ${columnList})`;
+
         // Optionally include source columns for full context or minimal payload
         const selectColumns = includeSourceColumns
           ? `id, ${columnList}, ${concatExpr} as \`${alias}\``
@@ -239,15 +263,21 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
+        }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
+        });
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
-        }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -264,47 +294,51 @@ export function createCollationConvertTool(
     group: "text",
     inputSchema: CollationConvertSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, charset, collation, where } =
-        CollationConvertSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-      // charset and collation are parameters for CONVERT, not identifiers in the query structure per se (but should be safe strings)
-      // They are usually safe to interpolate if we trust them or validate against a list, but here we just put them in.
-      // A safer approach for charset/collation would be to validate against known MySQL charsets/collations,
-      // but for now we assume they are safe or the user has rights.
-      // However, to be strictly safe, let's validate them as identifiers as they usually follow identifier rules.
-      validateIdentifier(charset, "column"); // charset names follow identifier rules
-      if (collation !== undefined) validateIdentifier(collation, "column"); // collation names follow identifier rules
-
-      let convertExpr = `CONVERT(\`${column}\` USING ${charset})`;
-      if (collation !== undefined) {
-        convertExpr = `${convertExpr} COLLATE ${collation}`;
-      }
-
       try {
+        const { table, column, charset, collation, where, limit } =
+          CollationConvertSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+        // charset and collation are parameters for CONVERT, not identifiers in the query structure per se (but should be safe strings)
+        // They are usually safe to interpolate if we trust them or validate against a list, but here we just put them in.
+        // A safer approach for charset/collation would be to validate against known MySQL charsets/collations,
+        // but for now we assume they are safe or the user has rights.
+        // However, to be strictly safe, let's validate them as identifiers as they usually follow identifier rules.
+        validateIdentifier(charset, "column"); // charset names follow identifier rules
+        if (collation !== undefined) validateIdentifier(collation, "column"); // collation names follow identifier rules
+
+        let convertExpr = `CONVERT(\`${column}\` USING ${charset})`;
+        if (collation !== undefined) {
+          convertExpr = `${convertExpr} COLLATE ${collation}`;
+        }
+
         // Return only id, source column, and converted result for minimal payload
         let sql = `SELECT id, \`${column}\`, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
+        const queryParams: unknown[] = [];
 
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
-
-        const result = await adapter.executeReadQuery(sql);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+        if (limit !== undefined) {
+          sql += ` LIMIT ?`;
+          queryParams.push(limit);
         }
-        return { success: false, error: msg };
+
+        const result = await adapter.executeReadQuery(sql, queryParams);
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          },
+        });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };

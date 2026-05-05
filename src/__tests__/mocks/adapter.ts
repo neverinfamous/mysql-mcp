@@ -6,7 +6,7 @@
  */
 
 import { vi } from "vitest";
-import type { MySQLAdapter } from "../../adapters/mysql/MySQLAdapter.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 import type {
   QueryResult,
   TableInfo,
@@ -125,7 +125,7 @@ export function createMockMySQLAdapter(): Partial<MySQLAdapter> & {
 } {
   const mockQueryResult = createMockQueryResult([{ id: 1, name: "test" }]);
 
-  return {
+  const adapter = {
     type: "mysql" as const,
     name: "MySQL Adapter",
     version: "0.1.0",
@@ -194,11 +194,38 @@ export function createMockMySQLAdapter(): Partial<MySQLAdapter> & {
     registerResources: vi.fn(),
     registerPrompts: vi.fn(),
 
-    // Pool access
-    getPool: vi.fn().mockReturnValue(null),
-
     // Schema cache invalidation
     clearSchemaCache: vi.fn(),
+  };
+
+  (adapter as any).getPool = vi.fn().mockReturnValue({
+    getConnection: vi.fn().mockResolvedValue({
+      query: vi.fn().mockImplementation((...args: any[]) => {
+        const sql = typeof args[0] === 'string' ? args[0] : args[0]?.sql;
+        if (sql && typeof sql === 'string' && sql.trim().toUpperCase().startsWith('SET')) {
+          return adapter.executeQuery(sql).then((res: any) => [res.rows ?? [], []]);
+        }
+        return adapter.executeReadQuery(sql).then((res: any) => [res.rows ?? [], []]);
+      }),
+      execute: vi.fn().mockImplementation((...args: any[]) => {
+        const sql = typeof args[0] === 'string' ? args[0] : args[0]?.sql;
+        return adapter.executeReadQuery(sql).then((res: any) => [res.rows ?? [], []]);
+      }),
+      release: vi.fn(),
+    }),
+    releaseConnection: vi.fn(),
+    getStats: vi.fn().mockReturnValue(createMockHealthStatus().poolStats),
+  });
+
+  return adapter as unknown as Partial<MySQLAdapter> & {
+    executeQuery: ReturnType<typeof vi.fn>;
+    executeReadQuery: ReturnType<typeof vi.fn>;
+    executeWriteQuery: ReturnType<typeof vi.fn>;
+    rawQuery: ReturnType<typeof vi.fn>;
+    getTableIndexes: ReturnType<typeof vi.fn>;
+    describeTable: ReturnType<typeof vi.fn>;
+    listTables: ReturnType<typeof vi.fn>;
+    getSchema: ReturnType<typeof vi.fn>;
   };
 }
 

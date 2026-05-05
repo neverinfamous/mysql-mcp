@@ -5,8 +5,9 @@
  * 4 tools: distance, distance_sphere, contains, within.
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -16,20 +17,20 @@ import {
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
 import { ValidationError } from "../../../../utils/validators.js";
+import {
+  DistanceSchemaBase,
+  DistanceSchema,
+  ContainsSchemaBase,
+  ContainsSchema,
+  WithinSchemaBase,
+  WithinSchema,
+} from "../../schemas/spatial.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from MySQL error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg.replace(/^(Query failed:\s*)?(Execute failed:\s*)?/i, "");
-}
 
 /** Safely extract a string field from raw params for error context */
 function paramStr(params: unknown, key: string): string {
@@ -46,44 +47,6 @@ function paramStr(params: unknown, key: string): string {
 }
 
 // =============================================================================
-// Zod Schemas
-// =============================================================================
-
-const DistanceSchema = z.object({
-  table: z.string().describe("Table name"),
-  spatialColumn: z.string().describe("Spatial column name"),
-  point: z
-    .object({
-      longitude: z.number(),
-      latitude: z.number(),
-    })
-    .describe("Reference point"),
-  maxDistance: z.number().optional().describe("Maximum distance in meters"),
-  limit: z.number().default(20).describe("Maximum results"),
-  srid: z.number().default(4326).describe("SRID"),
-});
-
-const ContainsSchema = z.object({
-  table: z.string().describe("Table name"),
-  spatialColumn: z.string().describe("Spatial column name"),
-  polygon: z.string().describe("WKT polygon to test containment"),
-  limit: z.number().default(100).describe("Maximum results"),
-  srid: z
-    .number()
-    .default(4326)
-    .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
-});
-
-const WithinSchema = z.object({
-  table: z.string().describe("Table name"),
-  spatialColumn: z.string().describe("Spatial column name"),
-  geometry: z.string().describe("WKT geometry to test within"),
-  limit: z.number().default(100).describe("Maximum results"),
-  srid: z
-    .number()
-    .default(4326)
-    .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
-});
 
 /**
  * Calculate distance between geometries
@@ -97,12 +60,9 @@ export function createSpatialDistanceTool(
     description:
       "Find rows within a certain distance from a point (Cartesian distance).",
     group: "spatial",
-    inputSchema: DistanceSchema,
+    inputSchema: DistanceSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, point, maxDistance, limit, srid } =
@@ -111,7 +71,7 @@ export function createSpatialDistanceTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
@@ -119,7 +79,7 @@ export function createSpatialDistanceTool(
         const escapedTable = escapeQualifiedTable(table);
 
         let query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt,
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance
                 FROM ${escapedTable}
             `;
@@ -140,23 +100,34 @@ export function createSpatialDistanceTool(
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
-          results: rows,
-          count: rows.length,
-          referencePoint: point,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            results: rows,
+            count: rows.length,
+            referencePoint: point,
+          },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          const tbl = paramStr(params, "table");
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
+          });
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -174,12 +145,9 @@ export function createSpatialDistanceSphereTool(
     description:
       "Calculate distance on a sphere (for geographic coordinates). Returns distance in meters.",
     group: "spatial",
-    inputSchema: DistanceSchema,
+    inputSchema: DistanceSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, point, maxDistance, limit, srid } =
@@ -188,7 +156,7 @@ export function createSpatialDistanceSphereTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
@@ -196,7 +164,7 @@ export function createSpatialDistanceSphereTool(
         const escapedTable = escapeQualifiedTable(table);
 
         let query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt,
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance_meters
                 FROM ${escapedTable}
             `;
@@ -217,24 +185,35 @@ export function createSpatialDistanceSphereTool(
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
-          results: rows,
-          count: rows.length,
-          referencePoint: point,
-          unit: "meters",
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            results: rows,
+            count: rows.length,
+            referencePoint: point,
+            unit: "meters",
+          },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          const tbl = paramStr(params, "table");
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
+          });
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -252,12 +231,9 @@ export function createSpatialContainsTool(
     description:
       "Find rows where the geometry is contained within a specified polygon.",
     group: "spatial",
-    inputSchema: ContainsSchema,
+    inputSchema: ContainsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, polygon, limit, srid } =
@@ -266,12 +242,12 @@ export function createSpatialContainsTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
                 WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
                 LIMIT ${String(limit)}
@@ -284,22 +260,33 @@ export function createSpatialContainsTool(
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
-          results: rows,
-          count: rows.length,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            results: rows,
+            count: rows.length,
+          },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          const tbl = paramStr(params, "table");
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
+          });
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };
@@ -314,12 +301,9 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Spatial Within",
     description: "Find rows where the geometry is within a specified geometry.",
     group: "spatial",
-    inputSchema: WithinSchema,
+    inputSchema: WithinSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, geometry, limit, srid } =
@@ -328,12 +312,12 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `
-                SELECT *, ST_AsText(\`${spatialColumn}\`) as ${spatialColumn}_wkt
+                SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
                 WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
                 LIMIT ${String(limit)}
@@ -346,22 +330,33 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
             Object.entries(row).filter(([key]) => key !== spatialColumn),
           ),
         );
-        return {
-          results: rows,
-          count: rows.length,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            results: rows,
+            count: rows.length,
+          },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return { success: false, error: error.message };
+          return withTokenEstimate({ success: false, error: error.message });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table: paramStr(params, "table") };
+          const tbl = paramStr(params, "table");
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
+          });
         }
-        return { success: false, error: stripErrorPrefix(msg) };
+        return formatHandlerErrorResponse(new Error(msg));
       }
     },
   };

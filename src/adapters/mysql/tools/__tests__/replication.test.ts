@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getReplicationTools } from "../replication.js";
 import { getPartitioningTools } from "../partitioning.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -280,10 +280,12 @@ describe("Partitioning Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
-        partitioned: boolean;
+        success: boolean;
+        data: { partitioned: boolean };
       };
 
-      expect(result.partitioned).toBe(false);
+      expect(result.success).toBe(true);
+      expect(result.data.partitioned).toBe(false);
     });
 
     it("should detect partitioned table with method and expression", async () => {
@@ -301,12 +303,14 @@ describe("Partitioning Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_partition_info")!;
       const result = (await tool.handler({ table: "logs" }, mockContext)) as {
-        partitioned: boolean;
-        method: string;
+        data: {
+          partitioned: boolean;
+          method: string;
+        }
       };
 
-      expect(result.partitioned).toBe(true);
-      expect(result.method).toBe("RANGE");
+      expect(result.data.partitioned).toBe(true);
+      expect(result.data.method).toBe("RANGE");
     });
   });
 
@@ -485,10 +489,9 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [{ name: "p_new", value: "2030" }],
         },
         mockContext,
-      )) as { success: boolean; fromPartitions: string[]; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.fromPartitions).toEqual(["nonexistent"]);
       expect(result.error).toContain("do not exist");
     });
 
@@ -505,8 +508,8 @@ describe("Partitioning Handler Execution", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("HASH/KEY");
-      expect(result.error).toContain("cannot be reorganized");
+      expect(result.error).toContain("Validation error");
+      expect(result.error).toContain("Invalid option: expected");
       // Should NOT have called executeQuery — error caught at validation
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
@@ -525,10 +528,10 @@ describe("Partitioning Handler Execution", () => {
           value: "100",
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return exists: false for nonexistent table in drop_partition", async () => {
@@ -538,10 +541,10 @@ describe("Partitioning Handler Execution", () => {
       const result = (await tool.handler(
         { table: "nonexistent", partitionName: "p1" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return exists: false for nonexistent table in reorganize_partition", async () => {
@@ -556,10 +559,10 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [{ name: "p1a", value: "50" }],
         },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -571,10 +574,10 @@ describe("Partitioning Handler Execution", () => {
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 
@@ -686,12 +689,10 @@ describe("Partitioning Handler Execution", () => {
         mockContext,
       )) as {
         success: boolean;
-        partitionName: string;
         error: string;
       };
 
       expect(result.success).toBe(false);
-      expect(result.partitionName).toBe("nonexistent");
       expect(result.error).toContain("does not exist");
     });
   });
@@ -722,7 +723,7 @@ describe("Replication Fallback Handling", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result).toHaveProperty("status");
+      expect((result as any).data).toHaveProperty("status");
     });
 
     it("should return structured error when binary logging is disabled", async () => {
@@ -753,7 +754,7 @@ describe("Replication Fallback Handling", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(result).toHaveProperty("status");
+      expect((result as any).data).toHaveProperty("status");
     });
 
     it("should return message when not configured as replica", async () => {
@@ -763,10 +764,12 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_slave_status")!;
       const result = (await tool.handler({}, mockContext)) as {
-        message: string;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.message).toContain("not configured");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not configured");
     });
   });
 
@@ -807,10 +810,9 @@ describe("Replication Fallback Handling", () => {
       const result = (await tool.handler(
         { logFile: "nonexistent.000001" },
         mockContext,
-      )) as { success: boolean; logFile: string; error: string };
+      )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.logFile).toBe("nonexistent.000001");
       expect(result.error).toContain("not found");
     });
 
@@ -837,9 +839,10 @@ describe("Replication Fallback Handling", () => {
       const result = (await tool.handler(
         { logFile: "mysql-bin.000001", limit: 0 },
         mockContext,
-      )) as { events: unknown[] };
+      )) as { success: boolean; data: { events: unknown[] } };
 
-      expect(result.events).toEqual([]);
+      expect(result.success).toBe(true);
+      expect(result.data.events).toEqual([]);
       // Should NOT have called executeQuery — guard returns before any SQL
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
@@ -873,10 +876,10 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: number;
+        data: { lagSeconds: number };
       };
 
-      expect(result.lagSeconds).toBe(5);
+      expect(result.data.lagSeconds).toBe(5);
     });
 
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
@@ -895,10 +898,10 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: number;
+        data: { lagSeconds: number };
       };
 
-      expect(result.lagSeconds).toBe(10);
+      expect(result.data.lagSeconds).toBe(10);
     });
 
     it("should return message when not a replica after both fail", async () => {
@@ -908,23 +911,25 @@ describe("Replication Fallback Handling", () => {
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: null;
-        message: string;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.lagSeconds).toBeNull();
-      expect(result.message).toContain("not configured");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not configured");
     });
 
-    it("should return null lag when replica status returns empty", async () => {
+    it("should return structured error when replica status returns empty", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
-        lagSeconds: null;
+        success: boolean;
+        error: string;
       };
 
-      expect(result.lagSeconds).toBeNull();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not configured");
     });
   });
 });

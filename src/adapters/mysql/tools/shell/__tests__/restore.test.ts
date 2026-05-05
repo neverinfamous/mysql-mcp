@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
+import * as path from "path";
 import * as fsModule from "fs";
 import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 import {
@@ -84,7 +85,8 @@ describe("Shell Restore and Script Tools", () => {
       expect(result.success).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain('util.loadDump("/backup/full"');
+      const expectedPath = path.resolve("/backup/full").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(`util.loadDump("${expectedPath}"`);
       expect(jsArg).toContain("ignoreVersion: true");
       expect(jsArg).toContain("resetProgress: true");
     });
@@ -128,7 +130,7 @@ describe("Shell Restore and Script Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.localInfileEnabled).toBe(true);
+      expect(result.data.localInfileEnabled).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
@@ -147,7 +149,7 @@ describe("Shell Restore and Script Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error when Loading local data is disabled", async () => {
@@ -163,7 +165,7 @@ describe("Shell Restore and Script Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
-      expect(result.hint).toContain("updateServerSettings");
+      expect(result.suggestion).toContain("updateServerSettings");
     });
 
     it("should return structured error for non-local_infile errors", async () => {
@@ -194,7 +196,7 @@ describe("Shell Restore and Script Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate objects");
-      expect(result.hint).toContain("ignoreExistingObjects");
+      expect(result.suggestion).toContain("ignoreExistingObjects");
     });
   });
 
@@ -212,7 +214,7 @@ describe("Shell Restore and Script Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.stdout).toBe("Script output");
+      expect(result.data.stdout).toBe("Script output");
 
       const args = mockSpawn.mock.calls[0][1];
       expect(args).toContain("--js");

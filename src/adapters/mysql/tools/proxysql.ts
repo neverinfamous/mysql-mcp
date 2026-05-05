@@ -9,12 +9,13 @@
  */
 
 import mysql from "mysql2/promise";
-import { ZodError } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import {
   ProxySQLBaseInputSchema,
   ProxySQLStatusInputSchema,
+  ProxySQLStatusInputSchemaBase,
   ProxySQLLimitInputSchema,
   ProxySQLLimitInputSchemaBase,
   ProxySQLHostgroupInputSchema,
@@ -22,13 +23,9 @@ import {
   ProxySQLVariableFilterSchema,
   ProxySQLVariableFilterSchemaBase,
   ProxySQLCommandInputSchema,
+  ProxySQLCommandInputSchemaBase,
   type ProxySQLConfig,
-} from "../types/proxysql-types.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
+} from "../schemas/proxysql.js";
 
 /**
  * Safe character set for LIKE patterns.
@@ -140,7 +137,7 @@ function createProxySQLStatusTool(): ToolDefinition {
     description:
       "Get ProxySQL version, uptime, and runtime statistics. Returns global status variables from stats_mysql_global. Use summary: true for condensed key metrics.",
     group: "proxysql",
-    inputSchema: ProxySQLStatusInputSchema,
+    inputSchema: ProxySQLStatusInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -151,6 +148,13 @@ function createProxySQLStatusTool(): ToolDefinition {
       try {
         const { summary } = ProxySQLStatusInputSchema.parse(params);
         const rows = await proxySQLQuery("SELECT * FROM stats_mysql_global");
+        const [versionRow] = await proxySQLQuery(
+          "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
+        );
+        const version = (versionRow?.["variable_value"] as string) ?? "unknown";
+        
+        const uptimeRow = rows.find(r => r["Variable_Name"] === "ProxySQL_Uptime");
+        const uptime = (uptimeRow?.["Variable_Value"] as string) ?? "0";
 
         if (summary) {
           // Key metrics for summary mode
@@ -171,28 +175,30 @@ function createProxySQLStatusTool(): ToolDefinition {
           const filteredRows = rows.filter((row) =>
             keyMetrics.includes(row["Variable_Name"] as string),
           );
-          return {
+          return withTokenEstimate({
             success: true,
-            summary: true,
-            stats: filteredRows,
-            totalVarsAvailable: rows.length,
-          };
+            data: {
+              summary: true,
+              version,
+              uptime,
+              stats: filteredRows,
+              totalVarsAvailable: rows.length,
+            }
+          });
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
-          summary: false,
-          stats: rows,
-          totalVarsAvailable: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            summary: false,
+            version,
+            uptime,
+            stats: rows,
+            totalVarsAvailable: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -208,7 +214,7 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
     description:
       "Get ProxySQL runtime configuration status including version info and admin variables. Use summary: true for condensed key variables only.",
     group: "proxysql",
-    inputSchema: ProxySQLStatusInputSchema,
+    inputSchema: ProxySQLStatusInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -242,30 +248,28 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
           const filteredVars = redactedVars.filter((row) =>
             keyAdminVars.includes(row["variable_name"] as string),
           );
-          return {
+          return withTokenEstimate({
             success: true,
-            summary: true,
-            version: versionRow?.["variable_value"] ?? "unknown",
-            adminVariables: filteredVars,
-            totalAdminVarsAvailable: redactedVars.length,
-          };
+            data: {
+              summary: true,
+              version: versionRow?.["variable_value"] ?? "unknown",
+              adminVariables: filteredVars,
+              totalAdminVarsAvailable: redactedVars.length,
+            }
+          });
         }
 
-        return {
+        return withTokenEstimate({
           success: true,
-          summary: false,
-          version: versionRow?.["variable_value"] ?? "unknown",
-          adminVariables: redactedVars,
-          totalAdminVarsAvailable: redactedVars.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            summary: false,
+            version: versionRow?.["variable_value"] ?? "unknown",
+            adminVariables: redactedVars,
+            totalAdminVarsAvailable: redactedVars.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -301,19 +305,15 @@ function createProxySQLServersTool(): ToolDefinition {
           sql += ` WHERE hostgroup_id = ${safeId}`;
         }
         const rows = await proxySQLQuery(sql);
-        return {
+        return withTokenEstimate({
           success: true,
-          servers: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            servers: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -343,23 +343,19 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
-        const maxRows = Math.max(0, Math.floor(limit ?? 100));
+        const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
           `SELECT * FROM mysql_query_rules LIMIT ${maxRows}`,
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          queryRules: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            queryRules: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -385,23 +381,19 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
-        const maxRows = Math.max(0, Math.floor(limit ?? 50));
+        const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
           `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          queryDigests: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            queryDigests: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -437,19 +429,15 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
           sql += ` WHERE hostgroup = ${safeId}`;
         }
         const rows = await proxySQLQuery(sql);
-        return {
+        return withTokenEstimate({
           success: true,
-          connectionPools: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            connectionPools: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -482,19 +470,15 @@ function createProxySQLUsersTool(): ToolDefinition {
         const rows = await proxySQLQuery(
           "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users",
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          users: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            users: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -556,7 +540,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         const countRow = countRows[0] ?? { cnt: 0 };
         const totalVarsAvailable = Number(countRow["cnt"]);
 
-        const maxRows = Math.max(0, Math.floor(limit ?? 50));
+        const maxRows = Math.max(0, Math.floor(limit ?? 10));
         const rows = await proxySQLQuery(
           `SELECT * FROM global_variables${whereClause} LIMIT ${maxRows}`,
         );
@@ -564,20 +548,16 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
         // Redact sensitive credential values (passwords, credentials)
         const redactedRows = redactSensitiveVariables(rows);
 
-        return {
+        return withTokenEstimate({
           success: true,
-          variables: redactedRows,
-          count: redactedRows.length,
-          totalVarsAvailable,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            variables: redactedRows,
+            count: redactedRows.length,
+            totalVarsAvailable,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -607,19 +587,15 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const rows = await proxySQLQuery("SELECT * FROM stats_memory_metrics");
-        return {
+        return withTokenEstimate({
           success: true,
-          memoryStats: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            memoryStats: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -639,7 +615,7 @@ function createProxySQLCommandsTool(): ToolDefinition {
     description:
       "Execute ProxySQL admin commands like LOAD/SAVE for users, servers, query rules, and variables. Also supports FLUSH commands.",
     group: "proxysql",
-    inputSchema: ProxySQLCommandInputSchema,
+    inputSchema: ProxySQLCommandInputSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -649,19 +625,15 @@ function createProxySQLCommandsTool(): ToolDefinition {
       try {
         const { command } = ProxySQLCommandInputSchema.parse(params);
         await proxySQLQuery(command);
-        return {
+        return withTokenEstimate({
           success: true,
-          command,
-          message: `Command executed: ${command}`,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            command,
+            message: `Command executed: ${command}`,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -681,31 +653,29 @@ function createProxySQLProcessListTool(): ToolDefinition {
     description:
       "Get active client sessions similar to MySQL SHOW PROCESSLIST. Shows session ID, user, database, client/server hosts, and current command.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLLimitInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { limit } = ProxySQLLimitInputSchema.parse(params);
+        const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
-          "SELECT * FROM stats_mysql_processlist",
+          `SELECT * FROM stats_mysql_processlist LIMIT ${maxRows}`,
         );
-        return {
+        return withTokenEstimate({
           success: true,
-          processes: rows,
-          count: rows.length,
-        };
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            processes: rows,
+            count: rows.length,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

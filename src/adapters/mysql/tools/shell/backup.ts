@@ -5,6 +5,8 @@
  */
 
 import { ZodError } from "zod";
+import * as path from "path";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -12,14 +14,11 @@ import type {
 import {
   ShellDumpInstanceInputSchema,
   ShellDumpSchemasInputSchema,
+  ShellDumpSchemasInputSchemaBase,
   ShellDumpTablesInputSchema,
-} from "../../types/shell-types.js";
+  ShellDumpTablesInputSchemaBase,
+} from "../../schemas/shell.js";
 import { escapeForJS, execShellJS } from "./common.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 /**
  * Dump entire MySQL instance
@@ -38,78 +37,89 @@ export function createShellDumpInstanceTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        outputDir,
-        threads,
-        compression,
-        dryRun,
-        includeSchemas,
-        excludeSchemas,
-        consistent,
-        users,
-      } = ShellDumpInstanceInputSchema.parse(params);
-
-      const escapedPath = outputDir.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (compression && compression !== "zstd") {
-        options.push(`compression: "${compression}"`);
-      }
-      if (dryRun) {
-        options.push("dryRun: true");
-      }
-      if (includeSchemas && includeSchemas.length > 0) {
-        options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
-      }
-      if (excludeSchemas && excludeSchemas.length > 0) {
-        options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
-      }
-      if (consistent !== undefined && !consistent) {
-        options.push("consistent: false");
-      }
-      if (users !== undefined && !users) {
-        options.push("users: false");
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-      const jsCode = `return util.dumpInstance("${escapedPath}"${optionsStr});`;
-
       try {
+        const {
+          outputDir,
+          outputUrl,
+          threads,
+          compression,
+          dryRun,
+          includeSchemas,
+          excludeSchemas,
+          consistent,
+          users,
+        } = ShellDumpInstanceInputSchema.parse(params);
+
+        const finalOutputDir = outputDir ?? outputUrl;
+        if (!finalOutputDir) {
+          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
+        }
+        const resolvedPath = path.resolve(finalOutputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (compression && compression !== "zstd") {
+          options.push(`compression: "${compression}"`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
+        }
+        if (includeSchemas && includeSchemas.length > 0) {
+          options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
+        }
+        if (excludeSchemas && excludeSchemas.length > 0) {
+          options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
+        }
+        if (consistent !== undefined && !consistent) {
+          options.push("consistent: false");
+        }
+        if (users !== undefined && !users) {
+          options.push("users: false");
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+        const jsCode = `return util.dumpInstance("${escapedPath}"${optionsStr});`;
+
         const result = await execShellJS(jsCode, { timeout: 3600000 }); // 1 hour timeout
 
-        return {
+        return withTokenEstimate({
           success: true,
-          outputDir,
-          dryRun: dryRun ?? false,
-          result,
-        };
+          data: {
+            outputDir: finalOutputDir,
+            dryRun: dryRun ?? false,
+            result,
+          }
+        });
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
-            outputDir,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            hint: "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
-          };
+            suggestion:
+              "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
+          });
         }
         if (errorMessage.includes("Fatal error during dump")) {
-          return {
+          return withTokenEstimate({
             success: false,
-            outputDir,
             error: `Dump failed: ${errorMessage}.`,
-            hint: "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
-          };
+            suggestion:
+              "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
+          });
         }
-        return { success: false, outputDir, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -125,7 +135,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
     description:
       "Dump selected schemas using util.dumpSchemas(). Creates a compressed, parallel dump of specified schemas. Use for partial backups.",
     group: "shell",
-    inputSchema: ShellDumpSchemasInputSchema,
+    inputSchema: ShellDumpSchemasInputSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
@@ -136,6 +146,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         const {
           schemas,
           outputDir,
+          outputUrl,
           threads,
           compression,
           dryRun,
@@ -145,13 +156,18 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         } = ShellDumpSchemasInputSchema.parse(params);
 
         if (schemas.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "At least one schema name is required",
-          };
+          });
         }
 
-        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+        const finalOutputDir = outputDir ?? outputUrl;
+        if (!finalOutputDir) {
+          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
+        }
+        const resolvedPath = path.resolve(finalOutputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -181,17 +197,19 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         const jsCode = `return util.dumpSchemas(${JSON.stringify(schemas)}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
-        return {
+        return withTokenEstimate({
           success: true,
-          schemas,
-          outputDir,
-          dryRun: dryRun ?? false,
-          ddlOnly: ddlOnly ?? false,
-          result,
-        };
+          data: {
+            schemas,
+            outputDir: finalOutputDir,
+            dryRun: dryRun ?? false,
+            ddlOnly: ddlOnly ?? false,
+            result,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -200,13 +218,14 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           errorMessage.includes("TRIGGER") ||
           errorMessage.includes("privilege")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            hint: "Set ddlOnly: true to skip events, triggers, and routines.",
-          };
+            suggestion:
+              "Set ddlOnly: true to skip events, triggers, and routines.",
+          });
         }
-        return { success: false, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -222,7 +241,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
     description:
       "Dump specific tables using util.dumpTables(). Creates a compressed, parallel dump of specified tables from a schema.",
     group: "shell",
-    inputSchema: ShellDumpTablesInputSchema,
+    inputSchema: ShellDumpTablesInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -230,17 +249,22 @@ export function createShellDumpTablesTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, tables, outputDir, threads, compression, where, all } =
+        const { schema, tables, outputDir, outputUrl, threads, compression, where, all, dryRun } =
           ShellDumpTablesInputSchema.parse(params);
 
         if (tables.length === 0) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: "At least one table name is required",
-          };
+          });
         }
 
-        const escapedPath = outputDir.replace(/\\/g, "\\\\");
+        const finalOutputDir = outputDir ?? outputUrl;
+        if (!finalOutputDir) {
+          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
+        }
+        const resolvedPath = path.resolve(finalOutputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
         if (threads) {
@@ -248,6 +272,9 @@ export function createShellDumpTablesTool(): ToolDefinition {
         }
         if (compression && compression !== "zstd") {
           options.push(`compression: "${compression}"`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
         }
         if (where && Object.keys(where).length > 0) {
           const whereEntries = Object.entries(where)
@@ -267,17 +294,20 @@ export function createShellDumpTablesTool(): ToolDefinition {
         const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
-        return {
+        return withTokenEstimate({
           success: true,
-          schema,
-          tables,
-          outputDir,
-          triggersExcluded: !all,
-          result,
-        };
+          data: {
+            schema,
+            tables,
+            outputDir: finalOutputDir,
+            dryRun: dryRun ?? false,
+            triggersExcluded: !all,
+            result,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -293,31 +323,29 @@ export function createShellDumpTablesTool(): ToolDefinition {
           const privilegeMatch = privilegeRegex.exec(errorMessage);
           const specificPrivilege = privilegeMatch ? privilegeMatch[1] : null;
 
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            hint:
+            suggestion:
               specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
                 ? `Set all: false to skip ${specificPrivilege.toLowerCase()}s.`
                 : "Set all: false to skip metadata that requires extra privileges.",
-          };
+          });
         }
 
         // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: errorMessage.includes("Writing schema metadata")
               ? `Dump failed while writing schema metadata: ${errorMessage}.`
               : `Dump failed: ${errorMessage}.`,
-            hint: "Set all: false to skip metadata that requires extra privileges.",
-          };
+            suggestion:
+              "Set all: false to skip metadata that requires extra privileges.",
+          });
         }
 
-        return {
-          success: false,
-          error: errorMessage,
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

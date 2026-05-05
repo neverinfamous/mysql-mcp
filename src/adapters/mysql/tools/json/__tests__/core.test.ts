@@ -15,7 +15,7 @@ import {
   createJsonKeysTool,
   createJsonArrayAppendTool,
 } from "../core.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -48,12 +48,12 @@ describe("JSON Core Tools", () => {
           path: "$.key",
         },
         mockContext,
-      )) as { rows: unknown[] };
+      )) as { data: { rows: unknown[] } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_EXTRACT(`json_col`, ?)");
-      expect(result.rows).toHaveLength(1);
+      expect(result.data.rows).toHaveLength(1);
     });
   });
 
@@ -74,12 +74,12 @@ describe("JSON Core Tools", () => {
           where: "id = 1",
         },
         mockContext,
-      )) as { rowsAffected: number };
+      )) as { data: { rowsAffected: number } };
 
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
       const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_SET");
-      expect(result.rowsAffected).toBe(1);
+      expect(result.data.rowsAffected).toBe(1);
     });
 
     it("should stringify object value", async () => {
@@ -147,10 +147,10 @@ describe("JSON Core Tools", () => {
           where: "id = 1",
         },
         mockContext,
-      )) as { rowsAffected: number; changed: boolean };
+      )) as { data: { rowsAffected: number; changed: boolean } };
 
-      expect(result.changed).toBe(true);
-      expect(result.rowsAffected).toBe(1);
+      expect(result.data.changed).toBe(true);
+      expect(result.data.rowsAffected).toBe(1);
     });
 
     it("should return changed: false when path already exists", async () => {
@@ -173,11 +173,11 @@ describe("JSON Core Tools", () => {
           where: "id = 1",
         },
         mockContext,
-      )) as { rowsAffected: number; changed: boolean; note: string };
+      )) as { data: { rowsAffected: number; changed: boolean; suggestion: string } };
 
-      expect(result.changed).toBe(false);
-      expect(result.note).toContain("Path already exists");
-      expect(result.rowsAffected).toBe(1);
+      expect(result.data.changed).toBe(false);
+      expect(result.data.suggestion).toContain("Path already exists");
+      expect(result.data.rowsAffected).toBe(1);
     });
   });
 
@@ -315,9 +315,9 @@ describe("JSON Core Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { rows: unknown[]; count: number };
+      )) as { data: { rows: unknown[]; count: number } };
 
-      expect(result.count).toBe(2);
+      expect(result.data.count).toBe(2);
     });
   });
 
@@ -359,7 +359,7 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_set should return exists: false for nonexistent table", async () => {
@@ -375,7 +375,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_insert should return exists: false for nonexistent table", async () => {
@@ -391,7 +391,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_replace should return exists: false for nonexistent table", async () => {
@@ -409,7 +409,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_remove should return exists: false for nonexistent table", async () => {
@@ -424,7 +424,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_contains should return exists: false for nonexistent table", async () => {
@@ -436,7 +436,7 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc", value: "1" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_keys should return exists: false for nonexistent table", async () => {
@@ -446,7 +446,7 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_array_append should return exists: false for nonexistent table", async () => {
@@ -464,7 +464,7 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("should return success: false for generic errors", async () => {
@@ -478,7 +478,9 @@ describe("JSON Core Tools", () => {
         { table: "data", column: "doc", path: "$.x" },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Connection lost" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: false, error: "Connection lost" }),
+      );
     });
   });
 });

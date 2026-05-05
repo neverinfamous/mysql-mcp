@@ -10,15 +10,15 @@ export {
   createServer,
   DEFAULT_CONFIG,
   parseMySQLConnectionString,
-} from "./server/McpServer.js";
+} from "./server/mcp-server.js";
 
 // Adapters
-export { DatabaseAdapter } from "./adapters/DatabaseAdapter.js";
-export { MySQLAdapter } from "./adapters/mysql/MySQLAdapter.js";
+export { DatabaseAdapter } from "./adapters/database-adapter.js";
+export { MySQLAdapter } from "./adapters/mysql/mysql-adapter.js";
 
 // Pool
-export { ConnectionPool } from "./pool/ConnectionPool.js";
-export type { ConnectionPoolConfig } from "./pool/ConnectionPool.js";
+export { ConnectionPool } from "./pool/connection-pool.js";
+export type { ConnectionPoolConfig } from "./pool/connection-pool.js";
 
 // Filtering
 export {
@@ -33,7 +33,7 @@ export {
   getFilterSummary,
   getToolGroupInfo,
   clearToolFilterCaches,
-} from "./filtering/ToolFilter.js";
+} from "./filtering/tool-filter.js";
 
 // Types
 export type {
@@ -81,3 +81,6 @@ export {
 
 // Logger
 export { logger } from "./utils/logger.js";
+
+// Version
+export { VERSION } from "./utils/version.js";

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -33,7 +33,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining("Invalid table name"),
       });
@@ -50,7 +50,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });
@@ -92,7 +92,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid index name",
       });
@@ -123,7 +123,7 @@ describe("Spatial Tools Handlers", () => {
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
       );
-      expect(result).toHaveProperty("indexName", "idx_spatial_users_location");
+      expect((result as any).data).toHaveProperty("indexName", "idx_spatial_users_location");
     });
 
     it("should detect existing spatial index on same column", async () => {
@@ -146,7 +146,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error:
           "Spatial index 'idx_existing_geom' already exists on column 'geom' of table 'locations'",
@@ -213,8 +213,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).conversion).toBe("WKT to GeoJSON");
-      expect((result as any).geoJson).toEqual({
+      expect((result as any).data.conversion).toBe("WKT to GeoJSON");
+      expect((result as any).data.geoJson).toEqual({
         type: "Point",
         coordinates: [1, 1],
       });
@@ -233,14 +233,14 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).conversion).toBe("GeoJSON to WKT");
-      expect((result as any).wkt).toBe("POINT(1 1)");
+      expect((result as any).data.conversion).toBe("GeoJSON to WKT");
+      expect((result as any).data.wkt).toBe("POINT(1 1)");
     });
 
     it("should return structured error if both inputs are missing (zod refinement)", async () => {
       const tool = findTool("mysql_spatial_geojson")!;
       const result = await tool.handler({}, mockContext);
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
@@ -265,7 +265,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
@@ -283,7 +286,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (contains)", async () => {
@@ -301,7 +307,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (within)", async () => {
@@ -319,7 +328,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (create_column)", async () => {
@@ -336,7 +348,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { exists: false } for nonexistent table (create_index)", async () => {
@@ -353,7 +368,10 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table 'nonexistent' does not exist",
+      });
     });
 
     it("should return { success: false } for MySQL error (distance)", async () => {
@@ -371,7 +389,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Unknown column 'bad_col' in 'field list'",
       });
@@ -391,7 +409,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid GIS data",
       });
@@ -411,7 +429,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid GIS data",
       });
@@ -432,7 +450,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "There's no spatial reference system with SRID 99999",
       });
@@ -451,7 +469,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid GIS data",
       });
@@ -471,7 +489,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Latitude must be in range",
       });
@@ -491,7 +509,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Column 'location' already exists on table 'users'",
       });
@@ -519,9 +537,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).segmentsApplied).toBe(false);
-      expect((result as any).segments).toBe(4);
-      expect((result as any).precision).toBe(6);
+      expect((result as any).data.segmentsApplied).toBe(false);
+      expect((result as any).data.segments).toBe(4);
     });
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
@@ -546,9 +563,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).segmentsApplied).toBe(true);
-      expect((result as any).segments).toBe(4);
-      expect((result as any).precision).toBe(6);
+      expect((result as any).data.segmentsApplied).toBe(true);
+      expect((result as any).data.segments).toBe(4);
     });
   });
 });

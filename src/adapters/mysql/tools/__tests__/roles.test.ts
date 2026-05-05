@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getRoleTools } from "../roles.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -82,14 +82,14 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_role_create", () => {
-    it("should create a role with IF NOT EXISTS default", async () => {
+    it("should create a role with IF NOT EXISTS", async () => {
       // First call: pre-check (role does not exist)
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
-      await tool.handler({ name: "test_role" }, mockContext);
+      await tool.handler({ name: "test_role", ifNotExists: true }, mockContext);
 
       // Second call should be the CREATE ROLE
       const createCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
@@ -111,7 +111,7 @@ describe("Handler Execution", () => {
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
-      expect(result).toEqual({ success: false, error: "Invalid role name" });
+      expect(result).toEqual(expect.objectContaining({ success: false, error: "Invalid role name" }));
     });
 
     it("should return skipped when ifNotExists and role already exists", async () => {
@@ -126,12 +126,14 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: true,
-        skipped: true,
-        roleName: "test_role",
-        reason: "Role already exists",
-      });
+        data: expect.objectContaining({
+          skipped: true,
+          roleName: "test_role",
+          reason: "Role already exists",
+        })
+      }));
       // Should NOT have issued a CREATE ROLE query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -175,7 +177,7 @@ describe("Handler Execution", () => {
         { role: "invalid-role", privileges: ["SELECT"] },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Invalid role name" });
+      expect(result).toEqual(expect.objectContaining({ success: false, error: "Invalid role name" }));
     });
   });
 
@@ -211,27 +213,24 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: false,
-        role: "test_role",
-        user: "testuser",
-        host: "localhost",
         error:
           "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
-      });
+      }));
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
 
   describe("mysql_role_drop", () => {
-    it("should drop a role with IF EXISTS default", async () => {
+    it("should drop a role with IF EXISTS", async () => {
       // First call: pre-check (role exists)
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
-      await tool.handler({ name: "test_role" }, mockContext);
+      await tool.handler({ name: "test_role", ifExists: true }, mockContext);
 
       // Second call should be the DROP ROLE
       const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
@@ -250,7 +249,7 @@ describe("Handler Execution", () => {
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
-      expect(result).toEqual({ success: false, error: "Invalid role name" });
+      expect(result).toEqual(expect.objectContaining({ success: false, error: "Invalid role name" }));
     });
 
     it("should return skipped when ifExists and role does not exist", async () => {
@@ -265,12 +264,14 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: true,
-        skipped: true,
-        roleName: "test_role",
-        reason: "Role did not exist",
-      });
+        data: expect.objectContaining({
+          skipped: true,
+          roleName: "test_role",
+          reason: "Role did not exist",
+        })
+      }));
     });
   });
 
@@ -342,11 +343,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
-        user: "nonexistent",
-        host: "%",
-        exists: false,
-      });
+      expect(result).toEqual(expect.objectContaining({
+        success: false,
+        error: "User does not exist",
+      }));
     });
   });
 
@@ -362,10 +362,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: false,
         error: "Role 'test_role' already exists",
-      });
+      }));
     });
   });
 
@@ -381,10 +381,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: false,
         error: "Role 'test_role' does not exist",
-      });
+      }));
     });
   });
 
@@ -405,13 +405,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: false,
-        role: "test_role",
-        user: "baduser",
-        host: "%",
         error: "User does not exist",
-      });
+      }));
     });
   });
 
@@ -428,13 +425,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: false,
-        role: "test_role",
-        user: "baduser",
-        host: "%",
         error: "User does not exist",
-      });
+      }));
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
@@ -461,11 +455,11 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         success: false,
         role: "test_role",
         error: "Table 'testdb.nonexistent' doesn't exist",
-      });
+      }));
     });
   });
 });

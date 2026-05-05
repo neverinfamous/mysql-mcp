@@ -326,7 +326,9 @@ class Logger {
     const formatted = this.formatEntry(entry);
 
     // Write to stderr to avoid interfering with MCP stdio transport
-    console.error(formatted);
+    // Sanitize newlines to prevent log injection (CodeQL js/log-injection)
+    const safeOutput = formatted.replace(/\n|\r/g, " ");
+    console.error(safeOutput);
   }
 
   // =========================================================================

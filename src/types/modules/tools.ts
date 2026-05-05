@@ -37,6 +37,8 @@ export type ToolGroup =
   | "cluster" // Group Replication & InnoDB Cluster
   | "roles" // Role management
   | "docstore" // Document Store / X DevAPI
+  | "introspection" // Schema introspection and cascade analysis
+  | "migration" // Schema migration and version tracking
   | "codemode"; // Code Mode sandbox execution
 
 /**
@@ -52,9 +54,18 @@ export type MetaGroup =
   | "dba-monitor" // DBA Monitoring (Core, Monitor, Perf, SysSchema, Opt) ~35 tools
   | "dba-manage" // DBA Management (Core, Admin, Backup, Repl, Parts, Events) ~33 tools
   | "dba-secure" // DBA Security (Core, Security, Roles) ~32 tools
+  | "dba-schema" // DBA Schema (Core, Schema, Introspection, Migration) ~31 tools
   | "base-core" // Base: Core Operations ~48 tools
   | "base-advanced" // Base: Advanced Features ~39 tools
   | "ecosystem"; // External Tools + Cluster ~41 tools
+
+/**
+ * Instruction detail level for token efficiency
+ * - essential: Core quick access only (for token-constrained clients)
+ * - standard: + dynamic help pointers for enabled groups
+ * - full: + active groups summary
+ */
+export type InstructionLevel = "essential" | "standard" | "full";
 
 /**
  * MySQL Router REST API configuration

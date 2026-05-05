@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -18,13 +18,16 @@ import {
   type SandboxMode,
 } from "../../../../codemode/sandbox-factory.js";
 import { CodeModeSecurityManager } from "../../../../codemode/security.js";
-import { createMysqlApi } from "../../../../codemode/api.js";
+import { createMysqlApi } from "../../../../codemode/api/index.js";
 import type { ExecuteCodeOptions } from "../../../../codemode/types.js";
+
+import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
 
 // Schema for mysql_execute_code input
 export const ExecuteCodeSchema = z.object({
   code: z
     .string()
+    .optional()
     .describe(
       "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations.",
     ),
@@ -39,25 +42,36 @@ export const ExecuteCodeSchema = z.object({
 });
 
 // Schema for mysql_execute_code output
-export const ExecuteCodeOutputSchema = z.object({
-  success: z.boolean().describe("Whether the code executed successfully"),
-  result: z
-    .unknown()
-    .optional()
-    .describe("Return value from the executed code"),
-  error: z.string().optional().describe("Error message if execution failed"),
-  metrics: z
-    .object({
-      wallTimeMs: z
-        .number()
-        .describe("Wall clock execution time in milliseconds"),
-      cpuTimeMs: z.number().describe("CPU time used in milliseconds"),
-      memoryUsedMb: z.number().describe("Memory used in megabytes"),
-    })
-    .optional()
-    .describe("Execution performance metrics"),
-  hint: z.string().optional().describe("Helpful tip or additional information"),
-});
+export const ExecuteCodeOutputSchema = z
+  .object({
+    success: z.boolean().describe("Whether the code executed successfully"),
+    result: z
+      .unknown()
+      .optional()
+      .describe("Return value from the executed code"),
+    error: z.string().optional().describe("Error message if execution failed"),
+    metrics: z
+      .object({
+        wallTimeMs: z
+          .number()
+          .describe("Wall clock execution time in milliseconds"),
+        cpuTimeMs: z.number().describe("CPU time used in milliseconds"),
+        memoryUsedMb: z.number().describe("Memory used in megabytes"),
+        tokenEstimate: z
+          .number()
+          .optional()
+          .describe(
+            "Estimated token count of the result (~4 bytes per token)",
+          ),
+      })
+      .optional()
+      .describe("Execution performance metrics"),
+    hint: z
+      .string()
+      .optional()
+      .describe("Helpful tip or additional information"),
+  })
+  .extend(ErrorResponseFields.shape);
 
 // Singleton instances (initialized on first use)
 let sandboxPool: ISandboxPool | null = null;
@@ -221,12 +235,23 @@ return results;
       );
       security.auditLog(record);
 
+      // Compute token estimate for Code Mode responses
+      const resultJson = JSON.stringify(result.result ?? null);
+      const tokenEstimate = Math.ceil(
+        Buffer.byteLength(resultJson, "utf8") / 4,
+      );
+
       // Add help hint for discoverability
       const helpHint =
         "Tip: Use mysql.help() to list all groups, or mysql.core.help() for group-specific methods.";
 
+      // Include hint and enriched metrics in response
       return {
         ...result,
+        metrics:
+          result.metrics != null
+            ? { ...result.metrics, tokenEstimate }
+            : undefined,
         hint: helpHint,
       };
     },

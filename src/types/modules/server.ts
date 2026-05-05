@@ -6,6 +6,8 @@
 
 import type { DatabaseConfig } from "./database.js";
 import type { OAuthConfig } from "./oauth.js";
+import type { AuditConfig } from "../../audit/types.js";
+import type { InstructionLevel } from "./tools.js";
 
 /**
  * Transport type for MCP communication
@@ -37,6 +39,23 @@ export interface McpServerConfig {
   /** OAuth configuration */
   oauth?: OAuthConfig;
 
+  /** Simple bearer token for HTTP authentication (alternative to OAuth) */
+  authToken?: string;
+
+  /** Enable stateless HTTP mode (no sessions, no SSE) */
+  stateless?: boolean;
+  /** Enable HSTS header for HTTP transport (use when behind HTTPS) */
+  enableHSTS?: boolean;
+
+  /** Trust X-Forwarded-For header for client IP (behind reverse proxy) */
+  trustProxy?: boolean;
+
   /** Tool filtering configuration */
   toolFilter?: string;
+
+  /** Level of detail for generated instructions */
+  instructionLevel?: InstructionLevel;
+
+  /** Audit logging and snapshot configuration */
+  auditConfig?: AuditConfig;
 }

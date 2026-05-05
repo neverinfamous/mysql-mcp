@@ -80,8 +80,10 @@ describe("Worker Script", () => {
           groupApi[method] = vi.fn().mockResolvedValue({ rows: [] });
         }
         groupApi["help"] = () => ({
-          group: key,
-          methods: methods.filter((m) => m !== "help"),
+          data: {
+            group: key,
+            methods: methods.filter((m) => m !== "help"),
+          }
         });
         mysql[key] = groupApi;
       }
@@ -91,7 +93,7 @@ describe("Worker Script", () => {
       if (topLevel) {
         for (const method of topLevel) {
           if (method === "help") {
-            mysql["help"] = () => ({ groups: groupNames });
+            mysql["help"] = () => ({ data: { groups: groupNames } });
           } else {
             mysql[method] = vi.fn().mockResolvedValue({ rows: [] });
           }
@@ -112,13 +114,15 @@ describe("Worker Script", () => {
 
       const helpResult = (coreApi["help"] as () => unknown)();
       expect(helpResult).toEqual({
-        group: "core",
-        methods: ["readQuery", "writeQuery"],
+        data: {
+          group: "core",
+          methods: ["readQuery", "writeQuery"],
+        }
       });
 
       // Test top-level help
       const topHelp = (mysql["help"] as () => unknown)();
-      expect(topHelp).toEqual({ groups: ["core", "json"] });
+      expect(topHelp).toEqual({ data: { groups: ["core", "json"] } });
     });
 
     it("should filter help from method lists", () => {
@@ -141,7 +145,7 @@ describe("Worker Script", () => {
       });
 
       // Simulate RPC response
-      const msg = { id: 0, result: { rows: [{ id: 1 }] } };
+      const msg: { id: number; error?: string; result?: unknown } = { id: 0, result: { rows: [{ id: 1 }] } };
       const p = pending.get(msg.id);
       if (p) {
         pending.delete(msg.id);

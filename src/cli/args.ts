@@ -1,7 +1,7 @@
 import {
   parseMySQLConnectionString,
   DEFAULT_CONFIG,
-} from "../server/McpServer.js";
+} from "../server/mcp-server.js";
 import type {
   McpServerConfig,
   TransportType,
@@ -9,6 +9,7 @@ import type {
   PoolConfig,
   OAuthConfig,
 } from "../types/index.js";
+import { logger } from "../utils/logger.js";
 
 /**
  * Parse command line arguments
@@ -43,6 +44,15 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
   let mysqlUser: string | undefined;
   let mysqlPassword: string | undefined;
   let mysqlDatabase: string | undefined;
+
+  // Audit config
+  let auditLogPath: string | undefined;
+  let auditRedact = false;
+  let auditReads = false;
+  let auditLogMaxSize = 10 * 1024 * 1024; // 10MB
+  let auditBackup = false;
+  let auditBackupData = false;
+  let auditBackupMaxSize = 50 * 1024 * 1024; // 50MB
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -149,6 +159,25 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      case "--instruction-level":
+        if (nextArg && !nextArg.startsWith("-")) {
+          const level = nextArg.toLowerCase();
+          if (
+            level === "essential" ||
+            level === "standard" ||
+            level === "full"
+          ) {
+            config.instructionLevel = level;
+          } else {
+            console.error(
+              `Invalid instruction level: ${level}. Must be essential, standard, or full.`,
+            );
+            process.exit(1);
+          }
+          i++;
+        }
+        break;
+
       case "--name":
         if (nextArg && !nextArg.startsWith("-")) {
           config.name = nextArg;
@@ -186,6 +215,70 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       case "--oauth-clock-tolerance":
         if (nextArg && !nextArg.startsWith("-")) {
           oauthClockTolerance = parseInt(nextArg, 10);
+          i++;
+        }
+        break;
+
+      case "--auth-token":
+        if (nextArg && !nextArg.startsWith("-")) {
+          config.authToken = nextArg;
+          i++;
+        }
+        break;
+
+      case "--stateless":
+        config.stateless = true;
+        break;
+
+      case "--enable-hsts":
+        config.enableHSTS = true;
+        break;
+
+      case "--trust-proxy":
+        config.trustProxy = true;
+        break;
+
+      case "--log-level":
+        if (nextArg && !nextArg.startsWith("-")) {
+          const level = nextArg.toLowerCase();
+          // Map convenience alias 'warn' → 'warning' (LogLevel uses RFC 5424 names)
+          const mapped = level === "warn" ? "warning" : level;
+          const validLevels = ["debug", "info", "warning", "error"];
+          if (validLevels.includes(mapped)) {
+            logger.setLevel(mapped as "debug" | "info" | "warning" | "error");
+          }
+          i++;
+        }
+        break;
+
+      // Audit options
+      case "--audit-log":
+        if (nextArg && !nextArg.startsWith("-")) {
+          auditLogPath = nextArg;
+          i++;
+        }
+        break;
+      case "--audit-redact":
+        auditRedact = true;
+        break;
+      case "--audit-reads":
+        auditReads = true;
+        break;
+      case "--audit-log-max-size":
+        if (nextArg && !nextArg.startsWith("-")) {
+          auditLogMaxSize = parseInt(nextArg, 10);
+          i++;
+        }
+        break;
+      case "--audit-backup":
+        auditBackup = true;
+        break;
+      case "--audit-backup-data":
+        auditBackupData = true;
+        break;
+      case "--audit-backup-max-size":
+        if (nextArg && !nextArg.startsWith("-")) {
+          auditBackupMaxSize = parseInt(nextArg, 10);
           i++;
         }
         break;
@@ -269,6 +362,19 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
   }
 
+  // Check for instruction level in environment
+  if (!config.instructionLevel) {
+    const envLevel =
+      process.env["MYSQL_MCP_INSTRUCTION_LEVEL"] ??
+      process.env["INSTRUCTION_LEVEL"];
+    if (envLevel) {
+      const level = envLevel.toLowerCase();
+      if (level === "essential" || level === "standard" || level === "full") {
+        config.instructionLevel = level;
+      }
+    }
+  }
+
   // Check for server host in environment
   if (!config.host) {
     config.host = process.env["MCP_HOST"] ?? process.env["HOST"];
@@ -294,6 +400,21 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     oauthClockTolerance = parseInt(process.env["OAUTH_CLOCK_TOLERANCE"], 10);
   }
 
+  // Check auth token environment variable
+  if (!config.authToken) {
+    config.authToken = process.env["MCP_AUTH_TOKEN"];
+  }
+
+  // Check trust proxy environment variable
+  if (!config.trustProxy && process.env["TRUST_PROXY"] === "true") {
+    config.trustProxy = true;
+  }
+
+  // Check HSTS environment variable
+  if (!config.enableHSTS && process.env["MCP_ENABLE_HSTS"] === "true") {
+    config.enableHSTS = true;
+  }
+
   // Build OAuth config if enabled
   let oauth: OAuthConfig | undefined;
   if (oauthEnabled) {
@@ -305,6 +426,33 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       jwksUri: oauthJwksUri,
       clockTolerance: oauthClockTolerance,
     };
+  }
+
+  // Check audit environment variables if log path wasn't provided via CLI
+  if (!auditLogPath && process.env["AUDIT_LOG_PATH"]) {
+    auditLogPath = process.env["AUDIT_LOG_PATH"];
+  }
+
+  // Build audit config if enabled
+  if (auditLogPath) {
+    config.auditConfig = {
+      enabled: true,
+      logPath: auditLogPath,
+      redact: auditRedact || process.env["AUDIT_REDACT"] === "true",
+      auditReads: auditReads || process.env["AUDIT_READS"] === "true",
+      maxSizeBytes: auditLogMaxSize,
+    };
+
+    if (auditBackup || process.env["AUDIT_BACKUP"] === "true") {
+      config.auditConfig.backup = {
+        enabled: true,
+        includeData:
+          auditBackupData || process.env["AUDIT_BACKUP_DATA"] === "true",
+        maxAgeDays: 30, // Fixed default for now
+        maxCount: 1000, // Fixed default for now
+        maxDataSizeBytes: auditBackupMaxSize,
+      };
+    }
   }
 
   return { config, databases, oauth, shouldExit: false };
@@ -338,14 +486,31 @@ Server Options:
   --port, -p <port>           HTTP port for http/sse transports
   --server-host <host>        Host to bind HTTP transport to (default: localhost)
   --tool-filter, -f <filter>  Tool filter string (e.g., "-replication,-partitioning")
+  --instruction-level <level> Instruction detail level: essential, standard, full (default: standard)
   --name <name>               Server name (default: mysql-mcp)
 
 OAuth Options:
-  --oauth-enabled, -o         Enable OAuth 2.0 authentication
+  --oauth-enabled, -o         Enable OAuth 2.1 authentication
   --oauth-issuer <url>        Authorization server URL (issuer)
   --oauth-audience <aud>      Expected token audience
   --oauth-jwks-uri <url>      JWKS URI (auto-discovered from issuer if not set)
   --oauth-clock-tolerance <s> Clock tolerance in seconds (default: 60)
+
+Authentication & Security:
+  --auth-token <token>        Simple bearer token for HTTP authentication (env: MCP_AUTH_TOKEN)
+  --stateless                 Enable stateless HTTP mode (no sessions, no SSE)
+  --enable-hsts               Enable HSTS header (use when behind HTTPS)
+  --trust-proxy               Trust X-Forwarded-For header for client IP
+  --log-level <level>         Log level: debug, info, warn, error (default: info)
+
+Audit Options:
+  --audit-log <path>          Path to JSONL audit log file (or 'stderr' to stream)
+  --audit-redact              Redact tool arguments from audit log
+  --audit-reads               Log read operations in addition to writes/admins
+  --audit-log-max-size <b>    Max audit log size in bytes before rotation (default: 10MB)
+  --audit-backup              Enable pre-mutation DDL snapshots for destructive tools
+  --audit-backup-data         Include sample data rows in pre-mutation snapshots
+  --audit-backup-max-size <b> Max table size in bytes for data capture (default: 50MB)
 
 Other:
   --version, -v               Show version
@@ -359,7 +524,11 @@ Environment Variables:
   MYSQL_DATABASE              MySQL database
   MYSQL_POOL_SIZE             Connection pool size
   MYSQL_MCP_TOOL_FILTER       Tool filter string
+  MYSQL_MCP_INSTRUCTION_LEVEL Instruction level (essential, standard, full)
   MCP_HOST                    Host to bind HTTP transport to
+  MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
+  TRUST_PROXY                  Trust X-Forwarded-For (true/false)
+  MCP_ENABLE_HSTS              Enable HSTS header (same as --enable-hsts)
   LOG_LEVEL                   Log level (debug, info, warn, error)
   OAUTH_ENABLED               Enable OAuth (true/false)
   OAUTH_ISSUER                Authorization server URL

@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getClusterTools } from "../cluster/index.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -87,8 +87,8 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns enabled, groupName, members etc
-      expect(result).toHaveProperty("enabled");
-      expect(result).toHaveProperty("members");
+      expect((result as any).data).toHaveProperty("enabled");
+      expect((result as any).data).toHaveProperty("members");
     });
   });
 
@@ -111,8 +111,8 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[1][0] as string; // Second call is the query
       expect(call).toContain("replication_group_members");
-      expect(result).toHaveProperty("members");
-      expect(result).toHaveProperty("count");
+      expect((result as any).data).toHaveProperty("members");
+      expect((result as any).data).toHaveProperty("count");
     });
 
     it("should accept memberId parameter", async () => {
@@ -156,8 +156,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("primary");
-      expect(result).toHaveProperty("hasPrimary");
+      expect((result as any).data).toHaveProperty("primary");
+      expect((result as any).data).toHaveProperty("hasPrimary");
     });
   });
 
@@ -177,8 +177,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("memberStats");
-      expect(result).toHaveProperty("gtid");
+      expect((result as any).data).toHaveProperty("memberStats");
+      expect((result as any).data).toHaveProperty("gtid");
     });
   });
 
@@ -198,9 +198,9 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("configuration");
-      expect(result).toHaveProperty("memberQueues");
-      expect(result).toHaveProperty("isThrottling");
+      expect((result as any).data).toHaveProperty("configuration");
+      expect((result as any).data).toHaveProperty("memberQueues");
+      expect((result as any).data).toHaveProperty("isThrottling");
     });
   });
 
@@ -231,7 +231,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("instances");
+      expect((result as any).data).toHaveProperty("instances");
     });
 
     it("should fallback to GR members if metadata query fails", async () => {
@@ -250,8 +250,8 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
       const result = await tool.handler({}, mockContext);
 
-      expect(result).toHaveProperty("source", "group_replication");
-      expect(result).toHaveProperty("instances");
+      expect((result as any).data).toHaveProperty("source", "group_replication");
+      expect((result as any).data).toHaveProperty("instances");
       // Two calls: 1. metadata query, 2. fallback query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
     });
@@ -269,8 +269,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("topology");
-      expect(result).toHaveProperty("visualization");
+      expect((result as any).data).toHaveProperty("topology");
+      expect((result as any).data).toHaveProperty("visualization");
     });
 
     it("should visualize all member states correctly", async () => {
@@ -309,7 +309,7 @@ describe("Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_cluster_topology")!;
       const result: any = await tool.handler({}, mockContext);
-      const viz = result.visualization;
+      const viz = result.data.visualization;
 
       expect(viz).toContain("PRIMARY:");
       expect(viz).toContain("SECONDARY:");
@@ -343,9 +343,8 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_cluster_router_status")!;
       const result: any = await tool.handler({}, mockContext);
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("Router metadata not available");
-      expect(result.suggestion).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Router metadata not available");
     });
   });
 
@@ -366,8 +365,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("candidates");
-      expect(result).toHaveProperty("canSwitchover");
+      expect((result as any).data).toHaveProperty("candidates");
+      expect((result as any).data).toHaveProperty("canSwitchover");
     });
 
     it("should categorize candidates by lag suitability", async () => {
@@ -414,7 +413,7 @@ describe("Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
       const result: any = await tool.handler({}, mockContext);
-      const candidates = result.candidates;
+      const candidates = result.data.candidates;
 
       // Should filter out PRIMARY, so 3 candidates
       expect(candidates).toHaveLength(3);
@@ -429,8 +428,8 @@ describe("Handler Execution", () => {
       expect(candidates[2].memberId).toBe("uuid3");
       expect(candidates[2].suitability).toBe("NOT_RECOMMENDED");
 
-      expect(result.recommendedTarget.memberId).toBe("uuid1");
-      expect(result.canSwitchover).toBe(true);
+      expect(result.data.recommendedTarget.memberId).toBe("uuid1");
+      expect(result.data.canSwitchover).toBe(true);
     });
 
     it("should warn if all candidates are not recommended", async () => {
@@ -450,8 +449,8 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
       const result: any = await tool.handler({}, mockContext);
 
-      expect(result.recommendedTarget).toBeNull();
-      expect(result.warning).toBeDefined();
+      expect(result.data.recommendedTarget).toBeNull();
+      expect(result.data.warning).toBeDefined();
     });
   });
 });

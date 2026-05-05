@@ -3,7 +3,7 @@
  *
  * Provides server version, available features, and tool categories.
  */
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type {
   ResourceDefinition,
   RequestContext,
@@ -13,7 +13,7 @@ import {
   META_GROUPS,
   getMetaGroupInfo,
   getToolGroupInfo,
-} from "../../../filtering/ToolFilter.js";
+} from "../../../filtering/tool-filter.js";
 
 export function createCapabilitiesResource(
   adapter: MySQLAdapter,

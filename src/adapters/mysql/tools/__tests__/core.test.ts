@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getCoreTools } from "../core.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -301,14 +301,16 @@ describe("Handler Execution", () => {
       expect(mockAdapter.listTables).toHaveBeenCalled();
     });
 
-    it("should return exists: false for nonexistent database", async () => {
+    it("should return structured error for nonexistent database", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_list_tables")!;
       const result = await tool.handler({ database: "fake_db" }, mockContext);
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("database", "fake_db");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "does not exist",
+      );
     });
   });
 
@@ -357,7 +359,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("tableName", "new_table");
+      expect((result as any).data).toHaveProperty("tableName", "new_table");
     });
 
     it("should handle column defaults correctly", async () => {
@@ -508,8 +510,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("skipped", true);
-      expect(result).toHaveProperty("reason", "Table already exists");
+      expect((result as any).data).toHaveProperty("skipped", true);
+      expect((result as any).data).toHaveProperty("reason", "Table already exists");
       // Should NOT call executeQuery since it short-circuits
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
@@ -587,8 +589,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("skipped", true);
-      expect(result).toHaveProperty("reason", "Table did not exist");
+      expect((result as any).data).toHaveProperty("skipped", true);
+      expect((result as any).data).toHaveProperty("reason", "Table did not exist");
     });
 
     it("should return structured error for non-existence errors in drop table", async () => {
@@ -624,7 +626,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("indexName", "idx_users_email");
+      expect((result as any).data).toHaveProperty("indexName", "idx_users_email");
     });
 
     it("should create UNIQUE index", async () => {
@@ -667,7 +669,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toHaveProperty("skipped", true);
+      expect((result as any).data).toHaveProperty("skipped", true);
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
@@ -739,8 +741,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("warning");
-      expect((result as Record<string, unknown>).warning).toContain("MEMORY");
+      expect((result as any).data).toHaveProperty("warning");
+      expect(((result as any).data as Record<string, unknown>).warning).toContain("MEMORY");
     });
 
     it("should return graceful error when duplicate index name exists", async () => {
@@ -765,7 +767,7 @@ describe("Handler Execution", () => {
       );
     });
 
-    it("should return exists: false when table does not exist", async () => {
+    it("should return structured error when table does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -780,8 +782,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toHaveProperty("exists", false);
-      expect(result).toHaveProperty("table", "nonexistent");
+      expect(result).toHaveProperty("success", false);
+      expect((result as Record<string, unknown>).error).toContain(
+        "does not exist",
+      );
     });
 
     it("should return structured error for non-index errors in create index", async () => {
@@ -824,6 +828,160 @@ describe("Handler Execution", () => {
       );
       // Should NOT return exists: false (table exists, column doesn't)
       expect(result).not.toHaveProperty("exists", false);
+    });
+  });
+
+  describe('Missing coverage for core tools', () => {
+    it('mysql_list_tables should return error if db check fails', async () => {
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [] });
+      const tool = tools.find((t) => t.name === 'mysql_list_tables')!;
+      const result = await tool.handler({ database: 'missing_db' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('does not exist');
+    });
+
+    it('mysql_list_tables should catch unexpected errors', async () => {
+      mockAdapter.listTables.mockRejectedValue(new Error('Unexpected list tables error'));
+      const tool = tools.find((t) => t.name === 'mysql_list_tables')!;
+      const result = await tool.handler({}, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('Unexpected list tables error');
+    });
+
+    it('mysql_describe_table should return error if table has no columns', async () => {
+      mockAdapter.describeTable.mockResolvedValueOnce({ name: 'empty', columns: [] });
+      const tool = tools.find((t) => t.name === 'mysql_describe_table')!;
+      const result = await tool.handler({ table: 'empty' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('has no columns');
+    });
+
+    it('mysql_describe_table should catch unexpected errors', async () => {
+      mockAdapter.describeTable.mockRejectedValue(new Error('Unexpected describe error'));
+      const tool = tools.find((t) => t.name === 'mysql_describe_table')!;
+      const result = await tool.handler({ table: 'err' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('Unexpected describe error');
+    });
+
+    it('mysql_create_table should convert boolean default to 1/0', async () => {
+      mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
+      const tool = tools.find((t) => t.name === 'mysql_create_table')!;
+      await tool.handler(
+        {
+          name: 'bool_table',
+          columns: [{ name: 'is_active', type: 'BOOLEAN', default: true }],
+        },
+        mockContext,
+      );
+      const sqlCall = mockAdapter.executeQuery.mock.calls[mockAdapter.executeQuery.mock.calls.length - 1][0] as string;
+      expect(sqlCall).toContain('DEFAULT 1');
+    });
+
+    it('mysql_create_table should format error on catch', async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error('catch me'));
+      const tool = tools.find((t) => t.name === 'mysql_create_table')!;
+      const result = await tool.handler(
+        { name: 'err_table', columns: [{ name: 'id', type: 'INT' }] },
+        mockContext,
+      );
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('catch me');
+    });
+
+    it('mysql_drop_table should return skipped if table absent and ifExists true', async () => {
+      mockAdapter.describeTable.mockResolvedValueOnce({ columns: [] });
+      const tool = tools.find((t) => t.name === 'mysql_drop_table')!;
+      const result = await tool.handler({ table: 'absent_table', ifExists: true }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(true);
+      expect((result as any).data.skipped).toBe(true);
+    });
+
+    it('mysql_drop_table should format error on unknown table', async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Unknown table 'err_table'"));
+      const tool = tools.find((t) => t.name === 'mysql_drop_table')!;
+      const result = await tool.handler({ table: 'err_table' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('does not exist');
+    });
+
+    it('mysql_drop_table should catch outer error', async () => {
+      mockAdapter.executeQuery.mockImplementation(() => { throw new Error('outer'); });
+      const tool = tools.find((t) => t.name === 'mysql_drop_table')!;
+      const result = await tool.handler({ table: 'err' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('outer');
+    });
+
+    it('mysql_get_indexes should return error if table has no columns', async () => {
+      mockAdapter.describeTable.mockResolvedValueOnce({ name: 'empty', columns: [] });
+      const tool = tools.find((t) => t.name === 'mysql_get_indexes')!;
+      const result = await tool.handler({ table: 'empty' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('does not exist');
+    });
+
+    it('mysql_get_indexes should catch unexpected errors', async () => {
+      mockAdapter.describeTable.mockRejectedValue(new Error('Unexpected index error'));
+      const tool = tools.find((t) => t.name === 'mysql_get_indexes')!;
+      const result = await tool.handler({ table: 'err' }, mockContext);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('Unexpected index error');
+    });
+
+    it('mysql_create_index should return skipped if index already exists with ifNotExists', async () => {
+      mockAdapter.getTableIndexes.mockResolvedValueOnce([{ name: 'idx_existing', unique: false, type: 'BTREE', table: 'users', columns: [{name: 'id', seqInIndex: 1, collation: 'A', nullable: false}] }]);
+      const tool = tools.find((t) => t.name === 'mysql_create_index')!;
+      const result = await tool.handler(
+        { name: 'idx_existing', table: 'users', columns: ['id'], ifNotExists: true },
+        mockContext,
+      );
+      expect((result as Record<string, unknown>).success).toBe(true);
+      expect((result as any).data.skipped).toBe(true);
+    });
+
+    it('mysql_create_index should return error for Key column doesnt exist', async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Key column 'nonexistent' doesn't exist in table"));
+      const tool = tools.find((t) => t.name === 'mysql_create_index')!;
+      const result = await tool.handler(
+        { name: 'idx_users', table: 'users', columns: ['nonexistent'] },
+        mockContext,
+      );
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('does not exist in table');
+    });
+    
+    it('mysql_create_index should return error for Key column doesnt exist no regex', async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error("Key column doesn't exist"));
+      const tool = tools.find((t) => t.name === 'mysql_create_index')!;
+      const result = await tool.handler(
+        { name: 'idx_users', table: 'users', columns: ['nonexistent'] },
+        mockContext,
+      );
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('Column does not exist in table');
+    });
+
+    it('mysql_create_index should format random errors', async () => {
+      mockAdapter.executeQuery.mockRejectedValue(new Error('random index error'));
+      const tool = tools.find((t) => t.name === 'mysql_create_index')!;
+      const result = await tool.handler(
+        { name: 'idx_err', table: 'users', columns: ['id'] },
+        mockContext,
+      );
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('random index error');
+    });
+    
+    it('mysql_create_index should catch outer errors', async () => {
+      mockAdapter.executeQuery.mockImplementation(() => { throw new Error('outer'); });
+      const tool = tools.find((t) => t.name === 'mysql_create_index')!;
+      const result = await tool.handler(
+        { name: 'idx_err', table: 'users', columns: ['id'] },
+        mockContext,
+      );
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain('outer');
     });
   });
 });

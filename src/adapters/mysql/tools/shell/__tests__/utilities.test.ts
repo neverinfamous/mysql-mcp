@@ -64,7 +64,7 @@ describe("Shell Utilities Tools", () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.upgradeCheck).toEqual({ status: "OK" });
+      expect(result.data.upgradeCheck).toEqual({ status: "OK" });
 
       // Check command args
       const callArgs = mockSpawn.mock.calls[0][1];
@@ -80,7 +80,7 @@ describe("Shell Utilities Tools", () => {
       const result = (await tool.handler({}, mockContext)) as any;
 
       expect(result.success).toBe(true);
-      expect(result.upgradeCheck).toEqual({ raw: "Raw text output" });
+      expect(result.data.upgradeCheck).toEqual({ raw: "Raw text output" });
     });
 
     it("should return structured error for failed execution", async () => {
@@ -109,7 +109,7 @@ describe("Shell Utilities Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.upgradeCheck.raw).toBe("Non-JSON output");
+      expect(result.data.upgradeCheck.raw).toBe("Non-JSON output");
     });
 
     it("should always use JSON outputFormat internally for reliable parsing", async () => {

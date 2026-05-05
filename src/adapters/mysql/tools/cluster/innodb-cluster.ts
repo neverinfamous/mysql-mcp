@@ -6,34 +6,54 @@
  */
 
 import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
 // =============================================================================
 
 const LimitSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
 const LimitSchema = z.object({
-  limit: z
-    .number()
-    .int()
-    .min(0)
-    .default(100)
-    .describe("Maximum number of results"),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  limit: data.limit !== undefined ? Number(data.limit) : 100,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0,
+  { message: "Expected positive integer number" }
+);
+
+const SummarySchemaBase = z.object({
+  summary: z.unknown().optional().describe("If true, return condensed output without configuration blobs"),
 });
 
 const SummarySchema = z.object({
-  summary: z
-    .boolean()
-    .optional()
-    .describe("If true, return condensed output without configuration blobs"),
+  summary: z.unknown().optional(),
+})
+.transform((data, ctx) => {
+  if (data.summary === undefined) return { summary: false };
+  if (typeof data.summary === "boolean") return { summary: data.summary };
+  if (typeof data.summary === "string") {
+    const lower = data.summary.toLowerCase();
+    if (lower === "true") return { summary: true };
+    if (lower === "false") return { summary: false };
+  }
+  ctx.addIssue({
+    code: "custom",
+    message: "Expected boolean or 'true'/'false' string",
+  });
+  return z.NEVER;
 });
 
 // =============================================================================
@@ -50,12 +70,9 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get overall InnoDB Cluster status (requires mysql_innodb_cluster_metadata schema).",
     group: "cluster",
-    inputSchema: SummarySchema,
+    inputSchema: SummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { summary } = SummarySchema.parse(params);
@@ -74,12 +91,14 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                         WHERE MEMBER_STATE = 'ONLINE'
                     `);
 
-          return {
+          const data = {
             isInnoDBCluster: false,
             message:
               "InnoDB Cluster metadata not found. Using Group Replication status.",
             onlineMembers: grResult.rows?.[0]?.["memberCount"] ?? 0,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         // Get cluster info
@@ -103,14 +122,34 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     FROM mysql_innodb_cluster_metadata.routers
                 `);
 
+        // Compute status and topology
+        const grResult = await adapter.executeQuery(`
+            SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
+            FROM performance_schema.replication_group_members
+        `);
+        const members = grResult.rows ?? [];
+        const isOnline = members.length > 0 && members.some(m => m["state"] === "ONLINE");
+        const status = isOnline ? (members.every(m => m["state"] === "ONLINE") ? "OK" : "OK_PARTIAL") : "OFFLINE";
+        const topology = members.reduce<Record<string, unknown>>((acc, m) => {
+            acc[`${String(m["host"])}:${String(m["port"])}`] = {
+                status: m["state"],
+                role: m["role"]
+            };
+            return acc;
+        }, {});
+
         // Summary mode: return only essential metadata
         if (summary) {
-          return {
+          const data = {
             isInnoDBCluster: true,
             cluster: clusterBasic ?? null,
             instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
             routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+            status,
+            topology,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         // Full mode: include all cluster metadata including options/attributes
@@ -138,24 +177,18 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        return {
+        const data = {
           isInnoDBCluster: true,
           cluster,
           instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
           routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+          status,
+          topology,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          isInnoDBCluster: false,
-          message:
-            "Unable to query cluster metadata. Ensure InnoDB Cluster is properly configured.",
-          error:
-            error instanceof ZodError
-              ? error.issues.map((i) => i.message).join(", ")
-              : error instanceof Error
-                ? error.message
-                : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -174,25 +207,13 @@ export function createClusterInstancesTool(
     group: "cluster",
     inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       let limit: number;
       try {
         ({ limit } = LimitSchema.parse(params));
       } catch (error) {
-        return {
-          instances: [],
-          count: 0,
-          error:
-            error instanceof ZodError
-              ? error.issues.map((i) => i.message).join(", ")
-              : error instanceof Error
-                ? error.message
-                : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
 
       try {
@@ -213,10 +234,12 @@ export function createClusterInstancesTool(
           [],
         );
 
-        return {
+        const data = {
           instances: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (primaryError) {
         // Fallback to GR members
         try {
@@ -232,24 +255,23 @@ export function createClusterInstancesTool(
             [],
           );
 
-          return {
+          const data = {
             source: "group_replication",
             instances: grResult.rows ?? [],
             count: grResult.rows?.length ?? 0,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         } catch (fallbackError) {
-          return {
-            instances: [],
-            count: 0,
-            error:
-              fallbackError instanceof Error
-                ? fallbackError.message
-                : String(fallbackError),
-            primaryError:
-              primaryError instanceof Error
-                ? primaryError.message
-                : String(primaryError),
-          };
+          const fallbackMsg =
+            fallbackError instanceof Error
+              ? fallbackError.message
+              : String(fallbackError);
+          const primaryMsg =
+            primaryError instanceof Error
+              ? primaryError.message
+              : String(primaryError);
+          return formatHandlerErrorResponse(new Error(`Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`));
         }
       }
     },
@@ -269,10 +291,7 @@ export function createClusterTopologyTool(
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get all GR members
@@ -369,25 +388,16 @@ export function createClusterTopologyTool(
         }
 
         const allMembers = members.length + metadataOffline.length;
-        return {
+        const data = {
           topology,
           visualization: ascii,
           totalMembers: allMembers,
           onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          topology: {
-            primary: [],
-            secondaries: [],
-            recovering: [],
-            offline: [],
-          },
-          visualization: "",
-          totalMembers: 0,
-          onlineMembers: 0,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -404,12 +414,9 @@ export function createClusterRouterStatusTool(
     title: "MySQL Cluster Router Status",
     description: "Get status of MySQL Routers connected to the cluster.",
     group: "cluster",
-    inputSchema: SummarySchema,
+    inputSchema: SummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       // Compute staleness: null lastCheckIn or >1 hour old
       const computeStale = (lastCheckIn: unknown): boolean => {
@@ -442,11 +449,13 @@ export function createClusterRouterStatusTool(
           }));
           const staleCount = routers.filter((r) => r.isStale).length;
 
-          return {
+          const data = {
             routers,
             count: routers.length,
             staleCount,
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         // Full mode: include attributes but strip bulky Configuration blob
@@ -482,25 +491,21 @@ export function createClusterRouterStatusTool(
         });
         const staleCount = routers.filter((r) => r.isStale).length;
 
-        return {
+        const data = {
           routers,
           count: routers.length,
           staleCount,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          available: false,
-          message:
-            "Router metadata not available. Ensure InnoDB Cluster is configured.",
-          suggestion:
-            "Use mysql_router_status tool if connecting directly to Router REST API.",
-          error:
-            error instanceof ZodError
-              ? error.issues.map((i) => i.message).join(", ")
-              : error instanceof Error
-                ? error.message
-                : String(error),
-        };
+        const baseError =
+          error instanceof ZodError
+            ? error.issues.map((i) => i.message).join(", ")
+            : error instanceof Error
+              ? error.message
+              : String(error);
+        return formatHandlerErrorResponse(new Error(`Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`));
       }
     },
   };
@@ -520,10 +525,7 @@ export function createClusterSwitchoverTool(
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get current members status
@@ -588,7 +590,7 @@ export function createClusterSwitchoverTool(
         });
 
         const firstCandidate = candidates[0];
-        return {
+        const data = {
           currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
           candidates,
           recommendedTarget:
@@ -607,13 +609,10 @@ export function createClusterSwitchoverTool(
                 ? "All secondaries have significant replication lag. Switchover not recommended."
                 : undefined,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          currentPrimary: null,
-          candidates: [],
-          canSwitchover: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

@@ -4,7 +4,7 @@ import {
   createMockQueryResult,
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import { createReplicationResource } from "../replication.js";
 
 describe("Replication Resource", () => {

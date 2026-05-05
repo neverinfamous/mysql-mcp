@@ -3,7 +3,7 @@
  *
  * Index usage statistics and recommendations.
  */
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type {
   ResourceDefinition,
   RequestContext,

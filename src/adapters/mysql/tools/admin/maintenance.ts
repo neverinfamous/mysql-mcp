@@ -6,7 +6,8 @@
  */
 
 import { ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -24,12 +25,13 @@ import {
   FlushTablesSchemaBase,
   KillQuerySchema,
   KillQuerySchemaBase,
-} from "../../types.js";
+} from "../../schemas/index.js";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
+import { IDEMPOTENT, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
+
+
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -39,24 +41,28 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: OptimizeTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = OptimizeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.executeQuery(
-          `OPTIMIZE TABLE ${tableList}`,
-        );
-        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
+        const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -71,22 +77,28 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: AnalyzeTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = AnalyzeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.executeQuery(`ANALYZE TABLE ${tableList}`);
-        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
+        const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -100,10 +112,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: CheckTableSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, option } = CheckTableSchema.parse(params);
@@ -113,16 +122,28 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.rawQuery(
           `CHECK TABLE ${tableList}${optionClause}`,
         );
-        return {
-          results: result.rows ?? [],
-          rowCount: result.rows?.length ?? 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            results: rows,
+            rowCount: rows.length,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -136,25 +157,31 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: RepairTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, quick } = RepairTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const quickClause = quick ? " QUICK" : "";
-        const result = await adapter.executeQuery(
+        const result = await adapter.rawQuery(
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
-        return { results: result.rows, rowCount: result.rows?.length ?? 0 };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const rows = result.rows ?? [];
+        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -168,10 +195,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: FlushTablesSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = FlushTablesSchema.parse(params);
@@ -197,12 +221,18 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
               const validList = validTables.map((t) => `\`${t}\``).join(", ");
               await adapter.executeQuery(`FLUSH TABLES ${validList}`);
             }
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Tables not found: ${notFound.join(", ")}`,
-              notFound,
-              flushed: validTables,
-            };
+              code: "MAINTENANCE_ERROR",
+              category: ErrorCategory.RESOURCE,
+              suggestion: undefined,
+              recoverable: false,
+              details: {
+                notFound,
+                flushed: validTables,
+              },
+            });
           }
 
           const tableList = tables.map((t) => `\`${t}\``).join(", ");
@@ -211,13 +241,9 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery("FLUSH TABLES");
         }
 
-        return { success: true };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return withTokenEstimate({ success: true, data: {} });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -231,28 +257,38 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: KillQuerySchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { processId, connection } = KillQuerySchema.parse(params);
         const killType = connection ? "CONNECTION" : "QUERY";
         await adapter.executeQuery(`KILL ${killType} ${processId}`);
-        return { success: true, killed: processId, type: killType };
+        return withTokenEstimate({ success: true, data: { killed: processId, type: killType } });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Process ID ${/\d+/.exec(message)?.[0] ?? "unknown"} not found`,
-          };
+            code: "KILL_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: undefined,
+          });
         }
-        return { success: false, error: message };
+        return withTokenEstimate({
+          success: false,
+          error: message,
+          code: "KILL_ERROR",
+          category: ErrorCategory.QUERY,
+          suggestion: undefined,
+          recoverable: false,
+          details: undefined,
+        });
       }
     },
   };

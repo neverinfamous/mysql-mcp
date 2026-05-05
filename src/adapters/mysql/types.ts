@@ -1931,6 +1931,15 @@ export const KillQuerySchema = z.object({
 
 export const ShowProcesslistSchema = z.object({
   full: z.boolean().optional().default(false).describe("Show full query text"),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(50)
+    .describe(
+      "Maximum number of processes to return (default: 50). Set higher to see all.",
+    ),
 });
 
 export const ShowStatusSchema = z.object({
@@ -2112,7 +2121,7 @@ export const AddPartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   partitionName: z.string().describe("New partition name"),
   partitionType: z
-    .enum(["RANGE", "LIST", "HASH", "KEY"])
+    .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .describe("Partition type"),
   value: z
     .string()
@@ -2129,7 +2138,7 @@ export const AddPartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       partitionName: z.string(),
-      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY"]),
+      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"]),
       value: z.string(),
     }),
   )
@@ -2176,9 +2185,9 @@ export const ReorganizePartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   fromPartitions: z.array(z.string()).describe("Source partition names"),
   partitionType: z
-    .enum(["RANGE", "LIST", "HASH", "KEY"])
+    .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .describe(
-      "Partition type (RANGE or LIST). HASH/KEY partitions cannot be reorganized.",
+      "Partition type (RANGE, LIST, RANGE COLUMNS, LIST COLUMNS). HASH/KEY partitions cannot be reorganized.",
     ),
   toPartitions: z
     .array(
@@ -2202,7 +2211,7 @@ export const ReorganizePartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       fromPartitions: z.array(z.string()),
-      partitionType: z.enum(["RANGE", "LIST"]),
+      partitionType: z.enum(["RANGE", "LIST", "RANGE COLUMNS", "LIST COLUMNS"]),
       toPartitions: z.array(
         z.object({
           name: z.string(),

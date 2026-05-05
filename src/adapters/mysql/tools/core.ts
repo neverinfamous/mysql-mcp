@@ -5,7 +5,7 @@
  * 8 tools total.
  */
 
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   ReadQuerySchema,
@@ -23,15 +23,11 @@ import {
   GetIndexesSchema,
   GetIndexesSchemaBase,
   ListTablesSchema,
-} from "../types.js";
-import { ZodError } from "zod";
+  ListTablesSchemaBase,
+} from "../schemas/index.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
 
-/**
- * Extract human-readable messages from a ZodError instead of raw JSON array
- */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -86,34 +82,29 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: ReadQuerySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ReadQuerySchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { query, params: queryParams, transactionId } = parsed;
-      try {
+        const {
+          query,
+          params: queryParams,
+          transactionId,
+        } = ReadQuerySchema.parse(params);
         const result = await adapter.executeReadQuery(
           query,
           queryParams,
           transactionId,
         );
-        return {
-          rows: result.rows,
-          rowCount: result.rows?.length ?? 0,
-          executionTimeMs: result.executionTimeMs,
-        };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        return { success: false, error: message.replace(/^.*?:\s*/, "") };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            rowCount: result.rows?.length ?? 0,
+            executionTimeMs: result.executionTimeMs,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -131,33 +122,29 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: WriteQuerySchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = WriteQuerySchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { query, params: queryParams, transactionId } = parsed;
-      try {
+        const {
+          query,
+          params: queryParams,
+          transactionId,
+        } = WriteQuerySchema.parse(params);
         const result = await adapter.executeWriteQuery(
           query,
           queryParams,
           transactionId,
         );
-        return {
-          rowsAffected: result.rowsAffected,
-          lastInsertId: result.lastInsertId?.toString(),
-          executionTimeMs: result.executionTimeMs,
-        };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        return { success: false, error: message.replace(/^.*?:\s*/, "") };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rowsAffected: result.rowsAffected,
+            lastInsertId: result.lastInsertId?.toString(),
+            executionTimeMs: result.executionTimeMs,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -172,53 +159,50 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL List Tables",
     description: "List all tables and views in the database with metadata.",
     group: "core",
-    inputSchema: ListTablesSchema,
+    inputSchema: ListTablesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListTablesSchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { database } = parsed;
+        const { database, limit } = ListTablesSchema.parse(params);
 
-      // P154: Pre-check database existence when explicitly provided
-      if (database) {
-        const dbCheck = await adapter.executeReadQuery(
-          `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
-          [database],
-        );
-        if (!dbCheck.rows || dbCheck.rows.length === 0) {
-          return {
-            exists: false,
-            database,
-            message: `Database '${database}' does not exist`,
-          };
+        // P154: Pre-check database existence when explicitly provided
+        if (database) {
+          const dbCheck = await adapter.executeReadQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            return withTokenEstimate({
+              success: false,
+              error: `Database '${database}' does not exist`,
+            });
+          }
         }
-      }
 
-      try {
-        const tables = await adapter.listTables(database);
-        return {
-          tables: tables.map((t) => ({
-            name: t.name,
-            type: t.type,
-            engine: t.engine,
-            rowCount: t.rowCount,
-            comment: t.comment,
-          })),
-          count: tables.length,
-        };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        return { success: false, error: message };
+        let tables = await adapter.listTables(database);
+        let truncated = false;
+        if (limit !== undefined && tables.length > limit) {
+          tables = tables.slice(0, limit);
+          truncated = true;
+        }
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            tables: tables.map((t) => ({
+              name: t.name,
+              type: t.type,
+              ...(t.engine != null ? { engine: t.engine } : {}),
+              ...(t.rowCount != null ? { rowCount: t.rowCount } : {}),
+              ...(t.comment != null && t.comment !== "" ? { comment: t.comment } : {}),
+            })),
+            count: tables.length,
+            ...(truncated ? { truncated: true } : {}),
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -236,30 +220,43 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: DescribeTableSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = DescribeTableSchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { table } = parsed;
-      const tableInfo = await adapter.describeTable(table);
-      // Graceful handling for non-existent tables
-      if (!tableInfo.columns || tableInfo.columns.length === 0) {
-        return {
-          exists: false,
-          table,
-          message: `Table '${table}' does not exist or has no columns`,
+        const { table } = DescribeTableSchema.parse(params);
+        const tableInfo = await adapter.describeTable(table);
+        // Graceful handling for non-existent tables
+        if (!tableInfo.columns || tableInfo.columns.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${table}' does not exist or has no columns`,
+          });
+        }
+        // Sanitize to reduce token bloat
+        const sanitizedColumns = tableInfo.columns?.map((c) => {
+          const { comment, characterSet, collation, defaultValue, autoIncrement, ...rest } = c;
+          return {
+            ...rest,
+            ...(comment != null && comment !== "" ? { comment } : {}),
+            ...(characterSet != null ? { characterSet } : {}),
+            ...(collation != null ? { collation } : {}),
+            ...(defaultValue !== null ? { defaultValue } : {}),
+            ...(autoIncrement === true ? { autoIncrement } : {}),
+          };
+        });
+        
+        const { comment: tableComment, collation: tableCollation, ...restInfo } = tableInfo;
+        const sanitizedInfo = {
+            ...restInfo,
+            columns: sanitizedColumns,
+            ...(tableComment != null && tableComment !== "" ? { comment: tableComment } : {}),
+            ...(tableCollation != null && tableCollation !== "" ? { collation: tableCollation } : {}),
         };
+
+        return withTokenEstimate({ success: true, data: { ...sanitizedInfo, exists: true } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-      return { ...tableInfo, exists: true };
     },
   };
 }
@@ -276,125 +273,128 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: CreateTableSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = CreateTableSchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { name, columns, engine, charset, collate, comment, ifNotExists } =
-        parsed;
+        const {
+          name,
+          columns,
+          engine,
+          charset,
+          collate,
+          comment,
+          ifNotExists,
+        } = CreateTableSchema.parse(params);
 
-      // Pre-check existence for skipped indicator when ifNotExists is true
-      if (ifNotExists) {
-        const checkName = name.includes(".")
-          ? (name.split(".")[1] ?? name)
-          : name;
-        const tableInfo = await adapter.describeTable(checkName);
-        if (tableInfo.columns && tableInfo.columns.length > 0) {
-          return {
-            success: true,
-            skipped: true,
-            tableName: name,
-            reason: "Table already exists",
-          };
-        }
-      }
-
-      // Build column definitions
-      const columnDefs = columns.map((col) => {
-        let def = `\`${col.name}\` ${col.type}`;
-
-        if (!col.nullable) {
-          def += " NOT NULL";
-        }
-        if (col.autoIncrement) {
-          def += " AUTO_INCREMENT";
-        }
-        if (col.default !== undefined) {
-          let defaultVal = col.default as string | number | boolean | null;
-          // Convert boolean true/false to 1/0 for MySQL compatibility
-          if (typeof defaultVal === "boolean") {
-            defaultVal = defaultVal ? 1 : 0;
-          }
-          // Check if default is a SQL function/expression that should not be quoted
-          const defaultValue = String(defaultVal).toUpperCase().trim();
-          const sqlFunctions = [
-            "CURRENT_TIMESTAMP",
-            "CURRENT_DATE",
-            "CURRENT_TIME",
-            "NOW()",
-            "UUID()",
-            "NULL",
-          ];
-          const isSqlFunction =
-            sqlFunctions.some((fn) => defaultValue.startsWith(fn)) ||
-            /^[A-Z_]+\(.*\)$/.test(defaultValue); // Matches FUNCTION(...) pattern
-
-          if (isSqlFunction || typeof defaultVal === "number") {
-            def += ` DEFAULT ${String(defaultVal)}`;
-          } else {
-            def += ` DEFAULT '${String(defaultVal).replace(/'/g, "''")}'`;
+        // Pre-check existence for skipped indicator when ifNotExists is true
+        if (ifNotExists) {
+          const checkName = name.includes(".")
+            ? (name.split(".")[1] ?? name)
+            : name;
+          const tableInfo = await adapter.describeTable(checkName);
+          if (tableInfo.columns && tableInfo.columns.length > 0) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                skipped: true,
+                tableName: name,
+                reason: "Table already exists",
+              }
+            });
           }
         }
-        if (col.unique) {
-          def += " UNIQUE";
+
+        // Build column definitions
+        const columnDefs = (columns ?? []).map((col) => {
+          let def = `\`${col.name}\` ${col.type}`;
+
+          if (!col.nullable) {
+            def += " NOT NULL";
+          }
+          if (col.autoIncrement) {
+            def += " AUTO_INCREMENT";
+          }
+          if (col.default !== undefined) {
+            let defaultVal = col.default as string | number | boolean | null;
+            // Convert boolean true/false to 1/0 for MySQL compatibility
+            if (typeof defaultVal === "boolean") {
+              defaultVal = defaultVal ? 1 : 0;
+            }
+            // Check if default is a SQL function/expression that should not be quoted
+            const defaultValue = String(defaultVal).toUpperCase().trim();
+            const sqlFunctions = [
+              "CURRENT_TIMESTAMP",
+              "CURRENT_DATE",
+              "CURRENT_TIME",
+              "NOW()",
+              "UUID()",
+              "NULL",
+            ];
+            const isSqlFunction =
+              sqlFunctions.some((fn) => defaultValue.startsWith(fn)) ||
+              /^[A-Z_]+\(.*\)$/.test(defaultValue); // Matches FUNCTION(...) pattern
+
+            if (isSqlFunction || typeof defaultVal === "number") {
+              def += ` DEFAULT ${String(defaultVal)}`;
+            } else {
+              def += ` DEFAULT '${String(defaultVal).replace(/'/g, "''")}'`;
+            }
+          }
+          if (col.unique) {
+            def += " UNIQUE";
+          }
+          if (col.comment) {
+            def += ` COMMENT '${col.comment.replace(/'/g, "''")}'`;
+          }
+
+          return def;
+        });
+
+        // Add primary key
+        const pkCols = (columns ?? [])
+          .filter((c) => c.primaryKey)
+          .map((c) => `\`${c.name}\``);
+        if (pkCols.length > 0) {
+          columnDefs.push(`PRIMARY KEY (${pkCols.join(", ")})`);
         }
-        if (col.comment) {
-          def += ` COMMENT '${col.comment.replace(/'/g, "''")}'`;
+
+        // Build SQL
+        const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
+        // Handle qualified names (e.g. schema.table)
+        const tableName = escapeId(name);
+        let sql = `CREATE TABLE ${ifNotExistsClause}${tableName} (\n  ${columnDefs.join(",\n  ")}\n)`;
+        sql += ` ENGINE=${engine}`;
+        sql += ` DEFAULT CHARSET=${charset}`;
+        sql += ` COLLATE=${collate}`;
+
+        if (comment) {
+          sql += ` COMMENT='${comment.replace(/'/g, "''")}'`;
         }
 
-        return def;
-      });
-
-      // Add primary key
-      const pkCols = columns
-        .filter((c) => c.primaryKey)
-        .map((c) => `\`${c.name}\``);
-      if (pkCols.length > 0) {
-        columnDefs.push(`PRIMARY KEY (${pkCols.join(", ")})`);
-      }
-
-      // Build SQL
-      const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
-      // Handle qualified names (e.g. schema.table)
-      const tableName = escapeId(name);
-      let sql = `CREATE TABLE ${ifNotExistsClause}${tableName} (\n  ${columnDefs.join(",\n  ")}\n)`;
-      sql += ` ENGINE=${engine}`;
-      sql += ` DEFAULT CHARSET=${charset}`;
-      sql += ` COLLATE=${collate}`;
-
-      if (comment) {
-        sql += ` COMMENT='${comment.replace(/'/g, "''")}'`;
-      }
-
-      // If schema-qualified name, switch to that database first
-      if (name.includes(".")) {
-        const [schemaName] = name.split(".");
-        await adapter.executeQuery(`USE \`${schemaName}\``);
-      }
-
-      try {
-        await adapter.executeQuery(sql);
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.includes("already exists")) {
-          return {
-            success: false,
-            error: `Table '${name}' already exists`,
-          };
+        // If schema-qualified name, switch to that database first
+        if (name.includes(".")) {
+          const [schemaName] = name.split(".");
+          await adapter.executeQuery(`USE \`${schemaName}\``);
         }
-        return { success: false, error: message };
-      }
 
-      adapter.clearSchemaCache();
-      return { success: true, tableName: name };
+        try {
+          await adapter.executeQuery(sql);
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.includes("already exists")) {
+            return withTokenEstimate({
+              success: false,
+              error: `Table '${name}' already exists`,
+            });
+          }
+          return formatHandlerErrorResponse(err);
+        }
+
+        adapter.clearSchemaCache();
+        return withTokenEstimate({ success: true, data: { tableName: name } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
     },
   };
 }
@@ -410,63 +410,60 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: DropTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = DropTableSchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { table, ifExists } = parsed;
+        const { table, ifExists } = DropTableSchema.parse(params);
 
-      // Validate table name
-      if (!isValidId(table)) {
-        return { success: false, error: "Invalid table name" };
-      }
-
-      // Pre-check existence for skipped indicator when ifExists is true
-      let tableAbsent = false;
-      if (ifExists) {
-        const tableInfo = await adapter.describeTable(table);
-        if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          tableAbsent = true;
+        // Validate table name
+        if (!isValidId(table)) {
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
-      }
 
-      const ifExistsClause = ifExists ? "IF EXISTS " : "";
-      const tableName = escapeId(table);
-
-      try {
-        await adapter.executeQuery(`DROP TABLE ${ifExistsClause}${tableName}`);
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.includes("Unknown table")) {
-          return {
-            success: false,
-            error: `Table '${table}' does not exist`,
-          };
+        // Pre-check existence for skipped indicator when ifExists is true
+        let tableAbsent = false;
+        if (ifExists) {
+          const tableInfo = await adapter.describeTable(table);
+          if (!tableInfo.columns || tableInfo.columns.length === 0) {
+            tableAbsent = true;
+          }
         }
-        return { success: false, error: message };
+
+        const ifExistsClause = ifExists ? "IF EXISTS " : "";
+        const tableName = escapeId(table);
+
+        try {
+          await adapter.executeQuery(
+            `DROP TABLE ${ifExistsClause}${tableName}`,
+          );
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.includes("Unknown table")) {
+            return withTokenEstimate({
+              success: false,
+              error: `Table '${table}' does not exist`,
+            });
+          }
+          return formatHandlerErrorResponse(err);
+        }
+
+        adapter.clearSchemaCache();
+
+        if (tableAbsent) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              skipped: true,
+              tableName: table,
+              reason: "Table did not exist",
+            }
+          });
+        }
+
+        return withTokenEstimate({ success: true, data: { tableName: table } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-
-      adapter.clearSchemaCache();
-
-      if (tableAbsent) {
-        return {
-          success: true,
-          skipped: true,
-          tableName: table,
-          reason: "Table did not exist",
-        };
-      }
-
-      return { success: true, tableName: table };
     },
   };
 }
@@ -483,32 +480,23 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: GetIndexesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = GetIndexesSchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
+        const { table } = GetIndexesSchema.parse(params);
+        // First check if table exists by describing it
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns || tableInfo.columns.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${table}' does not exist`,
+          });
+        }
+        const indexes = await adapter.getTableIndexes(table);
+        return withTokenEstimate({ success: true, data: { exists: true, indexes } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-      const { table } = parsed;
-      // First check if table exists by describing it
-      const tableInfo = await adapter.describeTable(table);
-      if (!tableInfo.columns || tableInfo.columns.length === 0) {
-        return {
-          exists: false,
-          table,
-          indexes: [],
-          message: `Table '${table}' does not exist`,
-        };
-      }
-      const indexes = await adapter.getTableIndexes(table);
-      return { exists: true, indexes };
     },
   };
 }
@@ -525,93 +513,92 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: CreateIndexSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = CreateIndexSchema.parse(params);
-      } catch (err: unknown) {
-        if (err instanceof ZodError)
-          return { success: false, error: formatZodError(err) };
-        throw err;
-      }
-      const { name, table, columns, unique, type, ifNotExists } = parsed;
+        const { name, table, columns, unique, type, ifNotExists } =
+          CreateIndexSchema.parse(params);
 
-      // Validate names
-      if (!VALID_INDEX_NAME_PATTERN.test(name)) {
-        return { success: false, error: "Invalid index name" };
-      }
-      if (!isValidId(table)) {
-        return { success: false, error: "Invalid table name" };
-      }
+        // Validate names
+        if (!name || !VALID_INDEX_NAME_PATTERN.test(name)) {
+          return withTokenEstimate({ success: false, error: "Invalid index name" });
+        }
+        if (!isValidId(table)) {
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
+        }
 
-      const columnList = columns.map((c) => `\`${c}\``).join(", ");
-      const tableName = escapeId(table);
+        const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
+        const tableName = escapeId(table);
 
-      // FULLTEXT and SPATIAL are index type prefixes (CREATE FULLTEXT INDEX ...)
-      // BTREE and HASH use the USING clause (... USING BTREE)
-      const isPrefixType = type === "FULLTEXT" || type === "SPATIAL";
-      const prefixClause = isPrefixType ? `${type} ` : "";
-      const uniqueClause = !isPrefixType && unique ? "UNIQUE " : "";
-      const usingClause = type && !isPrefixType ? ` USING ${type}` : "";
+        // FULLTEXT and SPATIAL are index type prefixes (CREATE FULLTEXT INDEX ...)
+        // BTREE and HASH use the USING clause (... USING BTREE)
+        const isPrefixType = type === "FULLTEXT" || type === "SPATIAL";
+        const prefixClause = isPrefixType ? `${type} ` : "";
+        const uniqueClause = !isPrefixType && unique ? "UNIQUE " : "";
+        const usingClause = type && !isPrefixType ? ` USING ${type}` : "";
 
-      // Note: IF NOT EXISTS not supported for indexes in MySQL
-      // We'll check if it exists first
-      if (ifNotExists) {
-        const existing = await adapter.getTableIndexes(table); // Pass original unescaped name to getTableIndexes (it expects string)
-        if (existing.some((idx) => idx.name === name)) {
-          return {
+        // Note: IF NOT EXISTS not supported for indexes in MySQL
+        // We'll check if it exists first
+        if (ifNotExists) {
+          const existing = await adapter.getTableIndexes(table); // Pass original unescaped name to getTableIndexes (it expects string)
+          if (existing.some((idx) => idx.name === name)) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                skipped: true,
+                indexName: name,
+                reason: "Index already exists",
+              }
+            });
+          }
+        }
+
+        try {
+          await adapter.executeQuery(
+            `CREATE ${uniqueClause}${prefixClause}INDEX \`${name}\` ON ${tableName} (${columnList})${usingClause}`,
+          );
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.includes("Duplicate key name")) {
+            return withTokenEstimate({
+              success: false,
+              error: `Index '${name}' already exists on table '${table}'`,
+            });
+          }
+          // Distinguish column errors from table errors
+          if (message.includes("Key column")) {
+            const colMatch = /Key column '([^']+)'/.exec(message);
+            return withTokenEstimate({
+              success: false,
+              error: colMatch
+                ? `Column '${colMatch[1]}' does not exist in table '${table}'`
+                : `Column does not exist in table '${table}'`,
+            });
+          }
+          if (message.includes("doesn't exist")) {
+            return withTokenEstimate({ success: false, error: `Table '${table}' does not exist` });
+          }
+          return formatHandlerErrorResponse(err);
+        }
+
+        adapter.clearSchemaCache();
+
+        // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)
+        if (type === "HASH") {
+          return withTokenEstimate({
             success: true,
-            skipped: true,
-            indexName: name,
-            reason: "Index already exists",
-          };
+            data: {
+              indexName: name,
+              warning:
+                "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
+            }
+          });
         }
+
+        return withTokenEstimate({ success: true, data: { indexName: name } });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-
-      try {
-        await adapter.executeQuery(
-          `CREATE ${uniqueClause}${prefixClause}INDEX \`${name}\` ON ${tableName} (${columnList})${usingClause}`,
-        );
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.includes("Duplicate key name")) {
-          return {
-            success: false,
-            error: `Index '${name}' already exists on table '${table}'`,
-          };
-        }
-        // Distinguish column errors from table errors
-        if (message.includes("Key column")) {
-          const colMatch = /Key column '([^']+)'/.exec(message);
-          return {
-            success: false,
-            error: colMatch
-              ? `Column '${colMatch[1]}' does not exist in table '${table}'`
-              : `Column does not exist in table '${table}'`,
-          };
-        }
-        if (message.includes("doesn't exist")) {
-          return { exists: false, table };
-        }
-        return { success: false, error: message };
-      }
-
-      adapter.clearSchemaCache();
-
-      // Warn if HASH was requested on a non-MEMORY engine (InnoDB silently converts to BTREE)
-      if (type === "HASH") {
-        return {
-          success: true,
-          indexName: name,
-          warning:
-            "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
-        };
-      }
-
-      return { success: true, indexName: name };
     },
   };
 }

@@ -11,7 +11,7 @@ import {
   createSpatialContainsTool,
   createSpatialWithinTool,
 } from "../queries.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -56,14 +56,14 @@ describe("Spatial Queries Tools", () => {
           point: { longitude: 0, latitude: 0 },
         },
         mockContext,
-      )) as { results: unknown[] };
+      )) as { data: { results: unknown[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ST_Distance");
       // Check SRID default with axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
-      expect(result.results).toHaveLength(1);
+      expect(result.data.results).toHaveLength(1);
     });
 
     it("should filter by maxDistance and use custom SRID", async () => {
@@ -106,7 +106,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining("Invalid table name"),
       });
@@ -125,7 +125,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });
@@ -150,8 +150,8 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.results).toEqual([]);
-      expect(result.count).toBe(0);
+      expect(result.data.results).toEqual([]);
+      expect(result.data.count).toBe(0);
     });
   });
 
@@ -215,7 +215,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });
@@ -284,7 +284,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining("Invalid table name"),
       });
@@ -353,7 +353,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid column name",
       });

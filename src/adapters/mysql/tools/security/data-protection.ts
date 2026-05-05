@@ -5,28 +5,21 @@
  */
 
 import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg
-    .replace(/^Query failed:\s*/i, "")
-    .replace(/^Execute failed:\s*/i, "")
-    .trim();
-}
 
 // =============================================================================
 // Zod Schemas
@@ -52,30 +45,59 @@ const UserPrivilegesSchema = z.object({
     ),
 });
 
-const SensitiveTablesSchema = z.object({
+const SensitiveTablesSchemaBase = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema to scan (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   patterns: z
     .array(z.string())
-    .default([
-      "password",
-      "secret",
-      "token",
-      "key",
-      "ssn",
-      "credit",
-      "card",
-      "phone",
-      "email",
-      "address",
-      "salary",
-      "medical",
-      "health",
-    ])
+    .optional()
     .describe("Column name patterns to consider sensitive"),
+  limit: z
+    .number()
+    .optional()
+    .describe(
+      "Maximum number of tables to return (default: 20). Set higher for full scan.",
+    ),
 });
+
+const SensitiveTablesSchema = z
+  .preprocess((val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const v = val as Record<string, unknown>;
+    if (v["schema"] === undefined && v["database"] !== undefined) {
+      v["schema"] = v["database"];
+    }
+    return v;
+  }, z.object({
+    schema: z.string().optional(),
+    database: z.string().optional(),
+    patterns: z
+      .array(z.string())
+      .default([
+        "password",
+        "secret",
+        "token",
+        "key",
+        "ssn",
+        "credit",
+        "card",
+        "phone",
+        "email",
+        "address",
+        "salary",
+        "medical",
+        "health",
+      ]),
+    limit: z.number().int().positive().optional().default(20),
+  }))
+  .transform((data) => ({
+    schema: data.schema ?? data.database,
+    patterns: data.patterns,
+    limit: data.limit,
+  }));
 
 // =============================================================================
 // Tool Creation Functions
@@ -95,10 +117,7 @@ export function createSecurityMaskDataTool(
     group: "security",
     inputSchema: MaskDataSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: (params: unknown, _context: RequestContext): Promise<unknown> => {
       try {
         const { value, type, keepFirst, keepLast, maskChar } =
@@ -112,10 +131,9 @@ export function createSecurityMaskDataTool(
           "partial",
         ] as const;
         if (!validTypes.includes(type as (typeof validTypes)[number])) {
-          return Promise.resolve({
-            success: false,
-            error: `Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`,
-          });
+          return Promise.resolve(formatHandlerErrorResponse(
+            new Error(`Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`)
+          ));
         }
 
         let maskedValue: string;
@@ -156,13 +174,16 @@ export function createSecurityMaskDataTool(
             // Show first 4 and last 4
             const ccDigits = value.replace(/\D/g, "");
             if (ccDigits.length <= 8) {
-              return Promise.resolve({
-                original: value,
-                masked: maskChar.repeat(value.length),
-                type,
-                warning:
-                  "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
-              });
+              return Promise.resolve(withTokenEstimate({
+                success: true,
+                data: {
+                  original: value,
+                  masked: maskChar.repeat(value.length),
+                  type,
+                  warning:
+                    "Value too short for credit_card format (expected more than 8 digits); fully masked instead",
+                }
+              }));
             }
             maskedValue =
               ccDigits.slice(0, 4) +
@@ -173,13 +194,16 @@ export function createSecurityMaskDataTool(
           case "partial": {
             // When keepFirst + keepLast covers the entire value, return unchanged with warning
             if (keepFirst + keepLast >= value.length) {
-              return Promise.resolve({
-                original: value,
-                masked: value,
-                type,
-                warning:
-                  "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
-              });
+              return Promise.resolve(withTokenEstimate({
+                success: true,
+                data: {
+                  original: value,
+                  masked: value,
+                  type,
+                  warning:
+                    "Masking ineffective: keepFirst + keepLast covers entire value length; returned unchanged",
+                }
+              }));
             } else {
               const maskLength = value.length - keepFirst - keepLast;
               maskedValue =
@@ -193,19 +217,19 @@ export function createSecurityMaskDataTool(
             maskedValue = maskChar.repeat(value.length);
         }
 
-        return Promise.resolve({ original: value, masked: maskedValue, type });
+        return Promise.resolve(withTokenEstimate({
+          success: true,
+          data: {
+            original: value,
+            masked: maskedValue,
+            type,
+          }
+        }));
       } catch (error) {
         if (error instanceof ZodError) {
-          return Promise.resolve({
-            success: false,
-            error: formatZodError(error),
-          });
+          return Promise.resolve(formatHandlerErrorResponse(error));
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return Promise.resolve({
-          success: false,
-          error: stripErrorPrefix(message),
-        });
+        return Promise.resolve(formatHandlerErrorResponse(error));
       }
     },
   };
@@ -224,10 +248,7 @@ export function createSecurityUserPrivilegesTool(
     group: "security",
     inputSchema: UserPrivilegesSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, host, includeRoles, summary } =
@@ -240,13 +261,13 @@ export function createSecurityUserPrivilegesTool(
             [user],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return { exists: false, user };
+            return formatHandlerErrorResponse(new Error(`User '${user}' does not exist.`));
           }
         }
 
         // Get users
         let usersQuery = `
-                SELECT User, Host, 
+                SELECT User, Host,
                        plugin as authPlugin,
                        account_locked as accountLocked,
                        password_expired as passwordExpired,
@@ -362,17 +383,16 @@ export function createSecurityUserPrivilegesTool(
           }
         }
 
-        return {
-          users: userPrivileges,
-          count: userPrivileges.length,
-          summary,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            users: userPrivileges,
+            count: userPrivileges.length,
+            summary,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -389,15 +409,12 @@ export function createSecuritySensitiveTablesTool(
     title: "MySQL Sensitive Tables",
     description: "Identify tables and columns that may contain sensitive data.",
     group: "security",
-    inputSchema: SensitiveTablesSchema,
+    inputSchema: SensitiveTablesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, patterns } = SensitiveTablesSchema.parse(params);
+        const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -406,7 +423,7 @@ export function createSecuritySensitiveTablesTool(
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return { exists: false, schema };
+            return formatHandlerErrorResponse(new Error(`Schema '${schema}' does not exist.`));
           }
         }
 
@@ -423,7 +440,7 @@ export function createSecuritySensitiveTablesTool(
         const schemaParams = schema ? [schema] : [];
 
         const query = `
-                SELECT 
+                SELECT
                     TABLE_NAME as tableName,
                     COLUMN_NAME as columnName,
                     DATA_TYPE as dataType,
@@ -452,7 +469,7 @@ export function createSecuritySensitiveTablesTool(
           tableMap.get(tableName)?.push(r);
         }
 
-        const sensitiveItems = Array.from(tableMap.entries()).map(
+        const allItems = Array.from(tableMap.entries()).map(
           ([table, columns]) => ({
             table,
             sensitiveColumns: columns,
@@ -460,18 +477,22 @@ export function createSecuritySensitiveTablesTool(
           }),
         );
 
-        return {
-          sensitiveTables: sensitiveItems,
-          tableCount: sensitiveItems.length,
-          totalSensitiveColumns: result.rows?.length ?? 0,
-          patternsUsed: patterns,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+        const totalAvailable = allItems.length;
+        const limited = totalAvailable > limit;
+        const sensitiveItems = limited ? allItems.slice(0, limit) : allItems;
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            sensitiveTables: sensitiveItems,
+            tableCount: sensitiveItems.length,
+            totalSensitiveColumns: result.rows?.length ?? 0,
+            patternsUsed: patterns,
+            ...(limited ? { limited: true, totalAvailable } : {}),
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

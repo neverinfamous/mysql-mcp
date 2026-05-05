@@ -1,10 +1,7 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -13,17 +10,24 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 const ListViewsSchema = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 const CreateViewSchemaBase = z.object({
-  name: z.string().describe("View name"),
-  definition: z.string().describe("SELECT statement defining the view"),
+  name: z.string().optional().describe("View name"),
+  definition: z
+    .string()
+    .optional()
+    .describe("SELECT statement defining the view"),
+  query: z.string().optional().describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
   checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
@@ -31,7 +35,11 @@ const CreateViewSchemaBase = z.object({
 
 const CreateViewSchema = z.object({
   name: z.string().describe("View name"),
-  definition: z.string().describe("SELECT statement defining the view"),
+  definition: z
+    .string()
+    .optional()
+    .describe("SELECT statement defining the view"),
+  query: z.string().optional().describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z
     .enum(["UNDEFINED", "MERGE", "TEMPTABLE"])
@@ -41,6 +49,16 @@ const CreateViewSchema = z.object({
     .enum(["NONE", "CASCADED", "LOCAL"])
     .default("NONE")
     .describe("WITH CHECK OPTION"),
+});
+
+const DropViewSchemaBase = z.object({
+  name: z.string().optional().describe("View name"),
+  ifExists: z.boolean().optional().describe("Use IF EXISTS"),
+});
+
+const DropViewSchema = z.object({
+  name: z.string().describe("View name"),
+  ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
 });
 
 /**
@@ -55,35 +73,27 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListViewsSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListViewsSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { schema } = parsed;
+        const parsedParams = ListViewsSchema.parse(params);
+        const targetSchema = parsedParams.schema ?? parsedParams.database;
 
-      // P154: Schema existence check when explicitly provided
-      if (schema) {
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [schema],
-        );
-        if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          return { exists: false, schema };
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`)
+            );
+          }
         }
-      }
 
-      const query = `
-                SELECT 
+        const query = `
+                SELECT
                     TABLE_NAME as name,
                     VIEW_DEFINITION as definition,
                     DEFINER as definer,
@@ -95,11 +105,21 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                 ORDER BY TABLE_NAME
             `;
 
-      const result = await adapter.executeQuery(query, [schema ?? null]);
-      return {
-        views: result.rows,
-        count: result.rows?.length ?? 0,
-      };
+        const result = await adapter.executeQuery(query, [
+          targetSchema ?? null,
+        ]);
+        const response = {
+          success: true as const,
+          data: {
+            views: result.rows,
+            count: result.rows?.length ?? 0,
+          }
+        };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
     },
   };
 }
@@ -116,55 +136,97 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: CreateViewSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = CreateViewSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const parsedParams = CreateViewSchema.parse(params);
+        const name = parsedParams.name;
+        const definition = parsedParams.definition;
+        const query = parsedParams.query;
+        const orReplace = parsedParams.orReplace;
+        const algorithm = parsedParams.algorithm;
+        const checkOption = parsedParams.checkOption;
+
+        const finalDefinition = definition ?? query;
+        if (finalDefinition === undefined || finalDefinition === "") {
+          return formatHandlerErrorResponse(
+            new Error("Validation error: definition or query must be provided")
+          );
         }
-        throw error;
-      }
-      const { name, definition, orReplace, algorithm, checkOption } = parsed;
 
-      try {
-        validateQualifiedIdentifier(name, "view");
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        return { success: false, error: message };
-      }
-
-      const fullViewName = escapeQualifiedTable(name);
-
-      const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
-      let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${definition}`;
-
-      if (checkOption !== "NONE") {
-        sql += ` WITH ${checkOption} CHECK OPTION`;
-      }
-
-      try {
-        await adapter.executeQuery(sql);
-        adapter.clearSchemaCache();
-        return { success: true, viewName: name };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.toLowerCase().includes("already exists")) {
-          return {
-            success: false,
-            error: `View '${name}' already exists`,
-          };
+        try {
+          validateQualifiedIdentifier(name, "view");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
         }
-        return {
-          success: false,
-          error: message
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, ""),
-        };
+
+        const fullViewName = escapeQualifiedTable(name);
+
+        const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
+        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${finalDefinition}`;
+
+        if (checkOption !== "NONE") {
+          sql += ` WITH ${checkOption} CHECK OPTION`;
+        }
+
+        try {
+          await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
+          const response = { success: true as const, data: { viewName: name } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.toLowerCase().includes("already exists")) {
+            return formatHandlerErrorResponse(
+              new Error(`View '${name}' already exists`)
+            );
+          }
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
+    },
+  };
+}
+
+/**
+ * Drop a view
+ */
+export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
+  return {
+    name: "mysql_drop_view",
+    title: "MySQL Drop View",
+    description: "Drop a view.",
+    group: "schema",
+    inputSchema: DropViewSchemaBase,
+    requiredScopes: ["write"],
+    annotations: WRITE,
+    handler: async (params: unknown, _context: RequestContext) => {
+      try {
+        const parsedParams = DropViewSchema.parse(params);
+        try {
+          validateQualifiedIdentifier(parsedParams.name, "view");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
+        }
+        
+        const fullViewName = escapeQualifiedTable(parsedParams.name);
+        const ifExistsClause = parsedParams.ifExists ? "IF EXISTS " : "";
+        const sql = `DROP VIEW ${ifExistsClause}${fullViewName}`;
+        
+        try {
+          await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
+          const response = { success: true as const, data: { viewName: parsedParams.name } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

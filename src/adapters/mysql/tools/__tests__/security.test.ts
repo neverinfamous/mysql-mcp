@@ -33,8 +33,8 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_audit");
       const result = (await tool?.handler({ limit: 10 }, mockContext)) as any;
 
-      expect(result.source).toBe("performance_schema");
-      expect(result.events).toHaveLength(1);
+      expect(result.data.source).toBe("performance_schema");
+      expect(result.data.events).toHaveLength(1);
     });
 
     it("should query mysql.audit_log if exists", async () => {
@@ -54,8 +54,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.source).toBe("mysql.audit_log");
-      expect(result.events).toHaveLength(1);
+      expect(result.data.source).toBe("mysql.audit_log");
+      expect(result.data.events).toHaveLength(1);
       const queryArgs = mockAdapter.executeQuery.mock.calls[1][1] as any[];
       expect(queryArgs).toContain("%root%");
     });
@@ -113,7 +113,6 @@ describe("Security Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Audit logging is not enabled");
-      expect(result.available).toBe(false);
     });
   });
 
@@ -138,9 +137,9 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.userCount).toBe(1);
-      expect(result.ruleCount).toBe(1);
-      expect(result.rules[0].RULE).toBe("SELECT * FROM users");
+      expect(result.data.userCount).toBe(1);
+      expect(result.data.ruleCount).toBe(1);
+      expect(result.data.rules[0].RULE).toBe("SELECT * FROM users");
     });
 
     it("should filter by mode", async () => {
@@ -165,7 +164,6 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext)) as any;
 
       expect(result.success).toBe(false);
-      expect(result.available).toBe(false);
       expect(result.error).toContain("Firewall tables not accessible");
     });
   });
@@ -189,8 +187,8 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.installed).toBe(true);
-      expect(result.configuration).toHaveProperty("mysql_firewall_mode", "ON");
+      expect(result.data.installed).toBe(true);
+      expect(result.data.configuration).toHaveProperty("mysql_firewall_mode", "ON");
     });
 
     it("should return not installed if plugin missing", async () => {
@@ -201,8 +199,8 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.installed).toBe(false);
-      expect(result.message).toContain("not installed");
+      expect(result.data.installed).toBe(false);
+      expect(result.data.message).toContain("not installed");
     });
 
     it("should handle plugin check failure", async () => {
@@ -214,7 +212,6 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext)) as any;
 
       expect(result.success).toBe(false);
-      expect(result.installed).toBe(false);
       expect(result.error).toContain("Firewall plugin check failed");
     });
   });
@@ -230,7 +227,7 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.masked).toBe("j******e@example.com");
+      expect(result.data.masked).toBe("j******e@example.com");
     });
 
     it("should mask different types correctly", async () => {
@@ -241,35 +238,35 @@ describe("Security Tools", () => {
         { value: "invalid-email", type: "email" },
         mockContext,
       )) as any;
-      expect(resNoAt.masked).toBe("*************");
+      expect(resNoAt.data.masked).toBe("*************");
 
       // Phone
       const resPhone = (await tool?.handler(
         { value: "1234567890", type: "phone" },
         mockContext,
       )) as any;
-      expect(resPhone.masked).toBe("******7890");
+      expect(resPhone.data.masked).toBe("******7890");
 
       // SSN
       const resSSN = (await tool?.handler(
         { value: "123456789", type: "ssn" },
         mockContext,
       )) as any;
-      expect(resSSN.masked).toBe("***-**-6789");
+      expect(resSSN.data.masked).toBe("***-**-6789");
 
       // Credit Card
       const resCC = (await tool?.handler(
         { value: "1234567812345678", type: "credit_card" },
         mockContext,
       )) as any;
-      expect(resCC.masked).toBe("1234********5678");
+      expect(resCC.data.masked).toBe("1234********5678");
 
       // Partial
       const resPartial = (await tool?.handler(
         { value: "abcdef", type: "partial", keepFirst: 2, keepLast: 2 },
         mockContext,
       )) as any;
-      expect(resPartial.masked).toBe("ab**ef");
+      expect(resPartial.data.masked).toBe("ab**ef");
 
       // Default fallback
       // We need to force a type that falls through or just check specific logic
@@ -288,7 +285,7 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.masked).toBe("1234********3456");
+      expect(result.data.masked).toBe("1234********3456");
     });
 
     it("should fully mask short credit card values with warning", async () => {
@@ -298,10 +295,10 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.original).toBe("123");
-      expect(result.masked).toBe("***");
-      expect(result.type).toBe("credit_card");
-      expect(result.warning).toContain("too short");
+      expect(result.data.original).toBe("123");
+      expect(result.data.masked).toBe("***");
+      expect(result.data.type).toBe("credit_card");
+      expect(result.data.warning).toContain("too short");
     });
 
     it("should fully mask 8-digit credit card values with warning", async () => {
@@ -311,10 +308,10 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.original).toBe("12345678");
-      expect(result.masked).toBe("********");
-      expect(result.type).toBe("credit_card");
-      expect(result.warning).toContain("too short");
+      expect(result.data.original).toBe("12345678");
+      expect(result.data.masked).toBe("********");
+      expect(result.data.type).toBe("credit_card");
+      expect(result.data.warning).toContain("too short");
     });
 
     it("should return warning when partial masking is ineffective", async () => {
@@ -324,10 +321,10 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.original).toBe("AB");
-      expect(result.masked).toBe("AB");
-      expect(result.type).toBe("partial");
-      expect(result.warning).toContain("Masking ineffective");
+      expect(result.data.original).toBe("AB");
+      expect(result.data.masked).toBe("AB");
+      expect(result.data.type).toBe("partial");
+      expect(result.data.warning).toContain("Masking ineffective");
     });
 
     it("should return warning for empty string partial masking", async () => {
@@ -337,10 +334,10 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.original).toBe("");
-      expect(result.masked).toBe("");
-      expect(result.type).toBe("partial");
-      expect(result.warning).toContain("Masking ineffective");
+      expect(result.data.original).toBe("");
+      expect(result.data.masked).toBe("");
+      expect(result.data.type).toBe("partial");
+      expect(result.data.warning).toContain("Masking ineffective");
     });
   });
 
@@ -365,9 +362,9 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.strength).toBe(100);
-      expect(result.interpretation).toBe("Very Strong");
-      expect(result.policy).toHaveProperty(
+      expect(result.data.strength).toBe(100);
+      expect(result.data.interpretation).toBe("Very Strong");
+      expect(result.data.policy).toHaveProperty(
         "validate_password.policy",
         "STRONG",
       );
@@ -391,7 +388,7 @@ describe("Security Tools", () => {
         { password: "Strong1" },
         mockContext,
       )) as any;
-      expect(resultStrong.interpretation).toBe("Strong");
+      expect(resultStrong.data.interpretation).toBe("Strong");
 
       // Medium
       mockAdapter.executeQuery.mockResolvedValueOnce(
@@ -406,7 +403,7 @@ describe("Security Tools", () => {
         { password: "Medium1" },
         mockContext,
       )) as any;
-      expect(resultMedium.interpretation).toBe("Medium");
+      expect(resultMedium.data.interpretation).toBe("Medium");
 
       // Weak
       mockAdapter.executeQuery.mockResolvedValueOnce(
@@ -421,7 +418,7 @@ describe("Security Tools", () => {
         { password: "Weak1" },
         mockContext,
       )) as any;
-      expect(resultWeak.interpretation).toBe("Weak");
+      expect(resultWeak.data.interpretation).toBe("Weak");
 
       // Very Weak
       mockAdapter.executeQuery.mockResolvedValueOnce(
@@ -436,7 +433,7 @@ describe("Security Tools", () => {
         { password: "VeryWeak" },
         mockContext,
       )) as any;
-      expect(resultVeryWeak.interpretation).toBe("Very Weak");
+      expect(resultVeryWeak.data.interpretation).toBe("Very Weak");
     });
 
     it("should detect component not installed when no policy variables exist", async () => {
@@ -451,8 +448,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("not installed");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("not installed");
     });
 
     it("should handle validation function error", async () => {
@@ -473,8 +470,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.available).toBe(false);
-      expect(result.message).toContain("failed");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("failed");
     });
   });
 
@@ -499,9 +496,9 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.sslEnabled).toBe(true);
-      expect(result.currentCipher).toBe("AES256-SHA");
-      expect(result.configuration.sslCa).toBe("ca.pem");
+      expect(result.data.sslEnabled).toBe(true);
+      expect(result.data.currentCipher).toBe("AES256-SHA");
+      expect(result.data.configuration.sslCa).toBe("ca.pem");
     });
 
     it("should handle undefined values gracefully", async () => {
@@ -512,8 +509,8 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.sslEnabled).toBe(false);
-      expect(result.currentCipher).toBe("None");
+      expect(result.data.sslEnabled).toBe(false);
+      expect(result.data.currentCipher).toBe("None");
     });
 
     it("should return 'None' for empty cipher string", async () => {
@@ -532,9 +529,9 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.sslEnabled).toBe(false);
-      expect(result.currentCipher).toBe("None");
-      expect(result.sslVersion).toBe("N/A");
+      expect(result.data.sslEnabled).toBe(false);
+      expect(result.data.currentCipher).toBe("None");
+      expect(result.data.sslVersion).toBe("N/A");
     });
   });
 
@@ -568,9 +565,9 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.count).toBe(1);
-      expect(result.users[0].user).toBe("root");
-      expect(result.users[0].grants).toHaveLength(1);
+      expect(result.data.count).toBe(1);
+      expect(result.data.users[0].user).toBe("root");
+      expect(result.data.users[0].grants).toHaveLength(1);
     });
 
     it("should include roles if requested", async () => {
@@ -596,7 +593,7 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.users[0].roles).toContain("app_role@%");
+      expect(result.data.users[0].roles).toContain("app_role@%");
     });
 
     it("should filter by specific host", async () => {
@@ -642,16 +639,16 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.summary).toBe(true);
-      expect(result.users[0].grantCount).toBe(1);
-      expect(result.users[0].roleCount).toBe(1);
-      expect(result.users[0].hasAllPrivileges).toBe(true);
-      expect(result.users[0].hasWithGrantOption).toBe(true);
-      expect(result.users[0].grants).toBeUndefined();
-      expect(result.users[0].roles).toBeUndefined();
+      expect(result.data.summary).toBe(true);
+      expect(result.data.users[0].grantCount).toBe(1);
+      expect(result.data.users[0].roleCount).toBe(1);
+      expect(result.data.users[0].hasAllPrivileges).toBe(true);
+      expect(result.data.users[0].hasWithGrantOption).toBe(true);
+      expect(result.data.users[0].grants).toBeUndefined();
+      expect(result.data.users[0].roles).toBeUndefined();
     });
 
-    it("should return exists:false for nonexistent user (P154)", async () => {
+    it("should return ErrorResponse for nonexistent user (P154)", async () => {
       // P154 pre-check returns empty
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -663,8 +660,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.exists).toBe(false);
-      expect(result.user).toBe("nonexistent_user");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
       expect(result.users).toBeUndefined();
     });
   });
@@ -695,12 +692,12 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.tableCount).toBe(1);
-      expect(result.sensitiveTables[0].table).toBe("users");
-      expect(result.sensitiveTables[0].sensitiveColumns).toHaveLength(2);
+      expect(result.data.tableCount).toBe(1);
+      expect(result.data.sensitiveTables[0].table).toBe("users");
+      expect(result.data.sensitiveTables[0].sensitiveColumns).toHaveLength(2);
     });
 
-    it("should return exists:false for nonexistent schema (P154)", async () => {
+    it("should return ErrorResponse for nonexistent schema (P154)", async () => {
       // P154 pre-check returns empty
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -712,8 +709,8 @@ describe("Security Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.exists).toBe(false);
-      expect(result.schema).toBe("nonexistent_schema");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
       expect(result.sensitiveTables).toBeUndefined();
     });
   });
@@ -748,9 +745,9 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.keyringInstalled).toBe(true);
-      expect(result.encryptedTablespaceCount).toBe(1);
-      expect(result.encryptionSettings.innodb_redo_log_encrypt).toBe("ON");
+      expect(result.data.keyringInstalled).toBe(true);
+      expect(result.data.encryptedTablespaceCount).toBe(1);
+      expect(result.data.encryptionSettings.innodb_redo_log_encrypt).toBe("ON");
     });
 
     it("should handle missing keyring", async () => {
@@ -764,8 +761,8 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.keyringInstalled).toBe(false);
-      expect(result.tdeAvailable).toBe(false);
+      expect(result.data.keyringInstalled).toBe(false);
+      expect(result.data.tdeAvailable).toBe(false);
     });
   });
 
@@ -788,9 +785,9 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.sslEnabled).toBe(true);
-      expect(result.configuration.sslCa).toBe("");
-      expect(result.serverCertVerification).toBe(false);
+      expect(result.data.sslEnabled).toBe(true);
+      expect(result.data.configuration.sslCa).toBe("");
+      expect(result.data.serverCertVerification).toBe(false);
     });
   });
 
@@ -818,9 +815,9 @@ describe("Security Tools", () => {
       );
       const result = (await tool?.handler({}, mockContext)) as any;
 
-      expect(result.keyringInstalled).toBe(false);
-      expect(result.encryptedTablespaceCount).toBe(0);
-      expect(result.encryptionSettings).toEqual({ "": "invalid" });
+      expect(result.data.keyringInstalled).toBe(false);
+      expect(result.data.encryptedTablespaceCount).toBe(0);
+      expect(result.data.encryptionSettings).toEqual({ "": "invalid" });
     });
   });
 

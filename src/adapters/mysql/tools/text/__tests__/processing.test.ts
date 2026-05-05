@@ -13,7 +13,7 @@ import {
   createConcatTool,
   createCollationConvertTool,
 } from "../processing.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -46,12 +46,12 @@ describe("Text Processing Tools", () => {
           pattern: "^admin",
         },
         mockContext,
-      )) as { rows: unknown[] };
+      )) as { data: { rows: unknown[] } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("REGEXP ?");
-      expect(result.rows).toHaveLength(1);
+      expect(result.data.rows).toHaveLength(1);
     });
   });
 
@@ -259,7 +259,7 @@ describe("Text Processing Tools", () => {
   // =========================================================================
 
   describe("P154: createRegexpMatchTool error handling", () => {
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -270,10 +270,10 @@ describe("Text Processing Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", column: "email", pattern: "^a" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -295,7 +295,7 @@ describe("Text Processing Tools", () => {
   });
 
   describe("P154: createLikeSearchTool error handling", () => {
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -304,10 +304,10 @@ describe("Text Processing Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", column: "name", pattern: "%test%" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -327,7 +327,7 @@ describe("Text Processing Tools", () => {
   });
 
   describe("P154: createSoundexTool error handling", () => {
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -336,10 +336,10 @@ describe("Text Processing Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", column: "name", value: "Jon" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -359,7 +359,7 @@ describe("Text Processing Tools", () => {
   });
 
   describe("P154: createSubstringTool error handling", () => {
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -368,10 +368,10 @@ describe("Text Processing Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", column: "name", start: 1 },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -391,7 +391,7 @@ describe("Text Processing Tools", () => {
   });
 
   describe("P154: createConcatTool error handling", () => {
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -400,10 +400,10 @@ describe("Text Processing Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["a", "b"] },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -423,7 +423,7 @@ describe("Text Processing Tools", () => {
   });
 
   describe("P154: createCollationConvertTool error handling", () => {
-    it("should return exists: false for nonexistent table", async () => {
+    it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -434,10 +434,10 @@ describe("Text Processing Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", column: "name", charset: "utf8mb4" },
         mockContext,
-      )) as { exists: boolean; table: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.table).toBe("nonexistent");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should return success: false for other query errors", async () => {

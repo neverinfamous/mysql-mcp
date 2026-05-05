@@ -11,7 +11,7 @@ import {
   createJsonSearchTool,
   createJsonValidateTool,
 } from "../helpers.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -40,17 +40,17 @@ describe("JSON Helper Tools", () => {
           table: "data",
           column: "json_col",
           path: "$.a",
-          id: 1,
+          where: "`id` = 1",
         },
         mockContext,
-      )) as { value: any };
+      )) as { data: { value: any } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_EXTRACT");
-      expect(call).toContain("WHERE `id` = ?");
+      expect(call).toContain("WHERE `id` = 1");
       // Value is parsed from JSON string
-      expect(result.value).toEqual({ a: 1 });
+      expect(result.data.value).toEqual({ a: 1 });
     });
 
     it("should return rowFound: false for nonexistent row", async () => {
@@ -62,13 +62,13 @@ describe("JSON Helper Tools", () => {
           table: "data",
           column: "json_col",
           path: "$.a",
-          id: 999,
+          where: "`id` = 999",
         },
         mockContext,
-      )) as { value: null; rowFound: boolean };
+      )) as { data: { value: null; rowFound: boolean } };
 
-      expect(result.value).toBeNull();
-      expect(result.rowFound).toBe(false);
+      expect(result.data.value).toBeNull();
+      expect(result.data.rowFound).toBe(false);
     });
   });
 
@@ -109,13 +109,13 @@ describe("JSON Helper Tools", () => {
           column: "json_col",
           path: "$.a",
           value: 2,
-          id: 1,
+          where: "`id` = 1",
         },
         mockContext,
-      )) as { success: boolean };
+      )) as { data: { rowsAffected: number } };
 
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
-      expect(result.success).toBe(true);
+      expect(result.data.rowsAffected).toBe(1);
     });
 
     it("should return reason when no row matches the ID", async () => {
@@ -131,7 +131,7 @@ describe("JSON Helper Tools", () => {
           column: "json_col",
           path: "$.a",
           value: 2,
-          id: 999,
+          where: "`id` = 999",
         },
         mockContext,
       )) as { success: boolean; error: string };
@@ -155,10 +155,10 @@ describe("JSON Helper Tools", () => {
           value: '{"a":1}',
         },
         mockContext,
-      )) as { valid: boolean };
+      )) as { data: { valid: boolean } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.valid).toBe(true);
+      expect(result.data.valid).toBe(true);
     });
 
     it("should pass bare strings directly without auto-conversion", async () => {
@@ -174,17 +174,17 @@ describe("JSON Helper Tools", () => {
           value: "hello",
         },
         mockContext,
-      )) as { valid: boolean };
+      )) as { data: { valid: boolean } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       // The bare string "hello" should be passed directly, not wrapped
       const sqlParam = mockAdapter.executeReadQuery.mock
         .calls[0][1] as string[];
       expect(sqlParam[0]).toBe("hello");
-      expect(result.valid).toBe(false);
+      expect(result.data.valid).toBe(false);
     });
 
-    it("should strip Query failed and Execute failed prefixes from errors", async () => {
+    it("should return valid: false for Invalid JSON text query errors", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
           'Query failed: Execute failed: Invalid JSON text in argument 1 to function cast_as_json: "Missing a name" at position 1.',
@@ -194,15 +194,29 @@ describe("JSON Helper Tools", () => {
       const tool = createJsonValidateTool(
         mockAdapter as unknown as MySQLAdapter,
       );
+      const result = (await tool.handler({ value: "{bad" }, mockContext)) as { success: boolean; data?: { valid: boolean } };
+
+      expect(result.success).toBe(true);
+      expect(result.data?.valid).toBe(false);
+    });
+
+    it("should strip Query failed and Execute failed prefixes from generic errors", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Query failed: Execute failed: Table metadata lock timeout."),
+      );
+
+      const tool = createJsonValidateTool(
+        mockAdapter as unknown as MySQLAdapter,
+      );
       const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
-        valid: boolean;
+        success: boolean;
         error: string;
       };
 
-      expect(result.valid).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.error).not.toContain("Query failed");
       expect(result.error).not.toContain("Execute failed");
-      expect(result.error).toContain("Invalid JSON text");
+      expect(result.error).toContain("Table metadata lock timeout");
     });
   });
 
@@ -213,20 +227,20 @@ describe("JSON Helper Tools", () => {
       mockAdapter.executeReadQuery.mockRejectedValue(tableError);
       const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", id: 1 },
+        { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_update should return exists: false for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
       const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", value: 1, id: 1 },
+        { table: "nonexistent", column: "doc", path: "$.x", value: 1, where: "`id` = 1" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("json_search should return exists: false for nonexistent table", async () => {
@@ -236,7 +250,7 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", searchValue: "test" },
         mockContext,
       );
-      expect(result).toEqual({ exists: false, table: "nonexistent" });
+      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
     });
 
     it("should return success: false for generic errors", async () => {
@@ -245,10 +259,13 @@ describe("JSON Helper Tools", () => {
       );
       const tool = createJsonGetTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "data", column: "doc", path: "$.x", id: 1 },
+        { table: "data", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
-      expect(result).toEqual({ success: false, error: "Connection lost" });
+      expect(result).toEqual(
+        expect.objectContaining({ success: false, error: "Connection lost" }),
+      );
     });
   });
 });
+

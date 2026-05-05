@@ -5,17 +5,23 @@
  * 7 tools: processlist, status, variables, innodb_status, replication, pool_stats, health.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import {
   ShowProcesslistSchema,
+  ShowProcesslistSchemaBase,
   ShowStatusSchema,
+  ShowStatusSchemaBase,
   ShowVariablesSchema,
-} from "../../types.js";
-import { z, ZodError } from "zod";
+  ShowVariablesSchemaBase,
+} from "../../schemas/index.js";
+import { z } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 export function createShowProcesslistTool(
   adapter: MySQLAdapter,
@@ -25,27 +31,30 @@ export function createShowProcesslistTool(
     title: "MySQL Show Processlist",
     description: "Show all running processes and queries.",
     group: "monitoring",
-    inputSchema: ShowProcesslistSchema,
+    inputSchema: ShowProcesslistSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { full } = ShowProcesslistSchema.parse(params);
+        const { full, limit } = ShowProcesslistSchema.parse(params);
         const sql = full ? "SHOW FULL PROCESSLIST" : "SHOW PROCESSLIST";
         const result = await adapter.executeQuery(sql);
-        return { processes: result.rows };
-      } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
+        const allRows = result.rows ?? [];
+        const totalAvailable = allRows.length;
+        const limited = totalAvailable > limit;
+        const processes = limited ? allRows.slice(0, limit) : allRows;
+        const response = {
+          success: true as const,
+          data: {
+            processes,
+            count: processes.length,
+            ...(limited ? { limited: true, totalAvailable } : {}),
+          }
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -57,33 +66,32 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Show Status",
     description: "Show server status variables.",
     group: "monitoring",
-    inputSchema: ShowStatusSchema,
+    inputSchema: ShowStatusSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowStatusSchema.parse(params);
         if (limit !== undefined && limit < 1) {
-          return {
+          const response = {
             success: false as const,
             error: "limit must be a positive integer",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
-        const effectiveLimit = limit ?? 100;
+        const effectiveLimit = limit ?? 30;
 
         let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (like) {
+        if (typeof like === "string" && like.length > 0) {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
         }
 
-        const result = await adapter.rawQuery(sql);
+        const result = await adapter.executeQuery(sql);
 
         // Convert to object for easier use
         // Handle both uppercase and Pascal case column names
@@ -110,21 +118,19 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
           ? Object.fromEntries(entries.slice(0, effectiveLimit))
           : status;
 
-        return {
-          status: truncated,
-          rowCount: Object.keys(truncated).length,
-          totalAvailable,
-          ...(limited && { limited: true }),
+        const response = {
+          success: true as const,
+          data: {
+            status: truncated,
+            rowCount: Object.keys(truncated).length,
+            totalAvailable,
+            ...(limited && { limited: true }),
+          }
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -136,33 +142,32 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Show Variables",
     description: "Show server configuration variables.",
     group: "monitoring",
-    inputSchema: ShowVariablesSchema,
+    inputSchema: ShowVariablesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
         if (limit !== undefined && limit < 1) {
-          return {
+          const response = {
             success: false as const,
             error: "limit must be a positive integer",
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
-        const effectiveLimit = limit ?? 100;
+        const effectiveLimit = limit ?? 30;
 
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (like) {
+        if (typeof like === "string" && like.length > 0) {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
         }
 
-        const result = await adapter.rawQuery(sql);
+        const result = await adapter.executeQuery(sql);
 
         // Convert to object
         // Handle both uppercase and Pascal case column names
@@ -186,21 +191,19 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
           ? Object.fromEntries(entries.slice(0, effectiveLimit))
           : variables;
 
-        return {
-          variables: truncated,
-          rowCount: Object.keys(truncated).length,
-          totalAvailable,
-          ...(limited && { limited: true }),
+        const response = {
+          success: true as const,
+          data: {
+            variables: truncated,
+            rowCount: Object.keys(truncated).length,
+            totalAvailable,
+            ...(limited && { limited: true }),
+          }
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -294,7 +297,7 @@ const InnodbStatusSchema = z.object({
     .optional()
     .default(false)
     .describe(
-      "Return parsed summary with key metrics instead of raw output (recommended)",
+      "Return parsed summary with key metrics. Set to true for parsed output, false for raw string output.",
     ),
 });
 
@@ -303,14 +306,11 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     name: "mysql_innodb_status",
     title: "MySQL InnoDB Status",
     description:
-      "Get detailed InnoDB engine status. Use summary=true for parsed key metrics.",
+      "Get detailed InnoDB engine status. Defaults to parsed summary. Use summary=false for raw output.",
     group: "monitoring",
     inputSchema: InnodbStatusSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { summary } = InnodbStatusSchema.parse(params);
@@ -322,19 +322,32 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "";
 
         if (summary) {
-          return { summary: parseInnodbStatusSummary(rawStatus) };
+          const response = {
+            success: true as const,
+            data: {
+              summary: parseInnodbStatusSummary(rawStatus),
+            }
+          };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
-        return { status: rawRow };
-      } catch (err) {
-        if (err instanceof ZodError) {
-          const messages = err.issues.map((i) => i.message).join("; ");
-          return { success: false as const, error: messages };
-        }
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
+        const maxRawLength = 1000;
+        const statusStr = rawStatus.length > maxRawLength 
+          ? rawStatus.substring(0, maxRawLength) + "\n... (truncated)" 
+          : rawStatus;
+
+        const response = { 
+          success: true as const, 
+          data: {
+            status: statusStr,
+            ...(rawStatus.length > maxRawLength && { truncated: true }) 
+          }
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -343,46 +356,147 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
 export function createReplicationStatusTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({
+    summary: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe(
+        "Return key replication metrics only instead of full 50+ field output (recommended)",
+      ),
+  });
+
+  /** Extract key metrics from raw SHOW REPLICA STATUS row */
+  function extractReplicationSummary(
+    row: Record<string, unknown>,
+  ): Record<string, unknown> {
+    // Field names differ between MySQL versions (Slave_ vs Replica_)
+    return {
+      ioRunning:
+        row["Replica_IO_Running"] ??
+        row["Slave_IO_Running"] ??
+        row["replica_io_running"],
+      sqlRunning:
+        row["Replica_SQL_Running"] ??
+        row["Slave_SQL_Running"] ??
+        row["replica_sql_running"],
+      secondsBehind:
+        row["Seconds_Behind_Master"] ??
+        row["Seconds_Behind_Source"] ??
+        row["seconds_behind_master"],
+      lastError:
+        row["Last_Error"] ?? row["Last_SQL_Error"] ?? row["last_error"],
+      lastErrno:
+        row["Last_Errno"] ?? row["Last_SQL_Errno"] ?? row["last_errno"],
+      sourceHost:
+        row["Master_Host"] ?? row["Source_Host"] ?? row["master_host"],
+      sourcePort:
+        row["Master_Port"] ?? row["Source_Port"] ?? row["master_port"],
+      executedGtidSet: row["Executed_Gtid_Set"] ?? row["executed_gtid_set"],
+      retrievedGtidSet: row["Retrieved_Gtid_Set"] ?? row["retrieved_gtid_set"],
+      channelName: row["Channel_Name"] ?? row["channel_name"],
+    };
+  }
 
   return {
     name: "mysql_replication_status",
     title: "MySQL Replication Status",
-    description: "Show replication slave/replica status.",
+    description:
+      "Show replication slave/replica status. Use summary=true for key metrics only.",
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
-    handler: async (_params: unknown, _context: RequestContext) => {
-      // Try both old and new syntax
+    annotations: READ_ONLY,
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const result = await adapter.executeQuery("SHOW REPLICA STATUS");
-        if (!result.rows || result.rows.length === 0) {
-          return {
-            configured: false,
-            message: "Replication is not configured on this server",
-          };
-        }
-        return { configured: true, status: result.rows[0] };
-      } catch {
+        const { summary } = schema.parse(params);
+
+        // Try both old and new syntax
         try {
-          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+          const result = await adapter.executeQuery("SHOW REPLICA STATUS");
           if (!result.rows || result.rows.length === 0) {
-            return {
-              configured: false,
-              message: "Replication is not configured on this server",
+            const response = {
+              success: true as const,
+              data: {
+                configured: false,
+                message: "Replication is not configured on this server",
+              }
             };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { configured: true, status: result.rows[0] };
-        } catch {
-          return {
-            configured: false,
-            message: "Replication is not configured on this server",
+          const first = result.rows[0];
+          if (!first) {
+            const response = {
+              success: true as const,
+              data: {
+                configured: false,
+                message: "Replication is not configured on this server",
+              }
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          const response = {
+            success: true as const,
+            data: {
+              configured: true,
+              status: summary ? extractReplicationSummary(first) : first,
+              ...(summary ? { summary: true } : {}),
+            }
           };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+        } catch {
+          try {
+            const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+            if (!result.rows || result.rows.length === 0) {
+              const response = {
+                success: true as const,
+                data: {
+                  configured: false,
+                  message: "Replication is not configured on this server",
+                }
+              };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+            }
+            const first = result.rows[0];
+            if (!first) {
+              const response = {
+                success: true as const,
+                data: {
+                  configured: false,
+                  message: "Replication is not configured on this server",
+                }
+              };
+              const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+              return { ...response, metrics: { tokenEstimate } };
+            }
+            const response = {
+              success: true as const,
+              data: {
+                configured: true,
+                status: summary ? extractReplicationSummary(first) : first,
+                ...(summary ? { summary: true } : {}),
+              }
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
+          } catch {
+            const response = {
+              success: true as const,
+              data: {
+                configured: false,
+                message: "Replication is not configured on this server",
+              }
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
+          }
         }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -398,22 +512,18 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const pool = await Promise.resolve(adapter.getPool());
         if (!pool) {
-          return { success: false as const, error: "Pool not available" };
+          return formatHandlerErrorResponse(new Error("Pool not available"));
         }
-        return { poolStats: pool.getStats() };
+        const response = { success: true as const, data: { poolStats: pool.getStats() } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -429,10 +539,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const health = await adapter.getHealth();
@@ -453,26 +560,30 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
         );
         const queries = queriesResult.rows?.[0]?.["Value"];
 
-        return {
-          ...health,
-          uptime:
-            uptime != null && typeof uptime === "string"
-              ? parseInt(uptime, 10)
-              : undefined,
-          activeConnections:
-            connections != null && typeof connections === "string"
-              ? parseInt(connections, 10)
-              : undefined,
-          totalQueries:
-            queries != null && typeof queries === "string"
-              ? parseInt(queries, 10)
-              : undefined,
+        const response = {
+          success: true as const,
+          data: {
+            serverHealth: {
+              ...health,
+              uptime:
+                uptime != null && typeof uptime === "string"
+                  ? parseInt(uptime, 10)
+                  : undefined,
+              activeConnections:
+                connections != null && typeof connections === "string"
+                  ? parseInt(connections, 10)
+                  : undefined,
+              totalQueries:
+                queries != null && typeof queries === "string"
+                  ? parseInt(queries, 10)
+                  : undefined,
+            }
+          }
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
-        return {
-          success: false as const,
-          error: err instanceof Error ? err.message : String(err),
-        };
+        return formatHandlerErrorResponse(err);
       }
     },
   };

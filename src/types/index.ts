@@ -2,7 +2,7 @@
  * mysql-mcp - MySQL MCP Server
  *
  * Core type definitions for the MCP server, database adapters,
- * OAuth 2.0 authentication, and tool filtering.
+ * OAuth 2.1 authentication, and tool filtering.
  *
  * This is a barrel export that re-exports all types from the modules directory.
  */
@@ -55,6 +55,7 @@ export type {
   ResourceAnnotations,
   ResourceDefinition,
   PromptDefinition,
+  InstructionLevel,
 } from "./modules/tools.js";
 
 // Error classes
@@ -68,3 +69,7 @@ export {
   ValidationError,
   TransactionError,
 } from "./modules/errors.js";
+
+// Error types (harmonized standard)
+export { ErrorCategory } from "./modules/error-types.js";
+export type { ErrorResponse, ErrorContext } from "./modules/error-types.js";

@@ -5,35 +5,29 @@
  */
 
 import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
-/** Strip verbose adapter prefixes from error messages */
-function stripErrorPrefix(msg: string): string {
-  return msg
-    .replace(/^Query failed:\s*/i, "")
-    .replace(/^Execute failed:\s*/i, "")
-    .trim();
-}
-
 // =============================================================================
 // Zod Schemas
 // =============================================================================
 
+const PasswordValidateSchemaBase = z.object({
+  password: z.string().optional().describe("Password to validate"),
+});
+
 const PasswordValidateSchema = z.object({
-  password: z.string().describe("Password to validate"),
+  password: z.string().min(1, "Password cannot be empty"),
 });
 
 // =============================================================================
@@ -53,10 +47,7 @@ export function createSecuritySSLStatusTool(
     group: "security",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get SSL status
@@ -95,31 +86,30 @@ export function createSecuritySSLStatusTool(
         const str = (val: unknown, defaultVal = ""): string =>
           typeof val === "string" && val !== "" ? val : defaultVal;
 
-        return {
-          sslEnabled: str(status["Ssl_cipher"]) !== "",
-          currentCipher: str(status["Ssl_cipher"], "None"),
-          sslVersion: str(status["Ssl_version"], "N/A"),
-          serverCertVerification: false, // Unknown in recent versions via variables
-          configuration: {
-            sslCa: str(variables["ssl_ca"]),
-            sslCert: str(variables["ssl_cert"]),
-            sslKey: str(variables["ssl_key"]),
-            requireSecureTransport: str(
-              variables["require_secure_transport"],
-              "OFF",
-            ),
-          },
-          sessionStats: {
-            acceptedConnects: str(status["Ssl_accepts"], "0"),
-            finishedConnects: str(status["Ssl_finished_accepts"], "0"),
-          },
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            sslEnabled: str(status["Ssl_cipher"]) !== "",
+            currentCipher: str(status["Ssl_cipher"], "None"),
+            sslVersion: str(status["Ssl_version"], "N/A"),
+            serverCertVerification: false, // Unknown in recent versions via variables
+            configuration: {
+              sslCa: str(variables["ssl_ca"]),
+              sslCert: str(variables["ssl_cert"]),
+              sslKey: str(variables["ssl_key"]),
+              requireSecureTransport: str(
+                variables["require_secure_transport"],
+                "OFF",
+              ),
+            },
+            sessionStats: {
+              acceptedConnects: str(status["Ssl_accepts"], "0"),
+              finishedConnects: str(status["Ssl_finished_accepts"], "0"),
+            },
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -138,10 +128,7 @@ export function createSecurityEncryptionStatusTool(
     group: "security",
     inputSchema: z.object({}),
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check for keyring plugins
@@ -153,7 +140,7 @@ export function createSecurityEncryptionStatusTool(
 
         // Check encrypted tablespaces
         const tablespaceResult = await adapter.executeQuery(`
-                SELECT 
+                SELECT
                     NAME,
                     ENCRYPTION
                 FROM information_schema.INNODB_TABLESPACES
@@ -192,23 +179,22 @@ export function createSecurityEncryptionStatusTool(
           }),
         );
 
-        return {
-          keyringPlugins: keyringResult.rows ?? [],
-          keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
-          encryptedTablespaces: tablespaceResult.rows ?? [],
-          encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
-          encryptionSettings: {
-            ...variables,
-            ...innodbVars,
-          },
-          tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: stripErrorPrefix(message) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            keyringPlugins: keyringResult.rows ?? [],
+            keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
+            encryptedTablespaces: tablespaceResult.rows ?? [],
+            encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
+            encryptionSettings: {
+              ...variables,
+              ...innodbVars,
+            },
+            tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -226,12 +212,9 @@ export function createSecurityPasswordValidateTool(
     description:
       "Validate password strength using MySQL validate_password component.",
     group: "security",
-    inputSchema: PasswordValidateSchema,
+    inputSchema: PasswordValidateSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { password } = PasswordValidateSchema.parse(params);
@@ -255,12 +238,9 @@ export function createSecurityPasswordValidateTool(
 
         // If no validate_password variables exist, component is not installed
         if (Object.keys(policy).length === 0) {
-          return {
-            available: false,
-            message: "Password validation component not installed",
-            suggestion:
-              'Install with: INSTALL COMPONENT "file://component_validate_password"',
-          };
+          return formatHandlerErrorResponse(
+            new Error('Password validation component not installed. Install with: INSTALL COMPONENT "file://component_validate_password"')
+          );
         }
 
         // Use validate_password function
@@ -279,15 +259,18 @@ export function createSecurityPasswordValidateTool(
         else if (strength >= 25) interpretation = "Weak";
         else interpretation = "Very Weak";
 
-        return {
-          strength,
-          interpretation,
-          meetsPolicy: strength >= 50, // General guideline
-          policy,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            strength,
+            interpretation,
+            meetsPolicy: strength >= 50, // General guideline
+            policy,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         // Check for known component-not-installed errors
@@ -296,14 +279,11 @@ export function createSecurityPasswordValidateTool(
           lower.includes("validate_password_strength") ||
           lower.includes("function")
         ) {
-          return {
-            available: false,
-            message: "Password validation function failed",
-            suggestion:
-              'Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
-          };
+          return formatHandlerErrorResponse(
+            new Error('Password validation function failed. Reinstall with: INSTALL COMPONENT "file://component_validate_password"')
+          );
         }
-        return { success: false, error: stripErrorPrefix(message) };
+        return formatHandlerErrorResponse(new Error(message));
       }
     },
   };

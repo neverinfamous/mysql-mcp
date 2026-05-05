@@ -1,14 +1,13 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
 
 const ListSchemasSchema = z.object({
   pattern: z
@@ -17,16 +16,28 @@ const ListSchemasSchema = z.object({
     .describe('Filter pattern (LIKE syntax, e.g. "app_%")'),
 });
 
+const CreateSchemaSchemaBase = z.object({
+  name: z.string().optional().describe("Schema/database name"),
+  charset: z.string().optional().describe("Character set"),
+  collation: z.string().optional().describe("Collation"),
+  ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
+});
+
 const CreateSchemaSchema = z.object({
   name: z.string().describe("Schema/database name"),
-  charset: z.string().default("utf8mb4").describe("Character set"),
-  collation: z.string().default("utf8mb4_unicode_ci").describe("Collation"),
-  ifNotExists: z.boolean().default(true).describe("Add IF NOT EXISTS clause"),
+  charset: z.string().optional().default("utf8mb4").describe("Character set"),
+  collation: z.string().optional().default("utf8mb4_unicode_ci").describe("Collation"),
+  ifNotExists: z.boolean().optional().default(false).describe("Add IF NOT EXISTS clause"),
+});
+
+const DropSchemaSchemaBase = z.object({
+  name: z.string().optional().describe("Schema/database name to drop"),
+  ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 
 const DropSchemaSchema = z.object({
   name: z.string().describe("Schema/database name to drop"),
-  ifExists: z.boolean().default(true).describe("Add IF EXISTS clause"),
+  ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
 
 /**
@@ -41,44 +52,40 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListSchemasSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = ListSchemasSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        throw error;
-      }
-      const { pattern } = parsed;
+        const { pattern } = ListSchemasSchema.parse(params);
 
-      let query = `
-                SELECT 
+        let query = `
+                SELECT
                     SCHEMA_NAME as name,
                     DEFAULT_CHARACTER_SET_NAME as charset,
                     DEFAULT_COLLATION_NAME as collation
                 FROM information_schema.SCHEMATA
-                WHERE SCHEMA_NAME NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')
             `;
 
-      const queryParams: unknown[] = [];
-      if (pattern) {
-        query += " AND SCHEMA_NAME LIKE ?";
-        queryParams.push(pattern);
+        const queryParams: unknown[] = [];
+        if (pattern) {
+          query += " WHERE SCHEMA_NAME LIKE ?";
+          queryParams.push(pattern);
+        }
+
+        query += " ORDER BY SCHEMA_NAME";
+
+        const result = await adapter.executeQuery(query, queryParams);
+        const response = {
+          success: true as const,
+          data: {
+            schemas: result.rows,
+            count: result.rows?.length ?? 0,
+          }
+        };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-
-      query += " ORDER BY SCHEMA_NAME";
-
-      const result = await adapter.executeQuery(query, queryParams);
-      return {
-        schemas: result.rows,
-        count: result.rows?.length ?? 0,
-      };
     },
   };
 }
@@ -93,70 +100,69 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create a new database/schema with specified charset and collation.",
     group: "schema",
-    inputSchema: CreateSchemaSchema,
+    inputSchema: CreateSchemaSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = CreateSchemaSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const { name, charset, collation, ifNotExists } =
+          CreateSchemaSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return formatHandlerErrorResponse(new Error("Invalid schema name"));
         }
-        throw error;
-      }
-      const { name, charset, collation, ifNotExists } = parsed;
 
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        return { success: false, error: "Invalid schema name" };
-      }
+        if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
+          return formatHandlerErrorResponse(new Error(`Invalid charset: ${charset}`));
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
+          return formatHandlerErrorResponse(new Error(`Invalid collation: ${collation}`));
+        }
 
-      if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
-        return { success: false, error: `Invalid charset: ${charset}` };
-      }
-      if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
-        return { success: false, error: `Invalid collation: ${collation}` };
-      }
-
-      // Pre-check: detect no-op when ifNotExists is true
-      if (ifNotExists) {
+        // Pre-check: detect no-op when ifNotExists is true
         const check = await adapter.executeQuery(
           "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
           [name],
         );
-        if (check.rows && check.rows.length > 0) {
-          return {
-            success: true,
-            skipped: true,
-            reason: "Schema already exists",
-            schemaName: name,
-          };
-        }
-      }
+        const schemaExists = check.rows !== undefined && check.rows.length > 0;
 
-      const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
-      const sql = `CREATE DATABASE ${ifNotExistsClause}\`${name}\` CHARACTER SET ${charset} COLLATE ${collation}`;
-
-      try {
-        await adapter.executeQuery(sql);
-        return { success: true, schemaName: name };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.toLowerCase().includes("database exists")) {
-          return {
-            success: false,
-            error: `Schema '${name}' already exists`,
-          };
+        if (schemaExists) {
+          if (ifNotExists) {
+            const response = {
+              success: true as const,
+              data: {
+                skipped: true,
+                reason: `Schema already exists`,
+              }
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
+          } else {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' already exists`)
+            );
+          }
         }
-        return {
-          success: false,
-          error: message
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, ""),
-        };
+
+        const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
+        const sql = `CREATE DATABASE ${ifNotExistsClause}\`${name}\` CHARACTER SET ${charset} COLLATE ${collation}`;
+
+        try {
+          await adapter.executeQuery(sql);
+          const response = { success: true as const, data: { schemaName: name } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.toLowerCase().includes("database exists")) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' already exists`)
+            );
+          }
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -172,77 +178,76 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Drop a database/schema. WARNING: This permanently deletes all data.",
     group: "schema",
-    inputSchema: DropSchemaSchema,
+    inputSchema: DropSchemaSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
-      let parsed;
       try {
-        parsed = DropSchemaSchema.parse(params);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        const { name, ifExists } = DropSchemaSchema.parse(params);
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return formatHandlerErrorResponse(new Error("Invalid schema name"));
         }
-        throw error;
-      }
-      const { name, ifExists } = parsed;
 
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-        return { success: false, error: "Invalid schema name" };
-      }
+        const systemSchemas = [
+          "mysql",
+          "information_schema",
+          "performance_schema",
+          "sys",
+        ];
+        if (systemSchemas.includes(name.toLowerCase())) {
+          return formatHandlerErrorResponse(new Error("Cannot drop system schema"));
+        }
 
-      const systemSchemas = [
-        "mysql",
-        "information_schema",
-        "performance_schema",
-        "sys",
-      ];
-      if (systemSchemas.includes(name.toLowerCase())) {
-        return { success: false, error: "Cannot drop system schema" };
-      }
-
-      // Pre-check: detect no-op when ifExists is true
-      if (ifExists) {
+        // Pre-check: detect no-op when ifExists is true
         const check = await adapter.executeQuery(
           "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
           [name],
         );
-        if (!check.rows || check.rows.length === 0) {
-          return {
-            success: true,
-            skipped: true,
-            reason: "Schema did not exist",
-            schemaName: name,
-          };
-        }
-      }
+        const schemaAbsent =
+          check.rows === undefined || check.rows.length === 0;
 
-      const ifExistsClause = ifExists ? "IF EXISTS " : "";
-      try {
-        await adapter.executeQuery(
-          `DROP DATABASE ${ifExistsClause}\`${name}\``,
-        );
-        return { success: true, schemaName: name };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        if (
-          message.toLowerCase().includes("database doesn't exist") ||
-          message.toLowerCase().includes("database does not exist")
-        ) {
-          return {
-            success: false,
-            error: `Schema '${name}' does not exist`,
-          };
+        if (schemaAbsent) {
+          if (ifExists) {
+            const response = {
+              success: true as const,
+              data: {
+                skipped: true,
+                reason: `Schema did not exist`,
+              }
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
+          } else {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' does not exist`)
+            );
+          }
         }
-        return {
-          success: false,
-          error: message
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, ""),
-        };
+
+        const ifExistsClause = ifExists ? "IF EXISTS " : "";
+        try {
+          await adapter.executeQuery(
+            `DROP DATABASE ${ifExistsClause}\`${name}\``,
+          );
+
+          const response = { success: true as const, data: { schemaName: name } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (
+            message.toLowerCase().includes("database doesn't exist") ||
+            message.toLowerCase().includes("database does not exist")
+          ) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${name}' does not exist`)
+            );
+          }
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

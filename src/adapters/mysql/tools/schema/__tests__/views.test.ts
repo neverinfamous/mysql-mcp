@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createListViewsTool, createCreateViewTool } from "../views.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -41,10 +41,10 @@ describe("Schema View Tools", () => {
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
-      )) as { exists: boolean; schema: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.exists).toBe(false);
-      expect(result.schema).toBe("nonexistent_db");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
   });
 

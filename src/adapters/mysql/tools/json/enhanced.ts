@@ -5,12 +5,12 @@
  * 5 tools total.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import {
   JsonNormalizeSchema,
   JsonNormalizeSchemaBase,
@@ -18,27 +18,71 @@ import {
   JsonStatsSchemaBase,
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
-} from "../../types.js";
+  JsonMergeSchemaBase,
+  JsonDiffSchemaBase,
+} from "../../schemas/index.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
   validateIdentifier,
 } from "../../../../utils/validators.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // Schemas for json_merge and json_diff (no table/column — no aliases needed)
-const JsonMergeSchema = z.object({
-  json1: z.string().describe("First JSON document"),
-  json2: z.string().describe("Second JSON document"),
-  mode: z
-    .enum(["patch", "preserve"])
-    .default("patch")
-    .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
-});
+const JsonMergeSchema = z
+  .object({
+    json1: z.unknown().optional().describe("First JSON document"),
+    doc1: z.unknown().optional().describe("Alias for json1"),
+    json2: z.unknown().optional().describe("Second JSON document"),
+    doc2: z.unknown().optional().describe("Alias for json2"),
+    mode: z
+      .enum(["patch", "preserve"])
+      .default("patch")
+      .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
+  })
+  .transform((data) => {
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2;
+    return {
+      json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
+      json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
+      mode: data.mode,
+      _raw1: val1,
+      _raw2: val2,
+    };
+  })
+  .refine((data) => data._raw1 !== undefined, {
+    message: "json1 (or doc1 alias) is required",
+  })
+  .refine((data) => data._raw2 !== undefined, {
+    message: "json2 (or doc2 alias) is required",
+  });
 
-const JsonDiffSchema = z.object({
-  json1: z.string().describe("First JSON document"),
-  json2: z.string().describe("Second JSON document"),
-});
+const JsonDiffSchema = z
+  .object({
+    json1: z.unknown().optional().describe("First JSON document"),
+    doc1: z.unknown().optional().describe("Alias for json1"),
+    json2: z.unknown().optional().describe("Second JSON document"),
+    doc2: z.unknown().optional().describe("Alias for json2"),
+  })
+  .transform((data) => {
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2;
+    return {
+      json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
+      json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
+      _raw1: val1,
+      _raw2: val2,
+    };
+  })
+  .refine((data) => data._raw1 !== undefined, {
+    message: "json1 (or doc1 alias) is required",
+  })
+  .refine((data) => data._raw2 !== undefined, {
+    message: "json2 (or doc2 alias) is required",
+  });
 
 // =============================================================================
 // Tool Creation Functions
@@ -51,32 +95,36 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Merge two JSON documents using JSON_MERGE_PATCH or JSON_MERGE_PRESERVE.",
     group: "json",
-    inputSchema: JsonMergeSchema,
+    inputSchema: JsonMergeSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { json1, json2, mode } = JsonMergeSchema.parse(params);
-
       try {
+        const { json1, json2, mode } = JsonMergeSchema.parse(params);
+
         const mergeFunction =
           mode === "patch" ? "JSON_MERGE_PATCH" : "JSON_MERGE_PRESERVE";
         const sql = `SELECT ${mergeFunction}(?, ?) as merged`;
         const result = await adapter.executeReadQuery(sql, [json1, json2]);
 
         const merged = result.rows?.[0]?.["merged"];
-        return {
-          merged:
-            typeof merged === "string"
-              ? (JSON.parse(merged) as Record<string, unknown>)
-              : merged,
-          mode,
+        const response = {
+          success: true as const,
+          data: {
+            merged:
+              typeof merged === "string"
+                ? (JSON.parse(merged) as Record<string, unknown>)
+                : merged,
+            mode,
+          }
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err: unknown) {
+        if (err instanceof ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -88,16 +136,13 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL JSON Diff",
     description: "Compare two JSON documents and identify differences.",
     group: "json",
-    inputSchema: JsonDiffSchema,
+    inputSchema: JsonDiffSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { json1, json2 } = JsonDiffSchema.parse(params);
-
       try {
+        const { json1, json2 } = JsonDiffSchema.parse(params);
+
         // MySQL doesn't have native JSON_DIFF, so we compare key-by-key
         const sql = `
                 SELECT 
@@ -190,21 +235,28 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        return {
-          identical,
-          json1ContainsJson2: row?.["json1_contains_json2"] === 1,
-          json2ContainsJson1: row?.["json2_contains_json1"] === 1,
-          json1Length: row?.["json1_length"],
-          json2Length: row?.["json2_length"],
-          json1Keys,
-          json2Keys,
-          addedKeys,
-          removedKeys,
-          differences,
+        const response = {
+          success: true as const,
+          data: {
+            identical,
+            json1ContainsJson2: row?.["json1_contains_json2"] === 1,
+            json2ContainsJson1: row?.["json2_contains_json1"] === 1,
+            json1Length: row?.["json1_length"],
+            json2Length: row?.["json2_length"],
+            json1Keys,
+            json2Keys,
+            addedKeys,
+            removedKeys,
+            differences,
+          }
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err: unknown) {
+        if (err instanceof ZodError) {
+          return formatHandlerErrorResponse(err);
+        }
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -219,18 +271,16 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonNormalizeSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, where, limit } = JsonNormalizeSchema.parse(params);
-
-      // Validate identifiers
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-
       try {
+        const { table, column, where, limit } =
+          JsonNormalizeSchema.parse(params);
+
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+
         const whereClause = where ? `WHERE ${where}` : "";
 
         // Get all unique top-level keys
@@ -267,18 +317,26 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        return {
-          uniqueKeys,
-          keyCount: uniqueKeys.length,
-          keyStats,
-          truncated: uniqueKeys.length > 20,
+        const response = {
+          success: true as const,
+          data: {
+            uniqueKeys,
+            keyCount: uniqueKeys.length,
+            keyStats,
+            truncated: uniqueKeys.length > 20,
+          }
         };
-      } catch (error) {
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -293,19 +351,16 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, where, sampleSize } =
-        JsonStatsSchema.parse(params);
-
-      // Validate identifiers
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-
       try {
+        const { table, column, where, sampleSize } =
+          JsonStatsSchema.parse(params);
+
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+
         const whereClause = where ? `WHERE ${where}` : "";
 
         const statsQuery = `
@@ -325,30 +380,58 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(statsQuery);
         const row = result.rows?.[0];
 
-        return {
-          totalSampled: Number(row?.["total_rows"] ?? 0),
-          nullCount: Number(row?.["null_count"] ?? 0),
-          length: {
-            avg: Number(row?.["avg_length"] ?? 0),
-            max: Number(row?.["max_length"] ?? 0),
-            min: Number(row?.["min_length"] ?? 0),
-          },
-          depth: {
-            avg: Number(row?.["avg_depth"] ?? 0),
-            max: Number(row?.["max_depth"] ?? 0),
-          },
-          sizeBytes: {
-            avg: Number(row?.["avg_size_bytes"] ?? 0),
-            max: Number(row?.["max_size_bytes"] ?? 0),
-          },
-          sampleSize,
+        const topKeysQuery = `
+            SELECT jt.key_name as key_name, COUNT(*) as count
+            FROM (SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} ${whereClause} LIMIT ${String(sampleSize)}) as sample,
+            JSON_TABLE(JSON_KEYS(sample.\`${column}\`), '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')) as jt
+            GROUP BY jt.key_name
+            ORDER BY count DESC
+            LIMIT 10
+        `;
+        let topKeys: { key: string; count: number }[] = [];
+        try {
+            const topKeysResult = await adapter.executeQuery(topKeysQuery);
+            topKeys = (topKeysResult.rows ?? []).map(r => ({
+                key: String(r["key_name"]),
+                count: Number(r["count"])
+            }));
+        } catch {
+            // Ignore if JSON_TABLE is not supported or errors out
+        }
+
+        const response = {
+          success: true as const,
+          data: {
+            totalSampled: Number(row?.["total_rows"] ?? 0),
+            nullCount: Number(row?.["null_count"] ?? 0),
+            length: {
+              avg: Number(row?.["avg_length"] ?? 0),
+              max: Number(row?.["max_length"] ?? 0),
+              min: Number(row?.["min_length"] ?? 0),
+            },
+            depth: {
+              avg: Number(row?.["avg_depth"] ?? 0),
+              max: Number(row?.["max_depth"] ?? 0),
+            },
+            sizeBytes: {
+              avg: Number(row?.["avg_size_bytes"] ?? 0),
+              max: Number(row?.["max_size_bytes"] ?? 0),
+            },
+            sampleSize,
+            topKeys,
+          }
         };
-      } catch (error) {
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -365,19 +448,16 @@ export function createJsonIndexSuggestTool(
     group: "json",
     inputSchema: JsonIndexSuggestSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, sampleSize } =
-        JsonIndexSuggestSchema.parse(params);
-
-      // Validate identifiers
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-
       try {
+        const { table, column, sampleSize } =
+          JsonIndexSuggestSchema.parse(params);
+
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+
         // Get top-level keys and their types
         const keysQuery = `
                 SELECT DISTINCT jt.key_name
@@ -452,18 +532,27 @@ export function createJsonIndexSuggestTool(
         // Sort by cardinality (higher is better for indexing)
         suggestions.sort((a, b) => b.cardinality - a.cardinality);
 
-        return {
-          table,
-          column,
-          suggestions: suggestions.slice(0, 5), // Top 5 suggestions
-          note: "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
+        const response = {
+          success: true as const,
+          data: {
+            table,
+            column,
+            suggestions: suggestions.slice(0, 5), // Top 5 suggestions
+            suggestion:
+              "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
+          }
         };
-      } catch (error) {
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

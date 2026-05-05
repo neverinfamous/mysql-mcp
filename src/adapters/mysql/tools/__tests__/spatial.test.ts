@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -155,7 +155,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: expect.stringContaining(
           "Cannot create SPATIAL index on nullable column",
@@ -186,7 +186,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Index 'idx_locations_geom' already exists on table 'locations'",
       });
@@ -211,7 +211,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Some other MySQL error",
       });
@@ -247,7 +247,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Invalid coordinate",
       });
@@ -470,7 +470,7 @@ describe("Handler Execution", () => {
       // geometry: "" passes Zod refine (string is defined) but is falsy,
       // so handler falls through to the structured error return
       const result = await tool.handler({ geometry: "" }, mockContext);
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Either geometry or geoJson must be provided",
       });

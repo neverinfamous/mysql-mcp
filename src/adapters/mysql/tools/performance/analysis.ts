@@ -5,7 +5,7 @@
  * 8 tools: explain, explain_analyze, slow_queries, query_stats, index_usage, table_stats, buffer_pool_stats, thread_stats.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -16,13 +16,18 @@ import {
   ExplainAnalyzeSchema,
   ExplainAnalyzeSchemaBase,
   SlowQuerySchema,
+  SlowQuerySchemaBase,
   QueryStatsSchema,
+  QueryStatsSchemaBase,
   IndexUsageSchema,
   IndexUsageSchemaBase,
   TableStatsSchema,
   TableStatsSchemaBase,
-} from "../../types.js";
+} from "../../schemas/index.js";
 import { z } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 /**
  * Maximum reasonable timer value in milliseconds (24 hours).
@@ -65,6 +70,24 @@ function sanitizeTimerRows(
   });
 }
 
+function optimizeExplainJson(node: unknown): unknown {
+  if (Array.isArray(node)) {
+    return node.map(optimizeExplainJson);
+  }
+  if (typeof node === "object" && node !== null) {
+    const optimized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(node)) {
+      // Strip verbose arrays and deep cost details to conserve tokens
+      if (key === "used_columns" || key === "cost_info") {
+        continue;
+      }
+      optimized[key] = optimizeExplainJson(value);
+    }
+    return optimized;
+  }
+  return node;
+}
+
 export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_explain",
@@ -73,33 +96,30 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: ExplainSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, format } = ExplainSchema.parse(params);
-
-      const sql = `EXPLAIN FORMAT=${format} ${query}`;
-
       try {
+        const { query, format } = ExplainSchema.parse(params);
+        const sql = `EXPLAIN FORMAT=${format} ${query}`;
         const result = await adapter.executeReadQuery(sql);
 
         if (format === "JSON" && result.rows?.[0] !== undefined) {
           const explainRow = result.rows[0];
           const jsonStr = explainRow["EXPLAIN"];
           if (typeof jsonStr === "string") {
-            return { plan: JSON.parse(jsonStr) as unknown };
+            const parsed = JSON.parse(jsonStr) as unknown;
+            const optimizedPlan = optimizeExplainJson(parsed);
+            const response = { success: true, data: { plan: optimizedPlan } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
           }
         }
 
-        return { plan: result.rows };
+        const response = { success: true, data: { plan: result.rows } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, error: msg };
-        }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -116,34 +136,31 @@ export function createExplainAnalyzeTool(
     group: "performance",
     inputSchema: ExplainAnalyzeSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { query, format } = ExplainAnalyzeSchema.parse(params);
-
-      // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
-      // (requires explain_json_format_version=2 which is not widely available).
-      // Return a descriptive error for JSON format requests.
-      if (format === "JSON") {
-        return {
-          supported: false,
-          reason:
-            "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
-        };
-      }
-
-      const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
-
       try {
-        const result = await adapter.executeReadQuery(sql);
-        return { analysis: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return { exists: false, error: msg };
+        const { query, format } = ExplainAnalyzeSchema.parse(params);
+
+        // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
+        // (requires explain_json_format_version=2 which is not widely available).
+        // Return a descriptive error for JSON format requests.
+        if (format === "JSON") {
+          const response = {
+            success: false,
+            error:
+              "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
+          };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
-        return { success: false, error: msg };
+
+        const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
+        const result = await adapter.executeReadQuery(sql);
+        const response = { success: true, data: { analysis: result.rows } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -155,16 +172,12 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Slow Queries",
     description: "Get slow queries from performance_schema (if available).",
     group: "performance",
-    inputSchema: SlowQuerySchema,
+    inputSchema: SlowQuerySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { limit, minTime } = SlowQuerySchema.parse(params);
-
       try {
+        const { limit, minTime } = SlowQuerySchema.parse(params);
         let sql = `
                 SELECT 
                     LEFT(DIGEST_TEXT, 200) as query,
@@ -180,18 +193,24 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE AVG_TIMER_WAIT > ${minTime * 1000000000000}`;
         }
 
-        sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${limit}`;
+        const actualLimit = Math.min(limit, 100);
+
+        sql += ` ORDER BY AVG_TIMER_WAIT DESC LIMIT ${actualLimit}`;
 
         const result = await adapter.executeReadQuery(sql);
-        return {
-          slowQueries: sanitizeTimerRows(result.rows, [
-            "avg_time_ms",
-            "total_time_ms",
-          ]),
+        const response = {
+          success: true,
+          data: {
+            slowQueries: sanitizeTimerRows(result.rows, [
+              "avg_time_ms",
+              "total_time_ms",
+            ]),
+          },
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -203,16 +222,12 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Query Stats",
     description: "Get query statistics from performance_schema.",
     group: "performance",
-    inputSchema: QueryStatsSchema,
+    inputSchema: QueryStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { orderBy, limit } = QueryStatsSchema.parse(params);
-
       try {
+        const { orderBy, limit } = QueryStatsSchema.parse(params);
         const orderColumn = {
           total_time: "SUM_TIMER_WAIT",
           avg_time: "AVG_TIMER_WAIT",
@@ -234,20 +249,24 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.events_statements_summary_by_digest
                 WHERE DIGEST_TEXT IS NOT NULL
                 ORDER BY ${orderColumn} DESC
-                LIMIT ${limit}
+                LIMIT ${Math.min(limit, 20)}
             `;
 
         const result = await adapter.executeReadQuery(sql);
-        return {
-          queries: sanitizeTimerRows(result.rows, [
-            "avg_time_ms",
-            "max_time_ms",
-            "total_time_ms",
-          ]),
+        const response = {
+          success: true,
+          data: {
+            queries: sanitizeTimerRows(result.rows, [
+              "avg_time_ms",
+              "max_time_ms",
+              "total_time_ms",
+            ]),
+          },
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -261,10 +280,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: IndexUsageSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, limit } = IndexUsageSchema.parse(params);
@@ -276,7 +292,16 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
             [table],
           );
           if (!check.rows || check.rows.length === 0) {
-            return { exists: false, table };
+            const response = { 
+              success: false, 
+              error: `Table '${table}' doesn't exist`,
+              code: "NOT_FOUND",
+              category: "database",
+              suggestion: "Verify the table name exists in the target database.",
+              recoverable: true
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
         }
 
@@ -302,16 +327,17 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND object_name = ?`;
         }
 
-        sql += ` ORDER BY count_read + count_write DESC LIMIT ${limit}`;
+        sql += ` ORDER BY count_read + count_write DESC LIMIT ${Math.min(limit, 100)}`;
 
         const result = await adapter.executeReadQuery(
           sql,
           table ? [table] : [],
         );
-        return { indexUsage: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const response = { success: true, data: { indexUsage: result.rows } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -326,10 +352,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: TableStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table } = TableStatsSchema.parse(params);
@@ -356,13 +379,23 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [table]);
 
         if (!result.rows || result.rows.length === 0) {
-          return { exists: false, table };
+          const response = { 
+            success: false, 
+            error: `Table '${table}' doesn't exist`,
+            code: "NOT_FOUND",
+            category: "database",
+            suggestion: "Verify the table name exists in the target database.",
+            recoverable: true
+          };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
-        return { stats: result.rows[0] };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const response = { success: true, data: { stats: result.rows[0] } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -380,10 +413,7 @@ export function createBufferPoolStatsTool(
     group: "performance",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const result = await adapter.executeReadQuery(
@@ -399,31 +429,41 @@ export function createBufferPoolStatsTool(
          FROM information_schema.INNODB_BUFFER_POOL_STATS`,
         );
 
-        return { bufferPoolStats: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const response = { success: true, data: { bufferPoolStats: result.rows } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
 }
 
 export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schemaBase = z.object({
+    limit: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("Maximum number of threads to return (default: 5)"),
+  });
+
+  const schema = z.object({
+    limit: z.number().int().positive().optional().default(5),
+  });
 
   return {
     name: "mysql_thread_stats",
     title: "MySQL Thread Stats",
     description: "Get thread activity statistics.",
     group: "performance",
-    inputSchema: schema,
+    inputSchema: schemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    annotations: READ_ONLY,
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { limit } = schema.parse(params);
         const result = await adapter.executeReadQuery(`
                 SELECT 
                     THREAD_ID,
@@ -440,12 +480,25 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.threads
                 WHERE PROCESSLIST_ID IS NOT NULL
                 ORDER BY PROCESSLIST_TIME DESC
+                LIMIT ${Math.min(limit, 50)}
             `);
 
-        return { threads: result.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        // Strip null values to conserve tokens
+        const threads = result.rows?.map((row) => {
+          const clean: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== null && value !== undefined) {
+              clean[key] = value;
+            }
+          }
+          return clean;
+        });
+
+        const response = { success: true, data: { threads } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

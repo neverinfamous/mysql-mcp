@@ -1,7 +1,7 @@
 /**
  * mysql-mcp - OAuth Scopes
  *
- * Scope definitions and utilities for MySQL MCP OAuth 2.0.
+ * Scope definitions and utilities for MySQL MCP OAuth 2.1.
  */
 
 import type { ToolGroup } from "../types/index.js";
@@ -40,6 +40,26 @@ export const ALL_SCOPES = [
   // Pattern scopes: db:{name}, table:{db}:{table}
 ] as const;
 
+/**
+ * Base standard scopes (without dynamic patterns)
+ */
+export const BASE_SCOPES = [
+  SCOPES.READ,
+  SCOPES.WRITE,
+  SCOPES.ADMIN,
+  SCOPES.FULL,
+] as const;
+
+/**
+ * Regex patterns for dynamic scopes
+ */
+export const SCOPE_PATTERNS = {
+  /** Matches db:{name} */
+  DATABASE: /^db:.+$/,
+  /** Matches table:{db}:{table} */
+  TABLE: /^table:.+:.+$/,
+} as const;
+
 // =============================================================================
 // Tool Group to Scope Mapping
 // =============================================================================
@@ -74,6 +94,8 @@ export const TOOL_GROUP_SCOPES: Record<ToolGroup, StandardScope> = {
   roles: SCOPES.ADMIN,
   docstore: SCOPES.WRITE,
   codemode: SCOPES.ADMIN,
+  introspection: SCOPES.READ,
+  migration: SCOPES.WRITE,
 };
 
 // =============================================================================

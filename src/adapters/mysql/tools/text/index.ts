@@ -5,7 +5,7 @@
  * 11 tools total (6 text + 5 fulltext).
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules

@@ -5,10 +5,16 @@
  * 5 tools: master_status, slave_status, binlog_events, gtid_status, replication_lag.
  */
 
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { BinlogEventsSchemaBase, BinlogEventsSchema } from "../types.js";
+import {
+  BinlogEventsSchemaBase,
+  BinlogEventsSchema,
+} from "../schemas/index.js";
 import { z } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import { READ_ONLY } from "../../../utils/annotations.js";
+
 
 /**
  * Get replication tools
@@ -33,24 +39,22 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
-        return { status: result.rows?.[0] };
+        const response = { success: true as const, data: { status: result.rows?.[0] } };
+        return withTokenEstimate(response);
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          return { status: result.rows?.[0] };
+          const response = { success: true as const, data: { status: result.rows?.[0] } };
+          return withTokenEstimate(response);
         } catch (e) {
-          return {
-            success: false,
-            error: `Binary logging may not be enabled: ${String(e)}`,
-          };
+          return formatHandlerErrorResponse(
+            `Binary logging may not be enabled: ${String(e)}`,
+          );
         }
       }
     },
@@ -67,33 +71,31 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       // Try new syntax first
       try {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
         const status = result.rows?.[0];
         if (status) {
-          return { status };
+          const response = { success: true as const, data: { status } };
+          return withTokenEstimate(response);
         }
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW SLAVE STATUS");
           const status = result.rows?.[0];
           if (status) {
-            return { status };
+            const response = { success: true as const, data: { status } };
+            return withTokenEstimate(response);
           }
         } catch {
           // Fall through to not-configured response
         }
       }
-      return {
-        configured: false,
-        message: "This server is not configured as a replica",
-      };
+      return formatHandlerErrorResponse(
+        "This server is not configured as a replica",
+      );
     },
   };
 }
@@ -107,17 +109,21 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: BinlogEventsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { logFile, position, limit } = BinlogEventsSchema.parse(params);
 
+        if (logFile === "") {
+          return formatHandlerErrorResponse(
+            "Invalid logFile: cannot be an empty string",
+          );
+        }
+
         // Guard: LIMIT 0 on SHOW BINLOG EVENTS returns ALL events (unlike SELECT LIMIT 0)
         if (limit === 0) {
-          return { events: [] };
+          const response = { success: true as const, data: { events: [] } };
+          return withTokenEstimate(response);
         }
 
         // Resolve effective log file: use provided or fetch current from master status
@@ -158,33 +164,29 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
-          return { events: result.rows };
+          const response = { success: true as const, data: { events: result.rows } };
+          return withTokenEstimate(response);
         } catch (e) {
           const message = String(e);
           const targetFile = effectiveLogFile || logFile;
           if (targetFile && message.includes("Could not find target log")) {
-            return {
-              success: false,
-              logFile: targetFile,
-              error: `Binlog file '${targetFile}' not found`,
-            };
+            return formatHandlerErrorResponse(
+              `Binlog file '${targetFile}' not found`,
+            );
           }
-          return {
-            success: false,
-            error: `Failed to read binlog events: ${message}`,
-          };
+          return formatHandlerErrorResponse(
+            `Failed to read binlog events: ${message}`,
+          );
         }
       } catch (e) {
         if (e instanceof z.ZodError) {
-          return {
-            success: false,
-            error: e.issues.map((i) => i.message).join("; "),
-          };
+          return formatHandlerErrorResponse(
+            e.issues.map((i) => i.message).join("; "),
+          );
         }
-        return {
-          success: false,
-          error: `Failed to read binlog events: ${String(e)}`,
-        };
+        return formatHandlerErrorResponse(
+          `Failed to read binlog events: ${String(e)}`,
+        );
       }
     },
   };
@@ -200,10 +202,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get GTID executed
@@ -221,16 +220,19 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT @@global.gtid_mode as gtid_mode",
         );
 
-        return {
-          gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
-          gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
-          gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+        const response = {
+          success: true as const,
+          data: {
+            gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
+            gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
+            gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+          }
         };
+        return withTokenEstimate(response);
       } catch (e) {
-        return {
-          success: false,
-          error: `Failed to retrieve GTID status: ${String(e)}`,
-        };
+        return formatHandlerErrorResponse(
+          `Failed to retrieve GTID status: ${String(e)}`,
+        );
       }
     },
   };
@@ -246,10 +248,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       // Try to get Seconds_Behind_Master from replica status
       try {
@@ -257,16 +256,20 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         const status = result.rows?.[0];
 
         if (status != null) {
-          return {
-            lagSeconds:
-              status["Seconds_Behind_Source"] ??
-              status["Seconds_Behind_Master"],
-            ioRunning:
-              status["Replica_IO_Running"] ?? status["Slave_IO_Running"],
-            sqlRunning:
-              status["Replica_SQL_Running"] ?? status["Slave_SQL_Running"],
-            lastError: status["Last_Error"],
+          const response = {
+            success: true as const,
+            data: {
+              lagSeconds:
+                status["Seconds_Behind_Source"] ??
+                status["Seconds_Behind_Master"],
+              ioRunning:
+                status["Replica_IO_Running"] ?? status["Slave_IO_Running"],
+              sqlRunning:
+                status["Replica_SQL_Running"] ?? status["Slave_SQL_Running"],
+              lastError: status["Last_Error"],
+            }
           };
+          return withTokenEstimate(response);
         }
       } catch {
         try {
@@ -274,22 +277,25 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
           const status = result.rows?.[0];
 
           if (status != null) {
-            return {
-              lagSeconds: status["Seconds_Behind_Master"],
-              ioRunning: status["Slave_IO_Running"],
-              sqlRunning: status["Slave_SQL_Running"],
-              lastError: status["Last_Error"],
+            const response = {
+              success: true as const,
+              data: {
+                lagSeconds: status["Seconds_Behind_Master"],
+                ioRunning: status["Slave_IO_Running"],
+                sqlRunning: status["Slave_SQL_Running"],
+                lastError: status["Last_Error"],
+              }
             };
+            return withTokenEstimate(response);
           }
         } catch {
           // Not a replica
         }
       }
 
-      return {
-        lagSeconds: null,
-        message: "This server is not configured as a replica",
-      };
+      return formatHandlerErrorResponse(
+        "This server is not configured as a replica",
+      );
     },
   };
 }

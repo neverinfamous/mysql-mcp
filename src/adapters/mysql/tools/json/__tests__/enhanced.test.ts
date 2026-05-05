@@ -1,4 +1,4 @@
-/**
+﻿/**
  * mysql-mcp - JSON Enhanced Tools Unit Tests
  *
  * Comprehensive tests for enhanced.ts module functions.
@@ -12,7 +12,7 @@ import {
   createJsonStatsTool,
   createJsonIndexSuggestTool,
 } from "../enhanced.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -43,12 +43,12 @@ describe("JSON Enhanced Tools", () => {
           mode: "patch",
         },
         mockContext,
-      )) as { merged: any };
+      )) as { data: { merged: any } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
       expect(call).toContain("JSON_MERGE_PATCH");
-      expect(result.merged).toEqual({ a: 1 });
+      expect(result.data.merged).toEqual({ a: 1 });
     });
 
     it("should merge JSON using preserve mode", async () => {
@@ -84,9 +84,9 @@ describe("JSON Enhanced Tools", () => {
           mode: "patch",
         },
         mockContext,
-      )) as { merged: any };
+      )) as { data: { merged: any } };
 
-      expect(result.merged).toEqual({ direct: "object" });
+      expect(result.data.merged).toEqual({ direct: "object" });
     });
   });
 
@@ -111,18 +111,13 @@ describe("JSON Enhanced Tools", () => {
           json2: "{}",
         },
         mockContext,
-      )) as {
-        identical: boolean;
-        addedKeys: string[];
-        removedKeys: string[];
-        differences: unknown[];
-      };
+      )) as { data: { identical: boolean; addedKeys: string[]; removedKeys: string[]; differences: unknown[]; } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      expect(result.identical).toBe(true);
-      expect(result.addedKeys).toEqual([]);
-      expect(result.removedKeys).toEqual([]);
-      expect(result.differences).toEqual([]);
+      expect(result.data.identical).toBe(true);
+      expect(result.data.addedKeys).toEqual([]);
+      expect(result.data.removedKeys).toEqual([]);
+      expect(result.data.differences).toEqual([]);
     });
 
     it("should parse string keys into array", async () => {
@@ -147,17 +142,12 @@ describe("JSON Enhanced Tools", () => {
           json2: '{"c":3}',
         },
         mockContext,
-      )) as {
-        json1Keys: string[];
-        json2Keys: string[];
-        addedKeys: string[];
-        removedKeys: string[];
-      };
+      )) as { data: { json1Keys: string[]; json2Keys: string[]; addedKeys: string[]; removedKeys: string[]; } };
 
-      expect(result.json1Keys).toEqual(["a", "b"]);
-      expect(result.json2Keys).toEqual(["c"]);
-      expect(result.addedKeys).toEqual(["c"]);
-      expect(result.removedKeys).toEqual(["a", "b"]);
+      expect(result.data.json1Keys).toEqual(["a", "b"]);
+      expect(result.data.json2Keys).toEqual(["c"]);
+      expect(result.data.addedKeys).toEqual(["c"]);
+      expect(result.data.removedKeys).toEqual(["a", "b"]);
     });
 
     it("should handle non-string keys (already parsed by driver)", async () => {
@@ -178,10 +168,10 @@ describe("JSON Enhanced Tools", () => {
           json2: '{"z":3}',
         },
         mockContext,
-      )) as { json1Keys: string[]; json2Keys: string[] };
+      )) as { data: { json1Keys: string[]; json2Keys: string[] } };
 
-      expect(result.json1Keys).toEqual(["x", "y"]);
-      expect(result.json2Keys).toEqual(["z"]);
+      expect(result.data.json1Keys).toEqual(["x", "y"]);
+      expect(result.data.json2Keys).toEqual(["z"]);
     });
 
     it("should return value-level differences for shared keys", async () => {
@@ -214,18 +204,14 @@ describe("JSON Enhanced Tools", () => {
           json2: '{"name":"Alice","age":31}',
         },
         mockContext,
-      )) as {
-        differences: { path: string; value1: unknown; value2: unknown }[];
-        addedKeys: string[];
-        removedKeys: string[];
-      };
+      )) as { data: { differences: { path: string; value1: unknown; value2: unknown }[]; addedKeys: string[]; removedKeys: string[]; } };
 
-      expect(result.addedKeys).toEqual([]);
-      expect(result.removedKeys).toEqual([]);
-      expect(result.differences).toHaveLength(1);
-      expect(result.differences[0].path).toBe("$.age");
-      expect(result.differences[0].value1).toBe(30);
-      expect(result.differences[0].value2).toBe(31);
+      expect(result.data.addedKeys).toEqual([]);
+      expect(result.data.removedKeys).toEqual([]);
+      expect(result.data.differences).toHaveLength(1);
+      expect(result.data.differences[0].path).toBe("$.age");
+      expect(result.data.differences[0].value1).toBe(30);
+      expect(result.data.differences[0].value2).toBe(31);
     });
   });
 
@@ -252,10 +238,10 @@ describe("JSON Enhanced Tools", () => {
           limit: 10,
         },
         mockContext,
-      )) as { uniqueKeys: string[] };
+      )) as { data: { uniqueKeys: string[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
-      expect(result.uniqueKeys).toEqual(["k1", "k2"]);
+      expect(result.data.uniqueKeys).toEqual(["k1", "k2"]);
     });
 
     it("should include where clause in queries", async () => {
@@ -306,10 +292,10 @@ describe("JSON Enhanced Tools", () => {
           limit: 100,
         },
         mockContext,
-      )) as { truncated: boolean; keyCount: number };
+      )) as { data: { truncated: boolean; keyCount: number } };
 
-      expect(result.truncated).toBe(true);
-      expect(result.keyCount).toBe(25);
+      expect(result.data.truncated).toBe(true);
+      expect(result.data.keyCount).toBe(25);
     });
   });
 
@@ -332,10 +318,10 @@ describe("JSON Enhanced Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { totalSampled: number };
+      )) as { data: { totalSampled: number } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.totalSampled).toBe(100);
+      expect(result.data.totalSampled).toBe(100);
     });
 
     it("should include where clause in stats query", async () => {
@@ -385,12 +371,12 @@ describe("JSON Enhanced Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { suggestions: any[] };
+      )) as { data: { suggestions: any[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
-      expect(result.suggestions).toHaveLength(2);
-      expect(result.suggestions[0].path).toBe("$.id"); // higher cardinality first
-      expect(result.suggestions[0].indexDdl).toContain("BIGINT");
+      expect(result.data.suggestions).toHaveLength(2);
+      expect(result.data.suggestions[0].path).toBe("$.id"); // higher cardinality first
+      expect(result.data.suggestions[0].indexDdl).toContain("BIGINT");
     });
 
     it("should use DOUBLE for double value types", async () => {
@@ -409,9 +395,9 @@ describe("JSON Enhanced Tools", () => {
           column: "data",
         },
         mockContext,
-      )) as { suggestions: any[] };
+      )) as { data: { suggestions: any[] } };
 
-      expect(result.suggestions[0].indexDdl).toContain("DOUBLE");
+      expect(result.data.suggestions[0].indexDdl).toContain("DOUBLE");
     });
 
     it("should use TINYINT(1) for boolean value types", async () => {
@@ -430,9 +416,9 @@ describe("JSON Enhanced Tools", () => {
           column: "settings",
         },
         mockContext,
-      )) as { suggestions: any[] };
+      )) as { data: { suggestions: any[] } };
 
-      expect(result.suggestions[0].indexDdl).toContain("TINYINT(1)");
+      expect(result.data.suggestions[0].indexDdl).toContain("TINYINT(1)");
     });
 
     it("should skip keys with cardinality <= 1", async () => {
@@ -453,9 +439,9 @@ describe("JSON Enhanced Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { suggestions: any[] };
+      )) as { data: { suggestions: any[] } };
 
-      expect(result.suggestions).toHaveLength(0);
+      expect(result.data.suggestions).toHaveLength(0);
     });
 
     it("should handle UNKNOWN type for undefined valueType", async () => {
@@ -472,10 +458,10 @@ describe("JSON Enhanced Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { suggestions: any[] };
+      )) as { data: { suggestions: any[] } };
 
-      expect(result.suggestions[0].type).toBe("UNKNOWN");
-      expect(result.suggestions[0].indexDdl).toContain("VARCHAR(255)");
+      expect(result.data.suggestions[0].type).toBe("UNKNOWN");
+      expect(result.data.suggestions[0].indexDdl).toContain("VARCHAR(255)");
     });
 
     it("should limit suggestions to top 5", async () => {
@@ -502,9 +488,9 @@ describe("JSON Enhanced Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { suggestions: any[] };
+      )) as { data: { suggestions: any[] } };
 
-      expect(result.suggestions).toHaveLength(5);
+      expect(result.data.suggestions).toHaveLength(5);
     });
 
     it("should produce valid DDL for qualified table names", async () => {
@@ -523,16 +509,16 @@ describe("JSON Enhanced Tools", () => {
           column: "data",
         },
         mockContext,
-      )) as { suggestions: { indexDdl: string }[] };
+      )) as { data: { suggestions: { indexDdl: string }[] } };
 
-      expect(result.suggestions).toHaveLength(1);
+      expect(result.data.suggestions).toHaveLength(1);
       // Table reference should be properly escaped as `mydb`.`users`
-      expect(result.suggestions[0].indexDdl).toContain(
+      expect(result.data.suggestions[0].indexDdl).toContain(
         "ALTER TABLE `mydb`.`users`",
       );
       // Index name should use only the table basename (no schema prefix)
-      expect(result.suggestions[0].indexDdl).toContain("idx_users_email");
-      expect(result.suggestions[0].indexDdl).not.toContain("idx_mydb.users");
+      expect(result.data.suggestions[0].indexDdl).toContain("idx_users_email");
+      expect(result.data.suggestions[0].indexDdl).not.toContain("idx_mydb.users");
     });
 
     describe("P154 Graceful Error Handling", () => {
@@ -547,7 +533,7 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ exists: false, table: "nonexistent" });
+        expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
       });
 
       it("json_stats should return exists: false for nonexistent table", async () => {
@@ -559,7 +545,7 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ exists: false, table: "nonexistent" });
+        expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
       });
 
       it("json_index_suggest should return exists: false for nonexistent table", async () => {
@@ -571,7 +557,7 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toEqual({ exists: false, table: "nonexistent" });
+        expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
       });
 
       it("json_merge should return success: false for invalid input", async () => {
@@ -585,7 +571,10 @@ describe("JSON Enhanced Tools", () => {
           { json1: "not-json", json2: "{}" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Invalid JSON text",
+        });
       });
 
       it("json_diff should return success: false for invalid input", async () => {
@@ -597,8 +586,12 @@ describe("JSON Enhanced Tools", () => {
           { json1: "not-json", json2: "{}" },
           mockContext,
         );
-        expect(result).toEqual({ success: false, error: "Invalid JSON text" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Invalid JSON text",
+        });
       });
     });
   });
 });
+

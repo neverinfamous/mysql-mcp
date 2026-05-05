@@ -12,44 +12,35 @@ import type {
   ToolDefinition,
   RequestContext,
   RouterConfig,
+  ErrorResponse,
 } from "../../../types/index.js";
-import type { MySQLAdapter } from "../MySQLAdapter.js";
+import type { MySQLAdapter } from "../mysql-adapter.js";
 import https from "node:https";
-import { ZodError } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
+  RouteNameInputSchemaBase,
   MetadataNameInputSchema,
+  MetadataNameInputSchemaBase,
   ConnectionPoolNameInputSchema,
-} from "../types/router-types.js";
+  ConnectionPoolNameInputSchemaBase,
+} from "../schemas/router.js";
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Router HTTP Client Helper
 // =============================================================================
 
 /**
- * Response type for graceful Router API unavailability
- */
-interface RouterUnavailableResponse {
-  available: false;
-  error: string;
-}
-
-/**
  * Result type for safe Router API calls
  */
 type SafeRouterResult<T> =
   | { success: true; data: T }
-  | { success: false; response: RouterUnavailableResponse };
+  | { success: false; response: ErrorResponse };
 
 /**
  * Get Router configuration from environment variables
@@ -130,11 +121,25 @@ async function routerFetch(
             reject(new Error(`Invalid JSON response: ${data}`));
           }
         } else {
+          let errorDetail = "";
+          let parsedData: unknown;
+          try {
+            if (data) {
+              parsedData = JSON.parse(data) as unknown;
+              errorDetail = JSON.stringify(parsedData);
+            }
+          } catch {
+            errorDetail = data.substring(0, 100);
+          }
           const err = new Error(
-            `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}`,
+            `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}${errorDetail ? ` - ${errorDetail}` : ""}`,
           );
-          (err as Error & { statusCode: number }).statusCode = statusCode;
-          reject(err);
+          const extendedErr = err as Error & { statusCode: number; responseData?: unknown };
+          extendedErr.statusCode = statusCode;
+          if (parsedData !== undefined) {
+            extendedErr.responseData = parsedData;
+          }
+          reject(extendedErr);
         }
       });
     });
@@ -184,31 +189,31 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
     const data = (await routerFetch(path)) as T;
     return { success: true, data };
   } catch (error) {
-    const msg =
-      error instanceof Error
-        ? error.message
-        : "Unknown error connecting to Router API";
+    const extendedErr = error as Error & { statusCode?: number; responseData?: unknown };
+    
     // 404 = valid Router response for nonexistent route/metadata/pool
-    // Return { success: false, error } instead of { available: false } to
-    // distinguish "not found" from "Router is down"
-    if (
-      error instanceof Error &&
-      (error as Error & { statusCode?: number }).statusCode === 404
-    ) {
+    if (extendedErr.statusCode === 404) {
       return {
         success: false,
-        response: {
-          success: false,
-          error: msg,
-        } as unknown as RouterUnavailableResponse,
+        response: formatHandlerErrorResponse(error),
       };
     }
+    
+    const resData = extendedErr.responseData as Record<string, unknown> | undefined;
+    // Recovery for health checks: Router returns 500 with {"isAlive": false} if the route is down
+    if (
+      extendedErr.statusCode === 500 &&
+      resData !== undefined &&
+      resData !== null &&
+      typeof resData === "object" &&
+      typeof resData["isAlive"] === "boolean"
+    ) {
+      return { success: true, data: resData as T };
+    }
+
     return {
       success: false,
-      response: {
-        available: false,
-        error: msg,
-      },
+      response: formatHandlerErrorResponse(error),
     };
   }
 }
@@ -260,10 +265,10 @@ function createRouterStatusTool(): ToolDefinition {
       if (!result.success) {
         return result.response;
       }
-      return {
+      return withTokenEstimate({
         success: true,
-        status: result.data,
-      };
+        data: result.data,
+      });
     },
   };
 }
@@ -290,10 +295,10 @@ function createRouterRoutesTool(): ToolDefinition {
       if (!result.success) {
         return result.response;
       }
-      return {
+      return withTokenEstimate({
         success: true,
-        routes: result.data,
-      };
+        data: result.data,
+      });
     },
   };
 }
@@ -312,7 +317,7 @@ function createRouterRouteStatusTool(): ToolDefinition {
     description:
       "Get operational status of a specific route including active connections, total connections, and blocked hosts count.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -328,19 +333,15 @@ function createRouterRouteStatusTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          routeName,
-          status: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            routeName,
+            status: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -356,7 +357,7 @@ function createRouterRouteHealthTool(): ToolDefinition {
     description:
       "Check if a route is alive and functioning. Returns isAlive boolean indicating route health.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -372,19 +373,15 @@ function createRouterRouteHealthTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          routeName,
-          health: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            routeName,
+            health: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -400,7 +397,7 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
     description:
       "List active connections on a route including source/destination addresses, bytes transferred, and connection times.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -416,19 +413,15 @@ function createRouterRouteConnectionsTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          routeName,
-          connections: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            routeName,
+            connections: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -444,7 +437,7 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
     description:
       "List backend MySQL server destinations for a route. Shows address and port of each destination server.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -460,19 +453,15 @@ function createRouterRouteDestinationsTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          routeName,
-          destinations: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            routeName,
+            destinations: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -488,7 +477,7 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
     description:
       "List IP addresses that have been blocked for a route due to too many failed connection attempts.",
     group: "router",
-    inputSchema: RouteNameInputSchema,
+    inputSchema: RouteNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -504,19 +493,15 @@ function createRouterRouteBlockedHostsTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          routeName,
-          blockedHosts: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            routeName,
+            blockedHosts: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -536,7 +521,7 @@ function createRouterMetadataStatusTool(): ToolDefinition {
     description:
       "Get InnoDB Cluster metadata cache status including refresh statistics and last refresh host.",
     group: "router",
-    inputSchema: MetadataNameInputSchema,
+    inputSchema: MetadataNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -552,19 +537,15 @@ function createRouterMetadataStatusTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          metadataName,
-          status: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            metadataName,
+            status: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -584,7 +565,7 @@ function createRouterPoolStatusTool(): ToolDefinition {
     description:
       "Get MySQL Router connection pool status including idle and stashed server connections.",
     group: "router",
-    inputSchema: ConnectionPoolNameInputSchema,
+    inputSchema: ConnectionPoolNameInputSchemaBase,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -600,19 +581,15 @@ function createRouterPoolStatusTool(): ToolDefinition {
         if (!result.success) {
           return result.response;
         }
-        return {
+        return withTokenEstimate({
           success: true,
-          poolName,
-          status: result.data,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
-        }
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+          data: {
+            poolName,
+            status: result.data,
+          },
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

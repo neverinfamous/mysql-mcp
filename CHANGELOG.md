@@ -1,11 +1,144 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [3.1.0](https://github.com/neverinfamous/mysql-mcp/releases/tag/v3.1.0) - 2026-05-05
+
+### Added
+
+- **Introspection**: Tools for dependency mapping, topological sort, schema snapshots, and risk assessment.
+- **Migration**: Tools for tracking, applying, and rolling back schema versions.
+- **Insights Subsystem**: `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
+- **Token Estimation**: `_meta.tokenEstimate` heuristic (4 bytes/token) in all tool responses and Code Mode metrics.
+- **Audit Observability**: Activated logging via CLI flags, exposed `getAuditInterceptor()` on `DatabaseAdapter`, wired interceptor through sandbox operations, and ported 51-test audit suite.
+- **Benchmarks**: Code Mode performance and throughput benchmark suite.
+- **Help Architecture**: Dynamically registered group-specific help resources (`mysql://help/{group}`).
+- **Error Mapping**: `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
+- **Connection Pool**: `initializationSql` config to execute setup queries once per checkout.
+- **Cluster Recovery**: `scripts/reboot-cluster.ps1` utility for recovering InnoDB Clusters from complete outages.
+- **Harmonized Error Types (`error-types.ts`)** — New `ErrorCategory` enum (9 categories: validation, connection, query, permission, config, resource, authentication, authorization, internal), `ErrorResponse` interface, and `ErrorContext` interface. Part of the harmonized error handling standard across db-mcp, postgres-mcp, and mysql-mcp
+- **Enriched `MySQLMcpError` Base Class** — Constructor now accepts `(message, code, category, options?)` with `suggestion`, `recoverable`, `details`, and `cause` fields. Includes `toResponse()` method returning structured `ErrorResponse`. All 7 subclasses enriched with category, suggestion, and recoverable defaults
+- **`formatHandlerErrorResponse()` Function** — New enriched error formatter in `error-helpers.ts` returning full `ErrorResponse` objects with code, category, suggestion, and recoverable fields. Handles `MySQLMcpError`, `ZodError`, and raw MySQL errors. Existing `formatHandlerError()` preserved for backward compatibility
+- **`OAuthError` Extends `MySQLMcpError`** — OAuth errors now inherit full error handling infrastructure (category, suggestion, toResponse()). All OAuth error codes prefixed with `AUTH_` (e.g., `TOKEN_MISSING` → `AUTH_TOKEN_MISSING`). Added `wwwAuthenticate` as instance property; deprecated standalone `getWWWAuthenticateHeader()` utility
+- **OAuth Scope Map (`scope-map.ts`)** — O(1) reverse lookup from tool name to required OAuth scope. `getRequiredScope(toolName)` returns the scope without iterating tool groups. `getToolScopeMap()` exposes the full read-only map for introspection
+- **OAuth Auth Context (`auth-context.ts`)** — AsyncLocalStorage-based per-request authentication context threading. `runWithAuthContext()` / `getAuthContext()` allow tool handlers to access auth context without direct parameter coupling
+- **`SCOPE_PATTERNS` Regex Constants** — `SCOPE_PATTERNS.DATABASE` and `SCOPE_PATTERNS.TABLE` regex patterns for validating dynamic `db:*` and `table:*:*` scopes
+- **`BASE_SCOPES` Constant** — Array of the 4 standard scopes (`read`, `write`, `admin`, `full`) without dynamic patterns
+- **`OAuthResourceServer.getWWWAuthenticateHeader()`** — Generates RFC-compliant `WWW-Authenticate` headers for 401 responses
+- **`isOAuthError()` Type Guard** — Runtime type guard for `OAuthError` instances
+- **`getWWWAuthenticateHeader()` Utility** — Generates `WWW-Authenticate` headers from `OAuthError` instances with error-specific formatting (insufficient scope includes `scope` parameter, token missing omits error details)
+- **`MCP_RATE_LIMIT_MAX` Environment Variable** — HTTP transport rate limiter now reads `MCP_RATE_LIMIT_MAX` from environment as a fallback when not set via constructor config. Allows E2E test configurations to increase the limit without code changes (default: 100 requests/minute)
+- **Dual HTTP Transport** — HTTP transport now supports both Streamable HTTP (`/mcp` endpoint, MCP protocol 2025-03-26) and Legacy SSE (`/sse` + `/messages` endpoints, MCP protocol 2024-11-05) simultaneously. Includes session management, cross-protocol guards, CORS, security headers, HSTS opt-in, OAuth integration, and health endpoint
+- **HTTP Transport Security Headers** — All HTTP responses now include `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control`, `Content-Security-Policy`, and `Permissions-Policy` headers. Optional HSTS for HTTPS deployments
+
+### Changed
+
+- **Schema Modularity**: Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
+- **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
+- **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
+- **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
+- **Dependencies**: Updated core dependencies, including bumping `eslint` to 10.3.0, `globals` to 17.6.0, `zod` to 4.4.3, and `typescript-eslint` to 8.59.2.
+- **Token Optimization**: Reduced default limits across various tools (`mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, `mysql_export_table`, `mysql_binlog_events`, `mysql_thread_stats`) and defaulted large schemas to prevent payload bloat.
+
+### Improved
+
+- **HTTP Transport Modular Split** — Refactored monolithic `src/transports/http.ts` (798 lines) into `src/transports/http/` directory with 5 focused modules: `types.ts` (config interface + server timeout constants + defaults), `security.ts` (rate limiting, security headers, CORS, body parsing, client IP), `handlers.ts` (health check, root info, OAuth metadata), `server.ts` (transport class + factory), `index.ts` (barrel re-export). Aligns with `db-mcp` and `postgres-mcp` transport architecture
+- **HTTP Security Headers** — Added `Referrer-Policy: no-referrer` header to all HTTP responses (6 base headers, 7 with HSTS). Previously 5 base headers, 6 with HSTS
+- **Server Timeouts (Slowloris Protection)** — Added `requestTimeout` (120s), `keepAliveTimeout` (65s), and `headersTimeout` (66s) to prevent DoS attacks via slow HTTP connections
+- **Health Check Rate-Limit Bypass** — `/health` endpoint now responds before rate limiting is checked, ensuring monitoring probes always succeed regardless of per-IP request quotas
+- **Retry-After Header on 429** — Rate-limited responses now include a `Retry-After` header indicating seconds until the rate limit window resets
+- **Trust Proxy Support** — New `trustProxy` config option reads `X-Forwarded-For` for accurate client IP extraction behind reverse proxies (nginx, ALB, Cloudflare, etc.)
+- **Wildcard Subdomain CORS** — CORS origins now support wildcard subdomain patterns (e.g., `*.example.com` matches `app.example.com`)
+- **E2E Prompt Coverage** — Added `prompts.spec.ts` with 21 tests verifying all 19 MCP prompts are registered and return structured content via `client.listPrompts()` and `client.getPrompt()`
+- **E2E Streamable HTTP Transport** — Added `streamable-http.spec.ts` with 6 tests validating MCP 2025-03-26 Streamable HTTP transport parity: init, listTools, callTool (read + write), listResources, readResource, listPrompts, and getPrompt via `/mcp` endpoint
+- **E2E Structured Error Responses** — Added `errors.spec.ts` with 6 tests verifying structured `{ success: false, code, error }` contract for nonexistent tables, columns, statement type mismatches (INSERT in read_query, SELECT in write_query), invalid JSON paths, and nonexistent table describe
+- **Centralized Error Helpers** — Created `src/adapters/mysql/tools/core/error-helpers.ts` with `formatMysqlError`, `formatZodError`, and `formatHandlerError` functions. All error formatting is now centralized instead of scattered across individual tool files
+- **E2E Ecosystem Payload Contracts** — Added 4 new spec files with 15 payload contract tests covering untested ecosystem tools: `payloads-ecosystem-router.spec.ts` (4 Router tools), `payloads-ecosystem-proxysql.spec.ts` (6 ProxySQL tools), `payloads-ecosystem-cluster.spec.ts` (4 Cluster/GR tools), `payloads-ecosystem-shell.spec.ts` (1 Shell tool). Total E2E tests: 60 → 179
+- **E2E Rate Limit Headroom** — Increased `MCP_RATE_LIMIT_MAX` from 1000 to 10000 in `playwright.config.ts` to accommodate the expanded ecosystem test suite without hitting rate limits
+- **Error Handling Standardization (Phase 1: Pattern B Files)** — Restructured 23 handlers across 9 files (`core.ts`, `partitioning.ts`, 6 schema files) to use a single outer `try/catch` pattern. Previously, these handlers had Zod-only catches with `throw error` re-throws, leaving domain errors unprotected. All handlers now format Zod validation errors and MySQL query errors consistently using the centralized helpers. Eliminated all `throw err`/`throw error` patterns from the tools directory
+- **Error Handling Standardization (Phase 2: Centralize Helpers)** — Replaced 22 local `formatZodError` copies, 11 local `stripErrorPrefix` copies, and 10 inline `.replace()` error-prefix-stripping patterns across 23 tool files with centralized imports from `error-helpers.ts`. Zero local copies or inline patterns remain. Files updated across admin, security, spatial, shell, stats, sysschema, performance, and top-level tool groups
+
+### Removed
+
+- Monolithic `ServerInstructions.ts` and dynamic group-filtering utilities.
+
+### Fixed
+
+- **Global Response Contract**: Nested all successful tool responses within a `data` wrapper to strictly adhere to the mandatory `{ success: boolean, data: object }` contract.
+- **Global Error Handling**: Standardized error responses to use `formatHandlerErrorResponse()` across all tool groups. Eliminated property leakages, standardized Zod validation formats, and applied Split Schema patterns for improved coercion.
+- **Global Token Estimation**: Remediated missing `metrics.tokenEstimate` payloads in success and domain error paths across all tool groups.
+- **Admin**: Switched DDL operations to `rawQuery` to prevent array response corruption. Correctly wrapped MySQL maintenance query errors into structured responses.
+- **Backup**: Fixed `DATETIME` ISO 8601 string parsing, added constraints to table arrays, optimized imports with batched bulk inserts, and added existence verification to restore and table exports (P154 pattern).
+- **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
+- **Code Mode**: Replaced `_meta.tokenEstimate` with `metrics.tokenEstimate` in help responses and fixed validation regression on empty execution payloads.
+- **Core**: Fixed duplicate prefixes in Zod error messages for schema refinement rules.
+- **Docstore**: Migrated to `parseDocFilter` for query parity, automatically merged missing `_id` fields, and fixed criteria/update aliases.
+- **Documentation**: Corrected admin documentation regarding structured error formats for nonexistent tables.
+- **Events**: Fixed missing `status` and `event` fields in response payloads.
+- **Fulltext**: Removed hardcoded `id` column requirement, fixed limit parameterization bug, and mapped raw MySQL exceptions to validation errors.
+- **Introspection**: Fixed circular dependency detection, implemented `maxDepth` traversal filtering, and fixed Zod schema regressions for limits.
+- **JSON**: Fixed parameter visibility in `json_validate`, implemented missing `where` and `limit` clauses, and corrected alias parameters.
+- **Migration**: Fixed read-only mode false positives, prepared statement constraint errors, and enforced strict schema hash validation.
+- **Monitoring**: Fixed payload bloat in `innodbStatus`, renamed specific response properties for consistency, and resolved raw `TypeError` issues by switching to `executeQuery`.
+- **Optimization**: Fixed domain error reporting, surfaced `rewrittenQuery`, optimized EXPLAIN payloads, and fixed connection pooling for optimizer traces.
+- **Performance**: Fixed integer overflow in anomaly detection, added strict limits for `sys` schema tools, and optimized JSON EXPLAIN payloads.
+- **ProxySQL**: Added missing `version` and `uptime` properties to status response.
+- **Roles**: Fixed parameter visibility regressions and supported privilege revokes.
+- **Router**: Fixed health checks for offline routes and utilized standardized error responses for connectivity issues.
+- **Schema**: Fixed DDL operations to correctly return skipped status, implemented missing `mysql_drop_view`, fixed Zod validation on missing parameters, and fixed `mysql://schema` resource handler to include full column metadata for tables and views.
+- **Security**: Enforced minimum constraints on passwords and reduced default limits in audit tools.
+- **Shell**: Extended language validation to JS/Python, fixed Windows path resolution, and fixed dump dry run configuration.
+- **Spatial**: Fixed index creation errors on missing columns, fixed WKT round-tripping for SRID 4326, optimized buffer payloads by removing massive GeoJSON generation, and added P154 existence verification pattern to table `doesn't exist` errors.
+- **Stats**: Enforced numeric type checking, implemented server-side pagination for window functions, fixed string-to-number casting, sanitized window function column errors, and added an actionable generation hint to empty histogram responses.
+- **Sys Schema**: Registered `mysql.sys` as a direct API alias for intuitive Code Mode calls.
+- **Tests**: Remediated benchmark timing assertions, fixed watch-mode hangs, and skipped write tests in read-only mode.
+- **Text**: Added `targetCharset` alias mapping for improved tool-calling resilience.
+- **Transactions**: Fixed parameter alias parsing for `isolationLevel`.
+- **HTTP Transport Server Crash on Reconnect (Critical)** — `void this.server.connect(sseTransport)` in `McpServer.startTransport()` called `connect()` without first calling `close()`, causing an "Already connected" crash on subsequent connections. Fixed with `close()`-before-`connect()` pattern
+- **HTTP Transport `transport.start()` Method Does Not Exist (Critical)** — `handleSSERequest()` called `transport.start()` on `StreamableHTTPServerTransport`, which has no `start()` method. Replaced with proper session-based initialization
+- **HTTP Transport No Session Management** — Single `this.transport` field was overwritten on each connection, making it impossible to route `/messages` to the correct session. Replaced with `Map<string, Transport>` session map
+- **HTTP Transport No Legacy SSE Support** — `/sse` and `/messages` routes existed but incorrectly used `StreamableHTTPServerTransport` instead of `SSEServerTransport`. Implemented proper `SSEServerTransport` for backward compatibility with MCP 2024-11-05 clients
+- **HTTP Transport No Body Size Enforcement** — No limit on request body size, allowing memory exhaustion. Added two-layer enforcement: Content-Length header check + streaming byte tracking
+- **HTTP Transport No Rate Limiting** — No per-IP request throttling. Added configurable sliding-window rate limiting with deterministic cleanup
+- **HTTP Transport `onConnect` Sync-Only** — Callback signature was synchronous, preventing `await` on reconnection logic. Changed to `(transport: Transport) => void | Promise<void>`
+- **HTTP Transport Server Crash on Startup in HTTP Mode** — `mcpLogger.setConnected(true)` was called in `McpServer.start()` before any client connected, causing `Error: Not connected` crash on `sendLoggingMessage()`. Fixed by deferring to `onConnect` callback for HTTP/SSE transport
+- **HTTP Transport CORS Wildcard Not Working** — `corsOrigins: ["*"]` was compared literally against the request `Origin` header and never matched. Added proper wildcard handling: when `"*"` is in `corsOrigins`, `Access-Control-Allow-Origin` is set to `"*"` unconditionally
+- **HTTP Transport CORS Credential/Wildcard Conflict** — `Access-Control-Allow-Credentials: true` was set even with wildcard origin, violating the CORS spec. Now only set when explicit origins are used
+
+### Security
+
+- **Scope Enforcement**: Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
+- **Dependency Patches**: Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities.
+- **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
+
+### Dependencies
+
+- `@types/node`: 25.3.2 → 25.6.0
+- `eslint`: 10.0.2 → 10.3.0
+- `globals`: 17.3.0 → 17.6.0
+- `jose`: 6.1.3 → 6.2.3
+- `mysql2`: 3.18.2 → 3.19.1
+- `typescript-eslint`: 8.56.1 → 8.59.2
+- `zod`: 4.3.6 → 4.4.3
+- `express-rate-limit`: 8.2.1 → 8.3.1 (transitive)
+- `hono`: 4.12.2 → 4.12.7 (transitive)
+- `@hono/node-server`: 1.19.9 → 1.19.11 (transitive)
+
+### CI
+
+- Bumped Docker GitHub Actions: `setup-buildx-action` v3 → v4, `login-action` v3 → v4, `metadata-action` v5 → v6, `build-push-action` v6 → v7
+- Bumped GitHub Actions: `upload-artifact` v6 → v7, `download-artifact` v7 → v8
+
 ## [3.0.2] - 2026-02-27
+
+### Documentation
+
+- **README.md / DOCKER_README.md Code Mode Promotion** — Enhanced the opening descriptions and the "What Sets Us Apart" feature table to explicitly highlight Code Mode as a revolutionary token-saving feature.
 
 ### Fixed
 
@@ -104,6 +237,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security Tool Catch-Block Error Shape Consistency** — Three catch blocks in `audit.ts` returned domain-specific shapes (`{ available: false }`, `{ installed: false }`) without `success: false`, making them inconsistent with the `{ success: false, error }` convention used across all other tools. Added `success: false` to `mysql_security_audit` (audit-related errors), `mysql_security_firewall_rules` (table access errors), and `mysql_security_firewall_status` (plugin check failures)
 
 - **Schema Tool Zod Validation Leaks (6 Handlers)** — All 6 schema handler files (`constraints.ts`, `scheduled_events.ts`, `views.ts`, `management.ts`, `routines.ts`, `triggers.ts`) called `Schema.parse(params)` outside any `try/catch` block, causing raw Zod validation errors to propagate as MCP exceptions. Additionally, `list_constraints` (`type`), `list_events` (`status`), and `create_view` (`algorithm`, `checkOption`) used `z.enum()` directly on their `inputSchema`, causing the MCP framework to reject invalid values with raw `-32602` errors before handlers could intercept. Applied Split Schema pattern: created permissive `*Base` schemas with `z.string()` for `inputSchema` visibility, kept strict `z.enum()` schemas for handler-level parsing inside `try/catch` with `ZodError` detection and `formatZodError()` formatting, matching the Dual-Schema pattern used by admin, backup, and other tool groups
+- **`mysql_create_schema` / `mysql_drop_schema` Split Schema Migration** — Migrated both tools to the true Dual-Schema pattern in `types.ts`. Tool now properly distinguishes between the permissive base schema (`CreateSchemaBase` / `DropSchemaBase`) for MCP client visibility and strict internal validation, ensuring parameter type coercions and default values (like `ifExists: false`) are correctly applied inside the handler.
+- **`mysql_list_schemas` System Schema Visibility** — Fixed query arbitrarily excluding `information_schema`, `mysql`, `performance_schema`, and `sys` databases. Now correctly returns all system and user schemas for complete system-level introspection parity.
 - **`mysql_check_table` Zod Enum Validation Leak** — The `option` parameter used `z.enum()` on `CheckTableSchemaBase`, causing invalid option values (e.g., `"INVALID_OPTION"`) to be rejected at the MCP framework level with a raw `-32602` Zod validation error before the handler's `try/catch` could intercept. Widened to `z.string()` on the Base schema while keeping `z.enum()` on the handler-parsed `CheckTableSchema`, so invalid values are caught inside `try/catch` and returned as `{ success: false, error }`
 - **`mysql_binlog_events` Negative Limit Acceptance** — `BinlogEventsSchema` used `z.number().optional()` without `.nonnegative()`, allowing negative `limit` values (e.g., `-1`) to pass Zod validation and be string-interpolated into SQL via `LIMIT ${limit}`, producing a raw MySQL syntax error. Added `.nonnegative()` so negative values are rejected at the Zod validation level with structured `{ success: false, error }` responses
 - **`mysql_binlog_events` Zod Parse Outside `try/catch` / Split Schema Violation** — `BinlogEventsSchema.parse(params)` was called outside the handler's `try/catch` block, and the same strict schema was used as `inputSchema`, causing Zod validation errors to propagate as raw MCP `-32602` exceptions. Applied Split Schema pattern: created permissive `BinlogEventsSchemaBase` for `inputSchema` visibility, kept strict `BinlogEventsSchema` (with `.nonnegative()`) for handler parsing inside a new outer `try/catch` with `ZodError` detection and human-readable error formatting
@@ -178,6 +313,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_show_status` / `mysql_show_variables` `limit: 0` Zod Validation Leak** — Both tools used `.positive()` on the `limit` schema field, causing `limit: 0` to be rejected at the MCP framework level with a raw `-32602` Zod validation error before the handler's `try/catch` could intercept. Removed `.positive()` from both `ShowStatusSchema` and `ShowVariablesSchema` and added handler-level `limit >= 1` guards that return `{ success: false, error: "limit must be a positive integer" }`
 - **Backup Tool Raw Error Leaks** — All 4 backup tools (`mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump`) had Zod `parse()` calls outside `try/catch`, causing validation errors to propagate as raw MCP `-32602` exceptions. Moved all parse calls inside `try/catch` with `ZodError` detection for human-readable messages, matching the pattern used by admin and monitoring tools
 - **Backup Tool Error Message Prefix Leak** — `mysql_export_table` and `mysql_import_data` returned error messages with verbose `Query failed: Execute failed: ` adapter prefixes. Now strips both prefixes to return only the meaningful MySQL error message
+- **`mysql_import_data` Structural Regression** — Handler previously returned `{ success: false, error: "...", data: { rowsInserted: 0 } }` when query execution failed, violating the `ErrorResponse` interface which does not allow a `data` field on error responses. Refactored to nest `rowsInserted` inside the optional `details` object (`{ success: false, error: "...", details: { rowsInserted: 0 } }`).
 - **`mysql_export_table` `limit: 0` Zod Validation Leak** — `ExportTableSchemaBase` used `.positive()` on the `limit` schema field, causing `limit: 0` to be rejected at the MCP framework level with a raw `-32602` Zod validation error before the handler's `try/catch` could intercept. Removed `.positive()` from `ExportTableSchemaBase` while retaining it in the handler-parsed `ExportTableSchema`, so the error is caught inside `try/catch` and returned as `{ success: false, error }`
 - **`mysql_gtid_status` Raw Error Leak** — Handler executed three sequential `executeQuery()` calls without a `try/catch` block, causing raw MySQL errors to propagate as MCP exceptions when GTID queries failed. Now wrapped in `try/catch` returning `{ success: false, error }` matching the structured error pattern used by all other replication tools
 - **`mysql_master_status` Non-Standard Error Response** — Handler returned `{ error, details }` when both `SHOW BINARY LOG STATUS` and `SHOW MASTER STATUS` failed, missing the `success: false` marker and using the non-standard `details` field. Now returns `{ success: false, error }` matching the convention used by all other tools
@@ -217,6 +353,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`mysql_stats_distribution` `buckets: 0` Division-by-Zero** — Calling with `buckets: 0` caused a division-by-zero in bucket size calculation, producing `Infinity` in the SQL query and a misleading `Unknown column 'Infinity'` error. Added handler-level guard returning `{ success: false, error: "buckets must be at least 1" }`
 - **Events Write Handler Error Prefix Leak (`mysql_event_create`, `mysql_event_alter`)** — Both tools returned error messages with verbose `Query failed: Execute failed: ` adapter prefixes in their catch-all error paths. Now strips both prefixes to return only the meaningful MySQL error message
 - **Stats Tool Raw Error Leaks (All 8 Tools)** — All 8 stats tools (`mysql_stats_descriptive`, `mysql_stats_percentiles`, `mysql_stats_correlation`, `mysql_stats_distribution`, `mysql_stats_time_series`, `mysql_stats_regression`, `mysql_stats_sampling`, `mysql_stats_histogram`) performed identifier validation (`throw new Error("Invalid table/column name")`) outside of `try/catch` blocks, causing raw MCP exceptions instead of structured `{ success: false, error }` responses. Moved all validation inside `try/catch` and changed throws to structured returns
+- **Stats Tool P154 Validation Gaps (`mysql_stats_correlation`, `mysql_stats_regression`)** — Both tools executed aggregations on columns without verifying they were numeric types, allowing MySQL to implicitly coerce strings (e.g., yielding 0 or NULL) without returning a domain error. Added explicit `information_schema.COLUMNS` pre-checks for both tools, returning `{ success: false, error: "Both columns must be numeric types" }` for non-numeric input, matching P154 domain-error conventions.
 - **Stats Tool Error Message Prefix Leak (7 Tools)** — `mysql_stats_descriptive`, `mysql_stats_percentiles`, `mysql_stats_correlation`, `mysql_stats_distribution`, `mysql_stats_time_series`, `mysql_stats_regression`, and `mysql_stats_sampling` returned error messages with verbose `Query failed: Execute failed: ` adapter prefixes. Now strips both prefixes to return only the meaningful MySQL error message
 - **`mysql_stats_regression` Non-Standard Error Response** — Insufficient data response returned `{ error: "...", sampleSize: 0 }` without `success: false`, deviating from the `{ success: false, error }` convention used across all other tools. Now includes `success: false`
 - **`mysql_stats_histogram` Missing `try/catch`** — Handler had no outer `try/catch` block, causing raw MCP exceptions if `information_schema` queries or `ANALYZE TABLE` operations failed. Wrapped entire handler body in `try/catch` returning `{ success: false, error }` matching the pattern used by all other stats tools

@@ -6,11 +6,14 @@
  */
 
 import { z } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -36,10 +39,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
@@ -48,8 +48,8 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
-            enabled: false,
-            message: "Group Replication plugin is not active",
+            success: false,
+            error: "Group Replication plugin is not active",
           };
         }
 
@@ -86,7 +86,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const members = memberResult.rows ?? [];
         const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
 
-        return {
+        const data = {
           enabled: members.length > 0,
           groupName: config?.["groupName"] ?? null,
           singlePrimaryMode: config?.["singlePrimaryMode"] === 1,
@@ -106,11 +106,10 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
             };
           }),
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          enabled: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -128,10 +127,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: MemberSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { memberId } = MemberSchema.parse(params);
@@ -142,9 +138,8 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
-            members: [],
-            count: 0,
-            message: "Group Replication not active",
+            success: false,
+            error: "Group Replication not active",
           };
         }
 
@@ -172,16 +167,14 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeQuery(query, queryParams);
-        return {
+        const data = {
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          members: [],
-          count: 0,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -199,10 +192,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const result = await adapter.executeQuery(`
@@ -224,16 +214,15 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         const localUuid = localResult.rows?.[0]?.["serverUuid"];
 
-        return {
+        const data = {
           primary: primary ?? null,
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          hasPrimary: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -253,10 +242,7 @@ export function createGRTransactionsTool(
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
@@ -265,9 +251,8 @@ export function createGRTransactionsTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
-            memberStats: [],
-            gtid: { executed: "", purged: "" },
-            message: "Group Replication not active",
+            success: false,
+            error: "Group Replication not active",
           };
         }
 
@@ -295,19 +280,17 @@ export function createGRTransactionsTool(
 
         const gtid = gtidResult.rows?.[0];
 
-        return {
+        const data = {
           memberStats: statsResult.rows ?? [],
           gtid: {
             executed: gtid?.["gtidExecuted"] ?? "",
             purged: gtid?.["gtidPurged"] ?? "",
           },
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          memberStats: [],
-          gtid: { executed: "", purged: "" },
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -325,10 +308,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
@@ -337,10 +317,8 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return {
-            configuration: {},
-            memberQueues: [],
-            isThrottling: false,
-            message: "Group Replication not active",
+            success: false,
+            error: "Group Replication not active",
           };
         }
 
@@ -378,7 +356,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
           return certQueue > certThreshold || appQueue > appThreshold;
         });
 
-        return {
+        const data = {
           configuration: config ?? {},
           memberQueues: queueResult.rows ?? [],
           isThrottling,
@@ -386,13 +364,10 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             ? "Flow control is active. Consider investigating slow members or adjusting thresholds."
             : "Flow control is not currently throttling.",
         };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
-        return {
-          configuration: {},
-          memberQueues: [],
-          isThrottling: false,
-          error: error instanceof Error ? error.message : String(error),
-        };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

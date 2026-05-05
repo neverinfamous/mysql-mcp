@@ -5,11 +5,13 @@
  * 8 tools total.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ZodError } from "zod";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import {
   JsonExtractSchema,
   JsonExtractSchemaBase,
@@ -27,13 +29,15 @@ import {
   JsonKeysSchemaBase,
   JsonArrayAppendSchema,
   JsonArrayAppendSchemaBase,
-} from "../../types.js";
+} from "../../schemas/index.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 /**
  * Export all core JSON tool creation functions
@@ -70,36 +74,42 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonExtractSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, where } = JsonExtractSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      if (where) {
-        validateWhereClause(where);
-      }
-
       try {
+        const { table, column, path, where, limit } = JsonExtractSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
+
         let sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as extracted_value FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] = [path];
 
         if (where) {
           sql += ` WHERE ${where}`;
         }
+        
+        if (limit !== undefined && limit !== null) {
+          sql += ` LIMIT ${limit}`;
+        }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { rows: result.rows };
-      } catch (error) {
+        const response = { success: true as const, data: { rows: result.rows, count: result.rows?.length ?? 0 } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -113,30 +123,34 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonSetSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } = JsonSetSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, path, value, where } =
+          JsonSetSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -151,19 +165,17 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonInsertSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } =
-        JsonInsertSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, path, value, where } =
+          JsonInsertSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Check if path already exists before insert
         const checkSql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as existing_value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql, [path]);
@@ -177,20 +189,33 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
 
-        if (pathExists) {
-          return {
-            rowsAffected: result.rowsAffected,
-            changed: false,
-            note: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
-          };
+        const response = pathExists
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion: "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+              }
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              }
+            };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
         }
-        return { rowsAffected: result.rowsAffected, changed: true };
-      } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -204,31 +229,34 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonReplaceSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } =
-        JsonReplaceSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, path, value, where } =
+          JsonReplaceSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -242,29 +270,32 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonRemoveSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, paths, where } = JsonRemoveSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, paths, where } = JsonRemoveSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         const pathPlaceholders = paths.map(() => "?").join(", ");
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathPlaceholders}) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql, paths);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -278,39 +309,53 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonContainsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, value, path } = JsonContainsSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-
       try {
+        const { table, column, value, path, where, limit } = JsonContainsSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
+
         // JSON_CONTAINS expects the value to be a valid JSON document
         // We ensure strict validation so that strings must be quoted (e.g. '"green"')
         const jsonValue = validateJsonString(value);
         let sql: string;
         const queryParams: unknown[] = [jsonValue];
 
+        const whereClause = where ? ` AND ${where}` : "";
+        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${limit}` : "";
+
         if (path) {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)`;
+          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
           queryParams.push(path);
         } else {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)`;
+          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)${whereClause}${limitClause}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
+        const response = {
+          success: true as const,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          }
+        };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -324,29 +369,43 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonKeysSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path } = JsonKeysSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-
       try {
+        const { table, column, path, where, limit } = JsonKeysSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
+
         const jsonPath = path ?? "$";
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} HAVING json_keys IS NOT NULL`;
+        const whereClause = where ? `WHERE ${where}` : "";
+        const limitClause = limit !== undefined && limit !== null ? ` LIMIT ${limit}` : "";
+        
+        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
-        return { rows: result.rows, count: result.rows?.length ?? 0 };
-      } catch (error) {
+        const response = {
+          success: true as const,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+          }
+        };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -362,31 +421,34 @@ export function createJsonArrayAppendTool(
     group: "json",
     inputSchema: JsonArrayAppendSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
-      const { table, column, path, value, where } =
-        JsonArrayAppendSchema.parse(params);
-
-      // Validate inputs
-      validateQualifiedIdentifier(table, "table");
-      validateIdentifier(column, "column");
-      validateWhereClause(where);
-
       try {
+        const { table, column, path, value, where } =
+          JsonArrayAppendSchema.parse(params);
+
+        // Validate inputs
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+        validateWhereClause(where);
+
         // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return { rowsAffected: result.rowsAffected };
-      } catch (error) {
+        const response = { success: true as const, data: { rowsAffected: result.rowsAffected } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (error: unknown) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return { exists: false, table };
+          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
         }
-        return { success: false, error: msg };
+        return formatHandlerErrorResponse(error);
       }
     },
   };

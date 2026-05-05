@@ -4,7 +4,7 @@ import {
   createRegressionTool,
   createHistogramTool,
 } from "../comparative.js";
-import { MySQLAdapter } from "../../../MySQLAdapter.js";
+import { MySQLAdapter } from "../../../mysql-adapter.js";
 
 describe("Comparative Stats Tools", () => {
   let mockAdapter: any;
@@ -23,17 +23,24 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_correlation", () => {
     it("should interpret strong correlation", async () => {
-      mockAdapter.executeQuery.mockResolvedValue({
-        rows: [
-          {
-            correlation: 0.95,
-            sample_size: 100,
-            mean_x: 10,
-            mean_y: 20,
-            std_x: 2,
-            std_y: 3,
-          },
-        ],
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
+        }
+        return {
+          rows: [
+            {
+              correlation: 0.95,
+              sample_size: 100,
+              mean_x: 10,
+              mean_y: 20,
+              std_x: 2,
+              std_y: 3,
+            },
+          ],
+        };
       });
 
       const result: any = await correlationTool.handler(
@@ -45,13 +52,20 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.correlation).toBe(0.95);
-      expect(result.interpretation).toBe("Very strong");
+      expect(result.data.correlation).toBe(0.95);
+      expect(result.data.interpretation).toBe("Very strong");
     });
 
     it("should interpret weak correlation", async () => {
-      mockAdapter.executeQuery.mockResolvedValue({
-        rows: [{ correlation: 0.2, sample_size: 100 }],
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
+        }
+        return {
+          rows: [{ correlation: 0.2, sample_size: 100 }],
+        };
       });
 
       const result: any = await correlationTool.handler(
@@ -63,7 +77,7 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.interpretation).toBe("Very weak / No correlation");
+      expect(result.data.interpretation).toBe("Very weak / No correlation");
     });
 
     it("should validate inputs", async () => {
@@ -83,8 +97,15 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_regression", () => {
     it("should handle insufficient data", async () => {
-      mockAdapter.executeQuery.mockResolvedValue({
-        rows: [{ n: 1 }],
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
+        }
+        return {
+          rows: [{ n: 1 }],
+        };
       });
 
       const result: any = await regressionTool.handler(
@@ -102,19 +123,26 @@ describe("Comparative Stats Tools", () => {
 
     it("should calculate regression and interpretation", async () => {
       // Need n, sum_x, sum_y, sum_xy, sum_x2, sum_y2 to calculate slope/intercept/r2
-      mockAdapter.executeQuery.mockResolvedValue({
-        rows: [
-          {
-            n: 3,
-            sum_x: 6,
-            sum_y: 6,
-            sum_xy: 14,
-            sum_x2: 14,
-            sum_y2: 14,
-            avg_x: 2,
-            avg_y: 2,
-          },
-        ],
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
+        }
+        return {
+          rows: [
+            {
+              n: 3,
+              sum_x: 6,
+              sum_y: 6,
+              sum_xy: 14,
+              sum_x2: 14,
+              sum_y2: 14,
+              avg_x: 2,
+              avg_y: 2,
+            },
+          ],
+        };
       });
 
       const result: any = await regressionTool.handler(
@@ -126,10 +154,10 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.slope).toBeCloseTo(1);
-      expect(result.intercept).toBeCloseTo(0);
-      expect(result.rSquared).toBeCloseTo(1);
-      expect(result.interpretation).toBe("Good fit");
+      expect(result.data.slope).toBeCloseTo(1);
+      expect(result.data.intercept).toBeCloseTo(0);
+      expect(result.data.rSquared).toBeCloseTo(1);
+      expect(result.data.interpretation).toBe("Good fit");
     });
   });
 
@@ -155,7 +183,7 @@ describe("Comparative Stats Tools", () => {
         (c: any[]) => c[0] as string,
       );
       expect(calls.some((c: string) => c.includes("ANALYZE TABLE"))).toBe(true);
-      expect(result.exists).toBe(true);
+      expect(result.data.exists).toBe(true);
     });
 
     it("should handle non-existent histogram", async () => {
@@ -173,8 +201,8 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.exists).toBe(false);
-      expect(result.message).toContain("No histogram exists");
+      expect(result.success).toBe(true);
+      expect(result.data.exists).toBe(false);
     });
 
     it("should handle non-existent column", async () => {
@@ -191,9 +219,9 @@ describe("Comparative Stats Tools", () => {
         {} as any,
       );
 
-      expect(result.exists).toBe(false);
-      expect(result.message).toContain("does not exist on table");
-      expect(result.column).toBe("nonexistent_col");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist on table");
+      expect(result.error).toContain("nonexistent_col");
     });
   });
 });

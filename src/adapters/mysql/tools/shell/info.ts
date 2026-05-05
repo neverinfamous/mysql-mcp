@@ -8,7 +8,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ShellVersionInputSchema } from "../../types/shell-types.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import { ShellVersionInputSchema } from "../../schemas/shell.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
 /**
@@ -29,21 +30,27 @@ export function createShellVersionTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const config = getShellConfig();
+      try {
+        const config = getShellConfig();
 
-      const result = await execMySQLShell(["--version"]);
+        const result = await execMySQLShell(["--version"]);
 
-      // Parse version from output like "mysqlsh   Ver 8.0.44 for Win64 on x86_64"
-      const versionRegex = /Ver\s+(\d+\.\d+\.\d+)/;
-      const versionMatch = versionRegex.exec(result.stdout);
-      const version = versionMatch ? versionMatch[1] : "unknown";
+        // Parse version from output like "mysqlsh   Ver 8.0.44 for Win64 on x86_64"
+        const versionRegex = /Ver\s+(\d+\.\d+\.\d+)/;
+        const versionMatch = versionRegex.exec(result.stdout);
+        const version = versionMatch ? versionMatch[1] : "unknown";
 
-      return {
-        success: true,
-        version,
-        binPath: config.binPath,
-        rawOutput: result.stdout.trim(),
-      };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            version,
+            binPath: config.binPath,
+            rawOutput: result.stdout.trim(),
+          }
+        });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
+      }
     },
   };
 }

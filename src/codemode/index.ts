@@ -48,4 +48,4 @@ export {
 export { CodeModeSecurityManager } from "./security.js";
 
 // API
-export { MysqlApi, createMysqlApi } from "./api.js";
+export { MysqlApi, createMysqlApi } from "./api/index.js";

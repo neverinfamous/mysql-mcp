@@ -2,7 +2,7 @@
  * MySQL Adapter - Module Index
  */
 
-export { MySQLAdapter } from "./MySQLAdapter.js";
+export { MySQLAdapter } from "./mysql-adapter.js";
 
 // Re-export types
-export * from "./types.js";
+export * from "./schemas/index.js";

@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getRouterTools } from "../router.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -169,7 +169,8 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/router/status");
       expect(result).toEqual({
         success: true,
-        status: mockStatus,
+        data: mockStatus,
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -189,7 +190,8 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/routes");
       expect(result).toEqual({
         success: true,
-        routes: mockRoutes,
+        data: mockRoutes,
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -214,8 +216,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/routes/bootstrap_ro/status");
       expect(result).toEqual({
         success: true,
-        routeName: "bootstrap_ro",
-        status: mockRouteStatus,
+        data: {
+          routeName: "bootstrap_ro",
+          status: mockRouteStatus,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
 
@@ -246,8 +251,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/routes/bootstrap_ro/health");
       expect(result).toEqual({
         success: true,
-        routeName: "bootstrap_ro",
-        health: mockHealth,
+        data: {
+          routeName: "bootstrap_ro",
+          health: mockHealth,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -278,8 +286,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/routes/bootstrap_rw/connections");
       expect(result).toEqual({
         success: true,
-        routeName: "bootstrap_rw",
-        connections: mockConnections,
+        data: {
+          routeName: "bootstrap_rw",
+          connections: mockConnections,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -307,8 +318,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/routes/bootstrap_ro/destinations");
       expect(result).toEqual({
         success: true,
-        routeName: "bootstrap_ro",
-        destinations: mockDestinations,
+        data: {
+          routeName: "bootstrap_ro",
+          destinations: mockDestinations,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -333,8 +347,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/routes/bootstrap_rw/blockedHosts");
       expect(result).toEqual({
         success: true,
-        routeName: "bootstrap_rw",
-        blockedHosts: mockBlockedHosts,
+        data: {
+          routeName: "bootstrap_rw",
+          blockedHosts: mockBlockedHosts,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -361,8 +378,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/metadata/my_cluster/status");
       expect(result).toEqual({
         success: true,
-        metadataName: "my_cluster",
-        status: mockMetadata,
+        data: {
+          metadataName: "my_cluster",
+          status: mockMetadata,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -383,8 +403,11 @@ describe("Handler Execution", () => {
       expect(options.path).toContain("/connection_pool/default/status");
       expect(result).toEqual({
         success: true,
-        poolName: "default",
-        status: mockPoolStatus,
+        data: {
+          poolName: "default",
+          status: mockPoolStatus,
+        },
+        metrics: { tokenEstimate: expect.any(Number) },
       });
     });
   });
@@ -473,10 +496,8 @@ describe("Error Handling", () => {
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     const result = await tool.handler({}, mockContext);
 
-    expect(result).toEqual({
-      available: false,
-      error: "Router API error: 401 Unauthorized",
-    });
+    expect(result).toHaveProperty("success", false);
+    expect((result as any).error).toContain("401 Unauthorized");
   });
 
   it("should return unavailable response on 404 Not Found", async () => {
@@ -509,10 +530,8 @@ describe("Error Handling", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "Router API error: 404 Not Found",
-    });
+    expect(result).toHaveProperty("success", false);
+    expect((result as any).error).toContain("404 Not Found");
   });
 
   it("should return unavailable response on network error", async () => {
@@ -533,10 +552,8 @@ describe("Error Handling", () => {
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     const result = await tool.handler({}, mockContext);
 
-    expect(result).toEqual({
-      available: false,
-      error: "Router API request failed: Network error",
-    });
+    expect(result).toHaveProperty("success", false);
+    expect((result as any).error).toContain("Network error");
   });
 
   it("should return unavailable response on connection refused", async () => {
@@ -559,10 +576,8 @@ describe("Error Handling", () => {
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     const result = await tool.handler({}, mockContext);
 
-    expect(result).toEqual({
-      available: false,
-      error: expect.stringContaining("Connection refused"),
-    });
+    expect(result).toHaveProperty("success", false);
+    expect((result as any).error).toContain("Connection refused");
   });
 });
 

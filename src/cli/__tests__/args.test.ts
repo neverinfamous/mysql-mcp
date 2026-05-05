@@ -244,5 +244,79 @@ describe("CLI Args", () => {
         expect.stringContaining("Usage: mysql-mcp [options]"),
       );
     });
+
+    it("should parse server options", () => {
+      const result = parseArgs([
+        "--server-host", "0.0.0.0",
+        "--name", "custom-server",
+        "--instruction-level", "essential",
+        "--auth-token", "secret-token",
+        "--stateless",
+        "--enable-hsts",
+        "--trust-proxy",
+      ]);
+      expect(result.config.host).toBe("0.0.0.0");
+      expect(result.config.name).toBe("custom-server");
+      expect(result.config.instructionLevel).toBe("essential");
+      expect(result.config.authToken).toBe("secret-token");
+      expect(result.config.stateless).toBe(true);
+      expect(result.config.enableHSTS).toBe(true);
+      expect(result.config.trustProxy).toBe(true);
+    });
+
+    it("should parse log level", () => {
+      parseArgs(["--log-level", "warn"]);
+      // It sets logger internally, we just test it parses without error
+      expect(true).toBe(true);
+    });
+
+    it("should exit on invalid instruction level", () => {
+      expect(() => parseArgs(["--instruction-level", "invalid"])).toThrow("process.exit(1)");
+    });
+
+    it("should parse audit options", () => {
+      const result = parseArgs([
+        "--audit-log", "/path/to/audit.jsonl",
+        "--audit-redact",
+        "--audit-reads",
+        "--audit-log-max-size", "1024",
+        "--audit-backup",
+        "--audit-backup-data",
+        "--audit-backup-max-size", "2048",
+      ]);
+      expect(result.config.auditConfig?.enabled).toBe(true);
+      expect(result.config.auditConfig?.logPath).toBe("/path/to/audit.jsonl");
+      expect(result.config.auditConfig?.redact).toBe(true);
+      expect(result.config.auditConfig?.auditReads).toBe(true);
+      expect(result.config.auditConfig?.maxSizeBytes).toBe(1024);
+      expect(result.config.auditConfig?.backup?.enabled).toBe(true);
+      expect(result.config.auditConfig?.backup?.includeData).toBe(true);
+      expect(result.config.auditConfig?.backup?.maxDataSizeBytes).toBe(2048);
+    });
+
+    it("should use environment variables for remaining options", () => {
+      vi.stubEnv("INSTRUCTION_LEVEL", "full");
+      vi.stubEnv("MCP_HOST", "127.0.0.1");
+      vi.stubEnv("MCP_AUTH_TOKEN", "env-token");
+      vi.stubEnv("TRUST_PROXY", "true");
+      vi.stubEnv("MCP_ENABLE_HSTS", "true");
+      vi.stubEnv("AUDIT_LOG_PATH", "/env/audit");
+      vi.stubEnv("AUDIT_REDACT", "true");
+      vi.stubEnv("AUDIT_BACKUP", "true");
+
+      const result = parseArgs([]);
+
+      expect(result.config.instructionLevel).toBe("full");
+      expect(result.config.host).toBe("127.0.0.1");
+      expect(result.config.authToken).toBe("env-token");
+      expect(result.config.trustProxy).toBe(true);
+      expect(result.config.enableHSTS).toBe(true);
+      expect(result.config.auditConfig?.enabled).toBe(true);
+      expect(result.config.auditConfig?.logPath).toBe("/env/audit");
+      expect(result.config.auditConfig?.redact).toBe(true);
+      expect(result.config.auditConfig?.backup?.enabled).toBe(true);
+
+      vi.unstubAllEnvs();
+    });
   });
 });

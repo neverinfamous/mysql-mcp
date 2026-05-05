@@ -7,67 +7,104 @@
  */
 
 import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { formatMysqlError, formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
 // =============================================================================
 // Schemas
 // =============================================================================
 
+const DescriptiveStatsSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Numeric column name"),
+  where: z.string().optional().describe("Optional WHERE clause condition"),
+});
+
 const DescriptiveStatsSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Numeric column name"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
+  where: z.string().optional(),
+});
+
+const PercentilesSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Numeric column name"),
+  percentiles: z.unknown().optional().describe("Percentiles to calculate"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const PercentilesSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Numeric column name"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
   percentiles: z
     .array(z.number().min(0).max(100))
-    .default([25, 50, 75, 90, 95, 99])
-    .describe("Percentiles to calculate"),
+    .default([25, 50, 75, 90, 95, 99]),
+  where: z.string().optional(),
+});
+
+const DistributionSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  column: z.string().optional().describe("Column to analyze"),
+  buckets: z.unknown().optional().describe("Number of histogram buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
 const DistributionSchema = z.object({
-  table: z.string().describe("Table name"),
-  column: z.string().describe("Column to analyze"),
-  buckets: z.number().default(10).describe("Number of histogram buckets"),
+  table: z.string().min(1, "table is required"),
+  column: z.string().min(1, "column is required"),
+  buckets: z
+    .number()
+    .max(100)
+    .default(10),
+  where: z.string().optional(),
+});
+
+const TimeSeriesSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  valueColumn: z.string().optional().describe("Numeric column for values"),
+  timeColumn: z.string().optional().describe("Timestamp/datetime column"),
+  interval: z.string().optional().describe("Aggregation interval"),
+  aggregation: z.string().optional().describe("Aggregation function"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  limit: z.unknown().optional().describe("Maximum number of data points"),
 });
 
 const TimeSeriesSchema = z.object({
-  table: z.string().describe("Table name"),
-  valueColumn: z.string().describe("Numeric column for values"),
-  timeColumn: z.string().describe("Timestamp/datetime column"),
-  interval: z.string().default("day").describe("Aggregation interval"),
-  aggregation: z.string().default("avg").describe("Aggregation function"),
+  table: z.string().min(1, "table is required"),
+  valueColumn: z.string().min(1, "valueColumn is required"),
+  timeColumn: z.string().min(1, "timeColumn is required"),
+  interval: z.string().default("day"),
+  aggregation: z.string().default("avg"),
+  where: z.string().optional(),
+  limit: z.number().default(100),
+});
+
+const SamplingSchemaBase = z.object({
+  table: z.string().optional().describe("Table name"),
+  sampleSize: z.unknown().optional().describe("Number of rows to sample"),
+  columns: z.unknown().optional().describe("Columns to include (all if not specified)"),
+  seed: z.unknown().optional().describe("Random seed for reproducibility"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
-  limit: z.number().default(100).describe("Maximum number of data points"),
 });
 
 const SamplingSchema = z.object({
-  table: z.string().describe("Table name"),
-  sampleSize: z.number().default(100).describe("Number of rows to sample"),
+  table: z.string().min(1, "table is required"),
+  sampleSize: z.number().default(100),
   columns: z
     .array(z.string())
-    .optional()
-    .describe("Columns to include (all if not specified)"),
-  seed: z.number().optional().describe("Random seed for reproducibility"),
-  where: z.string().optional().describe("Optional WHERE clause condition"),
+    .optional(),
+  seed: z.number().optional(),
+  where: z.string().optional(),
 });
 
 // =============================================================================
@@ -86,21 +123,18 @@ export function createDescriptiveStatsTool(
     description:
       "Calculate descriptive statistics (mean, median, stddev, min, max, count) for a numeric column.",
     group: "stats",
-    inputSchema: DescriptiveStatsSchema,
+    inputSchema: DescriptiveStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, where } = DescriptiveStatsSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -112,18 +146,21 @@ export function createDescriptiveStatsTool(
         const totalCount = (countResult.rows?.[0]?.["count"] as number) ?? 0;
 
         if (totalCount === 0) {
-          return {
-            column,
-            count: 0,
-            mean: null,
-            median: null,
-            stddev: null,
-            variance: null,
-            min: null,
-            max: null,
-            range: null,
-            sum: null,
-          };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              column,
+              count: 0,
+              mean: null,
+              median: null,
+              stddev: null,
+              variance: null,
+              min: null,
+              max: null,
+              range: null,
+              sum: null,
+            }
+          });
         }
 
         // Calculate median offset/limit
@@ -143,7 +180,7 @@ export function createDescriptiveStatsTool(
             `;
 
         const query = `
-                SELECT 
+                SELECT
                     COUNT(\`${column}\`) as count,
                     AVG(\`${column}\`) as mean,
                     STD(\`${column}\`) as stddev,
@@ -164,34 +201,33 @@ export function createDescriptiveStatsTool(
         const stats = statsResult.rows?.[0];
         const medianRow = medianResult.rows?.[0];
 
-        return {
-          column,
-          count: stats?.["count"] ?? 0,
-          mean: stats?.["mean"] ?? null,
-          median: medianRow?.["median"] ?? null,
-          stddev: stats?.["stddev"] ?? null,
-          variance: stats?.["variance"] ?? null,
-          min: stats?.["min"] ?? null,
-          max: stats?.["max"] ?? null,
-          range: stats?.["range"] ?? null,
-          sum: stats?.["sum"] ?? null,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            column,
+            count: Number(stats?.["count"] ?? 0),
+            mean: stats?.["mean"] != null ? Number(stats?.["mean"]) : null,
+            median: medianRow?.["median"] != null ? Number(medianRow?.["median"]) : null,
+            stddev: stats?.["stddev"] != null ? Number(stats?.["stddev"]) : null,
+            variance: stats?.["variance"] != null ? Number(stats?.["variance"]) : null,
+            min: stats?.["min"] != null ? Number(stats?.["min"]) : null,
+            max: stats?.["max"] != null ? Number(stats?.["max"]) : null,
+            range: stats?.["range"] != null ? Number(stats?.["range"]) : null,
+            sum: stats?.["sum"] != null ? Number(stats?.["sum"]) : null,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
-          };
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -206,25 +242,56 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Percentiles",
     description: "Calculate percentile values for a numeric column.",
     group: "stats",
-    inputSchema: PercentilesSchema,
+    inputSchema: PercentilesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, percentiles, where } =
           PercentilesSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
+
+        // Check if column is numeric
+        const colCheck = await adapter.executeQuery(
+          `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          [table, column],
+        );
+        const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
+        const dataType =
+          typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
+        // Empty result means column doesn't exist; non-empty result with non-numeric type means wrong type
+        if (!colCheck.rows || colCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Column '${column}' not found on table '${table}'`,
+          });
+        }
+        if (
+          ![
+            "tinyint",
+            "smallint",
+            "mediumint",
+            "int",
+            "bigint",
+            "decimal",
+            "numeric",
+            "float",
+            "double",
+          ].includes(dataType)
+        ) {
+          return withTokenEstimate({
+            success: false,
+            error: `Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`,
+          });
+        }
 
         // Get total count
         const countResult = await adapter.executeQuery(
@@ -233,11 +300,14 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const totalCount = (countResult.rows?.[0]?.["cnt"] as number) ?? 0;
 
         if (totalCount === 0) {
-          return {
-            column,
-            totalCount: 0,
-            percentiles: {},
-          };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              column,
+              totalCount: 0,
+              percentiles: {},
+            }
+          });
         }
 
         // Calculate each percentile
@@ -258,27 +328,26 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           percentileResults[`p${String(p)}`] = valueRow?.["value"] ?? null;
         }
 
-        return {
-          column,
-          totalCount,
-          percentiles: percentileResults,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            column,
+            totalCount,
+            percentiles: percentileResults,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
-          };
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -294,25 +363,22 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Analyze the distribution of values in a column with histogram buckets.",
     group: "stats",
-    inputSchema: DistributionSchema,
+    inputSchema: DistributionSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, buckets, where } =
           DistributionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
         if (buckets < 1) {
-          return { success: false, error: "buckets must be at least 1" };
+          return withTokenEstimate({ success: false, error: "buckets must be at least 1" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -327,15 +393,18 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         const maxVal = Number(rangeRow?.["max_val"]) || 0;
 
         if (minVal === maxVal) {
-          return {
-            column,
-            distribution: [
-              { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
-            ],
-            bucketCount: 1,
-            minValue: minVal,
-            maxValue: maxVal,
-          };
+          return withTokenEstimate({
+            success: true,
+            data: {
+              column,
+              distribution: [
+                { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
+              ],
+              bucketCount: 1,
+              minValue: minVal,
+              maxValue: maxVal,
+            }
+          });
         }
 
         const bucketSize = (maxVal - minVal) / buckets;
@@ -343,7 +412,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         // Generate distribution query with WIDTH_BUCKET emulation
         // Clamp with LEAST to prevent max value from creating an extra bucket
         const query = `
-                SELECT 
+                SELECT
                     LEAST(FLOOR((\`${column}\` - ${String(minVal)}) / ${String(bucketSize)}), ${String(buckets - 1)}) as bucket,
                     COUNT(*) as count,
                     MIN(\`${column}\`) as bucket_min,
@@ -364,36 +433,35 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
             bucket: bucketNum,
             rangeStart: minVal + bucketNum * bucketSize,
             rangeEnd: minVal + (bucketNum + 1) * bucketSize,
-            count: r["count"] as number,
+            count: Number(r["count"]),
             bucketMin: r["bucket_min"],
             bucketMax: r["bucket_max"],
           };
         });
 
-        return {
-          column,
-          distribution,
-          bucketCount: buckets,
-          bucketSize,
-          minValue: minVal,
-          maxValue: maxVal,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            column,
+            distribution,
+            bucketCount: buckets,
+            bucketSize,
+            minValue: minVal,
+            maxValue: maxVal,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
-          };
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -411,12 +479,9 @@ export function createTimeSeriesToolStats(
     description:
       "Aggregate and analyze time series data with specified intervals.",
     group: "stats",
-    inputSchema: TimeSeriesSchema,
+    inputSchema: TimeSeriesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -431,28 +496,28 @@ export function createTimeSeriesToolStats(
 
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
         ) {
-          return { success: false, error: "Invalid column name" };
+          return withTokenEstimate({ success: false, error: "Invalid column name" });
         }
 
         const validIntervals = ["minute", "hour", "day", "week", "month"];
         if (!validIntervals.includes(interval)) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`,
-          };
+          });
         }
         const validAggregations = ["avg", "sum", "count", "min", "max"];
         if (!validAggregations.includes(aggregation)) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`,
-          };
+          });
         }
 
         let dateFormat: string;
@@ -480,7 +545,7 @@ export function createTimeSeriesToolStats(
         const aggFunc = aggregation.toUpperCase();
 
         const query = `
-                SELECT 
+                SELECT
                     DATE_FORMAT(\`${timeColumn}\`, '${dateFormat}') as period,
                     ${aggFunc}(\`${valueColumn}\`) as value,
                     COUNT(*) as data_points,
@@ -494,30 +559,29 @@ export function createTimeSeriesToolStats(
             `;
         const result = await adapter.executeQuery(query);
 
-        return {
-          interval,
-          aggregation,
-          valueColumn,
-          timeColumn,
-          dataPoints: result.rows ?? [],
-          count: result.rows?.length ?? 0,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            interval,
+            aggregation,
+            valueColumn,
+            timeColumn,
+            dataPoints: result.rows ?? [],
+            count: result.rows?.length ?? 0,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
-          };
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };
@@ -532,31 +596,28 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Random Sampling",
     description: "Get a random sample of rows from a table.",
     group: "stats",
-    inputSchema: SamplingSchema,
+    inputSchema: SamplingSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: false, // Random results
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, sampleSize, columns, seed, where } =
           SamplingSchema.parse(params);
 
         if (sampleSize < 0) {
-          return { success: false, error: "sampleSize must be >= 0" };
+          return withTokenEstimate({ success: false, error: "sampleSize must be >= 0" });
         }
 
         // Validate table name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return { success: false, error: "Invalid table name" };
+          return withTokenEstimate({ success: false, error: "Invalid table name" });
         }
 
         // Validate column names if provided
         if (columns) {
           for (const c of columns) {
             if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
-              return { success: false, error: `Invalid column name: ${c}` };
+              return withTokenEstimate({ success: false, error: `Invalid column name: ${c}` });
             }
           }
         }
@@ -593,28 +654,27 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const result = await adapter.executeQuery(query);
 
-        return {
-          sample: result.rows ?? [],
-          sampleSize: result.rows?.length ?? 0,
-          requestedSize: sampleSize,
-          seed: seed ?? null,
-        };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            sample: result.rows ?? [],
+            sampleSize: result.rows?.length ?? 0,
+            requestedSize: sampleSize,
+            seed: seed ?? null,
+          }
+        });
       } catch (error) {
         if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+          return formatHandlerErrorResponse(error);
         }
-        const msg = (error instanceof Error ? error.message : String(error))
-          .replace(/^Query failed: /, "")
-          .replace(/^Execute failed: /, "");
+        const msg = formatMysqlError(error);
         if (msg.includes("doesn't exist")) {
-          return {
-            exists: false,
-            table:
-              ((params as Record<string, unknown>)?.["table"] as string) ??
-              "unknown",
-          };
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+          });
         }
-        return { success: false, error: msg };
+        return withTokenEstimate({ success: false, error: msg });
       }
     },
   };

@@ -5,21 +5,19 @@
  * 3 tools: statement_summary, wait_summary, io_summary.
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { z } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 // =============================================================================
 // Zod Schemas
@@ -33,10 +31,23 @@ const VALID_ORDER_BY = [
   "rows_examined",
 ] as const;
 
-const StatementSummarySchema = z.object({
-  orderBy: z.string().default("total_latency").describe("Order results by"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+const StatementSummarySchemaBase = z.object({
+  orderBy: z.string().optional().describe("Order results by"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
+
+const StatementSummarySchema = z.object({
+  orderBy: z.string().default("total_latency"),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  orderBy: data.orderBy,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 const VALID_WAIT_TYPES = [
   "global",
@@ -45,17 +56,43 @@ const VALID_WAIT_TYPES = [
   "by_instance",
 ] as const;
 
-const WaitSummarySchema = z.object({
-  type: z.string().default("global").describe("Type of wait summary"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+const WaitSummarySchemaBase = z.object({
+  type: z.string().optional().describe("Type of wait summary"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
+
+const WaitSummarySchema = z.object({
+  type: z.string().default("global"),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  type: data.type,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 const VALID_IO_TYPES = ["file", "table", "global"] as const;
 
-const IOSummarySchema = z.object({
-  type: z.string().default("table").describe("Type of I/O summary"),
-  limit: z.number().default(20).describe("Maximum number of results"),
+const IOSummarySchemaBase = z.object({
+  type: z.string().optional().describe("Type of I/O summary"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
 });
+
+const IOSummarySchema = z.object({
+  type: z.string().default("table"),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  type: data.type,
+  limit: data.limit !== undefined ? Number(data.limit) : 5,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 /**
  * Get statement execution summary
@@ -69,12 +106,9 @@ export function createSysStatementSummaryTool(
     description:
       "Get statement execution statistics including latency and row counts from sys schema.",
     group: "sysschema",
-    inputSchema: StatementSummarySchema,
+    inputSchema: StatementSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { orderBy, limit } = StatementSummarySchema.parse(params);
@@ -82,14 +116,16 @@ export function createSysStatementSummaryTool(
         if (
           !VALID_ORDER_BY.includes(orderBy as (typeof VALID_ORDER_BY)[number])
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid orderBy: '${orderBy}' — expected one of: ${VALID_ORDER_BY.join(", ")}`,
-          };
+          });
         }
 
+        const actualLimit = Math.min(limit, 100);
+
         const query = `
-                SELECT 
+                SELECT
                     query,
                     db,
                     exec_count,
@@ -102,21 +138,23 @@ export function createSysStatementSummaryTool(
                     full_scan
                 FROM sys.statement_analysis
                 ORDER BY ${orderBy} DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
             `;
 
         const result = await adapter.executeQuery(query);
-        return {
-          statements: result.rows,
-          orderedBy: orderBy,
-          count: result.rows?.length ?? 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows ?? [],
+            orderedBy: orderBy,
+            count: result.rows?.length ?? 0,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -134,12 +172,9 @@ export function createSysWaitSummaryTool(
     description:
       "Get wait event summary for performance analysis from sys schema.",
     group: "sysschema",
-    inputSchema: WaitSummarySchema,
+    inputSchema: WaitSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { type, limit } = WaitSummarySchema.parse(params);
@@ -147,30 +182,32 @@ export function createSysWaitSummaryTool(
         if (
           !VALID_WAIT_TYPES.includes(type as (typeof VALID_WAIT_TYPES)[number])
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_WAIT_TYPES.join(", ")}`,
-          };
+          });
         }
+
+        const actualLimit = Math.min(limit, 100);
 
         let query: string;
 
         switch (type) {
           case "global":
             query = `
-                        SELECT 
+                        SELECT
                             events,
                             total,
                             total_latency,
                             avg_latency
                         FROM sys.waits_global_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_host":
             query = `
-                        SELECT 
+                        SELECT
                             host,
                             event,
                             total,
@@ -178,12 +215,12 @@ export function createSysWaitSummaryTool(
                             avg_latency
                         FROM sys.waits_by_host_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_user":
             query = `
-                        SELECT 
+                        SELECT
                             user,
                             event,
                             total,
@@ -191,19 +228,19 @@ export function createSysWaitSummaryTool(
                             avg_latency
                         FROM sys.waits_by_user_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_instance":
             query = `
-                        SELECT 
+                        SELECT
                             event_name AS event,
                             count_star AS total,
                             FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
                             FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
                         FROM performance_schema.events_waits_summary_by_instance
                         ORDER BY sum_timer_wait DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           default:
@@ -211,17 +248,19 @@ export function createSysWaitSummaryTool(
         }
 
         const result = await adapter.executeQuery(query);
-        return {
-          waits: result.rows,
-          type,
-          count: result.rows?.length ?? 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows ?? [],
+            type,
+            count: result.rows?.length ?? 0,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -237,29 +276,28 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get I/O usage summary by file, table, or global from sys schema.",
     group: "sysschema",
-    inputSchema: IOSummarySchema,
+    inputSchema: IOSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { type, limit } = IOSummarySchema.parse(params);
 
         if (!VALID_IO_TYPES.includes(type as (typeof VALID_IO_TYPES)[number])) {
-          return {
+          return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_IO_TYPES.join(", ")}`,
-          };
+          });
         }
+
+        const actualLimit = Math.min(limit, 100);
 
         let query: string;
 
         switch (type) {
           case "file":
             query = `
-                        SELECT 
+                        SELECT
                             file,
                             count_read,
                             total_read,
@@ -271,12 +309,12 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             write_pct
                         FROM sys.io_global_by_file_by_bytes
                         ORDER BY total DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "table":
             query = `
-                        SELECT 
+                        SELECT
                             table_schema,
                             table_name,
                             rows_fetched,
@@ -289,19 +327,19 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             delete_latency
                         FROM sys.schema_table_statistics
                         ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           case "global":
             query = `
-                        SELECT 
+                        SELECT
                             event_name,
                             total,
                             total_latency,
                             avg_latency
                         FROM sys.io_global_by_wait_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(limit)}
+                        LIMIT ${String(actualLimit)}
                     `;
             break;
           default:
@@ -309,17 +347,19 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeQuery(query);
-        return {
-          ioStats: result.rows,
-          type,
-          count: result.rows?.length ?? 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows ?? [],
+            type,
+            count: result.rows?.length ?? 0,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };

@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { SchemaManager } from "../adapters/mysql/SchemaManager.js";
+import { SchemaManager } from "../adapters/mysql/schema-manager.js";
 
 describe("Performance Benchmarks", () => {
   describe("Tool Definition Caching", () => {

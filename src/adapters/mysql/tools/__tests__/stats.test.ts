@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getStatsTools } from "../stats/index.js";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -21,8 +21,8 @@ describe("getStatsTools", () => {
     tools = getStatsTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
   });
 
-  it("should return 8 stats tools", () => {
-    expect(tools).toHaveLength(8);
+  it("should return 20 stats tools", () => {
+    expect(tools).toHaveLength(20);
   });
 
   it("should have stats group for all tools", () => {
@@ -108,10 +108,10 @@ describe("Handler Execution", () => {
       expect(calls.some((c) => c.includes("as `range`"))).toBe(true);
 
       // Returns column, count, mean, median, stddev, etc
-      expect(result).toHaveProperty("column", "total");
-      expect(result).toHaveProperty("count", 100);
-      expect(result).toHaveProperty("median", 50);
-      expect(result).toHaveProperty("range", 99);
+      expect(result).toHaveProperty("data.column", "total");
+      expect(result).toHaveProperty("data.count", 100);
+      expect(result).toHaveProperty("data.median", 50);
+      expect(result).toHaveProperty("data.range", 99);
     });
 
     it("should include where clause in all queries", async () => {
@@ -149,17 +149,20 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toHaveProperty("count", 0);
-      expect(result).toHaveProperty("mean", null);
-      expect(result).toHaveProperty("median", null);
+      expect(result).toHaveProperty("data.count", 0);
+      expect(result).toHaveProperty("data.mean", null);
+      expect(result).toHaveProperty("data.median", null);
     });
   });
 
   describe("mysql_stats_percentiles", () => {
     it("should calculate percentiles", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ cnt: 100 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (typeof query === "string" && query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([{ cnt: 100 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
       const result = await tool.handler(
@@ -169,14 +172,17 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns column, totalCount, percentiles
-      expect(result).toHaveProperty("totalCount");
-      expect(result).toHaveProperty("percentiles");
+      expect(result).toHaveProperty("data.totalCount");
+      expect(result).toHaveProperty("data.percentiles");
     });
 
     it("should use custom percentiles", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ cnt: 100 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (typeof query === "string" && query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([{ cnt: 100 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
       await tool.handler(
@@ -194,8 +200,13 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_correlation", () => {
     it("should calculate correlation coefficient", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'height';
+          const col2 = params?.[2] || 'weight';
+          return createMockQueryResult([{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([
           {
             correlation: 0.85,
             sample_size: 100,
@@ -204,8 +215,8 @@ describe("Handler Execution", () => {
             std_x: 10,
             std_y: 12,
           },
-        ]),
-      );
+        ]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
       const result = await tool.handler(
@@ -218,9 +229,9 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("column1", "height");
-      expect(result).toHaveProperty("column2", "weight");
-      expect(result).toHaveProperty("correlation");
+      expect(result).toHaveProperty("data.column1", "height");
+      expect(result).toHaveProperty("data.column2", "weight");
+      expect(result).toHaveProperty("data.correlation");
     });
   });
 
@@ -241,7 +252,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("distribution");
+      expect(result).toHaveProperty("data.distribution");
     });
   });
 
@@ -263,14 +274,19 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("dataPoints");
+      expect(result).toHaveProperty("data.dataPoints");
     });
   });
 
   describe("mysql_stats_regression", () => {
     it("should perform linear regression", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return createMockQueryResult([{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([
           {
             n: 100,
             avg_x: 50,
@@ -281,8 +297,8 @@ describe("Handler Execution", () => {
             sum_x2: 260000,
             sum_y2: 370000,
           },
-        ]),
-      );
+        ]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
       const result = await tool.handler(
@@ -295,8 +311,8 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result).toHaveProperty("slope");
-      expect(result).toHaveProperty("intercept");
+      expect(result).toHaveProperty("data.slope");
+      expect(result).toHaveProperty("data.intercept");
     });
   });
 
@@ -318,7 +334,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("RAND()");
-      expect(result).toHaveProperty("sample");
+      expect(result).toHaveProperty("data.sample");
     });
 
     it("should accept specific columns", async () => {
@@ -389,7 +405,7 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         { table: "orders", column: "total", update: true, buckets: 2000 },
         mockContext,
-      )) as { warning?: string };
+      )) as { data: { warning?: string } };
 
       // Verify ANALYZE TABLE used clamped value
       const calls = mockAdapter.executeQuery.mock.calls.map(
@@ -398,7 +414,7 @@ describe("Handler Execution", () => {
       const analyzeCall = calls.find((c) => c.includes("ANALYZE TABLE"));
       expect(analyzeCall).toContain("1024 BUCKETS");
 
-      expect(result.warning).toBe(
+      expect(result.data.warning).toBe(
         "Requested 2000 buckets; clamped to max 1024",
       );
     });
@@ -422,9 +438,9 @@ describe("Handler Execution", () => {
           column: "total",
         },
         mockContext,
-      )) as { exists: boolean };
+      )) as { data: { exists: boolean } };
 
-      expect(result.exists).toBe(true);
+      expect(result.data.exists).toBe(true);
     });
   });
 });
@@ -501,9 +517,12 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should return empty percentiles when table is empty", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ cnt: 0 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (typeof query === "string" && query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([{ cnt: 0 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
       const result = (await tool.handler(
@@ -512,9 +531,9 @@ describe("Stats Validation Errors", () => {
           column: "value",
         },
         mockContext,
-      )) as { totalCount: number };
+      )) as { data: { totalCount: number } };
 
-      expect(result.totalCount).toBe(0);
+      expect(result.data.totalCount).toBe(0);
     });
   });
 
@@ -591,9 +610,9 @@ describe("Stats Validation Errors", () => {
           column: "val",
         },
         mockContext,
-      )) as { bucketCount: number };
+      )) as { data: { bucketCount: number } };
 
-      expect(result.bucketCount).toBe(1);
+      expect(result.data.bucketCount).toBe(1);
     });
   });
 
@@ -680,15 +699,20 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should return error for insufficient data points", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
+      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
+        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
+          const col1 = params?.[1] || 'x';
+          const col2 = params?.[2] || 'y';
+          return createMockQueryResult([{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }]);
+        }
+        return createMockQueryResult([
           {
             n: 1,
             sum_x: 1,
             sum_y: 1,
           },
-        ]),
-      );
+        ]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
       const result = (await tool.handler(
@@ -800,59 +824,59 @@ describe("Stats Nonexistent Table Handling", () => {
     "Table 'testdb.nonexistent' doesn't exist",
   );
 
-  it("mysql_stats_descriptive returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_descriptive returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_percentiles returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_percentiles returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_correlation returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_correlation returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
     const result = (await tool.handler(
       { table: "nonexistent", column1: "x", column2: "y" },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_distribution returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_distribution returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_time_series returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_time_series returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
@@ -863,49 +887,49 @@ describe("Stats Nonexistent Table Handling", () => {
         timeColumn: "ts",
       },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_regression returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_regression returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
     const result = (await tool.handler(
       { table: "nonexistent", xColumn: "x", yColumn: "y" },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_sampling returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_sampling returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
     const result = (await tool.handler(
       { table: "nonexistent", sampleSize: 10 },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
-  it("mysql_stats_histogram returns exists:false for nonexistent table", async () => {
+  it("mysql_stats_histogram returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
     const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
-    )) as { exists: boolean; table: string };
+    )) as { success: boolean; error: string };
 
-    expect(result.exists).toBe(false);
-    expect(result.table).toBe("nonexistent");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("doesn't exist");
   });
 
   it("mysql_stats_descriptive returns success:false for unknown column", async () => {

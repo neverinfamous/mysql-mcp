@@ -5,29 +5,56 @@
  * 3 tools: schema_stats, innodb_lock_waits, memory_summary.
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import { z } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
 // =============================================================================
 
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
-
 // =============================================================================
 // Zod Schemas
 // =============================================================================
 
-const LimitSchema = z.object({
-  limit: z.number().default(10).describe("Maximum number of results to return"),
+const LimitSchemaBase = z.object({
+  limit: z.unknown().optional().describe("Maximum number of results to return"),
 });
+
+const LimitSchema = z.object({
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  limit: data.limit !== undefined ? Number(data.limit) : 2,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
+
+const SchemaStatsSchemaBase = z.object({
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  limit: z.unknown().optional().describe("Maximum number of results"),
+});
+
+const SchemaStatsSchema = z.object({
+  schema: z.string().optional(),
+  limit: z.unknown().optional(),
+})
+.transform((data) => ({
+  schema: data.schema,
+  limit: data.limit !== undefined ? Number(data.limit) : 2,
+}))
+.refine(
+  (data) => !Number.isNaN(data.limit) && data.limit > 0,
+  { message: "limit must be a positive number" }
+);
 
 /**
  * Get schema object statistics
@@ -41,26 +68,12 @@ export function createSysSchemaStatsTool(
     description:
       "Get aggregated statistics for a schema including tables, indexes, and auto-increment status.",
     group: "sysschema",
-    inputSchema: z.object({
-      schema: z
-        .string()
-        .optional()
-        .describe("Schema name (defaults to current database)"),
-      limit: z.number().default(10).describe("Maximum number of results"),
-    }),
+    inputSchema: SchemaStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, limit } = z
-          .object({
-            schema: z.string().optional(),
-            limit: z.number().default(10),
-          })
-          .parse(params);
+        const { schema, limit } = SchemaStatsSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -69,10 +82,10 @@ export function createSysSchemaStatsTool(
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return {
+            return withTokenEstimate({
               success: false,
               error: `Schema '${schema}' does not exist`,
-            };
+            });
           }
         }
 
@@ -83,13 +96,13 @@ export function createSysSchemaStatsTool(
             "SELECT DATABASE() as db",
           );
           const rows = dbResult.rows ?? [];
-          const dbRow = rows[0] as Record<string, unknown> | undefined;
+          const dbRow = rows[0];
           resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
         }
 
         // Get table statistics
         const tableStatsQuery = `
-                SELECT 
+                SELECT
                     table_schema,
                     table_name,
                     rows_fetched,
@@ -114,7 +127,7 @@ export function createSysSchemaStatsTool(
 
         // Get index statistics
         const indexStatsQuery = `
-                SELECT 
+                SELECT
                     table_schema,
                     table_name,
                     index_name,
@@ -134,7 +147,7 @@ export function createSysSchemaStatsTool(
 
         // Get auto-increment status
         const autoIncQuery = `
-                SELECT 
+                SELECT
                     table_schema,
                     table_name,
                     column_name,
@@ -153,21 +166,23 @@ export function createSysSchemaStatsTool(
           adapter.executeQuery(autoIncQuery, [schema ?? null]),
         ]);
 
-        return {
-          tableStatistics: tableStats.rows ?? [],
-          indexStatistics: indexStats.rows ?? [],
-          autoIncrementStatus: autoIncStats.rows ?? [],
-          tableStatisticsCount: (tableStats.rows ?? []).length,
-          indexStatisticsCount: (indexStats.rows ?? []).length,
-          autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
-          schemaName: resolvedSchema,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            tableStatistics: tableStats.rows ?? [],
+            indexStatistics: indexStats.rows ?? [],
+            autoIncrementStatus: autoIncStats.rows ?? [],
+            tableStatisticsCount: (tableStats.rows ?? []).length,
+            indexStatisticsCount: (indexStats.rows ?? []).length,
+            autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
+            schemaName: resolvedSchema,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -185,18 +200,15 @@ export function createSysInnoDBLockWaitsTool(
     description:
       "Get current InnoDB lock contention information from sys schema.",
     group: "sysschema",
-    inputSchema: LimitSchema,
+    inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
 
         const query = `
-                SELECT 
+                SELECT
                     wait_started,
                     wait_age,
                     locked_table,
@@ -222,17 +234,19 @@ export function createSysInnoDBLockWaitsTool(
             `;
 
         const result = await adapter.executeQuery(query);
-        return {
-          lockWaits: result.rows,
-          count: result.rows?.length ?? 0,
-          hasContention: (result.rows?.length ?? 0) > 0,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            rows: result.rows,
+            count: result.rows?.length ?? 0,
+            hasContention: (result.rows?.length ?? 0) > 0,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -249,19 +263,16 @@ export function createSysMemorySummaryTool(
     title: "MySQL Memory Summary",
     description: "Get memory usage summary by allocation type from sys schema.",
     group: "sysschema",
-    inputSchema: LimitSchema,
+    inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
 
         // Global memory summary
         const globalQuery = `
-                SELECT 
+                SELECT
                     event_name,
                     current_count,
                     current_alloc,
@@ -276,7 +287,7 @@ export function createSysMemorySummaryTool(
 
         // Memory by user
         const userQuery = `
-                SELECT 
+                SELECT
                     user,
                     current_count_used,
                     current_allocated,
@@ -293,18 +304,20 @@ export function createSysMemorySummaryTool(
           adapter.executeQuery(userQuery),
         ]);
 
-        return {
-          globalMemory: globalStats.rows ?? [],
-          memoryByUser: userStats.rows ?? [],
-          globalMemoryCount: (globalStats.rows ?? []).length,
-          memoryByUserCount: (userStats.rows ?? []).length,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        return withTokenEstimate({
+          success: true,
+          data: {
+            globalMemory: globalStats.rows ?? [],
+            memoryByUser: userStats.rows ?? [],
+            globalMemoryCount: (globalStats.rows ?? []).length,
+            memoryByUserCount: (userStats.rows ?? []).length,
+          }
+        });
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          return formatHandlerErrorResponse(err);
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+        return formatHandlerErrorResponse(err);
       }
     },
   };

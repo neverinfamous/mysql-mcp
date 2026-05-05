@@ -6,8 +6,9 @@
 
 import { promises as fs } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
+import { join, resolve } from "path";
 import { ZodError } from "zod";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -15,13 +16,9 @@ import type {
 import {
   ShellLoadDumpInputSchema,
   ShellRunScriptInputSchema,
-} from "../../types/shell-types.js";
+  ShellRunScriptInputSchemaBase,
+} from "../../schemas/shell.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
-
-/** Extract human-readable messages from a ZodError instead of raw JSON array */
-function formatZodError(error: ZodError): string {
-  return error.issues.map((i) => i.message).join("; ");
-}
 
 /**
  * Load dump to instance
@@ -40,66 +37,72 @@ export function createShellLoadDumpTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const {
-        inputDir,
-        threads,
-        dryRun,
-        includeSchemas,
-        excludeSchemas,
-        includeTables,
-        excludeTables,
-        ignoreExistingObjects,
-        ignoreVersion,
-        resetProgress,
-        updateServerSettings,
-      } = ShellLoadDumpInputSchema.parse(params);
-
-      const escapedPath = inputDir.replace(/\\/g, "\\\\");
-
-      const options: string[] = [];
-      if (threads) {
-        options.push(`threads: ${threads}`);
-      }
-      if (dryRun) {
-        options.push("dryRun: true");
-      }
-      if (includeSchemas && includeSchemas.length > 0) {
-        options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
-      }
-      if (excludeSchemas && excludeSchemas.length > 0) {
-        options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
-      }
-      if (includeTables && includeTables.length > 0) {
-        options.push(`includeTables: ${JSON.stringify(includeTables)}`);
-      }
-      if (excludeTables && excludeTables.length > 0) {
-        options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
-      }
-      if (ignoreExistingObjects) {
-        options.push("ignoreExistingObjects: true");
-      }
-      if (ignoreVersion) {
-        options.push("ignoreVersion: true");
-      }
-      if (resetProgress) {
-        options.push("resetProgress: true");
-      }
-
-      const optionsStr =
-        options.length > 0 ? `, { ${options.join(", ")} }` : "";
-
-      // Build JavaScript code that optionally enables local_infile
-      let jsCode: string;
-      if (updateServerSettings) {
-        jsCode = `
-                    session.runSql("SET GLOBAL local_infile = ON");
-                    return util.loadDump("${escapedPath}"${optionsStr});
-                `;
-      } else {
-        jsCode = `return util.loadDump("${escapedPath}"${optionsStr});`;
-      }
-
       try {
+        const {
+          inputDir,
+          inputUrl,
+          threads,
+          dryRun,
+          includeSchemas,
+          excludeSchemas,
+          includeTables,
+          excludeTables,
+          ignoreExistingObjects,
+          ignoreVersion,
+          resetProgress,
+          updateServerSettings,
+        } = ShellLoadDumpInputSchema.parse(params);
+
+        const finalInputDir = inputDir ?? inputUrl;
+        if (!finalInputDir) {
+          return withTokenEstimate({ success: false, error: "Validation error: inputDir or inputUrl is required" });
+        }
+        const resolvedPath = resolve(finalInputDir);
+        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+
+        const options: string[] = [];
+        if (threads) {
+          options.push(`threads: ${threads}`);
+        }
+        if (dryRun) {
+          options.push("dryRun: true");
+        }
+        if (includeSchemas && includeSchemas.length > 0) {
+          options.push(`includeSchemas: ${JSON.stringify(includeSchemas)}`);
+        }
+        if (excludeSchemas && excludeSchemas.length > 0) {
+          options.push(`excludeSchemas: ${JSON.stringify(excludeSchemas)}`);
+        }
+        if (includeTables && includeTables.length > 0) {
+          options.push(`includeTables: ${JSON.stringify(includeTables)}`);
+        }
+        if (excludeTables && excludeTables.length > 0) {
+          options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
+        }
+        if (ignoreExistingObjects) {
+          options.push("ignoreExistingObjects: true");
+        }
+        if (ignoreVersion) {
+          options.push("ignoreVersion: true");
+        }
+        if (resetProgress) {
+          options.push("resetProgress: true");
+        }
+
+        const optionsStr =
+          options.length > 0 ? `, { ${options.join(", ")} }` : "";
+
+        // Build JavaScript code that optionally enables local_infile
+        let jsCode: string;
+        if (updateServerSettings) {
+          jsCode = `
+                      session.runSql("SET GLOBAL local_infile = ON");
+                      return util.loadDump("${escapedPath}"${optionsStr});
+                  `;
+        } else {
+          jsCode = `return util.loadDump("${escapedPath}"${optionsStr});`;
+        }
+
         if (dryRun) {
           // For dry runs, use execMySQLShell directly to capture stderr
           // where MySQL Shell outputs the summary of what would be loaded
@@ -148,60 +151,88 @@ export function createShellLoadDumpTool(): ToolDefinition {
                 continue;
               }
               if (!parsed.success) {
-                throw new Error(parsed.error ?? "Unknown MySQL Shell error");
+                const errorMessage =
+                  typeof parsed.error === "string"
+                    ? parsed.error
+                    : "Unknown MySQL Shell error";
+                if (
+                  errorMessage.includes("local_infile") ||
+                  errorMessage.includes("Loading local data is disabled")
+                ) {
+                  return withTokenEstimate({
+                    success: false,
+                    error:
+                      "Load failed: local_infile is disabled on the server.",
+                    suggestion:
+                      "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+                  });
+                }
+                if (errorMessage.includes("Duplicate objects")) {
+                  return withTokenEstimate({
+                    success: false,
+                    error: errorMessage,
+                    suggestion:
+                      "Use ignoreExistingObjects: true to skip existing objects",
+                  });
+                }
+                return withTokenEstimate({ success: false, error: errorMessage });
               }
               break;
             }
           }
 
-          return {
+          return withTokenEstimate({
             success: true,
-            inputDir,
-            dryRun: true,
-            localInfileEnabled: updateServerSettings,
-            dryRunOutput: stderrClean || undefined,
-          };
+            data: {
+              inputDir: finalInputDir,
+              dryRun: true,
+              localInfileEnabled: updateServerSettings,
+              dryRunOutput: stderrClean || undefined,
+            }
+          });
         }
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
-        return {
+        return withTokenEstimate({
           success: true,
-          inputDir,
-          dryRun: false,
-          localInfileEnabled: updateServerSettings,
-          result,
-        };
+          data: {
+            inputDir: finalInputDir,
+            dryRun: false,
+            localInfileEnabled: updateServerSettings,
+            result,
+          }
+        });
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return {
+          return withTokenEstimate({
             success: false,
-            inputDir,
             error: "Load failed: local_infile is disabled on the server.",
-            hint: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          };
+            suggestion:
+              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
+          });
         }
         if (errorMessage.includes("Duplicate objects")) {
-          return {
+          return withTokenEstimate({
             success: false,
-            inputDir,
             error: errorMessage,
-            hint: "Use ignoreExistingObjects: true to skip existing objects",
-          };
+            suggestion:
+              "Use ignoreExistingObjects: true to skip existing objects",
+          });
         }
-        return { success: false, inputDir, error: errorMessage };
+        return formatHandlerErrorResponse(error);
       }
     },
   };
 }
 
-/**
- * Execute script via MySQL Shell
- */
 export function createShellRunScriptTool(): ToolDefinition {
   return {
     name: "mysqlsh_run_script",
@@ -209,7 +240,7 @@ export function createShellRunScriptTool(): ToolDefinition {
     description:
       "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features.",
     group: "shell",
-    inputSchema: ShellRunScriptInputSchema,
+    inputSchema: ShellRunScriptInputSchemaBase,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -225,14 +256,18 @@ export function createShellRunScriptTool(): ToolDefinition {
         let langFlag: string;
         switch (language) {
           case "js":
+          case "javascript":
             langFlag = "--js";
             break;
           case "py":
+          case "python":
             langFlag = "--py";
             break;
           case "sql":
             langFlag = "--sql";
             break;
+          default:
+            return withTokenEstimate({ success: false, error: "Invalid language" });
         }
 
         let result;
@@ -263,19 +298,32 @@ export function createShellRunScriptTool(): ToolDefinition {
           result = await execMySQLShell(args, { timeout });
         }
 
-        return {
-          success: result.exitCode === 0,
-          language,
-          exitCode: result.exitCode,
-          stdout: result.stdout,
-          stderr: result.stderr,
-        };
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return { success: false, error: formatZodError(error) };
+        if (result.exitCode !== 0) {
+          return withTokenEstimate({
+            success: false,
+            error: result.stderr
+              ? result.stderr.trim()
+              : `Script failed with exit code ${result.exitCode}`,
+            details: {
+              language,
+              exitCode: result.exitCode,
+              stdout: result.stdout,
+              stderr: result.stderr,
+            },
+          });
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return { success: false, error: message };
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            language,
+            exitCode: result.exitCode,
+            stdout: result.stdout,
+            stderr: result.stderr,
+          }
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };

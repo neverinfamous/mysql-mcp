@@ -5,7 +5,8 @@
  * 4 tools: index_recommendation, query_rewrite, force_index, optimizer_trace.
  */
 
-import type { MySQLAdapter } from "../../MySQLAdapter.js";
+import type { PoolConnection } from "mysql2/promise";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -16,8 +17,15 @@ import {
   ForceIndexSchema,
   ForceIndexSchemaBase,
   preprocessQueryOnlyParams,
-} from "../../types.js";
+} from "../../schemas/index.js";
 import { z } from "zod";
+import {
+  formatMysqlError,
+  formatHandlerErrorResponse,
+} from "../core/error-helpers.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -32,8 +40,11 @@ interface TraceSummaryDecision {
 
 /** Trace summary result type */
 interface TraceSummaryResult {
-  query: string;
-  decisions: TraceSummaryDecision[];
+  success?: boolean;
+  data?: {
+    query: string;
+    decisions: TraceSummaryDecision[];
+  };
   error?: string;
 }
 
@@ -45,17 +56,25 @@ function extractTraceSummary(
   const decisions: TraceSummaryDecision[] = [];
 
   if (!rows || rows.length === 0) {
-    return { query, decisions, error: "No trace data available" };
+    return {
+      success: false,
+      error: "No trace data available",
+      data: { query, decisions },
+    };
   }
 
   const row = rows[0];
   if (!row) {
-    return { query, decisions, error: "No trace data available" };
+    return {
+      success: false,
+      error: "No trace data available",
+      data: { query, decisions },
+    };
   }
 
   const traceStr = row["TRACE"];
   if (typeof traceStr !== "string") {
-    return { query, decisions, error: "Invalid trace format" };
+    return { success: false, error: "Invalid trace format", data: { query, decisions } };
   }
 
   try {
@@ -150,10 +169,10 @@ function extractTraceSummary(
       }
     }
   } catch {
-    return { query, decisions, error: "Failed to parse trace" };
+    return { success: false, error: "Failed to parse trace", data: { query, decisions } };
   }
 
-  return { query, decisions };
+  return { success: true, data: { query, decisions } };
 }
 
 export function createIndexRecommendationTool(
@@ -167,10 +186,7 @@ export function createIndexRecommendationTool(
     group: "optimization",
     inputSchema: IndexRecommendationSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table } = IndexRecommendationSchema.parse(params);
@@ -180,7 +196,7 @@ export function createIndexRecommendationTool(
 
         // Graceful handling for non-existent tables (P154)
         if (!columns.columns || columns.columns.length === 0) {
-          return { exists: false, table };
+          throw new ValidationError(`Table '${table}' does not exist`);
         }
 
         // Get existing indexes
@@ -220,18 +236,24 @@ export function createIndexRecommendationTool(
           }
         }
 
-        return {
-          exists: true,
-          table,
-          existingIndexes: indexes.map((i) => ({
-            name: i.name,
-            columns: i.columns,
-          })),
-          recommendations,
+        const response = {
+          success: true,
+          data: {
+            exists: true,
+            table,
+            existingIndexes: indexes.map((i) => ({
+              name: i.name,
+              columns: i.columns,
+            })),
+            recommendations,
+          }
         };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -268,10 +290,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
     group: "optimization",
     inputSchema: schemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { query } = schema.parse(params);
@@ -336,27 +355,31 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             }
           }
         } catch (err: unknown) {
-          const rawMsg =
-            err instanceof Error ? err.message : "Failed to generate EXPLAIN";
-          explainError = rawMsg
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, "");
+          explainError = formatMysqlError(err);
         }
 
         const response: Record<string, unknown> = {
-          originalQuery: query,
-          suggestions,
-          explainPlan: explainResult,
+          success: true,
+          data: {
+            originalQuery: query,
+            rewrittenQuery: query,
+            suggestions,
+            explainPlan: explainResult,
+          }
         };
 
         if (explainError) {
-          response["explainError"] = explainError;
+          response["success"] = false;
+          response["error"] = explainError;
+          (response["data"] as Record<string, unknown>)["explainError"] = explainError;
         }
 
-        return response;
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -370,10 +393,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
     group: "optimization",
     inputSchema: ForceIndexSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, query, indexName } = ForceIndexSchema.parse(params);
@@ -381,32 +401,44 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         // P154: Check table existence first
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return { exists: false, table };
+          throw new ValidationError(`Table '${table}' does not exist`);
+        }
+
+        // Validate index existence
+        const indexes = await adapter.getTableIndexes(table);
+        if (!indexes.some((idx) => idx.name === indexName)) {
+          throw new ValidationError(
+            `Index '${indexName}' not found on table '${table}'`,
+          );
         }
 
         // Simple replacement - insert FORCE INDEX after table name
+        const regex = new RegExp(`FROM\\s+\`?${table}\`?(?=\\s|,|$)`, "i");
+        if (!regex.test(query)) {
+          throw new ValidationError(
+            `Table '${table}' not found in query FROM clause`,
+          );
+        }
+
         const rewritten = query.replace(
-          new RegExp(`FROM\\s+\`?${table}\`?`, "i"),
+          regex,
           `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
         );
 
-        const response: Record<string, unknown> = {
-          originalQuery: query,
-          rewrittenQuery: rewritten,
-          hint: `FORCE INDEX (\`${indexName}\`)`,
+        const response = {
+          success: true,
+          data: {
+            originalQuery: query,
+            rewrittenQuery: rewritten,
+            hint: `FORCE INDEX (\`${indexName}\`)`,
+          }
         };
-
-        // Validate index existence and warn if not found
-        const indexes = await adapter.getTableIndexes(table);
-        if (!indexes.some((idx) => idx.name === indexName)) {
-          response["warning"] =
-            `Index '${indexName}' not found on table '${table}'`;
-        }
-
-        return response;
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
     },
   };
@@ -422,7 +454,7 @@ export function createOptimizerTraceTool(
       .boolean()
       .optional()
       .describe(
-        "If true, return only key optimization decisions instead of full trace",
+        "If true (default), returns only key optimization decisions to save tokens. Set to false for the full trace.",
       ),
   });
 
@@ -437,7 +469,7 @@ export function createOptimizerTraceTool(
     )
     .transform((data) => ({
       query: data.query ?? data.sql ?? "",
-      summary: data.summary,
+      summary: data.summary ?? true,
     }))
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
@@ -450,51 +482,68 @@ export function createOptimizerTraceTool(
     group: "optimization",
     inputSchema: schemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       let tracingEnabled = false;
+      let connection: PoolConnection | null = null;
       try {
         const { query, summary } = schema.parse(params);
 
+        const pool = adapter.getPool();
+        if (!pool) {
+          throw new Error("Not connected to database");
+        }
+        
+        connection = await pool.getConnection();
+
         // Enable optimizer trace
-        await adapter.executeQuery('SET optimizer_trace="enabled=on"');
+        await connection.query('SET optimizer_trace="enabled=on"');
         tracingEnabled = true;
 
         // Execute the query (may fail for nonexistent tables, etc.)
         try {
-          await adapter.executeReadQuery(query);
+          await connection.query(query);
         } catch (err: unknown) {
-          const rawMsg =
-            err instanceof Error ? err.message : "Query execution failed";
-          const errorMsg = rawMsg
-            .replace(/^Query failed:\s*/i, "")
-            .replace(/^Execute failed:\s*/i, "");
+          const errorMsg = formatMysqlError(err);
           if (summary) {
-            return { query, decisions: [], error: errorMsg };
+            const response = { success: false, error: errorMsg, data: { query, decisions: [] } };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            return { ...response, metrics: { tokenEstimate } };
           }
-          return { query, trace: null, error: errorMsg };
+          const response = { success: false, error: errorMsg, data: { query, trace: null } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
         // Get the trace
-        const traceResult = await adapter.executeReadQuery(
+        const [rows] = await connection.query(
           "SELECT * FROM information_schema.OPTIMIZER_TRACE",
         );
 
         if (summary) {
           // Extract key decisions from the trace
-          return extractTraceSummary(traceResult.rows, query);
+          const response = extractTraceSummary(rows as Record<string, unknown>[], query);
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          return { ...response, metrics: { tokenEstimate } };
         }
 
-        return { trace: traceResult.rows };
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        return { success: false, error: msg };
+        const response = { success: true, data: { trace: rows } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        return { ...response, metrics: { tokenEstimate } };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       } finally {
-        if (tracingEnabled) {
+        if (connection !== null && tracingEnabled) {
           // Disable optimizer trace
-          await adapter.executeQuery('SET optimizer_trace="enabled=off"');
+          try {
+            await connection.query('SET optimizer_trace="enabled=off"');
+          } catch {
+            // ignore
+          }
+        }
+        if (connection !== null) {
+          const pool = adapter.getPool();
+          if (pool) pool.releaseConnection(connection);
         }
       }
     },

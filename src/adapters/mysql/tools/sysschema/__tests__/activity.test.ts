@@ -9,7 +9,7 @@ import {
   createSysUserSummaryTool,
   createSysHostSummaryTool,
 } from "../activity.js";
-import type { MySQLAdapter } from "../../../MySQLAdapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -49,11 +49,11 @@ describe("Sys Schema Activity Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
-        users: unknown[];
+        data: { rows: unknown[] };
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.users).toHaveLength(1);
+      expect(result.data.rows).toHaveLength(1);
     });
 
     it("should filter by user", async () => {
@@ -93,11 +93,11 @@ describe("Sys Schema Activity Tools", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        hosts: unknown[];
+        data: { rows: unknown[] };
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.hosts).toHaveLength(1);
+      expect(result.data.rows).toHaveLength(1);
     });
 
     it("should filter by host", async () => {
