@@ -28,6 +28,8 @@ import {
   validateIdentifier,
   validateWhereClause,
 } from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 /**
  * Export all JSON helper tool creation functions
@@ -40,10 +42,7 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonGetSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, where } =
@@ -99,9 +98,7 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonUpdateSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, value, where } =
@@ -166,10 +163,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonSearchSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, searchValue, mode } =
@@ -217,10 +211,7 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonValidateSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { value } = JsonValidateSchema.parse(params);

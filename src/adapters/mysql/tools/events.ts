@@ -16,6 +16,8 @@ import {
 } from "../schemas/events.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { WRITE, DESTRUCTIVE, READ_ONLY } from "../../../utils/annotations.js";
+
 
 /**
  * Get all event scheduler tools
@@ -43,9 +45,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
     group: "events",
     inputSchema: EventCreateSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -123,9 +123,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
     group: "events",
     inputSchema: EventAlterSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, newName, schedule, body, onCompletion, status, comment } =
@@ -212,10 +210,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
     group: "events",
     inputSchema: EventDropSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, ifExists } = EventDropSchema.parse(params);
@@ -264,10 +259,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     group: "events",
     inputSchema: EventListSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, includeDisabled } = EventListSchema.parse(params);
@@ -340,10 +332,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "events",
     inputSchema: EventStatusSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, schema } = EventStatusSchema.parse(params);
@@ -420,10 +409,7 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "events",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get scheduler status

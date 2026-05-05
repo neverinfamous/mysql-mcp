@@ -20,6 +20,8 @@ import {
   CollectionInfoSchema,
   CollectionInfoSchemaBase,
 } from "../../schemas/index.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -30,7 +32,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: ListCollectionsSchemaBase,
       requiredScopes: ["read"],
-      annotations: { readOnlyHint: true, idempotentHint: true },
+      annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { schema } = ListCollectionsSchema.parse(params);
@@ -88,7 +90,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: CreateCollectionSchemaBase,
       requiredScopes: ["write"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { name, schema, ifNotExists, validation } =
@@ -177,7 +179,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: DropCollectionSchemaBase,
       requiredScopes: ["admin"],
-      annotations: { readOnlyHint: false, destructiveHint: true },
+      annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { name, schema, ifExists } = DropCollectionSchema.parse(params);
@@ -246,7 +248,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: CollectionInfoSchemaBase,
       requiredScopes: ["read"],
-      annotations: { readOnlyHint: true, idempotentHint: true },
+      annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { collection, schema } = CollectionInfoSchema.parse(params);

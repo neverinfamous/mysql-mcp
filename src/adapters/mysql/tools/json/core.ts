@@ -36,6 +36,8 @@ import {
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 /**
  * Export all core JSON tool creation functions
@@ -72,10 +74,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonExtractSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, where, limit } = JsonExtractSchema.parse(params);
@@ -124,9 +123,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonSetSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, value, where } =
@@ -168,9 +165,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonInsertSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, value, where } =
@@ -234,9 +229,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonReplaceSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, value, where } =
@@ -277,9 +270,7 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonRemoveSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, paths, where } = JsonRemoveSchema.parse(params);
@@ -318,10 +309,7 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonContainsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, value, path, where, limit } = JsonContainsSchema.parse(params);
@@ -381,10 +369,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonKeysSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, where, limit } = JsonKeysSchema.parse(params);
@@ -436,9 +421,7 @@ export function createJsonArrayAppendTool(
     group: "json",
     inputSchema: JsonArrayAppendSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, path, value, where } =

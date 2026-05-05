@@ -12,6 +12,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -106,10 +108,7 @@ export function createSysStatementSummaryTool(
     group: "sysschema",
     inputSchema: StatementSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { orderBy, limit } = StatementSummarySchema.parse(params);
@@ -175,10 +174,7 @@ export function createSysWaitSummaryTool(
     group: "sysschema",
     inputSchema: WaitSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { type, limit } = WaitSummarySchema.parse(params);
@@ -282,10 +278,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "sysschema",
     inputSchema: IOSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { type, limit } = IOSummarySchema.parse(params);

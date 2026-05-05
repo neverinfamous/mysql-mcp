@@ -22,6 +22,8 @@ import {
   GeoJSONSchemaBase,
   GeoJSONSchema,
 } from "../../schemas/spatial.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -65,10 +67,7 @@ export function createSpatialIntersectionTool(
     group: "spatial",
     inputSchema: IntersectionSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { geometry1, geometry2, srid } = IntersectionSchema.parse(params);
@@ -123,10 +122,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
     group: "spatial",
     inputSchema: BufferSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { geometry, distance, srid, segments } =
@@ -184,10 +180,7 @@ export function createSpatialTransformTool(
     group: "spatial",
     inputSchema: TransformSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { geometry, fromSrid, toSrid } = TransformSchema.parse(params);
@@ -234,10 +227,7 @@ export function createSpatialGeoJSONTool(
     group: "spatial",
     inputSchema: GeoJSONSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { geometry, geoJson, srid } = GeoJSONSchema.parse(params);

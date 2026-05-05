@@ -16,6 +16,8 @@ import {
   formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -66,10 +68,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsOutliersSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsOutliersSchema.parse(params);

@@ -21,6 +21,8 @@ import {
   RemoveDocSchema,
   RemoveDocSchemaBase,
 } from "../../schemas/index.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -31,7 +33,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: FindSchemaBase,
       requiredScopes: ["read"],
-      annotations: { readOnlyHint: true, idempotentHint: true },
+      annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { collection, schema, filter, fields, limit, offset } =
@@ -126,7 +128,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: AddDocSchemaBase,
       requiredScopes: ["write"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { collection, schema, documents } = AddDocSchema.parse(params);
@@ -182,7 +184,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: ModifyDocSchemaBase,
       requiredScopes: ["write"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { collection, schema, filter, set, unset } =
@@ -268,7 +270,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: RemoveDocSchemaBase,
       requiredScopes: ["write"],
-      annotations: { readOnlyHint: false, destructiveHint: true },
+      annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { collection, schema, filter } = RemoveDocSchema.parse(params);

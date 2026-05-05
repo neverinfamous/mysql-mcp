@@ -6,6 +6,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
 
 const ListSchemasSchema = z.object({
   pattern: z
@@ -50,10 +52,7 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListSchemasSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { pattern } = ListSchemasSchema.parse(params);
@@ -103,9 +102,7 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: CreateSchemaSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, charset, collation, ifNotExists } =
@@ -183,10 +180,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: DropSchemaSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, ifExists } = DropSchemaSchema.parse(params);

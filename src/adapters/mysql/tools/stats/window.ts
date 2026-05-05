@@ -16,6 +16,8 @@ import {
   formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -269,10 +271,7 @@ export function createStatsRowNumberTool(
     group: "stats",
     inputSchema: StatsRowNumberSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsRowNumberSchema.parse(params);
@@ -333,10 +332,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsRankSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsRankSchema.parse(params);
@@ -400,10 +396,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsLagLeadSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsLagLeadSchema.parse(params);
@@ -477,10 +470,7 @@ export function createStatsRunningTotalTool(
     group: "stats",
     inputSchema: StatsRunningTotalSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsRunningTotalSchema.parse(params);
@@ -546,10 +536,7 @@ export function createStatsMovingAvgTool(
     group: "stats",
     inputSchema: StatsMovingAvgSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsMovingAvgSchema.parse(params);
@@ -616,10 +603,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsNtileSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsNtileSchema.parse(params);

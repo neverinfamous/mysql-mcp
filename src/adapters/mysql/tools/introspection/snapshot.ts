@@ -16,6 +16,8 @@ import {
   SchemaSnapshotSchemaBase,
   SchemaSnapshotSchema,
 } from "../../schemas/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // mysql_schema_snapshot
@@ -30,7 +32,7 @@ export function createSchemaSnapshotTool(
       "Get a complete schema snapshot in a single agent-optimized JSON structure. Includes tables, columns, constraints, indexes, views, routines, and triggers.",
     group: "introspection",
     inputSchema: SchemaSnapshotSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = SchemaSnapshotSchema.parse(params);

@@ -26,6 +26,8 @@ import {
   ensureTrackingTable,
   formatRecord,
 } from "./helpers.js";
+import { DESTRUCTIVE, READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // mysql_migration_rollback
@@ -42,7 +44,7 @@ export function createMigrationRollbackTool(
       "Use dryRun: true to preview the rollback SQL without executing.",
     group: "migration",
     inputSchema: MigrationRollbackSchemaBase,
-    annotations: { readOnlyHint: false, destructiveHint: true },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationRollbackSchema.parse(params);
@@ -208,7 +210,7 @@ export function createMigrationHistoryTool(
       "Returns paginated results ordered by applied_at descending.",
     group: "migration",
     inputSchema: MigrationHistorySchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationHistorySchema.parse(params);
@@ -295,7 +297,7 @@ export function createMigrationStatusTool(
       "and list of source systems. Returns initialized: false if tracking table doesn't exist.",
     group: "migration",
     inputSchema: MigrationStatusSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationStatusSchema.parse(params);

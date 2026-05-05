@@ -6,6 +6,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 const ListTriggersSchema = z.object({
   table: z.string().optional().describe("Filter by table name"),
@@ -27,10 +29,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListTriggersSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListTriggersSchema.parse(params);

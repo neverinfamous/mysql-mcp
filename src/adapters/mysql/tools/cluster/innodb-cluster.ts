@@ -12,6 +12,8 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -70,10 +72,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: SummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { summary } = SummarySchema.parse(params);
@@ -208,10 +207,7 @@ export function createClusterInstancesTool(
     group: "cluster",
     inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       let limit: number;
       try {
@@ -295,10 +291,7 @@ export function createClusterTopologyTool(
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get all GR members
@@ -423,10 +416,7 @@ export function createClusterRouterStatusTool(
     group: "cluster",
     inputSchema: SummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       // Compute staleness: null lastCheckIn or >1 hour old
       const computeStale = (lastCheckIn: unknown): boolean => {
@@ -535,10 +525,7 @@ export function createClusterSwitchoverTool(
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get current members status

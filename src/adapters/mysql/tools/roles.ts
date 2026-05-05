@@ -12,6 +12,8 @@ import {
   validateMySQLUserHost,
   escapeLikePattern,
 } from "../../../utils/validators.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
+
 
 const RoleListSchema = z.object({
   pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
@@ -188,7 +190,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleListSchema,
       requiredScopes: ["read"],
-      annotations: { readOnlyHint: true, idempotentHint: true },
+      annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { pattern } = RoleListSchema.parse(params);
@@ -216,7 +218,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleCreateSchemaBase,
       requiredScopes: ["admin"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { name, ifNotExists } = RoleCreateSchema.parse(params);
@@ -281,7 +283,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleDropSchemaBase,
       requiredScopes: ["admin"],
-      annotations: { readOnlyHint: false, destructiveHint: true },
+      annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { name, ifExists } = RoleDropSchema.parse(params);
@@ -353,7 +355,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleGrantsSchemaBase,
       requiredScopes: ["read"],
-      annotations: { readOnlyHint: true, idempotentHint: true },
+      annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { role } = RoleGrantsSchema.parse(params);
@@ -387,7 +389,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleGrantPrivilegeSchemaBase,
       requiredScopes: ["admin"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { role, privileges, database, table } =
@@ -475,7 +477,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleAssignSchemaBase,
       requiredScopes: ["admin"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { role, user, host, withAdminOption } =
@@ -522,7 +524,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: RoleRevokeSchemaBase,
       requiredScopes: ["admin"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { role, user, host, privileges, database, table } =
@@ -632,7 +634,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "roles",
       inputSchema: UserRolesSchemaBase,
       requiredScopes: ["read"],
-      annotations: { readOnlyHint: true, idempotentHint: true },
+      annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { user, host } = UserRolesSchema.parse(params);

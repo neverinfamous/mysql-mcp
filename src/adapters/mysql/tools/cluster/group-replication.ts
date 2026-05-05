@@ -12,6 +12,8 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -37,10 +39,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
@@ -128,10 +127,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: MemberSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { memberId } = MemberSchema.parse(params);
@@ -196,10 +192,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const result = await adapter.executeQuery(`
@@ -249,10 +242,7 @@ export function createGRTransactionsTool(
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
@@ -318,10 +308,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     group: "cluster",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running

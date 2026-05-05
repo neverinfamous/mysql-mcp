@@ -13,6 +13,8 @@ import {
 } from "../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import { READ_ONLY } from "../../../utils/annotations.js";
+
 
 /**
  * Get replication tools
@@ -37,10 +39,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       // Try new syntax first, then old
       try {
@@ -72,10 +71,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       // Try new syntax first
       try {
@@ -113,10 +109,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: BinlogEventsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { logFile, position, limit } = BinlogEventsSchema.parse(params);
@@ -209,10 +202,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get GTID executed
@@ -258,10 +248,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
     group: "replication",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       // Try to get Seconds_Behind_Master from replica status
       try {

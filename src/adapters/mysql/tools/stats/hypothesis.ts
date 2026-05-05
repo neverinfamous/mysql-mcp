@@ -16,6 +16,8 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -60,10 +62,7 @@ export function createStatsHypothesisTool(
     group: "stats",
     inputSchema: StatsHypothesisSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {

@@ -6,6 +6,8 @@ import type {
 } from "../../../../types/index.js";
 
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 const ListEventsSchemaBase = z.object({
   schema: z
@@ -40,10 +42,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListEventsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListEventsSchema.parse(params);

@@ -16,6 +16,8 @@ import type {
 } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Schemas
@@ -62,7 +64,7 @@ export function createDetectConnectionSpikeTool(
     inputSchema: DetectConnectionSpikeSchemaBase,
     group: "performance",
     requiredScopes: ["read"],
-    annotations: { readOnlyHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = DetectConnectionSpikeSchema.parse(params);

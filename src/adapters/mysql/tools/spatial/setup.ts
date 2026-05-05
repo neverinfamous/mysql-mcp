@@ -24,6 +24,8 @@ import {
   SpatialIndexSchemaBase,
   SpatialIndexSchema,
 } from "../../schemas/spatial.js";
+import { WRITE } from "../../../../utils/annotations.js";
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -57,9 +59,7 @@ export function createSpatialCreateColumnTool(
     group: "spatial",
     inputSchema: SpatialColumnSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, type, srid, nullable } =
@@ -140,9 +140,7 @@ export function createSpatialCreateIndexTool(
     group: "spatial",
     inputSchema: SpatialIndexSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, indexName } = SpatialIndexSchema.parse(params);

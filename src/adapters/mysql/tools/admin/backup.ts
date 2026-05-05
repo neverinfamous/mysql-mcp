@@ -22,6 +22,8 @@ import {
   validateIdentifier,
   validateWhereClause,
 } from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE, IDEMPOTENT } from "../../../../utils/annotations.js";
+
 
 /**
  * Format a value for MySQL export.
@@ -102,9 +104,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "backup",
     inputSchema: ExportTableSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, format, where, limit, batch } =
@@ -213,9 +213,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
     group: "backup",
     inputSchema: ImportDataSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, data } = ImportDataSchema.parse(params);
@@ -316,10 +314,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     group: "backup",
     inputSchema: schemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { database, tables, noData, singleTransaction } =
@@ -413,10 +408,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     group: "backup",
     inputSchema: schemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { database, filename } = schema.parse(params);

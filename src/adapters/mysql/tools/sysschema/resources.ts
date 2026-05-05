@@ -12,6 +12,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -68,10 +70,7 @@ export function createSysSchemaStatsTool(
     group: "sysschema",
     inputSchema: SchemaStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, limit } = SchemaStatsSchema.parse(params);
@@ -203,10 +202,7 @@ export function createSysInnoDBLockWaitsTool(
     group: "sysschema",
     inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
@@ -269,10 +265,7 @@ export function createSysMemorySummaryTool(
     group: "sysschema",
     inputSchema: LimitSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);

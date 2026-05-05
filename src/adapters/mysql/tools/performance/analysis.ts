@@ -26,6 +26,8 @@ import {
 } from "../../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 /**
  * Maximum reasonable timer value in milliseconds (24 hours).
@@ -94,10 +96,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: ExplainSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { query, format } = ExplainSchema.parse(params);
@@ -137,9 +136,7 @@ export function createExplainAnalyzeTool(
     group: "performance",
     inputSchema: ExplainAnalyzeSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { query, format } = ExplainAnalyzeSchema.parse(params);
@@ -177,10 +174,7 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: SlowQuerySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit, minTime } = SlowQuerySchema.parse(params);
@@ -230,10 +224,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: QueryStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { orderBy, limit } = QueryStatsSchema.parse(params);
@@ -289,10 +280,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: IndexUsageSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, limit } = IndexUsageSchema.parse(params);
@@ -364,10 +352,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: TableStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table } = TableStatsSchema.parse(params);
@@ -428,10 +413,7 @@ export function createBufferPoolStatsTool(
     group: "performance",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const result = await adapter.executeReadQuery(
@@ -478,10 +460,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "performance",
     inputSchema: schemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = schema.parse(params);

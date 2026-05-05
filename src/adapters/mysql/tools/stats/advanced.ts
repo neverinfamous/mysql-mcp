@@ -16,6 +16,8 @@ import {
   formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Constants
@@ -138,10 +140,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsTopNSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsTopNSchema.parse(params);
@@ -247,10 +246,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsDistinctSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsDistinctSchema.parse(params);
@@ -324,10 +320,7 @@ export function createStatsFrequencyTool(adapter: MySQLAdapter): ToolDefinition 
     group: "stats",
     inputSchema: StatsFrequencySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsFrequencySchema.parse(params);
@@ -408,10 +401,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: StatsSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsSummarySchema.parse(params);

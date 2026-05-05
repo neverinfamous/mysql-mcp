@@ -10,6 +10,8 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 const ListViewsSchema = z.object({
   schema: z
@@ -71,10 +73,7 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListViewsSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListViewsSchema.parse(params);
@@ -137,9 +136,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: CreateViewSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = CreateViewSchema.parse(params);
@@ -205,9 +202,7 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: DropViewSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = DropViewSchema.parse(params);

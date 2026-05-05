@@ -28,6 +28,8 @@ import {
 } from "../../schemas/index.js";
 
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
+import { IDEMPOTENT, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
 
 
 
@@ -39,10 +41,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: OptimizeTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = OptimizeTableSchema.parse(params);
@@ -78,10 +77,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: AnalyzeTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = AnalyzeTableSchema.parse(params);
@@ -116,10 +112,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: CheckTableSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, option } = CheckTableSchema.parse(params);
@@ -164,10 +157,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: RepairTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, quick } = RepairTableSchema.parse(params);
@@ -205,10 +195,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: FlushTablesSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      idempotentHint: true,
-    },
+    annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = FlushTablesSchema.parse(params);
@@ -270,10 +257,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "admin",
     inputSchema: KillQuerySchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { processId, connection } = KillQuerySchema.parse(params);

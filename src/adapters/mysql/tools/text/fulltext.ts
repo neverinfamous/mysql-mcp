@@ -29,6 +29,8 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
+import { WRITE, DESTRUCTIVE, READ_ONLY } from "../../../../utils/annotations.js";
+
 
 /**
  * Check if an error is a MySQL duplicate key name error (ER_DUP_KEYNAME, code 1061)
@@ -89,9 +91,7 @@ export function createFulltextCreateTool(
     group: "fulltext",
     inputSchema: FulltextCreateSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, columns, indexName } =
@@ -150,10 +150,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
     group: "fulltext",
     inputSchema: FulltextDropSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, indexName } = FulltextDropSchema.parse(params);
@@ -208,10 +205,7 @@ export function createFulltextSearchTool(
     group: "fulltext",
     inputSchema: FulltextSearchSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = FulltextSearchSchema.parse(params);
@@ -296,10 +290,7 @@ export function createFulltextBooleanTool(
     group: "fulltext",
     inputSchema: FulltextBooleanSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, columns, query, maxLength, limit } =
@@ -373,10 +364,7 @@ export function createFulltextExpandTool(
     group: "fulltext",
     inputSchema: FulltextExpandSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, columns, query, maxLength, limit } =

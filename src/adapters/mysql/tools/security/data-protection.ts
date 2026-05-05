@@ -14,6 +14,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -115,10 +117,7 @@ export function createSecurityMaskDataTool(
     group: "security",
     inputSchema: MaskDataSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: (params: unknown, _context: RequestContext): Promise<unknown> => {
       try {
         const { value, type, keepFirst, keepLast, maskChar } =
@@ -249,10 +248,7 @@ export function createSecurityUserPrivilegesTool(
     group: "security",
     inputSchema: UserPrivilegesSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, host, includeRoles, summary } =
@@ -415,10 +411,7 @@ export function createSecuritySensitiveTablesTool(
     group: "security",
     inputSchema: SensitiveTablesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);

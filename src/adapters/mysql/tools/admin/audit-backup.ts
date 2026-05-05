@@ -12,6 +12,8 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import type { BackupManager } from "../../../../audit/backup-manager.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
@@ -38,9 +40,7 @@ export function createAuditListBackupsTool(
     group: "backup",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit, target } = schema.parse(params);
@@ -95,10 +95,7 @@ export function createAuditRestoreBackupTool(
     group: "backup",
     inputSchema: schema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false, // Wait, dryRun might be true, but it's an admin operation
-      idempotentHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { filename, includeData, dryRun } = schema.parse(params);
@@ -168,9 +165,7 @@ export function createAuditDiffBackupTool(
     group: "backup",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { filename } = schema.parse(params);

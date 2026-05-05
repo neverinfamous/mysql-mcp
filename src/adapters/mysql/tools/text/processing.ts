@@ -31,6 +31,8 @@ import {
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -40,10 +42,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: RegexpMatchSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, pattern, where, limit } =
@@ -89,10 +88,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: LikeSearchSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, pattern, where, limit } =
@@ -137,10 +133,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: SoundexSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, value, where, limit } = SoundexSchema.parse(params);
@@ -184,10 +177,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: SubstringSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, start, length, where, limit } =
@@ -239,10 +229,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
     group: "text",
     inputSchema: ConcatSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -307,10 +294,7 @@ export function createCollationConvertTool(
     group: "text",
     inputSchema: CollationConvertSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, charset, collation, where, limit } =

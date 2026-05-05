@@ -27,6 +27,8 @@ import {
   escapeQualifiedTable,
   validateIdentifier,
 } from "../../../../utils/validators.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // Schemas for json_merge and json_diff (no table/column — no aliases needed)
 const JsonMergeSchema = z
@@ -95,10 +97,7 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonMergeSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { json1, json2, mode } = JsonMergeSchema.parse(params);
@@ -139,10 +138,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonDiffSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { json1, json2 } = JsonDiffSchema.parse(params);
@@ -275,10 +271,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonNormalizeSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, where, limit } =
@@ -358,10 +351,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "json",
     inputSchema: JsonStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, where, sampleSize } =
@@ -458,10 +448,7 @@ export function createJsonIndexSuggestTool(
     group: "json",
     inputSchema: JsonIndexSuggestSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, sampleSize } =

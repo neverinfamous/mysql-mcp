@@ -20,6 +20,8 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Shared Helpers (exported for connection-analysis.ts)
@@ -97,7 +99,7 @@ export function createDetectQueryAnomaliesTool(
     inputSchema: DetectQueryAnomaliesSchemaBase,
     group: "performance",
     requiredScopes: ["read"],
-    annotations: { readOnlyHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = DetectQueryAnomaliesSchema.parse(params);
@@ -223,7 +225,7 @@ export function createDetectBloatRiskTool(
     inputSchema: DetectBloatRiskSchemaBase,
     group: "performance",
     requiredScopes: ["read"],
-    annotations: { readOnlyHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = DetectBloatRiskSchema.parse(params);

@@ -25,6 +25,8 @@ import {
   WithinSchemaBase,
   WithinSchema,
 } from "../../schemas/spatial.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -60,10 +62,7 @@ export function createSpatialDistanceTool(
     group: "spatial",
     inputSchema: DistanceSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, point, maxDistance, limit, srid } =
@@ -143,10 +142,7 @@ export function createSpatialDistanceSphereTool(
     group: "spatial",
     inputSchema: DistanceSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, point, maxDistance, limit, srid } =
@@ -227,10 +223,7 @@ export function createSpatialContainsTool(
     group: "spatial",
     inputSchema: ContainsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, polygon, limit, srid } =
@@ -295,10 +288,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
     group: "spatial",
     inputSchema: WithinSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, spatialColumn, geometry, limit, srid } =

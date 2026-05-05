@@ -11,6 +11,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -45,10 +47,7 @@ export function createSecuritySSLStatusTool(
     group: "security",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Get SSL status
@@ -129,10 +128,7 @@ export function createSecurityEncryptionStatusTool(
     group: "security",
     inputSchema: z.object({}),
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check for keyring plugins
@@ -218,10 +214,7 @@ export function createSecurityPasswordValidateTool(
     group: "security",
     inputSchema: PasswordValidateSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { password } = PasswordValidateSchema.parse(params);

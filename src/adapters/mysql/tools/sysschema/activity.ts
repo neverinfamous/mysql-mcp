@@ -12,6 +12,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -71,10 +73,7 @@ export function createSysUserSummaryTool(
     group: "sysschema",
     inputSchema: UserSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, limit } = UserSummarySchema.parse(params);
@@ -132,10 +131,7 @@ export function createSysHostSummaryTool(
     group: "sysschema",
     inputSchema: HostSummarySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { host, limit } = HostSummarySchema.parse(params);

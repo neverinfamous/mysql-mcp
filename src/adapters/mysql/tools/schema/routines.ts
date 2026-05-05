@@ -6,6 +6,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 const ListObjectsSchema = z.object({
   schema: z
@@ -28,10 +30,7 @@ export function createListStoredProceduresTool(
     group: "schema",
     inputSchema: ListObjectsSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListObjectsSchema.parse(params);
@@ -108,10 +107,7 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "schema",
     inputSchema: ListObjectsSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListObjectsSchema.parse(params);

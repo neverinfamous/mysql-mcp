@@ -21,6 +21,8 @@ import {
   ReorganizePartitionSchema,
   ReorganizePartitionSchemaBase,
 } from "../schemas/index.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
+
 
 /**
  * Get partitioning tools
@@ -42,10 +44,7 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     group: "partitioning",
     inputSchema: PartitionInfoSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, summary } = PartitionInfoSchema.parse(params);
@@ -141,9 +140,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     group: "partitioning",
     inputSchema: AddPartitionSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, partitionName, partitionType, value } =
@@ -247,10 +244,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     group: "partitioning",
     inputSchema: DropPartitionSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, partitionName } = DropPartitionSchema.parse(params);
@@ -331,9 +325,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
     group: "partitioning",
     inputSchema: ReorganizePartitionSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, fromPartitions, partitionType, toPartitions } =

@@ -12,6 +12,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -84,10 +86,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: CorrelationSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column1, column2, where } =
@@ -211,10 +210,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: RegressionSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, xColumn, yColumn, where } =
@@ -350,9 +346,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: HistogramSchemaBase,
     requiredScopes: ["read"], // read for view, admin for update
-    annotations: {
-      readOnlyHint: false, // Can update histogram
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, buckets, update } =

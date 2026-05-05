@@ -18,6 +18,8 @@ import {
   TransactionExecuteSchema,
   TransactionExecuteSchemaBase,
 } from "../schemas/index.js";
+import { WRITE } from "../../../utils/annotations.js";
+
 
 /**
  * Get all transaction tools
@@ -46,9 +48,7 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
     group: "transactions",
     inputSchema: TransactionBeginSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { isolationLevel } = TransactionBeginSchema.parse(params);
@@ -80,9 +80,7 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
     group: "transactions",
     inputSchema: TransactionIdSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       let transactionId: string;
       try {
@@ -114,9 +112,7 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
     group: "transactions",
     inputSchema: TransactionIdSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       let transactionId: string;
       try {
@@ -149,9 +145,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
     group: "transactions",
     inputSchema: TransactionSavepointSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { transactionId, savepoint } =
@@ -191,9 +185,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
     group: "transactions",
     inputSchema: TransactionSavepointSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { transactionId, savepoint } =
@@ -238,9 +230,7 @@ function createTransactionRollbackToTool(
     group: "transactions",
     inputSchema: TransactionSavepointSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { transactionId, savepoint } =
@@ -284,9 +274,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
     group: "transactions",
     inputSchema: TransactionExecuteSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       let parsedParams;
       try {

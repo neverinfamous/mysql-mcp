@@ -11,6 +11,8 @@ import {
   escapeTableRef,
 } from "./helpers.js";
 import { CreateDocIndexSchema, CreateDocIndexSchemaBase } from "../../schemas/index.js";
+import { WRITE } from "../../../../utils/annotations.js";
+
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -21,7 +23,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       group: "docstore",
       inputSchema: CreateDocIndexSchemaBase,
       requiredScopes: ["write"],
-      annotations: { readOnlyHint: false },
+      annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { collection, schema, name, fields, unique } =

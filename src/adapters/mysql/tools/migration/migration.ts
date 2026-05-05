@@ -28,6 +28,8 @@ import {
   checkDuplicateHash,
   formatRecord,
 } from "./helpers.js";
+import { WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // mysql_migration_init
@@ -41,7 +43,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
       "Idempotent — safe to call repeatedly. Returns current tracking state.",
     group: "migration",
     inputSchema: MigrationInitSchemaBase,
-    annotations: { readOnlyHint: false },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationInitSchema.parse(params);
@@ -113,7 +115,7 @@ export function createMigrationRecordTool(
       "Computes SHA-256 hash for idempotency detection.",
     group: "migration",
     inputSchema: MigrationRecordSchemaBase,
-    annotations: { readOnlyHint: false },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationRecordSchema.parse(params);
@@ -193,7 +195,7 @@ export function createMigrationApplyTool(
       "Use mysql_migration_record instead if you only need to log an already-applied migration.",
     group: "migration",
     inputSchema: MigrationApplySchemaBase,
-    annotations: { readOnlyHint: false, destructiveHint: true },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationApplySchema.parse(params);

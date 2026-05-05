@@ -24,6 +24,8 @@ import {
   formatHandlerErrorResponse,
 } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -184,10 +186,7 @@ export function createIndexRecommendationTool(
     group: "optimization",
     inputSchema: IndexRecommendationSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table } = IndexRecommendationSchema.parse(params);
@@ -291,10 +290,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
     group: "optimization",
     inputSchema: schemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { query } = schema.parse(params);
@@ -397,10 +393,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
     group: "optimization",
     inputSchema: ForceIndexSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, query, indexName } = ForceIndexSchema.parse(params);
@@ -489,9 +482,7 @@ export function createOptimizerTraceTool(
     group: "optimization",
     inputSchema: schemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       let tracingEnabled = false;
       let connection: PoolConnection | null = null;

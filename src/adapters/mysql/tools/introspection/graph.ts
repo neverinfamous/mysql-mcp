@@ -38,6 +38,8 @@ import {
   topologicalSort,
   calculateMaxDepth,
 } from "./algorithms.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // Re-export helpers and algorithms for consumers
 export {
@@ -67,7 +69,7 @@ export function createDependencyGraphTool(
       "Get the full foreign key dependency graph with cascade paths, row counts, circular dependency detection, and severity assessment. Agent-optimized structured output.",
     group: "introspection",
     inputSchema: DependencyGraphSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = DependencyGraphSchema.parse(params);
@@ -270,7 +272,7 @@ export function createTopologicalSortTool(
       "Get tables in safe DDL execution order. 'create' direction: dependencies first (for CREATE TABLE). 'drop' direction: dependents first (for DROP TABLE).",
     group: "introspection",
     inputSchema: TopologicalSortSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = TopologicalSortSchema.parse(params);
@@ -408,7 +410,7 @@ export function createCascadeSimulatorTool(
       "Simulate the impact of DELETE, DROP, or TRUNCATE on a table. Returns affected tables, estimated row counts, cascade paths, and severity assessment.",
     group: "introspection",
     inputSchema: CascadeSimulatorSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = CascadeSimulatorSchema.parse(params);

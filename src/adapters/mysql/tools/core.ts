@@ -26,6 +26,8 @@ import {
   ListTablesSchemaBase,
 } from "../schemas/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
+
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -80,10 +82,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: ReadQuerySchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -123,9 +122,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: WriteQuerySchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -164,10 +161,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: ListTablesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { database, limit } = ListTablesSchema.parse(params);
@@ -226,10 +220,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: DescribeTableSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table } = DescribeTableSchema.parse(params);
@@ -282,9 +273,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: CreateTableSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -421,10 +410,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: DropTableSchemaBase,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-    },
+    annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, ifExists } = DropTableSchema.parse(params);
@@ -494,10 +480,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: GetIndexesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table } = GetIndexesSchema.parse(params);
@@ -530,9 +513,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
     group: "core",
     inputSchema: CreateIndexSchemaBase,
     requiredScopes: ["write"],
-    annotations: {
-      readOnlyHint: false,
-    },
+    annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, table, columns, unique, type, ifNotExists } =

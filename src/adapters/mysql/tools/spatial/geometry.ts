@@ -18,6 +18,8 @@ import {
   PolygonSchemaBase,
   PolygonSchema,
 } from "../../schemas/spatial.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -58,10 +60,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
     group: "spatial",
     inputSchema: PointSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { longitude, latitude, srid } = PointSchema.parse(params);
@@ -106,10 +105,7 @@ export function createSpatialPolygonTool(
     group: "spatial",
     inputSchema: PolygonSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { coordinates, srid } = PolygonSchema.parse(params);

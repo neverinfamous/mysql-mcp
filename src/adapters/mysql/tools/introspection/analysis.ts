@@ -24,6 +24,8 @@ import {
   MigrationRisksSchemaBase,
   MigrationRisksSchema,
 } from "../../schemas/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // mysql_constraint_analysis
@@ -38,7 +40,7 @@ export function createConstraintAnalysisTool(
       "Analyze all constraints for issues: missing NOT NULL, missing primary keys.",
     group: "introspection",
     inputSchema: ConstraintAnalysisSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = ConstraintAnalysisSchema.parse(params);
@@ -366,7 +368,7 @@ export function createMigrationRisksTool(
       "Analyze proposed DDL statements for risks: data loss, lock contention, constraint violations, and breaking changes. Pre-flight check before executing migrations.",
     group: "introspection",
     inputSchema: MigrationRisksSchemaBase,
-    annotations: { readOnlyHint: true, idempotentHint: true },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationRisksSchema.parse(params);

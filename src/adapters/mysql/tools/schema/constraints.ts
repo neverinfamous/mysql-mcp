@@ -6,6 +6,8 @@ import type {
 } from "../../../../types/index.js";
 
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 const ListConstraintsSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -34,10 +36,7 @@ export function createListConstraintsTool(
     group: "schema",
     inputSchema: ListConstraintsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, type } = ListConstraintsSchema.parse(params);

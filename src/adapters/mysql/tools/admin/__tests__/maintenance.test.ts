@@ -264,7 +264,7 @@ describe("Admin Maintenance Tools", () => {
       expect(tool.name).toBe("mysql_repair_table");
       expect(tool.group).toBe("admin");
       expect(tool.requiredScopes).toContain("admin");
-      expect(tool.annotations?.destructiveHint).toBeUndefined(); // Not destructive
+      expect(tool.annotations?.destructiveHint).toBe(false); // Not destructive
     });
 
     it("should execute REPAIR TABLE without QUICK option", async () => {

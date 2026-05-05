@@ -13,6 +13,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -123,10 +125,7 @@ export function createDescriptiveStatsTool(
     group: "stats",
     inputSchema: DescriptiveStatsSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, where } = DescriptiveStatsSchema.parse(params);
@@ -245,10 +244,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: PercentilesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, percentiles, where } =
@@ -369,10 +365,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: DistributionSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, column, buckets, where } =
@@ -488,10 +481,7 @@ export function createTimeSeriesToolStats(
     group: "stats",
     inputSchema: TimeSeriesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
@@ -608,10 +598,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: SamplingSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: false, // Random results
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { table, sampleSize, columns, seed, where } =

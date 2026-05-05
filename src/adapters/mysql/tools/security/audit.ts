@@ -15,6 +15,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 // =============================================================================
 // Helpers
@@ -57,10 +59,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
     group: "security",
     inputSchema: AuditLogSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       // First check if audit log table exists
       try {
@@ -205,10 +204,7 @@ export function createSecurityFirewallStatusTool(
     group: "security",
     inputSchema: z.object({}),
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if firewall plugin is installed
@@ -278,10 +274,7 @@ export function createSecurityFirewallRulesTool(
     group: "security",
     inputSchema: FirewallRulesSchema,
     requiredScopes: ["admin"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { user, mode } = FirewallRulesSchema.parse(params);

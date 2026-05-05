@@ -20,6 +20,8 @@ import {
 } from "../../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { READ_ONLY } from "../../../../utils/annotations.js";
+
 
 export function createShowProcesslistTool(
   adapter: MySQLAdapter,
@@ -31,10 +33,7 @@ export function createShowProcesslistTool(
     group: "monitoring",
     inputSchema: ShowProcesslistSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { full, limit } = ShowProcesslistSchema.parse(params);
@@ -69,10 +68,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: ShowStatusSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowStatusSchema.parse(params);
@@ -148,10 +144,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: ShowVariablesSchemaBase,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
@@ -317,10 +310,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: InnodbStatusSchema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { summary } = InnodbStatusSchema.parse(params);
@@ -416,10 +406,7 @@ export function createReplicationStatusTool(
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { summary } = schema.parse(params);
@@ -525,10 +512,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const pool = await Promise.resolve(adapter.getPool());
@@ -555,10 +539,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
     group: "monitoring",
     inputSchema: schema,
     requiredScopes: ["read"],
-    annotations: {
-      readOnlyHint: true,
-      idempotentHint: true,
-    },
+    annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         const health = await adapter.getHealth();
