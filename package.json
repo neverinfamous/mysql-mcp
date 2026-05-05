@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage && npx tsx scripts/update-badges.ts",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck",
     "generate:instructions": "node scripts/generate-server-instructions.ts",

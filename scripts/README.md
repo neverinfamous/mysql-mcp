@@ -102,3 +102,11 @@ This script was used to enforce Master Verification & Rigor Standards (P300) com
 ```bash
 node scripts/migrate-annotations.mjs
 ```
+
+### `update-badges.ts`
+
+Automatically updates test coverage badges in `README.md` and `DOCKER_README.md` based on Vitest's JSON coverage summary output. This script is run automatically as part of `npm run test:coverage`.
+
+```bash
+npx tsx scripts/update-badges.ts
+```
