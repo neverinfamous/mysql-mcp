@@ -36,7 +36,7 @@
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - **Code Mode**: Replaced `_meta.tokenEstimate` with `metrics.tokenEstimate` in help responses and fixed validation regression on empty execution payloads.
 - **Core**: Fixed duplicate prefixes in Zod error messages for schema refinement rules.
-- **Docstore**: Migrated to `parseDocFilter` for query parity, automatically merged missing `_id` fields, and fixed criteria/update aliases.
+- **Docstore**: Migrated to `parseDocFilter` for query parity, automatically merged missing `_id` fields, fixed criteria/update aliases, and completed advanced stress tests verifying 100% boundary and idempotency architectural compliance.
 - **Documentation**: Corrected admin documentation regarding structured error formats for nonexistent tables.
 - **Events**: Fixed missing `status` and `event` fields in response payloads.
 - **Fulltext**: Removed hardcoded `id` column requirement, fixed limit parameterization bug, and mapped raw MySQL exceptions to validation errors.
@@ -55,7 +55,7 @@
 - **Spatial**: Fixed index creation errors on missing columns, fixed WKT round-tripping for SRID 4326, optimized buffer payloads by removing massive GeoJSON generation, and added P154 existence verification pattern to table `doesn't exist` errors.
 - **Stats**: Enforced numeric type checking, implemented server-side pagination for window functions, fixed string-to-number casting, sanitized window function column errors, and added an actionable generation hint to empty histogram responses.
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for intuitive Code Mode calls.
-- **Tests**: Remediated benchmark timing assertions, fixed watch-mode hangs, skipped write tests in read-only mode, and completed advanced stress tests for the core group verifying 100% boundary and idempotency architectural compliance.
+- **Tests**: Remediated benchmark timing assertions, fixed watch-mode hangs, and skipped write tests in read-only mode.
 - **Text**: Added `targetCharset` alias mapping for improved tool-calling resilience.
 - **Transactions**: Fixed parameter alias parsing for `isolationLevel`.
 
