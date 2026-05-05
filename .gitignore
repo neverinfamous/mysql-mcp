@@ -63,6 +63,12 @@ config/secrets/
 *.sql
 *.dump
 
+# Test-server seed/schema files ARE tracked source code
+!test-server/test-prompts.sql
+!test-server/test-resources.sql
+!test-server/test-seed.sql
+!test-server/blog_schema.sql
+
 # Credentials
 *.pem
 *.key
