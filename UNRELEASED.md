@@ -19,7 +19,7 @@
 - **Sandbox Hardening**: Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - **Instructions**: Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
 - **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
-- **Dependencies**: Updated core dependencies, including bumping `eslint` to 10.3.0, `globals` to 17.6.0, and `zod` to 4.4.2.
+- **Dependencies**: Updated core dependencies, including bumping `eslint` to 10.3.0, `globals` to 17.6.0, `zod` to 4.4.3, and `typescript-eslint` to 8.59.2.
 - **Token Optimization**: Reduced default limits across various tools (`mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, `mysql_export_table`, `mysql_binlog_events`, `mysql_thread_stats`) and defaulted large schemas to prevent payload bloat.
 
 ## Removed
