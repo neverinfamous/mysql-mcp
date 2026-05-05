@@ -54,3 +54,39 @@ Config: innodb-cluster.yml (gitignored, local only)
 - `group_replication_start_on_boot=ON` — auto-rejoin on container restart
 - `group_replication_bootstrap_group=OFF` — no auto-bootstrap (safety)
 - Data volumes: `mysql-node1-data`, `mysql-node2-data`, `mysql-node3-data`
+
+## Testing & Validation Scripts
+
+These scripts are used to validate MCP server behavior dynamically:
+
+### `test-filter-instructions.mjs`
+
+Starts the server with various `--tool-filter` and `--instruction-level` configurations and verifies that instruction sections (e.g., Code Mode, Help Groups, Active Tools) are properly included or excluded.
+
+```bash
+node scripts/test-filter-instructions.mjs
+```
+
+### `test-instruction-levels.mjs`
+
+An integration test that compares the payload size of filtered vs. unfiltered instructions, proving token efficiency. Also verifies that excluded tool groups do not appear in the generated instructions.
+
+```bash
+node scripts/test-instruction-levels.mjs
+```
+
+### `test-prompts.mjs`
+
+Tests the prompt generation engine (`prompts/get`) by requesting every configured prompt (with varying parameters) and validating that the output messages are correctly populated.
+
+```bash
+node scripts/test-prompts.mjs
+```
+
+### `test-tool-annotations.mjs`
+
+Validates that tools have correct `openWorldHint` annotations (e.g., `openWorldHint=true` for GitHub API tools, `false` for local/core DB tools) in the `tools/list` response.
+
+```bash
+node scripts/test-tool-annotations.mjs
+```

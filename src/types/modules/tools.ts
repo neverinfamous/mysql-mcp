@@ -60,6 +60,14 @@ export type MetaGroup =
   | "ecosystem"; // External Tools + Cluster ~41 tools
 
 /**
+ * Instruction detail level for token efficiency
+ * - essential: Core quick access only (for token-constrained clients)
+ * - standard: + dynamic help pointers for enabled groups
+ * - full: + active groups summary
+ */
+export type InstructionLevel = "essential" | "standard" | "full";
+
+/**
  * MySQL Router REST API configuration
  */
 export interface RouterConfig {

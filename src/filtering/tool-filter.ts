@@ -263,6 +263,20 @@ export function isToolEnabled(
 }
 
 /**
+ * Get all active tool groups based on the enabled tools set
+ */
+export function getEnabledGroups(enabledTools: Set<string>): Set<ToolGroup> {
+  const groups = new Set<ToolGroup>();
+  for (const tool of enabledTools) {
+    const group = getToolGroup(tool);
+    if (group) {
+      groups.add(group);
+    }
+  }
+  return groups;
+}
+
+/**
  * Filter a list of tool definitions based on filter configuration
  */
 export function filterTools(

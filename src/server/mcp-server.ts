@@ -8,7 +8,7 @@
 import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
-  INSTRUCTIONS,
+  generateInstructions,
   HELP_CONTENT,
 } from "../constants/server-instructions.js";
 import { VERSION } from "../utils/version.js";
@@ -22,7 +22,7 @@ import type {
   ToolFilterConfig,
   ToolGroup,
 } from "../types/index.js";
-import { parseToolFilter, getFilterSummary } from "../filtering/tool-filter.js";
+import { parseToolFilter, getFilterSummary, getEnabledGroups } from "../filtering/tool-filter.js";
 import { logger } from "../utils/logger.js";
 import { mcpLogger } from "../logging/mcp-logging.js";
 import { progressFactory } from "../progress/progress-reporter.js";
@@ -59,8 +59,14 @@ export class McpServer {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.toolFilter = parseToolFilter(this.config.toolFilter);
 
-    // Generate dynamic instructions based on enabled tools
-    const instructions = INSTRUCTIONS;
+    // Generate dynamic instructions based on enabled tool groups and level
+    const enabledGroups = getEnabledGroups(this.toolFilter.enabledTools);
+    const level = this.config.instructionLevel ?? "standard";
+    const instructions = generateInstructions(
+      enabledGroups,
+      level,
+      this.toolFilter.enabledTools.size,
+    );
 
     this.server = new SdkMcpServer(
       {
@@ -441,15 +447,7 @@ export class McpServer {
     }
 
     // Derive enabled groups from enabled tools
-    const enabledGroups = new Set<ToolGroup>();
-    for (const [group, tools] of Object.entries(TOOL_GROUPS) as [
-      ToolGroup,
-      string[],
-    ][]) {
-      if (tools.some((tool) => this.toolFilter.enabledTools.has(tool))) {
-        enabledGroups.add(group);
-      }
-    }
+    const enabledGroups = getEnabledGroups(this.toolFilter.enabledTools);
 
     // If Code Mode is enabled, it exposes the full API surface area via the sandbox,
     // so we must register all help resources for the agent to reference.

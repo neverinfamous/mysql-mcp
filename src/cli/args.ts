@@ -159,6 +159,25 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      case "--instruction-level":
+        if (nextArg && !nextArg.startsWith("-")) {
+          const level = nextArg.toLowerCase();
+          if (
+            level === "essential" ||
+            level === "standard" ||
+            level === "full"
+          ) {
+            config.instructionLevel = level;
+          } else {
+            console.error(
+              `Invalid instruction level: ${level}. Must be essential, standard, or full.`,
+            );
+            process.exit(1);
+          }
+          i++;
+        }
+        break;
+
       case "--name":
         if (nextArg && !nextArg.startsWith("-")) {
           config.name = nextArg;
@@ -343,6 +362,19 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
   }
 
+  // Check for instruction level in environment
+  if (!config.instructionLevel) {
+    const envLevel =
+      process.env["MYSQL_MCP_INSTRUCTION_LEVEL"] ??
+      process.env["INSTRUCTION_LEVEL"];
+    if (envLevel) {
+      const level = envLevel.toLowerCase();
+      if (level === "essential" || level === "standard" || level === "full") {
+        config.instructionLevel = level;
+      }
+    }
+  }
+
   // Check for server host in environment
   if (!config.host) {
     config.host = process.env["MCP_HOST"] ?? process.env["HOST"];
@@ -449,6 +481,7 @@ Server Options:
   --port, -p <port>           HTTP port for http/sse transports
   --server-host <host>        Host to bind HTTP transport to (default: localhost)
   --tool-filter, -f <filter>  Tool filter string (e.g., "-replication,-partitioning")
+  --instruction-level <level> Instruction detail level: essential, standard, full (default: standard)
   --name <name>               Server name (default: mysql-mcp)
 
 OAuth Options:
@@ -486,6 +519,7 @@ Environment Variables:
   MYSQL_DATABASE              MySQL database
   MYSQL_POOL_SIZE             Connection pool size
   MYSQL_MCP_TOOL_FILTER       Tool filter string
+  MYSQL_MCP_INSTRUCTION_LEVEL Instruction level (essential, standard, full)
   MCP_HOST                    Host to bind HTTP transport to
   MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
   TRUST_PROXY                  Trust X-Forwarded-For (true/false)

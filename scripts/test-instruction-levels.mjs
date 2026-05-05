@@ -7,7 +7,7 @@
  *
  * Usage:
  *   npm run build
- *   node test-database/test-instruction-levels.mjs
+ *   node scripts/test-instruction-levels.mjs
  *
  * Requires: MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE env vars
  */
@@ -16,12 +16,18 @@ import { spawn } from 'child_process'
 
 const PROJECT_DIR = 'C:\\Users\\chris\\Desktop\\mysql-mcp'
 
+// Ensure DB connection env vars are present (inherit from shell or use Docker defaults)
+if (!process.env.MYSQL_HOST) process.env.MYSQL_HOST = "127.0.0.1";
+if (!process.env.MYSQL_USER) process.env.MYSQL_USER = "root";
+if (!process.env.MYSQL_PASSWORD) process.env.MYSQL_PASSWORD = "root";
+if (!process.env.MYSQL_DATABASE) process.env.MYSQL_DATABASE = "testdb";
+
 /**
  * Start server with given args, send initialize, return instruction text
  */
 function testServer(args) {
     return new Promise((resolve, reject) => {
-        const proc = spawn('node', ['dist/cli.js', ...args], {
+        const proc = spawn('node', ['dist/cli.js', '--log-level', 'error', ...args], {
             cwd: PROJECT_DIR,
             stdio: ['pipe', 'pipe', 'pipe'],
         })
@@ -94,14 +100,14 @@ async function main() {
     if (!filterReduced) allPassed = false
 
     const shouldExclude = [
-        'JSON Tools',
-        'Fulltext Search',
-        'Document Store',
-        'Spatial Tools',
-        'Stats Tools',
-        'ProxySQL Tools',
-        'MySQL Shell Tools',
-        'Security Tools',
+        'help/json',
+        'help/fulltext',
+        'help/docstore',
+        'help/spatial',
+        'help/stats',
+        'help/proxysql',
+        'help/shell',
+        'help/security',
     ]
     for (const section of shouldExclude) {
         const found = coreOnly.text.includes(section)
@@ -109,8 +115,8 @@ async function main() {
         if (found) allPassed = false
     }
 
-    // Always-include sections
-    const shouldInclude = ['Server Identity', 'Code Mode']
+    // Always-include sections (Core and Code Mode since it's auto-injected for whitelist)
+    const shouldInclude = ['Quick Reference', 'mysql.core.help()']
     for (const section of shouldInclude) {
         const found = coreOnly.text.includes(section)
         console.log(`  Includes "${section}": ${found ? '✅' : '❌ MISSING'}`)

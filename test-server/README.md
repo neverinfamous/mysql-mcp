@@ -20,7 +20,7 @@
 | `reset-database.ps1` | Reset + re-seed `testdb` | When data is dirty |
 | `test-seed.sql` | Primary seed SQL (DDL + DML) for all `test_*` tables | Reference only |
 | `sample.csv`, `sample.json` | Fixtures for import/export testing | Used by text/CSV tools |
-| `test-instruction-levels.mjs` | Integration test — slim instructions + help resource filtering by group | Run after build |
+| `../scripts/test-*.mjs` | Automated test scripts | Run after build |
 
 ## Test Database Schema (Quick Reference)
 
