@@ -15,7 +15,7 @@ import {
   checkRateLimit,
   readBody,
   getClientIp,
-  matchesCorsOrigin,
+  getSafeCorsOrigin,
 } from "../security.js";
 import {
   handleHealthCheck,
@@ -147,29 +147,25 @@ describe("getClientIp()", () => {
   });
 });
 
-describe("matchesCorsOrigin()", () => {
+describe("getSafeCorsOrigin()", () => {
   it("should match exact origins", () => {
     expect(
-      matchesCorsOrigin("https://example.com", "https://example.com"),
-    ).toBe(true);
+      getSafeCorsOrigin("https://example.com", "https://example.com"),
+    ).toBe("https://example.com");
   });
 
   it("should not match different origins", () => {
-    expect(matchesCorsOrigin("https://evil.com", "https://example.com")).toBe(
-      false,
-    );
+    expect(getSafeCorsOrigin("https://evil.com", "https://example.com")).toBeNull();
   });
 
   it("should match wildcard subdomain patterns", () => {
-    expect(matchesCorsOrigin("https://app.example.com", "*.example.com")).toBe(
-      true,
+    expect(getSafeCorsOrigin("https://app.example.com", "*.example.com")).toBe(
+      "https://app.example.com",
     );
   });
 
   it("should not match bare domain against wildcard subdomain", () => {
-    expect(matchesCorsOrigin("https://example.com", "*.example.com")).toBe(
-      false,
-    );
+    expect(getSafeCorsOrigin("https://example.com", "*.example.com")).toBeNull();
   });
 });
 
@@ -845,7 +841,8 @@ describe("handleRequest()", () => {
       );
       t.getTransports().set("mock-session", mockTransport as never);
 
-      const mockReq = new PassThrough() as unknown as IncomingMessage;
+      const mockReqStream = new PassThrough();
+      const mockReq = mockReqStream as unknown as IncomingMessage;
       mockReq.method = "POST";
       mockReq.url = "/messages?sessionId=mock-session";
       mockReq.headers = {
@@ -854,7 +851,7 @@ describe("handleRequest()", () => {
       };
       (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
 
-      mockReq.write(
+      mockReqStream.write(
         JSON.stringify({
           jsonrpc: "2.0",
           id: 1,
@@ -862,7 +859,7 @@ describe("handleRequest()", () => {
           params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
         }),
       );
-      mockReq.end();
+      mockReqStream.end();
 
       const mockRes = createMockResponse();
 
@@ -895,7 +892,8 @@ describe("handleRequest()", () => {
       );
       t.getTransports().set("mock-session", mockTransport as never);
 
-      const mockReq = new PassThrough() as unknown as IncomingMessage;
+      const mockReqStream = new PassThrough();
+      const mockReq = mockReqStream as unknown as IncomingMessage;
       mockReq.method = "POST";
       mockReq.url = "/messages?sessionId=mock-session";
       mockReq.headers = {
@@ -904,7 +902,7 @@ describe("handleRequest()", () => {
       };
       (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
 
-      mockReq.write(
+      mockReqStream.write(
         JSON.stringify({
           jsonrpc: "2.0",
           id: 2,
@@ -912,7 +910,7 @@ describe("handleRequest()", () => {
           params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
         }),
       );
-      mockReq.end();
+      mockReqStream.end();
 
       const mockRes = createMockResponse();
 
