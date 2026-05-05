@@ -41,12 +41,14 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should export table as SQL format", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice", email: "alice@example.com" },
-          { id: 2, name: "Bob", email: "bob@example.com" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice", email: "alice@example.com" },
+            { id: 2, name: "Bob", email: "bob@example.com" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -56,19 +58,21 @@ describe("Admin Backup Tools", () => {
         mockContext,
       )) as { data: { sql: string; rowCount: number } };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
       expect(result.data.sql).toContain("INSERT INTO `users`");
       expect(result.data.sql).toContain("Alice");
       expect(result.data.rowCount).toBe(2);
     });
 
     it("should export table as CSV format", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice", active: true },
-          { id: 2, name: "Bob", active: false },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice", active: true },
+            { id: 2, name: "Bob", active: false },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -85,7 +89,9 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should export empty table", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "empty_table" }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -100,9 +106,11 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle WHERE clause in SQL export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 5, status: "active" }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "orders" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ id: 5, status: "active" }]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -112,14 +120,16 @@ describe("Admin Backup Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0] as string;
       expect(call).toContain('WHERE status = "active"');
     });
 
     it("should handle NULL values in SQL export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1, name: "Test", description: null }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "products" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ id: 1, name: "Test", description: null }]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -133,11 +143,13 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle JSON values in SQL export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, metadata: { key: "value", nested: { prop: 123 } } },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "items" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, metadata: { key: "value", nested: { prop: 123 } } },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -152,9 +164,11 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle object values in CSV export", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1, config: { setting: "value" } }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "configs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ id: 1, config: { setting: "value" } }]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -200,9 +214,8 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should return structured error for non-existent table", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
-      );
+      // The first call is the existence check (P154)
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -210,16 +223,18 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", format: "SQL" },
         mockContext,
-      )) as { success: boolean; error: string; code?: string };
+      )) as { success: boolean; data: { exists: boolean }; error?: string };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.success).toBe(true);
+      expect(result.data?.exists).toBe(false);
     });
 
     it("should return structured error for query failures", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Unknown column 'invalid_col' in 'where clause'"),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockRejectedValueOnce(
+          new Error("Unknown column 'invalid_col' in 'where clause'"),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -234,11 +249,13 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should generate proper INSERT statements with column names", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, email: "test@example.com", created_at: "2024-01-01" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, email: "test@example.com", created_at: "2024-01-01" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -279,14 +296,16 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should batch rows into multi-row INSERT statements", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" },
-          { id: 3, name: "Charlie" },
-          { id: 4, name: "Diana" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+            { id: 3, name: "Charlie" },
+            { id: 4, name: "Diana" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -305,13 +324,15 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle batch larger than row count", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" },
-          { id: 3, name: "Charlie" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+            { id: 3, name: "Charlie" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -330,12 +351,14 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should default to batch: 1 producing individual INSERT statements", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            { id: 1, name: "Alice" },
+            { id: 2, name: "Bob" },
+          ]),
+        );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,

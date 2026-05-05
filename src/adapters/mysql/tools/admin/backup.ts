@@ -116,6 +116,19 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           validateWhereClause(where);
         }
 
+        // Verify table exists (P154)
+        try {
+          const tableCheck = await adapter.executeReadQuery(
+            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+            [table]
+          );
+          if (!tableCheck.rows || tableCheck.rows.length === 0) {
+            return withTokenEstimate({ success: true, data: { exists: false, table } });
+          }
+        } catch (dbErr) {
+          return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
+        }
+
         // Get table data
         let sql = `SELECT * FROM \`${table}\``;
         if (where) {

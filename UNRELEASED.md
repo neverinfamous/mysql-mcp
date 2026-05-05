@@ -32,7 +32,7 @@
 - **Global Error Handling**: Standardized error responses to use `formatHandlerErrorResponse()` across all tool groups. Eliminated property leakages, standardized Zod validation formats, and applied Split Schema patterns for improved coercion.
 - **Global Token Estimation**: Remediated missing `metrics.tokenEstimate` payloads in success and domain error paths across all tool groups.
 - **Admin**: Switched DDL operations to `rawQuery` to prevent array response corruption. Correctly wrapped MySQL maintenance query errors into structured responses.
-- **Backup**: Fixed `DATETIME` ISO 8601 string parsing, added constraints to table arrays, optimized imports with batched bulk inserts, and added existence verification to restore.
+- **Backup**: Fixed `DATETIME` ISO 8601 string parsing, added constraints to table arrays, optimized imports with batched bulk inserts, and added existence verification to restore and table exports (P154 pattern).
 - **Cluster**: Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - **Code Mode**: Replaced `_meta.tokenEstimate` with `metrics.tokenEstimate` in help responses and fixed validation regression on empty execution payloads.
 - **Core**: Fixed duplicate prefixes in Zod error messages for schema refinement rules.
