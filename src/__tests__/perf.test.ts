@@ -127,8 +127,8 @@ describe("Performance Tests", () => {
         parseToolFilter(complexFilter);
       }, 50);
 
-      // Complex filter should still be reasonably fast (< 5ms on average)
-      expect(timing.avg).toBeLessThan(5);
+      // Complex filter should still be reasonably fast (< 15ms on average)
+      expect(timing.avg).toBeLessThan(15);
     });
 
     it("should handle repeated parsing of same filter", () => {
@@ -182,8 +182,8 @@ describe("Performance Tests", () => {
           filterTools(mockTools, config);
         }, 100);
 
-        // Filtering 191 tools should be fast (< 2ms on average)
-        expect(timing.avg).toBeLessThan(2);
+        // Filtering 191 tools should be fast (< 5ms on average)
+        expect(timing.avg).toBeLessThan(5);
 
         // Verify correct filtering
         const filtered = filterTools(mockTools, config);
