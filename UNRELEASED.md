@@ -80,7 +80,7 @@
 ### Certified
 
 - `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
-- `performance` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
+- `performance` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `schema` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `monitoring` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `stats` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, server-side pagination limits, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
@@ -92,7 +92,7 @@
 - `introspection` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `json` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `migration` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
-- `partitioning` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via MCP direct calls.
+- `partitioning` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `replication` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `roles` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `security` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
