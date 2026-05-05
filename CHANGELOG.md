@@ -21,6 +21,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Error Mapping**: `utils/error-suggestions.ts` to map MySQL error codes to actionable suggestions.
 - **Connection Pool**: `initializationSql` config to execute setup queries once per checkout.
 - **Cluster Recovery**: `scripts/reboot-cluster.ps1` utility for recovering InnoDB Clusters from complete outages.
+- **Harmonized Error Types (`error-types.ts`)** — New `ErrorCategory` enum (9 categories: validation, connection, query, permission, config, resource, authentication, authorization, internal), `ErrorResponse` interface, and `ErrorContext` interface. Part of the harmonized error handling standard across db-mcp, postgres-mcp, and mysql-mcp
+- **Enriched `MySQLMcpError` Base Class** — Constructor now accepts `(message, code, category, options?)` with `suggestion`, `recoverable`, `details`, and `cause` fields. Includes `toResponse()` method returning structured `ErrorResponse`. All 7 subclasses enriched with category, suggestion, and recoverable defaults
+- **`formatHandlerErrorResponse()` Function** — New enriched error formatter in `error-helpers.ts` returning full `ErrorResponse` objects with code, category, suggestion, and recoverable fields. Handles `MySQLMcpError`, `ZodError`, and raw MySQL errors. Existing `formatHandlerError()` preserved for backward compatibility
+- **`OAuthError` Extends `MySQLMcpError`** — OAuth errors now inherit full error handling infrastructure (category, suggestion, toResponse()). All OAuth error codes prefixed with `AUTH_` (e.g., `TOKEN_MISSING` → `AUTH_TOKEN_MISSING`). Added `wwwAuthenticate` as instance property; deprecated standalone `getWWWAuthenticateHeader()` utility
+- **OAuth Scope Map (`scope-map.ts`)** — O(1) reverse lookup from tool name to required OAuth scope. `getRequiredScope(toolName)` returns the scope without iterating tool groups. `getToolScopeMap()` exposes the full read-only map for introspection
+- **OAuth Auth Context (`auth-context.ts`)** — AsyncLocalStorage-based per-request authentication context threading. `runWithAuthContext()` / `getAuthContext()` allow tool handlers to access auth context without direct parameter coupling
+- **`SCOPE_PATTERNS` Regex Constants** — `SCOPE_PATTERNS.DATABASE` and `SCOPE_PATTERNS.TABLE` regex patterns for validating dynamic `db:*` and `table:*:*` scopes
+- **`BASE_SCOPES` Constant** — Array of the 4 standard scopes (`read`, `write`, `admin`, `full`) without dynamic patterns
+- **`OAuthResourceServer.getWWWAuthenticateHeader()`** — Generates RFC-compliant `WWW-Authenticate` headers for 401 responses
+- **`isOAuthError()` Type Guard** — Runtime type guard for `OAuthError` instances
+- **`getWWWAuthenticateHeader()` Utility** — Generates `WWW-Authenticate` headers from `OAuthError` instances with error-specific formatting (insufficient scope includes `scope` parameter, token missing omits error details)
+- **`MCP_RATE_LIMIT_MAX` Environment Variable** — HTTP transport rate limiter now reads `MCP_RATE_LIMIT_MAX` from environment as a fallback when not set via constructor config. Allows E2E test configurations to increase the limit without code changes (default: 100 requests/minute)
+- **Dual HTTP Transport** — HTTP transport now supports both Streamable HTTP (`/mcp` endpoint, MCP protocol 2025-03-26) and Legacy SSE (`/sse` + `/messages` endpoints, MCP protocol 2024-11-05) simultaneously. Includes session management, cross-protocol guards, CORS, security headers, HSTS opt-in, OAuth integration, and health endpoint
+- **HTTP Transport Security Headers** — All HTTP responses now include `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control`, `Content-Security-Policy`, and `Permissions-Policy` headers. Optional HSTS for HTTPS deployments
 
 ### Changed
 
@@ -30,6 +44,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Events Syntax**: Simplified schema definitions to accept standard MySQL syntax strings.
 - **Dependencies**: Updated core dependencies, including bumping `eslint` to 10.3.0, `globals` to 17.6.0, `zod` to 4.4.3, and `typescript-eslint` to 8.59.2.
 - **Token Optimization**: Reduced default limits across various tools (`mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, `mysql_export_table`, `mysql_binlog_events`, `mysql_thread_stats`) and defaulted large schemas to prevent payload bloat.
+
+### Improved
+
+- **HTTP Transport Modular Split** — Refactored monolithic `src/transports/http.ts` (798 lines) into `src/transports/http/` directory with 5 focused modules: `types.ts` (config interface + server timeout constants + defaults), `security.ts` (rate limiting, security headers, CORS, body parsing, client IP), `handlers.ts` (health check, root info, OAuth metadata), `server.ts` (transport class + factory), `index.ts` (barrel re-export). Aligns with `db-mcp` and `postgres-mcp` transport architecture
+- **HTTP Security Headers** — Added `Referrer-Policy: no-referrer` header to all HTTP responses (6 base headers, 7 with HSTS). Previously 5 base headers, 6 with HSTS
+- **Server Timeouts (Slowloris Protection)** — Added `requestTimeout` (120s), `keepAliveTimeout` (65s), and `headersTimeout` (66s) to prevent DoS attacks via slow HTTP connections
+- **Health Check Rate-Limit Bypass** — `/health` endpoint now responds before rate limiting is checked, ensuring monitoring probes always succeed regardless of per-IP request quotas
+- **Retry-After Header on 429** — Rate-limited responses now include a `Retry-After` header indicating seconds until the rate limit window resets
+- **Trust Proxy Support** — New `trustProxy` config option reads `X-Forwarded-For` for accurate client IP extraction behind reverse proxies (nginx, ALB, Cloudflare, etc.)
+- **Wildcard Subdomain CORS** — CORS origins now support wildcard subdomain patterns (e.g., `*.example.com` matches `app.example.com`)
+- **E2E Prompt Coverage** — Added `prompts.spec.ts` with 21 tests verifying all 19 MCP prompts are registered and return structured content via `client.listPrompts()` and `client.getPrompt()`
+- **E2E Streamable HTTP Transport** — Added `streamable-http.spec.ts` with 6 tests validating MCP 2025-03-26 Streamable HTTP transport parity: init, listTools, callTool (read + write), listResources, readResource, listPrompts, and getPrompt via `/mcp` endpoint
+- **E2E Structured Error Responses** — Added `errors.spec.ts` with 6 tests verifying structured `{ success: false, code, error }` contract for nonexistent tables, columns, statement type mismatches (INSERT in read_query, SELECT in write_query), invalid JSON paths, and nonexistent table describe
+- **Centralized Error Helpers** — Created `src/adapters/mysql/tools/core/error-helpers.ts` with `formatMysqlError`, `formatZodError`, and `formatHandlerError` functions. All error formatting is now centralized instead of scattered across individual tool files
+- **E2E Ecosystem Payload Contracts** — Added 4 new spec files with 15 payload contract tests covering untested ecosystem tools: `payloads-ecosystem-router.spec.ts` (4 Router tools), `payloads-ecosystem-proxysql.spec.ts` (6 ProxySQL tools), `payloads-ecosystem-cluster.spec.ts` (4 Cluster/GR tools), `payloads-ecosystem-shell.spec.ts` (1 Shell tool). Total E2E tests: 60 → 179
+- **E2E Rate Limit Headroom** — Increased `MCP_RATE_LIMIT_MAX` from 1000 to 10000 in `playwright.config.ts` to accommodate the expanded ecosystem test suite without hitting rate limits
+- **Error Handling Standardization (Phase 1: Pattern B Files)** — Restructured 23 handlers across 9 files (`core.ts`, `partitioning.ts`, 6 schema files) to use a single outer `try/catch` pattern. Previously, these handlers had Zod-only catches with `throw error` re-throws, leaving domain errors unprotected. All handlers now format Zod validation errors and MySQL query errors consistently using the centralized helpers. Eliminated all `throw err`/`throw error` patterns from the tools directory
+- **Error Handling Standardization (Phase 2: Centralize Helpers)** — Replaced 22 local `formatZodError` copies, 11 local `stripErrorPrefix` copies, and 10 inline `.replace()` error-prefix-stripping patterns across 23 tool files with centralized imports from `error-helpers.ts`. Zero local copies or inline patterns remain. Files updated across admin, security, spatial, shell, stats, sysschema, performance, and top-level tool groups
 
 ### Removed
 
@@ -67,48 +99,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tests**: Remediated benchmark timing assertions, fixed watch-mode hangs, and skipped write tests in read-only mode.
 - **Text**: Added `targetCharset` alias mapping for improved tool-calling resilience.
 - **Transactions**: Fixed parameter alias parsing for `isolationLevel`.
-
-### Security
-
-- **Scope Enforcement**: Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
-- **Dependency Patches**: Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities.
-- **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
-
-
-### Added
-
-- **Harmonized Error Types (`error-types.ts`)** — New `ErrorCategory` enum (9 categories: validation, connection, query, permission, config, resource, authentication, authorization, internal), `ErrorResponse` interface, and `ErrorContext` interface. Part of the harmonized error handling standard across db-mcp, postgres-mcp, and mysql-mcp
-- **Enriched `MySQLMcpError` Base Class** — Constructor now accepts `(message, code, category, options?)` with `suggestion`, `recoverable`, `details`, and `cause` fields. Includes `toResponse()` method returning structured `ErrorResponse`. All 7 subclasses enriched with category, suggestion, and recoverable defaults
-- **`formatHandlerErrorResponse()` Function** — New enriched error formatter in `error-helpers.ts` returning full `ErrorResponse` objects with code, category, suggestion, and recoverable fields. Handles `MySQLMcpError`, `ZodError`, and raw MySQL errors. Existing `formatHandlerError()` preserved for backward compatibility
-- **`OAuthError` Extends `MySQLMcpError`** — OAuth errors now inherit full error handling infrastructure (category, suggestion, toResponse()). All OAuth error codes prefixed with `AUTH_` (e.g., `TOKEN_MISSING` → `AUTH_TOKEN_MISSING`). Added `wwwAuthenticate` as instance property; deprecated standalone `getWWWAuthenticateHeader()` utility
-- **OAuth Scope Map (`scope-map.ts`)** — O(1) reverse lookup from tool name to required OAuth scope. `getRequiredScope(toolName)` returns the scope without iterating tool groups. `getToolScopeMap()` exposes the full read-only map for introspection
-- **OAuth Auth Context (`auth-context.ts`)** — AsyncLocalStorage-based per-request authentication context threading. `runWithAuthContext()` / `getAuthContext()` allow tool handlers to access auth context without direct parameter coupling
-- **`SCOPE_PATTERNS` Regex Constants** — `SCOPE_PATTERNS.DATABASE` and `SCOPE_PATTERNS.TABLE` regex patterns for validating dynamic `db:*` and `table:*:*` scopes
-- **`BASE_SCOPES` Constant** — Array of the 4 standard scopes (`read`, `write`, `admin`, `full`) without dynamic patterns
-- **`OAuthResourceServer.getWWWAuthenticateHeader()`** — Generates RFC-compliant `WWW-Authenticate` headers for 401 responses
-- **`isOAuthError()` Type Guard** — Runtime type guard for `OAuthError` instances
-- **`getWWWAuthenticateHeader()` Utility** — Generates `WWW-Authenticate` headers from `OAuthError` instances with error-specific formatting (insufficient scope includes `scope` parameter, token missing omits error details)
-
-### Improved
-
-- **HTTP Transport Modular Split** — Refactored monolithic `src/transports/http.ts` (798 lines) into `src/transports/http/` directory with 5 focused modules: `types.ts` (config interface + server timeout constants + defaults), `security.ts` (rate limiting, security headers, CORS, body parsing, client IP), `handlers.ts` (health check, root info, OAuth metadata), `server.ts` (transport class + factory), `index.ts` (barrel re-export). Aligns with `db-mcp` and `postgres-mcp` transport architecture
-- **HTTP Security Headers** — Added `Referrer-Policy: no-referrer` header to all HTTP responses (6 base headers, 7 with HSTS). Previously 5 base headers, 6 with HSTS
-- **Server Timeouts (Slowloris Protection)** — Added `requestTimeout` (120s), `keepAliveTimeout` (65s), and `headersTimeout` (66s) to prevent DoS attacks via slow HTTP connections
-- **Health Check Rate-Limit Bypass** — `/health` endpoint now responds before rate limiting is checked, ensuring monitoring probes always succeed regardless of per-IP request quotas
-- **Retry-After Header on 429** — Rate-limited responses now include a `Retry-After` header indicating seconds until the rate limit window resets
-- **Trust Proxy Support** — New `trustProxy` config option reads `X-Forwarded-For` for accurate client IP extraction behind reverse proxies (nginx, ALB, Cloudflare, etc.)
-- **Wildcard Subdomain CORS** — CORS origins now support wildcard subdomain patterns (e.g., `*.example.com` matches `app.example.com`)
-- **E2E Prompt Coverage** — Added `prompts.spec.ts` with 21 tests verifying all 19 MCP prompts are registered and return structured content via `client.listPrompts()` and `client.getPrompt()`
-- **E2E Streamable HTTP Transport** — Added `streamable-http.spec.ts` with 6 tests validating MCP 2025-03-26 Streamable HTTP transport parity: init, listTools, callTool (read + write), listResources, readResource, listPrompts, and getPrompt via `/mcp` endpoint
-- **E2E Structured Error Responses** — Added `errors.spec.ts` with 6 tests verifying structured `{ success: false, code, error }` contract for nonexistent tables, columns, statement type mismatches (INSERT in read_query, SELECT in write_query), invalid JSON paths, and nonexistent table describe
-- **Centralized Error Helpers** — Created `src/adapters/mysql/tools/core/error-helpers.ts` with `formatMysqlError`, `formatZodError`, and `formatHandlerError` functions. All error formatting is now centralized instead of scattered across individual tool files
-- **E2E Ecosystem Payload Contracts** — Added 4 new spec files with 15 payload contract tests covering untested ecosystem tools: `payloads-ecosystem-router.spec.ts` (4 Router tools), `payloads-ecosystem-proxysql.spec.ts` (6 ProxySQL tools), `payloads-ecosystem-cluster.spec.ts` (4 Cluster/GR tools), `payloads-ecosystem-shell.spec.ts` (1 Shell tool). Total E2E tests: 60 → 179
-- **E2E Rate Limit Headroom** — Increased `MCP_RATE_LIMIT_MAX` from 1000 to 10000 in `playwright.config.ts` to accommodate the expanded ecosystem test suite without hitting rate limits
-- **Error Handling Standardization (Phase 1: Pattern B Files)** — Restructured 23 handlers across 9 files (`core.ts`, `partitioning.ts`, 6 schema files) to use a single outer `try/catch` pattern. Previously, these handlers had Zod-only catches with `throw error` re-throws, leaving domain errors unprotected. All handlers now format Zod validation errors and MySQL query errors consistently using the centralized helpers. Eliminated all `throw err`/`throw error` patterns from the tools directory
-- **Error Handling Standardization (Phase 2: Centralize Helpers)** — Replaced 22 local `formatZodError` copies, 11 local `stripErrorPrefix` copies, and 10 inline `.replace()` error-prefix-stripping patterns across 23 tool files with centralized imports from `error-helpers.ts`. Zero local copies or inline patterns remain. Files updated across admin, security, spatial, shell, stats, sysschema, performance, and top-level tool groups
-
-### Fixed
-
 - **HTTP Transport Server Crash on Reconnect (Critical)** — `void this.server.connect(sseTransport)` in `McpServer.startTransport()` called `connect()` without first calling `close()`, causing an "Already connected" crash on subsequent connections. Fixed with `close()`-before-`connect()` pattern
 - **HTTP Transport `transport.start()` Method Does Not Exist (Critical)** — `handleSSERequest()` called `transport.start()` on `StreamableHTTPServerTransport`, which has no `start()` method. Replaced with proper session-based initialization
 - **HTTP Transport No Session Management** — Single `this.transport` field was overwritten on each connection, making it impossible to route `/messages` to the correct session. Replaced with `Map<string, Transport>` session map
@@ -120,20 +110,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **HTTP Transport CORS Wildcard Not Working** — `corsOrigins: ["*"]` was compared literally against the request `Origin` header and never matched. Added proper wildcard handling: when `"*"` is in `corsOrigins`, `Access-Control-Allow-Origin` is set to `"*"` unconditionally
 - **HTTP Transport CORS Credential/Wildcard Conflict** — `Access-Control-Allow-Credentials: true` was set even with wildcard origin, violating the CORS spec. Now only set when explicit origins are used
 
-### Added
+### Security
 
-- **`MCP_RATE_LIMIT_MAX` Environment Variable** — HTTP transport rate limiter now reads `MCP_RATE_LIMIT_MAX` from environment as a fallback when not set via constructor config. Allows E2E test configurations to increase the limit without code changes (default: 100 requests/minute)
-- **Dual HTTP Transport** — HTTP transport now supports both Streamable HTTP (`/mcp` endpoint, MCP protocol 2025-03-26) and Legacy SSE (`/sse` + `/messages` endpoints, MCP protocol 2024-11-05) simultaneously. Includes session management, cross-protocol guards, CORS, security headers, HSTS opt-in, OAuth integration, and health endpoint
-- **HTTP Transport Security Headers** — All HTTP responses now include `X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control`, `Content-Security-Policy`, and `Permissions-Policy` headers. Optional HSTS for HTTPS deployments
+- **Scope Enforcement**: Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
+- **Dependency Patches**: Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities.
+- **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
 
 ### Dependencies
 
-- `@types/node`: 25.3.3 → 25.4.0
-- `eslint`: 10.0.2 → 10.0.3
-- `globals`: 17.3.0 → 17.4.0
-- `jose`: 6.1.3 → 6.2.1
+- `@types/node`: 25.3.2 → 25.6.0
+- `eslint`: 10.0.2 → 10.3.0
+- `globals`: 17.3.0 → 17.6.0
+- `jose`: 6.1.3 → 6.2.3
 - `mysql2`: 3.18.2 → 3.19.1
-- `typescript-eslint`: 8.56.1 → 8.57.0
+- `typescript-eslint`: 8.56.1 → 8.59.2
+- `zod`: 4.3.6 → 4.4.3
 - `express-rate-limit`: 8.2.1 → 8.3.1 (transitive)
 - `hono`: 4.12.2 → 4.12.7 (transitive)
 - `@hono/node-server`: 1.19.9 → 1.19.11 (transitive)
