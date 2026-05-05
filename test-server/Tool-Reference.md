@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete list of all **230+ tools** across 25 categories.
+Complete list of all **224 tools** across 25 categories.
 
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 

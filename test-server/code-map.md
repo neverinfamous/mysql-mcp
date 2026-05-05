@@ -117,7 +117,7 @@ src/
 
 ## Handler → Tool Mapping
 
-230+ tools across 25 groups. Each handler file registers tools with `group` labels.
+224 tools across 25 groups. Each handler file registers tools with `group` labels.
 
 ### Tool Handlers (`src/adapters/mysql/tools/`)
 
