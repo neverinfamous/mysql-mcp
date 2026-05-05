@@ -8,7 +8,7 @@
  * main thread where the actual MySQLAdapter methods execute.
  */
 
-import { parentPort, workerData, type MessagePort } from "node:worker_threads";
+import { isMainThread, parentPort, workerData, type MessagePort } from "node:worker_threads";
 import vm from "node:vm";
 import { transformAutoReturn } from "./auto-return.js";
 
@@ -37,7 +37,7 @@ interface RpcResponse {
  * The apiBindings provide group → method name arrays from the main thread.
  * Each method becomes an async function that sends RPC and waits for response.
  */
-function buildMysqlProxy(
+export function buildMysqlProxy(
   bindings: Record<string, string[]>,
   rpcPort: MessagePort,
 ): Record<string, unknown> {
@@ -107,7 +107,7 @@ function buildMysqlProxy(
 /**
  * Run user code in a vm context within the worker thread
  */
-async function executeInWorker(): Promise<void> {
+export async function executeInWorker(): Promise<void> {
   const data = workerData as WorkerData;
   const { code, apiBindings, timeout, rpcPort } = data;
 
@@ -190,5 +190,7 @@ async function executeInWorker(): Promise<void> {
   }
 }
 
-// Run immediately when worker starts
-void executeInWorker();
+// Run immediately when worker starts if not in main thread
+if (!isMainThread) {
+  void executeInWorker();
+}

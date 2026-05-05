@@ -410,6 +410,11 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     config.trustProxy = true;
   }
 
+  // Check HSTS environment variable
+  if (!config.enableHSTS && process.env["MCP_ENABLE_HSTS"] === "true") {
+    config.enableHSTS = true;
+  }
+
   // Build OAuth config if enabled
   let oauth: OAuthConfig | undefined;
   if (oauthEnabled) {

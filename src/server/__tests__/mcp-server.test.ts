@@ -266,6 +266,25 @@ describe("McpServer", () => {
       expect(httpServer.isRunning()).toBe(false);
     });
 
+    it("should start with sse transport", async () => {
+      const sseServer = new McpServer({
+        transport: "sse",
+        port: 8081,
+      });
+
+      await sseServer.start();
+      expect(sseServer.isRunning()).toBe(true);
+      expect(mockHttpTransport.start).toHaveBeenCalled();
+    });
+
+    it("should throw on unknown transport", async () => {
+      const badServer = new McpServer({
+        transport: "unknown" as TransportType,
+      });
+
+      await expect(badServer.start()).rejects.toThrow("Unknown transport: unknown");
+    });
+
     it("should not start twice", async () => {
       await server.start();
       await server.start(); // Should warn but not fail
@@ -343,6 +362,36 @@ describe("McpServer", () => {
     it("should return the SDK server instance", () => {
       const sdk = server.getSdkServer();
       expect(sdk).toBeDefined();
+    });
+  });
+
+  describe("audit logger and backup manager", () => {
+    it("should initialize audit logger and backup manager when enabled", async () => {
+      const auditServer = new McpServer({
+        auditConfig: {
+          enabled: true,
+          logPath: "test.jsonl",
+          backup: {
+            enabled: true,
+            maxAgeDays: 30,
+            maxCount: 10,
+            maxDataSizeBytes: 100,
+          }
+        }
+      });
+      
+      const mockAdapter = createMockMySQLAdapter() as unknown as any;
+      mockAdapter.setAuditInterceptor = vi.fn();
+      mockAdapter.setBackupManager = vi.fn();
+      
+      auditServer.registerAdapter(
+        mockAdapter as Parameters<typeof server.registerAdapter>[0],
+      );
+      
+      await auditServer.start();
+      await auditServer.stop();
+      // Test ensures it doesn't crash during shutdown of audit components
+      expect(auditServer.isRunning()).toBe(false);
     });
   });
 });
