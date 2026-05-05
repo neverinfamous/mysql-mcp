@@ -245,6 +245,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `dba-monitor`   | 36     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
 | `dba-manage`    | 34     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
 | `dba-secure`    | 33     | DBA Security       | core, security, roles, transactions, codemode                      |
+| `dba-schema`    | 32     | DBA Schema         | core, schema, introspection, migration, codemode                   |
 | `base-core`     | 49     | Base Ops           | core, json, transactions, text, schema, codemode                   |
 | `base-advanced` | 41     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
 | `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell, codemode                         |
