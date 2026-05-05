@@ -55,6 +55,7 @@ cluster-config/
 innodb-cluster.yml
 proxysql.cnf
 test-server/
+scripts/
 
 # Keycloak (development server)
 keycloak-*/
