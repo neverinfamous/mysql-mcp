@@ -87,8 +87,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const members = memberResult.rows ?? [];
         const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
 
-        const response = {
-          success: true,
+        const data = {
           enabled: members.length > 0,
           groupName: config?.["groupName"] ?? null,
           singlePrimaryMode: config?.["singlePrimaryMode"] === 1,
@@ -108,8 +107,8 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
             };
           }),
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -172,13 +171,12 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true,
+        const data = {
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -223,14 +221,13 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         const localUuid = localResult.rows?.[0]?.["serverUuid"];
 
-        const response = {
-          success: true,
+        const data = {
           primary: primary ?? null,
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -293,16 +290,15 @@ export function createGRTransactionsTool(
 
         const gtid = gtidResult.rows?.[0];
 
-        const response = {
-          success: true,
+        const data = {
           memberStats: statsResult.rows ?? [],
           gtid: {
             executed: gtid?.["gtidExecuted"] ?? "",
             purged: gtid?.["gtidPurged"] ?? "",
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -373,8 +369,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
           return certQueue > certThreshold || appQueue > appThreshold;
         });
 
-        const response = {
-          success: true,
+        const data = {
           configuration: config ?? {},
           memberQueues: queueResult.rows ?? [],
           isThrottling,
@@ -382,8 +377,8 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             ? "Flow control is active. Consider investigating slow members or adjusting thresholds."
             : "Flow control is not currently throttling.",
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

@@ -62,14 +62,14 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.isInnoDBCluster).toBe(true);
-      expect(result.cluster).toEqual({
+      expect(result.data.isInnoDBCluster).toBe(true);
+      expect(result.data.cluster).toEqual({
         cluster_name: "myCluster",
         cluster_id: 1,
         primary_mode: "SINGLE",
       });
-      expect(result.instanceCount).toBe(3);
-      expect(result.routerCount).toBe(2);
+      expect(result.data.instanceCount).toBe(3);
+      expect(result.data.routerCount).toBe(2);
     });
 
     it("should fall back to GR status when InnoDB Cluster metadata not found", async () => {
@@ -82,9 +82,9 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.isInnoDBCluster).toBe(false);
-      expect(result.message).toContain("Group Replication status");
-      expect(result.onlineMembers).toBe(3);
+      expect(result.data.isInnoDBCluster).toBe(false);
+      expect(result.data.message).toContain("Group Replication status");
+      expect(result.data.onlineMembers).toBe(3);
     });
 
     it("should fall back to GR status when schema check returns undefined rows", async () => {
@@ -97,8 +97,8 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.isInnoDBCluster).toBe(false);
-      expect(result.onlineMembers).toBe(2);
+      expect(result.data.isInnoDBCluster).toBe(false);
+      expect(result.data.onlineMembers).toBe(2);
     });
 
     it("should return error response when query fails", async () => {
@@ -161,8 +161,8 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as any;
 
-      expect(result.source).toBe("group_replication");
-      expect(result.instances).toHaveLength(1);
+      expect(result.data.source).toBe("group_replication");
+      expect(result.data.instances).toHaveLength(1);
     });
   });
 
@@ -193,8 +193,8 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.routers).toHaveLength(1);
-      expect(result.count).toBe(1);
+      expect(result.data.routers).toHaveLength(1);
+      expect(result.data.count).toBe(1);
     });
 
     it("should strip Configuration from attributes in full mode", async () => {
@@ -221,10 +221,10 @@ describe("InnoDB Cluster Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.routers).toHaveLength(1);
-      expect(result.routers[0].attributes).toBeDefined();
-      expect(result.routers[0].attributes.ROEndpoint).toBe("6447");
-      expect(result.routers[0].attributes.Configuration).toBeUndefined();
+      expect(result.data.routers).toHaveLength(1);
+      expect(result.data.routers[0].attributes).toBeDefined();
+      expect(result.data.routers[0].attributes.ROEndpoint).toBe("6447");
+      expect(result.data.routers[0].attributes.Configuration).toBeUndefined();
     });
 
     it("should flag stale routers when lastCheckIn is null or old", async () => {
@@ -256,10 +256,10 @@ describe("InnoDB Cluster Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.routers).toHaveLength(2);
-      expect(result.routers[0].isStale).toBe(false);
-      expect(result.routers[1].isStale).toBe(true);
-      expect(result.staleCount).toBe(1);
+      expect(result.data.routers).toHaveLength(2);
+      expect(result.data.routers[0].isStale).toBe(false);
+      expect(result.data.routers[1].isStale).toBe(true);
+      expect(result.data.staleCount).toBe(1);
     });
   });
 
@@ -310,8 +310,8 @@ describe("InnoDB Cluster Tools", () => {
         mockContext,
       )) as any;
 
-      expect(result.isInnoDBCluster).toBe(true);
-      const routerOpts = result.cluster.router_options;
+      expect(result.data.isInnoDBCluster).toBe(true);
+      const routerOpts = result.data.cluster.router_options;
       expect(routerOpts.Configuration).toBeUndefined();
       expect(routerOpts.SomeTopLevelOption).toBe("preserved");
     });
@@ -341,10 +341,10 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.instances[0].memberState).toBe("ONLINE");
-      expect(result.instances[0].memberRole).toBe("PRIMARY");
-      expect(result.instances[1].memberState).toBe("OFFLINE");
-      expect(result.instances[1].memberRole).toBe("NONE");
+      expect(result.data.instances[0].memberState).toBe("ONLINE");
+      expect(result.data.instances[0].memberRole).toBe("PRIMARY");
+      expect(result.data.instances[1].memberState).toBe("OFFLINE");
+      expect(result.data.instances[1].memberRole).toBe("NONE");
     });
   });
 
@@ -376,12 +376,12 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.totalMembers).toBe(3);
-      expect(result.onlineMembers).toBe(1);
-      expect(result.topology.offline).toHaveLength(2);
-      expect(result.topology.offline[0].state).toBe("OFFLINE");
-      expect(result.topology.offline[0].source).toBe("metadata");
-      expect(result.visualization).toContain("node2");
+      expect(result.data.totalMembers).toBe(3);
+      expect(result.data.onlineMembers).toBe(1);
+      expect(result.data.topology.offline).toHaveLength(2);
+      expect(result.data.topology.offline[0].state).toBe("OFFLINE");
+      expect(result.data.topology.offline[0].source).toBe("metadata");
+      expect(result.data.visualization).toContain("node2");
     });
   });
 
@@ -407,10 +407,10 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.canSwitchover).toBe(false);
-      expect(result.candidates).toHaveLength(0);
-      expect(result.currentPrimary).toBeDefined();
-      expect(result.warning).toBe(
+      expect(result.data.canSwitchover).toBe(false);
+      expect(result.data.candidates).toHaveLength(0);
+      expect(result.data.currentPrimary).toBeDefined();
+      expect(result.data.warning).toBe(
         "No online secondaries available for switchover.",
       );
     });
@@ -436,7 +436,7 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.currentPrimary).toBeNull();
+      expect(result.data.currentPrimary).toBeNull();
     });
 
     it("should recommend good switchover candidate", async () => {
@@ -470,11 +470,11 @@ describe("InnoDB Cluster Tools", () => {
       );
       const result = (await tool.handler({}, mockContext)) as any;
 
-      expect(result.canSwitchover).toBe(true);
-      expect(result.candidates).toHaveLength(1);
-      expect(result.candidates[0].suitability).toBe("GOOD");
-      expect(result.recommendedTarget).not.toBeNull();
-      expect(result.warning).toBeUndefined();
+      expect(result.data.canSwitchover).toBe(true);
+      expect(result.data.candidates).toHaveLength(1);
+      expect(result.data.candidates[0].suitability).toBe("GOOD");
+      expect(result.data.recommendedTarget).not.toBeNull();
+      expect(result.data.warning).toBeUndefined();
     });
   });
 

@@ -92,15 +92,14 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                         WHERE MEMBER_STATE = 'ONLINE'
                     `);
 
-          const response = {
-            success: true,
+          const data = {
             isInnoDBCluster: false,
             message:
               "InnoDB Cluster metadata not found. Using Group Replication status.",
             onlineMembers: grResult.rows?.[0]?.["memberCount"] ?? 0,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         // Get cluster info
@@ -142,8 +141,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Summary mode: return only essential metadata
         if (summary) {
-          const response = {
-            success: true,
+          const data = {
             isInnoDBCluster: true,
             cluster: clusterBasic ?? null,
             instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
@@ -151,8 +149,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
             status,
             topology,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         // Full mode: include all cluster metadata including options/attributes
@@ -180,8 +178,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const response = {
-          success: true,
+        const data = {
           isInnoDBCluster: true,
           cluster,
           instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
@@ -189,8 +186,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           status,
           topology,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -241,13 +238,12 @@ export function createClusterInstancesTool(
           [],
         );
 
-        const response = {
-          success: true,
+        const data = {
           instances: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (primaryError) {
         // Fallback to GR members
         try {
@@ -263,14 +259,13 @@ export function createClusterInstancesTool(
             [],
           );
 
-          const response = {
-            success: true,
+          const data = {
             source: "group_replication",
             instances: grResult.rows ?? [],
             count: grResult.rows?.length ?? 0,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         } catch (fallbackError) {
           const fallbackMsg =
             fallbackError instanceof Error
@@ -400,15 +395,14 @@ export function createClusterTopologyTool(
         }
 
         const allMembers = members.length + metadataOffline.length;
-        const response = {
-          success: true,
+        const data = {
           topology,
           visualization: ascii,
           totalMembers: allMembers,
           onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -465,14 +459,13 @@ export function createClusterRouterStatusTool(
           }));
           const staleCount = routers.filter((r) => r.isStale).length;
 
-          const response = {
-            success: true,
+          const data = {
             routers,
             count: routers.length,
             staleCount,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         // Full mode: include attributes but strip bulky Configuration blob
@@ -508,14 +501,13 @@ export function createClusterRouterStatusTool(
         });
         const staleCount = routers.filter((r) => r.isStale).length;
 
-        const response = {
-          success: true,
+        const data = {
           routers,
           count: routers.length,
           staleCount,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         const baseError =
           error instanceof ZodError
@@ -611,8 +603,7 @@ export function createClusterSwitchoverTool(
         });
 
         const firstCandidate = candidates[0];
-        const response = {
-          success: true,
+        const data = {
           currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
           candidates,
           recommendedTarget:
@@ -631,8 +622,8 @@ export function createClusterSwitchoverTool(
                 ? "All secondaries have significant replication lag. Switchover not recommended."
                 : undefined,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-        return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

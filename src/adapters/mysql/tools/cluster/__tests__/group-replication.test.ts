@@ -63,26 +63,28 @@ describe("Group Replication Tools", () => {
 
       expect(result).toEqual({
         success: true,
-        enabled: true,
-        groupName: "d747d0cc-189f-11ee-8653-0242ac110002",
-        singlePrimaryMode: true,
-        localAddress: "127.0.0.1:33061",
-        localMember: {
-          CHANNEL_NAME: "group_replication_applier",
-          MEMBER_ID: "member-1",
-          MEMBER_HOST: "host1",
-          MEMBER_PORT: 3306,
-          MEMBER_STATE: "ONLINE",
-          MEMBER_ROLE: "PRIMARY",
-          MEMBER_VERSION: "8.0.32",
+        data: {
+          enabled: true,
+          groupName: "d747d0cc-189f-11ee-8653-0242ac110002",
+          singlePrimaryMode: true,
+          localAddress: "127.0.0.1:33061",
+          localMember: {
+            CHANNEL_NAME: "group_replication_applier",
+            MEMBER_ID: "member-1",
+            MEMBER_HOST: "host1",
+            MEMBER_PORT: 3306,
+            MEMBER_STATE: "ONLINE",
+            MEMBER_ROLE: "PRIMARY",
+            MEMBER_VERSION: "8.0.32",
+          },
+          memberCount: 1,
+          members: [
+            expect.objectContaining({
+              id: "member-1",
+              role: "PRIMARY",
+            }),
+          ],
         },
-        memberCount: 1,
-        members: [
-          expect.objectContaining({
-            id: "member-1",
-            role: "PRIMARY",
-          }),
-        ],
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -115,10 +117,10 @@ describe("Group Replication Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.enabled).toBe(true);
-      expect(result.groupName).toBeNull();
-      expect(result.singlePrimaryMode).toBe(false); // Default logic fallback
-      expect(result.localMember).toBeDefined();
+      expect(result.data.enabled).toBe(true);
+      expect(result.data.groupName).toBeNull();
+      expect(result.data.singlePrimaryMode).toBe(false); // Default logic fallback
+      expect(result.data.localMember).toBeDefined();
     });
   });
 
@@ -157,8 +159,8 @@ describe("Group Replication Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.isThrottling).toBe(false);
-      expect(result.memberQueues).toHaveLength(1);
+      expect(result.data.isThrottling).toBe(false);
+      expect(result.data.memberQueues).toHaveLength(1);
     });
 
     it("should detect throttling", async () => {
@@ -191,7 +193,7 @@ describe("Group Replication Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.isThrottling).toBe(true);
+      expect(result.data.isThrottling).toBe(true);
     });
 
     it("should use default thresholds when config missing", async () => {
@@ -215,8 +217,8 @@ describe("Group Replication Tools", () => {
 
       const result = (await tool.handler({}, {} as any)) as any;
 
-      expect(result.isThrottling).toBe(true);
-      expect(result.recommendation).toContain("Flow control is active");
+      expect(result.data.isThrottling).toBe(true);
+      expect(result.data.recommendation).toContain("Flow control is active");
     });
   });
 });
