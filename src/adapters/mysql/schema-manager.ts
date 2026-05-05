@@ -62,8 +62,16 @@ export class SchemaManager {
     const views = tables.filter((t) => t.type === "view");
     const realTables = tables.filter((t) => t.type === "table");
 
-    // Performance optimization: fetch all indexes in a single query instead of N+1
-    const indexes = await this.getAllIndexes();
+    // Performance optimization: fetch all indexes and columns in a single query instead of N+1
+    const [indexes, allColumns] = await Promise.all([
+      this.getAllIndexes(),
+      this.getAllColumns()
+    ]);
+
+    // Attach columns to tables and views
+    for (const table of tables) {
+      table.columns ??= allColumns.get(table.name) ?? [];
+    }
 
     return {
       tables: realTables,
@@ -123,6 +131,59 @@ export class SchemaManager {
     const indexes = Array.from(indexMap.values());
     this.setCache("all_indexes", indexes);
     return indexes;
+  }
+
+  /**
+   * Get all columns across all tables in a single query
+   * Performance optimization: eliminates N+1 query pattern
+   */
+  private async getAllColumns(): Promise<Map<string, ColumnInfo[]>> {
+    // Check cache first
+    const cached = this.getCached("all_columns") as Map<string, ColumnInfo[]> | undefined;
+    if (cached) return cached;
+
+    const result = await this.executor.executeQuery(`
+            SELECT 
+                TABLE_NAME as tableName,
+                COLUMN_NAME as name,
+                DATA_TYPE as type,
+                IS_NULLABLE as nullable,
+                COLUMN_KEY as columnKey,
+                COLUMN_DEFAULT as defaultValue,
+                EXTRA as extra,
+                CHARACTER_SET_NAME as characterSet,
+                COLLATION_NAME as collation,
+                COLUMN_COMMENT as comment
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+            ORDER BY TABLE_NAME, ORDINAL_POSITION
+        `);
+
+    const columnMap = new Map<string, ColumnInfo[]>();
+
+    for (const row of result.rows ?? []) {
+      const tableName = row["tableName"] as string;
+      const columns = columnMap.get(tableName) ?? [];
+      
+      columns.push({
+        name: row["name"] as string,
+        type: row["type"] as string,
+        nullable: row["nullable"] === "YES",
+        primaryKey: row["columnKey"] === "PRI",
+        defaultValue: row["defaultValue"],
+        autoIncrement: (row["extra"] as string)?.includes("auto_increment"),
+        characterSet: row["characterSet"] as string | undefined,
+        collation: row["collation"] as string | undefined,
+        comment: row["comment"] as string | undefined,
+      });
+
+      if (columns.length === 1) {
+        columnMap.set(tableName, columns);
+      }
+    }
+
+    this.setCache("all_columns", columnMap);
+    return columnMap;
   }
 
   async listTables(databaseName?: string): Promise<TableInfo[]> {

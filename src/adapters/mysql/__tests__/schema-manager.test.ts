@@ -29,9 +29,9 @@ describe("SchemaManager", () => {
 
       // First call - should query database
       await manager.getSchema();
-      expect(mockExecutor.executeQuery).toHaveBeenCalledTimes(2); // listTables + getAllIndexes
+      expect(mockExecutor.executeQuery).toHaveBeenCalledTimes(3); // listTables + getAllIndexes + getAllColumns
 
-      // Second call - should use cache for both listTables and getAllIndexes
+      // Second call - should use cache for listTables, getAllIndexes, and getAllColumns
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>).mockClear();
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>).mockResolvedValue(
         { rows: [] },
