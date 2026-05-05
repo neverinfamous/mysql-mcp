@@ -143,6 +143,7 @@ export function setCorsHeaders(
     res.setHeader("Access-Control-Allow-Origin", "*");
   } else if (
     origin &&
+    origin !== "null" &&
     config.corsOrigins?.some((p) => matchesCorsOrigin(origin, p))
   ) {
     res.setHeader("Access-Control-Allow-Origin", origin);

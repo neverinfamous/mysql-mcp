@@ -41,7 +41,7 @@ function updateBadges() {
 
     for (const file of filesToUpdate) {
         const filePath = path.join(ROOT_DIR, file)
-        if (fs.existsSync(filePath)) {
+        try {
             let content = fs.readFileSync(filePath, 'utf-8')
             regex.lastIndex = 0
             if (regex.test(content)) {
@@ -55,6 +55,8 @@ function updateBadges() {
                     process.exit(1)
                 }
             }
+        } catch (err) {
+            console.warn(`Skipped updating ${file}: File not found or unreadable.`)
         }
     }
 }
