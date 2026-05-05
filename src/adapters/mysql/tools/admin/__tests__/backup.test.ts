@@ -223,10 +223,11 @@ describe("Admin Backup Tools", () => {
       const result = (await tool.handler(
         { table: "nonexistent", format: "SQL" },
         mockContext,
-      )) as { success: boolean; data: { exists: boolean }; error?: string };
+      )) as { success: boolean; details: { exists: boolean }; error?: string };
 
-      expect(result.success).toBe(true);
-      expect(result.data?.exists).toBe(false);
+      expect(result.success).toBe(false);
+      expect(result.details?.exists).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return structured error for query failures", async () => {

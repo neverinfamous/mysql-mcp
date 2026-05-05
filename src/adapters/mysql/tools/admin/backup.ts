@@ -123,7 +123,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             [table]
           );
           if (!tableCheck.rows || tableCheck.rows.length === 0) {
-            return withTokenEstimate({ success: true, data: { exists: false, table } });
+            return withTokenEstimate({ success: false, error: `Table '${table}' does not exist`, details: { exists: false, table } });
           }
         } catch (dbErr) {
           return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
