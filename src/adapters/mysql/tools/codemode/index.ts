@@ -27,6 +27,7 @@ import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
 export const ExecuteCodeSchema = z.object({
   code: z
     .string()
+    .optional()
     .describe(
       "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations.",
     ),
