@@ -117,9 +117,14 @@ export function createSpatialDistanceTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
+          const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false,
-            error: `Table '${paramStr(params, "table")}' does not exist`,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
           });
         }
         return formatHandlerErrorResponse(new Error(msg));
@@ -198,9 +203,14 @@ export function createSpatialDistanceSphereTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
+          const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false,
-            error: `Table '${paramStr(params, "table")}' does not exist`,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
           });
         }
         return formatHandlerErrorResponse(new Error(msg));
@@ -266,9 +276,14 @@ export function createSpatialContainsTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
+          const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false,
-            error: `Table '${paramStr(params, "table")}' does not exist`,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
           });
         }
         return formatHandlerErrorResponse(new Error(msg));
@@ -331,9 +346,14 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
+          const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false,
-            error: `Table '${paramStr(params, "table")}' does not exist`,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
           });
         }
         return formatHandlerErrorResponse(new Error(msg));

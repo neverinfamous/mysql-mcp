@@ -107,9 +107,14 @@ export function createSpatialCreateColumnTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
+          const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false,
-            error: `Table '${paramStr(params, "table")}' does not exist`,
+            error: `Table '${tbl}' does not exist`,
+            details: {
+              exists: false,
+              table: tbl
+            }
           });
         }
         if (msg.includes("Duplicate column name")) {
@@ -225,7 +230,11 @@ export function createSpatialCreateIndexTool(
         const msg = error instanceof Error ? error.message : String(error);
         const tbl = paramStr(params, "table");
         if (msg.includes("Table") && msg.includes("doesn't exist")) {
-          return withTokenEstimate({ success: false, error: `Table '${tbl}' does not exist` });
+          return withTokenEstimate({ 
+            success: false, 
+            error: `Table '${tbl}' does not exist`,
+            details: { exists: false, table: tbl }
+          });
         }
         if (
           msg.includes("Key column") &&
