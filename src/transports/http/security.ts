@@ -116,16 +116,23 @@ export function setSecurityHeaders(
 // =============================================================================
 
 /**
- * Check if an origin matches a CORS pattern.
+ * Get a safe CORS origin if it matches a pattern.
  * Supports exact match and wildcard subdomain patterns (e.g., `*.example.com`).
+ * Validates the prefix with a strict regex to satisfy CodeQL taint tracking and prevent injection.
  */
-export function matchesCorsOrigin(origin: string, pattern: string): boolean {
-  if (pattern === origin) return true;
+export function getSafeCorsOrigin(origin: string, pattern: string): string | null {
+  if (pattern === origin) return pattern;
   if (pattern.startsWith("*.")) {
     const suffix = pattern.slice(1); // ".example.com"
-    return origin.endsWith(suffix) && origin.length > suffix.length;
+    if (origin.endsWith(suffix) && origin.length > suffix.length) {
+      const prefix = origin.slice(0, origin.length - suffix.length);
+      // Strictly validate the prefix (protocol + subdomains) to break the taint chain
+      if (/^https?:\/\/[a-zA-Z0-9-.]+$/.test(prefix)) {
+        return `${prefix}${suffix}`;
+      }
+    }
   }
-  return false;
+  return null;
 }
 
 /**
@@ -141,13 +148,19 @@ export function setCorsHeaders(
 
   if (allowAll) {
     res.setHeader("Access-Control-Allow-Origin", "*");
-  } else if (
-    origin &&
-    origin !== "null" &&
-    config.corsOrigins?.some((p) => matchesCorsOrigin(origin, p))
-  ) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
+  } else if (origin && origin !== "null" && config.corsOrigins) {
+    let safeOrigin: string | null = null;
+    for (const pattern of config.corsOrigins) {
+      safeOrigin = getSafeCorsOrigin(origin, pattern);
+      if (safeOrigin) break;
+    }
+
+    if (safeOrigin) {
+      res.setHeader("Access-Control-Allow-Origin", safeOrigin);
+      res.setHeader("Vary", "Origin");
+    } else {
+      return;
+    }
   } else {
     return;
   }
