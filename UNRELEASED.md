@@ -55,7 +55,7 @@
 - **Spatial**: Fixed index creation errors on missing columns, fixed WKT round-tripping for SRID 4326, optimized buffer payloads by removing massive GeoJSON generation, and added P154 existence verification pattern to table `doesn't exist` errors.
 - **Stats**: Enforced numeric type checking, implemented server-side pagination for window functions, fixed string-to-number casting, sanitized window function column errors, and added an actionable generation hint to empty histogram responses.
 - **Sys Schema**: Registered `mysql.sys` as a direct API alias for intuitive Code Mode calls.
-- **Tests**: Remediated benchmark timing assertions, fixed watch-mode hangs, and skipped write tests in read-only mode.
+- **Tests**: Remediated benchmark timing assertions, fixed watch-mode hangs, skipped write tests in read-only mode, and certified admin group advanced stress tests (Categories 1-4).
 - **Text**: Added `targetCharset` alias mapping for improved tool-calling resilience.
 - **Transactions**: Fixed parameter alias parsing for `isolationLevel`.
 
