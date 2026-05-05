@@ -90,3 +90,15 @@ Validates that tools have correct `openWorldHint` annotations (e.g., `openWorldH
 ```bash
 node scripts/test-tool-annotations.mjs
 ```
+
+## Refactoring & Maintenance Scripts
+
+### `migrate-annotations.mjs`
+
+An automated codemod script used to mass-refactor tool definitions across the codebase. It scans all tools in `src/adapters/mysql/tools`, parses their inline `annotations` properties, intelligently maps them to the appropriate shared presets (e.g., `READ_ONLY`, `WRITE`, `IDEMPOTENT`, `DESTRUCTIVE`), and automatically injects the necessary ES module imports.
+
+This script was used to enforce Master Verification & Rigor Standards (P300) compliance (`openWorldHint: false`) across 230+ tools in seconds, but can be adapted for future widespread structural updates.
+
+```bash
+node scripts/migrate-annotations.mjs
+```
