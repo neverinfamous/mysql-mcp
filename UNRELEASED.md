@@ -81,7 +81,7 @@
 
 - `events` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `performance` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
-- `schema` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via MCP direct calls.
+- `schema` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract and `metrics.tokenEstimate` instrumentation via MCP direct calls.
 - `monitoring` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `stats` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, server-side pagination limits, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `admin` tool group verified for 100% adherence to `{success: boolean, error?: string}` contract, structured error conventions (properly wrapping maintenance query errors), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
@@ -95,7 +95,7 @@
 - `partitioning` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `replication` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `roles` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
-- `security` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
+- `security` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions, and `metrics.tokenEstimate` instrumentation via MCP direct tool calls.
 - `spatial` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, structured error conventions (P154), and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `sys` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
 - `text` tool group verified for 100% adherence to `{success: boolean, data?: object, error?: string}` contract, zero orphaned properties, and `metrics.tokenEstimate` instrumentation via Code Mode direct calls.
