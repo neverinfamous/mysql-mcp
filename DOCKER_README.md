@@ -8,7 +8,7 @@
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 ![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)
-![E2E](https://img.shields.io/badge/E2E-179%20tests%20%C2%B7%20230%2B%20tools-blue.svg)
+![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%2042%20skipped-blue.svg)
 ![Coverage](https://img.shields.io/badge/Coverage-85.32%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
