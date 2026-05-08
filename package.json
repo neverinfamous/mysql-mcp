@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage && npx tsx scripts/update-badges.ts",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test && npx tsx scripts/update-badges.ts",
     "check": "npm run lint && npm run typecheck",
     "generate:instructions": "node scripts/generate-server-instructions.ts",
     "bench": "vitest bench --run"
