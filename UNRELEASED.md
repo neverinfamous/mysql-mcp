@@ -7,9 +7,9 @@
 
 ## Added
 
-- Verified the `fulltext` tool group via an exhaustive Code Mode testing pass (100% success rate with domain and Zod error handling).
-
 ## Changed
+
+- Verified 100% of the `json` tool group via direct MCP tool calls, confirming structured error pattern compliance and optimal token efficiency.
 
 **Dependency Updates**
 
