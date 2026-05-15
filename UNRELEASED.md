@@ -7,9 +7,9 @@
 
 ## Added
 
-- Verified Code Mode advanced stress testing for the `events` tool group.
-
 ## Changed
+
+- Verified `introspection` tool group via exhaustive Code Mode stress testing, confirming 100% pass rate for cyclic detection, cascade simulation, and topological sorting limits.
 
 **Dependency Updates**
 
