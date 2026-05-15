@@ -9,6 +9,7 @@
 
 ## Changed
 
+- Verified `proxysql` tool group for production readiness, confirming payload boundary limits and structured error patterns.
 - Completed code-mode-based stress tests for the `cluster` tool group against an active InnoDB Cluster. Validated high-fidelity structured error handling, structural parity, and token payload optimization for summary modes.
 
 **Dependency Updates**
