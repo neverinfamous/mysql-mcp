@@ -7,11 +7,9 @@
 
 ## Added
 
-## Verified
-
-- Completed Advanced Stress Tests for the `monitoring` tool group, verifying payload token efficiency, sequential stability, and summary mode parity.
-
 ## Changed
+
+- Verified `partitioning` tool group in Advanced Code Mode stress tests (100% pass rate).
 
 **Dependency Updates**
 
