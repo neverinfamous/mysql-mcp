@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Verified MySQL Router tool group, confirming fully structured error handling (no raw MCP exceptions) and token efficiency across all 9 tools.
+- Verified MySQL Shell tool group (`shell`) for structured error response compliance and token payload efficiency via direct MCP tool calls.
 
 **Dependency Updates**
 
