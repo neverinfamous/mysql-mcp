@@ -9,10 +9,7 @@
 
 ## Changed
 
-**Verification & Stability**
-
-- Certified 100% test pass for the `shell` tool group under aggressive Code Mode stress testing. Verified graceful degradation, subprocess isolation, Zod boundaries, and strict `{success: false}` structural compliance with zero raw crashes.
-- Evaluated `shell` group token payload efficiency, confirming that metadata and error messages remain highly lean (~35 tokens average) even during failures requiring actionable suggestions (e.g. `local_infile` remediation).
+- Verified the `cluster` tool group via direct MCP testing, confirming full payload token efficiency and 100% adherence to structured error and empty-state response patterns under active Group Replication topologies.
 
 **Dependency Updates**
 
