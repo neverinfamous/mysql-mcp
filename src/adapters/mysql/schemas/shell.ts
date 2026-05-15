@@ -93,15 +93,24 @@ export const ShellExportTableInputSchema = z
   })
   .transform((data) => ({
     ...data,
-    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
-    table: data.table === undefined ? "" : String(data.table as string | number | boolean),
+    schema:
+      data.schema === undefined
+        ? ""
+        : String(data.schema as string | number | boolean),
+    table:
+      data.table === undefined
+        ? ""
+        : String(data.table as string | number | boolean),
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.table !== "", { message: "table must not be empty" });
 
 export const ShellImportTableInputSchemaBase = z
   .object({
-    inputPath: z.string().optional().describe("Input file path (absolute path)"),
+    inputPath: z
+      .string()
+      .optional()
+      .describe("Input file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
     table: z.string().optional().describe("Target table name"),
@@ -156,8 +165,14 @@ export const ShellImportTableInputSchema = z
   })
   .transform((data) => ({
     ...data,
-    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
-    table: data.table === undefined ? "" : String(data.table as string | number | boolean),
+    schema:
+      data.schema === undefined
+        ? ""
+        : String(data.schema as string | number | boolean),
+    table:
+      data.table === undefined
+        ? ""
+        : String(data.table as string | number | boolean),
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.table !== "", { message: "table must not be empty" });
@@ -167,7 +182,10 @@ export const ShellImportJSONInputSchemaBase = z
     inputPath: z.string().optional().describe("JSON file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
-    collection: z.string().optional().describe("Target collection or table name"),
+    collection: z
+      .string()
+      .optional()
+      .describe("Target collection or table name"),
     tableColumn: z
       .string()
       .optional()
@@ -190,11 +208,19 @@ export const ShellImportJSONInputSchema = z
   })
   .transform((data) => ({
     ...data,
-    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
-    collection: data.collection === undefined ? "" : String(data.collection as string | number | boolean),
+    schema:
+      data.schema === undefined
+        ? ""
+        : String(data.schema as string | number | boolean),
+    collection:
+      data.collection === undefined
+        ? ""
+        : String(data.collection as string | number | boolean),
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.collection !== "", { message: "collection must not be empty" });
+  .refine((data) => data.collection !== "", {
+    message: "collection must not be empty",
+  });
 
 // =============================================================================
 // Backup Tools
@@ -352,11 +378,16 @@ export const ShellDumpTablesInputSchema = z
   })
   .transform((data) => ({
     ...data,
-    schema: data.schema === undefined ? "" : String(data.schema as string | number | boolean),
+    schema:
+      data.schema === undefined
+        ? ""
+        : String(data.schema as string | number | boolean),
     tables: Array.isArray(data.tables) ? data.tables.map(String) : [],
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.tables.length > 0, { message: "At least one table name is required" });
+  .refine((data) => data.tables.length > 0, {
+    message: "At least one table name is required",
+  });
 
 // =============================================================================
 // Restore Tools
@@ -364,7 +395,10 @@ export const ShellDumpTablesInputSchema = z
 
 export const ShellLoadDumpInputSchema = z
   .object({
-    inputDir: z.string().optional().describe("Directory containing MySQL Shell dump"),
+    inputDir: z
+      .string()
+      .optional()
+      .describe("Directory containing MySQL Shell dump"),
     inputUrl: z.string().optional().describe("Alias for inputDir"),
     threads: z
       .number()
@@ -438,11 +472,17 @@ export const ShellRunScriptInputSchemaBase = z
 export const ShellRunScriptInputSchema = z
   .object({
     script: z.unknown().optional(),
-    language: z.enum(["js", "py", "sql", "javascript", "python"]).optional().default("js"),
+    language: z
+      .enum(["js", "py", "sql", "javascript", "python"])
+      .optional()
+      .default("js"),
     timeout: z.number().int().optional().default(60000),
   })
   .transform((data) => ({
-    script: data.script === undefined ? "" : String(data.script as string | number | boolean),
+    script:
+      data.script === undefined
+        ? ""
+        : String(data.script as string | number | boolean),
     language: data.language,
     timeout: data.timeout,
   }))

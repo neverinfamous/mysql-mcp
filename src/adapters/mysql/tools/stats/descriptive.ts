@@ -7,14 +7,17 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatMysqlError, formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatMysqlError,
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -62,10 +65,7 @@ const DistributionSchemaBase = z.object({
 const DistributionSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
-  buckets: z
-    .number()
-    .max(100)
-    .default(10),
+  buckets: z.number().max(100).default(10),
   where: z.string().optional(),
 });
 
@@ -92,7 +92,10 @@ const TimeSeriesSchema = z.object({
 const SamplingSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   sampleSize: z.unknown().optional().describe("Number of rows to sample"),
-  columns: z.unknown().optional().describe("Columns to include (all if not specified)"),
+  columns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include (all if not specified)"),
   seed: z.unknown().optional().describe("Random seed for reproducibility"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
@@ -100,9 +103,7 @@ const SamplingSchemaBase = z.object({
 const SamplingSchema = z.object({
   table: z.string().min(1, "table is required"),
   sampleSize: z.number().default(100),
-  columns: z
-    .array(z.string())
-    .optional(),
+  columns: z.array(z.string()).optional(),
   seed: z.number().optional(),
   where: z.string().optional(),
 });
@@ -131,10 +132,16 @@ export function createDescriptiveStatsTool(
         const { table, column, where } = DescriptiveStatsSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -159,7 +166,7 @@ export function createDescriptiveStatsTool(
               max: null,
               range: null,
               sum: null,
-            }
+            },
           });
         }
 
@@ -207,14 +214,19 @@ export function createDescriptiveStatsTool(
             column,
             count: Number(stats?.["count"] ?? 0),
             mean: stats?.["mean"] != null ? Number(stats?.["mean"]) : null,
-            median: medianRow?.["median"] != null ? Number(medianRow?.["median"]) : null,
-            stddev: stats?.["stddev"] != null ? Number(stats?.["stddev"]) : null,
-            variance: stats?.["variance"] != null ? Number(stats?.["variance"]) : null,
+            median:
+              medianRow?.["median"] != null
+                ? Number(medianRow?.["median"])
+                : null,
+            stddev:
+              stats?.["stddev"] != null ? Number(stats?.["stddev"]) : null,
+            variance:
+              stats?.["variance"] != null ? Number(stats?.["variance"]) : null,
             min: stats?.["min"] != null ? Number(stats?.["min"]) : null,
             max: stats?.["max"] != null ? Number(stats?.["max"]) : null,
             range: stats?.["range"] != null ? Number(stats?.["range"]) : null,
             sum: stats?.["sum"] != null ? Number(stats?.["sum"]) : null,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -251,10 +263,16 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           PercentilesSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -306,7 +324,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
               column,
               totalCount: 0,
               percentiles: {},
-            }
+            },
           });
         }
 
@@ -334,7 +352,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
             column,
             totalCount,
             percentiles: percentileResults,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -372,13 +390,22 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           DistributionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
         if (buckets < 1) {
-          return withTokenEstimate({ success: false, error: "buckets must be at least 1" });
+          return withTokenEstimate({
+            success: false,
+            error: "buckets must be at least 1",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -403,7 +430,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
               bucketCount: 1,
               minValue: minVal,
               maxValue: maxVal,
-            }
+            },
           });
         }
 
@@ -448,7 +475,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
             bucketSize,
             minValue: minVal,
             maxValue: maxVal,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -496,13 +523,19 @@ export function createTimeSeriesToolStats(
 
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
         ) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const validIntervals = ["minute", "hour", "day", "week", "month"];
@@ -568,7 +601,7 @@ export function createTimeSeriesToolStats(
             timeColumn,
             dataPoints: result.rows ?? [],
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -605,19 +638,28 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
           SamplingSchema.parse(params);
 
         if (sampleSize < 0) {
-          return withTokenEstimate({ success: false, error: "sampleSize must be >= 0" });
+          return withTokenEstimate({
+            success: false,
+            error: "sampleSize must be >= 0",
+          });
         }
 
         // Validate table name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         // Validate column names if provided
         if (columns) {
           for (const c of columns) {
             if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
-              return withTokenEstimate({ success: false, error: `Invalid column name: ${c}` });
+              return withTokenEstimate({
+                success: false,
+                error: `Invalid column name: ${c}`,
+              });
             }
           }
         }
@@ -661,7 +703,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
             sampleSize: result.rows?.length ?? 0,
             requestedSize: sampleSize,
             seed: seed ?? null,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {

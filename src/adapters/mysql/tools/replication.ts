@@ -12,9 +12,11 @@ import {
   BinlogEventsSchema,
 } from "../schemas/index.js";
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "./core/error-helpers.js";
 import { READ_ONLY } from "../../../utils/annotations.js";
-
 
 /**
  * Get replication tools
@@ -44,12 +46,18 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
-        const response = { success: true as const, data: { status: result.rows?.[0] } };
+        const response = {
+          success: true as const,
+          data: { status: result.rows?.[0] },
+        };
         return withTokenEstimate(response);
       } catch {
         try {
           const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          const response = { success: true as const, data: { status: result.rows?.[0] } };
+          const response = {
+            success: true as const,
+            data: { status: result.rows?.[0] },
+          };
           return withTokenEstimate(response);
         } catch (e) {
           return formatHandlerErrorResponse(
@@ -164,7 +172,10 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
-          const response = { success: true as const, data: { events: result.rows } };
+          const response = {
+            success: true as const,
+            data: { events: result.rows },
+          };
           return withTokenEstimate(response);
         } catch (e) {
           const message = String(e);
@@ -226,7 +237,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
             gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
             gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
             gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
-          }
+          },
         };
         return withTokenEstimate(response);
       } catch (e) {
@@ -267,7 +278,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
               sqlRunning:
                 status["Replica_SQL_Running"] ?? status["Slave_SQL_Running"],
               lastError: status["Last_Error"],
-            }
+            },
           };
           return withTokenEstimate(response);
         }
@@ -284,7 +295,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
                 ioRunning: status["Slave_IO_Running"],
                 sqlRunning: status["Slave_SQL_Running"],
                 lastError: status["Last_Error"],
-              }
+              },
             };
             return withTokenEstimate(response);
           }

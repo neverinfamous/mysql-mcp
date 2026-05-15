@@ -23,13 +23,13 @@
 
 **Step 2:** Read the deterministic checklist for your target group from the appropriate `test-group-tools-*.md` file:
 
-| File | Groups Covered |
-|---|---|
-| `test-group-tools-core.md` | core, transactions, schema |
-| `test-group-tools-data.md` | json, fulltext, document, text, stats |
-| `test-group-tools-admin.md` | admin, monitoring, performance, optimization, security, roles, backup, replication, sys |
-| `test-group-tools-ext.md` | spatial, partitioning, events |
-| `test-group-tools-ecosystem.md` | cluster, proxysql, router, shell |
+| File                            | Groups Covered                                                                          |
+| ------------------------------- | --------------------------------------------------------------------------------------- |
+| `test-group-tools-core.md`      | core, transactions, schema                                                              |
+| `test-group-tools-data.md`      | json, fulltext, document, text, stats                                                   |
+| `test-group-tools-admin.md`     | admin, monitoring, performance, optimization, security, roles, backup, replication, sys |
+| `test-group-tools-ext.md`       | spatial, partitioning, events                                                           |
+| `test-group-tools-ecosystem.md` | cluster, proxysql, router, shell                                                        |
 
 **Step 3:** Execute checklist items first (minimum bar), then proceed with freeform exploration using the requirements below.
 
@@ -208,16 +208,16 @@ At the end, ONLY provide a list of any issues found, recommended fixes or improv
 
 Detailed group-specific test data references, checklists, and notes are in the `test-group-tools-*.md` files. Quick reference:
 
-| Group | Key Test Data | Notes |
-|---|---|---|
-| json | `test_json_docs` (doc, metadata, tags columns) | Nested access: `doc.nested.level1.level2` |
-| fulltext | `test_articles` (FULLTEXT on title, body) | Terms: MySQL, database, JSON, FTS, MCP |
+| Group        | Key Test Data                                  | Notes                                           |
+| ------------ | ---------------------------------------------- | ----------------------------------------------- |
+| json         | `test_json_docs` (doc, metadata, tags columns) | Nested access: `doc.nested.level1.level2`       |
+| fulltext     | `test_articles` (FULLTEXT on title, body)      | Terms: MySQL, database, JSON, FTS, MCP          |
 | partitioning | `test_partitioned` (4 LIST COLUMNS partitions) | Regions: east, west, central, south, + variants |
-| spatial | `test_locations.geom` (POINT, SRID 4326) | Cities: NYC, Paris, London, Tokyo, Sydney, SF |
-| cluster | InnoDB Cluster (port 3307) | Requires cluster infrastructure |
-| proxysql | Admin port 6032, radmin/radmin | Requires ProxySQL container |
-| router | HTTPS port 8443, `MYSQL_ROUTER_INSECURE=true` | Requires InnoDB Cluster |
-| shell | MySQL Shell 8.0+ | Works with standard config |
+| spatial      | `test_locations.geom` (POINT, SRID 4326)       | Cities: NYC, Paris, London, Tokyo, Sydney, SF   |
+| cluster      | InnoDB Cluster (port 3307)                     | Requires cluster infrastructure                 |
+| proxysql     | Admin port 6032, radmin/radmin                 | Requires ProxySQL container                     |
+| router       | HTTPS port 8443, `MYSQL_ROUTER_INSECURE=true`  | Requires InnoDB Cluster                         |
+| shell        | MySQL Shell 8.0+                               | Works with standard config                      |
 
 See `C:\Users\chris\Desktop\adamic\docs\mysql-ecosystem-docker-setup.md` for ecosystem setup.
 

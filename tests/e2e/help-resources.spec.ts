@@ -16,11 +16,34 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient,  } from "./helpers.js";
+import { createClient } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
-const HELP_GROUPS = ["core", "json", "transactions", "text", "fulltext", "stats", "spatial", "admin", "monitoring", "performance", "optimization", "backup", "replication", "partitioning", "schema", "events", "sysschema", "security", "cluster", "roles", "docstore", "router"];
+const HELP_GROUPS = [
+  "core",
+  "json",
+  "transactions",
+  "text",
+  "fulltext",
+  "stats",
+  "spatial",
+  "admin",
+  "monitoring",
+  "performance",
+  "optimization",
+  "backup",
+  "replication",
+  "partitioning",
+  "schema",
+  "events",
+  "sysschema",
+  "security",
+  "cluster",
+  "roles",
+  "docstore",
+  "router",
+];
 
 test.describe("Help Resources", () => {
   test("mysql://help is listed in resources", async ({}, testInfo) => {

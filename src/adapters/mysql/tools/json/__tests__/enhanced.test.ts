@@ -111,7 +111,14 @@ describe("JSON Enhanced Tools", () => {
           json2: "{}",
         },
         mockContext,
-      )) as { data: { identical: boolean; addedKeys: string[]; removedKeys: string[]; differences: unknown[]; } };
+      )) as {
+        data: {
+          identical: boolean;
+          addedKeys: string[];
+          removedKeys: string[];
+          differences: unknown[];
+        };
+      };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.data.identical).toBe(true);
@@ -142,7 +149,14 @@ describe("JSON Enhanced Tools", () => {
           json2: '{"c":3}',
         },
         mockContext,
-      )) as { data: { json1Keys: string[]; json2Keys: string[]; addedKeys: string[]; removedKeys: string[]; } };
+      )) as {
+        data: {
+          json1Keys: string[];
+          json2Keys: string[];
+          addedKeys: string[];
+          removedKeys: string[];
+        };
+      };
 
       expect(result.data.json1Keys).toEqual(["a", "b"]);
       expect(result.data.json2Keys).toEqual(["c"]);
@@ -204,7 +218,13 @@ describe("JSON Enhanced Tools", () => {
           json2: '{"name":"Alice","age":31}',
         },
         mockContext,
-      )) as { data: { differences: { path: string; value1: unknown; value2: unknown }[]; addedKeys: string[]; removedKeys: string[]; } };
+      )) as {
+        data: {
+          differences: { path: string; value1: unknown; value2: unknown }[];
+          addedKeys: string[];
+          removedKeys: string[];
+        };
+      };
 
       expect(result.data.addedKeys).toEqual([]);
       expect(result.data.removedKeys).toEqual([]);
@@ -518,7 +538,9 @@ describe("JSON Enhanced Tools", () => {
       );
       // Index name should use only the table basename (no schema prefix)
       expect(result.data.suggestions[0].indexDdl).toContain("idx_users_email");
-      expect(result.data.suggestions[0].indexDdl).not.toContain("idx_mydb.users");
+      expect(result.data.suggestions[0].indexDdl).not.toContain(
+        "idx_mydb.users",
+      );
     });
 
     describe("P154 Graceful Error Handling", () => {
@@ -533,7 +555,10 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Table or column does not exist",
+        });
       });
 
       it("json_stats should return exists: false for nonexistent table", async () => {
@@ -545,7 +570,10 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Table or column does not exist",
+        });
       });
 
       it("json_index_suggest should return exists: false for nonexistent table", async () => {
@@ -557,7 +585,10 @@ describe("JSON Enhanced Tools", () => {
           { table: "nonexistent", column: "doc" },
           mockContext,
         );
-        expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+        expect(result).toMatchObject({
+          success: false,
+          error: "Table or column does not exist",
+        });
       });
 
       it("json_merge should return success: false for invalid input", async () => {
@@ -594,4 +625,3 @@ describe("JSON Enhanced Tools", () => {
     });
   });
 });
-

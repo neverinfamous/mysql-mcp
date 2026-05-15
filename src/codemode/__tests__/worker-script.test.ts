@@ -83,7 +83,7 @@ describe("Worker Script", () => {
           data: {
             group: key,
             methods: methods.filter((m) => m !== "help"),
-          }
+          },
         });
         mysql[key] = groupApi;
       }
@@ -117,7 +117,7 @@ describe("Worker Script", () => {
         data: {
           group: "core",
           methods: ["readQuery", "writeQuery"],
-        }
+        },
       });
 
       // Test top-level help
@@ -145,7 +145,10 @@ describe("Worker Script", () => {
       });
 
       // Simulate RPC response
-      const msg: { id: number; error?: string; result?: unknown } = { id: 0, result: { rows: [{ id: 1 }] } };
+      const msg: { id: number; error?: string; result?: unknown } = {
+        id: 0,
+        result: { rows: [{ id: 1 }] },
+      };
       const p = pending.get(msg.id);
       if (p) {
         pending.delete(msg.id);

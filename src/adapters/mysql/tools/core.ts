@@ -25,9 +25,11 @@ import {
   ListTablesSchema,
   ListTablesSchemaBase,
 } from "../schemas/index.js";
-import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "./core/error-helpers.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
-
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -101,7 +103,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
             rows: result.rows,
             rowCount: result.rows?.length ?? 0,
             executionTimeMs: result.executionTimeMs,
-          }
+          },
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -141,7 +143,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
             rowsAffected: result.rowsAffected,
             lastInsertId: result.lastInsertId?.toString(),
             executionTimeMs: result.executionTimeMs,
-          }
+          },
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -195,11 +197,13 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
               type: t.type,
               ...(t.engine != null ? { engine: t.engine } : {}),
               ...(t.rowCount != null ? { rowCount: t.rowCount } : {}),
-              ...(t.comment != null && t.comment !== "" ? { comment: t.comment } : {}),
+              ...(t.comment != null && t.comment !== ""
+                ? { comment: t.comment }
+                : {}),
             })),
             count: tables.length,
             ...(truncated ? { truncated: true } : {}),
-          }
+          },
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -234,7 +238,14 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
         // Sanitize to reduce token bloat
         const sanitizedColumns = tableInfo.columns?.map((c) => {
-          const { comment, characterSet, collation, defaultValue, autoIncrement, ...rest } = c;
+          const {
+            comment,
+            characterSet,
+            collation,
+            defaultValue,
+            autoIncrement,
+            ...rest
+          } = c;
           return {
             ...rest,
             ...(comment != null && comment !== "" ? { comment } : {}),
@@ -244,16 +255,27 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
             ...(autoIncrement === true ? { autoIncrement } : {}),
           };
         });
-        
-        const { comment: tableComment, collation: tableCollation, ...restInfo } = tableInfo;
+
+        const {
+          comment: tableComment,
+          collation: tableCollation,
+          ...restInfo
+        } = tableInfo;
         const sanitizedInfo = {
-            ...restInfo,
-            columns: sanitizedColumns,
-            ...(tableComment != null && tableComment !== "" ? { comment: tableComment } : {}),
-            ...(tableCollation != null && tableCollation !== "" ? { collation: tableCollation } : {}),
+          ...restInfo,
+          columns: sanitizedColumns,
+          ...(tableComment != null && tableComment !== ""
+            ? { comment: tableComment }
+            : {}),
+          ...(tableCollation != null && tableCollation !== ""
+            ? { collation: tableCollation }
+            : {}),
         };
 
-        return withTokenEstimate({ success: true, data: { ...sanitizedInfo, exists: true } });
+        return withTokenEstimate({
+          success: true,
+          data: { ...sanitizedInfo, exists: true },
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -299,7 +321,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
                 skipped: true,
                 tableName: name,
                 reason: "Table already exists",
-              }
+              },
             });
           }
         }
@@ -417,7 +439,10 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Validate table name
         if (!isValidId(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         // Pre-check existence for skipped indicator when ifExists is true
@@ -456,7 +481,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
               skipped: true,
               tableName: table,
               reason: "Table did not exist",
-            }
+            },
           });
         }
 
@@ -493,7 +518,10 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         const indexes = await adapter.getTableIndexes(table);
-        return withTokenEstimate({ success: true, data: { exists: true, indexes } });
+        return withTokenEstimate({
+          success: true,
+          data: { exists: true, indexes },
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -521,10 +549,16 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Validate names
         if (!name || !VALID_INDEX_NAME_PATTERN.test(name)) {
-          return withTokenEstimate({ success: false, error: "Invalid index name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid index name",
+          });
         }
         if (!isValidId(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
@@ -548,7 +582,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
                 skipped: true,
                 indexName: name,
                 reason: "Index already exists",
-              }
+              },
             });
           }
         }
@@ -576,7 +610,10 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
             });
           }
           if (message.includes("doesn't exist")) {
-            return withTokenEstimate({ success: false, error: `Table '${table}' does not exist` });
+            return withTokenEstimate({
+              success: false,
+              error: `Table '${table}' does not exist`,
+            });
           }
           return formatHandlerErrorResponse(err);
         }
@@ -591,7 +628,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
               indexName: name,
               warning:
                 "HASH indexes are only supported by the MEMORY engine. InnoDB silently converts HASH to BTREE.",
-            }
+            },
           });
         }
 

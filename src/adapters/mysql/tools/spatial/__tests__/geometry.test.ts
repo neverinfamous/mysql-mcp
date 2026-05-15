@@ -59,7 +59,10 @@ describe("Spatial Geometry Tools", () => {
       expect(call).toContain("POINT(10 20)");
       expect(call).toContain("axis-order=long-lat");
       expect(result.data.wkt).toBe("POINT(20 10)");
-      expect(result.data.geoJson).toEqual({ type: "Point", coordinates: [10, 20] });
+      expect(result.data.geoJson).toEqual({
+        type: "Point",
+        coordinates: [10, 20],
+      });
     });
 
     it("should use default SRID 4326", async () => {

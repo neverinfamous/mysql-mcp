@@ -81,10 +81,7 @@ test.describe("HTTP Transport Protocols", () => {
 
       expect(response.status()).toBe(400);
       const body = await response.json();
-      expect(body).toHaveProperty(
-        "error",
-        "Missing sessionId parameter",
-      );
+      expect(body).toHaveProperty("error", "Missing sessionId parameter");
     });
 
     test("should reject message POSTs for an unknown sessionId", async ({
@@ -103,10 +100,7 @@ test.describe("HTTP Transport Protocols", () => {
 
       expect(response.status()).toBe(404);
       const body = await response.json();
-      expect(body).toHaveProperty(
-        "error",
-        "No transport found for sessionId",
-      );
+      expect(body).toHaveProperty("error", "No transport found for sessionId");
     });
   });
 });

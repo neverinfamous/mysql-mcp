@@ -19,7 +19,7 @@ describe("Outliers Tool", () => {
 
   describe("createStatsOutliersTool", () => {
     let tool: ReturnType<typeof createStatsOutliersTool>;
-    
+
     beforeEach(() => {
       tool = createStatsOutliersTool(mockAdapter as unknown as MySQLAdapter);
     });
@@ -27,7 +27,9 @@ describe("Outliers Tool", () => {
     it("should detect outliers using Z-score", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
         if (query.includes("AVG")) {
-          return createMockQueryResult([{ mean: 10, stddev: 2, total_count: 100 }]);
+          return createMockQueryResult([
+            { mean: 10, stddev: 2, total_count: 100 },
+          ]);
         }
         if (query.includes("ABS")) {
           // Mock finding 1 outlier
@@ -36,8 +38,11 @@ describe("Outliers Tool", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "data", column: "val", method: "zscore", threshold: 3 }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "data", column: "val", method: "zscore", threshold: 3 },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.method).toBe("zscore");
@@ -50,13 +55,18 @@ describe("Outliers Tool", () => {
     it("should handle z-score with zero stddev", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
         if (query.includes("AVG")) {
-          return createMockQueryResult([{ mean: 10, stddev: 0, total_count: 100 }]);
+          return createMockQueryResult([
+            { mean: 10, stddev: 0, total_count: 100 },
+          ]);
         }
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "data", column: "val", method: "zscore", threshold: 3 }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "data", column: "val", method: "zscore", threshold: 3 },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       expect((result as any).data.outlierCount).toBe(0);
     });
@@ -67,11 +77,13 @@ describe("Outliers Tool", () => {
           return createMockQueryResult([{ total_count: 100 }]);
         }
         if (query.includes("LIMIT 1 OFFSET")) {
-          // Return q1 and q3 sequentially if mock doesn't inspect offset, 
+          // Return q1 and q3 sequentially if mock doesn't inspect offset,
           // but we can just use a simple state to return different values
-          if (query.includes("OFFSET 24")) return createMockQueryResult([{ value: 10 }]); // Q1
-          if (query.includes("OFFSET 74")) return createMockQueryResult([{ value: 20 }]); // Q3
-          return createMockQueryResult([{ value: 15 }]); 
+          if (query.includes("OFFSET 24"))
+            return createMockQueryResult([{ value: 10 }]); // Q1
+          if (query.includes("OFFSET 74"))
+            return createMockQueryResult([{ value: 20 }]); // Q3
+          return createMockQueryResult([{ value: 15 }]);
         }
         if (query.includes("OR")) {
           // Outlier results
@@ -80,8 +92,11 @@ describe("Outliers Tool", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "data", column: "val", method: "iqr", threshold: 1.5 }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "data", column: "val", method: "iqr", threshold: 1.5 },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.method).toBe("iqr");
@@ -102,8 +117,11 @@ describe("Outliers Tool", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "data", column: "val", method: "iqr" }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "data", column: "val", method: "iqr" },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       expect((result as any).data.totalRows).toBe(0);
       expect((result as any).data.outlierCount).toBe(0);

@@ -25,7 +25,10 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
       if (payload.success === false) {
         const err = String(payload.error ?? "");
         if (err.includes("read-only") || err.includes("super-read-only")) {
-          test.skip(true, "Server is read-only — OPTIMIZE TABLE requires write access");
+          test.skip(
+            true,
+            "Server is read-only — OPTIMIZE TABLE requires write access",
+          );
           return;
         }
       }
@@ -49,7 +52,10 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
       if (payload.success === false) {
         const err = String(payload.error ?? "");
         if (err.includes("read-only") || err.includes("super-read-only")) {
-          test.skip(true, "Server is read-only — ANALYZE TABLE requires write access");
+          test.skip(
+            true,
+            "Server is read-only — ANALYZE TABLE requires write access",
+          );
           return;
         }
       }
@@ -82,11 +88,9 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
   test("mysql_show_processlist returns { processes[], count }", async () => {
     const client = await createClient();
     try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_show_processlist",
-        { limit: 3 },
-      );
+      const payload = await callToolAndParse(client, "mysql_show_processlist", {
+        limit: 3,
+      });
 
       const data = payload.data as any;
       expect(Array.isArray(data?.processes)).toBe(true);

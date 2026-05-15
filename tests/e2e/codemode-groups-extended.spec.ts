@@ -11,11 +11,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import {
-  createClient,
-  callToolAndParse,
-  expectSuccess,
-} from "./helpers.js";
+import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -43,9 +39,7 @@ test.describe("Code Mode Groups: Transactions", () => {
       await client.close();
     }
   });
-
 });
-
 
 // =============================================================================
 // Partitioning Group via Code Mode (uses core PG features, no extension needed)

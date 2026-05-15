@@ -19,7 +19,7 @@ describe("Hypothesis Tool", () => {
 
   describe("createStatsHypothesisTool", () => {
     let tool: ReturnType<typeof createStatsHypothesisTool>;
-    
+
     beforeEach(() => {
       tool = createStatsHypothesisTool(mockAdapter as unknown as MySQLAdapter);
     });
@@ -29,13 +29,16 @@ describe("Hypothesis Tool", () => {
         return createMockQueryResult([{ n: 100, mean: 5.5, stddev: 2.0 }]);
       });
 
-      const result = await tool.handler({ 
-        table: "data", 
-        column: "val", 
-        testType: "t_test", 
-        hypothesizedMean: 5.0 
-      }, mockContext);
-      
+      const result = await tool.handler(
+        {
+          table: "data",
+          column: "val",
+          testType: "t_test",
+          hypothesizedMean: 5.0,
+        },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.testType).toBe("t_test");
@@ -50,14 +53,17 @@ describe("Hypothesis Tool", () => {
         return createMockQueryResult([{ n: 100, mean: 5.5, stddev: 2.0 }]);
       });
 
-      const result = await tool.handler({ 
-        table: "data", 
-        column: "val", 
-        testType: "z_test", 
-        hypothesizedMean: 5.0,
-        populationStdDev: 1.5
-      }, mockContext);
-      
+      const result = await tool.handler(
+        {
+          table: "data",
+          column: "val",
+          testType: "z_test",
+          hypothesizedMean: 5.0,
+          populationStdDev: 1.5,
+        },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.testType).toBe("z_test");
@@ -70,18 +76,21 @@ describe("Hypothesis Tool", () => {
       mockAdapter.executeQuery.mockImplementation(async () => {
         return createMockQueryResult([
           { group_key: "A", n: 50, mean: 6.0, stddev: 1.5 },
-          { group_key: "B", n: 50, mean: 5.2, stddev: 1.5 }
+          { group_key: "B", n: 50, mean: 5.2, stddev: 1.5 },
         ]);
       });
 
-      const result = await tool.handler({ 
-        table: "data", 
-        column: "val", 
-        testType: "t_test", 
-        hypothesizedMean: 5.0,
-        groupBy: "category"
-      }, mockContext);
-      
+      const result = await tool.handler(
+        {
+          table: "data",
+          column: "val",
+          testType: "t_test",
+          hypothesizedMean: 5.0,
+          groupBy: "category",
+        },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.count).toBe(2);
@@ -96,13 +105,16 @@ describe("Hypothesis Tool", () => {
         return createMockQueryResult([{ n: 1, mean: 5.5, stddev: 0 }]);
       });
 
-      const result = await tool.handler({ 
-        table: "data", 
-        column: "val", 
-        testType: "t_test", 
-        hypothesizedMean: 5.0 
-      }, mockContext);
-      
+      const result = await tool.handler(
+        {
+          table: "data",
+          column: "val",
+          testType: "t_test",
+          hypothesizedMean: 5.0,
+        },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(false);
       expect((result as any).error).toContain("Insufficient data");
     });

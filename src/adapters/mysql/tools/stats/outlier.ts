@@ -18,39 +18,40 @@ import {
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Schemas
 // =============================================================================
 
 export const StatsOutliersSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
-  column: z.string().optional().describe("Numeric column to check for outliers"),
+  column: z
+    .string()
+    .optional()
+    .describe("Numeric column to check for outliers"),
   method: z.unknown().optional().describe("Detection method to use"),
-  threshold: z.unknown().optional().describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
+  threshold: z
+    .unknown()
+    .optional()
+    .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to process (default: 10000)"),
-  maxOutliers: z.unknown().optional().describe("Maximum number of outliers to return (default: 50)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to process (default: 10000)"),
+  maxOutliers: z
+    .unknown()
+    .optional()
+    .describe("Maximum number of outliers to return (default: 50)"),
 });
 
 export const StatsOutliersSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
-  method: z
-    .enum(["iqr", "zscore"])
-    .default("iqr"),
-  threshold: z
-    .number()
-    .optional(),
+  method: z.enum(["iqr", "zscore"]).default("iqr"),
+  threshold: z.number().optional(),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .max(100000)
-    .default(10000),
-  maxOutliers: z
-    .number()
-    .max(1000)
-    .default(50),
+  limit: z.number().max(100000).default(10000),
+  maxOutliers: z.number().max(1000).default(50),
 });
 
 // =============================================================================
@@ -76,31 +77,41 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, column, method, limit, maxOutliers, where } = parsed;
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (method === "zscore") {
-          return withTokenEstimate(await detectZScoreOutliers(
-            adapter,
-            { table, column, whereClause },
-            parsed.threshold ?? 3,
-            limit,
-            maxOutliers,
-          ));
+          return withTokenEstimate(
+            await detectZScoreOutliers(
+              adapter,
+              { table, column, whereClause },
+              parsed.threshold ?? 3,
+              limit,
+              maxOutliers,
+            ),
+          );
         }
 
-        return withTokenEstimate(await detectIqrOutliers(
-          adapter,
-          { table, column, whereClause },
-          parsed.threshold ?? 1.5,
-          limit,
-          maxOutliers,
-        ));
+        return withTokenEstimate(
+          await detectIqrOutliers(
+            adapter,
+            { table, column, whereClause },
+            parsed.threshold ?? 1.5,
+            limit,
+            maxOutliers,
+          ),
+        );
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         const msg = formatMysqlError(error);
@@ -157,7 +168,7 @@ async function detectZScoreOutliers(
         outlierCount: 0,
         totalRows: 0,
         stats: { mean: 0, stdDev: 0, lowerBound: 0, upperBound: 0 },
-      }
+      },
     };
   }
 
@@ -173,7 +184,7 @@ async function detectZScoreOutliers(
         stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
         outlierCount: 0,
         totalRows,
-      }
+      },
     };
   }
 
@@ -248,7 +259,7 @@ async function detectIqrOutliers(
         outlierCount: 0,
         totalRows: 0,
         stats: { q1: 0, q3: 0, iqr: 0, lowerBound: 0, upperBound: 0 },
-      }
+      },
     };
   }
 

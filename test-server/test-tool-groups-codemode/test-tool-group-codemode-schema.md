@@ -27,7 +27,7 @@
 | `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
 | `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
 | `test_partitioned`  | 26   | id, region, created_at                            | data                |
-| `test_categories`   | 17   | id, name, path, level                 | —                   |
+| `test_categories`   | 17   | id, name, path, level                             | —                   |
 
 ## Testing Requirements
 
@@ -75,8 +75,8 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 schema Tool Group (11 tools +1 code mode):
 
 1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema` 4. `mysql_list_views`
-5. `mysql_create_view` 6. `mysql_drop_view` 7. `mysql_list_stored_procedures` 8. `mysql_list_functions`
-9. `mysql_list_triggers` 10. `mysql_list_constraints` 11. `mysql_list_events`
+2. `mysql_create_view` 6. `mysql_drop_view` 7. `mysql_list_stored_procedures` 8. `mysql_list_functions`
+3. `mysql_list_triggers` 10. `mysql_list_constraints` 11. `mysql_list_events`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

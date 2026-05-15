@@ -61,7 +61,9 @@ test.describe("Audit Log Rotation Stress", () => {
           "mysql_transaction_begin",
           {},
         );
-        const txId = (beginRes.data as any)?.transactionId as string | undefined;
+        const txId = (beginRes.data as any)?.transactionId as
+          | string
+          | undefined;
         if (txId) {
           await callToolAndParse(client, "mysql_transaction_rollback", {
             transactionId: txId,

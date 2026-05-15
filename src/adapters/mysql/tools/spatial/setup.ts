@@ -6,7 +6,10 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -68,7 +71,10 @@ export function createSpatialCreateColumnTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         // Validate geometry type
@@ -113,8 +119,8 @@ export function createSpatialCreateColumnTool(
             error: `Table '${tbl}' does not exist`,
             details: {
               exists: false,
-              table: tbl
-            }
+              table: tbl,
+            },
           });
         }
         if (msg.includes("Duplicate column name")) {
@@ -153,7 +159,10 @@ export function createSpatialCreateIndexTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         // For qualified names (schema.table), split for information_schema queries
@@ -165,7 +174,10 @@ export function createSpatialCreateIndexTool(
 
         const idxName = indexName ?? `idx_spatial_${bareTable}_${column}`;
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
-          return withTokenEstimate({ success: false, error: "Invalid index name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid index name",
+          });
         }
 
         // Check if column is nullable - SPATIAL indexes require NOT NULL
@@ -230,10 +242,10 @@ export function createSpatialCreateIndexTool(
         const msg = error instanceof Error ? error.message : String(error);
         const tbl = paramStr(params, "table");
         if (msg.includes("Table") && msg.includes("doesn't exist")) {
-          return withTokenEstimate({ 
-            success: false, 
+          return withTokenEstimate({
+            success: false,
             error: `Table '${tbl}' does not exist`,
-            details: { exists: false, table: tbl }
+            details: { exists: false, table: tbl },
           });
         }
         if (

@@ -94,7 +94,10 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     response.error = formatMysqlError(response.error);
   } else if (
     err instanceof ZodError ||
-    (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError")
+    (err !== null &&
+      typeof err === "object" &&
+      "name" in err &&
+      err.name === "ZodError")
   ) {
     // Zod validation error
     response = {
@@ -110,7 +113,9 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   }
 
   // Calculate payload token cost (JSON byte length / 4)
-  const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+  const tokenEstimate = Math.ceil(
+    Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+  );
   response.metrics = { tokenEstimate };
 
   return response;
@@ -119,8 +124,12 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
 /**
  * Helper to add tokenEstimate metrics to a successful tool response.
  */
-export function withTokenEstimate(response: Record<string, unknown>): Record<string, unknown> {
-  const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+export function withTokenEstimate(
+  response: Record<string, unknown>,
+): Record<string, unknown> {
+  const tokenEstimate = Math.ceil(
+    Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+  );
   return {
     ...response,
     metrics: { tokenEstimate },

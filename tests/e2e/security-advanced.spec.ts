@@ -39,7 +39,9 @@ test.describe("Advanced HTTP Transport Security", () => {
       );
       expect([200, 403]).toContain(invalidResponse.status());
       const invalidBody = await invalidResponse.json();
-      if (invalidResponse.status() === 403) { expect(invalidBody.error?.message).toContain('Invalid Host'); }
+      if (invalidResponse.status() === 403) {
+        expect(invalidBody.error?.message).toContain("Invalid Host");
+      }
     });
 
     test("should use X-Forwarded-For for rate limiting when trustProxy is true", async ({

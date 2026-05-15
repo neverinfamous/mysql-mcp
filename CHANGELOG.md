@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.1.0](https://github.com/neverinfamous/mysql-mcp/releases/tag/v3.1.0) - 2026-05-05
+## [3.1.0](https://github.com/neverinfamous/mysql-mcp/releases/tag/v3.1.0) - 2026-05-15
 
 ### Added
 
@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Legacy skipped postgres-ported tests from the E2E suite to improve codebase hygiene
 - Monolithic `ServerInstructions.ts` and dynamic group-filtering utilities.
 
 ### Fixed
@@ -112,18 +113,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Resolved XSS vulnerability in `ip-address` and `express-rate-limit` via npm update
+- Bumped `tar` (bundled in npm) to `7.5.15` in Dockerfile to address CVE-2026-26960
 - **Scope Enforcement**: Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
 - **Dependency Patches**: Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities.
 - **CI/CD Hardening**: Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
 
 ### Dependencies
 
-- `@types/node`: 25.3.2 → 25.6.0
+- `@playwright/test`: 1.59.1 → 1.60.0
+- `@vitest/coverage-v8`: 4.1.5 → 4.1.6
+- `vitest`: 4.1.5 → 4.1.6
+- `@types/node`: 25.3.2 → 25.8.0
 - `eslint`: 10.0.2 → 10.3.0
 - `globals`: 17.3.0 → 17.6.0
 - `jose`: 6.1.3 → 6.2.3
 - `mysql2`: 3.18.2 → 3.19.1
-- `typescript-eslint`: 8.56.1 → 8.59.2
+- `typescript-eslint`: 8.56.1 → 8.59.3
 - `zod`: 4.3.6 → 4.4.3
 - `express-rate-limit`: 8.2.1 → 8.3.1 (transitive)
 - `hono`: 4.12.2 → 4.12.7 (transitive)
@@ -131,6 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### CI
 
+- Bumped GitHub Actions: `download-artifact` to v8.0.1, `setup-node` to v6.4.0, `codeql-action` to v4.35.4
+- Bumped Docker GitHub Actions: `build-push-action` to v7.1.0, `trivy-action` to v0.36.0
 - Bumped Docker GitHub Actions: `setup-buildx-action` v3 → v4, `login-action` v3 → v4, `metadata-action` v5 → v6, `build-push-action` v6 → v7
 - Bumped GitHub Actions: `upload-artifact` v6 → v7, `download-artifact` v7 → v8
 

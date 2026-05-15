@@ -62,7 +62,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
       expect(Array.isArray(response.content)).toBe(true);
       if ((response.content as any[]).length > 0) {
         expect((response.content as any[])[0].type).toBe("text");
-        const errorText = ((response.content as any[])[0] as any).text as string;
+        const errorText = ((response.content as any[])[0] as any)
+          .text as string;
         expect(errorText.toLowerCase()).toContain("required");
       }
     } catch (error: any) {

@@ -18,7 +18,6 @@ import {
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Schemas
 // =============================================================================
@@ -27,208 +26,213 @@ export const StatsRowNumberSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
-  selectColumns: z.unknown().optional().describe("Columns to include in result"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
-  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
+  offset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsRowNumberSchema = z.object({
   table: z.string().min(1, "table is required"),
   orderBy: z.string().min(1, "orderBy is required"),
   partitionBy: z.string().optional(),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
+  selectColumns: z.array(z.string()).optional(),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
-  offset: z
-    .number()
-    .min(0)
-    .default(0),
+  limit: z.number().min(1).max(1000).default(20),
+  offset: z.number().min(0).default(0),
 });
 
 export const StatsRankSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
-  orderBy: z.string().optional().describe("Column(s) to order by (determines rank)"),
+  orderBy: z
+    .string()
+    .optional()
+    .describe("Column(s) to order by (determines rank)"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
-  selectColumns: z.unknown().optional().describe("Columns to include in result"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include in result"),
   method: z.unknown().optional().describe("Rank function type (default: rank)"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
-  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
+  offset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsRankSchema = z.object({
   table: z.string().min(1, "table is required"),
   orderBy: z.string().min(1, "orderBy is required"),
   partitionBy: z.string().optional(),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
-  method: z
-    .enum(["rank", "dense_rank", "percent_rank"])
-    .default("rank"),
+  selectColumns: z.array(z.string()).optional(),
+  method: z.enum(["rank", "dense_rank", "percent_rank"]).default("rank"),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
-  offset: z
-    .number()
-    .min(0)
-    .default(0),
+  limit: z.number().min(1).max(1000).default(20),
+  offset: z.number().min(0).default(0),
 });
 
 export const StatsLagLeadSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Column to get lag/lead value from"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
-  direction: z.unknown().optional().describe("LAG (previous row) or LEAD (next row)"),
-  offset: z.unknown().optional().describe("Number of rows to look back/ahead (default: 1)"),
-  defaultValue: z.string().optional().describe("Default value if no row exists"),
+  direction: z
+    .unknown()
+    .optional()
+    .describe("LAG (previous row) or LEAD (next row)"),
+  offset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to look back/ahead (default: 1)"),
+  defaultValue: z
+    .string()
+    .optional()
+    .describe("Default value if no row exists"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
-  selectColumns: z.unknown().optional().describe("Columns to include in result"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
-  paginationOffset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
+  paginationOffset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsLagLeadSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
   orderBy: z.string().min(1, "orderBy is required"),
-  direction: z
-    .enum(["lag", "lead"]),
-  offset: z
-    .number()
-    .min(1)
-    .default(1),
-  defaultValue: z
-    .string()
-    .optional(),
+  direction: z.enum(["lag", "lead"]),
+  offset: z.number().min(1).default(1),
+  defaultValue: z.string().optional(),
   partitionBy: z.string().optional(),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
+  selectColumns: z.array(z.string()).optional(),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
-  paginationOffset: z
-    .number()
-    .min(0)
-    .default(0),
+  limit: z.number().min(1).max(1000).default(20),
+  paginationOffset: z.number().min(0).default(0),
 });
 
 export const StatsRunningTotalSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Numeric column to sum"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
-  partitionBy: z.string().optional().describe("Reset running total for each partition"),
-  selectColumns: z.unknown().optional().describe("Columns to include in result"),
+  partitionBy: z
+    .string()
+    .optional()
+    .describe("Reset running total for each partition"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
-  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
+  offset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsRunningTotalSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
   orderBy: z.string().min(1, "orderBy is required"),
-  partitionBy: z
-    .string()
-    .optional(),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
+  partitionBy: z.string().optional(),
+  selectColumns: z.array(z.string()).optional(),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
-  offset: z
-    .number()
-    .min(0)
-    .default(0),
+  limit: z.number().min(1).max(1000).default(20),
+  offset: z.number().min(0).default(0),
 });
 
 export const StatsMovingAvgSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Numeric column to average"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
-  windowSize: z.unknown().optional().describe("Number of rows in the moving window"),
+  windowSize: z
+    .unknown()
+    .optional()
+    .describe("Number of rows in the moving window"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
-  selectColumns: z.unknown().optional().describe("Columns to include in result"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
-  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
+  offset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsMovingAvgSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
   orderBy: z.string().min(1, "orderBy is required"),
-  windowSize: z
-    .number()
-    .min(1)
-    .default(3),
+  windowSize: z.number().min(1).default(3),
   partitionBy: z.string().optional(),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
+  selectColumns: z.array(z.string()).optional(),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
-  offset: z
-    .number()
-    .min(0)
-    .default(0),
+  limit: z.number().min(1).max(1000).default(20),
+  offset: z.number().min(0).default(0),
 });
 
 export const StatsNtileSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
-  buckets: z.unknown().optional().describe("Number of buckets (e.g., 4 for quartiles)"),
+  buckets: z
+    .unknown()
+    .optional()
+    .describe("Number of buckets (e.g., 4 for quartiles)"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
-  selectColumns: z.unknown().optional().describe("Columns to include in result"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
-  offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
+  offset: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to skip (default: 0)"),
 });
 
 export const StatsNtileSchema = z.object({
   table: z.string().min(1, "table is required"),
   orderBy: z.string().min(1, "orderBy is required"),
-  buckets: z
-    .number()
-    .min(1)
-    .default(4),
+  buckets: z.number().min(1).default(4),
   partitionBy: z.string().optional(),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
+  selectColumns: z.array(z.string()).optional(),
   where: z.string().optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
-  offset: z
-    .number()
-    .min(0)
-    .default(0),
+  limit: z.number().min(1).max(1000).default(20),
+  offset: z.number().min(0).default(0),
 });
 
 // =============================================================================
@@ -277,7 +281,10 @@ export function createStatsRowNumberTool(
         const parsed = StatsRowNumberSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         const partition = partitionClause(parsed.partitionBy);
@@ -300,7 +307,7 @@ export function createStatsRowNumberTool(
           data: {
             rowCount: rows.length,
             rows,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -312,7 +319,10 @@ export function createStatsRowNumberTool(
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+          return withTokenEstimate({
+            success: false,
+            error: "One or more referenced columns do not exist on the table",
+          });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -338,7 +348,10 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsRankSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         const rankType = parsed.method;
@@ -364,7 +377,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
             rankType,
             rowCount: rows.length,
             rows,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -376,7 +389,10 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+          return withTokenEstimate({
+            success: false,
+            error: "One or more referenced columns do not exist on the table",
+          });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -402,10 +418,16 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsLagLeadSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const partition = partitionClause(parsed.partitionBy);
@@ -436,7 +458,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             offset: parsed.offset,
             rowCount: rows.length,
             rows,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -448,7 +470,10 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+          return withTokenEstimate({
+            success: false,
+            error: "One or more referenced columns do not exist on the table",
+          });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -476,10 +501,16 @@ export function createStatsRunningTotalTool(
         const parsed = StatsRunningTotalSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const partition = partitionClause(parsed.partitionBy);
@@ -502,7 +533,7 @@ export function createStatsRunningTotalTool(
             valueColumn: parsed.column,
             rowCount: rows.length,
             rows,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -514,7 +545,10 @@ export function createStatsRunningTotalTool(
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+          return withTokenEstimate({
+            success: false,
+            error: "One or more referenced columns do not exist on the table",
+          });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -542,10 +576,16 @@ export function createStatsMovingAvgTool(
         const parsed = StatsMovingAvgSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const windowSize = parsed.windowSize;
@@ -571,7 +611,7 @@ export function createStatsMovingAvgTool(
             windowSize,
             rowCount: rows.length,
             rows,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -583,7 +623,10 @@ export function createStatsMovingAvgTool(
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+          return withTokenEstimate({
+            success: false,
+            error: "One or more referenced columns do not exist on the table",
+          });
         }
         return withTokenEstimate({ success: false, error: msg });
       }
@@ -609,7 +652,10 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsNtileSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         const buckets = parsed.buckets;
@@ -633,7 +679,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
             buckets,
             rowCount: rows.length,
             rows,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -645,7 +691,10 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: "One or more referenced columns do not exist on the table" });
+          return withTokenEstimate({
+            success: false,
+            error: "One or more referenced columns do not exist on the table",
+          });
         }
         return withTokenEstimate({ success: false, error: msg });
       }

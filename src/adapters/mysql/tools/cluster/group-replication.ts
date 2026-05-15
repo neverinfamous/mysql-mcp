@@ -14,7 +14,6 @@ import type {
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Schemas
 // =============================================================================
@@ -106,7 +105,9 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
             };
           }),
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -171,7 +172,9 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -219,7 +222,9 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -287,7 +292,9 @@ export function createGRTransactionsTool(
             purged: gtid?.["gtidPurged"] ?? "",
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -364,7 +371,9 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             ? "Flow control is active. Consider investigating slow members or adjusting thresholds."
             : "Flow control is not currently throttling.",
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);

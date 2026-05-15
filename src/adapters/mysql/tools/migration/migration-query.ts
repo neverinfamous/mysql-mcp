@@ -28,7 +28,6 @@ import {
 } from "./helpers.js";
 import { DESTRUCTIVE, READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // mysql_migration_rollback
 // =============================================================================
@@ -64,7 +63,9 @@ export function createMigrationRollbackTool(
             category: "validation",
             recoverable: true,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
@@ -80,7 +81,9 @@ export function createMigrationRollbackTool(
               category: "validation",
               recoverable: true,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+            );
             return { ...errorResponse, metrics: { tokenEstimate } };
           }
           coercedId = num;
@@ -110,7 +113,9 @@ export function createMigrationRollbackTool(
             category: "validation",
             recoverable: true,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
@@ -128,7 +133,9 @@ export function createMigrationRollbackTool(
             category: "validation",
             recoverable: true,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
@@ -140,7 +147,9 @@ export function createMigrationRollbackTool(
             category: "validation",
             recoverable: true,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
 
@@ -153,7 +162,9 @@ export function createMigrationRollbackTool(
               record: formatRecord(row),
             },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -175,7 +186,9 @@ export function createMigrationRollbackTool(
               },
             },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -186,7 +199,9 @@ export function createMigrationRollbackTool(
             category: "query",
             recoverable: false,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
       } catch (error: unknown) {
@@ -274,7 +289,9 @@ export function createMigrationHistoryTool(
             offset,
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -340,7 +357,9 @@ export function createMigrationStatusTool(
               sourceSystems: [],
             },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -402,7 +421,9 @@ export function createMigrationStatusTool(
             sourceSystems,
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

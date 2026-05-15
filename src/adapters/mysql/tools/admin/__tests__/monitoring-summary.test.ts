@@ -77,7 +77,10 @@ describe("Monitoring Summary & Edge Cases", () => {
         data: { summary: Record<string, unknown> };
       };
 
-      const ops = result.data.summary["rowOperations"] as Record<string, number>;
+      const ops = result.data.summary["rowOperations"] as Record<
+        string,
+        number
+      >;
       expect(ops).toBeDefined();
       expect(ops["insertsPerSec"]).toBe(1.5);
       expect(ops["updatesPerSec"]).toBe(2.75);
@@ -208,7 +211,7 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        data: { configured: boolean; message: string; };
+        data: { configured: boolean; message: string };
       };
 
       expect(result.data.configured).toBe(false);
@@ -224,7 +227,7 @@ describe("Monitoring Summary & Edge Cases", () => {
         mockAdapter as unknown as MySQLAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        data: { configured: boolean; message: string; };
+        data: { configured: boolean; message: string };
       };
 
       expect(result.data.configured).toBe(false);

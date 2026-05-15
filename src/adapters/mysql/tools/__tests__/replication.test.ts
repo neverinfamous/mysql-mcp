@@ -306,7 +306,7 @@ describe("Partitioning Handler Execution", () => {
         data: {
           partitioned: boolean;
           method: string;
-        }
+        };
       };
 
       expect(result.data.partitioned).toBe(true);

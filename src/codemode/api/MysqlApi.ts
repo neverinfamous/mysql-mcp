@@ -271,7 +271,11 @@ export class MysqlApi {
       if (group === "codemode") continue;
       result[group] = tools.map((t) => toolNameToMethodName(t.name, group));
     }
-    return { success: true, data: { groups: result }, metrics: { tokenEstimate: 50 } };
+    return {
+      success: true,
+      data: { groups: result },
+      metrics: { tokenEstimate: 50 },
+    };
   }
 
   /**

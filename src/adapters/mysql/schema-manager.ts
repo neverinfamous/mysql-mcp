@@ -65,7 +65,7 @@ export class SchemaManager {
     // Performance optimization: fetch all indexes and columns in a single query instead of N+1
     const [indexes, allColumns] = await Promise.all([
       this.getAllIndexes(),
-      this.getAllColumns()
+      this.getAllColumns(),
     ]);
 
     // Attach columns to tables and views
@@ -139,7 +139,9 @@ export class SchemaManager {
    */
   private async getAllColumns(): Promise<Map<string, ColumnInfo[]>> {
     // Check cache first
-    const cached = this.getCached("all_columns") as Map<string, ColumnInfo[]> | undefined;
+    const cached = this.getCached("all_columns") as
+      | Map<string, ColumnInfo[]>
+      | undefined;
     if (cached) return cached;
 
     const result = await this.executor.executeQuery(`
@@ -164,7 +166,7 @@ export class SchemaManager {
     for (const row of result.rows ?? []) {
       const tableName = row["tableName"] as string;
       const columns = columnMap.get(tableName) ?? [];
-      
+
       columns.push({
         name: row["name"] as string,
         type: row["type"] as string,

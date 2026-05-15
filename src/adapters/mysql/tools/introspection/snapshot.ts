@@ -18,7 +18,6 @@ import {
 } from "../../schemas/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // mysql_schema_snapshot
 // =============================================================================
@@ -296,7 +295,9 @@ export function createSchemaSnapshotTool(
           ...(finalHint ? { hint: finalHint } : {}),
           generatedAt: new Date().toISOString(),
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

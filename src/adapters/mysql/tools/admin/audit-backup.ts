@@ -5,7 +5,10 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -13,7 +16,6 @@ import type {
 } from "../../../../types/index.js";
 import type { BackupManager } from "../../../../audit/backup-manager.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
-
 
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
@@ -51,7 +53,10 @@ export function createAuditListBackupsTool(
           adapter as unknown as { backupManager?: BackupManager }
         ).backupManager;
         if (!backupManager) {
-          return withTokenEstimate({ success: false, error: "Backup Manager is not enabled or available" });
+          return withTokenEstimate({
+            success: false,
+            error: "Backup Manager is not enabled or available",
+          });
         }
 
         const snapshots = await backupManager.listSnapshots();
@@ -67,7 +72,9 @@ export function createAuditListBackupsTool(
           total: filtered.length,
         });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };
@@ -104,12 +111,18 @@ export function createAuditRestoreBackupTool(
           adapter as unknown as { backupManager?: BackupManager }
         ).backupManager;
         if (!backupManager) {
-          return withTokenEstimate({ success: false, error: "Backup Manager is not enabled or available" });
+          return withTokenEstimate({
+            success: false,
+            error: "Backup Manager is not enabled or available",
+          });
         }
 
         const snapshot = await backupManager.getSnapshot(filename);
         if (!snapshot) {
-          return withTokenEstimate({ success: false, error: `Snapshot not found or unreadable: ${filename}` });
+          return withTokenEstimate({
+            success: false,
+            error: `Snapshot not found or unreadable: ${filename}`,
+          });
         }
 
         const operations = [snapshot.ddl];
@@ -142,7 +155,9 @@ export function createAuditRestoreBackupTool(
           metadata: snapshot.metadata,
         });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };
@@ -174,12 +189,18 @@ export function createAuditDiffBackupTool(
           adapter as unknown as { backupManager?: BackupManager }
         ).backupManager;
         if (!backupManager) {
-          return withTokenEstimate({ success: false, error: "Backup Manager is not enabled or available" });
+          return withTokenEstimate({
+            success: false,
+            error: "Backup Manager is not enabled or available",
+          });
         }
 
         const snapshot = await backupManager.getSnapshot(filename);
         if (!snapshot) {
-          return withTokenEstimate({ success: false, error: `Snapshot not found or unreadable: ${filename}` });
+          return withTokenEstimate({
+            success: false,
+            error: `Snapshot not found or unreadable: ${filename}`,
+          });
         }
 
         const { target, schema: schemaName } = snapshot.metadata;
@@ -233,7 +254,9 @@ export function createAuditDiffBackupTool(
           metadata: snapshot.metadata,
         });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };

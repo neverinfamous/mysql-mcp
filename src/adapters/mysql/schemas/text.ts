@@ -54,8 +54,9 @@ export const RegexpMatchSchema = z
     message: "column (or col alias) is required",
   })
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- LikeSearch ---
@@ -103,8 +104,9 @@ export const LikeSearchSchema = z
     message: "column (or col alias) is required",
   })
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- Soundex ---
@@ -152,8 +154,9 @@ export const SoundexSchema = z
     message: "column (or col alias) is required",
   })
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- Substring ---
@@ -199,8 +202,9 @@ export const SubstringSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- Concat ---
@@ -263,8 +267,9 @@ export const ConcatSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- CollationConvert ---
@@ -290,8 +295,15 @@ export const CollationConvertSchema = z
     (val) => {
       const v1 = preprocessJsonColumnParams(val);
       // Alias targetCharset to charset
-      if (v1 !== null && typeof v1 === "object" && "targetCharset" in v1 && !("charset" in v1)) {
-        (v1 as Record<string, unknown>)["charset"] = (v1 as Record<string, unknown>)["targetCharset"];
+      if (
+        v1 !== null &&
+        typeof v1 === "object" &&
+        "targetCharset" in v1 &&
+        !("charset" in v1)
+      ) {
+        (v1 as Record<string, unknown>)["charset"] = (
+          v1 as Record<string, unknown>
+        )["targetCharset"];
       }
       return v1;
     },
@@ -323,8 +335,9 @@ export const CollationConvertSchema = z
     message: "column (or col alias) is required",
   })
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- FulltextCreate ---
@@ -380,7 +393,9 @@ export const FulltextSearchSchemaBase = z.object({
   maxLength: z
     .unknown()
     .optional()
-    .describe("Optional max characters per text column in results. Truncates with '...' if exceeded."),
+    .describe(
+      "Optional max characters per text column in results. Truncates with '...' if exceeded.",
+    ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
@@ -410,7 +425,8 @@ export const FulltextSearchSchema = z
     columns: data.columns ?? [],
     query: data.query ?? data.sql ?? "",
     mode: data.mode,
-    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : undefined,
+    maxLength:
+      data.maxLength !== undefined ? Number(data.maxLength) : undefined,
     limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
@@ -421,12 +437,15 @@ export const FulltextSearchSchema = z
     message: "query (or sql alias) is required",
   })
   .refine(
-    (data) => data.maxLength === undefined || (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" }
+    (data) =>
+      data.maxLength === undefined ||
+      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
+    { message: "Validation error: maxLength must be a positive number" },
   )
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- FulltextDrop ---
@@ -499,7 +518,8 @@ export const FulltextBooleanSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? [],
     query: data.query ?? "",
-    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : undefined,
+    maxLength:
+      data.maxLength !== undefined ? Number(data.maxLength) : undefined,
     limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
@@ -508,12 +528,15 @@ export const FulltextBooleanSchema = z
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
   .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
-    (data) => data.maxLength === undefined || (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" }
+    (data) =>
+      data.maxLength === undefined ||
+      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
+    { message: "Validation error: maxLength must be a positive number" },
   )
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );
 
 // --- FulltextExpand ---
@@ -549,7 +572,8 @@ export const FulltextExpandSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? [],
     query: data.query ?? "",
-    maxLength: data.maxLength !== undefined ? Number(data.maxLength) : undefined,
+    maxLength:
+      data.maxLength !== undefined ? Number(data.maxLength) : undefined,
     limit: data.limit !== undefined ? Number(data.limit) : undefined,
   }))
   .refine((data) => data.table !== "", {
@@ -558,10 +582,13 @@ export const FulltextExpandSchema = z
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
   .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
-    (data) => data.maxLength === undefined || (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" }
+    (data) =>
+      data.maxLength === undefined ||
+      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
+    { message: "Validation error: maxLength must be a positive number" },
   )
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "Validation error: limit must be a positive number" },
   );

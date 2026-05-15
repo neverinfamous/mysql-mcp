@@ -12,7 +12,8 @@ import {
   createClient,
   callToolAndParse,
   expectSuccess,
-  expectHandlerError} from "./helpers.js";
+  expectHandlerError,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -225,7 +226,6 @@ test.describe("Code Mode: Readonly Mode", () => {
       await client.close();
     }
   });
-
 });
 
 // =============================================================================
@@ -270,7 +270,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
       });
       expectSuccess(p);
       const result = p.result as Record<string, unknown>;
-      expect((result.data?.rowCount ?? result.rowCount)).toBe(3);
+      expect(result.data?.rowCount ?? result.rowCount).toBe(3);
       expect(result.firstItem).toBe("gamma");
     } finally {
       await client.close();
@@ -307,7 +307,9 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
       expect(typeof result.columnCount).toBe("number");
       expect(result.columnCount as number).toBeGreaterThan(0);
       // PG COUNT returns bigint which may come as string or number
-      expect(["number", "string"]).toContain(typeof (result.data?.rowCount ?? result.rowCount));
+      expect(["number", "string"]).toContain(
+        typeof (result.data?.rowCount ?? result.rowCount),
+      );
     } finally {
       await client.close();
     }

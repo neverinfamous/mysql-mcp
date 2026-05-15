@@ -123,7 +123,10 @@ describe("Spatial Tools Handlers", () => {
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
       );
-      expect((result as any).data).toHaveProperty("indexName", "idx_spatial_users_location");
+      expect((result as any).data).toHaveProperty(
+        "indexName",
+        "idx_spatial_users_location",
+      );
     });
 
     it("should detect existing spatial index on same column", async () => {

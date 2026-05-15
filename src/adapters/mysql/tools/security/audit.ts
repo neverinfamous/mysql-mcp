@@ -17,7 +17,6 @@ import type {
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -167,7 +166,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
             source: "mysql.audit_log",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -182,7 +181,9 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           lower.includes("access denied")
         ) {
           return formatHandlerErrorResponse(
-            new Error("Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.")
+            new Error(
+              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
+            ),
           );
         }
         return formatHandlerErrorResponse(new Error(stripped));
@@ -222,7 +223,7 @@ export function createSecurityFirewallStatusTool(
               message: "MySQL Enterprise Firewall is not installed",
               suggestion:
                 'Install with: INSTALL PLUGIN mysql_firewall SONAME "firewall.so"',
-            }
+            },
           });
         }
 
@@ -246,7 +247,7 @@ export function createSecurityFirewallStatusTool(
             installed: true,
             plugins: pluginResult.rows,
             configuration: variables,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -254,7 +255,9 @@ export function createSecurityFirewallStatusTool(
         }
         const message = error instanceof Error ? error.message : String(error);
         return formatHandlerErrorResponse(
-          new Error(`Firewall plugin check failed: ${stripErrorPrefix(message)}`)
+          new Error(
+            `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
+          ),
         );
       }
     },
@@ -287,7 +290,9 @@ export function createSecurityFirewallRulesTool(
         ] as const;
         if (mode && !validModes.includes(mode as (typeof validModes)[number])) {
           return formatHandlerErrorResponse(
-            new Error(`Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`)
+            new Error(
+              `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,
+            ),
           );
         }
         // Get firewall users
@@ -336,14 +341,16 @@ export function createSecurityFirewallRulesTool(
             rules: rulesResult.rows ?? [],
             userCount: usersResult.rows?.length ?? 0,
             ruleCount: rulesResult.rows?.length ?? 0,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         return formatHandlerErrorResponse(
-          new Error("Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.")
+          new Error(
+            "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
+          ),
         );
       }
     },

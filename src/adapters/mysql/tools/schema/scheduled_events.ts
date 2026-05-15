@@ -8,7 +8,6 @@ import type {
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 const ListEventsSchemaBase = z.object({
   schema: z
     .string()
@@ -57,7 +56,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`)
+              new Error(`Schema '${targetSchema}' does not exist`),
             );
           }
         }
@@ -99,9 +98,11 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             events: result.rows,
             count: result.rows?.length ?? 0,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);

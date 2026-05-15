@@ -8,7 +8,6 @@ import type {
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 const ListTriggersSchema = z.object({
   table: z.string().optional().describe("Filter by table name"),
   schema: z
@@ -44,7 +43,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`)
+              new Error(`Schema '${targetSchema}' does not exist`),
             );
           }
         }
@@ -57,7 +56,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Table '${table}' does not exist`)
+              new Error(`Table '${table}' does not exist`),
             );
           }
         }
@@ -91,9 +90,11 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             triggers: result.rows,
             count: result.rows?.length ?? 0,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);

@@ -23,14 +23,20 @@ import {
   FulltextExpandSchemaBase,
 } from "../../schemas/index.js";
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   validateIdentifier,
   validateQualifiedIdentifier,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
-import { WRITE, DESTRUCTIVE, READ_ONLY } from "../../../../utils/annotations.js";
-
+import {
+  WRITE,
+  DESTRUCTIVE,
+  READ_ONLY,
+} from "../../../../utils/annotations.js";
 
 /**
  * Check if an error is a MySQL duplicate key name error (ER_DUP_KEYNAME, code 1061)
@@ -237,10 +243,14 @@ export function createFulltextSearchTool(
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
-        
+
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
-          const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const data = truncateRowValues(
+            result.rows ?? [],
+            columns,
+            maxLength ?? 250,
+          );
           return withTokenEstimate({
             success: true,
             data: {
@@ -314,7 +324,11 @@ export function createFulltextBooleanTool(
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
-          const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const data = truncateRowValues(
+            result.rows ?? [],
+            columns,
+            maxLength ?? 250,
+          );
           return withTokenEstimate({
             success: true,
             data: {
@@ -388,7 +402,11 @@ export function createFulltextExpandTool(
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
-          const data = truncateRowValues(result.rows ?? [], columns, maxLength ?? 250);
+          const data = truncateRowValues(
+            result.rows ?? [],
+            columns,
+            maxLength ?? 250,
+          );
           return withTokenEstimate({
             success: true,
             data: {

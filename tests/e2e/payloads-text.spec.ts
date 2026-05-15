@@ -80,15 +80,11 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
   test("mysql_fulltext_boolean returns { data, count }", async () => {
     const client = await createClient();
     try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_fulltext_boolean",
-        {
-          table: "test_articles",
-          columns: ["title", "body"],
-          query: "+MySQL -Oracle",
-        },
-      );
+      const payload = await callToolAndParse(client, "mysql_fulltext_boolean", {
+        table: "test_articles",
+        columns: ["title", "body"],
+        query: "+MySQL -Oracle",
+      });
 
       const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);

@@ -386,14 +386,14 @@ Complete list of all **224 tools** across 25 categories.
 
 > Pre-flight analysis, relationship mapping, and constraint validation tools to ensure schema modifications are safe.
 
-| Tool | Description |
-|------|-------------|
-| `mysql_dependency_graph` | Generate a deep relationship graph of tables based on foreign keys |
-| `mysql_topological_sort` | Determine exact creation/deletion order for foreign key constraints |
-| `mysql_cascade_simulator` | Simulate cascading deletes/updates without actual data modification |
-| `mysql_schema_snapshot` | Capture the state of the schema definition at a given point in time |
+| Tool                        | Description                                                                |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `mysql_dependency_graph`    | Generate a deep relationship graph of tables based on foreign keys         |
+| `mysql_topological_sort`    | Determine exact creation/deletion order for foreign key constraints        |
+| `mysql_cascade_simulator`   | Simulate cascading deletes/updates without actual data modification        |
+| `mysql_schema_snapshot`     | Capture the state of the schema definition at a given point in time        |
 | `mysql_constraint_analysis` | Detect circular dependencies, missing indexes, and overlapping constraints |
-| `mysql_migration_risks` | Run pre-flight checks on DDL to identify downtime or locking risks |
+| `mysql_migration_risks`     | Run pre-flight checks on DDL to identify downtime or locking risks         |
 
 ---
 
@@ -401,14 +401,14 @@ Complete list of all **224 tools** across 25 categories.
 
 > Integrated schema versioning and deployment tracker built directly into the MCP server.
 
-| Tool | Description |
-|------|-------------|
-| `mysql_migration_init` | Set up migration tracking tables in the database |
-| `mysql_migration_record` | Manually record an out-of-band migration to the history |
-| `mysql_migration_apply` | Apply a single forward migration step |
-| `mysql_migration_rollback` | Revert a recently applied migration |
-| `mysql_migration_history` | View applied migrations history |
-| `mysql_migration_status` | Check the current state of applied vs. pending migrations |
+| Tool                       | Description                                               |
+| -------------------------- | --------------------------------------------------------- |
+| `mysql_migration_init`     | Set up migration tracking tables in the database          |
+| `mysql_migration_record`   | Manually record an out-of-band migration to the history   |
+| `mysql_migration_apply`    | Apply a single forward migration step                     |
+| `mysql_migration_rollback` | Revert a recently applied migration                       |
+| `mysql_migration_history`  | View applied migrations history                           |
+| `mysql_migration_status`   | Check the current state of applied vs. pending migrations |
 
 ---
 

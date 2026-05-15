@@ -30,9 +30,11 @@ import {
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -136,7 +138,8 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, value, where, limit } = SoundexSchema.parse(params);
+        const { table, column, value, where, limit } =
+          SoundexSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");

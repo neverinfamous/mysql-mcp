@@ -167,7 +167,9 @@ export const KillQuerySchema = z
       data.processId !== undefined &&
       data.processId !== null &&
       !Number.isNaN(Number(data.processId)),
-    { message: "processId (or id alias) is required and must be a valid number" },
+    {
+      message: "processId (or id alias) is required and must be a valid number",
+    },
   )
   .transform((data) => ({
     processId: Number(data.processId),
@@ -184,18 +186,20 @@ export const ShowProcesslistSchemaBase = z.object({
     ),
 });
 
-export const ShowProcesslistSchema = z.object({
-  full: z.boolean().optional().default(false),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  full: data.full,
-  limit: data.limit !== undefined ? Number(data.limit) : 50,
-}))
-.refine(
-  (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-  { message: "limit must be a positive integer" }
-);
+export const ShowProcesslistSchema = z
+  .object({
+    full: z.boolean().optional().default(false),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    full: data.full,
+    limit: data.limit !== undefined ? Number(data.limit) : 50,
+  }))
+  .refine(
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
+  );
 
 export const ShowStatusSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern"),
@@ -208,20 +212,22 @@ export const ShowStatusSchemaBase = z.object({
     ),
 });
 
-export const ShowStatusSchema = z.object({
-  like: z.string().optional(),
-  global: z.boolean().optional().default(true),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  like: data.like,
-  global: data.global,
-  limit: data.limit !== undefined ? Number(data.limit) : 30,
-}))
-.refine(
-  (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-  { message: "limit must be a positive integer" }
-);
+export const ShowStatusSchema = z
+  .object({
+    like: z.string().optional(),
+    global: z.boolean().optional().default(true),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    like: data.like,
+    global: data.global,
+    limit: data.limit !== undefined ? Number(data.limit) : 30,
+  }))
+  .refine(
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
+  );
 
 export const ShowVariablesSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern"),
@@ -238,17 +244,19 @@ export const ShowVariablesSchemaBase = z.object({
     ),
 });
 
-export const ShowVariablesSchema = z.object({
-  like: z.string().optional(),
-  global: z.boolean().optional().default(true),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  like: data.like,
-  global: data.global,
-  limit: data.limit !== undefined ? Number(data.limit) : 30,
-}))
-.refine(
-  (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-  { message: "limit must be a positive integer" }
-);
+export const ShowVariablesSchema = z
+  .object({
+    like: z.string().optional(),
+    global: z.boolean().optional().default(true),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    like: data.like,
+    global: data.global,
+    limit: data.limit !== undefined ? Number(data.limit) : 30,
+  }))
+  .refine(
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
+  );

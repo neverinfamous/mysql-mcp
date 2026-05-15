@@ -6,7 +6,7 @@
 - **Nonexistent collection handling**: `mysql_doc_collection_info`, `mysql_doc_add`, `mysql_doc_find`, `mysql_doc_modify`, `mysql_doc_remove`, and `mysql_doc_create_index` return `{ exists: false, collection }` when the target collection does not exist, and `{ exists: false, schema }` when a nonexistent schema is explicitly provided. All six tools accept an optional `schema` parameter for cross-database collection access.
 - **Index creation**: `mysql_doc_create_index` returns `{ success: false, error }` if the index or its generated columns already exist. Accepts optional `schema` parameter.
 - **Filter Syntax** (for `mysql_doc_modify`, `mysql_doc_remove`):
-  - **By _id**: Pass the 32-character hex _id directly: `filter: "686dd247b9724bcfa08ce6f1efed8b77"`
+  - **By \_id**: Pass the 32-character hex \_id directly: `filter: "686dd247b9724bcfa08ce6f1efed8b77"`
   - **By field value**: Use `field=value` format: `filter: "name=Alice"` or `filter: "age=30"`
   - **By existence**: Use JSON path: `filter: "$.address"` (matches docs where address field exists)
   - ❌ Incorrect: `filter: "$.name == 'Alice'"` (comparison operators not supported in path)

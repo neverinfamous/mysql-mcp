@@ -22,7 +22,6 @@ import type {
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Shared Helpers (exported for connection-analysis.ts)
 // =============================================================================
@@ -47,9 +46,15 @@ export function riskFromScore(score: number): RiskLevel {
 // =============================================================================
 
 export const DetectQueryAnomaliesSchemaBase = z.object({
-  threshold: z.unknown().optional().describe("Max/Avg variance multiplier threshold (default: 10.0)"),
+  threshold: z
+    .unknown()
+    .optional()
+    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
   stdDevThreshold: z.unknown().optional().describe("Alias for threshold"),
-  minCalls: z.unknown().optional().describe("Minimum call count to filter noise (default: 50)"),
+  minCalls: z
+    .unknown()
+    .optional()
+    .describe("Minimum call count to filter noise (default: 50)"),
   minExecutions: z.unknown().optional().describe("Alias for minCalls"),
 });
 
@@ -65,12 +70,23 @@ export const DetectQueryAnomaliesSchema = z.object({
     .min(1)
     .optional()
     .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.number().int().min(1).optional().describe("Alias for minCalls"),
+  minExecutions: z
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .describe("Alias for minCalls"),
 });
 
 export const DetectBloatRiskSchemaBase = z.object({
-  schema: z.unknown().optional().describe("Filter to a specific database schema"),
-  minSizeMb: z.unknown().optional().describe("Minimum table size in MB to include (default: 10)"),
+  schema: z
+    .unknown()
+    .optional()
+    .describe("Filter to a specific database schema"),
+  minSizeMb: z
+    .unknown()
+    .optional()
+    .describe("Minimum table size in MB to include (default: 10)"),
 });
 
 export const DetectBloatRiskSchema = z.object({
@@ -83,7 +99,6 @@ export const DetectBloatRiskSchema = z.object({
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
 });
-
 
 // =============================================================================
 // 1. mysql_detect_query_anomalies
@@ -112,7 +127,9 @@ export function createDetectQueryAnomaliesTool(
             success: false,
             error: "threshold (or stdDevThreshold) must be between 2 and 10000",
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
         if (minCalls < 1 || minCalls > 100000) {
@@ -120,7 +137,9 @@ export function createDetectQueryAnomaliesTool(
             success: false,
             error: "minCalls (or minExecutions) must be between 1 and 100000",
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -134,7 +153,9 @@ export function createDetectQueryAnomaliesTool(
             success: false,
             error: "performance_schema is disabled or inaccessible.",
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -201,8 +222,10 @@ export function createDetectQueryAnomaliesTool(
             summary,
           },
         };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         return formatHandlerErrorResponse(error);
@@ -237,8 +260,10 @@ export function createDetectBloatRiskTool(
         if (schema) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
             const response = { success: false, error: "Invalid schema name" };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
           }
           schemaFilter = `TABLE_SCHEMA = '${schema}'`;
         }
@@ -334,8 +359,10 @@ export function createDetectBloatRiskTool(
             summary,
           },
         };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         return formatHandlerErrorResponse(error);

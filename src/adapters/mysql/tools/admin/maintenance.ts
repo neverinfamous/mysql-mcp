@@ -6,7 +6,10 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -28,10 +31,11 @@ import {
 } from "../../schemas/index.js";
 
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
-import { IDEMPOTENT, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
-
-
-
+import {
+  IDEMPOTENT,
+  READ_ONLY,
+  DESTRUCTIVE,
+} from "../../../../utils/annotations.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -48,7 +52,10 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
-        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        const errorRow = rows.find(
+          (r: Record<string, unknown>) =>
+            String(r["Msg_type"]).toLowerCase() === "error",
+        );
         if (errorRow) {
           return withTokenEstimate({
             success: false,
@@ -60,7 +67,10 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
             details: { results: rows },
           });
         }
-        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
+        return withTokenEstimate({
+          success: true,
+          data: { results: rows, rowCount: rows.length },
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -84,7 +94,10 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
         const rows = result.rows ?? [];
-        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        const errorRow = rows.find(
+          (r: Record<string, unknown>) =>
+            String(r["Msg_type"]).toLowerCase() === "error",
+        );
         if (errorRow) {
           return withTokenEstimate({
             success: false,
@@ -96,7 +109,10 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
             details: { results: rows },
           });
         }
-        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
+        return withTokenEstimate({
+          success: true,
+          data: { results: rows, rowCount: rows.length },
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -123,7 +139,10 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           `CHECK TABLE ${tableList}${optionClause}`,
         );
         const rows = result.rows ?? [];
-        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        const errorRow = rows.find(
+          (r: Record<string, unknown>) =>
+            String(r["Msg_type"]).toLowerCase() === "error",
+        );
         if (errorRow) {
           return withTokenEstimate({
             success: false,
@@ -167,7 +186,10 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
         const rows = result.rows ?? [];
-        const errorRow = rows.find((r: Record<string, unknown>) => String(r["Msg_type"]).toLowerCase() === "error");
+        const errorRow = rows.find(
+          (r: Record<string, unknown>) =>
+            String(r["Msg_type"]).toLowerCase() === "error",
+        );
         if (errorRow) {
           return withTokenEstimate({
             success: false,
@@ -179,7 +201,10 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
             details: { results: rows },
           });
         }
-        return withTokenEstimate({ success: true, data: { results: rows, rowCount: rows.length } });
+        return withTokenEstimate({
+          success: true,
+          data: { results: rows, rowCount: rows.length },
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -263,7 +288,10 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         const { processId, connection } = KillQuerySchema.parse(params);
         const killType = connection ? "CONNECTION" : "QUERY";
         await adapter.executeQuery(`KILL ${killType} ${processId}`);
-        return withTokenEstimate({ success: true, data: { killed: processId, type: killType } });
+        return withTokenEstimate({
+          success: true,
+          data: { killed: processId, type: killType },
+        });
       } catch (error) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

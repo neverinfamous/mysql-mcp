@@ -2138,7 +2138,14 @@ export const AddPartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       partitionName: z.string(),
-      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"]),
+      partitionType: z.enum([
+        "RANGE",
+        "LIST",
+        "HASH",
+        "KEY",
+        "RANGE COLUMNS",
+        "LIST COLUMNS",
+      ]),
       value: z.string(),
     }),
   )

@@ -194,7 +194,10 @@ describe("JSON Helper Tools", () => {
       const tool = createJsonValidateTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({ value: "{bad" }, mockContext)) as { success: boolean; data?: { valid: boolean } };
+      const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
+        success: boolean;
+        data?: { valid: boolean };
+      };
 
       expect(result.success).toBe(true);
       expect(result.data?.valid).toBe(false);
@@ -230,17 +233,29 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_update should return exists: false for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
       const tool = createJsonUpdateTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", value: 1, where: "`id` = 1" },
+        {
+          table: "nonexistent",
+          column: "doc",
+          path: "$.x",
+          value: 1,
+          where: "`id` = 1",
+        },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_search should return exists: false for nonexistent table", async () => {
@@ -250,7 +265,10 @@ describe("JSON Helper Tools", () => {
         { table: "nonexistent", column: "doc", searchValue: "test" },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("should return success: false for generic errors", async () => {
@@ -268,4 +286,3 @@ describe("JSON Helper Tools", () => {
     });
   });
 });
-

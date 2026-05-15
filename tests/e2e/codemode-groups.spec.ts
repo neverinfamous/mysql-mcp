@@ -8,11 +8,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import {
-  createClient,
-  callToolAndParse,
-  expectSuccess,
-} from "./helpers.js";
+import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -76,8 +72,6 @@ test.describe("Code Mode Groups: JSONB", () => {
     }
   });
 });
-
-
 
 // =============================================================================
 // Performance Group
@@ -146,7 +140,6 @@ test.describe("Code Mode Groups: Migration", () => {
   });
 });
 
-
 // =============================================================================
 // Schema Group
 // =============================================================================
@@ -167,4 +160,3 @@ test.describe("Code Mode Groups: Schema", () => {
     }
   });
 });
-

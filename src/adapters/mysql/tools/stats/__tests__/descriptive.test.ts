@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { 
-  createDescriptiveStatsTool, 
-  createPercentilesTool, 
+import {
+  createDescriptiveStatsTool,
+  createPercentilesTool,
   createDistributionTool,
   createTimeSeriesToolStats,
-  createSamplingTool
+  createSamplingTool,
 } from "../descriptive.js";
 import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
@@ -25,7 +25,7 @@ describe("Descriptive Stats Tools", () => {
 
   describe("Descriptive Stats Tool", () => {
     let tool: ReturnType<typeof createDescriptiveStatsTool>;
-    
+
     beforeEach(() => {
       tool = createDescriptiveStatsTool(mockAdapter as unknown as MySQLAdapter);
     });
@@ -39,13 +39,27 @@ describe("Descriptive Stats Tools", () => {
           return createMockQueryResult([{ median: 5.5 }]);
         }
         if (query.includes("mean")) {
-          return createMockQueryResult([{ count: 10, mean: 5.5, stddev: 2.8, variance: 8.2, min: 1, max: 10, range: 9, sum: 55 }]);
+          return createMockQueryResult([
+            {
+              count: 10,
+              mean: 5.5,
+              stddev: 2.8,
+              variance: 8.2,
+              min: 1,
+              max: 10,
+              range: 9,
+              sum: 55,
+            },
+          ]);
         }
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "users", column: "age" }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", column: "age" },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.count).toBe(10);
@@ -63,8 +77,11 @@ describe("Descriptive Stats Tools", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "users", column: "age" }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", column: "age" },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.count).toBe(0);
@@ -73,7 +90,10 @@ describe("Descriptive Stats Tools", () => {
     });
 
     it("should reject invalid table names", async () => {
-      const result = await tool.handler({ table: "invalid table", column: "age" }, mockContext);
+      const result = await tool.handler(
+        { table: "invalid table", column: "age" },
+        mockContext,
+      );
       expect((result as any).success).toBe(false);
       expect((result as any).error).toContain("Invalid table name");
     });
@@ -81,7 +101,7 @@ describe("Descriptive Stats Tools", () => {
 
   describe("Percentiles Tool", () => {
     let tool: ReturnType<typeof createPercentilesTool>;
-    
+
     beforeEach(() => {
       tool = createPercentilesTool(mockAdapter as unknown as MySQLAdapter);
     });
@@ -100,8 +120,11 @@ describe("Descriptive Stats Tools", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "users", column: "age", percentiles: [50, 90] }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", column: "age", percentiles: [50, 90] },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.totalCount).toBe(100);
@@ -117,8 +140,11 @@ describe("Descriptive Stats Tools", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "users", column: "name" }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", column: "name" },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(false);
       expect((result as any).error).toContain("is not a numeric column");
     });
@@ -126,7 +152,7 @@ describe("Descriptive Stats Tools", () => {
 
   describe("Distribution Tool", () => {
     let tool: ReturnType<typeof createDistributionTool>;
-    
+
     beforeEach(() => {
       tool = createDistributionTool(mockAdapter as unknown as MySQLAdapter);
     });
@@ -136,7 +162,7 @@ describe("Descriptive Stats Tools", () => {
         if (query.includes("GROUP BY bucket")) {
           return createMockQueryResult([
             { bucket: 0, count: 50, bucket_min: 0, bucket_max: 9 },
-            { bucket: 9, count: 50, bucket_min: 90, bucket_max: 100 }
+            { bucket: 9, count: 50, bucket_min: 90, bucket_max: 100 },
           ]);
         }
         if (query.includes("MIN(")) {
@@ -145,8 +171,11 @@ describe("Descriptive Stats Tools", () => {
         return createMockQueryResult([]);
       });
 
-      const result = await tool.handler({ table: "users", column: "score", buckets: 10 }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", column: "score", buckets: 10 },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.bucketCount).toBe(10);
@@ -160,7 +189,7 @@ describe("Descriptive Stats Tools", () => {
 
   describe("Time Series Tool", () => {
     let tool: ReturnType<typeof createTimeSeriesToolStats>;
-    
+
     beforeEach(() => {
       tool = createTimeSeriesToolStats(mockAdapter as unknown as MySQLAdapter);
     });
@@ -168,12 +197,27 @@ describe("Descriptive Stats Tools", () => {
     it("should aggregate time series data", async () => {
       mockAdapter.executeQuery.mockImplementation(async () => {
         return createMockQueryResult([
-          { period: "2024-01-01", value: 100, data_points: 10, period_min: 5, period_max: 15 }
+          {
+            period: "2024-01-01",
+            value: 100,
+            data_points: 10,
+            period_min: 5,
+            period_max: 15,
+          },
         ]);
       });
 
-      const result = await tool.handler({ table: "sales", valueColumn: "amount", timeColumn: "created_at", interval: "day", aggregation: "sum" }, mockContext);
-      
+      const result = await tool.handler(
+        {
+          table: "sales",
+          valueColumn: "amount",
+          timeColumn: "created_at",
+          interval: "day",
+          aggregation: "sum",
+        },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.interval).toBe("day");
@@ -184,7 +228,15 @@ describe("Descriptive Stats Tools", () => {
     });
 
     it("should reject invalid intervals", async () => {
-      const result = await tool.handler({ table: "sales", valueColumn: "amount", timeColumn: "created_at", interval: "invalid" }, mockContext);
+      const result = await tool.handler(
+        {
+          table: "sales",
+          valueColumn: "amount",
+          timeColumn: "created_at",
+          interval: "invalid",
+        },
+        mockContext,
+      );
       expect((result as any).success).toBe(false);
       expect((result as any).error).toContain("Invalid interval");
     });
@@ -192,7 +244,7 @@ describe("Descriptive Stats Tools", () => {
 
   describe("Sampling Tool", () => {
     let tool: ReturnType<typeof createSamplingTool>;
-    
+
     beforeEach(() => {
       tool = createSamplingTool(mockAdapter as unknown as MySQLAdapter);
     });
@@ -201,12 +253,15 @@ describe("Descriptive Stats Tools", () => {
       mockAdapter.executeQuery.mockImplementation(async () => {
         return createMockQueryResult([
           { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" }
+          { id: 2, name: "Bob" },
         ]);
       });
 
-      const result = await tool.handler({ table: "users", sampleSize: 2 }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", sampleSize: 2 },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
       const data = (result as any).data;
       expect(data.sampleSize).toBe(2);
@@ -218,13 +273,14 @@ describe("Descriptive Stats Tools", () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
         expect(query).toContain("`name`");
         expect(query).toContain("RAND(123)");
-        return createMockQueryResult([
-          { name: "Alice" }
-        ]);
+        return createMockQueryResult([{ name: "Alice" }]);
       });
 
-      const result = await tool.handler({ table: "users", sampleSize: 1, columns: ["name"], seed: 123 }, mockContext);
-      
+      const result = await tool.handler(
+        { table: "users", sampleSize: 1, columns: ["name"], seed: 123 },
+        mockContext,
+      );
+
       expect((result as any).success).toBe(true);
     });
   });

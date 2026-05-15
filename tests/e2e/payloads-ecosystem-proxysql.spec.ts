@@ -27,7 +27,11 @@ test.describe("Payload Contracts: Ecosystem — ProxySQL", () => {
   });
 
   test("proxysql_runtime_status returns { success }", async () => {
-    const payload = await callToolAndParse(client, "proxysql_runtime_status", {});
+    const payload = await callToolAndParse(
+      client,
+      "proxysql_runtime_status",
+      {},
+    );
     expectSuccess(payload);
   });
 

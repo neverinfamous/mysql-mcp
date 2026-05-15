@@ -58,11 +58,17 @@ export const ExportTableSchema = z
     batch: data.batch !== undefined ? Number(data.batch) : 1,
   }))
   .refine(
-    (data) => !Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0,
+    (data) =>
+      !Number.isNaN(data.limit) &&
+      Number.isInteger(data.limit) &&
+      data.limit > 0,
     { message: "limit must be a positive integer" },
   )
   .refine(
-    (data) => !Number.isNaN(data.batch) && Number.isInteger(data.batch) && data.batch > 0,
+    (data) =>
+      !Number.isNaN(data.batch) &&
+      Number.isInteger(data.batch) &&
+      data.batch > 0,
     { message: "batch must be a positive integer" },
   )
   .refine((data) => data.table !== "", {

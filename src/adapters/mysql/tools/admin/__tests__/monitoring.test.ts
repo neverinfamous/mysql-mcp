@@ -79,7 +79,9 @@ describe("Admin Monitoring Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(result).toHaveProperty("data.processes");
-      expect((result as { data: { processes: unknown[] } }).data.processes).toEqual([]);
+      expect(
+        (result as { data: { processes: unknown[] } }).data.processes,
+      ).toEqual([]);
     });
 
     it("should return structured error on query failure", async () => {
@@ -119,7 +121,9 @@ describe("Admin Monitoring Tools", () => {
       const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
       const result = await tool.handler({}, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith("SHOW GLOBAL STATUS");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
+        "SHOW GLOBAL STATUS",
+      );
       expect(result).toHaveProperty("data.status");
     });
 
@@ -348,7 +352,10 @@ describe("Admin Monitoring Tools", () => {
       };
 
       expect(result.data.variables).toHaveProperty("version", "8.0.33");
-      expect(result.data.variables).toHaveProperty("datadir", "/var/lib/mysql/");
+      expect(result.data.variables).toHaveProperty(
+        "datadir",
+        "/var/lib/mysql/",
+      );
     });
 
     it("should apply default limit of 30 when results exceed it", async () => {
@@ -377,7 +384,9 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should return structured error on query failure", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(new Error("Connection refused"));
+      mockAdapter.executeQuery.mockRejectedValue(
+        new Error("Connection refused"),
+      );
 
       const tool = createShowVariablesTool(
         mockAdapter as unknown as MySQLAdapter,

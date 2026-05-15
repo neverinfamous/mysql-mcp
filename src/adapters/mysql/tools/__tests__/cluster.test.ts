@@ -250,7 +250,10 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
       const result = await tool.handler({}, mockContext);
 
-      expect((result as any).data).toHaveProperty("source", "group_replication");
+      expect((result as any).data).toHaveProperty(
+        "source",
+        "group_replication",
+      );
       expect((result as any).data).toHaveProperty("instances");
       // Two calls: 1. metadata query, 2. fallback query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);

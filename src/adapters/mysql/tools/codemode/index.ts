@@ -60,9 +60,7 @@ export const ExecuteCodeOutputSchema = z
         tokenEstimate: z
           .number()
           .optional()
-          .describe(
-            "Estimated token count of the result (~4 bytes per token)",
-          ),
+          .describe("Estimated token count of the result (~4 bytes per token)"),
       })
       .optional()
       .describe("Execution performance metrics"),

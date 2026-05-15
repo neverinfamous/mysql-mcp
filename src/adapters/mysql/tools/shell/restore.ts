@@ -8,7 +8,10 @@ import { promises as fs } from "fs";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -55,7 +58,10 @@ export function createShellLoadDumpTool(): ToolDefinition {
 
         const finalInputDir = inputDir ?? inputUrl;
         if (!finalInputDir) {
-          return withTokenEstimate({ success: false, error: "Validation error: inputDir or inputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: inputDir or inputUrl is required",
+          });
         }
         const resolvedPath = resolve(finalInputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -175,7 +181,10 @@ export function createShellLoadDumpTool(): ToolDefinition {
                       "Use ignoreExistingObjects: true to skip existing objects",
                   });
                 }
-                return withTokenEstimate({ success: false, error: errorMessage });
+                return withTokenEstimate({
+                  success: false,
+                  error: errorMessage,
+                });
               }
               break;
             }
@@ -188,7 +197,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
               dryRun: true,
               localInfileEnabled: updateServerSettings,
               dryRunOutput: stderrClean || undefined,
-            }
+            },
           });
         }
 
@@ -200,7 +209,7 @@ export function createShellLoadDumpTool(): ToolDefinition {
             dryRun: false,
             localInfileEnabled: updateServerSettings,
             result,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -267,7 +276,10 @@ export function createShellRunScriptTool(): ToolDefinition {
             langFlag = "--sql";
             break;
           default:
-            return withTokenEstimate({ success: false, error: "Invalid language" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid language",
+            });
         }
 
         let result;
@@ -320,7 +332,7 @@ export function createShellRunScriptTool(): ToolDefinition {
             exitCode: result.exitCode,
             stdout: result.stdout,
             stderr: result.stderr,
-          }
+          },
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
