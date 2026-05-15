@@ -9,8 +9,6 @@
 
 ## Changed
 
-- Verified MySQL Shell tool group (`shell`) for structured error response compliance and token payload efficiency via direct MCP tool calls.
-
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -23,6 +21,8 @@
 - Bumped `actions/setup-node` to `v6.4.0`
 - Bumped `docker/build-push-action` to `v7.1.0`
 - Bumped `github/codeql-action` to `v4.35.4`
+
+- Verified the `admin` tool group (6 tools) via comprehensive stress testing, confirming 100% adherence to structured error response patterns and payload efficiency.
 
 ## Fixed
 
