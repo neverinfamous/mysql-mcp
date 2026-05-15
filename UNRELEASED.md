@@ -9,8 +9,7 @@
 
 ## Changed
 
-- Verified `stats` tool group edge cases (null handling, histogram boundaries, zero-variance testing), confirming strict adherence to structured error response patterns under rigorous stress-testing conditions.
-
+- Validated `sys` tool group payload efficiency and sequential stability through advanced stress tests.
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
