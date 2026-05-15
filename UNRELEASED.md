@@ -9,6 +9,8 @@
 
 ## Changed
 
+- Verified `stats` tool group edge cases (null handling, histogram boundaries, zero-variance testing), confirming strict adherence to structured error response patterns under rigorous stress-testing conditions.
+
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -28,7 +30,6 @@
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
 - Capped `binlog_events` limit to 50 in Zod schema to prevent context window payload exhaustion during point-in-time recovery tracking.
-- Verified spatial tool group stability, parameter boundaries, and strict structured error response adherence during Code Mode operations.
 
 ### Removed
 
