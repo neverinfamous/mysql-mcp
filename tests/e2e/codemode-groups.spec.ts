@@ -77,50 +77,7 @@ test.describe("Code Mode Groups: JSONB", () => {
   });
 });
 
-// =============================================================================
-// Stats Group
-// =============================================================================
 
-test.describe("Code Mode Groups: Stats", () => {
-  test.skip("mysql.stats.descriptive()", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const p = await callToolAndParse(client, "mysql_execute_code", {
-        code: `
-          const result = await mysql.stats.descriptive({ table: "test_products", column: "price" });
-          return { count: (result.data?.statistics ?? result.statistics)?.count ?? result.stats?.count };
-        `,
-      });
-      expectSuccess(p);
-      const result = p.result as Record<string, unknown>;
-      expect(typeof result.count).toBe("number");
-      expect(result.count as number).toBeGreaterThan(0);
-    } finally {
-      await client.close();
-    }
-  });
-});
-
-// =============================================================================
-// Text Group
-// =============================================================================
-
-test.describe("Code Mode Groups: Text", () => {
-  test.skip("mysql.text.normalize()", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const p = await callToolAndParse(client, "mysql_execute_code", {
-        code: `
-          const result = await mysql.text.normalize({ table: "test_products", column: "name" });
-          return { success: (result.success ?? result.data?.success ?? true) };
-        `,
-      });
-      expectSuccess(p);
-    } finally {
-      await client.close();
-    }
-  });
-});
 
 // =============================================================================
 // Performance Group
@@ -189,28 +146,6 @@ test.describe("Code Mode Groups: Migration", () => {
   });
 });
 
-// =============================================================================
-// Monitoring Group
-// =============================================================================
-
-test.describe("Code Mode Groups: Monitoring", () => {
-  test.skip("mysql.monitoring.serverVersion()", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const p = await callToolAndParse(client, "mysql_execute_code", {
-        code: `
-          const result = await mysql.monitoring.serverVersion({});
-          return { hasVersion: typeof (result.data?.version ?? result.version) === "string" };
-        `,
-      });
-      expectSuccess(p);
-      const result = p.result as Record<string, unknown>;
-      expect(result.hasVersion).toBe(true);
-    } finally {
-      await client.close();
-    }
-  });
-});
 
 // =============================================================================
 // Schema Group
@@ -233,23 +168,3 @@ test.describe("Code Mode Groups: Schema", () => {
   });
 });
 
-// =============================================================================
-// Admin Group
-// =============================================================================
-
-test.describe("Code Mode Groups: Admin", () => {
-  test.skip("mysql.admin.reloadConf()", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const p = await callToolAndParse(client, "mysql_execute_code", {
-        code: `
-          const result = await mysql.admin.reloadConf({});
-          return { success: (result.success ?? result.data?.success ?? true) };
-        `,
-      });
-      expectSuccess(p);
-    } finally {
-      await client.close();
-    }
-  });
-});

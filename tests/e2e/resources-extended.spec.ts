@@ -14,36 +14,6 @@ import { createClient,  } from "./helpers.js";
 test.describe.configure({ mode: "serial" });
 
 test.describe("Extended Resource Reads", () => {
-  test.skip("mysql://stats returns JSON", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const response = await client.readResource({ uri: "mysql://stats" });
-      expect(response.contents).toBeDefined();
-      expect(response.contents.length).toBeGreaterThan(0);
-      const content = response.contents[0];
-      const parsed = JSON.parse("text" in content ? content.text : "");
-      expect(typeof parsed).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
-
-  test.skip("mysql://activity returns JSON", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const response = await client.readResource({
-        uri: "mysql://activity",
-      });
-      expect(response.contents).toBeDefined();
-      expect(response.contents.length).toBeGreaterThan(0);
-      const content = response.contents[0];
-      const parsed = JSON.parse("text" in content ? content.text : "");
-      expect(typeof parsed).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
-
   test("mysql://pool returns JSON", async ({}, testInfo) => {
     const client = await createClient();
     try {
@@ -123,23 +93,6 @@ test.describe("Extended Resource Reads", () => {
       await client.close();
     }
   });
-
-  test.skip("mysql://vacuum returns JSON", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const response = await client.readResource({
-        uri: "mysql://vacuum",
-      });
-      expect(response.contents).toBeDefined();
-      expect(response.contents.length).toBeGreaterThan(0);
-      const content = response.contents[0];
-      const parsed = JSON.parse("text" in content ? content.text : "");
-      expect(typeof parsed).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
-
   test("mysql://locks returns JSON", async ({}, testInfo) => {
     const client = await createClient();
     try {
@@ -155,55 +108,6 @@ test.describe("Extended Resource Reads", () => {
   });
 
   // --- Extension-dependent resources (lenient assertions) ---
-
-  test.skip("mysql://vector returns JSON (pgvector)", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const response = await client.readResource({
-        uri: "mysql://vector",
-      });
-      expect(response.contents).toBeDefined();
-      expect(response.contents.length).toBeGreaterThan(0);
-      const content = response.contents[0];
-      const parsed = JSON.parse("text" in content ? content.text : "");
-      expect(typeof parsed).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
-
-  test.skip("mysql://postgis returns JSON (PostGIS)", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const response = await client.readResource({
-        uri: "mysql://postgis",
-      });
-      expect(response.contents).toBeDefined();
-      expect(response.contents.length).toBeGreaterThan(0);
-      const content = response.contents[0];
-      const parsed = JSON.parse("text" in content ? content.text : "");
-      expect(typeof parsed).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
-
-  test.skip("mysql://crypto returns JSON (pgcrypto)", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const response = await client.readResource({
-        uri: "mysql://crypto",
-      });
-      expect(response.contents).toBeDefined();
-      expect(response.contents.length).toBeGreaterThan(0);
-      const content = response.contents[0];
-      const parsed = JSON.parse("text" in content ? content.text : "");
-      expect(typeof parsed).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
-
   // --- In-memory resources ---
 
   test("mysql://insights returns text memo", async ({}, testInfo) => {

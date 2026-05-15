@@ -298,18 +298,5 @@ test.describe("Boundary: Data Integrity", () => {
     }
   });
 
-  test.skip("no _e2e_ tables remain", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      const p = await callToolAndParse(client, "mysql_read_query", {
-        query: `SELECT table_name FROM information_schema.tables
-                WHERE table_schema = 'public' AND table_name LIKE '_e2e_%'`,
-      });
-      expectSuccess(p);
-      // Allow up to 1 residual _e2e_ table (may be left by readonly test in same run)
-      expect(p.rowCount as number).toBeLessThanOrEqual(1);
-    } finally {
-      await client.close();
-    }
-  });
+
 });
