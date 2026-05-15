@@ -9,9 +9,6 @@
 
 ## Changed
 
-- Verified `proxysql` tool group for production readiness, confirming payload boundary limits and structured error patterns.
-- Completed code-mode-based stress tests for the `cluster` tool group against an active InnoDB Cluster. Validated high-fidelity structured error handling, structural parity, and token payload optimization for summary modes.
-
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -32,6 +29,7 @@
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
 - Capped `binlog_events` limit to 50 in Zod schema to prevent context window payload exhaustion during point-in-time recovery tracking.
 - Removed self-referential aliases for Group Replication tools (`grStatus`, `grMembers`, etc.) in `constants.ts` so they correctly appear as canonical methods in the Code Mode `mysql.cluster.help()` response.
+- Verified `router` tool group compliance with structured error response patterns and payload limits via Code Mode stress testing.
 
 ### Removed
 
