@@ -7,9 +7,8 @@
 
 ## Added
 
+- Verified `events` tool group functionality and structured error compliance via direct MCP tool calls
 ## Changed
-
-- Successfully completed exhaustive, direct-tool-call stress testing for the `backup` tool group. Verified all structured domain error and Zod validation paths (ensuring parseable JSON returns) and successfully exported and dumped tables while monitoring payload tokens for efficiency.
 
 **Dependency Updates**
 
