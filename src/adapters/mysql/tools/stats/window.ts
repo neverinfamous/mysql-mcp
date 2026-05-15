@@ -29,7 +29,7 @@ export const StatsRowNumberSchemaBase = z.object({
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 10)"),
   offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
@@ -45,7 +45,7 @@ export const StatsRowNumberSchema = z.object({
     .number()
     .min(1)
     .max(1000)
-    .default(20),
+    .default(10),
   offset: z
     .number()
     .min(0)
@@ -59,7 +59,7 @@ export const StatsRankSchemaBase = z.object({
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   method: z.unknown().optional().describe("Rank function type (default: rank)"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 10)"),
   offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
@@ -78,7 +78,7 @@ export const StatsRankSchema = z.object({
     .number()
     .min(1)
     .max(1000)
-    .default(20),
+    .default(10),
   offset: z
     .number()
     .min(0)
@@ -95,7 +95,7 @@ export const StatsLagLeadSchemaBase = z.object({
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 10)"),
   paginationOffset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
@@ -121,7 +121,7 @@ export const StatsLagLeadSchema = z.object({
     .number()
     .min(1)
     .max(1000)
-    .default(20),
+    .default(10),
   paginationOffset: z
     .number()
     .min(0)
@@ -135,7 +135,7 @@ export const StatsRunningTotalSchemaBase = z.object({
   partitionBy: z.string().optional().describe("Reset running total for each partition"),
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 10)"),
   offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
@@ -154,7 +154,7 @@ export const StatsRunningTotalSchema = z.object({
     .number()
     .min(1)
     .max(1000)
-    .default(20),
+    .default(10),
   offset: z
     .number()
     .min(0)
@@ -169,7 +169,7 @@ export const StatsMovingAvgSchemaBase = z.object({
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 10)"),
   offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
@@ -190,7 +190,7 @@ export const StatsMovingAvgSchema = z.object({
     .number()
     .min(1)
     .max(1000)
-    .default(20),
+    .default(10),
   offset: z
     .number()
     .min(0)
@@ -204,7 +204,7 @@ export const StatsNtileSchemaBase = z.object({
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z.unknown().optional().describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  limit: z.unknown().optional().describe("Maximum rows to return (default: 10)"),
   offset: z.unknown().optional().describe("Number of rows to skip (default: 0)"),
 });
 
@@ -224,7 +224,7 @@ export const StatsNtileSchema = z.object({
     .number()
     .min(1)
     .max(1000)
-    .default(20),
+    .default(10),
   offset: z
     .number()
     .min(0)

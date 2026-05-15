@@ -99,7 +99,7 @@ const SamplingSchemaBase = z.object({
 
 const SamplingSchema = z.object({
   table: z.string().min(1, "table is required"),
-  sampleSize: z.number().default(100),
+  sampleSize: z.number().default(10),
   columns: z
     .array(z.string())
     .optional(),
