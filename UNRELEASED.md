@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Validated `json` tool group functionality via exhaustive Code Mode stress testing. All 16 workflows passed successfully, verifying 100% adherence to Pattern P300 and strict structural compliance.
+- Verified the `migration` tool group via advanced stress tests; confirmed 100% compliance with structured error constraints, rollback boundaries, and state corruption resilience.
 
 **Dependency Updates**
 
