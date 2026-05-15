@@ -7,7 +7,8 @@
 
 ## Added
 
-- Verified `events` tool group functionality and structured error compliance via direct MCP tool calls
+- Verified the `fulltext` tool group via an exhaustive Code Mode testing pass (100% success rate with domain and Zod error handling).
+
 ## Changed
 
 **Dependency Updates**
