@@ -7,6 +7,8 @@
 
 ## Added
 
+- Certified the `security` tool group via advanced code mode stress testing; all bounds, payload limits, and structured error patterns verified.
+
 ## Changed
 
 **Dependency Updates**
@@ -22,17 +24,16 @@
 - Bumped `docker/build-push-action` to `v7.1.0`
 - Bumped `github/codeql-action` to `v4.35.4`
 
-## Improved
-
-- **Schema Tool Verification** — Executed advanced code-mode stress tests for the `schema` tool group. Validated DDL idempotency, cross-object dependencies (JOINs/Aggregations), and parameter alias parity (`database` vs `schema`). The module passed all rigor checks perfectly with zero source code changes required and optimal payload efficiencies (<500 tokens).
-- **Roles Tool Verification** — Executed advanced code-mode stress tests for the `roles` tool group. Validated role lifecycle collisions, privilege grant/revoke cascading sequences, parameter alias parity (`name` vs `role`), and structured error quality. The tool group passed all 16 rigor checks perfectly with zero source code changes required, achieving excellent payload efficiency (~79 tokens).
-
 ## Fixed
 
 - Updated Code Mode help examples for the `sys` group to use the friendly `mysql.sys` alias instead of `mysql.sysschema` to improve agent UX.
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
 - Capped `binlog_events` limit to 50 in Zod schema to prevent context window payload exhaustion during point-in-time recovery tracking.
+
+### Removed
+
+- Legacy skipped postgres-ported tests from the E2E suite to improve codebase hygiene
 
 ### Removed
 
