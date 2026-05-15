@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Verified `proxysql` tool group for structured error handling and payload efficiency (100% test pass rate).
+- Verified MySQL Router tool group, confirming fully structured error handling (no raw MCP exceptions) and token efficiency across all 9 tools.
 
 **Dependency Updates**
 
