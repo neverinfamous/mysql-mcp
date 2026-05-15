@@ -83,25 +83,6 @@ test.describe("Numeric Coercion: Stats", () => {
   });
 });
 
-test.describe("Numeric Coercion: Text", () => {
-  test.skip("fuzzy_match with maxDistance: 'abc' → handler error", async ({}, testInfo) => {
-    await assertNumericCoercion(undefined, "mysql_like_search", {
-      table: "test_products",
-      column: "name",
-      search: "laptop",
-      maxDistance: "abc",
-    });
-  });
-
-  test.skip("trigram_similarity with limit: 'abc' → handler error", async ({}, testInfo) => {
-    await assertNumericCoercion(undefined, "mysql_soundex", {
-      table: "test_products",
-      column: "name",
-      search: "laptop",
-      limit: "abc",
-    });
-  });
-});
 
 test.describe("Numeric Coercion: Performance", () => {
   test("explain with format: invalid → error (handler or Zod)", async ({}, testInfo) => {

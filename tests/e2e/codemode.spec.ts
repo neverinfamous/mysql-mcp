@@ -226,25 +226,6 @@ test.describe("Code Mode: Readonly Mode", () => {
     }
   });
 
-  test.skip("readonly should block writes", async ({}, testInfo) => {
-    test.setTimeout(90_000);
-    const client = await createClient();
-    try {
-      const p = await callToolAndParse(client, "mysql_execute_code", {
-        code: `
-          await mysql.core.writeQuery({ query: "SELECT 1" });
-          return "should not reach here";
-        `,
-        readonly: true,
-      });
-      // Readonly enforcement blocks write-capable methods at binding level
-      expect(p.success).toBe(false);
-      expect(typeof p.error).toBe("string");
-      expect(p.error).toContain("Readonly mode");
-    } finally {
-      await client.close();
-    }
-  });
 });
 
 // =============================================================================

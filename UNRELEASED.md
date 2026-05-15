@@ -21,3 +21,6 @@
 - Bumped `github/codeql-action` to `v4.35.4`
 
 ## Fixed
+
+### Removed
+- Legacy skipped postgres-ported tests from the E2E suite to improve codebase hygiene
