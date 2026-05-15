@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Verified `partitioning` tool group in Advanced Code Mode stress tests (100% pass rate).
+- Verified `performance` and related tool groups via advanced stress tests, confirming token efficiency and robust boundary handling without any required code modifications.
 
 **Dependency Updates**
 
