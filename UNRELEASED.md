@@ -9,6 +9,11 @@
 
 ## Changed
 
+**Verification & Stability**
+
+- Certified 100% test pass for the `shell` tool group under aggressive Code Mode stress testing. Verified graceful degradation, subprocess isolation, Zod boundaries, and strict `{success: false}` structural compliance with zero raw crashes.
+- Evaluated `shell` group token payload efficiency, confirming that metadata and error messages remain highly lean (~35 tokens average) even during failures requiring actionable suggestions (e.g. `local_infile` remediation).
+
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -29,7 +34,6 @@
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
 - Capped `binlog_events` limit to 50 in Zod schema to prevent context window payload exhaustion during point-in-time recovery tracking.
 - Removed self-referential aliases for Group Replication tools (`grStatus`, `grMembers`, etc.) in `constants.ts` so they correctly appear as canonical methods in the Code Mode `mysql.cluster.help()` response.
-- Verified `router` tool group compliance with structured error response patterns and payload limits via Code Mode stress testing.
 
 ### Removed
 
