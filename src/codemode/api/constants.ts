@@ -179,11 +179,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     topology: "clusterTopology",
     switchover: "clusterSwitchover",
     routerStatus: "clusterRouterStatus",
-    grStatus: "grStatus",
-    grMembers: "grMembers",
-    grPrimary: "grPrimary",
-    grFlowControl: "grFlowControl",
-    grTransactions: "grTransactions",
   },
   // Roles: shorter aliases
   roles: {
