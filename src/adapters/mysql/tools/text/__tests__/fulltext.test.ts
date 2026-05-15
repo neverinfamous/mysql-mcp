@@ -437,7 +437,9 @@ describe("Text Fulltext Tools", () => {
       )) as { data: { rows: Record<string, unknown>[] } };
 
       expect((result.data.rows[0].content as string).length).toBe(103); // 100 + "..."
-      expect((result.data.rows[0].content as string).endsWith("...")).toBe(true);
+      expect((result.data.rows[0].content as string).endsWith("...")).toBe(
+        true,
+      );
     });
 
     it("should return success:false for nonexistent table", async () => {

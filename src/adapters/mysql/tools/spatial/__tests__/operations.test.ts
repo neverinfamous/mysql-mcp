@@ -151,7 +151,6 @@ describe("Spatial Operations Tools", () => {
       expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
       expect((result as any).data).toHaveProperty("segments", 4);
     });
-
   });
 
   describe("createSpatialTransformTool", () => {
@@ -219,7 +218,10 @@ describe("Spatial Operations Tools", () => {
       )) as { data: { geoJson: any } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(result.data.geoJson).toEqual({ type: "Point", coordinates: [10, 20] });
+      expect(result.data.geoJson).toEqual({
+        type: "Point",
+        coordinates: [10, 20],
+      });
     });
 
     it("should convert GeoJSON to WKT", async () => {

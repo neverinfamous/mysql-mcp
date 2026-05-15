@@ -172,8 +172,12 @@ describe("Shell Backup Tools", () => {
       expect(result.data.schemas).toEqual(["db1", "db2"]);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      const expectedPath = path.resolve("/backup/schemas").replace(/\\/g, "\\\\");
-      expect(jsArg).toContain(`util.dumpSchemas(["db1","db2"], "${expectedPath}"`);
+      const expectedPath = path
+        .resolve("/backup/schemas")
+        .replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(
+        `util.dumpSchemas(["db1","db2"], "${expectedPath}"`,
+      );
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain('compression: "gzip"');
     });
@@ -333,8 +337,12 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      const expectedPath = path.resolve("/backup/tables").replace(/\\/g, "\\\\");
-      expect(jsArg).toContain(`util.dumpTables("db1", ["t1"], "${expectedPath}"`);
+      const expectedPath = path
+        .resolve("/backup/tables")
+        .replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(
+        `util.dumpTables("db1", ["t1"], "${expectedPath}"`,
+      );
       expect(jsArg).toContain('where: { "t1": "id > 100" }');
     });
 
