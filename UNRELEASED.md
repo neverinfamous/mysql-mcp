@@ -7,6 +7,8 @@
 
 ## Added
 
+- Validated advanced replication stress tests, verifying single-server resilience, binlog boundary limits, and payload sizes
+
 ## Changed
 
 **Dependency Updates**
