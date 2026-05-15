@@ -16,7 +16,11 @@ export const BinlogEventsSchemaBase = z.object({
 });
 
 export const BinlogEventsSchema = z.object({
-  logFile: z.string().optional().describe("Binlog file name"),
+  logFile: z
+    .string()
+    .min(1, "Invalid logFile: cannot be an empty string")
+    .optional()
+    .describe("Binlog file name"),
   position: z.number().optional().describe("Starting position"),
   limit: z
     .number()
