@@ -9,7 +9,8 @@
 
 ## Changed
 
-- Validated `sys` tool group payload efficiency and sequential stability through advanced stress tests.
+- Verified `mysql.text` tools (Regex, Unicode, Collations) perfectly adhere to Structured Error standards under boundary condition stress testing in Code Mode.
+
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -29,10 +30,6 @@
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
 - Capped `binlog_events` limit to 50 in Zod schema to prevent context window payload exhaustion during point-in-time recovery tracking.
-
-### Removed
-
-- Legacy skipped postgres-ported tests from the E2E suite to improve codebase hygiene
 
 ### Removed
 
