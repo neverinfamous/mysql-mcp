@@ -5,6 +5,7 @@
 - Bumped `tar` (bundled in npm) to `7.5.15` in Dockerfile to address CVE-2026-26960
 
 ## Added
+- Verified the core group via advanced Code Mode stress tests for boundary value validation, state pollution, idempotency, and alias processing.
 
 ## Changed
 
