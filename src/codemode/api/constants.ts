@@ -334,10 +334,10 @@ export const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.events.schedulerStatus()",
   ],
   sysschema: [
-    "mysql.sysschema.sysSchemaStats({ schema: 'testdb' })",
-    "mysql.sysschema.sysStatementSummary({ limit: 10 })",
-    "mysql.sysschema.sysInnodbLockWaits()",
-    "mysql.sysschema.sysMemorySummary()",
+    "mysql.sys.schemaStats({ schema: 'testdb' })",
+    "mysql.sys.statementSummary({ limit: 10 })",
+    "mysql.sys.innodbLockWaits()",
+    "mysql.sys.memorySummary()",
   ],
   stats: [
     "mysql.stats.descriptive({ table: 'orders', column: 'amount' })",

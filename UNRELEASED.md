@@ -21,6 +21,7 @@
 - Bumped `github/codeql-action` to `v4.35.4`
 
 ## Fixed
+- Updated Code Mode help examples for the `sys` group to use the friendly `mysql.sys` alias instead of `mysql.sysschema` to improve agent UX.
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
 ### Removed
 - Legacy skipped postgres-ported tests from the E2E suite to improve codebase hygiene
