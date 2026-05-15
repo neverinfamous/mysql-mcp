@@ -7,7 +7,8 @@
 
 ## Added
 
-- Verified the `document` group via advanced Code Mode stress tests ensuring boundary value validation, full collection lifecycle integrity, empty/non-existent edge cases, and indexed state cleanup.
+- Verified Code Mode advanced stress testing for the `events` tool group.
+
 ## Changed
 
 **Dependency Updates**
