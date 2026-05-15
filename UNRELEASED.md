@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Verified the `cluster` tool group via direct MCP testing, confirming full payload token efficiency and 100% adherence to structured error and empty-state response patterns under active Group Replication topologies.
+- Verified `proxysql` tool group for structured error handling and payload efficiency (100% test pass rate).
 
 **Dependency Updates**
 
