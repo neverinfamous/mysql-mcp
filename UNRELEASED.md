@@ -9,8 +9,6 @@
 
 ## Changed
 
-- Validated the `schema` tool group via advanced stress testing, confirming strict DDL idempotency and parameter alias parity with zero issues.
-
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -23,6 +21,11 @@
 - Bumped `actions/setup-node` to `v6.4.0`
 - Bumped `docker/build-push-action` to `v7.1.0`
 - Bumped `github/codeql-action` to `v4.35.4`
+
+## Improved
+
+- **Schema Tool Verification** — Executed advanced code-mode stress tests for the `schema` tool group. Validated DDL idempotency, cross-object dependencies (JOINs/Aggregations), and parameter alias parity (`database` vs `schema`). The module passed all rigor checks perfectly with zero source code changes required and optimal payload efficiencies (<500 tokens).
+- **Roles Tool Verification** — Executed advanced code-mode stress tests for the `roles` tool group. Validated role lifecycle collisions, privilege grant/revoke cascading sequences, parameter alias parity (`name` vs `role`), and structured error quality. The tool group passed all 16 rigor checks perfectly with zero source code changes required, achieving excellent payload efficiency (~79 tokens).
 
 ## Fixed
 
