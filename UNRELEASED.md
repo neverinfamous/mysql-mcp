@@ -9,8 +9,6 @@
 
 ## Changed
 
-- Verified 100% functional parity and strict error pattern compliance for the 20-tool `stats` tool group.
-
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -23,6 +21,7 @@
 - Bumped `actions/setup-node` to `v6.4.0`
 - Bumped `docker/build-push-action` to `v7.1.0`
 - Bumped `github/codeql-action` to `v4.35.4`
+- Verified `sys` tool group (100% pass) against the Structured Error Responses pattern with full Zod validation and coercion parity.
 
 ## Fixed
 
