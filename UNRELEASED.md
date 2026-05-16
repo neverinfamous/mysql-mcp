@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Completed verification for `transactions` tool group; confirmed 100% adherence to structured error response patterns.
+- Verified `mysql-mcp` performance group limits and anomaly tools gracefully handle zero-row inputs, boundary thresholds, and complex parameter validations via `Code Mode` Advanced Stress Tests.
 
 **Dependency Updates**
 
