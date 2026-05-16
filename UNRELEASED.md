@@ -14,6 +14,7 @@
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
 - Bumped `@types/node` from `25.6.0` to `25.8.0`
 - Bumped `@vitest/coverage-v8` from `4.1.5` to `4.1.6`
+- Bumped `eslint` from `10.3.0` to `10.4.0`
 - Bumped `typescript-eslint` from `8.59.2` to `8.59.3`
 - Bumped `vitest` from `4.1.5` to `4.1.6`
 - Bumped `actions/download-artifact` to `v8.0.1`
