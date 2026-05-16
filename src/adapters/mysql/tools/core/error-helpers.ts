@@ -7,7 +7,7 @@
 
 import { ZodError } from "zod";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
-import type { ErrorResponse } from "../../../../types/modules/error-types.js";
+import { ErrorCategory, type ErrorResponse } from "../../../../types/modules/error-types.js";
 
 /**
  * Extract human-readable messages from a ZodError instead of raw JSON array.
@@ -100,12 +100,18 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     response = {
       success: false,
       error: formatZodError(err as ZodError),
+      code: "VALIDATION_ERROR",
+      category: ErrorCategory.VALIDATION,
+      recoverable: false,
     };
   } else {
     // Raw MySQL / unknown error
     response = {
       success: false,
       error: formatMysqlError(err),
+      code: "UNKNOWN_ERROR",
+      category: ErrorCategory.INTERNAL,
+      recoverable: false,
     };
   }
 

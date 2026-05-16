@@ -9,8 +9,6 @@
 
 ## Changed
 
-- Verified 100% of the `json` tool group via direct MCP tool calls, confirming structured error pattern compliance and optimal token efficiency.
-
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
@@ -26,6 +24,7 @@
 
 ## Fixed
 
+- Fixed centralized `formatHandlerErrorResponse` logic to ensure Zod validation errors and unknown raw errors correctly emit the required `code`, `category`, and `recoverable` fields according to the Structured Errors standard.
 - Updated Code Mode help examples for the `sys` group to use the friendly `mysql.sys` alias instead of `mysql.sysschema` to improve agent UX.
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
