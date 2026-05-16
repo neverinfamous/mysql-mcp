@@ -31,7 +31,7 @@ describe("Audit Backup Tools", () => {
         { target: "posts", metadata: { ts: 2 } },
       ]);
       const tool = createAuditListBackupsTool(mockAdapter);
-      const result = await tool.handler({}, mockContext) as any;
+      const result = (await tool.handler({}, mockContext)) as any;
       expect(result.success).toBe(true);
       expect(result.backups.length).toBe(2);
       expect(result.total).toBe(2);
@@ -43,7 +43,10 @@ describe("Audit Backup Tools", () => {
         { target: "posts", metadata: { ts: 2 } },
       ]);
       const tool = createAuditListBackupsTool(mockAdapter);
-      const result = await tool.handler({ target: "users" }, mockContext) as any;
+      const result = (await tool.handler(
+        { target: "users" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(true);
       expect(result.backups.length).toBe(1);
       expect(result.backups[0].target).toBe("users");
@@ -52,15 +55,17 @@ describe("Audit Backup Tools", () => {
     it("should handle no backupManager", async () => {
       mockAdapter.backupManager = undefined;
       const tool = createAuditListBackupsTool(mockAdapter);
-      const result = await tool.handler({}, mockContext) as any;
+      const result = (await tool.handler({}, mockContext)) as any;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Backup Manager is not enabled");
     });
 
     it("should handle error", async () => {
-      mockBackupManager.listSnapshots.mockRejectedValue(new Error("unexpected"));
+      mockBackupManager.listSnapshots.mockRejectedValue(
+        new Error("unexpected"),
+      );
       const tool = createAuditListBackupsTool(mockAdapter);
-      const result = await tool.handler({}, mockContext) as any;
+      const result = (await tool.handler({}, mockContext)) as any;
       expect(result.success).toBe(false);
       expect(result.error).toContain("unexpected");
     });
@@ -71,22 +76,30 @@ describe("Audit Backup Tools", () => {
       mockBackupManager.getSnapshot.mockResolvedValue({
         ddl: "CREATE TABLE users (id INT);",
         data: "INSERT INTO users VALUES (1);",
-        metadata: { target: "users" }
+        metadata: { target: "users" },
       });
       const tool = createAuditRestoreBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql", includeData: true }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql", includeData: true },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(true);
       expect(result.restoredFilename).toBe("backup.sql");
-      expect(mockAdapter.executeWriteQuery).toHaveBeenCalledWith("CREATE TABLE users (id INT);\n\nINSERT INTO users VALUES (1);");
+      expect(mockAdapter.executeWriteQuery).toHaveBeenCalledWith(
+        "CREATE TABLE users (id INT);\n\nINSERT INTO users VALUES (1);",
+      );
     });
 
     it("should perform a dry run", async () => {
       mockBackupManager.getSnapshot.mockResolvedValue({
         ddl: "CREATE TABLE users (id INT);",
-        metadata: { target: "users" }
+        metadata: { target: "users" },
       });
       const tool = createAuditRestoreBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql", dryRun: true }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql", dryRun: true },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(true);
       expect(result.dryRun).toBe(true);
       expect(result.sql).toBe("CREATE TABLE users (id INT);");
@@ -96,7 +109,10 @@ describe("Audit Backup Tools", () => {
     it("should handle missing snapshot", async () => {
       mockBackupManager.getSnapshot.mockResolvedValue(null);
       const tool = createAuditRestoreBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Snapshot not found");
     });
@@ -104,7 +120,10 @@ describe("Audit Backup Tools", () => {
     it("should handle no backupManager", async () => {
       mockAdapter.backupManager = undefined;
       const tool = createAuditRestoreBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Backup Manager is not enabled");
     });
@@ -114,14 +133,21 @@ describe("Audit Backup Tools", () => {
     it("should return diff successfully", async () => {
       mockBackupManager.getSnapshot.mockResolvedValue({
         ddl: "CREATE TABLE users (id INT);",
-        metadata: { target: "users", schema: "test" }
+        metadata: { target: "users", schema: "test" },
       });
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce({ rows: [{ db: "test" }] })
-        .mockResolvedValueOnce({ rows: [{ "Create Table": "CREATE TABLE users (id INT, new_col INT);" }] });
-        
+        .mockResolvedValueOnce({
+          rows: [
+            { "Create Table": "CREATE TABLE users (id INT, new_col INT);" },
+          ],
+        });
+
       const tool = createAuditDiffBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(true);
       expect(result.snapshotDdl).toBe("CREATE TABLE users (id INT);");
       expect(result.liveDdl).toBe("CREATE TABLE users (id INT, new_col INT);");
@@ -130,28 +156,38 @@ describe("Audit Backup Tools", () => {
     it("should parse schema.table target format", async () => {
       mockBackupManager.getSnapshot.mockResolvedValue({
         ddl: "CREATE TABLE users (id INT);",
-        metadata: { target: "db1.users" }
+        metadata: { target: "db1.users" },
       });
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce({ rows: [{ db: "test" }] })
         .mockResolvedValueOnce({ rows: [{ "Create Table": "LIVE DDL" }] });
-        
+
       const tool = createAuditDiffBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(true);
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(expect.stringContaining("`db1`.`users`"));
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
+        expect.stringContaining("`db1`.`users`"),
+      );
       expect(result.liveDdl).toBe("LIVE DDL");
     });
 
     it("should return missing message if table not found", async () => {
       mockBackupManager.getSnapshot.mockResolvedValue({
         ddl: "CREATE TABLE users (id INT);",
-        metadata: { target: "users", schema: "test" }
+        metadata: { target: "users", schema: "test" },
       });
-      mockAdapter.executeReadQuery.mockRejectedValue(new Error("Table missing"));
-        
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Table missing"),
+      );
+
       const tool = createAuditDiffBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(true);
       expect(result.liveDdl).toContain("does not exist in current schema");
     });
@@ -159,7 +195,10 @@ describe("Audit Backup Tools", () => {
     it("should handle missing snapshot", async () => {
       mockBackupManager.getSnapshot.mockResolvedValue(null);
       const tool = createAuditDiffBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Snapshot not found");
     });
@@ -167,7 +206,10 @@ describe("Audit Backup Tools", () => {
     it("should handle no backupManager", async () => {
       mockAdapter.backupManager = undefined;
       const tool = createAuditDiffBackupTool(mockAdapter);
-      const result = await tool.handler({ filename: "backup.sql" }, mockContext) as any;
+      const result = (await tool.handler(
+        { filename: "backup.sql" },
+        mockContext,
+      )) as any;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Backup Manager is not enabled");
     });

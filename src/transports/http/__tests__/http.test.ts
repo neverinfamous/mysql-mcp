@@ -155,7 +155,9 @@ describe("getSafeCorsOrigin()", () => {
   });
 
   it("should not match different origins", () => {
-    expect(getSafeCorsOrigin("https://evil.com", "https://example.com")).toBeNull();
+    expect(
+      getSafeCorsOrigin("https://evil.com", "https://example.com"),
+    ).toBeNull();
   });
 
   it("should match wildcard subdomain patterns", () => {
@@ -165,7 +167,9 @@ describe("getSafeCorsOrigin()", () => {
   });
 
   it("should not match bare domain against wildcard subdomain", () => {
-    expect(getSafeCorsOrigin("https://example.com", "*.example.com")).toBeNull();
+    expect(
+      getSafeCorsOrigin("https://example.com", "*.example.com"),
+    ).toBeNull();
   });
 });
 

@@ -10,11 +10,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import {
-  createClient,
-  callToolAndParse,
-  expectSuccess,
-} from "./helpers.js";
+import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -163,7 +159,9 @@ test.describe("Boundary: Single Row", () => {
       });
       // Single row: min == max == mean == 42.0
       if (stats.success) {
-        const s = (stats.data?.statistics ?? stats.data ?? stats.statistics) as Record<string, unknown>;
+        const s = (stats.data?.statistics ??
+          stats.data ??
+          stats.statistics) as Record<string, unknown>;
         expect(s.count).toBeGreaterThanOrEqual(1);
         if (typeof s.min === "number") {
           expect(s.min).toBe(42.0);
@@ -221,7 +219,9 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
         table: "_e2e_boundary_recreate",
       });
       expectSuccess(desc);
-      const cols = (desc.data?.columns ?? desc.columns) as Array<{ name: string }>;
+      const cols = (desc.data?.columns ?? desc.columns) as Array<{
+        name: string;
+      }>;
       const colNames = cols.map((c) => c.name);
       expect(colNames).toContain("value");
       expect(colNames).toContain("active");
@@ -247,7 +247,10 @@ test.describe("Boundary: View Lifecycle", () => {
     const client = await createClient();
     try {
       // Create view
-      await callToolAndParse(client, "mysql_drop_view", { name: "_e2e_boundary_view_1778242635228", ifExists: true }).catch(() => {});
+      await callToolAndParse(client, "mysql_drop_view", {
+        name: "_e2e_boundary_view_1778242635228",
+        ifExists: true,
+      }).catch(() => {});
       const create = await callToolAndParse(client, "mysql_create_view", {
         name: "_e2e_boundary_view_1778242635228",
         query: "SELECT id, name FROM test_products WHERE price > 50",
@@ -258,14 +261,23 @@ test.describe("Boundary: View Lifecycle", () => {
       const list = await callToolAndParse(client, "mysql_list_views", {});
       expectSuccess(list);
       const views = (list.data?.views ?? list.views) as Array<{ name: string }>;
-      expect(views.some((v) => v.name === "_e2e_boundary_view_1778242635228")).toBe(true);
+      expect(
+        views.some((v) => v.name === "_e2e_boundary_view_1778242635228"),
+      ).toBe(true);
 
       // Query the view
       const query = await callToolAndParse(client, "mysql_read_query", {
         query: "SELECT * FROM _e2e_boundary_view_1778242635228",
       });
       expectSuccess(query);
-      expect(typeof (query.data?.rowCount ?? query.rowCount ?? query.data?.count ?? query.count)).toBe("number");
+      expect(
+        typeof (
+          query.data?.rowCount ??
+          query.rowCount ??
+          query.data?.count ??
+          query.count
+        ),
+      ).toBe("number");
 
       // Drop view
       const drop = await callToolAndParse(client, "mysql_drop_view", {
@@ -297,6 +309,4 @@ test.describe("Boundary: Data Integrity", () => {
       await client.close();
     }
   });
-
-
 });

@@ -23,6 +23,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 `| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |`
 Never proceed to the final step until every tool in a given group has both columns marked as ✅.
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for tracking progress and testing results. DO NOT modify the testing prompt files directly.
 
 ### 4. Cleanup

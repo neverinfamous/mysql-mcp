@@ -6,7 +6,10 @@
 
 import { ZodError } from "zod";
 import * as path from "path";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -52,7 +55,10 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: outputDir or outputUrl is required",
+          });
         }
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -92,7 +98,7 @@ export function createShellDumpInstanceTool(): ToolDefinition {
             outputDir: finalOutputDir,
             dryRun: dryRun ?? false,
             result,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -164,7 +170,10 @@ export function createShellDumpSchemasTool(): ToolDefinition {
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: outputDir or outputUrl is required",
+          });
         }
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -205,7 +214,7 @@ export function createShellDumpSchemasTool(): ToolDefinition {
             dryRun: dryRun ?? false,
             ddlOnly: ddlOnly ?? false,
             result,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -249,8 +258,17 @@ export function createShellDumpTablesTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, tables, outputDir, outputUrl, threads, compression, where, all, dryRun } =
-          ShellDumpTablesInputSchema.parse(params);
+        const {
+          schema,
+          tables,
+          outputDir,
+          outputUrl,
+          threads,
+          compression,
+          where,
+          all,
+          dryRun,
+        } = ShellDumpTablesInputSchema.parse(params);
 
         if (tables.length === 0) {
           return withTokenEstimate({
@@ -261,7 +279,10 @@ export function createShellDumpTablesTool(): ToolDefinition {
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return withTokenEstimate({ success: false, error: "Validation error: outputDir or outputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: outputDir or outputUrl is required",
+          });
         }
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -303,7 +324,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
             dryRun: dryRun ?? false,
             triggersExcluded: !all,
             result,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {

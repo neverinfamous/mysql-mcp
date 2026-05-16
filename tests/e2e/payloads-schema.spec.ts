@@ -20,7 +20,9 @@ test.describe("Payload Contracts: Schema", () => {
       const payload = await callToolAndParse(client, "mysql_list_schemas", {});
 
       expect(Array.isArray((payload as any).data?.schemas)).toBe(true);
-      expect(((payload as any).data?.schemas as unknown[]).length).toBeGreaterThan(0);
+      expect(
+        ((payload as any).data?.schemas as unknown[]).length,
+      ).toBeGreaterThan(0);
     } finally {
       await client.close();
     }
@@ -71,11 +73,7 @@ test.describe("Payload Contracts: Schema", () => {
   test("mysql_list_triggers returns result", async () => {
     const client = await createClient();
     try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_list_triggers",
-        {},
-      );
+      const payload = await callToolAndParse(client, "mysql_list_triggers", {});
 
       expect(typeof payload).toBe("object");
     } finally {
@@ -86,11 +84,9 @@ test.describe("Payload Contracts: Schema", () => {
   test("mysql_list_constraints returns result", async () => {
     const client = await createClient();
     try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_list_constraints",
-        { table: "test_orders" },
-      );
+      const payload = await callToolAndParse(client, "mysql_list_constraints", {
+        table: "test_orders",
+      });
 
       expect(typeof payload).toBe("object");
     } finally {

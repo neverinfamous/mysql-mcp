@@ -6,14 +6,16 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -28,36 +30,36 @@ const UserSummarySchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const UserSummarySchema = z.object({
-  user: z.string().optional(),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  user: data.user,
-  limit: data.limit !== undefined ? Number(data.limit) : 5,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const UserSummarySchema = z
+  .object({
+    user: z.string().optional(),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    user: data.user,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 const HostSummarySchemaBase = z.object({
   host: z.string().optional().describe("Filter by specific host"),
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const HostSummarySchema = z.object({
-  host: z.string().optional(),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  host: data.host,
-  limit: data.limit !== undefined ? Number(data.limit) : 5,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const HostSummarySchema = z
+  .object({
+    host: z.string().optional(),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    host: data.host,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 /**
  * Get user activity summary
@@ -106,7 +108,7 @@ export function createSysUserSummaryTool(
           data: {
             rows: result.rows ?? [],
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -164,7 +166,7 @@ export function createSysHostSummaryTool(
           data: {
             rows: result.rows ?? [],
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {

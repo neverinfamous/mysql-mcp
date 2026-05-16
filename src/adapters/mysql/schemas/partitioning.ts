@@ -62,7 +62,9 @@ export const AddPartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       partitionName: z.string().optional(),
-      partitionType: z.enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"]).optional(),
+      partitionType: z
+        .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
+        .optional(),
       value: z.string().optional(),
     }),
   )
@@ -133,7 +135,10 @@ export const ReorganizePartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  fromPartitions: z.array(z.string()).optional().describe("Source partition names"),
+  fromPartitions: z
+    .array(z.string())
+    .optional()
+    .describe("Source partition names"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
@@ -163,13 +168,17 @@ export const ReorganizePartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       fromPartitions: z.array(z.string()).optional(),
-      partitionType: z.enum(["RANGE", "LIST", "RANGE COLUMNS", "LIST COLUMNS"]).optional(),
-      toPartitions: z.array(
-        z.object({
-          name: z.string(),
-          value: z.string(),
-        }),
-      ).optional(),
+      partitionType: z
+        .enum(["RANGE", "LIST", "RANGE COLUMNS", "LIST COLUMNS"])
+        .optional(),
+      toPartitions: z
+        .array(
+          z.object({
+            name: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
     }),
   )
   .transform((data) => ({

@@ -219,7 +219,10 @@ describe("Handler Execution", () => {
         ]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler({ summary: false }, mockContext)) as any;
+      const result = (await tool.handler(
+        { summary: false },
+        mockContext,
+      )) as any;
 
       const credVar = result.data.adminVariables.find(
         (v: any) => v.variable_name === "admin-admin_credentials",
@@ -265,16 +268,23 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockAdminVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler({ summary: true }, mockContext)) as any;
+      const result = (await tool.handler(
+        { summary: true },
+        mockContext,
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.summary).toBe(true);
       expect(result.data.version).toBe("3.0.3");
       // Should have fewer variables than the full list
-      expect(result.data.adminVariables.length).toBeLessThan(mockAdminVars.length);
+      expect(result.data.adminVariables.length).toBeLessThan(
+        mockAdminVars.length,
+      );
       expect(result.data.totalAdminVarsAvailable).toBe(mockAdminVars.length);
       // Should include key variables
-      const varNames = result.data.adminVariables.map((v: any) => v.variable_name);
+      const varNames = result.data.adminVariables.map(
+        (v: any) => v.variable_name,
+      );
       expect(varNames).toContain("admin-version");
       expect(varNames).toContain("admin-read_only");
       expect(varNames).toContain("admin-mysql_ifaces");

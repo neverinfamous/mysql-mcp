@@ -83,7 +83,6 @@ test.describe("Numeric Coercion: Stats", () => {
   });
 });
 
-
 test.describe("Numeric Coercion: Performance", () => {
   test("explain with format: invalid → error (handler or Zod)", async ({}, testInfo) => {
     const baseURL = undefined;

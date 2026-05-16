@@ -8,7 +8,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import { ShellVersionInputSchema } from "../../schemas/shell.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
@@ -46,7 +49,7 @@ export function createShellVersionTool(): ToolDefinition {
             version,
             binPath: config.binPath,
             rawOutput: result.stdout.trim(),
-          }
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);

@@ -6,7 +6,10 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -19,7 +22,6 @@ import {
   PolygonSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers

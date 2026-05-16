@@ -651,13 +651,16 @@ export const JsonValidateSchemaBase = z.object({
   value: z.unknown().optional().describe("JSON string to validate"),
 });
 
-export const JsonValidateSchema = z.object({
-  value: z.unknown().optional(),
-}).transform(data => ({
-  value: data.value
-})).refine(data => data.value !== undefined && data.value !== null, {
-  message: "value is required"
-});
+export const JsonValidateSchema = z
+  .object({
+    value: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    value: data.value,
+  }))
+  .refine((data) => data.value !== undefined && data.value !== null, {
+    message: "value is required",
+  });
 
 // --- JsonMerge ---
 export const JsonMergeSchemaBase = z.object({

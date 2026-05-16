@@ -15,11 +15,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import {
-  createClient,
-  callToolAndParse,
-  expectSuccess,
-} from "./helpers.js";
+import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -68,9 +64,10 @@ test.describe("Integration: Core → JSON → Stats Pipeline", () => {
         column: "score",
       });
       expectSuccess(stats);
-      const s = (stats.data?.statistics ?? stats.data ?? stats.statistics ?? stats.stats) as
-        | Record<string, unknown>
-        | undefined;
+      const s = (stats.data?.statistics ??
+        stats.data ??
+        stats.statistics ??
+        stats.stats) as Record<string, unknown> | undefined;
       expect(s).toBeDefined();
       expect(s!.count as number).toBeGreaterThanOrEqual(5);
       expect(typeof s!.min).toBe("number");
@@ -131,5 +128,3 @@ test.describe("Integration: Admin → Introspection Health Check", () => {
     }
   });
 });
-
-

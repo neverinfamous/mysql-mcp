@@ -2,9 +2,7 @@
   "mcpServers": {
     "user-mysql": {
       "command": "node",
-      "args": [
-        "/absolute/path/to/mysql-mcp/dist/cli.js"
-      ],
+      "args": ["/absolute/path/to/mysql-mcp/dist/cli.js"],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",

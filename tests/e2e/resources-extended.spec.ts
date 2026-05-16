@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient,  } from "./helpers.js";
+import { createClient } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 

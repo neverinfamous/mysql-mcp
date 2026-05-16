@@ -111,7 +111,9 @@ describe("Handler Execution", () => {
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
-      expect(result).toEqual(expect.objectContaining({ success: false, error: "Invalid role name" }));
+      expect(result).toEqual(
+        expect.objectContaining({ success: false, error: "Invalid role name" }),
+      );
     });
 
     it("should return skipped when ifNotExists and role already exists", async () => {
@@ -126,14 +128,16 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: true,
-        data: expect.objectContaining({
-          skipped: true,
-          roleName: "test_role",
-          reason: "Role already exists",
-        })
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            skipped: true,
+            roleName: "test_role",
+            reason: "Role already exists",
+          }),
+        }),
+      );
       // Should NOT have issued a CREATE ROLE query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -177,7 +181,9 @@ describe("Handler Execution", () => {
         { role: "invalid-role", privileges: ["SELECT"] },
         mockContext,
       );
-      expect(result).toEqual(expect.objectContaining({ success: false, error: "Invalid role name" }));
+      expect(result).toEqual(
+        expect.objectContaining({ success: false, error: "Invalid role name" }),
+      );
     });
   });
 
@@ -213,11 +219,13 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        error:
-          "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error:
+            "Role 'test_role' is not assigned to user 'testuser'@'localhost'",
+        }),
+      );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
@@ -249,7 +257,9 @@ describe("Handler Execution", () => {
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
-      expect(result).toEqual(expect.objectContaining({ success: false, error: "Invalid role name" }));
+      expect(result).toEqual(
+        expect.objectContaining({ success: false, error: "Invalid role name" }),
+      );
     });
 
     it("should return skipped when ifExists and role does not exist", async () => {
@@ -264,14 +274,16 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: true,
-        data: expect.objectContaining({
-          skipped: true,
-          roleName: "test_role",
-          reason: "Role did not exist",
-        })
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            skipped: true,
+            roleName: "test_role",
+            reason: "Role did not exist",
+          }),
+        }),
+      );
     });
   });
 
@@ -343,10 +355,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        error: "User does not exist",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: "User does not exist",
+        }),
+      );
     });
   });
 
@@ -362,10 +376,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        error: "Role 'test_role' already exists",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: "Role 'test_role' already exists",
+        }),
+      );
     });
   });
 
@@ -381,10 +397,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        error: "Role 'test_role' does not exist",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: "Role 'test_role' does not exist",
+        }),
+      );
     });
   });
 
@@ -405,10 +423,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        error: "User does not exist",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: "User does not exist",
+        }),
+      );
     });
   });
 
@@ -425,10 +445,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        error: "User does not exist",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: "User does not exist",
+        }),
+      );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
@@ -455,11 +477,13 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual(expect.objectContaining({
-        success: false,
-        role: "test_role",
-        error: "Table 'testdb.nonexistent' doesn't exist",
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          role: "test_role",
+          error: "Table 'testdb.nonexistent' doesn't exist",
+        }),
+      );
     });
   });
 

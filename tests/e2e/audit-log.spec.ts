@@ -188,9 +188,9 @@ test.describe("Audit Log", () => {
       };
       expect(body.recent.length).toBeGreaterThanOrEqual(1);
       expect(body.summary.entries).toBeGreaterThanOrEqual(1);
-      expect(
-        body.recent[body.recent.length - 1]!.tool,
-      ).toBe("mysql_transaction_begin");
+      expect(body.recent[body.recent.length - 1]!.tool).toBe(
+        "mysql_transaction_begin",
+      );
     } finally {
       if (client) await client.close();
       stopServer(port);

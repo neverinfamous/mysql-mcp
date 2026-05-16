@@ -14,7 +14,6 @@ import type {
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Schemas
 // =============================================================================
@@ -23,38 +22,46 @@ const LimitSchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const LimitSchema = z.object({
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  limit: data.limit !== undefined ? Number(data.limit) : 100,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0,
-  { message: "Expected positive integer number" }
-);
+const LimitSchema = z
+  .object({
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    limit: data.limit !== undefined ? Number(data.limit) : 100,
+  }))
+  .refine(
+    (data) =>
+      !Number.isNaN(data.limit) &&
+      Number.isInteger(data.limit) &&
+      data.limit > 0,
+    { message: "Expected positive integer number" },
+  );
 
 const SummarySchemaBase = z.object({
-  summary: z.unknown().optional().describe("If true, return condensed output without configuration blobs"),
+  summary: z
+    .unknown()
+    .optional()
+    .describe("If true, return condensed output without configuration blobs"),
 });
 
-const SummarySchema = z.object({
-  summary: z.unknown().optional(),
-})
-.transform((data, ctx) => {
-  if (data.summary === undefined) return { summary: false };
-  if (typeof data.summary === "boolean") return { summary: data.summary };
-  if (typeof data.summary === "string") {
-    const lower = data.summary.toLowerCase();
-    if (lower === "true") return { summary: true };
-    if (lower === "false") return { summary: false };
-  }
-  ctx.addIssue({
-    code: "custom",
-    message: "Expected boolean or 'true'/'false' string",
+const SummarySchema = z
+  .object({
+    summary: z.unknown().optional(),
+  })
+  .transform((data, ctx) => {
+    if (data.summary === undefined) return { summary: false };
+    if (typeof data.summary === "boolean") return { summary: data.summary };
+    if (typeof data.summary === "string") {
+      const lower = data.summary.toLowerCase();
+      if (lower === "true") return { summary: true };
+      if (lower === "false") return { summary: false };
+    }
+    ctx.addIssue({
+      code: "custom",
+      message: "Expected boolean or 'true'/'false' string",
+    });
+    return z.NEVER;
   });
-  return z.NEVER;
-});
 
 // =============================================================================
 // Tool Creation Functions
@@ -97,7 +104,9 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
               "InnoDB Cluster metadata not found. Using Group Replication status.",
             onlineMembers: grResult.rows?.[0]?.["memberCount"] ?? 0,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+          );
           return { success: true, data, metrics: { tokenEstimate } };
         }
 
@@ -128,14 +137,19 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
             FROM performance_schema.replication_group_members
         `);
         const members = grResult.rows ?? [];
-        const isOnline = members.length > 0 && members.some(m => m["state"] === "ONLINE");
-        const status = isOnline ? (members.every(m => m["state"] === "ONLINE") ? "OK" : "OK_PARTIAL") : "OFFLINE";
+        const isOnline =
+          members.length > 0 && members.some((m) => m["state"] === "ONLINE");
+        const status = isOnline
+          ? members.every((m) => m["state"] === "ONLINE")
+            ? "OK"
+            : "OK_PARTIAL"
+          : "OFFLINE";
         const topology = members.reduce<Record<string, unknown>>((acc, m) => {
-            acc[`${String(m["host"])}:${String(m["port"])}`] = {
-                status: m["state"],
-                role: m["role"]
-            };
-            return acc;
+          acc[`${String(m["host"])}:${String(m["port"])}`] = {
+            status: m["state"],
+            role: m["role"],
+          };
+          return acc;
         }, {});
 
         // Summary mode: return only essential metadata
@@ -148,7 +162,9 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
             status,
             topology,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+          );
           return { success: true, data, metrics: { tokenEstimate } };
         }
 
@@ -185,7 +201,9 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           status,
           topology,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -238,7 +256,9 @@ export function createClusterInstancesTool(
           instances: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (primaryError) {
         // Fallback to GR members
@@ -260,7 +280,9 @@ export function createClusterInstancesTool(
             instances: grResult.rows ?? [],
             count: grResult.rows?.length ?? 0,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+          );
           return { success: true, data, metrics: { tokenEstimate } };
         } catch (fallbackError) {
           const fallbackMsg =
@@ -271,7 +293,11 @@ export function createClusterInstancesTool(
             primaryError instanceof Error
               ? primaryError.message
               : String(primaryError);
-          return formatHandlerErrorResponse(new Error(`Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`));
+          return formatHandlerErrorResponse(
+            new Error(
+              `Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`,
+            ),
+          );
         }
       }
     },
@@ -394,7 +420,9 @@ export function createClusterTopologyTool(
           totalMembers: allMembers,
           onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);
@@ -454,7 +482,9 @@ export function createClusterRouterStatusTool(
             count: routers.length,
             staleCount,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+          );
           return { success: true, data, metrics: { tokenEstimate } };
         }
 
@@ -496,7 +526,9 @@ export function createClusterRouterStatusTool(
           count: routers.length,
           staleCount,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         const baseError =
@@ -505,7 +537,11 @@ export function createClusterRouterStatusTool(
             : error instanceof Error
               ? error.message
               : String(error);
-        return formatHandlerErrorResponse(new Error(`Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`));
+        return formatHandlerErrorResponse(
+          new Error(
+            `Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`,
+          ),
+        );
       }
     },
   };
@@ -609,7 +645,9 @@ export function createClusterSwitchoverTool(
                 ? "All secondaries have significant replication lag. Switchover not recommended."
                 : undefined,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error) {
         return formatHandlerErrorResponse(error);

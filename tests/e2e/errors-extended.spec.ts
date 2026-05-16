@@ -14,7 +14,8 @@ import {
   createClient,
   callToolAndParse,
   callToolRaw,
-  expectHandlerError} from "./helpers.js";
+  expectHandlerError,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -29,7 +30,11 @@ test.describe("Errors: Core", () => {
       const p = await callToolAndParse(client, "mysql_read_query", {
         query: "SELECT * FROM _e2e_nonexistent_xyz",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
       expect(p.error as string).toMatch(/does not exist|_e2e_nonexistent_xyz/i);
     } finally {
       await client.close();
@@ -42,7 +47,11 @@ test.describe("Errors: Core", () => {
       const p = await callToolAndParse(client, "mysql_describe_table", {
         table: "_e2e_nonexistent_xyz",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -70,7 +79,11 @@ test.describe("Errors: Core", () => {
       const p = await callToolAndParse(client, "mysql_get_indexes", {
         table: "_e2e_nonexistent_xyz",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -82,7 +95,11 @@ test.describe("Errors: Core", () => {
       const p = await callToolAndParse(client, "mysql_write_query", {
         query: "SELECT * FROM information_schema.tables LIMIT 1",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -94,7 +111,11 @@ test.describe("Errors: Core", () => {
       const p = await callToolAndParse(client, "mysql_read_query", {
         query: "INSERT INTO _e2e_nonexistent_xyz (name) VALUES ('x')",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -114,7 +135,11 @@ test.describe("Errors: JSONB", () => {
         column: "doc",
         path: "$.type",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -129,12 +154,15 @@ test.describe("Errors: JSONB", () => {
         path: "{key}",
         value: '"test"',
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
   });
-
 });
 
 // =============================================================================
@@ -150,12 +178,15 @@ test.describe("Errors: Text", () => {
         column: "name",
         pattern: "test",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
   });
-
 });
 
 // =============================================================================
@@ -170,7 +201,11 @@ test.describe("Errors: Stats", () => {
         table: "_e2e_nonexistent_xyz",
         column: "price",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -183,7 +218,11 @@ test.describe("Errors: Stats", () => {
         table: "test_products",
         column: "_e2e_nonexistent_col",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -197,7 +236,11 @@ test.describe("Errors: Stats", () => {
         column1: "_e2e_nonexistent_col",
         column2: "price",
       });
-      if (p.success) { /* Accept if MySQL handles SELECT in write gracefully */ } else { expectHandlerError(p); }
+      if (p.success) {
+        /* Accept if MySQL handles SELECT in write gracefully */
+      } else {
+        expectHandlerError(p);
+      }
     } finally {
       await client.close();
     }
@@ -241,7 +284,6 @@ test.describe("Errors: Vector", () => {
     }
   });
 
-
   test("vector_search with mismatched dimensions → DIMENSION_MISMATCH", async ({}, testInfo) => {
     const client = await createClient();
     try {
@@ -252,6 +294,4 @@ test.describe("Errors: Vector", () => {
       await client.close();
     }
   });
-
 });
-

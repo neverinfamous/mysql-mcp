@@ -16,12 +16,16 @@ vi.mock("../security.js", async (importOriginal) => {
   };
 });
 
-function createMockReqRes(method: string, url: string, headers: Record<string, string> = {}) {
+function createMockReqRes(
+  method: string,
+  url: string,
+  headers: Record<string, string> = {},
+) {
   const req = new IncomingMessage(new Socket());
   req.method = method;
   req.url = url;
   req.headers = { host: "localhost", ...headers };
-  
+
   // mock for stream logic if needed
   req.on = vi.fn((event, callback) => {
     if (event === "end") callback();
@@ -31,7 +35,7 @@ function createMockReqRes(method: string, url: string, headers: Record<string, s
   const res = new ServerResponse(req);
   res.writeHead = vi.fn().mockReturnThis();
   res.end = vi.fn();
-  
+
   return { req, res };
 }
 
@@ -69,28 +73,50 @@ describe("HttpTransport", () => {
     });
 
     it("should require auth token if configured", async () => {
-      const authTransport = new HttpTransport({ port: 0, authToken: "secret123" });
+      const authTransport = new HttpTransport({
+        port: 0,
+        authToken: "secret123",
+      });
       const { req, res } = createMockReqRes("POST", "/mcp");
       await (authTransport as any).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(401, expect.any(Object));
-      
-      const { req: reqWithAuth, res: resWithAuth } = createMockReqRes("POST", "/mcp", { authorization: "Bearer secret123" });
+
+      const { req: reqWithAuth, res: resWithAuth } = createMockReqRes(
+        "POST",
+        "/mcp",
+        { authorization: "Bearer secret123" },
+      );
       await (authTransport as any).handleRequest(reqWithAuth, resWithAuth);
-      expect(resWithAuth.writeHead).not.toHaveBeenCalledWith(401, expect.any(Object));
-      const { req: reqInvalid, res: resInvalid } = createMockReqRes("POST", "/mcp", { authorization: "Bearer invalid" });
+      expect(resWithAuth.writeHead).not.toHaveBeenCalledWith(
+        401,
+        expect.any(Object),
+      );
+      const { req: reqInvalid, res: resInvalid } = createMockReqRes(
+        "POST",
+        "/mcp",
+        { authorization: "Bearer invalid" },
+      );
       await (authTransport as any).handleRequest(reqInvalid, resInvalid);
-      expect(resInvalid.writeHead).toHaveBeenCalledWith(401, expect.any(Object));
+      expect(resInvalid.writeHead).toHaveBeenCalledWith(
+        401,
+        expect.any(Object),
+      );
     });
 
     it("should enforce max body size", async () => {
       const smallTransport = new HttpTransport({ port: 0, maxBodySize: 10 });
-      const { req, res } = createMockReqRes("POST", "/mcp", { "content-length": "100" });
+      const { req, res } = createMockReqRes("POST", "/mcp", {
+        "content-length": "100",
+      });
       await (smallTransport as any).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(413, expect.any(Object));
     });
 
     it("should handle stateless /mcp request with wrong method", async () => {
-      const statelessTransport = new HttpTransport({ port: 0, stateless: true });
+      const statelessTransport = new HttpTransport({
+        port: 0,
+        stateless: true,
+      });
       const { req, res } = createMockReqRes("GET", "/mcp");
       await (statelessTransport as any).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(405, expect.any(Object));
@@ -109,12 +135,18 @@ describe("HttpTransport", () => {
     });
 
     it("should reject legacy SSE in stateless mode", async () => {
-      const statelessTransport = new HttpTransport({ port: 0, stateless: true });
+      const statelessTransport = new HttpTransport({
+        port: 0,
+        stateless: true,
+      });
       const { req, res } = createMockReqRes("GET", "/sse");
       await (statelessTransport as any).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
 
-      const { req: reqMsg, res: resMsg } = createMockReqRes("POST", "/messages?sessionId=123");
+      const { req: reqMsg, res: resMsg } = createMockReqRes(
+        "POST",
+        "/messages?sessionId=123",
+      );
       await (statelessTransport as any).handleRequest(reqMsg, resMsg);
       expect(resMsg.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
     });

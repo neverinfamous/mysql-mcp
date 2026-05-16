@@ -20,7 +20,7 @@ vi.mock("node:worker_threads", async (importOriginal) => {
     ...actual,
     Worker: class MockWorker {
       listeners: Record<string, ((data: any) => void)[]> = {};
-      
+
       constructor(path: string, options: any) {
         setTimeout(() => {
           if (options.workerData.code.includes("timeout")) {
@@ -29,31 +29,39 @@ vi.mock("node:worker_threads", async (importOriginal) => {
             this.emit("error", new Error("Syntax error"));
           } else if (options.workerData.code.includes("rpc")) {
             // Trigger rpc
-            options.workerData.rpcPort.postMessage({ id: 0, group: "core", method: "testMethod", args: [] });
+            options.workerData.rpcPort.postMessage({
+              id: 0,
+              group: "core",
+              method: "testMethod",
+              args: [],
+            });
             setTimeout(() => {
               this.emit("message", { success: true, result: "rpc result" });
             }, 10);
           } else {
-            this.emit("message", { success: true, result: options.workerData.code.includes("1 + 1") ? 2 : 42 });
+            this.emit("message", {
+              success: true,
+              result: options.workerData.code.includes("1 + 1") ? 2 : 42,
+            });
           }
         }, 10);
       }
-      
+
       on(event: string, fn: (data: any) => void) {
         if (!this.listeners[event]) this.listeners[event] = [];
         this.listeners[event].push(fn);
       }
-      
+
       emit(event: string, data: any) {
         if (this.listeners[event]) {
-          this.listeners[event].forEach(fn => fn(data));
+          this.listeners[event].forEach((fn) => fn(data));
         }
       }
-      
+
       terminate() {
         return Promise.resolve();
       }
-    }
+    },
   };
 });
 
@@ -179,7 +187,11 @@ describe("WorkerSandbox", () => {
     });
 
     it("should timeout if execution takes too long", async () => {
-      const fastSandbox = WorkerSandbox.create({ memoryLimitMb: 64, timeoutMs: 10, cpuLimitMs: 10 });
+      const fastSandbox = WorkerSandbox.create({
+        memoryLimitMb: 64,
+        timeoutMs: 10,
+        cpuLimitMs: 10,
+      });
       const result = await fastSandbox.execute("timeout test", {});
       expect(result.success).toBe(false);
       expect(result.error).toContain("timeout");
@@ -189,8 +201,8 @@ describe("WorkerSandbox", () => {
     it("should successfully call an API binding via RPC", async () => {
       const apiBindings = {
         core: {
-          testMethod: vi.fn().mockResolvedValue("rpc result")
-        }
+          testMethod: vi.fn().mockResolvedValue("rpc result"),
+        },
       };
       // The code should call mysql.core.testMethod()
       const code = "rpc test: await mysql.core.testMethod();";
@@ -198,7 +210,7 @@ describe("WorkerSandbox", () => {
       expect(result.success).toBe(true);
       expect(result.result).toBe("rpc result");
       // Wait a tick for RPC to process if it's async
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 50));
       expect(apiBindings.core.testMethod).toHaveBeenCalled();
     });
 
@@ -271,11 +283,13 @@ describe("WorkerSandboxPool", () => {
         pool.execute(code, {}),
         pool.execute(code, {}),
         pool.execute(code, {}),
-        pool.execute(code, {}) // 4th should fail
+        pool.execute(code, {}), // 4th should fail
       ];
-      
+
       const results = await Promise.all(promises);
-      const failures = results.filter(r => !r.success && r.error?.includes("exhausted"));
+      const failures = results.filter(
+        (r) => !r.success && r.error?.includes("exhausted"),
+      );
       expect(failures.length).toBeGreaterThan(0);
     });
 

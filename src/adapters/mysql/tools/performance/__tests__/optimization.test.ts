@@ -644,7 +644,9 @@ describe("Performance Optimization Tools", () => {
       )) as { data: { explainPlan: unknown; explainError: string } };
 
       expect(result.data.explainPlan).toBeNull();
-      expect(result.data.explainError).toBe("Table 'testdb.ghost' doesn't exist");
+      expect(result.data.explainError).toBe(
+        "Table 'testdb.ghost' doesn't exist",
+      );
     });
   });
 });

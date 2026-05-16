@@ -33,13 +33,13 @@ Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simu
 
 ### Diagnosing Cluster Issues
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| `super_read_only` errors | GR offline, no primary elected | `.\scripts\reboot-cluster.ps1` |
-| E2E tests skip 5 write tests | Same as above | Same as above |
-| All topology members OFFLINE | Complete outage (machine reboot) | Same as above |
-| Single node MISSING | Node fell out of group | Rejoin: `docker exec mysql-node1 mysqlsh ...` |
-| `UNREACHABLE` members after reboot | Docker network not ready | Wait 30s, then reboot script |
+| Symptom                            | Cause                            | Fix                                           |
+| ---------------------------------- | -------------------------------- | --------------------------------------------- |
+| `super_read_only` errors           | GR offline, no primary elected   | `.\scripts\reboot-cluster.ps1`                |
+| E2E tests skip 5 write tests       | Same as above                    | Same as above                                 |
+| All topology members OFFLINE       | Complete outage (machine reboot) | Same as above                                 |
+| Single node MISSING                | Node fell out of group           | Rejoin: `docker exec mysql-node1 mysqlsh ...` |
+| `UNREACHABLE` members after reboot | Docker network not ready         | Wait 30s, then reboot script                  |
 
 ### Cluster Architecture
 

@@ -12,7 +12,6 @@ import {
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
-
 const ListViewsSchema = z.object({
   schema: z
     .string()
@@ -87,7 +86,7 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`)
+              new Error(`Schema '${targetSchema}' does not exist`),
             );
           }
         }
@@ -113,9 +112,11 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             views: result.rows,
             count: result.rows?.length ?? 0,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -150,7 +151,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const finalDefinition = definition ?? query;
         if (finalDefinition === undefined || finalDefinition === "") {
           return formatHandlerErrorResponse(
-            new Error("Validation error: definition or query must be provided")
+            new Error("Validation error: definition or query must be provided"),
           );
         }
 
@@ -173,13 +174,15 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
           const response = { success: true as const, data: { viewName: name } };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("already exists")) {
             return formatHandlerErrorResponse(
-              new Error(`View '${name}' already exists`)
+              new Error(`View '${name}' already exists`),
             );
           }
           return formatHandlerErrorResponse(err);
@@ -211,16 +214,21 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           return formatHandlerErrorResponse(err);
         }
-        
+
         const fullViewName = escapeQualifiedTable(parsedParams.name);
         const ifExistsClause = parsedParams.ifExists ? "IF EXISTS " : "";
         const sql = `DROP VIEW ${ifExistsClause}${fullViewName}`;
-        
+
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = { success: true as const, data: { viewName: parsedParams.name } };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const response = {
+            success: true as const,
+            data: { viewName: parsedParams.name },
+          };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           return formatHandlerErrorResponse(err);

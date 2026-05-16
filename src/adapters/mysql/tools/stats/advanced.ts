@@ -18,7 +18,6 @@ import {
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Constants
 // =============================================================================
@@ -55,76 +54,78 @@ const NUMERIC_TYPES = new Set([
 export const StatsTopNSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Column to sort by"),
-  n: z.unknown().optional().describe("Number of rows to return (default: 10, max: 100)"),
+  n: z
+    .unknown()
+    .optional()
+    .describe("Number of rows to return (default: 10, max: 100)"),
   direction: z.unknown().optional().describe("Sort direction (default: desc)"),
-  selectColumns: z.unknown().optional().describe("Columns to include (defaults to all except long text/blobs)"),
+  selectColumns: z
+    .unknown()
+    .optional()
+    .describe("Columns to include (defaults to all except long text/blobs)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsTopNSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
-  n: z
-    .number()
-    .min(1)
-    .max(100)
-    .default(10),
-  direction: z
-    .enum(["asc", "desc"])
-    .default("desc"),
-  selectColumns: z
-    .array(z.string())
-    .optional(),
+  n: z.number().min(1).max(100).default(10),
+  direction: z.enum(["asc", "desc"]).default("desc"),
+  selectColumns: z.array(z.string()).optional(),
   where: z.string().optional(),
 });
 
 export const StatsDistinctSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Column to get distinct values for"),
-  limit: z.unknown().optional().describe("Maximum values to return (default: 100)"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum values to return (default: 100)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsDistinctSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(100),
+  limit: z.number().min(1).max(1000).default(100),
   where: z.string().optional(),
 });
 
 export const StatsFrequencySchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
-  column: z.string().optional().describe("Column to get frequency distribution for"),
-  limit: z.unknown().optional().describe("Maximum rows to return (default: 20)"),
+  column: z
+    .string()
+    .optional()
+    .describe("Column to get frequency distribution for"),
+  limit: z
+    .unknown()
+    .optional()
+    .describe("Maximum rows to return (default: 20)"),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsFrequencySchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
-  limit: z
-    .number()
-    .min(1)
-    .max(1000)
-    .default(20),
+  limit: z.number().min(1).max(1000).default(20),
   where: z.string().optional(),
 });
 
 export const StatsSummarySchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
-  columns: z.unknown().optional().describe("Specific numeric columns to summarize (defaults to all numeric columns)"),
+  columns: z
+    .unknown()
+    .optional()
+    .describe(
+      "Specific numeric columns to summarize (defaults to all numeric columns)",
+    ),
   where: z.string().optional().describe("Filter condition"),
 });
 
 export const StatsSummarySchema = z.object({
   table: z.string().min(1, "table is required"),
-  columns: z
-    .array(z.string())
-    .optional(),
+  columns: z.array(z.string()).optional(),
   where: z.string().optional(),
 });
 
@@ -149,7 +150,10 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         let columnList: string;
@@ -255,10 +259,16 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const sql = `
@@ -292,7 +302,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
             column,
             distinctCount,
             values,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -312,7 +322,9 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
 // =============================================================================
 // FREQUENCY DISTRIBUTION
 
-export function createStatsFrequencyTool(adapter: MySQLAdapter): ToolDefinition {
+export function createStatsFrequencyTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysql_stats_frequency",
     description:
@@ -329,10 +341,16 @@ export function createStatsFrequencyTool(adapter: MySQLAdapter): ToolDefinition 
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const sql = `
@@ -372,7 +390,7 @@ export function createStatsFrequencyTool(adapter: MySQLAdapter): ToolDefinition 
             column,
             distinctValues,
             distribution,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
@@ -410,7 +428,10 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const whereClause = where ? `WHERE ${where}` : "";
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
 
         // Check if table exists (P154)
@@ -421,7 +442,10 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return withTokenEstimate({ success: false, error: `Table '${table}' doesn't exist` });
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${table}' doesn't exist`,
+          });
         }
 
         // Determine columns to summarize
@@ -456,7 +480,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             data: {
               table,
               summaries: [],
-            }
+            },
           });
         }
 
@@ -500,7 +524,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             table,
             summaries,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);

@@ -334,7 +334,10 @@ describe("Handler Execution", () => {
         "ROLLBACK TO SAVEPOINT checkpoint",
       );
       expect(result).toHaveProperty("success", true);
-      expect(result).toHaveProperty("data.message", "Rolled back to savepoint.");
+      expect(result).toHaveProperty(
+        "data.message",
+        "Rolled back to savepoint.",
+      );
     });
 
     it("should return structured error for invalid savepoint name with special chars", async () => {
@@ -410,8 +413,9 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.statementsExecuted", 2);
       expect(result).toHaveProperty("data.results");
-      const results = (result as { data: { results: { rowsAffected?: number }[] } })
-        .data.results;
+      const results = (
+        result as { data: { results: { rowsAffected?: number }[] } }
+      ).data.results;
       expect(results[0]).toHaveProperty("rowsAffected", 1);
     });
 
@@ -445,7 +449,7 @@ describe("Handler Execution", () => {
               rowCount?: number;
               rowsAffected?: number;
             }[];
-          }
+          };
         }
       ).data.results;
       expect(results[0]).toHaveProperty("rows", mockRows);

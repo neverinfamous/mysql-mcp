@@ -98,7 +98,10 @@ export function preprocessCreateTableParams(input: unknown): unknown {
 export function preprocessTransactionBeginParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input ?? {};
   const result = { ...(input as Record<string, unknown>) };
-  if (result["isolationLevel"] === undefined && result["isolation_level"] !== undefined) {
+  if (
+    result["isolationLevel"] === undefined &&
+    result["isolation_level"] !== undefined
+  ) {
     result["isolationLevel"] = result["isolation_level"];
   }
   return result;
@@ -113,7 +116,10 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
 
-  if (result["isolationLevel"] === undefined && result["isolation_level"] !== undefined) {
+  if (
+    result["isolationLevel"] === undefined &&
+    result["isolation_level"] !== undefined
+  ) {
     result["isolationLevel"] = result["isolation_level"];
   }
 
@@ -201,9 +207,10 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   // Aliases
   if (result["filter"] === undefined && result["criteria"] !== undefined) {
     // Stringify if criteria is an object, because filter expects a string
-    result["filter"] = typeof result["criteria"] === "object" && result["criteria"] !== null
-      ? JSON.stringify(result["criteria"])
-      : result["criteria"];
+    result["filter"] =
+      typeof result["criteria"] === "object" && result["criteria"] !== null
+        ? JSON.stringify(result["criteria"])
+        : result["criteria"];
   }
   if (result["set"] === undefined && result["update"] !== undefined) {
     result["set"] = result["update"];
@@ -216,7 +223,11 @@ export function preprocessDocFilterParams(val: unknown): unknown {
       Object.keys(result["filter"]).length === 0
     ) {
       result["filter"] = undefined;
-    } else if (result["filter"] === "{}" || result["filter"] === "[]" || result["filter"] === "") {
+    } else if (
+      result["filter"] === "{}" ||
+      result["filter"] === "[]" ||
+      result["filter"] === ""
+    ) {
       result["filter"] = undefined;
     }
   }

@@ -8,7 +8,6 @@ import type {
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 const ListObjectsSchema = z.object({
   schema: z
     .string()
@@ -44,7 +43,7 @@ export function createListStoredProceduresTool(
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`)
+              new Error(`Schema '${targetSchema}' does not exist`),
             );
           }
         }
@@ -84,9 +83,11 @@ export function createListStoredProceduresTool(
           data: {
             procedures: result.rows,
             count: result.rows?.length ?? 0,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -121,7 +122,7 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`)
+              new Error(`Schema '${targetSchema}' does not exist`),
             );
           }
         }
@@ -151,9 +152,11 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             functions: result.rows,
             count: result.rows?.length ?? 0,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);

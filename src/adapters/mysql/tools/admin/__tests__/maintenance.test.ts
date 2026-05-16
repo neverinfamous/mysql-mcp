@@ -64,9 +64,11 @@ describe("Admin Maintenance Tools", () => {
         "OPTIMIZE TABLE `users`",
       );
       expect((result as any).data).toHaveProperty("results");
-      expect(Array.isArray((result as { data: { results: unknown[] } }).data.results)).toBe(
-        true,
-      );
+      expect(
+        Array.isArray(
+          (result as { data: { results: unknown[] } }).data.results,
+        ),
+      ).toBe(true);
     });
 
     it("should execute OPTIMIZE TABLE for multiple tables", async () => {
@@ -439,7 +441,10 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ processId: 12345 }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 12345");
-      expect(result).toMatchObject({ success: true, data: { killed: 12345, type: "QUERY" } });
+      expect(result).toMatchObject({
+        success: true,
+        data: { killed: 12345, type: "QUERY" },
+      });
     });
 
     it("should execute KILL QUERY when connection is false", async () => {
@@ -452,7 +457,10 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 999");
-      expect(result).toMatchObject({ success: true, data: { killed: 999, type: "QUERY" } });
+      expect(result).toMatchObject({
+        success: true,
+        data: { killed: 999, type: "QUERY" },
+      });
     });
 
     it("should execute KILL CONNECTION when connection is true", async () => {

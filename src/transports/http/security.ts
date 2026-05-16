@@ -120,7 +120,10 @@ export function setSecurityHeaders(
  * Supports exact match and wildcard subdomain patterns (e.g., `*.example.com`).
  * Validates the prefix with a strict regex to satisfy CodeQL taint tracking and prevent injection.
  */
-export function getSafeCorsOrigin(origin: string, pattern: string): string | null {
+export function getSafeCorsOrigin(
+  origin: string,
+  pattern: string,
+): string | null {
   if (pattern === origin) return pattern;
   if (pattern.startsWith("*.")) {
     const suffix = pattern.slice(1); // ".example.com"

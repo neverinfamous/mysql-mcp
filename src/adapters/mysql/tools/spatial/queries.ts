@@ -6,7 +6,10 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -26,7 +29,6 @@ import {
   WithinSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -71,7 +73,10 @@ export function createSpatialDistanceTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
@@ -123,8 +128,8 @@ export function createSpatialDistanceTool(
             error: `Table '${tbl}' does not exist`,
             details: {
               exists: false,
-              table: tbl
-            }
+              table: tbl,
+            },
           });
         }
         return formatHandlerErrorResponse(new Error(msg));
@@ -156,7 +161,10 @@ export function createSpatialDistanceSphereTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
@@ -209,8 +217,8 @@ export function createSpatialDistanceSphereTool(
             error: `Table '${tbl}' does not exist`,
             details: {
               exists: false,
-              table: tbl
-            }
+              table: tbl,
+            },
           });
         }
         return formatHandlerErrorResponse(new Error(msg));
@@ -242,7 +250,10 @@ export function createSpatialContainsTool(
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const escapedTable = escapeQualifiedTable(table);
@@ -282,8 +293,8 @@ export function createSpatialContainsTool(
             error: `Table '${tbl}' does not exist`,
             details: {
               exists: false,
-              table: tbl
-            }
+              table: tbl,
+            },
           });
         }
         return formatHandlerErrorResponse(new Error(msg));
@@ -312,7 +323,10 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const escapedTable = escapeQualifiedTable(table);
@@ -352,8 +366,8 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
             error: `Table '${tbl}' does not exist`,
             details: {
               exists: false,
-              table: tbl
-            }
+              table: tbl,
+            },
           });
         }
         return formatHandlerErrorResponse(new Error(msg));

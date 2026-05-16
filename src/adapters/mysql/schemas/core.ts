@@ -132,8 +132,9 @@ export const ListTablesSchema = z
     limit: data.limit !== undefined ? Number(data.limit) : 50,
   }))
   .refine(
-    (data) => data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" }
+    (data) =>
+      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+    { message: "limit must be a positive number" },
   );
 
 // --- DescribeTable ---

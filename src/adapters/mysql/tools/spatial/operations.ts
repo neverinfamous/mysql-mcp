@@ -6,7 +6,10 @@
  */
 
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -23,7 +26,6 @@ import {
   GeoJSONSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -52,7 +54,6 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
 }
 
 // =============================================================================
-
 
 /**
  * Calculate intersection of two geometries
@@ -130,7 +131,10 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Handler-level validation for segments (replaces schema .min(1))
         if (segments < 1) {
-          return withTokenEstimate({ success: false, error: "segments must be >= 1" });
+          return withTokenEstimate({
+            success: false,
+            error: "segments must be >= 1",
+          });
         }
 
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
@@ -198,7 +202,9 @@ export function createSpatialTransformTool(
           data: {
             originalWkt: geometry,
             transformedWkt: row?.["transformed_wkt"],
-            transformedGeoJson: parseGeoJsonResult(row?.["transformed_geojson"]),
+            transformedGeoJson: parseGeoJsonResult(
+              row?.["transformed_geojson"],
+            ),
             fromSrid,
             toSrid,
           },

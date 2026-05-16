@@ -26,7 +26,6 @@ import {
 } from "../../schemas/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // mysql_constraint_analysis
 // =============================================================================
@@ -207,7 +206,9 @@ export function createConstraintAnalysisTool(
             ...(Object.keys(bySeverity).length > 0 ? { bySeverity } : {}),
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -430,7 +431,9 @@ export function createMigrationRisksTool(
               lockImpacts.size > 0 ? [...lockImpacts].join("; ") : "None",
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

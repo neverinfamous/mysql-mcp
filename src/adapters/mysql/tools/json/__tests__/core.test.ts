@@ -173,7 +173,9 @@ describe("JSON Core Tools", () => {
           where: "id = 1",
         },
         mockContext,
-      )) as { data: { rowsAffected: number; changed: boolean; suggestion: string } };
+      )) as {
+        data: { rowsAffected: number; changed: boolean; suggestion: string };
+      };
 
       expect(result.data.changed).toBe(false);
       expect(result.data.suggestion).toContain("Path already exists");
@@ -359,7 +361,10 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc", path: "$.x" },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_set should return exists: false for nonexistent table", async () => {
@@ -375,7 +380,10 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_insert should return exists: false for nonexistent table", async () => {
@@ -391,7 +399,10 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_replace should return exists: false for nonexistent table", async () => {
@@ -409,7 +420,10 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_remove should return exists: false for nonexistent table", async () => {
@@ -424,7 +438,10 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_contains should return exists: false for nonexistent table", async () => {
@@ -436,7 +453,10 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc", value: "1" },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_keys should return exists: false for nonexistent table", async () => {
@@ -446,7 +466,10 @@ describe("JSON Core Tools", () => {
         { table: "nonexistent", column: "doc" },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("json_array_append should return exists: false for nonexistent table", async () => {
@@ -464,7 +487,10 @@ describe("JSON Core Tools", () => {
         },
         mockContext,
       );
-      expect(result).toMatchObject({ success: false, error: "Table or column does not exist" });
+      expect(result).toMatchObject({
+        success: false,
+        error: "Table or column does not exist",
+      });
     });
 
     it("should return success: false for generic errors", async () => {

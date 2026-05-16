@@ -33,15 +33,24 @@ describe("normalizeParams", () => {
     });
 
     it("should map single string arg to string property if in POSITIONAL_PARAM_MAP", () => {
-      expect(normalizeParams("singleStringMethod", ["val"])).toEqual({ strParam: "val" });
+      expect(normalizeParams("singleStringMethod", ["val"])).toEqual({
+        strParam: "val",
+      });
     });
 
     it("should map single string arg to first array property if in POSITIONAL_PARAM_MAP", () => {
-      expect(normalizeParams("multiStringMethod", ["val"])).toEqual({ firstParam: "val" });
+      expect(normalizeParams("multiStringMethod", ["val"])).toEqual({
+        firstParam: "val",
+      });
     });
 
     it("should fallback to common param names for unmapped string arg", () => {
-      expect(normalizeParams("unknownMethod", ["val"])).toEqual({ sql: "val", query: "val", table: "val", name: "val" });
+      expect(normalizeParams("unknownMethod", ["val"])).toEqual({
+        sql: "val",
+        query: "val",
+        table: "val",
+        name: "val",
+      });
     });
 
     it("should pass through unmapped non-string/non-array/non-object primitives", () => {
@@ -57,32 +66,40 @@ describe("normalizeParams", () => {
       const opts = { extra: "data" };
       expect(normalizeParams("arrayWrapMethod", [arr, opts])).toEqual({
         items: arr,
-        extra: "data"
+        extra: "data",
       });
     });
 
     it("should map multiple string/primitive args to POSITIONAL_PARAM_MAP array", () => {
       expect(normalizeParams("multiStringMethod", ["val1", "val2"])).toEqual({
         firstParam: "val1",
-        secondParam: "val2"
+        secondParam: "val2",
       });
     });
 
     it("should skip undefined arguments when mapping multiple args", () => {
-      expect(normalizeParams("multiStringMethod", [undefined, "val2"])).toEqual({
-        secondParam: "val2"
-      });
+      expect(normalizeParams("multiStringMethod", [undefined, "val2"])).toEqual(
+        {
+          secondParam: "val2",
+        },
+      );
     });
 
     it("should fall back to passing through the first argument if multiple args unmapped", () => {
       expect(normalizeParams("unknownMethod", ["val1", "val2"])).toBe("val1");
     });
-    
+
     it("should merge mapped positional args with a trailing options object", () => {
-      expect(normalizeParams("multiStringMethod", ["val1", "val2", { option: "opt1" }])).toEqual({
+      expect(
+        normalizeParams("multiStringMethod", [
+          "val1",
+          "val2",
+          { option: "opt1" },
+        ]),
+      ).toEqual({
         firstParam: "val1",
         secondParam: "val2",
-        option: "opt1"
+        option: "opt1",
       });
     });
   });

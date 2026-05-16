@@ -91,7 +91,9 @@ test.describe("Audit Token Summary Accuracy", () => {
       const resource = await client.readResource({ uri: "mysql://audit" });
       expect(resource.contents).toBeDefined();
 
-      const body = JSON.parse((resource.contents[0] as { text: string }).text) as {
+      const body = JSON.parse(
+        (resource.contents[0] as { text: string }).text,
+      ) as {
         summary: {
           entries: number;
           tokenEstimate: number;
@@ -106,7 +108,9 @@ test.describe("Audit Token Summary Accuracy", () => {
       // Summary totals must accurately match the sums from individual _meta payloads
       // (accounting for the rollback entry that was also logged)
       expect(body.summary.entries).toBeGreaterThanOrEqual(3);
-      expect(body.summary.tokenEstimate).toBeGreaterThanOrEqual(expectedTotalTokens);
+      expect(body.summary.tokenEstimate).toBeGreaterThanOrEqual(
+        expectedTotalTokens,
+      );
     } finally {
       if (client) await client.close();
       stopServer(port);
@@ -139,14 +143,17 @@ test.describe("Audit Token Summary Accuracy", () => {
         "mysql_list_tables",
         {},
       );
-      const highCostEstimate = (largePayload._meta as Record<string, unknown>).tokenEstimate as number;
+      const highCostEstimate = (largePayload._meta as Record<string, unknown>)
+        .tokenEstimate as number;
       expect(highCostEstimate).toBeGreaterThan(0);
 
       // Flush delay
       await new Promise((r) => setTimeout(r, 600));
 
       const resource = await client.readResource({ uri: "mysql://audit" });
-      const body = JSON.parse((resource.contents[0] as { text: string }).text) as {
+      const body = JSON.parse(
+        (resource.contents[0] as { text: string }).text,
+      ) as {
         summary: {
           tokenEstimate: number;
           topTools: Array<{ name: string; count: number }>;

@@ -22,7 +22,11 @@ import type {
   ToolFilterConfig,
   ToolGroup,
 } from "../types/index.js";
-import { parseToolFilter, getFilterSummary, getEnabledGroups } from "../filtering/tool-filter.js";
+import {
+  parseToolFilter,
+  getFilterSummary,
+  getEnabledGroups,
+} from "../filtering/tool-filter.js";
 import { logger } from "../utils/logger.js";
 import { mcpLogger } from "../logging/mcp-logging.js";
 import { progressFactory } from "../progress/progress-reporter.js";

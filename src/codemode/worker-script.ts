@@ -8,7 +8,12 @@
  * main thread where the actual MySQLAdapter methods execute.
  */
 
-import { isMainThread, parentPort, workerData, type MessagePort } from "node:worker_threads";
+import {
+  isMainThread,
+  parentPort,
+  workerData,
+  type MessagePort,
+} from "node:worker_threads";
 import vm from "node:vm";
 import { transformAutoReturn } from "./auto-return.js";
 

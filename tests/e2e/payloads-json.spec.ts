@@ -72,7 +72,7 @@ test.describe("Payload Contracts: JSON", () => {
         where: "`id` = 1",
       });
 
-      console.log('JSON GET PAYLOAD:', JSON.stringify(payload, null, 2));
+      console.log("JSON GET PAYLOAD:", JSON.stringify(payload, null, 2));
       expect(typeof payload.data).toBe("object");
       // Returns { value } or { value: null, rowFound: false }
     } finally {
@@ -144,5 +144,3 @@ test.describe("Payload Contracts: JSON", () => {
     }
   });
 });
-
-

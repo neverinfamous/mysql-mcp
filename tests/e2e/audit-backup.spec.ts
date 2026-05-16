@@ -46,7 +46,11 @@ async function waitForSnapshots(
   intervalMs = 500,
 ): Promise<Record<string, unknown>> {
   for (let i = 0; i < maxAttempts; i++) {
-    const result = await callToolAndParse(client, "mysql_audit_list_backups", {});
+    const result = await callToolAndParse(
+      client,
+      "mysql_audit_list_backups",
+      {},
+    );
     const total =
       typeof result.total === "number"
         ? result.total
@@ -125,9 +129,13 @@ test.describe("Audit Backup Snapshots", () => {
       expect(typeof snap.filename).toBe("string");
 
       // Filter by target name
-      const filtered = await callToolAndParse(client, "mysql_audit_list_backups", {
-        target: TEMP_TABLE,
-      });
+      const filtered = await callToolAndParse(
+        client,
+        "mysql_audit_list_backups",
+        {
+          target: TEMP_TABLE,
+        },
+      );
       expect(typeof filtered.total).toBe("number");
       expect(filtered.total as number).toBeGreaterThanOrEqual(1);
     } finally {
@@ -284,9 +292,13 @@ test.describe("Audit Backup Snapshots", () => {
       expect(restoreResult.metadata).toBeDefined();
 
       // Table should still not exist (dry run didn't execute anything)
-      const descResult = await callToolAndParse(client, "mysql_describe_table", {
-        table: TEMP_TABLE,
-      });
+      const descResult = await callToolAndParse(
+        client,
+        "mysql_describe_table",
+        {
+          table: TEMP_TABLE,
+        },
+      );
       expect(descResult.success).toBe(false);
     } finally {
       if (client) await client.close();
@@ -332,7 +344,9 @@ test.describe("Audit Backup Snapshots", () => {
         { filename: "fake.snapshot.json" },
       );
       expect(typeof restoreResult.error).toBe("string");
-      expect(restoreResult.error as string).toMatch(/not enabled|not available/i);
+      expect(restoreResult.error as string).toMatch(
+        /not enabled|not available/i,
+      );
     } finally {
       if (client) await client.close();
       stopServer(port);

@@ -11,7 +11,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 ![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)
 ![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)
-![Coverage](https://img.shields.io/badge/Coverage-90.05%25-green.svg)
+![Coverage](https://img.shields.io/badge/Coverage-90%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 

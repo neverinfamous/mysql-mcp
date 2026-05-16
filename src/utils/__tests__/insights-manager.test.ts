@@ -9,7 +9,7 @@ describe("Insights Manager", () => {
   it("should append and retrieve insights", () => {
     insightsManager.append("Insight 1");
     insightsManager.append("Insight 2");
-    
+
     expect(insightsManager.count()).toBe(2);
     expect(insightsManager.getAll()).toEqual(["Insight 1", "Insight 2"]);
   });
@@ -21,7 +21,9 @@ describe("Insights Manager", () => {
   });
 
   it("should synthesize empty memo", () => {
-    expect(insightsManager.synthesizeMemo()).toBe("No business insights have been discovered yet.");
+    expect(insightsManager.synthesizeMemo()).toBe(
+      "No business insights have been discovered yet.",
+    );
   });
 
   it("should synthesize single insight memo", () => {

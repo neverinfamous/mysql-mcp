@@ -141,46 +141,46 @@ Complete list of all **224 tools** across 27 categories.
 
 ## Statistics (20 tools)
 
-| Tool                       | Description                           |
-| -------------------------- | ------------------------------------- |
-| `mysql_stats_descriptive`  | Mean, median, stddev, variance        |
-| `mysql_stats_percentiles`  | Calculate percentiles (p50, p90, p99) |
-| `mysql_stats_correlation`  | Pearson correlation coefficient       |
-| `mysql_stats_distribution` | Frequency distribution                |
-| `mysql_stats_time_series`  | Time-bucketed aggregation             |
-| `mysql_stats_regression`   | Simple linear regression              |
-| `mysql_stats_sampling`     | Random row sampling                   |
-| `mysql_stats_histogram`    | Generate histogram buckets            |
-| `mysql_stats_row_number`   | ROW_NUMBER() window function          |
-| `mysql_stats_rank`         | RANK()/DENSE_RANK() window function   |
-| `mysql_stats_lag_lead`     | LAG()/LEAD() window function          |
-| `mysql_stats_running_total`| Running total window function         |
-| `mysql_stats_moving_avg`   | Moving average window function        |
-| `mysql_stats_ntile`        | NTILE() window function               |
-| `mysql_stats_hypothesis`   | T-Test/Chi-Square hypothesis testing  |
-| `mysql_stats_outliers`     | Z-Score/IQR outlier detection         |
-| `mysql_stats_top_n`        | Top N items per category              |
-| `mysql_stats_distinct`     | Count distinct values                 |
-| `mysql_stats_frequency`    | Value frequency and mode              |
-| `mysql_stats_summary`      | Comprehensive numeric summary         |
+| Tool                        | Description                           |
+| --------------------------- | ------------------------------------- |
+| `mysql_stats_descriptive`   | Mean, median, stddev, variance        |
+| `mysql_stats_percentiles`   | Calculate percentiles (p50, p90, p99) |
+| `mysql_stats_correlation`   | Pearson correlation coefficient       |
+| `mysql_stats_distribution`  | Frequency distribution                |
+| `mysql_stats_time_series`   | Time-bucketed aggregation             |
+| `mysql_stats_regression`    | Simple linear regression              |
+| `mysql_stats_sampling`      | Random row sampling                   |
+| `mysql_stats_histogram`     | Generate histogram buckets            |
+| `mysql_stats_row_number`    | ROW_NUMBER() window function          |
+| `mysql_stats_rank`          | RANK()/DENSE_RANK() window function   |
+| `mysql_stats_lag_lead`      | LAG()/LEAD() window function          |
+| `mysql_stats_running_total` | Running total window function         |
+| `mysql_stats_moving_avg`    | Moving average window function        |
+| `mysql_stats_ntile`         | NTILE() window function               |
+| `mysql_stats_hypothesis`    | T-Test/Chi-Square hypothesis testing  |
+| `mysql_stats_outliers`      | Z-Score/IQR outlier detection         |
+| `mysql_stats_top_n`         | Top N items per category              |
+| `mysql_stats_distinct`      | Count distinct values                 |
+| `mysql_stats_frequency`     | Value frequency and mode              |
+| `mysql_stats_summary`       | Comprehensive numeric summary         |
 
 ---
 
 ## Performance (11 tools)
 
-| Tool                              | Description                                                           |
-| --------------------------------- | --------------------------------------------------------------------- |
-| `mysql_explain`                   | EXPLAIN query execution plan. **v2.2:** JSON/TREE/TRADITIONAL formats |
-| `mysql_explain_analyze`           | EXPLAIN ANALYZE (MySQL 8.0)                                           |
-| `mysql_slow_queries`              | Query slow query log                                                  |
-| `mysql_query_stats`               | Performance schema stats                                              |
-| `mysql_index_usage`               | Index usage statistics                                                |
-| `mysql_table_stats`               | Table statistics. **v2.2:** P154 existence check                      |
-| `mysql_buffer_pool_stats`         | InnoDB buffer pool info                                               |
-| `mysql_thread_stats`              | Thread activity stats                                                 |
-| `mysql_detect_query_anomalies`    | Detect unusual query execution patterns                               |
-| `mysql_detect_bloat_risk`         | Identify tables with high risk of fragmentation                       |
-| `mysql_detect_connection_spike`   | Detect connection pool anomalies                                      |
+| Tool                            | Description                                                           |
+| ------------------------------- | --------------------------------------------------------------------- |
+| `mysql_explain`                 | EXPLAIN query execution plan. **v2.2:** JSON/TREE/TRADITIONAL formats |
+| `mysql_explain_analyze`         | EXPLAIN ANALYZE (MySQL 8.0)                                           |
+| `mysql_slow_queries`            | Query slow query log                                                  |
+| `mysql_query_stats`             | Performance schema stats                                              |
+| `mysql_index_usage`             | Index usage statistics                                                |
+| `mysql_table_stats`             | Table statistics. **v2.2:** P154 existence check                      |
+| `mysql_buffer_pool_stats`       | InnoDB buffer pool info                                               |
+| `mysql_thread_stats`            | Thread activity stats                                                 |
+| `mysql_detect_query_anomalies`  | Detect unusual query execution patterns                               |
+| `mysql_detect_bloat_risk`       | Identify tables with high risk of fragmentation                       |
+| `mysql_detect_connection_spike` | Detect connection pool anomalies                                      |
 
 ---
 
@@ -405,14 +405,14 @@ Complete list of all **224 tools** across 27 categories.
 
 > Pre-flight analysis, relationship mapping, and constraint validation tools to ensure schema modifications are safe.
 
-| Tool | Description |
-|------|-------------|
-| `mysql_dependency_graph` | Generate a deep relationship graph of tables based on foreign keys |
-| `mysql_topological_sort` | Determine exact creation/deletion order for foreign key constraints |
-| `mysql_cascade_simulator` | Simulate cascading deletes/updates without actual data modification |
-| `mysql_schema_snapshot` | Capture the state of the schema definition at a given point in time |
+| Tool                        | Description                                                                |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `mysql_dependency_graph`    | Generate a deep relationship graph of tables based on foreign keys         |
+| `mysql_topological_sort`    | Determine exact creation/deletion order for foreign key constraints        |
+| `mysql_cascade_simulator`   | Simulate cascading deletes/updates without actual data modification        |
+| `mysql_schema_snapshot`     | Capture the state of the schema definition at a given point in time        |
 | `mysql_constraint_analysis` | Detect circular dependencies, missing indexes, and overlapping constraints |
-| `mysql_migration_risks` | Run pre-flight checks on DDL to identify downtime or locking risks |
+| `mysql_migration_risks`     | Run pre-flight checks on DDL to identify downtime or locking risks         |
 
 ---
 
@@ -420,14 +420,14 @@ Complete list of all **224 tools** across 27 categories.
 
 > Integrated schema versioning and deployment tracker built directly into the MCP server.
 
-| Tool | Description |
-|------|-------------|
-| `mysql_migration_init` | Set up migration tracking tables in the database |
-| `mysql_migration_record` | Manually record an out-of-band migration to the history |
-| `mysql_migration_apply` | Apply a single forward migration step |
-| `mysql_migration_rollback` | Revert a recently applied migration |
-| `mysql_migration_history` | View applied migrations history |
-| `mysql_migration_status` | Check the current state of applied vs. pending migrations |
+| Tool                       | Description                                               |
+| -------------------------- | --------------------------------------------------------- |
+| `mysql_migration_init`     | Set up migration tracking tables in the database          |
+| `mysql_migration_record`   | Manually record an out-of-band migration to the history   |
+| `mysql_migration_apply`    | Apply a single forward migration step                     |
+| `mysql_migration_rollback` | Revert a recently applied migration                       |
+| `mysql_migration_history`  | View applied migrations history                           |
+| `mysql_migration_status`   | Check the current state of applied vs. pending migrations |
 
 ---
 

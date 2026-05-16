@@ -9,12 +9,18 @@ import {
 describe("Migration Schemas", () => {
   describe("MigrationRecordSchema / MigrationApplySchema", () => {
     it("should accept migrationSql", () => {
-      const result = MigrationRecordSchema.safeParse({ version: "1.0", migrationSql: "CREATE TABLE a (id INT)" });
+      const result = MigrationRecordSchema.safeParse({
+        version: "1.0",
+        migrationSql: "CREATE TABLE a (id INT)",
+      });
       expect(result.success).toBe(true);
     });
 
     it("should map sql alias to migrationSql", () => {
-      const result = MigrationRecordSchema.safeParse({ version: "1.0", sql: "CREATE TABLE a (id INT)" });
+      const result = MigrationRecordSchema.safeParse({
+        version: "1.0",
+        sql: "CREATE TABLE a (id INT)",
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.migrationSql).toBe("CREATE TABLE a (id INT)");
@@ -22,7 +28,10 @@ describe("Migration Schemas", () => {
     });
 
     it("should map query alias to migrationSql", () => {
-      const result = MigrationApplySchema.safeParse({ version: "1.0", query: "CREATE TABLE a (id INT)" });
+      const result = MigrationApplySchema.safeParse({
+        version: "1.0",
+        query: "CREATE TABLE a (id INT)",
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.migrationSql).toBe("CREATE TABLE a (id INT)");
@@ -55,7 +64,10 @@ describe("Migration Schemas", () => {
 
   describe("MigrationHistorySchema", () => {
     it("should coerce limit and offset strings to numbers", () => {
-      const result = MigrationHistorySchema.safeParse({ limit: "20", offset: "10" });
+      const result = MigrationHistorySchema.safeParse({
+        limit: "20",
+        offset: "10",
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.limit).toBe(20);
@@ -66,7 +78,7 @@ describe("Migration Schemas", () => {
     it("should validate status enum", () => {
       const valid = MigrationHistorySchema.safeParse({ status: "applied" });
       expect(valid.success).toBe(true);
-      
+
       const invalid = MigrationHistorySchema.safeParse({ status: "unknown" });
       expect(invalid.success).toBe(false);
     });

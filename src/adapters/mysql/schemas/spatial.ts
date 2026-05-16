@@ -19,27 +19,30 @@ export const SpatialColumnSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Spatial Reference System ID (4326 = WGS84)"),
-  nullable: z.unknown().optional().describe("Allow NULL values (default: false for spatial compatibility)"),
+  nullable: z
+    .unknown()
+    .optional()
+    .describe("Allow NULL values (default: false for spatial compatibility)"),
 });
 
-export const SpatialColumnSchema = z.object({
-  table: z.string(),
-  column: z.string(),
-  type: z.unknown().optional(),
-  srid: z.unknown().optional(),
-  nullable: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  column: data.column,
-  type: typeof data.type === "string" ? data.type : "GEOMETRY",
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-  nullable: data.nullable !== undefined ? Boolean(data.nullable) : false,
-}))
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const SpatialColumnSchema = z
+  .object({
+    table: z.string(),
+    column: z.string(),
+    type: z.unknown().optional(),
+    srid: z.unknown().optional(),
+    nullable: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    table: data.table,
+    column: data.column,
+    type: typeof data.type === "string" ? data.type : "GEOMETRY",
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+    nullable: data.nullable !== undefined ? Boolean(data.nullable) : false,
+  }))
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const SpatialIndexSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -50,16 +53,17 @@ export const SpatialIndexSchemaBase = z.object({
     .describe("Index name (auto-generated if not provided)"),
 });
 
-export const SpatialIndexSchema = z.object({
-  table: z.string(),
-  column: z.string(),
-  indexName: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  column: data.column,
-  indexName: typeof data.indexName === "string" ? data.indexName : undefined,
-}));
+export const SpatialIndexSchema = z
+  .object({
+    table: z.string(),
+    column: z.string(),
+    indexName: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    table: data.table,
+    column: data.column,
+    indexName: typeof data.indexName === "string" ? data.indexName : undefined,
+  }));
 
 export const PointSchemaBase = z.object({
   longitude: z.unknown().optional().describe("Longitude coordinate"),
@@ -67,24 +71,24 @@ export const PointSchemaBase = z.object({
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const PointSchema = z.object({
-  longitude: z.unknown().optional(),
-  latitude: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  longitude: Number(data.longitude),
-  latitude: Number(data.latitude),
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.longitude) && !Number.isNaN(data.latitude),
-  { message: "longitude and latitude must be valid numbers" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const PointSchema = z
+  .object({
+    longitude: z.unknown().optional(),
+    latitude: z.unknown().optional(),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    longitude: Number(data.longitude),
+    latitude: Number(data.latitude),
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine(
+    (data) => !Number.isNaN(data.longitude) && !Number.isNaN(data.latitude),
+    { message: "longitude and latitude must be valid numbers" },
+  )
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const PolygonSchemaBase = z.object({
   coordinates: z
@@ -96,18 +100,18 @@ export const PolygonSchemaBase = z.object({
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const PolygonSchema = z.object({
-  coordinates: z.array(z.array(z.array(z.number()).min(2).max(2))),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  coordinates: data.coordinates,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const PolygonSchema = z
+  .object({
+    coordinates: z.array(z.array(z.array(z.number()).min(2).max(2))),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    coordinates: data.coordinates,
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const DistanceSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -124,44 +128,45 @@ export const DistanceSchemaBase = z.object({
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const DistanceSchema = z.object({
-  table: z.string(),
-  spatialColumn: z.string(),
-  point: z.object({
-    longitude: z.unknown().optional(),
-    latitude: z.unknown().optional(),
-  }),
-  maxDistance: z.unknown().optional(),
-  limit: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  spatialColumn: data.spatialColumn,
-  point: {
-    longitude: Number(data.point?.longitude),
-    latitude: Number(data.point?.latitude),
-  },
-  maxDistance: data.maxDistance !== undefined ? Number(data.maxDistance) : undefined,
-  limit: data.limit !== undefined ? Number(data.limit) : 20,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude),
-  { message: "point.longitude and point.latitude must be valid numbers" }
-)
-.refine(
-  (data) => data.maxDistance === undefined || !Number.isNaN(data.maxDistance),
-  { message: "maxDistance must be a valid number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const DistanceSchema = z
+  .object({
+    table: z.string(),
+    spatialColumn: z.string(),
+    point: z.object({
+      longitude: z.unknown().optional(),
+      latitude: z.unknown().optional(),
+    }),
+    maxDistance: z.unknown().optional(),
+    limit: z.unknown().optional(),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    table: data.table,
+    spatialColumn: data.spatialColumn,
+    point: {
+      longitude: Number(data.point?.longitude),
+      latitude: Number(data.point?.latitude),
+    },
+    maxDistance:
+      data.maxDistance !== undefined ? Number(data.maxDistance) : undefined,
+    limit: data.limit !== undefined ? Number(data.limit) : 20,
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine(
+    (data) =>
+      !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude),
+    { message: "point.longitude and point.latitude must be valid numbers" },
+  )
+  .refine(
+    (data) => data.maxDistance === undefined || !Number.isNaN(data.maxDistance),
+    { message: "maxDistance must be a valid number" },
+  )
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  })
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const ContainsSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -174,28 +179,27 @@ export const ContainsSchemaBase = z.object({
     .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
 });
 
-export const ContainsSchema = z.object({
-  table: z.string(),
-  spatialColumn: z.string(),
-  polygon: z.string(),
-  limit: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  spatialColumn: data.spatialColumn,
-  polygon: data.polygon,
-  limit: data.limit !== undefined ? Number(data.limit) : 100,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const ContainsSchema = z
+  .object({
+    table: z.string(),
+    spatialColumn: z.string(),
+    polygon: z.string(),
+    limit: z.unknown().optional(),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    table: data.table,
+    spatialColumn: data.spatialColumn,
+    polygon: data.polygon,
+    limit: data.limit !== undefined ? Number(data.limit) : 100,
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  })
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const WithinSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -208,28 +212,27 @@ export const WithinSchemaBase = z.object({
     .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
 });
 
-export const WithinSchema = z.object({
-  table: z.string(),
-  spatialColumn: z.string(),
-  geometry: z.string(),
-  limit: z.unknown().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  table: data.table,
-  spatialColumn: data.spatialColumn,
-  geometry: data.geometry,
-  limit: data.limit !== undefined ? Number(data.limit) : 100,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const WithinSchema = z
+  .object({
+    table: z.string(),
+    spatialColumn: z.string(),
+    geometry: z.string(),
+    limit: z.unknown().optional(),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    table: data.table,
+    spatialColumn: data.spatialColumn,
+    geometry: data.geometry,
+    limit: data.limit !== undefined ? Number(data.limit) : 100,
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  })
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const IntersectionSchemaBase = z.object({
   geometry1: z.unknown().optional().describe("First WKT geometry"),
@@ -237,20 +240,20 @@ export const IntersectionSchemaBase = z.object({
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const IntersectionSchema = z.object({
-  geometry1: z.string(),
-  geometry2: z.string(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  geometry1: data.geometry1,
-  geometry2: data.geometry2,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const IntersectionSchema = z
+  .object({
+    geometry1: z.string(),
+    geometry2: z.string(),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    geometry1: data.geometry1,
+    geometry2: data.geometry2,
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const BufferSchemaBase = z.object({
   geometry: z.unknown().optional().describe("WKT geometry"),
@@ -264,30 +267,28 @@ export const BufferSchemaBase = z.object({
     ),
 });
 
-export const BufferSchema = z.object({
-  geometry: z.string(),
-  distance: z.unknown().optional(),
-  srid: z.unknown().optional(),
-  segments: z.unknown().optional(),
-})
-.transform((data) => ({
-  geometry: data.geometry,
-  distance: Number(data.distance),
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-  segments: data.segments !== undefined ? Number(data.segments) : 8,
-}))
-.refine(
-  (data) => !Number.isNaN(data.distance),
-  { message: "distance must be a valid number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.segments) && data.segments >= 1,
-  { message: "segments must be a valid number >= 1" }
-);
+export const BufferSchema = z
+  .object({
+    geometry: z.string(),
+    distance: z.unknown().optional(),
+    srid: z.unknown().optional(),
+    segments: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    geometry: data.geometry,
+    distance: Number(data.distance),
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+    segments: data.segments !== undefined ? Number(data.segments) : 8,
+  }))
+  .refine((data) => !Number.isNaN(data.distance), {
+    message: "distance must be a valid number",
+  })
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  })
+  .refine((data) => !Number.isNaN(data.segments) && data.segments >= 1, {
+    message: "segments must be a valid number >= 1",
+  });
 
 export const TransformSchemaBase = z.object({
   geometry: z.unknown().optional().describe("WKT geometry"),
@@ -295,24 +296,23 @@ export const TransformSchemaBase = z.object({
   toSrid: z.unknown().optional().describe("Target SRID"),
 });
 
-export const TransformSchema = z.object({
-  geometry: z.string(),
-  fromSrid: z.unknown().optional(),
-  toSrid: z.unknown().optional(),
-})
-.transform((data) => ({
-  geometry: data.geometry,
-  fromSrid: Number(data.fromSrid),
-  toSrid: Number(data.toSrid),
-}))
-.refine(
-  (data) => !Number.isNaN(data.fromSrid),
-  { message: "fromSrid must be a valid number" }
-)
-.refine(
-  (data) => !Number.isNaN(data.toSrid),
-  { message: "toSrid must be a valid number" }
-);
+export const TransformSchema = z
+  .object({
+    geometry: z.string(),
+    fromSrid: z.unknown().optional(),
+    toSrid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    geometry: data.geometry,
+    fromSrid: Number(data.fromSrid),
+    toSrid: Number(data.toSrid),
+  }))
+  .refine((data) => !Number.isNaN(data.fromSrid), {
+    message: "fromSrid must be a valid number",
+  })
+  .refine((data) => !Number.isNaN(data.toSrid), {
+    message: "toSrid must be a valid number",
+  });
 
 export const GeoJSONSchemaBase = z.object({
   geometry: z
@@ -323,20 +323,20 @@ export const GeoJSONSchemaBase = z.object({
   srid: z.unknown().optional().describe("SRID for conversion (default: 4326)"),
 });
 
-export const GeoJSONSchemaStrict = z.object({
-  geometry: z.string().optional(),
-  geoJson: z.string().optional(),
-  srid: z.unknown().optional(),
-})
-.transform((data) => ({
-  geometry: data.geometry,
-  geoJson: data.geoJson,
-  srid: data.srid !== undefined ? Number(data.srid) : 4326,
-}))
-.refine(
-  (data) => !Number.isNaN(data.srid),
-  { message: "srid must be a valid number" }
-);
+export const GeoJSONSchemaStrict = z
+  .object({
+    geometry: z.string().optional(),
+    geoJson: z.string().optional(),
+    srid: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    geometry: data.geometry,
+    geoJson: data.geoJson,
+    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+  }))
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),

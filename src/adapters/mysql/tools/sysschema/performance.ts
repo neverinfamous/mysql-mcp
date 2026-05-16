@@ -6,14 +6,16 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -36,18 +38,18 @@ const StatementSummarySchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const StatementSummarySchema = z.object({
-  orderBy: z.string().default("total_latency"),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  orderBy: data.orderBy,
-  limit: data.limit !== undefined ? Number(data.limit) : 5,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const StatementSummarySchema = z
+  .object({
+    orderBy: z.string().default("total_latency"),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    orderBy: data.orderBy,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 const VALID_WAIT_TYPES = [
   "global",
@@ -61,18 +63,18 @@ const WaitSummarySchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const WaitSummarySchema = z.object({
-  type: z.string().default("global"),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  type: data.type,
-  limit: data.limit !== undefined ? Number(data.limit) : 5,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const WaitSummarySchema = z
+  .object({
+    type: z.string().default("global"),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    type: data.type,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 const VALID_IO_TYPES = ["file", "table", "global"] as const;
 
@@ -81,18 +83,18 @@ const IOSummarySchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const IOSummarySchema = z.object({
-  type: z.string().default("table"),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  type: data.type,
-  limit: data.limit !== undefined ? Number(data.limit) : 5,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const IOSummarySchema = z
+  .object({
+    type: z.string().default("table"),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    type: data.type,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 /**
  * Get statement execution summary
@@ -148,7 +150,7 @@ export function createSysStatementSummaryTool(
             rows: result.rows ?? [],
             orderedBy: orderBy,
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -254,7 +256,7 @@ export function createSysWaitSummaryTool(
             rows: result.rows ?? [],
             type,
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -353,7 +355,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             rows: result.rows ?? [],
             type,
             count: result.rows?.length ?? 0,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {

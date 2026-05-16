@@ -26,7 +26,11 @@ export function parseDocFilter(filter: string): {
   if (filter.trim().startsWith("{") && filter.trim().endsWith("}")) {
     try {
       const parsed = JSON.parse(filter) as unknown;
-      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      if (
+        typeof parsed === "object" &&
+        parsed !== null &&
+        !Array.isArray(parsed)
+      ) {
         const record = parsed as Record<string, unknown>;
         const keys = Object.keys(record);
         const field = keys[0];
@@ -34,7 +38,12 @@ export function parseDocFilter(filter: string): {
           const value = record[field];
           if (IDENTIFIER_RE.test(field)) {
             const numVal = Number(value);
-            if (typeof value === "number" || (typeof value === "string" && !isNaN(numVal) && value.trim() !== "")) {
+            if (
+              typeof value === "number" ||
+              (typeof value === "string" &&
+                !isNaN(numVal) &&
+                value.trim() !== "")
+            ) {
               return {
                 where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
                 params: [`$.${field}`, String(numVal)],

@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EventEmitter } from "events";
 
@@ -12,7 +11,7 @@ const { mockParentPort, mockRpcPort } = vi.hoisted(() => {
     }
     emit(event: string, data: any) {
       if (this.listeners[event]) {
-        this.listeners[event].forEach(fn => fn(data));
+        this.listeners[event].forEach((fn) => fn(data));
       }
     }
     removeAllListeners() {
@@ -48,7 +47,7 @@ vi.mock("node:worker_threads", () => ({
       (this.port1 as any).close = vi.fn();
       (this.port2 as any).close = vi.fn();
     }
-  }
+  },
 }));
 
 // Now we can import the actual module
@@ -97,7 +96,7 @@ describe("Worker Script", () => {
       const promise = proxy.readQuery("SELECT 1");
       const callArgs = mockRpcPort.postMessage.mock.calls[0][0];
       expect(callArgs.group).toBe("_topLevel");
-      
+
       mockRpcPort.emit("message", { id: callArgs.id, error: "failed" });
       await expect(promise).rejects.toThrow("failed");
     });
@@ -106,10 +105,10 @@ describe("Worker Script", () => {
   describe("executeInWorker", () => {
     it("should execute code and post result", async () => {
       await executeInWorker();
-      
+
       expect(mockParentPort.postMessage).toHaveBeenCalledWith({
         success: true,
-        result: "hello"
+        result: "hello",
       });
       expect(mockRpcPort.ref).toHaveBeenCalled();
       expect(mockRpcPort.unref).toHaveBeenCalled();
@@ -120,13 +119,15 @@ describe("Worker Script", () => {
       // Temporarily change code to something that throws
       const { workerData } = await import("node:worker_threads");
       workerData.code = "throw new Error('test error');";
-      
+
       await executeInWorker();
-      
-      expect(mockParentPort.postMessage).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        error: expect.stringContaining("test error")
-      }));
+
+      expect(mockParentPort.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: expect.stringContaining("test error"),
+        }),
+      );
     });
   });
 });

@@ -78,7 +78,9 @@ describe("Window Function Tools", () => {
     });
 
     it("should handle table not found error", async () => {
-      mockAdapter.executeQuery.mockRejectedValueOnce(new Error("Table 'unknown' doesn't exist"));
+      mockAdapter.executeQuery.mockRejectedValueOnce(
+        new Error("Table 'unknown' doesn't exist"),
+      );
       const result = await tool.handler(
         { table: "unknown", orderBy: "score DESC" },
         mockContext,
@@ -148,7 +150,9 @@ describe("Window Function Tools", () => {
     });
 
     it("should handle unknown column error", async () => {
-      mockAdapter.executeQuery.mockRejectedValueOnce(new Error("Unknown column 'missing_col'"));
+      mockAdapter.executeQuery.mockRejectedValueOnce(
+        new Error("Unknown column 'missing_col'"),
+      );
       const result = await tool.handler(
         {
           table: "sales",
@@ -159,7 +163,9 @@ describe("Window Function Tools", () => {
         mockContext,
       );
       expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("One or more referenced columns do not exist");
+      expect((result as any).error).toContain(
+        "One or more referenced columns do not exist",
+      );
     });
   });
 

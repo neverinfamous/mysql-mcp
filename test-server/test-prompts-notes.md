@@ -10,16 +10,16 @@ docker exec mysql-final mysql -uroot -proot testdb -e "DROP TABLE IF EXISTS prom
 
 Tables prefixed with `prompt_*` to support testing:
 
-| Section     | Tables                                                           | Supports Prompts                                                             |
-| ----------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Core        | `prompt_users`, `prompt_orders`, `prompt_order_items`            | `mysql_query_builder`, `mysql_schema_design`, `mysql_migration`              |
-| Performance | `prompt_transactions` (10K rows)                                 | `mysql_performance_analysis`, `mysql_index_tuning`                           |
-| Health      | `prompt_sessions`                                                | `mysql_database_health_check`                                                |
-| Backup      | `prompt_audit_log`                                               | `mysql_backup_strategy`                                                      |
-| Events      | `prompt_events` (1K rows), `prompt_daily_reports`, `prompt_weekly_metrics` | `mysql_setup_events`                                                 |
-| Spatial     | `prompt_locations` (POINT geometry, SRID 4326)                   | `mysql_setup_spatial`                                                        |
-| Docstore    | `prompt_documents` (JSON + `_id`)                                | `mysql_setup_docstore`                                                       |
-| Infra       | Uses existing server state                                       | `mysql_setup_router`, `mysql_setup_proxysql`, `mysql_setup_replication`, `mysql_setup_shell`, `mysql_setup_cluster`, `mysql_sys_schema_guide` |
+| Section     | Tables                                                                     | Supports Prompts                                                                                                                              |
+| ----------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Core        | `prompt_users`, `prompt_orders`, `prompt_order_items`                      | `mysql_query_builder`, `mysql_schema_design`, `mysql_migration`                                                                               |
+| Performance | `prompt_transactions` (10K rows)                                           | `mysql_performance_analysis`, `mysql_index_tuning`                                                                                            |
+| Health      | `prompt_sessions`                                                          | `mysql_database_health_check`                                                                                                                 |
+| Backup      | `prompt_audit_log`                                                         | `mysql_backup_strategy`                                                                                                                       |
+| Events      | `prompt_events` (1K rows), `prompt_daily_reports`, `prompt_weekly_metrics` | `mysql_setup_events`                                                                                                                          |
+| Spatial     | `prompt_locations` (POINT geometry, SRID 4326)                             | `mysql_setup_spatial`                                                                                                                         |
+| Docstore    | `prompt_documents` (JSON + `_id`)                                          | `mysql_setup_docstore`                                                                                                                        |
+| Infra       | Uses existing server state                                                 | `mysql_setup_router`, `mysql_setup_proxysql`, `mysql_setup_replication`, `mysql_setup_shell`, `mysql_setup_cluster`, `mysql_sys_schema_guide` |
 
 ## Testing Prompts
 

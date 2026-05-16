@@ -282,7 +282,9 @@ describe("McpServer", () => {
         transport: "unknown" as TransportType,
       });
 
-      await expect(badServer.start()).rejects.toThrow("Unknown transport: unknown");
+      await expect(badServer.start()).rejects.toThrow(
+        "Unknown transport: unknown",
+      );
     });
 
     it("should not start twice", async () => {
@@ -376,18 +378,18 @@ describe("McpServer", () => {
             maxAgeDays: 30,
             maxCount: 10,
             maxDataSizeBytes: 100,
-          }
-        }
+          },
+        },
       });
-      
+
       const mockAdapter = createMockMySQLAdapter() as unknown as any;
       mockAdapter.setAuditInterceptor = vi.fn();
       mockAdapter.setBackupManager = vi.fn();
-      
+
       auditServer.registerAdapter(
         mockAdapter as Parameters<typeof server.registerAdapter>[0],
       );
-      
+
       await auditServer.start();
       await auditServer.stop();
       // Test ensures it doesn't crash during shutdown of audit components

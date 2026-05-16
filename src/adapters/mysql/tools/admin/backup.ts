@@ -6,7 +6,10 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -23,7 +26,6 @@ import {
   validateWhereClause,
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE, IDEMPOTENT } from "../../../../utils/annotations.js";
-
 
 /**
  * Format a value for MySQL export.
@@ -120,13 +122,22 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           const tableCheck = await adapter.executeReadQuery(
             `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-            [table]
+            [table],
           );
           if (!tableCheck.rows || tableCheck.rows.length === 0) {
-            return withTokenEstimate({ success: false, error: `Table '${table}' does not exist`, details: { exists: false, table } });
+            return withTokenEstimate({
+              success: false,
+              error: `Table '${table}' does not exist`,
+              details: { exists: false, table },
+            });
           }
         } catch (dbErr) {
-          return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
+          return withTokenEstimate(
+            formatHandlerErrorResponse(dbErr) as unknown as Record<
+              string,
+              unknown
+            >,
+          );
         }
 
         // Get table data
@@ -143,17 +154,28 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeReadQuery(sql);
           rows = result.rows ?? [];
         } catch (error) {
-          return withTokenEstimate(formatHandlerErrorResponse(error) as unknown as Record<string, unknown>);
+          return withTokenEstimate(
+            formatHandlerErrorResponse(error) as unknown as Record<
+              string,
+              unknown
+            >,
+          );
         }
 
         if (format === "CSV") {
           if (rows.length === 0) {
-            return withTokenEstimate({ success: true, data: { csv: "", rowCount: 0 } });
+            return withTokenEstimate({
+              success: true,
+              data: { csv: "", rowCount: 0 },
+            });
           }
 
           const firstRow = rows[0];
           if (!firstRow) {
-            return withTokenEstimate({ success: true, data: { csv: "", rowCount: 0 } });
+            return withTokenEstimate({
+              success: true,
+              data: { csv: "", rowCount: 0 },
+            });
           }
 
           const headers = Object.keys(firstRow);
@@ -169,7 +191,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             data: {
               csv: csvLines.join("\n"),
               rowCount: rows.length,
-            }
+            },
           });
         }
 
@@ -179,14 +201,17 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             data: {
               json: JSON.stringify(rows, null, 2),
               rowCount: rows.length,
-            }
+            },
           });
         }
 
         // SQL format
         const firstRow = rows[0];
         if (!firstRow) {
-          return withTokenEstimate({ success: true, data: { sql: "", rowCount: 0 } });
+          return withTokenEstimate({
+            success: true,
+            data: { sql: "", rowCount: 0 },
+          });
         }
 
         const columns = Object.keys(firstRow)
@@ -209,10 +234,12 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             sql: insertStatements.join("\n"),
             rowCount: rows.length,
-          }
+          },
         });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };
@@ -235,7 +262,10 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(table, "table");
 
         if (data.length === 0) {
-          return withTokenEstimate({ success: true, data: { rowsInserted: 0 } });
+          return withTokenEstimate({
+            success: true,
+            data: { rowsInserted: 0 },
+          });
         }
 
         // Validate all column names upfront (throws for SQL injection - must not be caught)
@@ -249,10 +279,14 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const firstRow = data[0];
-          if (!firstRow) return withTokenEstimate({ success: true, data: { rowsInserted: 0 } });
+          if (!firstRow)
+            return withTokenEstimate({
+              success: true,
+              data: { rowsInserted: 0 },
+            });
           const columnNames = Object.keys(firstRow);
           const columns = columnNames.map((c) => `\`${c}\``).join(", ");
-          
+
           const batchSize = 100;
           for (let i = 0; i < data.length; i += batchSize) {
             const chunk = data.slice(i, i + batchSize);
@@ -263,8 +297,11 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
               valueGroups.push(`(${columnNames.map(() => "?").join(", ")})`);
               for (const col of columnNames) {
                 let val = row[col];
-                if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)) {
-                  val = val.replace('T', ' ').replace('Z', '').split('.')[0];
+                if (
+                  typeof val === "string" &&
+                  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)
+                ) {
+                  val = val.replace("T", " ").replace("Z", "").split(".")[0];
                 }
                 flatValues.push(val);
               }
@@ -285,9 +322,14 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        return withTokenEstimate({ success: true, data: { rowsInserted: totalInserted } });
+        return withTokenEstimate({
+          success: true,
+          data: { rowsInserted: totalInserted },
+        });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };
@@ -296,7 +338,11 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Database name"),
-    tables: z.array(z.string()).min(1, "Tables array cannot be empty if provided").optional().describe("Specific tables to dump"),
+    tables: z
+      .array(z.string())
+      .min(1, "Tables array cannot be empty if provided")
+      .optional()
+      .describe("Specific tables to dump"),
     noData: z
       .boolean()
       .optional()
@@ -346,7 +392,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             });
           }
         } catch (dbErr) {
-          return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
+          return withTokenEstimate(
+            formatHandlerErrorResponse(dbErr) as unknown as Record<
+              string,
+              unknown
+            >,
+          );
         }
 
         // Verify tables exist if provided
@@ -364,7 +415,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
                 });
               }
             } catch (tableErr) {
-              return withTokenEstimate(formatHandlerErrorResponse(tableErr) as unknown as Record<string, unknown>);
+              return withTokenEstimate(
+                formatHandlerErrorResponse(tableErr) as unknown as Record<
+                  string,
+                  unknown
+                >,
+              );
             }
           }
         }
@@ -390,10 +446,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           data: {
             command,
             note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-          }
+          },
         });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };
@@ -402,7 +460,11 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Target database"),
-    filename: z.string().optional().default("backup.sql").describe("Dump file to restore"),
+    filename: z
+      .string()
+      .optional()
+      .default("backup.sql")
+      .describe("Dump file to restore"),
   });
 
   const schema = schemaBase
@@ -439,7 +501,12 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             });
           }
         } catch (dbErr) {
-          return withTokenEstimate(formatHandlerErrorResponse(dbErr) as unknown as Record<string, unknown>);
+          return withTokenEstimate(
+            formatHandlerErrorResponse(dbErr) as unknown as Record<
+              string,
+              unknown
+            >,
+          );
         }
 
         const command = `mysql -u [username] -p ${database} < ${filename}`;
@@ -449,10 +516,12 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           data: {
             command,
             note: "Replace [username] with your MySQL username. Add -h [host] if connecting to a remote server.",
-          }
+          },
         });
       } catch (err) {
-        return withTokenEstimate(formatHandlerErrorResponse(err) as unknown as Record<string, unknown>);
+        return withTokenEstimate(
+          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+        );
       }
     },
   };

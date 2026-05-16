@@ -18,7 +18,7 @@ describe("Introspection Schemas", () => {
       const result = DependencyGraphSchema.safeParse({
         schema: "testdb",
         limit: "50",
-        maxDepth: "3"
+        maxDepth: "3",
       });
       expect(result.success).toBe(true);
       if (result.success) {
@@ -87,7 +87,9 @@ describe("Introspection Schemas", () => {
 
   describe("MigrationRisksSchema", () => {
     it("should map statement alias to statements array", () => {
-      const result = MigrationRisksSchema.safeParse({ statement: "DROP TABLE users" });
+      const result = MigrationRisksSchema.safeParse({
+        statement: "DROP TABLE users",
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.statements).toEqual(["DROP TABLE users"]);
@@ -95,7 +97,9 @@ describe("Introspection Schemas", () => {
     });
 
     it("should map sql alias to statements array", () => {
-      const result = MigrationRisksSchema.safeParse({ sql: "DROP TABLE users" });
+      const result = MigrationRisksSchema.safeParse({
+        sql: "DROP TABLE users",
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.statements).toEqual(["DROP TABLE users"]);
@@ -103,7 +107,9 @@ describe("Introspection Schemas", () => {
     });
 
     it("should map ddlQuery alias to statements array", () => {
-      const result = MigrationRisksSchema.safeParse({ ddlQuery: "DROP TABLE users" });
+      const result = MigrationRisksSchema.safeParse({
+        ddlQuery: "DROP TABLE users",
+      });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.statements).toEqual(["DROP TABLE users"]);

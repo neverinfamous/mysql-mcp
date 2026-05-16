@@ -18,14 +18,19 @@ import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Schemas
 // =============================================================================
 
 export const DetectConnectionSpikeSchemaBase = z.object({
-  warningPercent: z.unknown().optional().describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z.unknown().optional().describe("Idle time window in minutes to flag connections (default: 5)"),
+  warningPercent: z
+    .unknown()
+    .optional()
+    .describe("Percentage threshold for flagging concentration (default: 70)"),
+  windowMinutes: z
+    .unknown()
+    .optional()
+    .describe("Idle time window in minutes to flag connections (default: 5)"),
   thresholdPercent: z.unknown().optional().describe("Alias for warningPercent"),
 });
 
@@ -77,7 +82,9 @@ export function createDetectConnectionSpikeTool(
             error:
               "warningPercent (or thresholdPercent) must be between 0 and 100",
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
         const warningPercent = rawPercent;
@@ -88,7 +95,9 @@ export function createDetectConnectionSpikeTool(
             success: false,
             error: "windowMinutes must be between 1 and 1440",
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
         const idleSeconds = windowMinutes * 60;
@@ -245,8 +254,10 @@ export function createDetectConnectionSpikeTool(
             summary,
           },
         };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
-          return { ...response, metrics: { tokenEstimate } };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
+        return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);
         return formatHandlerErrorResponse(error);
