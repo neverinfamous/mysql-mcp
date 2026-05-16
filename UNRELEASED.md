@@ -9,6 +9,8 @@
 
 ## Changed
 
+- Verified `replication` tool group for structured error format and payload performance.
+
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
