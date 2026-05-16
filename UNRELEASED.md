@@ -9,7 +9,7 @@
 
 ## Changed
 
-- Verified `replication` tool group for structured error format and payload performance.
+- Verified all 8 tools in the `roles` tool group for functional correctness and strict adherence to the structured error response pattern.
 
 **Dependency Updates**
 
