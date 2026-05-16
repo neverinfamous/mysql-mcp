@@ -9,6 +9,8 @@
 
 ## Changed
 
+- Completed verification for `transactions` tool group; confirmed 100% adherence to structured error response patterns.
+
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
