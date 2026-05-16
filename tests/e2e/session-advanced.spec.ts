@@ -8,9 +8,6 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 test.describe.serial("Advanced Session Management", () => {
   test("should reject requests after session DELETE", async ({ request }) => {
