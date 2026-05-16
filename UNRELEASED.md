@@ -24,6 +24,7 @@
 
 ## Fixed
 
+- Fixed missing parameter coercions (`z.coerce.number()`) for numeric parameters in the `performance` tool group (`limit`, `threshold`, `minCalls`) to ensure string inputs are correctly parsed.
 - Fixed centralized `formatHandlerErrorResponse` logic to ensure Zod validation errors and unknown raw errors correctly emit the required `code`, `category`, and `recoverable` fields according to the Structured Errors standard.
 - Updated Code Mode help examples for the `sys` group to use the friendly `mysql.sys` alias instead of `mysql.sysschema` to improve agent UX.
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
