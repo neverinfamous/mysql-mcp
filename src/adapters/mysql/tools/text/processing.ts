@@ -60,8 +60,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND (${where})`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -106,8 +105,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND (${where})`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -150,8 +148,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND (${where})`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -202,8 +199,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE ${where}`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -264,8 +260,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE ${where}`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -325,8 +320,7 @@ export function createCollationConvertTool(
           sql += ` WHERE ${where}`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);

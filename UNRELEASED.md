@@ -21,12 +21,13 @@
 - Bumped `actions/setup-node` to `v6.4.0`
 - Bumped `docker/build-push-action` to `v7.1.0`
 - Bumped `github/codeql-action` to `v4.35.4`
-- Verified `sys` tool group (100% pass) against the Structured Error Responses pattern with full Zod validation and coercion parity.
 
 ## Fixed
 
 - Fixed missing parameter coercions (`z.coerce.number()`) for numeric parameters in the `performance` tool group (`limit`, `threshold`, `minCalls`) to ensure string inputs are correctly parsed.
 - Fixed centralized `formatHandlerErrorResponse` logic to ensure Zod validation errors and unknown raw errors correctly emit the required `code`, `category`, and `recoverable` fields according to the Structured Errors standard.
+- Fixed `LIMIT ?` parameter binding bug in `text` group tools (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`) that caused valid numeric limits to fail with `QUERY_ERROR` "Incorrect arguments to mysqld_stmt_execute". `LIMIT` is now embedded directly in the SQL string.
+- Fixed missing parameter coercions (`z.coerce.number()`) for numeric parameters in the `text` tool group (`limit`, `maxLength`, `start`, `length`) to ensure string inputs from MCP clients are correctly parsed and rejected if invalid.
 - Updated Code Mode help examples for the `sys` group to use the friendly `mysql.sys` alias instead of `mysql.sysschema` to improve agent UX.
 - Optimized payload size for stats tools (window functions and sampling) by reducing default limits from 20/100 to 10 to conserve context tokens.
 - Migrated `binlog_events` empty string validation into the Zod schema for better error consistency and removed redundant handler checks.
