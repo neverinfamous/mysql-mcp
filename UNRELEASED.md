@@ -9,8 +9,6 @@
 
 ## Changed
 
-- Validated 100% compliance for MySQL Text tools advanced stress tests (regex, unicode, boundary limits, collations) against the Structured Errors standard using the Code Mode sandbox.
-
 **Dependency Updates**
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
