@@ -201,15 +201,25 @@ export function createMockMySQLAdapter(): Partial<MySQLAdapter> & {
   (adapter as any).getPool = vi.fn().mockReturnValue({
     getConnection: vi.fn().mockResolvedValue({
       query: vi.fn().mockImplementation((...args: any[]) => {
-        const sql = typeof args[0] === 'string' ? args[0] : args[0]?.sql;
-        if (sql && typeof sql === 'string' && sql.trim().toUpperCase().startsWith('SET')) {
-          return adapter.executeQuery(sql).then((res: any) => [res.rows ?? [], []]);
+        const sql = typeof args[0] === "string" ? args[0] : args[0]?.sql;
+        if (
+          sql &&
+          typeof sql === "string" &&
+          sql.trim().toUpperCase().startsWith("SET")
+        ) {
+          return adapter
+            .executeQuery(sql)
+            .then((res: any) => [res.rows ?? [], []]);
         }
-        return adapter.executeReadQuery(sql).then((res: any) => [res.rows ?? [], []]);
+        return adapter
+          .executeReadQuery(sql)
+          .then((res: any) => [res.rows ?? [], []]);
       }),
       execute: vi.fn().mockImplementation((...args: any[]) => {
-        const sql = typeof args[0] === 'string' ? args[0] : args[0]?.sql;
-        return adapter.executeReadQuery(sql).then((res: any) => [res.rows ?? [], []]);
+        const sql = typeof args[0] === "string" ? args[0] : args[0]?.sql;
+        return adapter
+          .executeReadQuery(sql)
+          .then((res: any) => [res.rows ?? [], []]);
       }),
       release: vi.fn(),
     }),

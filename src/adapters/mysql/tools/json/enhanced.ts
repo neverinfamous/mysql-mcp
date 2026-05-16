@@ -29,7 +29,6 @@ import {
 } from "../../../../utils/validators.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // Schemas for json_merge and json_diff (no table/column — no aliases needed)
 const JsonMergeSchema = z
   .object({
@@ -116,9 +115,11 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
                 ? (JSON.parse(merged) as Record<string, unknown>)
                 : merged,
             mode,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err: unknown) {
         if (err instanceof ZodError) {
@@ -248,9 +249,11 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
             addedKeys,
             removedKeys,
             differences,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err: unknown) {
         if (err instanceof ZodError) {
@@ -324,9 +327,11 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
             keyCount: uniqueKeys.length,
             keyStats,
             truncated: uniqueKeys.length > 20,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -334,7 +339,9 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
+          return formatHandlerErrorResponse(
+            new Error("Table or column does not exist"),
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -390,13 +397,13 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         `;
         let topKeys: { key: string; count: number }[] = [];
         try {
-            const topKeysResult = await adapter.executeQuery(topKeysQuery);
-            topKeys = (topKeysResult.rows ?? []).map(r => ({
-                key: String(r["key_name"]),
-                count: Number(r["count"])
-            }));
+          const topKeysResult = await adapter.executeQuery(topKeysQuery);
+          topKeys = (topKeysResult.rows ?? []).map((r) => ({
+            key: String(r["key_name"]),
+            count: Number(r["count"]),
+          }));
         } catch {
-            // Ignore if JSON_TABLE is not supported or errors out
+          // Ignore if JSON_TABLE is not supported or errors out
         }
 
         const response = {
@@ -419,9 +426,11 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
             },
             sampleSize,
             topKeys,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -429,7 +438,9 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
+          return formatHandlerErrorResponse(
+            new Error("Table or column does not exist"),
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -540,9 +551,11 @@ export function createJsonIndexSuggestTool(
             suggestions: suggestions.slice(0, 5), // Top 5 suggestions
             suggestion:
               "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -550,7 +563,9 @@ export function createJsonIndexSuggestTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(new Error("Table or column does not exist"));
+          return formatHandlerErrorResponse(
+            new Error("Table or column does not exist"),
+          );
         }
         return formatHandlerErrorResponse(error);
       }

@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -21,8 +24,11 @@ import {
   RemoveDocSchema,
   RemoveDocSchemaBase,
 } from "../../schemas/index.js";
-import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
-
+import {
+  READ_ONLY,
+  WRITE,
+  DESTRUCTIVE,
+} from "../../../../utils/annotations.js";
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -39,9 +45,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { collection, schema, filter, fields, limit, offset } =
             FindSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({ success: false, error: "Invalid collection name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid collection name",
+            });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({ success: false, error: "Invalid schema name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid schema name",
+            });
 
           // Check if collection exists (with schema detection)
           const findCheck = await checkCollectionExists(
@@ -101,18 +113,27 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             const row = r;
             const docValue = row["doc"];
             const idValue = row["_id"];
-            const parsed = typeof docValue === "string"
-              ? (JSON.parse(docValue) as Record<string, unknown>)
-              : docValue;
-              
-            if (idValue !== undefined && parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+            const parsed =
+              typeof docValue === "string"
+                ? (JSON.parse(docValue) as Record<string, unknown>)
+                : docValue;
+
+            if (
+              idValue !== undefined &&
+              parsed !== null &&
+              typeof parsed === "object" &&
+              !Array.isArray(parsed)
+            ) {
               if (!("_id" in (parsed as Record<string, unknown>))) {
                 (parsed as Record<string, unknown>)["_id"] = idValue;
               }
             }
             return parsed;
           });
-          return withTokenEstimate({ success: true, data: { documents: docs, count: docs.length } });
+          return withTokenEstimate({
+            success: true,
+            data: { documents: docs, count: docs.length },
+          });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -133,9 +154,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema, documents } = AddDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({ success: false, error: "Invalid collection name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid collection name",
+            });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({ success: false, error: "Invalid schema name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid schema name",
+            });
 
           const addCheck = await checkCollectionExists(
             adapter,
@@ -190,9 +217,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { collection, schema, filter, set, unset } =
             ModifyDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({ success: false, error: "Invalid collection name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid collection name",
+            });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({ success: false, error: "Invalid schema name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid schema name",
+            });
 
           const modCheck = await checkCollectionExists(
             adapter,
@@ -245,7 +278,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           if (updates.length === 0)
-            return withTokenEstimate({ success: false, error: "No modifications specified" });
+            return withTokenEstimate({
+              success: false,
+              error: "No modifications specified",
+            });
 
           const { where, params: whereParams } = parseDocFilter(filter);
           const tableRef = escapeTableRef(collection, schema);
@@ -254,7 +290,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             ...updateParams,
             ...whereParams,
           ]);
-          return withTokenEstimate({ success: true, data: { modified: result.rowsAffected ?? 0 } });
+          return withTokenEstimate({
+            success: true,
+            data: { modified: result.rowsAffected ?? 0 },
+          });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
@@ -275,9 +314,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema, filter } = RemoveDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({ success: false, error: "Invalid collection name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid collection name",
+            });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({ success: false, error: "Invalid schema name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid schema name",
+            });
 
           const rmCheck = await checkCollectionExists(
             adapter,
@@ -304,7 +349,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tableRef = escapeTableRef(collection, schema);
           const query = `DELETE FROM ${tableRef} WHERE ${where}`;
           const result = await adapter.executeQuery(query, whereParams);
-          return withTokenEstimate({ success: true, data: { removed: result.rowsAffected ?? 0 } });
+          return withTokenEstimate({
+            success: true,
+            data: { removed: result.rowsAffected ?? 0 },
+          });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);

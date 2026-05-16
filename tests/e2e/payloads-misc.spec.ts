@@ -59,11 +59,9 @@ test.describe("Payload Contracts: Misc", () => {
   test("mysql_sys_user_summary returns user stats", async () => {
     const client = await createClient();
     try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_sys_user_summary",
-        { limit: 3 },
-      );
+      const payload = await callToolAndParse(client, "mysql_sys_user_summary", {
+        limit: 3,
+      });
 
       expect(typeof payload).toBe("object");
     } finally {

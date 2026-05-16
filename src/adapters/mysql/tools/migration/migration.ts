@@ -30,7 +30,6 @@ import {
 } from "./helpers.js";
 import { WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // mysql_migration_init
 // =============================================================================
@@ -90,7 +89,9 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
             existingRecords,
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -161,7 +162,9 @@ export function createMigrationRecordTool(
             success: false as const,
             error: "Failed to insert migration record.",
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
         const row = resultRows[0] ?? {};
@@ -171,7 +174,9 @@ export function createMigrationRecordTool(
             record: formatRecord(row),
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -248,7 +253,9 @@ export function createMigrationApplyTool(
               error:
                 "Migration was applied but failed to insert tracking record.",
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+            );
             return { ...errorResponse, metrics: { tokenEstimate } };
           }
           const row = resultRows[0] ?? {};
@@ -258,7 +265,9 @@ export function createMigrationApplyTool(
               record: formatRecord(row),
             },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
@@ -291,7 +300,9 @@ export function createMigrationApplyTool(
             category: "query",
             recoverable: false,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
           return { ...errorResponse, metrics: { tokenEstimate } };
         }
       } catch (error: unknown) {

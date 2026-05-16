@@ -74,14 +74,17 @@ export const SlowQuerySchemaBase = z.object({
 });
 
 export const SlowQuerySchema = z.object({
-  limit: z
+  limit: z.coerce
     .number()
     .int()
     .positive()
     .optional()
     .default(3)
     .describe("Number of slow queries to return"),
-  minTime: z.number().optional().describe("Minimum query time in seconds"),
+  minTime: z.coerce
+    .number()
+    .optional()
+    .describe("Minimum query time in seconds"),
 });
 
 // --- QueryStats (no table/query aliases — simple passthrough) ---
@@ -96,7 +99,7 @@ export const QueryStatsSchema = z.object({
     .optional()
     .default("total_time")
     .describe("Order results by metric"),
-  limit: z
+  limit: z.coerce
     .number()
     .int()
     .positive()
@@ -126,7 +129,7 @@ export const IndexUsageSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      limit: z.number().int().positive().optional().default(3),
+      limit: z.coerce.number().int().positive().optional().default(3),
     }),
   )
   .transform((data) => ({

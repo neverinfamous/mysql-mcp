@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -10,9 +13,11 @@ import {
   checkCollectionExists,
   escapeTableRef,
 } from "./helpers.js";
-import { CreateDocIndexSchema, CreateDocIndexSchemaBase } from "../../schemas/index.js";
+import {
+  CreateDocIndexSchema,
+  CreateDocIndexSchemaBase,
+} from "../../schemas/index.js";
 import { WRITE } from "../../../../utils/annotations.js";
-
 
 export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
@@ -29,11 +34,20 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { collection, schema, name, fields, unique } =
             CreateDocIndexSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({ success: false, error: "Invalid collection name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid collection name",
+            });
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({ success: false, error: "Invalid schema name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid schema name",
+            });
           if (!IDENTIFIER_RE.test(name))
-            return withTokenEstimate({ success: false, error: "Invalid index name" });
+            return withTokenEstimate({
+              success: false,
+              error: "Invalid index name",
+            });
 
           const idxCheck = await checkCollectionExists(
             adapter,

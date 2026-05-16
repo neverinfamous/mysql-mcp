@@ -118,9 +118,7 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
     expect(response.contents).toBeDefined();
     expect(response.contents.length).toBeGreaterThan(0);
 
-    const processlist = parseResourceText(
-      response.contents[0]!.text as string,
-    );
+    const processlist = parseResourceText(response.contents[0]!.text as string);
     expect(processlist).toBeDefined();
   });
 

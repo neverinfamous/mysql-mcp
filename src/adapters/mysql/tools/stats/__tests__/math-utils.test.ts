@@ -47,7 +47,7 @@ describe("Math Utilities", () => {
       // z = 1.96 should have p-value approx 0.05 (two-tailed)
       const p = calculateZTestPValue(1.96);
       expect(p).toBeCloseTo(0.05, 2);
-      
+
       // z = 2.576 should have p-value approx 0.01 (two-tailed)
       const p2 = calculateZTestPValue(2.576);
       expect(p2).toBeCloseTo(0.01, 2);

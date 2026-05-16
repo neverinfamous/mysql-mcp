@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { detectCycles, topologicalSort, calculateMaxDepth } from "../algorithms.js";
+import {
+  detectCycles,
+  topologicalSort,
+  calculateMaxDepth,
+} from "../algorithms.js";
 
 describe("Graph Algorithms", () => {
   describe("detectCycles", () => {

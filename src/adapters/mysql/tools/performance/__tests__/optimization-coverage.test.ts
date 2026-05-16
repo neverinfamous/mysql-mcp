@@ -287,7 +287,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       )) as { data: { suggestions: string[] } };
 
       expect(
-        result.data.suggestions.some((s: string) => s.includes("OR conditions")),
+        result.data.suggestions.some((s: string) =>
+          s.includes("OR conditions"),
+        ),
       ).toBe(true);
     });
 
@@ -302,9 +304,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         mockContext,
       )) as { data: { suggestions: string[] } };
 
-      expect(result.data.suggestions.some((s: string) => s.includes("NOT IN"))).toBe(
-        true,
-      );
+      expect(
+        result.data.suggestions.some((s: string) => s.includes("NOT IN")),
+      ).toBe(true);
     });
 
     it("should detect ORDER BY without LIMIT", async () => {
@@ -337,7 +339,9 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       )) as { data: { suggestions: string[] } };
 
       expect(
-        result.data.suggestions.some((s: string) => s.includes("Leading wildcard")),
+        result.data.suggestions.some((s: string) =>
+          s.includes("Leading wildcard"),
+        ),
       ).toBe(true);
     });
 

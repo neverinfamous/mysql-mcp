@@ -6,7 +6,10 @@
 
 import { ZodError } from "zod";
 import * as path from "path";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -50,7 +53,10 @@ export function createShellExportTableTool(): ToolDefinition {
         // Escape path for JavaScript
         const finalOutputPath = outputPath ?? outputUrl;
         if (!finalOutputPath) {
-          return withTokenEstimate({ success: false, error: "Validation error: outputPath or outputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: outputPath or outputUrl is required",
+          });
         }
         const resolvedPath = path.resolve(finalOutputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -79,7 +85,7 @@ export function createShellExportTableTool(): ToolDefinition {
             outputPath: finalOutputPath,
             format,
             result,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -136,7 +142,10 @@ export function createShellImportTableTool(): ToolDefinition {
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return withTokenEstimate({ success: false, error: "Validation error: inputPath or inputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: inputPath or inputUrl is required",
+          });
         }
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -184,7 +193,7 @@ export function createShellImportTableTool(): ToolDefinition {
             table,
             localInfileEnabled: updateServerSettings,
             result,
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -227,13 +236,22 @@ export function createShellImportJSONTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { inputPath, inputUrl, schema, collection, tableColumn, convertBsonTypes } =
-          ShellImportJSONInputSchema.parse(params);
+        const {
+          inputPath,
+          inputUrl,
+          schema,
+          collection,
+          tableColumn,
+          convertBsonTypes,
+        } = ShellImportJSONInputSchema.parse(params);
         const config = getShellConfig();
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return withTokenEstimate({ success: false, error: "Validation error: inputPath or inputUrl is required" });
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: inputPath or inputUrl is required",
+          });
         }
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -331,7 +349,7 @@ export function createShellImportJSONTool(): ToolDefinition {
                 collection,
                 protocol: "X Protocol",
                 result: parsed.result,
-              }
+              },
             });
           }
         }
@@ -353,7 +371,7 @@ export function createShellImportJSONTool(): ToolDefinition {
             collection,
             protocol: "X Protocol",
             result: { raw: result.stdout },
-          }
+          },
         });
       } catch (error) {
         return formatHandlerErrorResponse(error);

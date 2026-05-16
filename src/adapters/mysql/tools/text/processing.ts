@@ -30,9 +30,11 @@ import {
   validateWhereClause,
   escapeQualifiedTable,
 } from "../../../../utils/validators.js";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -60,8 +62,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND (${where})`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -106,8 +107,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND (${where})`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -136,7 +136,8 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, value, where, limit } = SoundexSchema.parse(params);
+        const { table, column, value, where, limit } =
+          SoundexSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -150,8 +151,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` AND (${where})`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -202,8 +202,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE ${where}`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -264,8 +263,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE ${where}`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -325,8 +323,7 @@ export function createCollationConvertTool(
           sql += ` WHERE ${where}`;
         }
         if (limit !== undefined) {
-          sql += ` LIMIT ?`;
-          queryParams.push(limit);
+          sql += ` LIMIT ${limit}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);

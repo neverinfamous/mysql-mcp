@@ -197,12 +197,18 @@ describe("BackupManager", () => {
       // Use implementation that checks the SQL to return correct results.
       const adapter = mockAdapter({
         executeQuery: vi.fn().mockImplementation((sql: string) => {
-          if (typeof sql === "string" && sql.includes("information_schema.TABLES")) {
+          if (
+            typeof sql === "string" &&
+            sql.includes("information_schema.TABLES")
+          ) {
             return Promise.resolve({
               rows: [{ TABLE_NAME: "users" }, { TABLE_NAME: "orders" }],
             });
           }
-          if (typeof sql === "string" && sql.includes("information_schema.VIEWS")) {
+          if (
+            typeof sql === "string" &&
+            sql.includes("information_schema.VIEWS")
+          ) {
             return Promise.resolve({ rows: [] });
           }
           return Promise.resolve({ rows: [] });
@@ -569,9 +575,7 @@ describe("BackupManager", () => {
       expect(filename).toBeDefined();
       await mgr.flush();
       const snapshot = await mgr.getSnapshot(filename!);
-      expect(snapshot!.ddl).toContain(
-        "Could not enumerate database objects",
-      );
+      expect(snapshot!.ddl).toContain("Could not enumerate database objects");
     });
   });
 });

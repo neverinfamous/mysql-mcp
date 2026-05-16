@@ -22,19 +22,19 @@
 
 The test database (`testdb`) contains these tables:
 
-| Table | Rows | Key Columns | JSON Columns |
-|-------|------|-------------|--------------|
-| `test_products` | 16 | id, name, price, category | metadata |
-| `test_orders` | 20 | id, product_id (FK), customer_name, status (ENUM: pending/shipped/completed/cancelled) | notes |
-| `test_json_docs` | 8 | id, doc, metadata, tags | doc, metadata, tags |
-| `test_articles` | 10 | id, title, body, author (FULLTEXT) | — |
-| `test_users` | 10 | id, username, email, phone, bio, role | — |
-| `test_measurements` | 200 | id, sensor_id (INT 1-5), temperature, humidity | — |
-| `test_locations` | 15 | id, name, city, latitude, longitude, geom (POINT) | — |
-| `test_categories` | 17 | id, name, path, level | — |
-| `test_events` | 100 | id, event_type (ENUM), user_id (1-8), event_date | payload |
-| `test_documents` | 10 | id, collection_name, doc, \_id (UUID) | doc |
-| `test_partitioned` | 26 | id, region, created_at | data |
+| Table               | Rows | Key Columns                                                                            | JSON Columns        |
+| ------------------- | ---- | -------------------------------------------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                                                              | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM: pending/shipped/completed/cancelled) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                                                                | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                                                     | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role                                                  | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity                                         | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT)                                      | —                   |
+| `test_categories`   | 17   | id, name, path, level                                                                  | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date                                       | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)                                                  | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                                                                 | data                |
 
 ## Testing Requirements
 
@@ -45,8 +45,8 @@ The test database (`testdb`) contains these tables:
 5. Report all failures, unexpected behaviors, improvement opportunities, or unnecessarily large payloads
 6. Do not mention what already works or issues well documented in ServerInstructions and runtime hints
 7. **Error path testing**: For **every** tool, test at least **two** invalid inputs: (a) a domain error (nonexistent table, invalid column, bad parameter value) and (b) a **Zod validation error** (call the tool with `{}` empty params if it has required parameters, or pass the wrong type). Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
-9. **No Scripted Loops**: You must test each error path by writing an individual, distinct tool call.
-10. **Pacing**: Test a maximum of 3-5 tools at a time. Report the results, update your matrix, and then move on to the next chunk.
+8. **No Scripted Loops**: You must test each error path by writing an individual, distinct tool call.
+9. **Pacing**: Test a maximum of 3-5 tools at a time. Report the results, update your matrix, and then move on to the next chunk.
 
 ## Structured Error Response Pattern
 
@@ -62,10 +62,10 @@ Some tools use `{ exists: false }` instead of `{ success: false }` for nonexiste
 
 There are two kinds of error responses. Only one is correct:
 
-| Type | Source | What you see | Verdict |
-|------|--------|-------------|---------|
-| **Handler error** ✅ | Handler catches error and returns `{success: false, error: "..."}` | Parseable JSON object with `success` and `error` fields | Correct |
-| **MCP error** ❌ | Uncaught throw propagates to MCP framework | Raw text error string, often prefixed with `Error:`, wrapped in an `isError: true` content block — no `success` field | Bug — report as ❌ |
+| Type                 | Source                                                             | What you see                                                                                                          | Verdict            |
+| -------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **Handler error** ✅ | Handler catches error and returns `{success: false, error: "..."}` | Parseable JSON object with `success` and `error` fields                                                               | Correct            |
+| **MCP error** ❌     | Uncaught throw propagates to MCP framework                         | Raw text error string, often prefixed with `Error:`, wrapped in an `isError: true` content block — no `success` field | Bug — report as ❌ |
 
 **Concrete examples:**
 
@@ -109,12 +109,12 @@ All tools that accept a table name should return structured error responses for 
 
 Key MySQL error codes that should be intercepted by handlers (not leaked as raw errors):
 
-| MySQL Error Code | Meaning | Expected Structured Message |
-|---|---|---|
-| 1146 (ER_NO_SUCH_TABLE) | Table doesn't exist | `Table 'X' does not exist` |
-| 1049 (ER_BAD_DB_ERROR) | Database doesn't exist | `Database 'X' does not exist` |
-| 1054 (ER_BAD_FIELD_ERROR) | Unknown column | `Column 'X' not found` |
-| 1064 (ER_PARSE_ERROR) | SQL syntax error | `SQL syntax error: ...` |
+| MySQL Error Code          | Meaning                | Expected Structured Message   |
+| ------------------------- | ---------------------- | ----------------------------- |
+| 1146 (ER_NO_SUCH_TABLE)   | Table doesn't exist    | `Table 'X' does not exist`    |
+| 1049 (ER_BAD_DB_ERROR)    | Database doesn't exist | `Database 'X' does not exist` |
+| 1054 (ER_BAD_FIELD_ERROR) | Unknown column         | `Column 'X' not found`        |
+| 1064 (ER_PARSE_ERROR)     | SQL syntax error       | `SQL syntax error: ...`       |
 
 ## Error Consistency Audit
 
@@ -128,15 +128,15 @@ During testing, check for these inconsistencies:
 
 For each tool group under test, verify at least one scenario from each applicable row:
 
-| Error Scenario | Tool Groups to Test | Example Input |
-|---|---|---|
-| Nonexistent table | All table-accepting tools | `table: "nonexistent_xyz"` |
-| Nonexistent database | Core, schema, admin | `database: "fake_db"` |
-| Invalid SQL syntax | Core (`read_query`, `write_query`) | `query: "SELECTT * FROM"` |
-| Invalid column name | Stats, JSON, text, spatial | `column: "nonexistent_col"` |
-| Duplicate table/index name | Core (`create_table`, `create_index`) | Create existing table |
-| **Zod validation (empty params)** | **Every tool with required params** | `{}` (must return handler error, not MCP `-32602`) |
-| **Zod validation (wrong type)** | **Tools with typed params** | Pass string where number expected |
+| Error Scenario                    | Tool Groups to Test                   | Example Input                                      |
+| --------------------------------- | ------------------------------------- | -------------------------------------------------- |
+| Nonexistent table                 | All table-accepting tools             | `table: "nonexistent_xyz"`                         |
+| Nonexistent database              | Core, schema, admin                   | `database: "fake_db"`                              |
+| Invalid SQL syntax                | Core (`read_query`, `write_query`)    | `query: "SELECTT * FROM"`                          |
+| Invalid column name               | Stats, JSON, text, spatial            | `column: "nonexistent_col"`                        |
+| Duplicate table/index name        | Core (`create_table`, `create_index`) | Create existing table                              |
+| **Zod validation (empty params)** | **Every tool with required params**   | `{}` (must return handler error, not MCP `-32602`) |
+| **Zod validation (wrong type)**   | **Tools with typed params**           | Pass string where number expected                  |
 
 ## Cleanup Conventions
 

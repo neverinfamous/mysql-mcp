@@ -11,7 +11,10 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { insightsManager } from "../../../../utils/insights-manager.js";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/index.js";
 
 // =============================================================================
@@ -50,7 +53,9 @@ export function createAppendInsightTool(): ToolDefinition {
 
         if (!parsed.insight?.trim()) {
           return Promise.resolve(
-            formatHandlerErrorResponse(new ValidationError("Insight text cannot be empty")),
+            formatHandlerErrorResponse(
+              new ValidationError("Insight text cannot be empty"),
+            ),
           );
         }
 
@@ -60,8 +65,8 @@ export function createAppendInsightTool(): ToolDefinition {
             formatHandlerErrorResponse(
               new ValidationError(
                 `Insight text is too long (${lenStr} chars). Maximum allowed is 1000 characters.`,
-              )
-            )
+              ),
+            ),
           );
         }
 
@@ -72,7 +77,7 @@ export function createAppendInsightTool(): ToolDefinition {
             success: true,
             insightCount: insightsManager.count(),
             message: `Insight recorded (${String(insightsManager.count())} total)`,
-          })
+          }),
         );
       } catch (err: unknown) {
         return Promise.resolve(formatHandlerErrorResponse(err));

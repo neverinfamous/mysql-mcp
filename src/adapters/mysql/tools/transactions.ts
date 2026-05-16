@@ -7,7 +7,10 @@
 
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "./core/error-helpers.js";
 import {
   TransactionBeginSchema,
   TransactionBeginSchemaBase,
@@ -19,7 +22,6 @@ import {
   TransactionExecuteSchemaBase,
 } from "../schemas/index.js";
 import { WRITE } from "../../../utils/annotations.js";
-
 
 /**
  * Get all transaction tools
@@ -153,12 +155,16 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
 
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
-          return formatHandlerErrorResponse(new Error(`Transaction not found: ${transactionId}`));
+          return formatHandlerErrorResponse(
+            new Error(`Transaction not found: ${transactionId}`),
+          );
         }
 
         // Validate savepoint name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(new Error("Invalid savepoint name"));
+          return formatHandlerErrorResponse(
+            new Error("Invalid savepoint name"),
+          );
         }
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
@@ -193,11 +199,15 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
 
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
-          return formatHandlerErrorResponse(new Error(`Transaction not found: ${transactionId}`));
+          return formatHandlerErrorResponse(
+            new Error(`Transaction not found: ${transactionId}`),
+          );
         }
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(new Error("Invalid savepoint name"));
+          return formatHandlerErrorResponse(
+            new Error("Invalid savepoint name"),
+          );
         }
 
         // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
@@ -238,11 +248,15 @@ function createTransactionRollbackToTool(
 
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
-          return formatHandlerErrorResponse(new Error(`Transaction not found: ${transactionId}`));
+          return formatHandlerErrorResponse(
+            new Error(`Transaction not found: ${transactionId}`),
+          );
         }
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(new Error("Invalid savepoint name"));
+          return formatHandlerErrorResponse(
+            new Error("Invalid savepoint name"),
+          );
         }
 
         // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
@@ -287,7 +301,9 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
 
       if (statements.length === 0) {
         return formatHandlerErrorResponse(
-          new Error("No statements provided. Pass at least one SQL statement in statements (or queries alias).")
+          new Error(
+            "No statements provided. Pass at least one SQL statement in statements (or queries alias).",
+          ),
         );
       }
 
@@ -295,7 +311,9 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       const connection = adapter.getTransactionConnection(transactionId);
 
       if (!connection) {
-        return formatHandlerErrorResponse(new Error("Failed to get transaction connection"));
+        return formatHandlerErrorResponse(
+          new Error("Failed to get transaction connection"),
+        );
       }
 
       const results: {

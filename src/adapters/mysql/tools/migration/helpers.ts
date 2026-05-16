@@ -120,7 +120,9 @@ export async function checkDuplicateHash(
           category: "validation",
           recoverable: false,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4,
+        );
         return {
           migrationHash,
           duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
@@ -149,7 +151,9 @@ export async function checkDuplicateHash(
         category: "validation",
         recoverable: true,
       };
-      const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4);
+      const tokenEstimate = Math.ceil(
+        Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4,
+      );
       return {
         migrationHash,
         duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
@@ -165,7 +169,9 @@ export async function checkDuplicateHash(
       category: "validation",
       recoverable: true,
     };
-    const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4);
+    const tokenEstimate = Math.ceil(
+      Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4,
+    );
     return {
       migrationHash,
       duplicateError: { ...duplicateError, metrics: { tokenEstimate } },

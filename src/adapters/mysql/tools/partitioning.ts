@@ -23,7 +23,6 @@ import {
 } from "../schemas/index.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
 
-
 /**
  * Get partitioning tools
  */
@@ -61,7 +60,9 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: `Table '${table}' does not exist`,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -94,9 +95,11 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
             success: true as const,
             data: {
               partitioned: false,
-            }
+            },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -121,9 +124,11 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
             method: firstRow["PARTITION_METHOD"],
             expression: firstRow["PARTITION_EXPRESSION"],
             partitions,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -157,7 +162,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: `Table '${table}' does not exist`,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -182,7 +189,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Unsupported partition type: ${String(unexpectedType)}`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
         }
@@ -190,8 +199,13 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = { success: true as const, data: { table, partitionName } };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const response = {
+            success: true as const,
+            data: { table, partitionName },
+          };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
@@ -201,7 +215,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
           if (msg.includes("MAXVALUE")) {
@@ -209,7 +225,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Cannot add RANGE partition — existing MAXVALUE partition must be reorganized first using mysql_reorganize_partition`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
           if (msg.includes("Multiple definition")) {
@@ -217,7 +235,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Partition value(s) already exist in another partition`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
 
@@ -225,7 +245,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: formatMysqlError(error),
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
       } catch (err) {
@@ -260,7 +282,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: `Table '${table}' does not exist`,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
@@ -276,9 +300,11 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               table,
               partitionName,
               warning: "All data in this partition has been deleted",
-            }
+            },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
@@ -288,7 +314,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
           if (
@@ -299,7 +327,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Partition '${partitionName}' does not exist on table '${table}'`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
 
@@ -307,7 +337,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: formatMysqlError(error),
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
       } catch (err) {
@@ -342,14 +374,19 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: `Table '${table}' does not exist`,
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
 
         const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
         const toList = toPartitions
           .map((p) => {
-            if (partitionType === "RANGE" || partitionType === "RANGE COLUMNS") {
+            if (
+              partitionType === "RANGE" ||
+              partitionType === "RANGE COLUMNS"
+            ) {
               return `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`;
             } else {
               return `PARTITION \`${p.name}\` VALUES IN (${p.value})`;
@@ -368,9 +405,11 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
               table,
               fromPartitions,
               toPartitions: toPartitions.map((p) => p.name),
-            }
+            },
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
@@ -380,7 +419,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
           if (msg.includes("Error in list of partitions")) {
@@ -388,7 +429,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
               success: false as const,
               error: `One or more source partitions (${fromPartitions.join(", ")}) do not exist on table '${table}'`,
             };
-            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
             return { ...response, metrics: { tokenEstimate } };
           }
 
@@ -396,7 +439,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: formatMysqlError(error),
           };
-          const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
           return { ...response, metrics: { tokenEstimate } };
         }
       } catch (err: unknown) {

@@ -1,6 +1,6 @@
 {
   "name": "@neverinfamous/mysql-mcp",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering",
   "type": "module",
   "main": "dist/index.js",
@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage && npx tsx scripts/update-badges.ts",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test && npx tsx scripts/update-badges.ts",
     "check": "npm run lint && npm run typecheck",
     "generate:instructions": "node scripts/generate-server-instructions.ts",
     "bench": "vitest bench --run"

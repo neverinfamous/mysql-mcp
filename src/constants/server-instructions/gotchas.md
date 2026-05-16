@@ -4,7 +4,7 @@
 
 - **Server Name**: This server is identified as `user-mysql` in MCP client configurations.
 - **Tool Invocation**: When calling tools via MCP, they are prefixed with the server name (e.g., `user-mysql-mysql_json_extract`, `user-mysql-mysql_read_query`).
-- **Resources**: 
+- **Resources**:
   - Resources use the `mysql://` URI scheme (e.g., `mysql://capabilities`, `mysql://schema`).
   - When listing or fetching resources, use server name `user-mysql` (e.g., `list_mcp_resources(server: "user-mysql")`, `fetch_mcp_resource(server: "user-mysql", uri: "mysql://schema")`).
 

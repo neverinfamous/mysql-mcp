@@ -16,7 +16,10 @@ import type {
 } from "../../../types/index.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import https from "node:https";
-import { formatHandlerErrorResponse, withTokenEstimate } from "./core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "./core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouteNameInputSchema,
@@ -134,7 +137,10 @@ async function routerFetch(
           const err = new Error(
             `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}${errorDetail ? ` - ${errorDetail}` : ""}`,
           );
-          const extendedErr = err as Error & { statusCode: number; responseData?: unknown };
+          const extendedErr = err as Error & {
+            statusCode: number;
+            responseData?: unknown;
+          };
           extendedErr.statusCode = statusCode;
           if (parsedData !== undefined) {
             extendedErr.responseData = parsedData;
@@ -189,8 +195,11 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
     const data = (await routerFetch(path)) as T;
     return { success: true, data };
   } catch (error) {
-    const extendedErr = error as Error & { statusCode?: number; responseData?: unknown };
-    
+    const extendedErr = error as Error & {
+      statusCode?: number;
+      responseData?: unknown;
+    };
+
     // 404 = valid Router response for nonexistent route/metadata/pool
     if (extendedErr.statusCode === 404) {
       return {
@@ -198,8 +207,10 @@ async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
         response: formatHandlerErrorResponse(error),
       };
     }
-    
-    const resData = extendedErr.responseData as Record<string, unknown> | undefined;
+
+    const resData = extendedErr.responseData as
+      | Record<string, unknown>
+      | undefined;
     // Recovery for health checks: Router returns 500 with {"isAlive": false} if the route is down
     if (
       extendedErr.statusCode === 500 &&

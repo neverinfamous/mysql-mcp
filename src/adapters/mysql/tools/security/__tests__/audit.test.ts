@@ -249,11 +249,14 @@ describe("Security Audit Tools", () => {
         data: {
           installed: boolean;
           configuration: any;
-        }
+        };
       };
 
       expect(result.data.installed).toBe(true);
-      expect(result.data.configuration).toHaveProperty("mysql_firewall_mode", "ON");
+      expect(result.data.configuration).toHaveProperty(
+        "mysql_firewall_mode",
+        "ON",
+      );
     });
 
     it("should report not installed if plugin missing", async () => {
@@ -265,7 +268,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler({}, mockContext)) as {
         data: {
           installed: boolean;
-        }
+        };
       };
 
       expect(result.data.installed).toBe(false);

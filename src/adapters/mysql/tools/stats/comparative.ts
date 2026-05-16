@@ -6,14 +6,17 @@
  */
 
 import { z, ZodError } from "zod";
-import { formatMysqlError, formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatMysqlError,
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -54,20 +57,21 @@ const RegressionSchema = z.object({
 const HistogramSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Column for histogram"),
-  buckets: z.unknown().optional().describe("Number of histogram buckets (max 1024)"),
-  update: z.unknown().optional().describe("Whether to create/update the histogram"),
+  buckets: z
+    .unknown()
+    .optional()
+    .describe("Number of histogram buckets (max 1024)"),
+  update: z
+    .unknown()
+    .optional()
+    .describe("Whether to create/update the histogram"),
 });
 
 const HistogramSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
-  buckets: z
-    .number()
-    .min(1)
-    .default(16),
-  update: z
-    .boolean()
-    .default(false),
+  buckets: z.number().min(1).default(16),
+  update: z.boolean().default(false),
 });
 
 // =============================================================================
@@ -93,13 +97,19 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           CorrelationSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
         ) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -109,28 +119,48 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? 
            AND COLUMN_NAME IN (?, ?)`,
-          [table, column1, column2]
+          [table, column1, column2],
         );
-        
-        const NUMERIC_TYPES = new Set(['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'numeric', 'float', 'double']);
+
+        const NUMERIC_TYPES = new Set([
+          "tinyint",
+          "smallint",
+          "mediumint",
+          "int",
+          "bigint",
+          "decimal",
+          "numeric",
+          "float",
+          "double",
+        ]);
         const validCols = new Set<string>();
         for (const row of colCheck.rows ?? []) {
-          const type = typeof row['DATA_TYPE'] === "string" ? row['DATA_TYPE'] : undefined;
-          const colName = typeof row['COLUMN_NAME'] === "string" ? row['COLUMN_NAME'] : undefined;
+          const type =
+            typeof row["DATA_TYPE"] === "string" ? row["DATA_TYPE"] : undefined;
+          const colName =
+            typeof row["COLUMN_NAME"] === "string"
+              ? row["COLUMN_NAME"]
+              : undefined;
           if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
             validCols.add(colName);
           }
         }
-        
-        const missingCols = [column1, column2].filter(c => !validCols.has(c));
+
+        const missingCols = [column1, column2].filter((c) => !validCols.has(c));
         if (missingCols.length > 0) {
           const notFound = missingCols.filter(
-            c => !(colCheck.rows ?? []).some(r => r['COLUMN_NAME'] === c)
+            (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
           );
           if (notFound.length > 0) {
-            return withTokenEstimate({ success: false, error: `Column(s) not found: ${notFound.join(', ')}` });
+            return withTokenEstimate({
+              success: false,
+              error: `Column(s) not found: ${notFound.join(", ")}`,
+            });
           }
-          return withTokenEstimate({ success: false, error: `Both columns must be numeric types. Non-numeric: ${missingCols.join(', ')}` });
+          return withTokenEstimate({
+            success: false,
+            error: `Both columns must be numeric types. Non-numeric: ${missingCols.join(", ")}`,
+          });
         }
 
         // Calculate Pearson correlation coefficient
@@ -179,7 +209,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
               mean: stats?.["mean_y"] ?? null,
               stddev: stats?.["std_y"] ?? null,
             },
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -217,13 +247,19 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           RegressionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
         ) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -233,28 +269,50 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? 
            AND COLUMN_NAME IN (?, ?)`,
-          [table, xColumn, yColumn]
+          [table, xColumn, yColumn],
         );
-        
-        const NUMERIC_TYPES = new Set(['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'numeric', 'float', 'double']);
+
+        const NUMERIC_TYPES = new Set([
+          "tinyint",
+          "smallint",
+          "mediumint",
+          "int",
+          "bigint",
+          "decimal",
+          "numeric",
+          "float",
+          "double",
+        ]);
         const validCols = new Set<string>();
         for (const row of colCheck.rows ?? []) {
-          const type = typeof row['DATA_TYPE'] === "string" ? row['DATA_TYPE'] : undefined;
-          const colName = typeof row['COLUMN_NAME'] === "string" ? row['COLUMN_NAME'] : undefined;
+          const type =
+            typeof row["DATA_TYPE"] === "string" ? row["DATA_TYPE"] : undefined;
+          const colName =
+            typeof row["COLUMN_NAME"] === "string"
+              ? row["COLUMN_NAME"]
+              : undefined;
           if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
             validCols.add(colName);
           }
         }
-        
-        const missingRegCols = [xColumn, yColumn].filter(c => !validCols.has(c));
+
+        const missingRegCols = [xColumn, yColumn].filter(
+          (c) => !validCols.has(c),
+        );
         if (missingRegCols.length > 0) {
           const notFoundReg = missingRegCols.filter(
-            c => !(colCheck.rows ?? []).some(r => r['COLUMN_NAME'] === c)
+            (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
           );
           if (notFoundReg.length > 0) {
-            return withTokenEstimate({ success: false, error: `Column(s) not found: ${notFoundReg.join(', ')}` });
+            return withTokenEstimate({
+              success: false,
+              error: `Column(s) not found: ${notFoundReg.join(", ")}`,
+            });
           }
-          return withTokenEstimate({ success: false, error: `Both columns must be numeric types. Non-numeric: ${missingRegCols.join(', ')}` });
+          return withTokenEstimate({
+            success: false,
+            error: `Both columns must be numeric types. Non-numeric: ${missingRegCols.join(", ")}`,
+          });
         }
 
         // Simpler approach for MySQL
@@ -316,7 +374,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                 : rSquared >= 0.5
                   ? "Moderate fit"
                   : "Poor fit",
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -353,10 +411,16 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           HistogramSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
 
         // Check if table exists (P154)
@@ -367,7 +431,10 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return withTokenEstimate({ success: false, error: `Table '${table}' doesn't exist` });
+          return withTokenEstimate({
+            success: false,
+            error: `Table '${table}' doesn't exist`,
+          });
         }
 
         // Check if column exists on the table
@@ -420,23 +487,29 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!result.rows || result.rows.length === 0) {
           if (update) {
-            return withTokenEstimate({ success: false, error: "Histogram created but not yet visible in metadata" });
+            return withTokenEstimate({
+              success: false,
+              error: "Histogram created but not yet visible in metadata",
+            });
           }
-          return withTokenEstimate({ 
-            success: true, 
-            data: { 
-              exists: false, 
-              table, 
-              column, 
+          return withTokenEstimate({
+            success: true,
+            data: {
+              exists: false,
+              table,
+              column,
               updated: false,
-              hint: "Histogram not found. Set 'update: true' to generate it."
-            } 
+              hint: "Histogram not found. Set 'update: true' to generate it.",
+            },
           });
         }
 
         const histogramRow = result.rows[0];
         if (!histogramRow) {
-          return withTokenEstimate({ success: false, error: "Histogram data is empty" });
+          return withTokenEstimate({
+            success: false,
+            error: "Histogram data is empty",
+          });
         }
         return withTokenEstimate({
           success: true,
@@ -445,7 +518,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
             ...histogramRow,
             updated: update,
             ...(warning && { warning }),
-          }
+          },
         });
       } catch (error) {
         if (error instanceof ZodError) {

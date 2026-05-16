@@ -18,7 +18,6 @@ import {
 import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // =============================================================================
 // Schemas
 // =============================================================================
@@ -27,8 +26,14 @@ export const StatsHypothesisSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Numeric column to test"),
   testType: z.unknown().optional().describe("Type of test to perform"),
-  hypothesizedMean: z.unknown().optional().describe("Null hypothesis mean to test against"),
-  populationStdDev: z.unknown().optional().describe("Known population standard deviation (for z-test)"),
+  hypothesizedMean: z
+    .unknown()
+    .optional()
+    .describe("Null hypothesis mean to test against"),
+  populationStdDev: z
+    .unknown()
+    .optional()
+    .describe("Known population standard deviation (for z-test)"),
   groupBy: z.string().optional().describe("Column to group results by"),
   where: z.string().optional().describe("Filter condition"),
 });
@@ -38,9 +43,7 @@ export const StatsHypothesisSchema = z.object({
   column: z.string().min(1, "column is required"),
   testType: z.enum(["t_test", "z_test"]),
   hypothesizedMean: z.number(),
-  populationStdDev: z
-    .number()
-    .optional(),
+  populationStdDev: z.number().optional(),
   groupBy: z.string().optional(),
   where: z.string().optional(),
 });
@@ -76,13 +79,22 @@ export function createStatsHypothesisTool(
         } = StatsHypothesisSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({ success: false, error: "Invalid table name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid table name",
+          });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, error: "Invalid column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid column name",
+          });
         }
         if (groupBy && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
-          return withTokenEstimate({ success: false, error: "Invalid groupBy column name" });
+          return withTokenEstimate({
+            success: false,
+            error: "Invalid groupBy column name",
+          });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -222,7 +234,7 @@ export function createStatsHypothesisTool(
               groupBy,
               groups,
               count: groups.length,
-            }
+            },
           });
         }
 
@@ -255,7 +267,10 @@ export function createStatsHypothesisTool(
 
         // If error, return at top level (not nested in results)
         if ("error" in testResults) {
-          return withTokenEstimate({ success: false, error: testResults.error });
+          return withTokenEstimate({
+            success: false,
+            error: testResults.error,
+          });
         }
 
         return withTokenEstimate({
@@ -266,7 +281,7 @@ export function createStatsHypothesisTool(
             testType,
             hypothesizedMean,
             results: testResults,
-          }
+          },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) return formatHandlerErrorResponse(error);

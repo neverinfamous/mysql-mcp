@@ -90,7 +90,9 @@ describe("Admin Backup Tools", () => {
 
     it("should export empty table", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "empty_table" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ TABLE_NAME: "empty_table" }]),
+        )
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createExportTableTool(
@@ -107,7 +109,9 @@ describe("Admin Backup Tools", () => {
 
     it("should handle WHERE clause in SQL export", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "orders" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ TABLE_NAME: "orders" }]),
+        )
         .mockResolvedValueOnce(
           createMockQueryResult([{ id: 5, status: "active" }]),
         );
@@ -126,7 +130,9 @@ describe("Admin Backup Tools", () => {
 
     it("should handle NULL values in SQL export", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "products" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ TABLE_NAME: "products" }]),
+        )
         .mockResolvedValueOnce(
           createMockQueryResult([{ id: 1, name: "Test", description: null }]),
         );
@@ -165,7 +171,9 @@ describe("Admin Backup Tools", () => {
 
     it("should handle object values in CSV export", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "configs" }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ TABLE_NAME: "configs" }]),
+        )
         .mockResolvedValueOnce(
           createMockQueryResult([{ id: 1, config: { setting: "value" } }]),
         );
@@ -215,7 +223,9 @@ describe("Admin Backup Tools", () => {
 
     it("should return structured error for non-existent table", async () => {
       // The first call is the existence check (P154)
-      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(
+        createMockQueryResult([]),
+      );
 
       const tool = createExportTableTool(
         mockAdapter as unknown as MySQLAdapter,
@@ -504,7 +514,11 @@ describe("Admin Backup Tools", () => {
           ],
         },
         mockContext,
-      )) as { success: boolean; error: string; details: { rowsInserted: number } };
+      )) as {
+        success: boolean;
+        error: string;
+        details: { rowsInserted: number };
+      };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate entry");
@@ -523,7 +537,11 @@ describe("Admin Backup Tools", () => {
           data: [{ name: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; details: { rowsInserted: number } };
+      )) as {
+        success: boolean;
+        error: string;
+        details: { rowsInserted: number };
+      };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
@@ -542,7 +560,11 @@ describe("Admin Backup Tools", () => {
           data: [{ nonexistent_col: "test" }],
         },
         mockContext,
-      )) as { success: boolean; error: string; details: { rowsInserted: number } };
+      )) as {
+        success: boolean;
+        error: string;
+        details: { rowsInserted: number };
+      };
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Unknown column");
@@ -733,11 +755,9 @@ describe("Admin Backup Tools", () => {
       )) as { data: { command: string } };
       expect(result.data.command).toContain("backup.sql.gz");
     });
-    
+
     it("should return structured error for non-existent database", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([]),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
       const tool = createRestoreDumpTool(
         mockAdapter as unknown as MySQLAdapter,
       );

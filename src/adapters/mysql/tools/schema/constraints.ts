@@ -8,7 +8,6 @@ import type {
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 const ListConstraintsSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   type: z.string().optional().describe("Filter by constraint type"),
@@ -57,7 +56,7 @@ export function createListConstraintsTool(
         );
         if (existsResult.rows === undefined || existsResult.rows.length === 0) {
           return formatHandlerErrorResponse(
-            new Error(`Table '${tableName}' does not exist`)
+            new Error(`Table '${tableName}' does not exist`),
           );
         }
 
@@ -101,9 +100,11 @@ export function createListConstraintsTool(
           data: {
             constraints: result.rows,
             count: result.rows?.length ?? 0,
-          }
+          },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(response), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+        );
         return { ...response, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);

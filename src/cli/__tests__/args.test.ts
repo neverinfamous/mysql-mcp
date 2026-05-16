@@ -247,10 +247,14 @@ describe("CLI Args", () => {
 
     it("should parse server options", () => {
       const result = parseArgs([
-        "--server-host", "0.0.0.0",
-        "--name", "custom-server",
-        "--instruction-level", "essential",
-        "--auth-token", "secret-token",
+        "--server-host",
+        "0.0.0.0",
+        "--name",
+        "custom-server",
+        "--instruction-level",
+        "essential",
+        "--auth-token",
+        "secret-token",
         "--stateless",
         "--enable-hsts",
         "--trust-proxy",
@@ -271,18 +275,23 @@ describe("CLI Args", () => {
     });
 
     it("should exit on invalid instruction level", () => {
-      expect(() => parseArgs(["--instruction-level", "invalid"])).toThrow("process.exit(1)");
+      expect(() => parseArgs(["--instruction-level", "invalid"])).toThrow(
+        "process.exit(1)",
+      );
     });
 
     it("should parse audit options", () => {
       const result = parseArgs([
-        "--audit-log", "/path/to/audit.jsonl",
+        "--audit-log",
+        "/path/to/audit.jsonl",
         "--audit-redact",
         "--audit-reads",
-        "--audit-log-max-size", "1024",
+        "--audit-log-max-size",
+        "1024",
         "--audit-backup",
         "--audit-backup-data",
-        "--audit-backup-max-size", "2048",
+        "--audit-backup-max-size",
+        "2048",
       ]);
       expect(result.config.auditConfig?.enabled).toBe(true);
       expect(result.config.auditConfig?.logPath).toBe("/path/to/audit.jsonl");

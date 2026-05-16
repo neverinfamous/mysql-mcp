@@ -42,9 +42,9 @@ export function createPerformanceResource(
                     SELECT 
                         DIGEST_TEXT as query_pattern,
                         COUNT_STAR as execution_count,
-                        ROUND(SUM_TIMER_WAIT / 1000000000, 2) as total_time_ms,
-                        ROUND(AVG_TIMER_WAIT / 1000000000, 2) as avg_time_ms,
-                        ROUND(MAX_TIMER_WAIT / 1000000000, 2) as max_time_ms,
+                        ROUND(IF(SUM_TIMER_WAIT > 10000000000000000, 0, SUM_TIMER_WAIT) / 1000000000, 2) as total_time_ms,
+                        ROUND(IF(AVG_TIMER_WAIT > 10000000000000000, 0, AVG_TIMER_WAIT) / 1000000000, 2) as avg_time_ms,
+                        ROUND(IF(MAX_TIMER_WAIT > 10000000000000000, 0, MAX_TIMER_WAIT) / 1000000000, 2) as max_time_ms,
                         SUM_ROWS_EXAMINED as rows_examined,
                         SUM_ROWS_SENT as rows_sent
                     FROM performance_schema.events_statements_summary_by_digest

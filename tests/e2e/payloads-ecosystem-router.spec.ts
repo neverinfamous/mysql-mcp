@@ -26,9 +26,13 @@ test.describe("Payload Contracts: Ecosystem — Router", () => {
   });
 
   test("mysql_router_route_health returns health or unavailable", async () => {
-    const payload = await callToolAndParse(client, "mysql_router_route_health", {
-      routeName: "bootstrap_rw",
-    });
+    const payload = await callToolAndParse(
+      client,
+      "mysql_router_route_health",
+      {
+        routeName: "bootstrap_rw",
+      },
+    );
     // /health endpoint may return 500 on some Router versions
     // Accept either { success: true, health } or { available: false }
     expect(typeof payload).toBe("object");

@@ -92,7 +92,10 @@ test.describe("Payload Contracts: Core", () => {
       if (setup.success === false) {
         const err = String(setup.error ?? "");
         if (err.includes("read-only") || err.includes("super-read-only")) {
-          test.skip(true, "Server is read-only — write_query requires write access");
+          test.skip(
+            true,
+            "Server is read-only — write_query requires write access",
+          );
           return;
         }
       }
@@ -136,7 +139,10 @@ test.describe("Payload Contracts: Core", () => {
       if (createPayload.success === false) {
         const err = String(createPayload.error ?? "");
         if (err.includes("read-only") || err.includes("super-read-only")) {
-          test.skip(true, "Server is read-only — create_table requires write access");
+          test.skip(
+            true,
+            "Server is read-only — create_table requires write access",
+          );
           return;
         }
       }
@@ -161,19 +167,26 @@ test.describe("Payload Contracts: Core", () => {
       const ts = Date.now();
       const tableName = `_e2e_idx_${ts}`;
 
-      const tablePayload = await callToolAndParse(client, "mysql_create_table", {
-        name: tableName,
-        columns: [
-          { name: "id", type: "INT", primaryKey: true },
-          { name: "name", type: "VARCHAR(100)" },
-        ],
-      });
+      const tablePayload = await callToolAndParse(
+        client,
+        "mysql_create_table",
+        {
+          name: tableName,
+          columns: [
+            { name: "id", type: "INT", primaryKey: true },
+            { name: "name", type: "VARCHAR(100)" },
+          ],
+        },
+      );
 
       // Skip on read-only servers
       if (tablePayload.success === false) {
         const err = String(tablePayload.error ?? "");
         if (err.includes("read-only") || err.includes("super-read-only")) {
-          test.skip(true, "Server is read-only — create_index requires write access");
+          test.skip(
+            true,
+            "Server is read-only — create_index requires write access",
+          );
           return;
         }
       }

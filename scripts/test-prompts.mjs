@@ -104,7 +104,11 @@ async function main() {
       args: { tables: "users", operation: "SELECT" },
       expect: "",
     },
-    { name: "mysql_schema_design", args: { useCase: "E-commerce" }, expect: "" },
+    {
+      name: "mysql_schema_design",
+      args: { useCase: "E-commerce" },
+      expect: "",
+    },
     {
       name: "mysql_performance_analysis",
       args: { query: "SELECT * FROM test" },

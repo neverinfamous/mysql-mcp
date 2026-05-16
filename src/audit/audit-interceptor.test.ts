@@ -336,14 +336,9 @@ describe("AuditInterceptor", () => {
     });
 
     const interceptor = createAuditInterceptor(logger);
-    await interceptor.around(
-      "mysql_list_tables",
-      {},
-      "req-012",
-      async () => ({
-        tables: ["users"],
-      }),
-    );
+    await interceptor.around("mysql_list_tables", {}, "req-012", async () => ({
+      tables: ["users"],
+    }));
     await logger.flush();
 
     const content = await readFile(join(dir, "audit-compact.jsonl"), "utf-8");

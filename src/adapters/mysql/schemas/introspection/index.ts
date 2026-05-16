@@ -34,10 +34,12 @@ export const DependencyGraphSchema = z.object({
     if (typeof val === "string") return parseInt(val, 10);
     return val;
   }, z.number().optional().default(100)),
-  maxDepth: z.preprocess((val) => {
-    if (typeof val === "string") return parseInt(val, 10);
-    return val;
-  }, z.number().optional()).optional(),
+  maxDepth: z
+    .preprocess((val) => {
+      if (typeof val === "string") return parseInt(val, 10);
+      return val;
+    }, z.number().optional())
+    .optional(),
 });
 
 /**

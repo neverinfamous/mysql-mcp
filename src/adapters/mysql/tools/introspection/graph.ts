@@ -40,7 +40,6 @@ import {
 } from "./algorithms.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-
 // Re-export helpers and algorithms for consumers
 export {
   qualifiedName,
@@ -247,10 +246,14 @@ export function createDependencyGraphTool(
                 }),
           },
           ...(isTruncated
-            ? { hint: `Result truncated to ${String(limit)} nodes. Use 'schema' filter to narrow the graph.` }
+            ? {
+                hint: `Result truncated to ${String(limit)} nodes. Use 'schema' filter to narrow the graph.`,
+              }
             : {}),
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -388,7 +391,9 @@ export function createTopologicalSortTool(
           direction,
           hasCycles: false,
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -567,7 +572,9 @@ export function createCascadeSimulatorTool(
             maxDepth,
           },
         };
-        const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(data), "utf8") / 4);
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
+        );
         return { success: true, data, metrics: { tokenEstimate } };
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

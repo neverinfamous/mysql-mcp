@@ -23,25 +23,35 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_correlation", () => {
     it("should interpret strong correlation", async () => {
-      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
-        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
-          const col1 = params?.[1] || 'x';
-          const col2 = params?.[2] || 'y';
-          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
-        }
-        return {
-          rows: [
-            {
-              correlation: 0.95,
-              sample_size: 100,
-              mean_x: 10,
-              mean_y: 20,
-              std_x: 2,
-              std_y: 3,
-            },
-          ],
-        };
-      });
+      mockAdapter.executeQuery.mockImplementation(
+        async (query: string, params?: any[]) => {
+          if (
+            typeof query === "string" &&
+            query.includes("information_schema.COLUMNS")
+          ) {
+            const col1 = params?.[1] || "x";
+            const col2 = params?.[2] || "y";
+            return {
+              rows: [
+                { COLUMN_NAME: col1, DATA_TYPE: "int" },
+                { COLUMN_NAME: col2, DATA_TYPE: "int" },
+              ],
+            };
+          }
+          return {
+            rows: [
+              {
+                correlation: 0.95,
+                sample_size: 100,
+                mean_x: 10,
+                mean_y: 20,
+                std_x: 2,
+                std_y: 3,
+              },
+            ],
+          };
+        },
+      );
 
       const result: any = await correlationTool.handler(
         {
@@ -57,16 +67,26 @@ describe("Comparative Stats Tools", () => {
     });
 
     it("should interpret weak correlation", async () => {
-      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
-        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
-          const col1 = params?.[1] || 'x';
-          const col2 = params?.[2] || 'y';
-          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
-        }
-        return {
-          rows: [{ correlation: 0.2, sample_size: 100 }],
-        };
-      });
+      mockAdapter.executeQuery.mockImplementation(
+        async (query: string, params?: any[]) => {
+          if (
+            typeof query === "string" &&
+            query.includes("information_schema.COLUMNS")
+          ) {
+            const col1 = params?.[1] || "x";
+            const col2 = params?.[2] || "y";
+            return {
+              rows: [
+                { COLUMN_NAME: col1, DATA_TYPE: "int" },
+                { COLUMN_NAME: col2, DATA_TYPE: "int" },
+              ],
+            };
+          }
+          return {
+            rows: [{ correlation: 0.2, sample_size: 100 }],
+          };
+        },
+      );
 
       const result: any = await correlationTool.handler(
         {
@@ -97,16 +117,26 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_regression", () => {
     it("should handle insufficient data", async () => {
-      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
-        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
-          const col1 = params?.[1] || 'x';
-          const col2 = params?.[2] || 'y';
-          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
-        }
-        return {
-          rows: [{ n: 1 }],
-        };
-      });
+      mockAdapter.executeQuery.mockImplementation(
+        async (query: string, params?: any[]) => {
+          if (
+            typeof query === "string" &&
+            query.includes("information_schema.COLUMNS")
+          ) {
+            const col1 = params?.[1] || "x";
+            const col2 = params?.[2] || "y";
+            return {
+              rows: [
+                { COLUMN_NAME: col1, DATA_TYPE: "int" },
+                { COLUMN_NAME: col2, DATA_TYPE: "int" },
+              ],
+            };
+          }
+          return {
+            rows: [{ n: 1 }],
+          };
+        },
+      );
 
       const result: any = await regressionTool.handler(
         {
@@ -123,27 +153,37 @@ describe("Comparative Stats Tools", () => {
 
     it("should calculate regression and interpretation", async () => {
       // Need n, sum_x, sum_y, sum_xy, sum_x2, sum_y2 to calculate slope/intercept/r2
-      mockAdapter.executeQuery.mockImplementation(async (query: string, params?: any[]) => {
-        if (typeof query === 'string' && query.includes('information_schema.COLUMNS')) {
-          const col1 = params?.[1] || 'x';
-          const col2 = params?.[2] || 'y';
-          return { rows: [{ COLUMN_NAME: col1, DATA_TYPE: "int" }, { COLUMN_NAME: col2, DATA_TYPE: "int" }] };
-        }
-        return {
-          rows: [
-            {
-              n: 3,
-              sum_x: 6,
-              sum_y: 6,
-              sum_xy: 14,
-              sum_x2: 14,
-              sum_y2: 14,
-              avg_x: 2,
-              avg_y: 2,
-            },
-          ],
-        };
-      });
+      mockAdapter.executeQuery.mockImplementation(
+        async (query: string, params?: any[]) => {
+          if (
+            typeof query === "string" &&
+            query.includes("information_schema.COLUMNS")
+          ) {
+            const col1 = params?.[1] || "x";
+            const col2 = params?.[2] || "y";
+            return {
+              rows: [
+                { COLUMN_NAME: col1, DATA_TYPE: "int" },
+                { COLUMN_NAME: col2, DATA_TYPE: "int" },
+              ],
+            };
+          }
+          return {
+            rows: [
+              {
+                n: 3,
+                sum_x: 6,
+                sum_y: 6,
+                sum_xy: 14,
+                sum_x2: 14,
+                sum_y2: 14,
+                avg_x: 2,
+                avg_y: 2,
+              },
+            ],
+          };
+        },
+      );
 
       const result: any = await regressionTool.handler(
         {

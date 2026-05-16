@@ -63,7 +63,7 @@ describe("Security Encryption Tools", () => {
             acceptedConnects: "10",
             finishedConnects: "10",
           },
-        }
+        },
       });
     });
 

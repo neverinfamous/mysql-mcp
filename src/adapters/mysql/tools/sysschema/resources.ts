@@ -6,14 +6,16 @@
  */
 
 import { z } from "zod";
-import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-
 
 // =============================================================================
 // Helpers
@@ -27,34 +29,37 @@ const LimitSchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of results to return"),
 });
 
-const LimitSchema = z.object({
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  limit: data.limit !== undefined ? Number(data.limit) : 2,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const LimitSchema = z
+  .object({
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    limit: data.limit !== undefined ? Number(data.limit) : 2,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 const SchemaStatsSchemaBase = z.object({
-  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  schema: z
+    .string()
+    .optional()
+    .describe("Schema name (defaults to current database)"),
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const SchemaStatsSchema = z.object({
-  schema: z.string().optional(),
-  limit: z.unknown().optional(),
-})
-.transform((data) => ({
-  schema: data.schema,
-  limit: data.limit !== undefined ? Number(data.limit) : 2,
-}))
-.refine(
-  (data) => !Number.isNaN(data.limit) && data.limit > 0,
-  { message: "limit must be a positive number" }
-);
+const SchemaStatsSchema = z
+  .object({
+    schema: z.string().optional(),
+    limit: z.unknown().optional(),
+  })
+  .transform((data) => ({
+    schema: data.schema,
+    limit: data.limit !== undefined ? Number(data.limit) : 2,
+  }))
+  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+    message: "limit must be a positive number",
+  });
 
 /**
  * Get schema object statistics
@@ -176,7 +181,7 @@ export function createSysSchemaStatsTool(
             indexStatisticsCount: (indexStats.rows ?? []).length,
             autoIncrementStatusCount: (autoIncStats.rows ?? []).length,
             schemaName: resolvedSchema,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -240,7 +245,7 @@ export function createSysInnoDBLockWaitsTool(
             rows: result.rows,
             count: result.rows?.length ?? 0,
             hasContention: (result.rows?.length ?? 0) > 0,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -311,7 +316,7 @@ export function createSysMemorySummaryTool(
             memoryByUser: userStats.rows ?? [],
             globalMemoryCount: (globalStats.rows ?? []).length,
             memoryByUserCount: (userStats.rows ?? []).length,
-          }
+          },
         });
       } catch (err) {
         if (err instanceof z.ZodError) {

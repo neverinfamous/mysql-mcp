@@ -8,8 +8,8 @@
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
 ![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)
-![E2E](https://img.shields.io/badge/E2E-179%20tests%20%C2%B7%20230%2B%20tools-blue.svg)
-![Coverage](https://img.shields.io/badge/Coverage-85.32%25-green.svg)
+![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)
+![Coverage](https://img.shields.io/badge/Coverage-90%25-green.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -142,6 +142,7 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 - Allowing multiple AI clients to share one database connection
 
 ### Security Features & Utility Endpoints
+
 For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setup (with Keycloak), see the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth).
 
 > **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
@@ -213,13 +214,13 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
 
-| Filter Pattern   | Example                     | Tools | Description               |
-| ---------------- | --------------------------- | ----- | ------------------------- |
-| Shortcut only    | `starter`                   | 39    | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`    | 33    | Combine individual groups |
-| Tool names       | `mysql_read_query,mysql_explain`| 2  | Custom tool selection     |
-| Shortcut + Group | `starter,spatial`           | 51    | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table` | 38    | Remove specific tools     |
+| Filter Pattern   | Example                          | Tools | Description               |
+| ---------------- | -------------------------------- | ----- | ------------------------- |
+| Shortcut only    | `starter`                        | 39    | Use a predefined bundle   |
+| Groups only      | `core,json,transactions`         | 33    | Combine individual groups |
+| Tool names       | `mysql_read_query,mysql_explain` | 2     | Custom tool selection     |
+| Shortcut + Group | `starter,spatial`                | 51    | Extend a shortcut         |
+| Shortcut - Tool  | `starter,-mysql_drop_table`      | 38    | Remove specific tools     |
 
 #### Custom Tool Selection
 
@@ -287,8 +288,6 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for IDE configuration examples and advanced usage.
 
 ---
-
-
 
 ## ⚡ Performance Tuning
 

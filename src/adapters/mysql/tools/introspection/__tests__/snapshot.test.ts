@@ -17,7 +17,7 @@ describe("Schema Snapshot Tool", () => {
     mockAdapter = createMockMySQLAdapter();
     tool = createSchemaSnapshotTool(mockAdapter as unknown as MySQLAdapter);
     mockContext = createMockRequestContext();
-    
+
     // Mock for schema/table existence
     mockAdapter.executeReadQuery.mockImplementation(async (query: string) => {
       if (query.includes("information_schema.SCHEMATA")) {
@@ -25,39 +25,88 @@ describe("Schema Snapshot Tool", () => {
       }
       if (query.includes("FROM information_schema.TABLES")) {
         return createMockQueryResult([
-          { schema_name: "testdb", name: "users", type: "BASE TABLE", row_count: 100, size_bytes: 1024 }
+          {
+            schema_name: "testdb",
+            name: "users",
+            type: "BASE TABLE",
+            row_count: 100,
+            size_bytes: 1024,
+          },
         ]);
       }
       if (query.includes("FROM information_schema.VIEWS")) {
         const isCompact = query.includes("NULL AS definition");
         return createMockQueryResult([
-          { schema_name: "testdb", name: "active_users", type: "view", definition: isCompact ? null : "SELECT * FROM users" }
+          {
+            schema_name: "testdb",
+            name: "active_users",
+            type: "view",
+            definition: isCompact ? null : "SELECT * FROM users",
+          },
         ]);
       }
       if (query.includes("FROM information_schema.STATISTICS")) {
         return createMockQueryResult([
-          { name: "PRIMARY", table_name: "users", schema_name: "testdb", type: "BTREE", is_unique: 1 }
+          {
+            name: "PRIMARY",
+            table_name: "users",
+            schema_name: "testdb",
+            type: "BTREE",
+            is_unique: 1,
+          },
         ]);
       }
       if (query.includes("FROM information_schema.TABLE_CONSTRAINTS")) {
         return createMockQueryResult([
-          { name: "PRIMARY", table_name: "users", schema_name: "testdb", type: "PRIMARY KEY" }
+          {
+            name: "PRIMARY",
+            table_name: "users",
+            schema_name: "testdb",
+            type: "PRIMARY KEY",
+          },
         ]);
       }
       if (query.includes("FROM information_schema.ROUTINES")) {
         return createMockQueryResult([
-          { schema_name: "testdb", name: "get_user", type: "PROCEDURE", return_type: "int", volatility: "CONTAINS SQL", definition: "BEGIN END" }
+          {
+            schema_name: "testdb",
+            name: "get_user",
+            type: "PROCEDURE",
+            return_type: "int",
+            volatility: "CONTAINS SQL",
+            definition: "BEGIN END",
+          },
         ]);
       }
       if (query.includes("FROM information_schema.TRIGGERS")) {
         return createMockQueryResult([
-          { name: "before_insert", table_name: "users", schema_name: "testdb", timing: "BEFORE", events: "INSERT", definition: "SET NEW.id = 1" }
+          {
+            name: "before_insert",
+            table_name: "users",
+            schema_name: "testdb",
+            timing: "BEFORE",
+            events: "INSERT",
+            definition: "SET NEW.id = 1",
+          },
         ]);
       }
       if (query.includes("FROM information_schema.COLUMNS")) {
         return createMockQueryResult([
-          { TABLE_SCHEMA: "testdb", TABLE_NAME: "users", COLUMN_NAME: "id", COLUMN_TYPE: "int", IS_NULLABLE: "NO", COLUMN_KEY: "PRI" },
-          { TABLE_SCHEMA: "testdb", TABLE_NAME: "users", COLUMN_NAME: "email", COLUMN_TYPE: "varchar", IS_NULLABLE: "YES" }
+          {
+            TABLE_SCHEMA: "testdb",
+            TABLE_NAME: "users",
+            COLUMN_NAME: "id",
+            COLUMN_TYPE: "int",
+            IS_NULLABLE: "NO",
+            COLUMN_KEY: "PRI",
+          },
+          {
+            TABLE_SCHEMA: "testdb",
+            TABLE_NAME: "users",
+            COLUMN_NAME: "email",
+            COLUMN_TYPE: "varchar",
+            IS_NULLABLE: "YES",
+          },
         ]);
       }
       return createMockQueryResult([]);
@@ -65,8 +114,11 @@ describe("Schema Snapshot Tool", () => {
   });
 
   it("should return a complete snapshot when no sections are specified", async () => {
-    const result = await tool.handler({ schema: "testdb", compact: false }, mockContext);
-    
+    const result = await tool.handler(
+      { schema: "testdb", compact: false },
+      mockContext,
+    );
+
     expect((result as any).success).toBe(true);
     const data = (result as any).data;
     expect(data.snapshot.tables).toBeDefined();
@@ -75,15 +127,18 @@ describe("Schema Snapshot Tool", () => {
     expect(data.snapshot.constraints).toBeDefined();
     expect(data.snapshot.functions).toBeDefined();
     expect(data.snapshot.triggers).toBeDefined();
-    
+
     // Check that columns were attached to tables
     expect(data.snapshot.tables[0].columns).toBeDefined();
     expect(data.snapshot.tables[0].columns.length).toBe(2);
   });
 
   it("should only return specified sections", async () => {
-    const result = await tool.handler({ schema: "testdb", sections: ["tables"] }, mockContext);
-    
+    const result = await tool.handler(
+      { schema: "testdb", sections: ["tables"] },
+      mockContext,
+    );
+
     expect((result as any).success).toBe(true);
     const data = (result as any).data;
     expect(data.snapshot.tables).toBeDefined();
@@ -92,8 +147,11 @@ describe("Schema Snapshot Tool", () => {
   });
 
   it("should handle compact mode without returning definitions and columns", async () => {
-    const result = await tool.handler({ schema: "testdb", sections: ["views"], compact: true }, mockContext);
-    
+    const result = await tool.handler(
+      { schema: "testdb", sections: ["views"], compact: true },
+      mockContext,
+    );
+
     expect((result as any).success).toBe(true);
     const data = (result as any).data;
     expect(data.snapshot.views).toBeDefined();

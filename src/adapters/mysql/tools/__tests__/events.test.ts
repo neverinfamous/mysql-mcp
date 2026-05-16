@@ -318,7 +318,11 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({ success: false, error: "Event does not exist", metrics: expect.any(Object) });
+      expect(result).toEqual({
+        success: false,
+        error: "Event does not exist",
+        metrics: expect.any(Object),
+      });
     });
 
     it("should return exists false for nonexistent schema", async () => {
