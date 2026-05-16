@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "user-mysql": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/mysql-mcp/dist/cli.js"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "root",
+        "MYSQL_PASSWORD": "password",
+        "MYSQL_DATABASE": "testdb",
+        "MYSQL_POOL_SIZE": "10",
+        "OAUTH_ENABLED": "false",
+        "LOG_LEVEL": "info",
+        "MYSQL_MCP_TOOL_FILTER": "starter"
+      }
+    }
+  }
+}

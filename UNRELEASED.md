@@ -1,15 +1,15 @@
 # Unreleased
 
-## Security
+### Security
 
 - Resolved XSS vulnerability in `ip-address` and `express-rate-limit` via npm update
 - Bumped `tar` (bundled in npm) to `7.5.15` in Dockerfile to address CVE-2026-26960
 
-## Added
+### Added
 
-## Changed
+### Changed
 
-**Dependency Updates**
+### Dependencies
 
 - Bumped `@playwright/test` from `1.59.1` to `1.60.0`
 - Bumped `@types/node` from `25.6.0` to `25.8.0`
@@ -23,7 +23,7 @@
 - Bumped `docker/build-push-action` to `v7.1.0`
 - Bumped `github/codeql-action` to `v4.35.4`
 
-## Fixed
+### Fixed
 
 - Fixed missing parameter coercions (`z.coerce.number()`) for numeric parameters in the `performance` tool group (`limit`, `threshold`, `minCalls`) to ensure string inputs are correctly parsed.
 - Fixed centralized `formatHandlerErrorResponse` logic to ensure Zod validation errors and unknown raw errors correctly emit the required `code`, `category`, and `recoverable` fields according to the Structured Errors standard.

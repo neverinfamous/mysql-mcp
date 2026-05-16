@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete list of all **224 tools** across 25 categories.
+Complete list of all **224 tools** across 27 categories.
 
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
@@ -139,7 +139,7 @@ Complete list of all **224 tools** across 25 categories.
 
 ---
 
-## Statistics (8 tools)
+## Statistics (20 tools)
 
 | Tool                       | Description                           |
 | -------------------------- | ------------------------------------- |
@@ -151,21 +151,36 @@ Complete list of all **224 tools** across 25 categories.
 | `mysql_stats_regression`   | Simple linear regression              |
 | `mysql_stats_sampling`     | Random row sampling                   |
 | `mysql_stats_histogram`    | Generate histogram buckets            |
+| `mysql_stats_row_number`   | ROW_NUMBER() window function          |
+| `mysql_stats_rank`         | RANK()/DENSE_RANK() window function   |
+| `mysql_stats_lag_lead`     | LAG()/LEAD() window function          |
+| `mysql_stats_running_total`| Running total window function         |
+| `mysql_stats_moving_avg`   | Moving average window function        |
+| `mysql_stats_ntile`        | NTILE() window function               |
+| `mysql_stats_hypothesis`   | T-Test/Chi-Square hypothesis testing  |
+| `mysql_stats_outliers`     | Z-Score/IQR outlier detection         |
+| `mysql_stats_top_n`        | Top N items per category              |
+| `mysql_stats_distinct`     | Count distinct values                 |
+| `mysql_stats_frequency`    | Value frequency and mode              |
+| `mysql_stats_summary`      | Comprehensive numeric summary         |
 
 ---
 
-## Performance (8 tools)
+## Performance (11 tools)
 
-| Tool                      | Description                                                           |
-| ------------------------- | --------------------------------------------------------------------- |
-| `mysql_explain`           | EXPLAIN query execution plan. **v2.2:** JSON/TREE/TRADITIONAL formats |
-| `mysql_explain_analyze`   | EXPLAIN ANALYZE (MySQL 8.0)                                           |
-| `mysql_slow_queries`      | Query slow query log                                                  |
-| `mysql_query_stats`       | Performance schema stats                                              |
-| `mysql_index_usage`       | Index usage statistics                                                |
-| `mysql_table_stats`       | Table statistics. **v2.2:** P154 existence check                      |
-| `mysql_buffer_pool_stats` | InnoDB buffer pool info                                               |
-| `mysql_thread_stats`      | Thread activity stats                                                 |
+| Tool                              | Description                                                           |
+| --------------------------------- | --------------------------------------------------------------------- |
+| `mysql_explain`                   | EXPLAIN query execution plan. **v2.2:** JSON/TREE/TRADITIONAL formats |
+| `mysql_explain_analyze`           | EXPLAIN ANALYZE (MySQL 8.0)                                           |
+| `mysql_slow_queries`              | Query slow query log                                                  |
+| `mysql_query_stats`               | Performance schema stats                                              |
+| `mysql_index_usage`               | Index usage statistics                                                |
+| `mysql_table_stats`               | Table statistics. **v2.2:** P154 existence check                      |
+| `mysql_buffer_pool_stats`         | InnoDB buffer pool info                                               |
+| `mysql_thread_stats`              | Thread activity stats                                                 |
+| `mysql_detect_query_anomalies`    | Detect unusual query execution patterns                               |
+| `mysql_detect_bloat_risk`         | Identify tables with high risk of fragmentation                       |
+| `mysql_detect_connection_spike`   | Detect connection pool anomalies                                      |
 
 ---
 
@@ -180,7 +195,7 @@ Complete list of all **224 tools** across 25 categories.
 
 ---
 
-## Admin (6 tools)
+## Admin (7 tools)
 
 | Tool                   | Description              |
 | ---------------------- | ------------------------ |
@@ -190,6 +205,7 @@ Complete list of all **224 tools** across 25 categories.
 | `mysql_repair_table`   | REPAIR TABLE (MyISAM)    |
 | `mysql_flush_tables`   | FLUSH TABLES             |
 | `mysql_kill_query`     | KILL connection/query    |
+| `mysql_append_insight` | Append insight to log    |
 
 ---
 
@@ -255,14 +271,17 @@ Complete list of all **224 tools** across 25 categories.
 
 ---
 
-## Backup (4 tools)
+## Backup (7 tools)
 
-| Tool                 | Description                                                         |
-| -------------------- | ------------------------------------------------------------------- |
-| `mysql_export_table` | Export table to SQL/CSV. **v2.2:** `limit` parameter (default: 100) |
-| `mysql_import_data`  | LOAD DATA INFILE                                                    |
-| `mysql_create_dump`  | mysqldump command generation                                        |
-| `mysql_restore_dump` | Restore from dump                                                   |
+| Tool                         | Description                                                         |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `mysql_export_table`         | Export table to SQL/CSV. **v2.2:** `limit` parameter (default: 100) |
+| `mysql_import_data`          | LOAD DATA INFILE                                                    |
+| `mysql_create_dump`          | mysqldump command generation                                        |
+| `mysql_restore_dump`         | Restore from dump                                                   |
+| `mysql_audit_list_backups`   | List available snapshots                                            |
+| `mysql_audit_restore_backup` | Restore a snapshot                                                  |
+| `mysql_audit_diff_backup`    | Diff a snapshot                                                     |
 
 ---
 
