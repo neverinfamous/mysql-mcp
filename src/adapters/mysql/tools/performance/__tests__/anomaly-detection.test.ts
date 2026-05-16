@@ -133,7 +133,7 @@ describe("Anomaly Detection Tools", () => {
       const tool = createDetectQueryAnomaliesTool(mockAdapter);
       const result = await tool.handler({ minCalls: "not a number" }, mockContext) as any;
       expect(result.success).toBe(false);
-      expect(result.error).toContain("expected number, received string");
+      expect(result.error).toContain("expected number, received NaN");
     });
   });
 
@@ -229,7 +229,7 @@ describe("Anomaly Detection Tools", () => {
       const tool = createDetectBloatRiskTool(mockAdapter);
       const result = await tool.handler({ minSizeMb: "not a number" }, mockContext) as any;
       expect(result.success).toBe(false);
-      expect(result.error).toContain("expected number, received string");
+      expect(result.error).toContain("expected number, received NaN");
     });
   });
 });
