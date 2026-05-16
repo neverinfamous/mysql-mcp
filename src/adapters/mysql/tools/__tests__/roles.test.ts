@@ -462,4 +462,55 @@ describe("Handler Execution", () => {
       }));
     });
   });
+
+  describe("Zod validation errors", () => {
+    it("should handle Zod validation errors for mysql_role_list", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_list")!;
+      const result = await tool.handler({ pattern: 123 }, mockContext); // invalid pattern type
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+      expect((result as any).error).toContain("pattern");
+    });
+
+    it("should handle Zod validation errors for mysql_role_create", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const result = await tool.handler({}, mockContext); // missing required 'name'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+
+    it("should handle Zod validation errors for mysql_role_drop", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const result = await tool.handler({}, mockContext); // missing required 'name'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+
+    it("should handle Zod validation errors for mysql_role_assign", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_assign")!;
+      const result = await tool.handler({ role: "test" }, mockContext); // missing 'user'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+
+    it("should handle Zod validation errors for mysql_role_revoke", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const result = await tool.handler({ role: "test" }, mockContext); // missing 'user'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+
+    it("should handle Zod validation errors for mysql_role_grant", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const result = await tool.handler({ role: "test" }, mockContext); // missing 'privileges'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+
+    it("should handle Zod validation errors for mysql_role_grants", async () => {
+      const tool = tools.find((t) => t.name === "mysql_role_grants")!;
+      const result = await tool.handler({}, mockContext); // missing 'role'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+
+    it("should handle Zod validation errors for mysql_user_roles", async () => {
+      const tool = tools.find((t) => t.name === "mysql_user_roles")!;
+      const result = await tool.handler({}, mockContext); // missing 'user'
+      expect(result).toEqual(expect.objectContaining({ success: false }));
+    });
+  });
 });

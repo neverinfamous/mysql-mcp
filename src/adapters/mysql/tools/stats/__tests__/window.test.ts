@@ -58,6 +58,34 @@ describe("Window Function Tools", () => {
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY `score DESC`)");
     });
+
+    it("should return error on invalid table name", async () => {
+      const result = await tool.handler(
+        { table: "users;", orderBy: "score DESC" },
+        mockContext,
+      );
+      expect((result as any).success).toBe(false);
+      expect((result as any).error).toContain("Invalid table name");
+    });
+
+    it("should handle Zod validation errors", async () => {
+      const result = await tool.handler(
+        { table: "users" }, // Missing orderBy
+        mockContext,
+      );
+      expect((result as any).success).toBe(false);
+      expect((result as any).error).toContain("Validation error");
+    });
+
+    it("should handle table not found error", async () => {
+      mockAdapter.executeQuery.mockRejectedValueOnce(new Error("Table 'unknown' doesn't exist"));
+      const result = await tool.handler(
+        { table: "unknown", orderBy: "score DESC" },
+        mockContext,
+      );
+      expect((result as any).success).toBe(false);
+      expect((result as any).error).toContain("doesn't exist");
+    });
   });
 
   describe("Rank Tool", () => {
@@ -103,6 +131,35 @@ describe("Window Function Tools", () => {
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY `date`)");
+    });
+
+    it("should return error on invalid column name", async () => {
+      const result = await tool.handler(
+        {
+          table: "sales",
+          column: "amount;",
+          orderBy: "date",
+          direction: "lag",
+        },
+        mockContext,
+      );
+      expect((result as any).success).toBe(false);
+      expect((result as any).error).toContain("Invalid column name");
+    });
+
+    it("should handle unknown column error", async () => {
+      mockAdapter.executeQuery.mockRejectedValueOnce(new Error("Unknown column 'missing_col'"));
+      const result = await tool.handler(
+        {
+          table: "sales",
+          column: "missing_col",
+          orderBy: "date",
+          direction: "lag",
+        },
+        mockContext,
+      );
+      expect((result as any).success).toBe(false);
+      expect((result as any).error).toContain("One or more referenced columns do not exist");
     });
   });
 

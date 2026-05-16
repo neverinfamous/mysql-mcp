@@ -1,48 +1,58 @@
-/**
- * mysql-mcp - Worker Script Unit Tests
- *
- * Tests for buildMysqlProxy and executeInWorker functions.
- * Mocks parentPort, workerData, and MessagePort from worker_threads.
- */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EventEmitter } from "events";
 
-// We test buildMysqlProxy by importing the module in a special way.
-// Since worker-script.ts auto-executes, we need to mock the worker_threads
-// module before importing.
+// Mock worker_threads module before import
+const { mockParentPort, mockRpcPort } = vi.hoisted(() => {
+  class FakeEventEmitter {
+    listeners: Record<string, ((...args: any[]) => void)[]> = {};
+    on(event: string, fn: (...args: any[]) => void) {
+      if (!this.listeners[event]) this.listeners[event] = [];
+      this.listeners[event].push(fn);
+    }
+    emit(event: string, data: any) {
+      if (this.listeners[event]) {
+        this.listeners[event].forEach(fn => fn(data));
+      }
+    }
+    removeAllListeners() {
+      this.listeners = {};
+    }
+  }
 
-// Mock worker_threads module
-const mockParentPort = {
-  postMessage: vi.fn(),
-};
-
-const mockRpcPort = new EventEmitter() as EventEmitter & {
-  postMessage: ReturnType<typeof vi.fn>;
-  ref: ReturnType<typeof vi.fn>;
-  unref: ReturnType<typeof vi.fn>;
-  close: ReturnType<typeof vi.fn>;
-};
-mockRpcPort.postMessage = vi.fn();
-mockRpcPort.ref = vi.fn();
-mockRpcPort.unref = vi.fn();
-mockRpcPort.close = vi.fn();
-
-const mockWorkerData = {
-  code: 'return "hello"',
-  apiBindings: {
-    core: ["readQuery", "writeQuery", "help"],
-    json: ["extract", "set"],
-    _topLevel: ["readQuery", "help"],
-  },
-  timeout: 5000,
-  rpcPort: mockRpcPort,
-};
+  const mockParentPort = { postMessage: vi.fn() };
+  const mockRpcPort = new FakeEventEmitter() as any;
+  mockRpcPort.postMessage = vi.fn();
+  mockRpcPort.ref = vi.fn();
+  mockRpcPort.unref = vi.fn();
+  mockRpcPort.close = vi.fn();
+  return { mockParentPort, mockRpcPort };
+});
 
 vi.mock("node:worker_threads", () => ({
+  isMainThread: true, // Prevents auto-execution on import
   parentPort: mockParentPort,
-  workerData: mockWorkerData,
+  workerData: {
+    code: 'return "hello"',
+    apiBindings: {
+      core: ["readQuery"],
+      _topLevel: ["readQuery"],
+    },
+    timeout: 5000,
+    rpcPort: mockRpcPort,
+  },
+  MessageChannel: class {
+    port1 = new EventEmitter();
+    port2 = new EventEmitter();
+    constructor() {
+      (this.port1 as any).close = vi.fn();
+      (this.port2 as any).close = vi.fn();
+    }
+  }
 }));
+
+// Now we can import the actual module
+import { buildMysqlProxy, executeInWorker } from "../worker-script.js";
 
 describe("Worker Script", () => {
   beforeEach(() => {
@@ -51,180 +61,72 @@ describe("Worker Script", () => {
   });
 
   describe("buildMysqlProxy", () => {
-    // Import the function by loading the module with mocks active
-    // Since the module auto-executes, we'll test the proxy construction
-    // pattern separately
-
-    it("should be tested through proxy construction patterns", async () => {
-      // The buildMysqlProxy function constructs a mysql-like object
-      // with group sub-objects where each method sends an RPC message.
-      // We test the patterns it creates.
-
+    it("should build proxy that sends RPC messages", async () => {
       const bindings = {
-        core: ["readQuery", "writeQuery", "help"],
-        json: ["extract"],
-        _topLevel: ["readQuery", "help"],
+        core: ["readQuery", "writeQuery"],
+        _topLevel: ["readQuery"],
       };
 
-      // Simulate what buildMysqlProxy does: creates group objects with methods
-      const mysql: Record<string, unknown> = {};
-      const groupNames: string[] = [];
+      const proxy = buildMysqlProxy(bindings, mockRpcPort) as any;
 
-      for (const [key, methods] of Object.entries(bindings)) {
-        if (key === "_topLevel") continue;
-        groupNames.push(key);
+      expect(proxy).toHaveProperty("core");
+      expect(proxy).toHaveProperty("readQuery");
 
-        const groupApi: Record<string, unknown> = {};
-        for (const method of methods) {
-          if (method === "help") continue;
-          groupApi[method] = vi.fn().mockResolvedValue({ rows: [] });
-        }
-        groupApi["help"] = () => ({
-          data: {
-            group: key,
-            methods: methods.filter((m) => m !== "help"),
-          }
-        });
-        mysql[key] = groupApi;
-      }
+      // Test RPC method call
+      const promise = proxy.core.readQuery("SELECT 1");
 
-      // Top-level
-      const topLevel = bindings["_topLevel"];
-      if (topLevel) {
-        for (const method of topLevel) {
-          if (method === "help") {
-            mysql["help"] = () => ({ data: { groups: groupNames } });
-          } else {
-            mysql[method] = vi.fn().mockResolvedValue({ rows: [] });
-          }
-        }
-      }
-
-      // Verify the structure
-      expect(mysql).toHaveProperty("core");
-      expect(mysql).toHaveProperty("json");
-      expect(mysql).toHaveProperty("readQuery");
-      expect(mysql).toHaveProperty("help");
-
-      // Test group help
-      const coreApi = mysql["core"] as Record<string, unknown>;
-      expect(coreApi).toHaveProperty("readQuery");
-      expect(coreApi).toHaveProperty("writeQuery");
-      expect(coreApi).toHaveProperty("help");
-
-      const helpResult = (coreApi["help"] as () => unknown)();
-      expect(helpResult).toEqual({
-        data: {
-          group: "core",
-          methods: ["readQuery", "writeQuery"],
-        }
+      expect(mockRpcPort.postMessage).toHaveBeenCalledWith({
+        id: expect.any(Number),
+        group: "core",
+        method: "readQuery",
+        args: ["SELECT 1"],
       });
 
-      // Test top-level help
-      const topHelp = (mysql["help"] as () => unknown)();
-      expect(topHelp).toEqual({ data: { groups: ["core", "json"] } });
-    });
-
-    it("should filter help from method lists", () => {
-      const methods = ["readQuery", "writeQuery", "help"];
-      const filtered = methods.filter((m) => m !== "help");
-      expect(filtered).toEqual(["readQuery", "writeQuery"]);
-      expect(filtered).not.toContain("help");
-    });
-  });
-
-  describe("RPC message handling", () => {
-    it("should resolve pending promises on RPC response", async () => {
-      const pending = new Map<
-        number,
-        { resolve: (v: unknown) => void; reject: (e: Error) => void }
-      >();
-
-      const promise = new Promise((resolve, reject) => {
-        pending.set(0, { resolve, reject });
-      });
-
-      // Simulate RPC response
-      const msg: { id: number; error?: string; result?: unknown } = { id: 0, result: { rows: [{ id: 1 }] } };
-      const p = pending.get(msg.id);
-      if (p) {
-        pending.delete(msg.id);
-        if (msg.error) {
-          p.reject(new Error(msg.error));
-        } else {
-          p.resolve(msg.result);
-        }
-      }
+      // Simulate response
+      const callArgs = mockRpcPort.postMessage.mock.calls[0][0];
+      mockRpcPort.emit("message", { id: callArgs.id, result: "success" });
 
       const result = await promise;
-      expect(result).toEqual({ rows: [{ id: 1 }] });
+      expect(result).toBe("success");
     });
 
-    it("should reject pending promises on RPC error", async () => {
-      const pending = new Map<
-        number,
-        { resolve: (v: unknown) => void; reject: (e: Error) => void }
-      >();
+    it("should handle top-level methods", async () => {
+      const bindings = { _topLevel: ["readQuery"] };
+      const proxy = buildMysqlProxy(bindings, mockRpcPort) as any;
 
-      const promise = new Promise((resolve, reject) => {
-        pending.set(1, { resolve, reject });
-      });
-
-      // Simulate RPC error response
-      const msg = { id: 1, error: "Query failed" } as {
-        id: number;
-        error?: string;
-        result?: unknown;
-      };
-      const p = pending.get(msg.id);
-      if (p) {
-        pending.delete(msg.id);
-        if (msg.error) {
-          p.reject(new Error(msg.error));
-        } else {
-          p.resolve(msg.result);
-        }
-      }
-
-      await expect(promise).rejects.toThrow("Query failed");
-    });
-
-    it("should ignore responses for unknown request IDs", () => {
-      const pending = new Map<
-        number,
-        { resolve: (v: unknown) => void; reject: (e: Error) => void }
-      >();
-
-      const msg = { id: 999, result: "unknown" };
-      const p = pending.get(msg.id);
-      expect(p).toBeUndefined();
+      const promise = proxy.readQuery("SELECT 1");
+      const callArgs = mockRpcPort.postMessage.mock.calls[0][0];
+      expect(callArgs.group).toBe("_topLevel");
+      
+      mockRpcPort.emit("message", { id: callArgs.id, error: "failed" });
+      await expect(promise).rejects.toThrow("failed");
     });
   });
 
-  describe("sandbox context construction", () => {
-    it("should block dangerous globals", () => {
-      const sandbox: Record<string, unknown> = {
-        setTimeout: undefined,
-        setInterval: undefined,
-        setImmediate: undefined,
-        process: undefined,
-        require: undefined,
-        __dirname: undefined,
-        __filename: undefined,
-        globalThis: undefined,
-        global: undefined,
-      };
+  describe("executeInWorker", () => {
+    it("should execute code and post result", async () => {
+      await executeInWorker();
+      
+      expect(mockParentPort.postMessage).toHaveBeenCalledWith({
+        success: true,
+        result: "hello"
+      });
+      expect(mockRpcPort.ref).toHaveBeenCalled();
+      expect(mockRpcPort.unref).toHaveBeenCalled();
+      expect(mockRpcPort.close).toHaveBeenCalled();
+    });
 
-      // All dangerous globals should be undefined
-      expect(sandbox.setTimeout).toBeUndefined();
-      expect(sandbox.setInterval).toBeUndefined();
-      expect(sandbox.setImmediate).toBeUndefined();
-      expect(sandbox.process).toBeUndefined();
-      expect(sandbox.require).toBeUndefined();
-      expect(sandbox.__dirname).toBeUndefined();
-      expect(sandbox.__filename).toBeUndefined();
-      expect(sandbox.globalThis).toBeUndefined();
-      expect(sandbox.global).toBeUndefined();
+    it("should catch errors and post failure", async () => {
+      // Temporarily change code to something that throws
+      const { workerData } = await import("node:worker_threads");
+      workerData.code = "throw new Error('test error');";
+      
+      await executeInWorker();
+      
+      expect(mockParentPort.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.stringContaining("test error")
+      }));
     });
   });
 });
