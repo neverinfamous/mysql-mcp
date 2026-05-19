@@ -3,15 +3,17 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
-[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
+![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)
+[![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
-![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)
-![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)
-![Coverage](https://img.shields.io/badge/Coverage-90%25-green.svg)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
+[![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-90%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -141,79 +143,27 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 
 ---
 
-## ⚡ MCP Client Configuration
+## 🌐 HTTP/SSE Transport (Remote Access)
 
-### HTTP/SSE Server Usage (Advanced)
-
-> **When to use HTTP mode:** Use HTTP mode when deploying `mysql-mcp` as a standalone server that multiple clients can connect to remotely. For local development with Claude Desktop or Cursor IDE, use the default `stdio` mode shown below instead.
-
-**Use cases for HTTP mode:**
-
-- Running the server in a Docker container accessible over a network
-- Deploying to cloud platforms (AWS, GCP, Azure)
-- Enabling OAuth 2.1 authentication for enterprise security
-- Allowing multiple AI clients to share one database connection
-
-## Authentication
-
-mysql-mcp supports two authentication modes for HTTP transport:
-
-### Simple Bearer Token
-
-Lightweight authentication for development or single-tenant deployments:
+For remote access, web-based clients, or HTTP-compatible MCP hosts, use the HTTP transport:
 
 ```bash
-mysql-mcp --transport http --port 3000 --auth-token my-secret --mysql mysql://root:pass@localhost/db
-
-# Or via environment variable
-export MCP_AUTH_TOKEN=my-secret
-mysql-mcp --transport http --port 3000 --mysql mysql://root:pass@localhost/db
-```
-
-Clients must include `Authorization: Bearer <token>` on all requests. `/health` and `/` are exempt.
-
-### OAuth 2.1 (Recommended for Production)
-
-For enterprise deployments, mysql-mcp supports OAuth 2.1 authentication with Keycloak or any RFC-compliant provider.
-
-### Quick Setup
-
-**1. Start with OAuth disabled (default)**
-
-```bash
-mysql-mcp --mysql mysql://root:pass@localhost/db
-```
-
-**2. Enable OAuth with an identity provider**
-
-```bash
-mysql-mcp --mysql mysql://root:pass@localhost/db \
-          --oauth-enabled \
-          --oauth-issuer http://localhost:8080/realms/mysql-mcp \
-          --oauth-audience mysql-mcp
-```
-
-**Start the HTTP server:**
-
-Local installation:
-
-```bash
-node dist/cli.js --transport http --port 3000 --server-host 0.0.0.0 --mysql mysql://user:password@localhost:3306/database
-```
-
-Docker (expose port 3000):
-
-```bash
-docker run -p 3000:3000 writenotenow/mysql-mcp \
+node dist/cli.js \
   --transport http \
   --port 3000 \
-  --server-host 0.0.0.0 \
-  --mysql mysql://user:password@host.docker.internal:3306/database
+  --mysql "mysql://user:pass@localhost:3306/db"
 ```
 
-The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect.
+**Docker:**
 
-In **stateless mode** (`--stateless`): `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport with no session persistence. Ideal for serverless or stateless deployments.
+```bash
+docker run --rm -p 3000:3000 \
+  -e MYSQL_URL=mysql://user:pass@host:3306/db \
+  writenotenow/mysql-mcp:latest \
+  --transport http --port 3000
+```
+
+The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect:
 
 ### Streamable HTTP (Recommended)
 
@@ -225,11 +175,21 @@ Modern protocol (MCP 2025-03-26) — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
-Sessions are managed via the `Mcp-Session-Id` header.
+Sessions are managed via the `Mcp-Session-Id header.
+
+### Stateless Mode
+
+For serverless/stateless deployments where sessions are not needed:
+
+```bash
+node dist/cli.js --transport http --port 3000 --stateless --mysql "mysql://..."
+```
+
+In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
 
 ### Legacy SSE (Backward Compatibility)
 
-Legacy protocol (MCP 2024-11-05) — for older MCP clients:
+Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 
 | Method | Endpoint                   | Purpose                                                       |
 | ------ | -------------------------- | ------------------------------------------------------------- |
@@ -238,32 +198,75 @@ Legacy protocol (MCP 2024-11-05) — for older MCP clients:
 
 ### Utility Endpoints
 
-| Method | Endpoint                                | Purpose                                 |
-| ------ | --------------------------------------- | --------------------------------------- |
-| `GET`  | `/health`                               | Health check (database connectivity)    |
-| `GET`  | `/.well-known/oauth-protected-resource` | OAuth 2.1 metadata (when OAuth enabled) |
+| Method | Endpoint  | Purpose                                                                |
+| ------ | --------- | ---------------------------------------------------------------------- |
+| `GET`  | `/health` | Health check (bypasses rate limiting, always available for monitoring) |
 
-### Security Features
+## 🔐 Authentication
 
-All HTTP responses include security headers:
+mysql-mcp supports two authentication mechanisms for HTTP transport:
 
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY`
-- `Cache-Control: no-store, no-cache, must-revalidate`
-- `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`
-- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
-- `Referrer-Policy: no-referrer`
-- Optional HSTS for HTTPS deployments
+### Simple Bearer Token (`--auth-token`)
 
-Additional protections:
+Lightweight authentication for development or single-tenant deployments:
 
-- **Server Timeouts** — Request (120s), keep-alive (65s), and headers (66s) timeouts prevent Slowloris DoS attacks
-- **Configurable CORS** — Exact origins and wildcard subdomain patterns (`*.example.com`)
-- **Per-IP Rate Limiting** — Sliding-window rate limiter with `Retry-After` header on 429 responses; `/health` endpoint bypasses rate limiting for monitoring probes
-- **Trust Proxy** — `trustProxy` option reads `X-Forwarded-For` for accurate client IP behind reverse proxies
-- **Body Size Enforcement** — Request body size limit (default 1 MB)
+```bash
+node dist/cli.js --transport http --port 3000 --auth-token my-secret --mysql "mysql://..."
 
-> **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
+# Or via environment variable
+export MCP_AUTH_TOKEN=my-secret
+node dist/cli.js --transport http --port 3000 --mysql "mysql://..."
+```
+
+Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
+
+### OAuth 2.1 (Enterprise)
+
+Full OAuth 2.1 with RFC 9728/8414 compliance for production multi-tenant deployments:
+
+```bash
+node dist/cli.js \
+  --transport http \
+  --port 3000 \
+  --mysql "mysql://user:pass@localhost:3306/db" \
+  --oauth-enabled \
+  --oauth-issuer http://localhost:8080/realms/mysql-mcp \
+  --oauth-audience mysql-mcp-client
+```
+
+> **Additional flags:** `--oauth-jwks-uri <url>` (auto-discovered if omitted), `--oauth-clock-tolerance <seconds>` (default: 60).
+
+### OAuth Scopes
+
+Access control is managed through OAuth scopes:
+
+| Scope                    | Access Level                        |
+| ------------------------ | ----------------------------------- |
+| `read`                   | Read-only queries (SELECT, EXPLAIN) |
+| `write`                  | Read + write operations             |
+| `admin`                  | Full administrative access          |
+| `full`                   | Grants all access                   |
+| `db:{name}`              | Access to specific database         |
+| `schema:{name}`          | Access to specific schema           |
+| `table:{schema}:{table}` | Access to specific table            |
+
+### RFC Compliance
+
+This implementation follows:
+
+- **RFC 9728** — OAuth 2.1 Protected Resource Metadata
+- **RFC 8414** — OAuth 2.1 Authorization Server Metadata
+- **RFC 7591** — OAuth 2.1 Dynamic Client Registration
+
+The server exposes metadata at `/.well-known/oauth-protected-resource`.
+
+> **Note for Keycloak users:** Add an **Audience mapper** to your client (Client → Client scopes → dedicated scope → Add mapper → Audience) to include the correct `aud` claim in tokens.
+
+> [!NOTE]
+> **Per-tool scope enforcement:** Scopes are enforced at the tool level — each tool group maps to a required scope (`read`, `write`, or `admin`). When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. When OAuth is not configured, scope checks are skipped entirely.
+
+> [!WARNING]
+> **HTTP without authentication:** When using `--transport http` without enabling OAuth or `--auth-token`, all clients have full unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
 
 ### Cursor IDE / Claude Desktop
 
