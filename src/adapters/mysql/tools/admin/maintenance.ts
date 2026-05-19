@@ -36,6 +36,7 @@ import {
   READ_ONLY,
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
+import { progressFactory } from "../../../progress/index.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -50,7 +51,13 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { tables } = OptimizeTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
+
+        const reporter = progressFactory.create(_context.progressToken);
+        reporter?.start(1, `Optimizing tables: ${tables.join(", ")}...`);
+
         const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
+        
+        reporter?.complete();
         const rows = result.rows ?? [];
         const errorRow = rows.find(
           (r: Record<string, unknown>) =>
@@ -182,9 +189,15 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
         const { tables, quick } = RepairTableSchema.parse(params);
         const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const quickClause = quick ? " QUICK" : "";
+
+        const reporter = progressFactory.create(_context.progressToken);
+        reporter?.start(1, `Repairing tables: ${tables.join(", ")}...`);
+
         const result = await adapter.rawQuery(
           `REPAIR TABLE ${tableList}${quickClause}`,
         );
+
+        reporter?.complete();
         const rows = result.rows ?? [];
         const errorRow = rows.find(
           (r: Record<string, unknown>) =>
