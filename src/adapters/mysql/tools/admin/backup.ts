@@ -26,7 +26,7 @@ import {
   validateWhereClause,
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE, IDEMPOTENT } from "../../../../utils/annotations.js";
-import { progressFactory } from "../../../progress/index.js";
+import { progressFactory } from "../../../../progress/index.js";
 
 /**
  * Format a value for MySQL export.

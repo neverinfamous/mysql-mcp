@@ -1,3 +1,5 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+
 /**
  * OAuth and Authentication Types
  *
@@ -88,4 +90,10 @@ export interface RequestContext {
 
   /** Request ID for tracing */
   requestId: string;
+
+  /** Progress token for long-running operations */
+  progressToken?: string | number;
+
+  /** Reference to the MCP server for emitting events */
+  server?: McpServer;
 }

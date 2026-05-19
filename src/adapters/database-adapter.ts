@@ -524,8 +524,8 @@ export abstract class DatabaseAdapter {
       timestamp: new Date(),
       requestId: requestId ?? crypto.randomUUID(),
     };
-    if (server !== undefined) {
-      context.server = server;
+    if (server !== undefined && server !== null) {
+      context.server = server as McpServer;
     }
     if (progressToken !== undefined) {
       context.progressToken = progressToken;

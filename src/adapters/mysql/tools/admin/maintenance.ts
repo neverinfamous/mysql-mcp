@@ -36,7 +36,7 @@ import {
   READ_ONLY,
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
-import { progressFactory } from "../../../progress/index.js";
+import { progressFactory } from "../../../../progress/index.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
