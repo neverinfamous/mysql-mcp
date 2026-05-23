@@ -21,7 +21,7 @@
 
 **mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Features **Code Mode** — a revolutionary approach that provides access to all 224 tools through a single JavaScript sandbox, eliminating the massive token overhead of multi-step tool calls. Also includes deterministic error handling, process-isolated code execution, and enterprise-grade features without sacrificing ease of use.
 
-### 🎯 What Sets Us Apart
+## 🎯 What Sets Us Apart
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

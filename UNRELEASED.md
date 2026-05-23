@@ -4,6 +4,7 @@
 
 ### Changed
 
+- **Docs**: Standardized README.md layout, badges, and headers to match the fleet
 - **Docs**: Rewrote CONTRIBUTING.md — was entirely postgres-mcp copy-paste (all references, connection strings, Docker commands, error class names, and URLs corrected to mysql-mcp)
 - **Docs**: Fixed tool group counts in README.md and DOCKER_README.md — `performance` (8→11), `admin` (6→7), `backup` (4→7), `stats` (8→20)
 - **Docs**: Added missing `introspection` (6 tools) and `migration` (6 tools) groups to tool group tables — header updated from "25 Available" to "27 Available"
