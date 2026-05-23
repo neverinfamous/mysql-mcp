@@ -97,7 +97,11 @@ Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and
 
 Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
 
-- **Process-level isolation** — user code runs in a separate V8 instance with enforced heap limits
+- **V8 code generation restrictions** — `eval()` and `Function()` construction from strings disabled at the engine level via `codeGeneration: { strings: false, wasm: false }`
+- **Frozen prototypes** — all built-in prototypes frozen inside the vm context to prevent dynamic constructor chain escapes
+- **18 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network access
+- **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
+- **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - **Hard timeouts** — worker termination if execution exceeds the configured limit
 - **Full API access** — all 25 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
@@ -665,10 +669,11 @@ For specialized setups, see these Wiki pages:
 
 Schema metadata is cached to reduce repeated queries during tool/resource invocations.
 
-| Variable                | Default | Description                                        |
-| ----------------------- | ------- | -------------------------------------------------- |
-| `METADATA_CACHE_TTL_MS` | `30000` | Cache TTL for schema metadata (milliseconds)       |
-| `LOG_LEVEL`             | `info`  | Log verbosity: `debug`, `info`, `warning`, `error` |
+| Variable                     | Default  | Description                                                |
+| ---------------------------- | -------- | ---------------------------------------------------------- |
+| `METADATA_CACHE_TTL_MS`      | `30000`  | Cache TTL for schema metadata (milliseconds)               |
+| `LOG_LEVEL`                  | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`         |
+| `CODE_MODE_MAX_RESULT_SIZE`  | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 

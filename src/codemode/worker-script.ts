@@ -22,6 +22,7 @@ interface WorkerData {
   apiBindings: Record<string, string[]>;
   timeout: number;
   rpcPort: MessagePort;
+  maxResultSize: number;
 }
 
 interface WorkerResult {
@@ -152,11 +153,27 @@ export async function executeInWorker(): Promise<void> {
       __filename: undefined,
       globalThis: undefined,
       global: undefined,
+      Proxy: undefined,
     };
 
     const context = vm.createContext(sandbox, {
       name: "worker-sandbox",
+      codeGeneration: { strings: false, wasm: false },
     });
+
+    // Freeze built-in prototypes to prevent dynamic constructor chain escapes
+    // e.g., Error().constructor.constructor('return process')()
+    vm.runInContext(
+      `
+      [Object, Function, Array, String, Number, Boolean, RegExp, Date,
+       Map, Set, WeakMap, WeakSet, Promise, Error, TypeError, RangeError,
+       ReferenceError, SyntaxError, URIError, EvalError, ArrayBuffer,
+       DataView, Float32Array, Float64Array, Int8Array, Int16Array,
+       Int32Array, Uint8Array, Uint16Array, Uint32Array, Uint8ClampedArray,
+      ].forEach(ctor => { if (ctor?.prototype) Object.freeze(ctor.prototype); });
+      `,
+      context,
+    );
 
     // Wrap in async IIFE for top-level await
     const wrappedCode = `(async () => { ${transformAutoReturn(code)} })()`;
@@ -178,6 +195,59 @@ export async function executeInWorker(): Promise<void> {
       success: true,
       result,
     };
+
+    // Streaming egress boundary enforcement: abort serialization mid-flight
+    // if the result exceeds maxResultSize. This prevents OOM from materializing
+    // a multi-hundred-MB string before checking its length.
+    const egressLimit = data.maxResultSize;
+    try {
+      let bytes = 0;
+      const seen = new Set();
+
+      JSON.stringify(
+        result,
+        (_key: string, value: unknown) => {
+          if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) return "[Circular]";
+            seen.add(value);
+          }
+          if (typeof value === "string") {
+            bytes += Buffer.byteLength(value, "utf8") + 2; // include quotes
+          } else if (
+            typeof value === "number" ||
+            typeof value === "boolean"
+          ) {
+            bytes += Buffer.byteLength(String(value), "utf8");
+          } else {
+            bytes += 5; // brackets/keys/null overhead
+          }
+
+          if (bytes > egressLimit) {
+            throw new Error(`EgressLimitExceeded:${String(bytes)}`);
+          }
+          return value;
+        },
+      );
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        err.message.startsWith("EgressLimitExceeded:")
+      ) {
+        const actualBytesStr = err.message.split(":")[1];
+        const actualBytes =
+          actualBytesStr !== undefined
+            ? Number(actualBytesStr)
+            : egressLimit + 1;
+        const actualKb = (actualBytes / 1024).toFixed(1);
+        response.success = false;
+        response.result = undefined;
+        response.error = `Output limit exceeded: Result serialization exceeded the ${String(Math.round(egressLimit / 1024))}KB boundary (actual: >${actualKb}KB). Aggregate or filter results to reduce payload size.`;
+      } else {
+        response.success = false;
+        response.result = undefined;
+        response.error = `Result could not be serialized: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
 
     parentPort?.postMessage(response);
   } catch (error) {
