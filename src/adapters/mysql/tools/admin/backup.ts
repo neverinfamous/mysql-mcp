@@ -304,7 +304,10 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
           const batchSize = 100;
           for (let i = 0; i < data.length; i += batchSize) {
-            reporter?.progress(i, `Importing rows ${i} to ${Math.min(i + batchSize, data.length)}...`);
+            reporter?.progress(
+              i,
+              `Importing rows ${i} to ${Math.min(i + batchSize, data.length)}...`,
+            );
             const chunk = data.slice(i, i + batchSize);
             const valueGroups = [];
             const flatValues: unknown[] = [];

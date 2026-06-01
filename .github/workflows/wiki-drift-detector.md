@@ -1,12 +1,13 @@
 ---
-description: 'Audit the GitHub Wiki documentation for accuracy and consistency on every code PR'
+description: "Audit the GitHub Wiki documentation for accuracy and consistency on every code PR"
 private: true
 labels: [documentation, automation, wiki]
 
 on:
   pull_request:
     types: [opened, ready_for_review]
-    paths: ['src/**', 'package.json', 'Dockerfile', 'tsconfig*.json', 'scripts/**']
+    paths:
+      ["src/**", "package.json", "Dockerfile", "tsconfig*.json", "scripts/**"]
 
 engine:
   id: copilot

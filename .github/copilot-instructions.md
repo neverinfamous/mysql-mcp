@@ -81,13 +81,13 @@ src/
 
 ## Key Reference Files
 
-| File                                   | Purpose                                           |
-| -------------------------------------- | ------------------------------------------------- |
-| `test-server/code-map.md`              | File → tool/handler mapping                       |
-| `test-server/Tool-Reference.md`        | Categorized tool inventory                        |
-| `CONTRIBUTING.md`                      | Development setup and PR guidelines               |
-| `DOCKER_README.md`                     | Docker Hub documentation                          |
-| `CHANGELOG.md`                         | Version history                                   |
+| File                            | Purpose                             |
+| ------------------------------- | ----------------------------------- |
+| `test-server/code-map.md`       | File → tool/handler mapping         |
+| `test-server/Tool-Reference.md` | Categorized tool inventory          |
+| `CONTRIBUTING.md`               | Development setup and PR guidelines |
+| `DOCKER_README.md`              | Docker Hub documentation            |
+| `CHANGELOG.md`                  | Version history                     |
 
 ## Review Checklist
 

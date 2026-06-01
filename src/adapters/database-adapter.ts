@@ -263,7 +263,9 @@ export abstract class DatabaseAdapter {
         inputSchema: tool.inputSchema as z.ZodType,
       },
       async (params: unknown, extra?: unknown) => {
-        const extraMeta = extra as { _meta?: { progressToken?: string | number } } | undefined;
+        const extraMeta = extra as
+          | { _meta?: { progressToken?: string | number } }
+          | undefined;
         const progressToken = extraMeta?._meta?.progressToken;
         const context = this.createContext(undefined, server, progressToken);
 

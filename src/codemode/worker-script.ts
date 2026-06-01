@@ -204,30 +204,24 @@ export async function executeInWorker(): Promise<void> {
       let bytes = 0;
       const seen = new Set();
 
-      JSON.stringify(
-        result,
-        (_key: string, value: unknown) => {
-          if (typeof value === "object" && value !== null) {
-            if (seen.has(value)) return "[Circular]";
-            seen.add(value);
-          }
-          if (typeof value === "string") {
-            bytes += Buffer.byteLength(value, "utf8") + 2; // include quotes
-          } else if (
-            typeof value === "number" ||
-            typeof value === "boolean"
-          ) {
-            bytes += Buffer.byteLength(String(value), "utf8");
-          } else {
-            bytes += 5; // brackets/keys/null overhead
-          }
+      JSON.stringify(result, (_key: string, value: unknown) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) return "[Circular]";
+          seen.add(value);
+        }
+        if (typeof value === "string") {
+          bytes += Buffer.byteLength(value, "utf8") + 2; // include quotes
+        } else if (typeof value === "number" || typeof value === "boolean") {
+          bytes += Buffer.byteLength(String(value), "utf8");
+        } else {
+          bytes += 5; // brackets/keys/null overhead
+        }
 
-          if (bytes > egressLimit) {
-            throw new Error(`EgressLimitExceeded:${String(bytes)}`);
-          }
-          return value;
-        },
-      );
+        if (bytes > egressLimit) {
+          throw new Error(`EgressLimitExceeded:${String(bytes)}`);
+        }
+        return value;
+      });
     } catch (err) {
       if (
         err instanceof Error &&

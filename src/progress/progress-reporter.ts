@@ -95,8 +95,13 @@ export class ProgressReporter {
   /**
    * Alias for report() during the operation
    */
-  progress(progress: number, totalOrMessage?: number | string, message?: string): void {
-    const total = typeof totalOrMessage === "number" ? totalOrMessage : undefined;
+  progress(
+    progress: number,
+    totalOrMessage?: number | string,
+    message?: string,
+  ): void {
+    const total =
+      typeof totalOrMessage === "number" ? totalOrMessage : undefined;
     const msg = typeof totalOrMessage === "string" ? totalOrMessage : message;
     this.report(progress, total, msg);
   }

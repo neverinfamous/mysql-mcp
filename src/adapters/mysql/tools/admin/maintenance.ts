@@ -56,7 +56,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
         reporter?.start(1, `Optimizing tables: ${tables.join(", ")}...`);
 
         const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
-        
+
         reporter?.complete();
         const rows = result.rows ?? [];
         const errorRow = rows.find(

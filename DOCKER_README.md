@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-89.77%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-89.74%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -273,7 +273,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `optimization`  | 4     | Index hints, recommendations                            |
 | `admin`         | 7     | OPTIMIZE, ANALYZE, CHECK, insights                      |
 | `monitoring`    | 7     | PROCESSLIST, status variables                           |
-| `backup`        | 7     | Export, import, mysqldump, audit backups                 |
+| `backup`        | 7     | Export, import, mysqldump, audit backups                |
 | `replication`   | 5     | Master/slave, binlog                                    |
 | `partitioning`  | 4     | Partition management                                    |
 | `schema`        | 11    | Views, procedures, triggers, constraints                |
@@ -301,11 +301,11 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 
 Schema metadata is cached to reduce repeated queries during tool/resource invocations.
 
-| Variable                     | Default  | Description                                                |
-| ---------------------------- | -------- | ---------------------------------------------------------- |
-| `METADATA_CACHE_TTL_MS`      | `30000`  | Cache TTL for schema metadata (milliseconds)               |
-| `LOG_LEVEL`                  | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`         |
-| `CODE_MODE_MAX_RESULT_SIZE`  | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
+| Variable                    | Default  | Description                                                         |
+| --------------------------- | -------- | ------------------------------------------------------------------- |
+| `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
+| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`                  |
+| `CODE_MODE_MAX_RESULT_SIZE` | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
