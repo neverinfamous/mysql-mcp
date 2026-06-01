@@ -1,8 +1,11 @@
 # Unreleased
 
 ### Added
+- **CI/CD:** Added Docker smoke test job to `docker-publish.yml` that verifies binary loading and HTTP transport starts successfully before images are pushed to the registry
+- **CI/CD:** Added Docker smoke test job to `lint-and-test.yml` for PR-level validation, catching dependency resolution failures before merge
 
 ### Changed
+- **CLI:** Fixed an issue where the MCP Server would hang indefinitely on startup when installed globally via npm (e.g., using `@modelcontextprotocol/inspector mysql-mcp`). The `isMainModule` check incorrectly evaluated to false on symlinked global binaries, causing the Node process to exit cleanly without starting the transport or logging errors.
 
 - **Docs**: Standardized README.md layout, badges, and headers to match the fleet
 - **Docs**: Rewrote CONTRIBUTING.md — was entirely postgres-mcp copy-paste (all references, connection strings, Docker commands, error class names, and URLs corrected to mysql-mcp)

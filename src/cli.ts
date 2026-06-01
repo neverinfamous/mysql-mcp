@@ -180,12 +180,24 @@ export async function main(args?: {
   }
 }
 
-// Run if called directly
 import { fileURLToPath } from "url";
+import { realpathSync } from "fs";
 
-// Only run if this file is the main module
-const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+// Only run if this file is the main module (supports global npm symlinks)
+const isMainModule = (() => {
+  if (!process.argv[1]) return false;
+  try {
+    const realArgv1 = realpathSync(process.argv[1]);
+    const realImportMeta = realpathSync(fileURLToPath(import.meta.url));
+    return realArgv1 === realImportMeta;
+  } catch {
+    return false;
+  }
+})();
 
 if (isMainModule) {
-  main().catch(console.error);
+  main().catch((error: unknown) => {
+    console.error("Unhandled fatal error:", error);
+    process.exit(1);
+  });
 }
