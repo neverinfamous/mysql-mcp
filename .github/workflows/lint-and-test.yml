@@ -97,7 +97,7 @@ jobs:
           docker run --rm -d --name pr-smoke -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 \
             -e TOOL_FILTER=router pr-smoke-test:latest \
-            --transport http --port 3000 --host 0.0.0.0 --no-auth-enforcement --tool-filter router
+            --transport http --port 3000 --server-host 0.0.0.0 --no-auth-enforcement --tool-filter router
           sleep 5
           if ! docker ps --filter name=pr-smoke --format '{{.Status}}' | grep -q "Up"; then
             echo "❌ Docker smoke test failed — container crashed on startup"
