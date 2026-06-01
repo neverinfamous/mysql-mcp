@@ -65,6 +65,9 @@ RUN npm install -g npm@latest && \
 RUN addgroup -g 1001 app && \
     adduser -D -u 1001 -G app app
 
+# Configure default bind host for HTTP transport in Docker
+ENV MCP_HOST=0.0.0.0
+
 # Copy package files
 COPY package*.json ./
 
