@@ -26,6 +26,7 @@ import {
   validateWhereClause,
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE, IDEMPOTENT } from "../../../../utils/annotations.js";
+import { progressFactory } from "../../../../progress/index.js";
 
 /**
  * Format a value for MySQL export.
@@ -141,6 +142,10 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Get table data
+        const reporter = progressFactory.create(_context.progressToken);
+        reporter?.start(2, `Exporting table '${table}'...`);
+        reporter?.progress(0, "Executing query...");
+
         let sql = `SELECT * FROM \`${table}\``;
         if (where) {
           sql += ` WHERE ${where}`;
@@ -153,6 +158,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           const result = await adapter.executeReadQuery(sql);
           rows = result.rows ?? [];
+          reporter?.progress(1, `Processing ${rows.length} rows...`);
         } catch (error) {
           return withTokenEstimate(
             formatHandlerErrorResponse(error) as unknown as Record<
@@ -164,6 +170,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (format === "CSV") {
           if (rows.length === 0) {
+            reporter?.complete();
             return withTokenEstimate({
               success: true,
               data: { csv: "", rowCount: 0 },
@@ -172,6 +179,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
 
           const firstRow = rows[0];
           if (!firstRow) {
+            reporter?.complete();
             return withTokenEstimate({
               success: true,
               data: { csv: "", rowCount: 0 },
@@ -186,6 +194,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             csvLines.push(values.join(","));
           }
 
+          reporter?.complete();
           return withTokenEstimate({
             success: true,
             data: {
@@ -196,6 +205,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (format === "JSON") {
+          reporter?.complete();
           return withTokenEstimate({
             success: true,
             data: {
@@ -208,6 +218,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         // SQL format
         const firstRow = rows[0];
         if (!firstRow) {
+          reporter?.complete();
           return withTokenEstimate({
             success: true,
             data: { sql: "", rowCount: 0 },
@@ -229,6 +240,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
+        reporter?.complete();
         return withTokenEstimate({
           success: true,
           data: {
@@ -277,6 +289,9 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
         let totalInserted = 0;
 
+        const reporter = progressFactory.create(_context.progressToken);
+        reporter?.start(data.length, `Importing ${data.length} rows...`);
+
         try {
           const firstRow = data[0];
           if (!firstRow)
@@ -289,6 +304,10 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
           const batchSize = 100;
           for (let i = 0; i < data.length; i += batchSize) {
+            reporter?.progress(
+              i,
+              `Importing rows ${i} to ${Math.min(i + batchSize, data.length)}...`,
+            );
             const chunk = data.slice(i, i + batchSize);
             const valueGroups = [];
             const flatValues: unknown[] = [];
@@ -321,6 +340,8 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             },
           });
         }
+
+        reporter?.complete();
 
         return withTokenEstimate({
           success: true,

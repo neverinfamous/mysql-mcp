@@ -1,15 +1,17 @@
 # MySQL MCP Server
 
 [![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CodeQL](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/codeql.yml)
-[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
+![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)
+[![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
 [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
-![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)
-![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)
-![Coverage](https://img.shields.io/badge/Coverage-90%25-green.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp)
+[![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
+[![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-89.74%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -82,7 +84,11 @@ Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and
 
 Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
 
-- **Process-level isolation** — user code runs in a separate V8 instance with enforced heap limits
+- **V8 code generation restrictions** — `eval()` and `Function()` construction from strings disabled at the engine level via `codeGeneration: { strings: false, wasm: false }`
+- **Frozen prototypes** — all built-in prototypes frozen inside the vm context to prevent dynamic constructor chain escapes
+- **18 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network access
+- **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
+- **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - **Hard timeouts** — worker termination if execution exceeds the configured limit
 - **Full API access** — all 25 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
@@ -240,48 +246,50 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
 | `starter`       | **39** | Standard Package   | core, json, transactions, text, codemode                           |
 | `essential`     | 16     | Minimal footprint  | core, transactions, codemode                                       |
-| `dev-power`     | 47     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
+| `dev-power`     | 63     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
 | `ai-data`       | 46     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
-| `ai-spatial`    | 44     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
-| `dba-monitor`   | 36     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
-| `dba-manage`    | 34     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
+| `ai-spatial`    | 59     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
+| `dba-monitor`   | 39     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
+| `dba-manage`    | 38     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
 | `dba-secure`    | 33     | DBA Security       | core, security, roles, transactions, codemode                      |
 | `dba-schema`    | 32     | DBA Schema         | core, schema, introspection, migration, codemode                   |
-| `base-core`     | 49     | Base Ops           | core, json, transactions, text, schema, codemode                   |
-| `base-advanced` | 41     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
+| `base-core`     | 50     | Base Ops           | core, json, transactions, text, schema, codemode                   |
+| `base-advanced` | 53     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
 | `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell, codemode                         |
 
-### Tool Groups (25 Available)
+### Tool Groups (27 Available)
 
 > Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-| Group          | Tools | Description                                             |
-| -------------- | ----- | ------------------------------------------------------- |
-| `codemode`     | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
-| `core`         | 8     | Read/write queries, tables, indexes                     |
-| `transactions` | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
-| `json`         | 17    | JSON functions, merge, diff, stats                      |
-| `text`         | 6     | REGEXP, LIKE, SOUNDEX                                   |
-| `fulltext`     | 5     | Natural language & boolean search                       |
-| `performance`  | 8     | EXPLAIN, query analysis, slow queries                   |
-| `optimization` | 4     | Index hints, recommendations                            |
-| `admin`        | 6     | OPTIMIZE, ANALYZE, CHECK                                |
-| `monitoring`   | 7     | PROCESSLIST, status variables                           |
-| `backup`       | 4     | Export, import, mysqldump                               |
-| `replication`  | 5     | Master/slave, binlog                                    |
-| `partitioning` | 4     | Partition management                                    |
-| `schema`       | 11    | Views, procedures, triggers, constraints                |
-| `shell`        | 10    | MySQL Shell utilities                                   |
-| `events`       | 6     | Event Scheduler management                              |
-| `sysschema`    | 8     | sys schema diagnostics                                  |
-| `stats`        | 8     | Statistical analysis tools                              |
-| `spatial`      | 12    | Spatial/GIS operations                                  |
-| `security`     | 9     | Audit, SSL, encryption, masking                         |
-| `roles`        | 8     | MySQL 8.0 role management                               |
-| `docstore`     | 9     | Document Store collections                              |
-| `cluster`      | 10    | Group Replication, InnoDB Cluster                       |
-| `proxysql`     | 11    | ProxySQL management                                     |
-| `router`       | 9     | MySQL Router REST API                                   |
+| Group           | Tools | Description                                             |
+| --------------- | ----- | ------------------------------------------------------- |
+| `codemode`      | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
+| `core`          | 8     | Read/write queries, tables, indexes                     |
+| `transactions`  | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
+| `json`          | 17    | JSON functions, merge, diff, stats                      |
+| `text`          | 6     | REGEXP, LIKE, SOUNDEX                                   |
+| `fulltext`      | 5     | Natural language & boolean search                       |
+| `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
+| `optimization`  | 4     | Index hints, recommendations                            |
+| `admin`         | 7     | OPTIMIZE, ANALYZE, CHECK, insights                      |
+| `monitoring`    | 7     | PROCESSLIST, status variables                           |
+| `backup`        | 7     | Export, import, mysqldump, audit backups                |
+| `replication`   | 5     | Master/slave, binlog                                    |
+| `partitioning`  | 4     | Partition management                                    |
+| `schema`        | 11    | Views, procedures, triggers, constraints                |
+| `introspection` | 6     | Dependency graphs, cascade simulation, snapshots        |
+| `migration`     | 6     | Schema versioning, apply, rollback, history             |
+| `shell`         | 10    | MySQL Shell utilities                                   |
+| `events`        | 6     | Event Scheduler management                              |
+| `sysschema`     | 8     | sys schema diagnostics                                  |
+| `stats`         | 20    | Statistical analysis, window functions, sampling        |
+| `spatial`       | 12    | Spatial/GIS operations                                  |
+| `security`      | 9     | Audit, SSL, encryption, masking                         |
+| `roles`         | 8     | MySQL 8.0 role management                               |
+| `docstore`      | 9     | Document Store collections                              |
+| `cluster`       | 10    | Group Replication, InnoDB Cluster                       |
+| `proxysql`      | 11    | ProxySQL management                                     |
+| `router`        | 9     | MySQL Router REST API                                   |
 
 ---
 
@@ -293,10 +301,11 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 
 Schema metadata is cached to reduce repeated queries during tool/resource invocations.
 
-| Variable                | Default | Description                                        |
-| ----------------------- | ------- | -------------------------------------------------- |
-| `METADATA_CACHE_TTL_MS` | `30000` | Cache TTL for schema metadata (milliseconds)       |
-| `LOG_LEVEL`             | `info`  | Log verbosity: `debug`, `info`, `warning`, `error` |
+| Variable                    | Default  | Description                                                         |
+| --------------------------- | -------- | ------------------------------------------------------------------- |
+| `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
+| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`                  |
+| `CODE_MODE_MAX_RESULT_SIZE` | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 

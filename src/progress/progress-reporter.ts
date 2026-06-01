@@ -86,6 +86,27 @@ export class ProgressReporter {
   }
 
   /**
+   * Alias for report() starting the operation
+   */
+  start(total: number, message: string): void {
+    this.report(0, total, message);
+  }
+
+  /**
+   * Alias for report() during the operation
+   */
+  progress(
+    progress: number,
+    totalOrMessage?: number | string,
+    message?: string,
+  ): void {
+    const total =
+      typeof totalOrMessage === "number" ? totalOrMessage : undefined;
+    const msg = typeof totalOrMessage === "string" ? totalOrMessage : message;
+    this.report(progress, total, msg);
+  }
+
+  /**
    * Report completion with optional final message
    */
   complete(message?: string): void {

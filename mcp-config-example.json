@@ -12,7 +12,10 @@
         "MYSQL_POOL_SIZE": "10",
         "OAUTH_ENABLED": "false",
         "LOG_LEVEL": "info",
-        "MYSQL_MCP_TOOL_FILTER": "starter"
+        "MYSQL_MCP_TOOL_FILTER": "starter",
+        "METADATA_CACHE_TTL_MS": "30000",
+        "CODEMODE_ISOLATION": "worker",
+        "CODE_MODE_MAX_RESULT_SIZE": "102400"
       }
     }
   }

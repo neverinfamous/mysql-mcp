@@ -34,9 +34,14 @@ const overviewMd = readFileSync(
 ).trim();
 const overviewEscaped = escapeForTemplateLiteral(overviewMd);
 
-// Read all help files (everything except overview.md)
+// Read all help files (everything except overview.md and readme files)
 const helpFiles = readdirSync(helpDir)
-  .filter((f) => f.endsWith(".md") && f !== "overview.md")
+  .filter(
+    (f) =>
+      f.endsWith(".md") &&
+      f !== "overview.md" &&
+      !f.toLowerCase().startsWith("readme"),
+  )
   .sort();
 
 const helpEntries: { key: string; content: string }[] = [];

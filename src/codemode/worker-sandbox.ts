@@ -108,6 +108,25 @@ export class WorkerSandbox {
         // Set up RPC listener on main thread side (port1)
         rpcChannel.port1.on("message", (msg: RpcRequest) => {
           const { id, group, method, args } = msg;
+
+          // RPC allowlist validation: verify the method is in the serialized bindings
+          const allowedMethods = Object.prototype.hasOwnProperty.call(
+            serialized,
+            group,
+          )
+            ? serialized[group]
+            : undefined;
+          if (
+            !Array.isArray(allowedMethods) ||
+            !allowedMethods.includes(method)
+          ) {
+            rpcChannel?.port1.postMessage({
+              id,
+              error: `Unauthorized RPC: '${group}.${method}' not in allowlist`,
+            });
+            return;
+          }
+
           void (async () => {
             try {
               let fn: unknown;
@@ -148,17 +167,32 @@ export class WorkerSandbox {
           })();
         });
 
+        // Resolve max result size from env (default 100KB, cap 50MB)
+        let maxResultSize = process.env["CODE_MODE_MAX_RESULT_SIZE"]
+          ? parseInt(process.env["CODE_MODE_MAX_RESULT_SIZE"], 10)
+          : 100 * 1024;
+
+        if (Number.isNaN(maxResultSize) || maxResultSize <= 0) {
+          maxResultSize = 100 * 1024;
+        } else if (maxResultSize > 50 * 1024 * 1024) {
+          maxResultSize = 50 * 1024 * 1024; // Cap at 50MB
+        }
+
         worker = new Worker(WORKER_SCRIPT_PATH, {
           workerData: {
             code,
             apiBindings: serialized,
             timeout: this.options.timeoutMs,
             rpcPort: rpcChannel.port2,
+            maxResultSize,
           },
           transferList: [rpcChannel.port2],
           resourceLimits: {
             maxOldGenerationSizeMb: this.options.memoryLimitMb,
-            maxYoungGenerationSizeMb: Math.ceil(this.options.memoryLimitMb / 4),
+            maxYoungGenerationSizeMb: Math.max(
+              8,
+              Math.floor(this.options.memoryLimitMb / 8),
+            ),
           },
         });
 

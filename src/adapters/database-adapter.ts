@@ -262,8 +262,12 @@ export abstract class DatabaseAdapter {
         ...toolOptions,
         inputSchema: tool.inputSchema as z.ZodType,
       },
-      async (params: unknown) => {
-        const context = this.createContext();
+      async (params: unknown, extra?: unknown) => {
+        const extraMeta = extra as
+          | { _meta?: { progressToken?: string | number } }
+          | undefined;
+        const progressToken = extraMeta?._meta?.progressToken;
+        const context = this.createContext(undefined, server, progressToken);
 
         const execFn = async (): Promise<CallToolResult> => {
           const result = await tool.handler(params, context);
@@ -513,11 +517,22 @@ export abstract class DatabaseAdapter {
   /**
    * Create a request context for tool execution
    */
-  createContext(requestId?: string): RequestContext {
-    return {
+  createContext(
+    requestId?: string,
+    server?: unknown,
+    progressToken?: string | number,
+  ): RequestContext {
+    const context: RequestContext = {
       timestamp: new Date(),
       requestId: requestId ?? crypto.randomUUID(),
     };
+    if (server !== undefined && server !== null) {
+      context.server = server as McpServer;
+    }
+    if (progressToken !== undefined) {
+      context.progressToken = progressToken;
+    }
+    return context;
   }
 
   /**

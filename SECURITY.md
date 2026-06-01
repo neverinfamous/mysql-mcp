@@ -1,6 +1,6 @@
 # 🔒 Security Policy
 
-The postgres-mcp PostgreSQL MCP server implements comprehensive security measures to protect your databases across stdio, HTTP, and SSE transports.
+The mysql-mcp MySQL MCP server implements comprehensive security measures to protect your databases across stdio, HTTP, and SSE transports.
 
 ## 🛡️ **Database Security**
 
@@ -50,21 +50,29 @@ Error codes are module-prefixed (e.g., `PG_CONNECTION_FAILED`, `SCHEMA_NOT_FOUND
 
 ## 🧪 **Code Mode Sandbox Security**
 
-Code Mode executes user-provided JavaScript in a Node.js `vm` context or a true V8 isolate via `worker_threads` (recommended). The standard `vm` module provides **script isolation, not security isolation** — it is not designed to resist a determined attacker with direct access. However, isolating workloads into worker threads with strict resource limits, combined with the following defense-in-depth mitigations, significantly reduces risk within the intended **trusted AI agent** threat model:
+Code Mode executes user-provided JavaScript in a hardened `worker_threads` + `vm.createContext` sandbox with multiple layers of defense-in-depth:
 
-### **Sandbox Restrictions**
+### **Engine-Level Restrictions**
 
-- ✅ **Blocked globals** — `require`, `process`, `global`, `globalThis`, `module`, `exports`, `setTimeout`, `setInterval`, `setImmediate`, `Proxy` set to `undefined`
-- ✅ **Blocked patterns** — 17 static regex rules reject code containing `require()`, `import()`, `eval()`, `Function()`, `__proto__`, `constructor.constructor`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network/child_process references
-- ✅ **Execution timeout** — 30s hard limit (configurable)
-- ✅ **Input limits** — 50KB code input, 10MB result output
+- ✅ **V8 code generation disabled** — `codeGeneration: { strings: false, wasm: false }` prevents `eval()` and `Function()` construction from strings at the V8 engine level
+- ✅ **Separate V8 isolate** — each worker thread runs in its own V8 instance with enforced heap limits (`maxOldGenerationSizeMb`, `maxYoungGenerationSizeMb`)
+- ✅ **Frozen prototypes** — all built-in prototypes (Object, Function, Array, Error, Map, Set, Promise, etc.) frozen inside the vm context to prevent dynamic constructor chain escapes like `Error()['constructor']['constructor']('return process')()`
+- ✅ **Proxy constructor nullified** — `Proxy: undefined` in the sandbox context prevents meta-object protocol abuse
+
+### **Static Code Validation**
+
+- ✅ **18 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `__proto__`, `constructor.constructor`, `['constructor']`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network/child_process references
+- ✅ **50KB code input limit** — prevents payload-based resource exhaustion
+
+### **Runtime Protection**
+
+- ✅ **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
+- ✅ **Execution timeout** — 30s hard limit (configurable) with forced worker termination
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` replacer aborts serialization mid-flight when exceeding `CODE_MODE_MAX_RESULT_SIZE` (default 100KB, cap 50MB), preventing OOM from oversized payloads
 - ✅ **Rate limiting** — 60 executions per minute per client
+- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and code preview (truncated to 200 chars)
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled
-
-> **⚠️ Threat Model:** Code Mode is designed for use by **trusted AI agents**, not for executing arbitrary untrusted code from end users. The `vm` module does not provide a true security boundary — a sufficiently determined attacker with direct access could potentially escape the sandbox (e.g., via fragmented `constructor` chain access on exposed built-in Error types). Static pattern blocking catches the known literal forms (`constructor.constructor`) but not dynamically constructed variants.
->
-> **For untrusted input deployments:** Use process-level sandboxing such as running the container with `--cap-drop=ALL`, or replace `vm` with `isolated-vm` for V8 isolate-level separation.
 
 ## 🌐 **HTTP Transport Security**
 
@@ -210,7 +218,13 @@ docker run --memory=1g --cpus=1 neverinfamous/postgres-mcp:latest
 - [x] Parameterized SQL queries throughout
 - [x] Identifier sanitization (table, column, schema, index names)
 - [x] Input validation via Zod schemas
-- [x] Code Mode sandbox isolation (vm or worker_threads V8 isolate)
+- [x] Code Mode sandbox isolation (worker_threads V8 isolate + vm.createContext)
+- [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
+- [x] Code Mode frozen built-in prototypes (constructor chain escape prevention)
+- [x] Code Mode blocked patterns (18 static regex rules)
+- [x] Code Mode Proxy constructor nullified in sandbox context
+- [x] Code Mode RPC allowlist validation (host-side method authorization)
+- [x] Code Mode streaming egress boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (30s hard limit)
 - [x] Code Mode rate limiting (60 executions/min)
 - [x] Code Mode audit logging
@@ -263,4 +277,4 @@ We appreciate responsible disclosure and will acknowledge your contribution in o
 - **Database maintenance**: Run `ANALYZE` and `VACUUM` regularly for optimal performance
 - **Security patches**: Apply host system security updates
 
-The postgres-mcp PostgreSQL MCP server is designed with **security-first principles** to protect your databases while maintaining excellent performance and full PostgreSQL capability.
+The mysql-mcp MySQL MCP server is designed with **security-first principles** to protect your databases while maintaining excellent performance and full MySQL capability.

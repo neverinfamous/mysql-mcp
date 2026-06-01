@@ -16,6 +16,7 @@ import type {
 } from "../../../../types/index.js";
 import type { BackupManager } from "../../../../audit/backup-manager.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
+import { progressFactory } from "../../../../progress/index.js";
 
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
@@ -147,7 +148,12 @@ export function createAuditRestoreBackupTool(
         // But the DatabaseAdapter's executeWriteQuery doesn't inherently split.
         // We'll just pass the full script if multipleStatements is enabled, or warn.
 
+        const reporter = progressFactory.create(_context.progressToken);
+        reporter?.start(1, `Restoring snapshot ${filename}...`);
+
         await adapter.executeWriteQuery(combinedSql);
+
+        reporter?.complete();
 
         return withTokenEstimate({
           success: true,

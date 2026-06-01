@@ -1,6 +1,6 @@
-# Contributing to postgres-mcp
+# Contributing to mysql-mcp
 
-Thank you for your interest in contributing to postgres-mcp! This project is built by developers, for developers, and we welcome contributions that make the PostgreSQL MCP experience better for everyone.
+Thank you for your interest in contributing to mysql-mcp! This project is built by developers, for developers, and we welcome contributions that make the MySQL MCP experience better for everyone.
 
 ## 🚀 Quick Start
 
@@ -17,15 +17,15 @@ Thank you for your interest in contributing to postgres-mcp! This project is bui
 - **Node.js 24+** (see `engines` in `package.json`)
 - **npm** (comes with Node.js)
 - **Git** (for version control)
-- **PostgreSQL** (local instance or Docker)
+- **MySQL 5.7+ or 8.0+** (local instance or Docker)
 - **Docker** (optional, for container testing)
 
 ### Local Development
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/postgres-mcp.git
-cd postgres-mcp
+git clone https://github.com/YOUR_USERNAME/mysql-mcp.git
+cd mysql-mcp
 
 # Install dependencies
 npm install
@@ -43,23 +43,23 @@ npm run check   # Runs ESLint + TypeScript strict-mode type checking
 ### Running the Server Locally
 
 ```bash
-# Connect to a local PostgreSQL instance via stdio
-node dist/cli.js --transport stdio --postgres "postgresql://user:pass@localhost:5432/mydb"
+# Connect to a local MySQL instance via stdio
+node dist/cli.js --transport stdio --mysql "mysql://user:pass@localhost:3306/mydb"
 
 # HTTP transport (for testing with an MCP client)
-node dist/cli.js --transport http --port 3000 --postgres "postgresql://user:pass@localhost:5432/mydb"
+node dist/cli.js --transport http --port 3000 --mysql "mysql://user:pass@localhost:3306/mydb"
 ```
 
-> **Connection string required.** The server requires a valid PostgreSQL connection string. For local testing, you can use a `.env` file or pass the string directly. Never commit credentials to version control.
+> **Connection string required.** The server requires a valid MySQL connection string. For local testing, you can use a `.env` file or pass the string directly. Never commit credentials to version control.
 
 ### Docker Development (Optional)
 
 ```bash
 # Build the Docker image locally
-docker build -f Dockerfile -t postgres-mcp-dev .
+docker build -f Dockerfile -t mysql-mcp-dev .
 
 # Run with a connection string
-docker run --rm -i postgres-mcp-dev --transport stdio --postgres "postgresql://user:pass@host:5432/mydb"
+docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
 ```
 
 ## 📋 What We're Looking For
@@ -70,20 +70,20 @@ We especially welcome contributions in these areas:
 
 - **Bug fixes** and stability improvements
 - **Performance improvements** (faster tool dispatch, reduced overhead, connection pool tuning)
-- **New tools** that extend PostgreSQL capabilities within existing groups
+- **New tools** that extend MySQL capabilities within existing groups
 - **Better error messages** with actionable remediation hints
 
 ### 🔍 Medium Priority
 
 - **Enhanced Code Mode** worker-thread operations and sandbox capabilities
-- **Additional PostGIS / pgvector** advanced spatial/math tool coverage
-- **New PostgreSQL extensions integrations** (e.g., TimescaleDB)
+- **Additional MySQL 8.0+ feature coverage** (CTEs, window functions, JSON improvements)
+- **New MySQL extension integrations** (e.g., ProxySQL, MySQL Router)
 - **Documentation improvements** and Playwright end-to-end examples
 
 ### 💡 Future Features
 
-- **New tool groups** for specialized PostgreSQL workflows
-- **Additional PostgreSQL extension** integrations
+- **New tool groups** for specialized MySQL workflows
+- **Additional MySQL ecosystem integrations**
 - **Performance benchmarks** for new hot paths
 - **IDE-specific integrations** beyond MCP
 
@@ -131,14 +131,14 @@ Add your local build to `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "postgres-mcp-dev": {
+    "mysql-mcp-dev": {
       "command": "node",
       "args": [
-        "path/to/your/postgres-mcp/dist/cli.js",
+        "path/to/your/mysql-mcp/dist/cli.js",
         "--transport",
         "stdio",
-        "--postgres",
-        "postgresql://user:pass@localhost:5432/mydb"
+        "--mysql",
+        "mysql://user:pass@localhost:3306/mydb"
       ]
     }
   }
@@ -149,8 +149,8 @@ Add your local build to `~/.cursor/mcp.json`:
 
 ```bash
 # Build and run locally
-docker build -f Dockerfile -t postgres-mcp-dev .
-docker run --rm -i postgres-mcp-dev --transport stdio --postgres "postgresql://user:pass@host:5432/mydb"
+docker build -f Dockerfile -t mysql-mcp-dev .
+docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
 ```
 
 ## 📝 Coding Standards
@@ -186,7 +186,7 @@ Every tool must return structured error responses — never raw exceptions:
 }
 ```
 
-Error logic should leverage the `PostgresMcpError` hierarchy (e.g., `ValidationError`, `QueryError`). Our Auto-refinement system automatically maps generic codes to specific ones (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`) and populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` to ensure a highly-compliant JSON payload. Always propagate stack traces — don't swallow errors.
+Error logic should leverage the `MySQLMcpError` hierarchy (e.g., `ValidationError`, `QueryError`). Our Auto-refinement system automatically maps generic codes to specific ones (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`) and populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` to ensure a highly-compliant JSON payload. Always propagate stack traces — don't swallow errors.
 
 ### Input Validation
 
@@ -208,7 +208,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Adding or Modifying Tools
 
-mysql-mcp organizes tools into 25 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, and `codemode`. When adding a new tool:
+mysql-mcp organizes tools into 27 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, and `codemode`. When adding a new tool:
 
 1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
 2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`
@@ -225,7 +225,7 @@ When reporting bugs, please include:
 1. **Environment details** (OS, Node.js version, npm version)
 2. **Steps to reproduce** the issue
 3. **Expected vs actual behavior**
-4. **PostgreSQL version** and relevant extensions enabled
+4. **MySQL version** and relevant extensions enabled
 5. **MCP client details** (Cursor version, Claude Desktop, configuration)
 6. **Relevant logs** or error messages
 
@@ -294,7 +294,7 @@ Log all changes in **[`UNRELEASED.md`](UNRELEASED.md)** at the project root usin
 
 ### Working with MCP
 
-- **Test with a real PostgreSQL instance** — behaviour varies across versions and extension states
+- **Test with a real MySQL instance** — behavior varies across versions and configuration
 - **Check tool responses** — Ensure JSON responses are well-formed
 - **Output schemas** — All tools have Zod output schemas; error responses must pass validation
 - **Dual-schema pattern** — Relaxed schemas for SDK validation, strict schemas inside handlers
@@ -364,7 +364,7 @@ When contributing code, follow these security practices:
 ## 📞 Getting Help
 
 - **GitHub Issues** — Bug reports and feature requests
-- **Documentation** — Check [README.md](README.md), [Wiki](https://github.com/neverinfamous/postgres-mcp/wiki), and Docker guides first
+- **Documentation** — Check [README.md](README.md), [Wiki](https://github.com/neverinfamous/mysql-mcp/wiki), and Docker guides first
 - **Email** — **admin@adamic.tech**
 
 ## 🏆 Recognition
@@ -375,4 +375,4 @@ Contributors are recognized in:
 - **README** — Contributor acknowledgments
 - **Git history** — Your commits are permanent record
 
-Thank you for helping make postgres-mcp better for the developer community! 🚀
+Thank you for helping make mysql-mcp better for the developer community! 🚀
