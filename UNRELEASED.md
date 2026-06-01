@@ -14,6 +14,7 @@
 - **Docs**: Corrected shortcut counts in README.md and DOCKER_README.md — `dev-power` (47→63), `ai-spatial` (44→59), `dba-monitor` (36→39), `dba-manage` (34→38), `base-core` (49→50), `base-advanced` (41→53)
 - **Docs**: Fixed stale meta-group comment block in `tool-constants.ts` — all 12 shortcut totals now verified against actual group arrays
 - **Docs**: Updated `mcp-config-example.json` — added `METADATA_CACHE_TTL_MS`, `CODEMODE_ISOLATION`, and `CODE_MODE_MAX_RESULT_SIZE` env vars
+- **Docs**: Fixed a bug in `scripts/generate-server-instructions.ts` where `README.md` was accidentally compiled into the server's dynamic help payload.
 
 ### Deprecated
 
