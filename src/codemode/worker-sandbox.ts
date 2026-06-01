@@ -110,8 +110,16 @@ export class WorkerSandbox {
           const { id, group, method, args } = msg;
 
           // RPC allowlist validation: verify the method is in the serialized bindings
-          const allowedMethods = serialized[group];
-          if (!allowedMethods?.includes(method)) {
+          const allowedMethods = Object.prototype.hasOwnProperty.call(
+            serialized,
+            group,
+          )
+            ? serialized[group]
+            : undefined;
+          if (
+            !Array.isArray(allowedMethods) ||
+            !allowedMethods.includes(method)
+          ) {
             rpcChannel?.port1.postMessage({
               id,
               error: `Unauthorized RPC: '${group}.${method}' not in allowlist`,
