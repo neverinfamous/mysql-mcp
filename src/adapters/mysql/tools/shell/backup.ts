@@ -14,6 +14,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   ShellDumpInstanceInputSchema,
   ShellDumpSchemasInputSchema,
@@ -26,7 +28,9 @@ import { escapeForJS, execShellJS } from "./common.js";
 /**
  * Dump entire MySQL instance
  */
-export function createShellDumpInstanceTool(): ToolDefinition {
+export function createShellDumpInstanceTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_dump_instance",
     title: "MySQL Shell Dump Instance",
@@ -60,6 +64,9 @@ export function createShellDumpInstanceTool(): ToolDefinition {
             error: "Validation error: outputDir or outputUrl is required",
           });
         }
+
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -134,7 +141,9 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 /**
  * Dump selected schemas
  */
-export function createShellDumpSchemasTool(): ToolDefinition {
+export function createShellDumpSchemasTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_dump_schemas",
     title: "MySQL Shell Dump Schemas",
@@ -175,6 +184,9 @@ export function createShellDumpSchemasTool(): ToolDefinition {
             error: "Validation error: outputDir or outputUrl is required",
           });
         }
+
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -243,7 +255,9 @@ export function createShellDumpSchemasTool(): ToolDefinition {
 /**
  * Dump specific tables
  */
-export function createShellDumpTablesTool(): ToolDefinition {
+export function createShellDumpTablesTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_dump_tables",
     title: "MySQL Shell Dump Tables",
@@ -284,6 +298,9 @@ export function createShellDumpTablesTool(): ToolDefinition {
             error: "Validation error: outputDir or outputUrl is required",
           });
         }
+
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 

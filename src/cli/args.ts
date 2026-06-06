@@ -10,6 +10,7 @@ import type {
   OAuthConfig,
 } from "../types/index.js";
 import { logger } from "../utils/logger.js";
+import { parseAllowedIoRoots } from "../utils/security-utils.js";
 
 /**
  * Parse command line arguments
@@ -162,6 +163,13 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       case "--name":
         if (nextArg && !nextArg.startsWith("-")) {
           config.name = nextArg;
+          i++;
+        }
+        break;
+
+      case "--allowed-io-roots":
+        if (nextArg !== undefined) {
+          config.allowedIoRoots = parseAllowedIoRoots(nextArg);
           i++;
         }
         break;
@@ -348,6 +356,12 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     config.host = process.env["MCP_HOST"] ?? process.env["HOST"];
   }
 
+  // Check for allowed IO roots in environment
+  const allowedIoRoots = process.env["ALLOWED_IO_ROOTS"];
+  if (allowedIoRoots) {
+    config.allowedIoRoots = parseAllowedIoRoots(allowedIoRoots);
+  }
+
   // Check OAuth environment variables
   if (!oauthEnabled && process.env["OAUTH_ENABLED"] === "true") {
     oauthEnabled = true;
@@ -479,6 +493,8 @@ Audit Options:
   --audit-backup-data         Include sample data rows in pre-mutation snapshots
   --audit-backup-max-size <b> Max table size in bytes for data capture (default: 50MB)
 
+  --allowed-io-roots <paths>  Allowed input/output root directories (comma-separated or JSON array)
+
 Other:
   --version, -v               Show version
   --help, -h                  Show this help
@@ -495,6 +511,7 @@ Environment Variables:
   MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
   TRUST_PROXY                  Trust X-Forwarded-For (true/false)
   MCP_ENABLE_HSTS              Enable HSTS header (same as --enable-hsts)
+  ALLOWED_IO_ROOTS             Allowed input/output root directories
   LOG_LEVEL                   Log level (debug, info, warn, error)
   OAUTH_ENABLED               Enable OAuth (true/false)
   OAUTH_ISSUER                Authorization server URL

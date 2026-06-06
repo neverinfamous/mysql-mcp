@@ -193,6 +193,21 @@ export abstract class DatabaseAdapter {
 
   protected auditInterceptor: AuditInterceptor | null = null;
   protected backupManager: BackupManager | null = null;
+  protected allowedIoRoots: string[] = [];
+
+  /**
+   * Inject the allowed IO roots for filesystem boundary sandboxing.
+   */
+  setAllowedIoRoots(roots: string[] | undefined): void {
+    this.allowedIoRoots = roots ?? [];
+  }
+
+  /**
+   * Get the allowed IO roots.
+   */
+  getAllowedIoRoots(): string[] {
+    return this.allowedIoRoots;
+  }
 
   /**
    * Inject the audit interceptor.

@@ -16,6 +16,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   ShellLoadDumpInputSchema,
   ShellRunScriptInputSchema,
@@ -26,7 +28,9 @@ import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
 /**
  * Load dump to instance
  */
-export function createShellLoadDumpTool(): ToolDefinition {
+export function createShellLoadDumpTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_load_dump",
     title: "MySQL Shell Load Dump",
@@ -63,6 +67,9 @@ export function createShellLoadDumpTool(): ToolDefinition {
             error: "Validation error: inputDir or inputUrl is required",
           });
         }
+
+        assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
+
         const resolvedPath = resolve(finalInputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -242,12 +249,14 @@ export function createShellLoadDumpTool(): ToolDefinition {
   };
 }
 
-export function createShellRunScriptTool(): ToolDefinition {
+export function createShellRunScriptTool(
+  _adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_run_script",
     title: "MySQL Shell Run Script",
     description:
-      "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features.",
+      "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features. NOTE: The script executes inside the MySQL Shell process, so file access inside the script is not restricted by allowedIoRoots. Use carefully.",
     group: "shell",
     inputSchema: ShellRunScriptInputSchemaBase,
     requiredScopes: ["admin"],

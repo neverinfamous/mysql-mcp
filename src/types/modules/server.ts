@@ -54,4 +54,7 @@ export interface McpServerConfig {
 
   /** Audit logging and snapshot configuration */
   auditConfig?: AuditConfig;
+
+  /** Allowed file paths for import/export and backup operations */
+  allowedIoRoots?: string[];
 }

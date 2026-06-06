@@ -106,3 +106,7 @@ shell Tool Group (10 tools +1 code mode):
 7. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
 8. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
 9. 🔴 `mysql.shell.runScript({})` → `{success: false, error: "Validation error: ..."}`
+
+**Security boundary validation paths (🔴):**
+
+10. 🔴 `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, error: "..."}`

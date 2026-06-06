@@ -92,6 +92,7 @@ export class McpServer {
         this.backupManager = new BackupManager(
           this.config.auditConfig.backup,
           this.config.auditConfig.logPath,
+          this.config.allowedIoRoots,
         );
       }
       this.registerAuditResource();
@@ -145,6 +146,9 @@ export class McpServer {
       }
     }
 
+    // Configure security boundaries
+    adapter.setAllowedIoRoots(this.config.allowedIoRoots);
+
     // Register adapter's tools, resources, and prompts
     adapter.registerTools(this.server, this.toolFilter.enabledTools);
     adapter.registerResources(this.server);
@@ -188,6 +192,23 @@ export class McpServer {
     }
 
     logger.info("Starting MCP server...");
+
+    // Hard-gate missing security configuration for HTTP transports
+    if (
+      (this.config.transport === "http" || this.config.transport === "sse") &&
+      (!this.config.allowedIoRoots || this.config.allowedIoRoots.length === 0)
+    ) {
+      logger.error(
+        "CRITICAL SECURITY ERROR: HTTP transport requires ALLOWED_IO_ROOTS to be configured.",
+      );
+      process.exit(1);
+    }
+
+    if (!this.config.allowedIoRoots || this.config.allowedIoRoots.length === 0) {
+      logger.warn(
+        "SECURITY WARNING: ALLOWED_IO_ROOTS is empty. Tools that require filesystem access will be blocked.",
+      );
+    }
 
     try {
       await this.startTransport(this.config.transport);

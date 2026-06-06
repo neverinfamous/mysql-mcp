@@ -33,17 +33,17 @@ import {
 /**
  * Get all MySQL Shell tools
  */
-export function getShellTools(_adapter: MySQLAdapter): ToolDefinition[] {
+export function getShellTools(adapter: MySQLAdapter): ToolDefinition[] {
   return [
     createShellVersionTool(),
     createShellCheckUpgradeTool(),
-    createShellExportTableTool(),
-    createShellImportTableTool(),
-    createShellImportJSONTool(),
-    createShellDumpInstanceTool(),
-    createShellDumpSchemasTool(),
-    createShellDumpTablesTool(),
-    createShellLoadDumpTool(),
-    createShellRunScriptTool(),
+    createShellExportTableTool(adapter),
+    createShellImportTableTool(adapter),
+    createShellImportJSONTool(adapter),
+    createShellDumpInstanceTool(adapter),
+    createShellDumpSchemasTool(adapter),
+    createShellDumpTablesTool(adapter),
+    createShellLoadDumpTool(adapter),
+    createShellRunScriptTool(adapter),
   ];
 }

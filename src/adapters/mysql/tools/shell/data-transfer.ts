@@ -14,6 +14,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   ShellExportTableInputSchema,
   ShellExportTableInputSchemaBase,
@@ -32,7 +34,9 @@ import {
 /**
  * Export table to file
  */
-export function createShellExportTableTool(): ToolDefinition {
+export function createShellExportTableTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_export_table",
     title: "MySQL Shell Export Table",
@@ -58,6 +62,9 @@ export function createShellExportTableTool(): ToolDefinition {
             error: "Validation error: outputPath or outputUrl is required",
           });
         }
+        
+        assertSafeIoPath(finalOutputPath, adapter.getAllowedIoRoots());
+
         const resolvedPath = path.resolve(finalOutputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -112,7 +119,9 @@ export function createShellExportTableTool(): ToolDefinition {
 /**
  * Import table from file
  */
-export function createShellImportTableTool(): ToolDefinition {
+export function createShellImportTableTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_import_table",
     title: "MySQL Shell Import Table",
@@ -147,6 +156,9 @@ export function createShellImportTableTool(): ToolDefinition {
             error: "Validation error: inputPath or inputUrl is required",
           });
         }
+
+        assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots(), false);
+
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -221,7 +233,9 @@ export function createShellImportTableTool(): ToolDefinition {
 /**
  * Import JSON documents
  */
-export function createShellImportJSONTool(): ToolDefinition {
+export function createShellImportJSONTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_import_json",
     title: "MySQL Shell Import JSON",
@@ -253,6 +267,9 @@ export function createShellImportJSONTool(): ToolDefinition {
             error: "Validation error: inputPath or inputUrl is required",
           });
         }
+
+        assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots());
+
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 

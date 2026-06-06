@@ -90,3 +90,7 @@ shell Tool Group (10 tools +1 for code mode):
 6. 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
 7. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
 8. 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
+
+**Security boundary validation paths (🔴):**
+
+9. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, error: "..."}` (Sandbox boundary violation)
