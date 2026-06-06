@@ -18,3 +18,5 @@
 - Fixed lingering TypeScript diagnostic errors in `mcp-server.test.ts` relating to incomplete `AuditConfig` mocks and missing `TransportType` imports.
 - Fixed Playwright E2E tests failing with `--super-read-only` errors by correcting the default test database connection string to target port 3306 (`mysql-final`) instead of an InnoDB Cluster secondary node (port 3307).
 - Fixed missing `mysql://help/introspection` and `mysql://help/migration` resources from the active help registry.
+- Fixed E2E testing to correctly validate the `ALLOWED_IO_ROOTS` boundary via MySQL Shell tool tests, and removed incorrect testing prompts from non-filesystem backup tools.
+- Audited and updated all documentation (`SECURITY.md`, `DOCKER_README.md`, `.env.example`, `mcp-config-example.json`) to accurately reflect the `ALLOWED_IO_ROOTS` feature and platform limits.
