@@ -9,113 +9,30 @@
  * Detailed help is available on-demand via mysql://help resources.
  */
 
-import type { ToolGroup } from '../types/index.js'
-
 /**
- * Instruction detail level for token efficiency
- * - essential: Core quick access only (for token-constrained clients)
- * - standard: + dynamic help pointers for enabled groups
- * - full: + active groups summary
+ * Slim instructions for the MCP instructions field (~600-800 chars).
+ * Points agents to mysql://help resources for detailed reference.
  */
-export type InstructionLevel = 'essential' | 'standard' | 'full'
+export const INSTRUCTIONS = `# mysql-mcp (MySQL MCP Server)
 
-// =============================================================================
-// Composable Instruction Segments
-// =============================================================================
+## Quick Access
 
-/**
- * Core instructions — always included regardless of enabled groups.
- * Contains quick access table, built-in tools, and base help pointer.
- */
-const CORE_INSTRUCTIONS = `# mysql-mcp — Quick Reference
+| Purpose         | Action                    |
+| --------------- | ------------------------- |
+| Database schema | \`mysql://schema\` resource |
+| Server health   | \`mysql://capabilities\`    |
+| Tool help       | \`mysql://help\` resource   |
 
-**Tool prefix**: \`mysql_\` (e.g., \`mysql_read_query\`, \`mysql_json_extract\`)
-**Resource URI scheme**: \`mysql://\` (e.g., \`mysql://schema\`, \`mysql://tables\`)
+## Help Resources
+
+Read \`mysql://help\` for gotchas and critical usage patterns.
+Read \`mysql://help/{group}\` for group-specific tool reference.
+Only help resources for your enabled tool groups are registered.
 
 ## Structured Errors
 
 All tools return \`{success: false, error, code, category, suggestion, recoverable}\` — never raw MCP exceptions.
-Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).
-
-## Architecture
-
-\`mysql-mcp\` utilizes a highly modular architecture spanning 224 tools across 23 distinct groups (including specialized \`introspection\` and \`migration\` tools). The schema definitions are decentralized within the \`src/adapters/mysql/schemas/\` directory, ensuring strict type-safety and optimal build times.`
-
-/**
- * Code Mode summary — only included when codemode group is enabled.
- * Provides API mapping and sandbox constraints.
- */
-const CODE_MODE_INSTRUCTIONS = `
-## Code Mode
-
-API: \`mysql_execute_code\` → \`mysql.core.executeCode()\`
-Tools: \`mysql.readQuery()\`, \`mysql.writeQuery()\`, \`mysql.listTables()\`, \`mysql.describeTable()\`, \`mysql.upsert()\`, etc.
-Positional: \`readQuery("SELECT...")\`, \`exists("users", "id=1")\`, \`createIndex("users", ["email"])\`
-Discovery: \`mysql.help()\` → \`{group: methods[]}\`. \`mysql.core.help()\`, \`mysql.json.help()\` for group-specific.
-Sandbox: No \`setTimeout\`, \`setInterval\`, \`fetch\`, or network access.`
-
-/**
- * All group keys that have help content (for dynamic help pointer generation).
- */
-const HELP_GROUP_KEYS: readonly string[] = ["admin","backup","cluster","docstore","events","fulltext","introspection","json","migration","monitoring","optimization","partitioning","performance","proxysql","replication","roles","router","schema","security","shell","spatial","stats","sysschema","text","transactions"]
-
-/**
- * Build dynamic help pointers listing only the enabled groups.
- */
-function buildHelpPointers(groups: Set<ToolGroup>): string {
-    const enabledHelpGroups = HELP_GROUP_KEYS.filter((k) => groups.has(k as ToolGroup))
-    if (enabledHelpGroups.length === 0) {
-        return '\n\nRead `mysql://help` for gotchas and critical usage patterns.'
-    }
-    return '\n\n## Help Resources\n\n' +
-        'Read `mysql://help` for gotchas and critical usage patterns.\n' +
-        'Read `mysql://help/{group}` for: ' + enabledHelpGroups.join(', ') + '.'
-}
-
-/**
- * Build active groups summary listing enabled group names with tool counts.
- */
-function buildActiveGroupsSummary(groups: Set<ToolGroup>, enabledToolCount: number): string {
-    const groupList = [...groups].sort().join(', ')
-    return `\n\n## Active Tools (${String(enabledToolCount)})\n\nGroups: ${groupList}`
-}
-
-// =============================================================================
-// Public API
-// =============================================================================
-
-/**
- * Generate dynamic instructions based on enabled tool groups and instruction level.
- */
-export function generateInstructions(
-    enabledGroups: Set<ToolGroup>,
-    level: InstructionLevel = 'standard',
-    enabledToolCount?: number,
-): string {
-    let instructions = CORE_INSTRUCTIONS
-
-    if (enabledGroups.has('codemode')) {
-        instructions += CODE_MODE_INSTRUCTIONS
-    }
-
-    if (level === 'essential') {
-        instructions += '\n\nRead `mysql://help` for gotchas and critical usage patterns.'
-    } else {
-        instructions += buildHelpPointers(enabledGroups)
-    }
-
-    if (level === 'full' && enabledToolCount !== undefined) {
-        instructions += buildActiveGroupsSummary(enabledGroups, enabledToolCount)
-    }
-
-    return instructions
-}
-
-/**
- * Static instructions for backward compatibility.
- * @deprecated Use generateInstructions() instead for dynamic content
- */
-export const INSTRUCTIONS = CORE_INSTRUCTIONS;
+Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).`;
 
 /**
  * Help content keyed by group name.

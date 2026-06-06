@@ -12,6 +12,8 @@ Report exactly what you received in the MCP server instructions during initializ
 - Character count of the instructions
 - Does it mention help resources? If so, what URIs?
 - Does it contain detailed tool parameter tables or response structure docs? (It should NOT)
+- Does it reference `mysql://help` for gotchas?
+- Does it reference `mysql://help/{group}` for group-specific help?
 
 ## Step 2: Help Resource Access
 
@@ -44,7 +46,7 @@ Based on steps 1-4, answer:
 
 | #   | Check                                                      | Result   |
 | --- | ---------------------------------------------------------- | -------- |
-| 1   | Instructions are slim (<1000 chars), not monolithic        | ✅ or ❌ |
+| 1   | Instructions are slim (<900 chars), static, not monolithic | ✅ or ❌ |
 | 2   | Instructions reference help resources (`mysql://help`)     | ✅ or ❌ |
 | 3   | Main help resource is readable                             | ✅ or ❌ |
 | 4   | Group-specific help resource is readable                   | ✅ or ❌ |

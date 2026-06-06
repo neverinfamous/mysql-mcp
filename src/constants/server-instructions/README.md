@@ -17,7 +17,6 @@ If you need to update a tool group's instructions or the general gotchas, follow
    ```
    _(or `npx tsx scripts/generate-server-instructions.ts`)_
 3. The generator script converts your markdown into escaped strings embedded in the `server-instructions.ts` generated code.
-4. **Never** attempt to add `README.md` into the generator logic. The generation script automatically ignores any file ending in `.md` and starting with `readme` (case-insensitive).
 
 ## File Structure
 

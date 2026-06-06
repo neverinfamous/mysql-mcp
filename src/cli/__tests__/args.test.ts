@@ -251,8 +251,6 @@ describe("CLI Args", () => {
         "0.0.0.0",
         "--name",
         "custom-server",
-        "--instruction-level",
-        "essential",
         "--auth-token",
         "secret-token",
         "--stateless",
@@ -261,7 +259,6 @@ describe("CLI Args", () => {
       ]);
       expect(result.config.host).toBe("0.0.0.0");
       expect(result.config.name).toBe("custom-server");
-      expect(result.config.instructionLevel).toBe("essential");
       expect(result.config.authToken).toBe("secret-token");
       expect(result.config.stateless).toBe(true);
       expect(result.config.enableHSTS).toBe(true);
@@ -272,12 +269,6 @@ describe("CLI Args", () => {
       parseArgs(["--log-level", "warn"]);
       // It sets logger internally, we just test it parses without error
       expect(true).toBe(true);
-    });
-
-    it("should exit on invalid instruction level", () => {
-      expect(() => parseArgs(["--instruction-level", "invalid"])).toThrow(
-        "process.exit(1)",
-      );
     });
 
     it("should parse audit options", () => {
@@ -304,7 +295,6 @@ describe("CLI Args", () => {
     });
 
     it("should use environment variables for remaining options", () => {
-      vi.stubEnv("INSTRUCTION_LEVEL", "full");
       vi.stubEnv("MCP_HOST", "127.0.0.1");
       vi.stubEnv("MCP_AUTH_TOKEN", "env-token");
       vi.stubEnv("TRUST_PROXY", "true");
@@ -315,7 +305,6 @@ describe("CLI Args", () => {
 
       const result = parseArgs([]);
 
-      expect(result.config.instructionLevel).toBe("full");
       expect(result.config.host).toBe("127.0.0.1");
       expect(result.config.authToken).toBe("env-token");
       expect(result.config.trustProxy).toBe(true);

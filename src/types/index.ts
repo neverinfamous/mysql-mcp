@@ -55,7 +55,6 @@ export type {
   ResourceAnnotations,
   ResourceDefinition,
   PromptDefinition,
-  InstructionLevel,
 } from "./modules/tools.js";
 
 // Error classes

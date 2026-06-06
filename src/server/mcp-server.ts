@@ -8,7 +8,7 @@
 import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
-  generateInstructions,
+  INSTRUCTIONS,
   HELP_CONTENT,
 } from "../constants/server-instructions.js";
 import { VERSION } from "../utils/version.js";
@@ -63,14 +63,8 @@ export class McpServer {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.toolFilter = parseToolFilter(this.config.toolFilter);
 
-    // Generate dynamic instructions based on enabled tool groups and level
-    const enabledGroups = getEnabledGroups(this.toolFilter.enabledTools);
-    const level = this.config.instructionLevel ?? "standard";
-    const instructions = generateInstructions(
-      enabledGroups,
-      level,
-      this.toolFilter.enabledTools.size,
-    );
+    // Use static instructions
+    const instructions = INSTRUCTIONS;
 
     this.server = new SdkMcpServer(
       {

@@ -16,7 +16,7 @@ const BASE_URL = "http://localhost:3000";
 
 function getDefaultMysqlUrl(): string {
   return (
-    process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"
+    process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3306/testdb"
   );
 }
 
