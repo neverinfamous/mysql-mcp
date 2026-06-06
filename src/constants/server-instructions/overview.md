@@ -18,3 +18,7 @@ Only help resources for your enabled tool groups are registered.
 
 All tools return `{success: false, error, code, category, suggestion, recoverable}` — never raw MCP exceptions.
 Table-querying tools return `{exists: false, table}` for nonexistent tables (P154 pattern).
+
+## Security Sandbox
+
+Tools interacting with the filesystem (like `backup` or `shell` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the `ALLOWED_IO_ROOTS` server configuration.

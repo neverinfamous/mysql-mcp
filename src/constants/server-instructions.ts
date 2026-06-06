@@ -32,7 +32,11 @@ Only help resources for your enabled tool groups are registered.
 ## Structured Errors
 
 All tools return \`{success: false, error, code, category, suggestion, recoverable}\` — never raw MCP exceptions.
-Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).`;
+Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).
+
+## Security Sandbox
+
+Tools interacting with the filesystem (like \`backup\` or \`shell\` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the \`ALLOWED_IO_ROOTS\` server configuration.`;
 
 /**
  * Help content keyed by group name.
@@ -60,6 +64,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Export error handling**: \`mysql_export_table\` returns \`{ exists: false, table }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., invalid WHERE clause, unknown column). No raw exceptions are thrown.
 - **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist. Returns \`{ exists: false, table }\` gracefully if the table does not exist.
 - **Import error handling**: \`mysql_import_data\` returns \`{ success: false, error, rowsInserted }\` for all insertion failures (duplicate keys, unknown columns, data truncation) instead of throwing, reporting how many rows were successfully inserted before the error.
+- **Filesystem Sandbox**: All tools writing or reading files require target paths to be absolute and strictly within the permitted \`ALLOWED_IO_ROOTS\` configuration.
 - **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.`],
   ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
 
@@ -305,6 +310,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **JSON import**: \`mysqlsh_import_json\` uses \`util.importJson()\` for document import. Supports both NDJSON (one JSON object per line) and multi-line JSON objects. **Does NOT support JSON arrays.** **Requires X Protocol (port 33060)**.
 - **Dump utilities**: \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\` create compressed parallel dumps. Use \`dryRun: true\` to preview. All dump tools return structured error messages for privilege issues with actionable guidance.
 - **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`. Use \`dryRun: true\` to preview what would be loaded without applying changes. Returns \`{ success: false, error, hint }\` for duplicate object conflicts.
+- **Filesystem Sandbox**: Any tools interacting with the filesystem (\`mysqlsh_export_table\`, dump/load) strictly enforce absolute paths that must resolve within the configured \`ALLOWED_IO_ROOTS\`.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use \`ddlOnly: true\` (schemas) or \`all: false\` (tables) to skip restricted metadata.
 - **Error handling**: All shell tools return \`{ success: false, error }\` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a \`hint\` field with actionable remediation guidance.`],
   ["spatial", `# Spatial Tools (\`mysql_spatial_*\`)
