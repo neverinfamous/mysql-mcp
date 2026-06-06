@@ -78,6 +78,12 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 12. `mysql_export_table({table: "test_products"})` with no limit → log token estimate
 13. Flag any response > 500 tokens as 📦
 
+## Category 5: Security Sandbox Violations
+
+14. `mysql_export_table({table: "test_products", format: "CSV", limit: 3, outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
+15. `mysql_create_dump({database: "testdb", tables: ["test_products"], outputPath: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
+16. `mysql_import_data({table: "test_products", filePath: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`
+
 ## Cleanup
 
-14. Drop all `stress_*` tables
+17. Drop all `stress_*` tables

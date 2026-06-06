@@ -93,4 +93,5 @@ shell Tool Group (10 tools +1 for code mode):
 
 **Security boundary validation paths (🔴):**
 
-9. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, error: "..."}` (Sandbox boundary violation)
+9. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
+10. 🔴 `mysqlsh_dump_instance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}` (Directory traversal)

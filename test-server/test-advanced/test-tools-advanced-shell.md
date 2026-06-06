@@ -83,3 +83,9 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 14. `mysqlsh_run_script({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
 15. `mysqlsh_run_script({script: "print('hello world')", language: "javascript"})` → verify success
 16. `mysqlsh_run_script({script: ""})` → verify behavior with empty script
+
+## Category 5: Security Sandbox Violations
+
+17. `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
+18. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
+19. `mysqlsh_load_dump({inputUrl: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`

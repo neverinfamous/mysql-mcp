@@ -78,3 +78,8 @@ backup Tool Group (4 tools +1 for code mode):
 **Wrong-type numeric param coercion (🔴):**
 
 7. 🔴 `mysql_export_table({table: "test_products", limit: "abc"})` → must NOT return raw MCP error
+
+**Security boundary validation paths (🔴):**
+
+8. 🔴 `mysql_create_dump({database: "testdb", tables: ["test_products"], outputPath: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}`
+9. 🔴 `mysql_import_data({table: "test_products", filePath: "C:/Windows/System32/config/SAM"})` → `{success: false, code: "SECURITY_ERROR"}`

@@ -109,4 +109,5 @@ shell Tool Group (10 tools +1 code mode):
 
 **Security boundary validation paths (🔴):**
 
-10. 🔴 `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, error: "..."}`
+10. 🔴 `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}`
+11. 🔴 `mysql.shell.dumpInstance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}`
