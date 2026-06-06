@@ -116,6 +116,7 @@ describe("McpServer", () => {
       const customServer = new McpServer({
         name: "custom-server",
         transport: "http",
+        allowedIoRoots: ["/tmp"],
       });
       const config = customServer.getConfig();
       expect(config.name).toBe("custom-server");
@@ -208,6 +209,7 @@ describe("McpServer", () => {
       const httpServer = new McpServer({
         transport: "http",
         port: 8080,
+        allowedIoRoots: ["/tmp"],
       });
 
       await httpServer.start();
@@ -226,6 +228,7 @@ describe("McpServer", () => {
     it("should configure OAuth when enabled", async () => {
       const oauthServer = new McpServer({
         transport: "http",
+        allowedIoRoots: ["/tmp"],
         oauth: {
           enabled: true,
           issuer: "https://auth.example.com",
@@ -250,6 +253,7 @@ describe("McpServer", () => {
     it("should throw if OAuth enabled but missing config", async () => {
       const badConfigServer = new McpServer({
         transport: "http",
+        allowedIoRoots: ["/tmp"],
         oauth: {
           enabled: true,
           // Missing issuer/audience
@@ -262,7 +266,7 @@ describe("McpServer", () => {
     it("should fail if transport start fails", async () => {
       mockHttpTransport.start.mockRejectedValueOnce(new Error("Port in use"));
 
-      const httpServer = new McpServer({ transport: "http" });
+      const httpServer = new McpServer({ transport: "http", allowedIoRoots: ["/tmp"] });
       await expect(httpServer.start()).rejects.toThrow("Port in use");
       expect(httpServer.isRunning()).toBe(false);
     });
@@ -271,6 +275,7 @@ describe("McpServer", () => {
       const sseServer = new McpServer({
         transport: "sse",
         port: 8081,
+        allowedIoRoots: ["/tmp"],
       });
 
       await sseServer.start();
@@ -304,14 +309,14 @@ describe("McpServer", () => {
     });
 
     it("should stop active transport", async () => {
-      const httpServer = new McpServer({ transport: "http" });
+      const httpServer = new McpServer({ transport: "http", allowedIoRoots: ["/tmp"] });
       await httpServer.start();
       await httpServer.stop();
       expect(mockHttpTransport.stop).toHaveBeenCalled();
     });
 
     it("should safely handle transport stop errors", async () => {
-      const httpServer = new McpServer({ transport: "http" });
+      const httpServer = new McpServer({ transport: "http", allowedIoRoots: ["/tmp"] });
       await httpServer.start();
 
       mockHttpTransport.stop.mockRejectedValueOnce(new Error("Stop failed"));

@@ -194,6 +194,10 @@ export function createMockMySQLAdapter(): Partial<MySQLAdapter> & {
     registerResources: vi.fn(),
     registerPrompts: vi.fn(),
 
+    // Security context
+    setAllowedIoRoots: vi.fn(),
+    getAllowedIoRoots: vi.fn().mockReturnValue(["/tmp", "C:\\temp", "/backup", "/o", "/in"]),
+
     // Schema cache invalidation
     clearSchemaCache: vi.fn(),
   };

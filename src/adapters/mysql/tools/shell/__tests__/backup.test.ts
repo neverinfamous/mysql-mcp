@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
 import * as path from "path";
-import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
+import {
+  createMockRequestContext,
+  createMockMySQLAdapter,
+} from "../../../../../__tests__/mocks/index.js";
+import type { MockMySQLAdapter } from "../../../../../__tests__/mocks/index.js";
 import {
   createShellDumpInstanceTool,
   createShellDumpSchemasTool,
@@ -15,11 +19,13 @@ vi.mock("child_process", () => ({
 describe("Shell Backup Tools", () => {
   let mockContext: ReturnType<typeof createMockRequestContext>;
   let mockSpawn: ReturnType<typeof vi.fn>;
+  let mockAdapter: MockMySQLAdapter;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
     mockSpawn = child_process.spawn as any;
+    mockAdapter = createMockMySQLAdapter();
   });
 
   afterEach(() => {
@@ -59,7 +65,7 @@ describe("Shell Backup Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellDumpInstanceTool();
+      const tool = createShellDumpInstanceTool(mockAdapter);
       const result = (await tool.handler(
         {
           outputDir: "/backup/full",
@@ -86,7 +92,7 @@ describe("Shell Backup Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellDumpInstanceTool();
+      const tool = createShellDumpInstanceTool(mockAdapter);
       await tool.handler(
         {
           outputDir: "/backup/full",
@@ -110,7 +116,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied for user", 1);
 
-      const tool = createShellDumpInstanceTool();
+      const tool = createShellDumpInstanceTool(mockAdapter);
       const result = (await tool.handler(
         { outputDir: "/backup/full" },
         mockContext,
@@ -124,7 +130,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for Fatal error during dump", async () => {
       setupMockSpawn("", "Fatal error during dump: Writing schema metadata", 1);
 
-      const tool = createShellDumpInstanceTool();
+      const tool = createShellDumpInstanceTool(mockAdapter);
       const result = (await tool.handler(
         { outputDir: "/backup/full" },
         mockContext,
@@ -138,7 +144,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Connection refused", 1);
 
-      const tool = createShellDumpInstanceTool();
+      const tool = createShellDumpInstanceTool(mockAdapter);
       const result = (await tool.handler(
         { outputDir: "/backup/full" },
         mockContext,
@@ -157,7 +163,7 @@ describe("Shell Backup Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: ["db1", "db2"],
@@ -189,11 +195,11 @@ describe("Shell Backup Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       await tool.handler(
         {
           schemas: ["db1"],
-          outputDir: "/out",
+          outputDir: "/o",
           dryRun: true,
           includeTables: ["t1"],
           excludeTables: ["t2"],
@@ -214,7 +220,7 @@ describe("Shell Backup Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: ["db1"],
@@ -236,7 +242,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for EVENT privilege errors", async () => {
       setupMockSpawn("", "You do not have the EVENT privilege", 1);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: ["db1"],
@@ -253,7 +259,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for TRIGGER privilege errors", async () => {
       setupMockSpawn("", "TRIGGER privilege required", 1);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: ["db1"],
@@ -270,7 +276,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for generic privilege errors", async () => {
       setupMockSpawn("", "Access denied - privilege required", 1);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: ["db1"],
@@ -287,7 +293,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Table not found", 1);
 
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: ["db1"],
@@ -301,7 +307,7 @@ describe("Shell Backup Tools", () => {
     });
 
     it("should return structured error for empty schemas array", async () => {
-      const tool = createShellDumpSchemasTool();
+      const tool = createShellDumpSchemasTool(mockAdapter);
       const result = (await tool.handler(
         {
           schemas: [],
@@ -323,7 +329,7 @@ describe("Shell Backup Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "db1",
@@ -348,7 +354,7 @@ describe("Shell Backup Tools", () => {
 
     it("should support compression option", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       await tool.handler(
         {
           schema: "s",
@@ -365,7 +371,7 @@ describe("Shell Backup Tools", () => {
 
     it("should disable triggers when all=false (default)", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",
@@ -383,7 +389,7 @@ describe("Shell Backup Tools", () => {
 
     it("should include triggers when all=true", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",
@@ -403,7 +409,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied - privilege required", 1);
 
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",
@@ -421,7 +427,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for TRIGGER privilege errors", async () => {
       setupMockSpawn("", "TRIGGER privilege required", 1);
 
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",
@@ -440,7 +446,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for Fatal error during dump", async () => {
       setupMockSpawn("", "Fatal error during dump occurred", 1);
 
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",
@@ -458,7 +464,7 @@ describe("Shell Backup Tools", () => {
     it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Connection timeout", 1);
 
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",
@@ -473,7 +479,7 @@ describe("Shell Backup Tools", () => {
     });
 
     it("should return structured error for empty tables array", async () => {
-      const tool = createShellDumpTablesTool();
+      const tool = createShellDumpTablesTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "s",

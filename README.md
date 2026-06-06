@@ -692,6 +692,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
+| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |

@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
 import * as path from "path";
-import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
+import {
+  createMockRequestContext,
+  createMockMySQLAdapter,
+} from "../../../../../__tests__/mocks/index.js";
+import type { MockMySQLAdapter } from "../../../../../__tests__/mocks/index.js";
 import {
   createShellExportTableTool,
   createShellImportTableTool,
@@ -15,11 +19,13 @@ vi.mock("child_process", () => ({
 describe("Shell Data Transfer Tools", () => {
   let mockContext: ReturnType<typeof createMockRequestContext>;
   let mockSpawn: ReturnType<typeof vi.fn>;
+  let mockAdapter: MockMySQLAdapter;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
     mockSpawn = child_process.spawn as any;
+    mockAdapter = createMockMySQLAdapter();
   });
 
   afterEach(() => {
@@ -59,12 +65,12 @@ describe("Shell Data Transfer Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellExportTableTool();
+      const tool = createShellExportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
           table: "users",
-          outputPath: "/tmp/dump",
+          outputPath: "/tmp/dump.csv",
           format: "csv",
         },
         mockContext,
@@ -82,7 +88,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should export table with TSV format (default behavior)", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
 
-      const tool = createShellExportTableTool();
+      const tool = createShellExportTableTool(mockAdapter);
       await tool.handler(
         {
           schema: "test",
@@ -101,12 +107,12 @@ describe("Shell Data Transfer Tools", () => {
     it("should export table with WHERE clause", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
 
-      const tool = createShellExportTableTool();
+      const tool = createShellExportTableTool(mockAdapter);
       await tool.handler(
         {
           schema: "test",
           table: "users",
-          outputPath: "/tmp/users_filtered",
+          outputPath: "/tmp/users_filtered.csv",
           format: "csv",
           where: "age > 18",
         },
@@ -120,12 +126,12 @@ describe("Shell Data Transfer Tools", () => {
     it("should escape backslashes in path", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
 
-      const tool = createShellExportTableTool();
+      const tool = createShellExportTableTool(mockAdapter);
       await tool.handler(
         {
           schema: "test",
           table: "users",
-          outputPath: "C:\\temp\\dump",
+          outputPath: "C:\\temp\\dump.csv",
           format: "csv",
         },
         mockContext,
@@ -139,12 +145,12 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied for user", 1);
 
-      const tool = createShellExportTableTool();
+      const tool = createShellExportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
           table: "users",
-          outputPath: "/tmp/dump",
+          outputPath: "/tmp/dump.csv",
           format: "csv",
         },
         mockContext,
@@ -158,12 +164,12 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error for non-privilege errors", async () => {
       setupMockSpawn("", "Connection timeout", 1);
 
-      const tool = createShellExportTableTool();
+      const tool = createShellExportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
           table: "users",
-          outputPath: "/tmp/dump",
+          outputPath: "/tmp/dump.csv",
           format: "csv",
         },
         mockContext,
@@ -182,7 +188,7 @@ describe("Shell Data Transfer Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellImportTableTool();
+      const tool = createShellImportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
@@ -215,7 +221,7 @@ describe("Shell Data Transfer Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellImportTableTool();
+      const tool = createShellImportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
@@ -236,7 +242,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error when local_infile is disabled", async () => {
       setupMockSpawn("", "ERROR: local_infile is disabled", 1);
 
-      const tool = createShellImportTableTool();
+      const tool = createShellImportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
@@ -254,7 +260,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error when Loading local data is disabled", async () => {
       setupMockSpawn("", "Loading local data is disabled", 1);
 
-      const tool = createShellImportTableTool();
+      const tool = createShellImportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
@@ -272,7 +278,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error for non-local_infile errors", async () => {
       setupMockSpawn("", "Some other error", 1);
 
-      const tool = createShellImportTableTool();
+      const tool = createShellImportTableTool(mockAdapter);
       const result = (await tool.handler(
         {
           schema: "test",
@@ -295,7 +301,7 @@ describe("Shell Data Transfer Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -319,7 +325,7 @@ describe("Shell Data Transfer Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       await tool.handler(
         {
           inputPath: "/tmp/data.json",
@@ -343,7 +349,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return raw output when no JSON found but exit code 0", async () => {
       setupMockSpawn("Some non-JSON success output", "", 0);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -360,7 +366,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error for import failure", async () => {
       setupMockSpawn("Import failed", "", 1);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/bad.json",
@@ -377,7 +383,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error for X Protocol access denied in stderr", async () => {
       setupMockSpawn("", "Access denied for user", 0);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -395,7 +401,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error for X Protocol 1045 error in stderr", async () => {
       setupMockSpawn("", "MySQL Error 1045: Access denied", 0);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -417,7 +423,7 @@ describe("Shell Data Transfer Tools", () => {
         0,
       );
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -434,7 +440,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error when success: false without error message", async () => {
       setupMockSpawn(JSON.stringify({ success: false }), "", 0);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -456,7 +462,7 @@ describe("Shell Data Transfer Tools", () => {
         0,
       );
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -477,7 +483,7 @@ describe("Shell Data Transfer Tools", () => {
         0,
       );
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/docs.json",
@@ -494,7 +500,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error with stderr on non-zero exit code", async () => {
       setupMockSpawn("", "Fatal shell error", 1);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/bad.json",
@@ -511,7 +517,7 @@ describe("Shell Data Transfer Tools", () => {
     it("should return structured error with stdout when no stderr on failure", async () => {
       setupMockSpawn("stdout error message only", "", 1);
 
-      const tool = createShellImportJSONTool();
+      const tool = createShellImportJSONTool(mockAdapter);
       const result = (await tool.handler(
         {
           inputPath: "/tmp/bad.json",
