@@ -48,6 +48,16 @@ Error codes are module-prefixed (e.g., `PG_CONNECTION_FAILED`, `SCHEMA_NOT_FOUND
 - ✅ **Parameterized queries** used throughout — never string interpolation
 - ✅ **Identifier sanitization** — table, column, schema, and index names validated against injection
 
+## 📁 **Filesystem Boundary Sandbox**
+
+All file I/O operations exposed by the server (such as MySQL Shell dump, load, import, export tools, and the Audit Subsystem snapshots) are strictly confined to a dedicated security sandbox.
+
+- ✅ **`ALLOWED_IO_ROOTS` Enforcement** — operations must target absolute paths within administrator-configured directories. HTTP transports hard-fail on startup if this is not configured.
+- ✅ **Path Traversal Prevention** — blocks directory traversal sequences (`..`), null bytes, and query parameters in path inputs.
+- ✅ **Symlink Awareness** — resolves and asserts `realpath` to prevent escaping the sandbox via symlink targets.
+- ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories (unless explicitly authorized by the root config).
+- ✅ **Drive Letter Validation** — fully cross-platform compatible with strict Windows drive letter (`C:\`) and UNC path checking.
+
 ## 🧪 **Code Mode Sandbox Security**
 
 Code Mode executes user-provided JavaScript in a hardened `worker_threads` + `vm.createContext` sandbox with multiple layers of defense-in-depth:
@@ -218,6 +228,7 @@ docker run --memory=1g --cpus=1 neverinfamous/postgres-mcp:latest
 - [x] Parameterized SQL queries throughout
 - [x] Identifier sanitization (table, column, schema, index names)
 - [x] Input validation via Zod schemas
+- [x] Filesystem boundary sandbox (`ALLOWED_IO_ROOTS`) for all file I/O operations
 - [x] Code Mode sandbox isolation (worker_threads V8 isolate + vm.createContext)
 - [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
 - [x] Code Mode frozen built-in prototypes (constructor chain escape prevention)
