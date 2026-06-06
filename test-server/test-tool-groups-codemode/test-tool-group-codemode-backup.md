@@ -97,8 +97,3 @@ backup Tool Group (4 tools +1 code mode):
 
 6. 🔴 `mysql.backup.exportTable({})` → `{success: false, error: "Validation error: ..."}`
 7. 🔴 `mysql.backup.createDump({})` → `{success: false, error: "Validation error: ..."}`
-
-**Security boundary validation paths (🔴):**
-
-8. 🔴 `mysql.backup.createDump({database: "testdb", tables: ["test_products"], outputPath: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}`
-9. 🔴 `mysql.backup.importData({table: "test_products", filePath: "C:/Windows/System32/config/SAM"})` → `{success: false, code: "SECURITY_ERROR"}`

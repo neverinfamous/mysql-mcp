@@ -316,3 +316,35 @@ test.describe("Boundary: Data Integrity", () => {
     }
   });
 });
+
+// =============================================================================
+// Security Sandbox
+// =============================================================================
+
+test.describe("Boundary: Security Sandbox", () => {
+  test("filesystem tools reject paths outside ALLOWED_IO_ROOTS", async ({}, testInfo) => {
+    const client = await createClient();
+    try {
+      const badPath = process.platform === "win32" ? "C:/Windows/System32/config/SAM" : "/etc/passwd";
+      
+      const result = await callToolAndParse(client, "mysqlsh_export_table", {
+        schema: "testdb",
+        table: "test_products",
+        outputPath: badPath
+      });
+
+      // Assert that we don't get a raw MCP error but a structured domain error
+      expect(result.success).toBe(false);
+      expect(result.code).toBe("SECURITY_ERROR");
+      
+      // Also verify another tool that touches the filesystem
+      const dumpResult = await callToolAndParse(client, "mysqlsh_dump_instance", {
+        outputUrl: badPath
+      });
+      expect(dumpResult.success).toBe(false);
+      expect(dumpResult.code).toBe("SECURITY_ERROR");
+    } finally {
+      await client.close();
+    }
+  });
+});
