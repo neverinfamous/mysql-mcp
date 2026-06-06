@@ -36,14 +36,14 @@
 
 - Node.js 24+
 - MySQL 5.7+ or 8.0+ server
-- npm or yarn
+- pnpm
 
 ### Installation
 
-#### NPM (Recommended)
+#### NPM / PNPM (Recommended)
 
 ```bash
-npm install -g @neverinfamous/mysql-mcp
+pnpm add -g @neverinfamous/mysql-mcp
 ```
 
 Run the server:
@@ -71,8 +71,8 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 ```bash
 git clone https://github.com/neverinfamous/mysql-mcp.git
 cd mysql-mcp
-npm install
-npm run build
+pnpm install
+pnpm run build
 node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
 ```
 

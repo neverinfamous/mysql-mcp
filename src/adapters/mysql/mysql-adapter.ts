@@ -27,7 +27,7 @@ import {
   TransactionError,
 } from "../../types/index.js";
 import { logger } from "../../utils/logger.js";
-import { VERSION } from "../../utils/version.js";
+import { VERSION } from "../../version.js";
 
 // Import tool modules
 import { getCoreTools } from "./tools/core.js";

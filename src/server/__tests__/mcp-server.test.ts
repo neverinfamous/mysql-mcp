@@ -13,7 +13,8 @@ import {
   DEFAULT_CONFIG,
 } from "../mcp-server.js";
 import { createMockMySQLAdapter } from "../../__tests__/mocks/index.js";
-import { VERSION } from "../../utils/version.js";
+import { VERSION } from "../../version.js";
+import type { TransportType } from "../../types/index.js";
 
 // Mock the StdioServerTransport
 vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
@@ -373,8 +374,12 @@ describe("McpServer", () => {
         auditConfig: {
           enabled: true,
           logPath: "test.jsonl",
+          redact: false,
+          auditReads: false,
+          maxSizeBytes: 10485760,
           backup: {
             enabled: true,
+            includeData: false,
             maxAgeDays: 30,
             maxCount: 10,
             maxDataSizeBytes: 100,

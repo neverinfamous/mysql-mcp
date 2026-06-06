@@ -22,14 +22,15 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm ci --include=dev
+RUN npm install -g pnpm && \
+    pnpm install --frozen-lockfile
 
 # Copy source code
 COPY tsconfig.json ./
 COPY src/ ./src/
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # -----------------
 # Stage 2: Runtime
@@ -50,7 +51,7 @@ RUN apk upgrade --no-cache
 # - CVE-2025-5889: brace-expansion <= 2.0.1
 # - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.15)
 # - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.5)
-RUN npm install -g npm@latest && \
+RUN npm install -g npm@latest pnpm && \
     npm install -g tar@7.5.15 && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
     cp -r /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/tar && \
@@ -72,8 +73,8 @@ ENV MCP_HOST=0.0.0.0
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --omit=dev && \
-    npm cache clean --force
+RUN pnpm install --prod --frozen-lockfile && \
+    pnpm store prune
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist

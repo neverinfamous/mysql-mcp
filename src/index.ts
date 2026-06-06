@@ -83,4 +83,4 @@ export {
 export { logger } from "./utils/logger.js";
 
 // Version
-export { VERSION } from "./utils/version.js";
+export { VERSION } from "./version.js";

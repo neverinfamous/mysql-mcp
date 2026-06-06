@@ -11,7 +11,7 @@ import {
   INSTRUCTIONS,
   HELP_CONTENT,
 } from "../constants/server-instructions.js";
-import { VERSION } from "../utils/version.js";
+import { VERSION } from "../version.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import type { DatabaseAdapter } from "../adapters/database-adapter.js";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
