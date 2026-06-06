@@ -472,6 +472,8 @@ export class McpServer {
       { group: "replication", key: "replication" },
       { group: "partitioning", key: "partitioning" },
       { group: "schema", key: "schema" },
+      { group: "introspection", key: "introspection" },
+      { group: "migration", key: "migration" },
       { group: "events", key: "events" },
       { group: "sysschema", key: "sysschema" },
       { group: "security", key: "security" },

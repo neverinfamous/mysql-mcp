@@ -61,18 +61,10 @@ These scripts are used to validate MCP server behavior dynamically:
 
 ### `test-filter-instructions.mjs`
 
-Starts the server with various `--tool-filter` and `--instruction-level` configurations and verifies that instruction sections (e.g., Code Mode, Help Groups, Active Tools) are properly included or excluded.
+Starts the server with various `--tool-filter` configurations and verifies that instruction sections are slim and that the correct `mysql://help/{group}` resources are registered based on enabled tool groups.
 
 ```bash
 node scripts/test-filter-instructions.mjs
-```
-
-### `test-instruction-levels.mjs`
-
-An integration test that compares the payload size of filtered vs. unfiltered instructions, proving token efficiency. Also verifies that excluded tool groups do not appear in the generated instructions.
-
-```bash
-node scripts/test-instruction-levels.mjs
 ```
 
 ### `test-prompts.mjs`

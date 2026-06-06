@@ -1,28 +1,21 @@
 /**
- * Filter-Aware Instruction Validation
+ * Integration Test: Filtered Instructions + Help Resources
  *
- * Starts the server with various --tool-filter and --instruction-level configs
- * and verifies that each instruction section is correctly included or excluded
- * based on enabled tool groups and instruction level.
- *
- * Validated sections:
- *   CORE         — always present (Quick Access, Built-in Tools, Help Resources heading)
- *   CODE_MODE    — only when `codemode` group is enabled
- *   HELP_GROUPS  — dynamic group list, standard+ level, only lists enabled groups
- *   ACTIVE_TOOLS — full level only, lists active groups summary
+ * Starts the server with various --tool-filter configs and verifies:
+ * 1. Instructions are slim (within client limits)
+ * 2. mysql://help resources are registered based on tool filter
+ * 3. Group-specific help resources are only registered for enabled groups
  *
  * Usage:
- *   npm run build && node scripts/test-filter-instructions.mjs
+ *   npm run build
+ *   node scripts/test-filter-instructions.mjs
  *
  * Requires: MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE env vars
  */
 
 import { spawn } from "child_process";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_DIR = resolve(__dirname, "..");
+const PROJECT_DIR = "C:\\Users\\chris\\Desktop\\mysql-mcp";
 
 // Ensure DB connection env vars are present (inherit from shell or use Docker defaults)
 if (!process.env.MYSQL_HOST) process.env.MYSQL_HOST = "127.0.0.1";
@@ -30,146 +23,76 @@ if (!process.env.MYSQL_USER) process.env.MYSQL_USER = "root";
 if (!process.env.MYSQL_PASSWORD) process.env.MYSQL_PASSWORD = "root";
 if (!process.env.MYSQL_DATABASE) process.env.MYSQL_DATABASE = "testdb";
 
-// Section markers — substrings we check for presence/absence in instructions
-const SECTIONS = {
-  CORE: "mysql-mcp — Quick Reference", // Always present
-  CODE_MODE: "API: `mysql_execute_code`", // codemode group only
-  HELP_GROUPS: "mysql://help/{group}", // standard+ level, with group list
-  ACTIVE_TOOLS: "## Active Tools", // full level only
-};
-
-// Test matrix: each entry defines a filter config and expected section presence
-const TEST_CONFIGS = [
-  {
-    label: "full (all groups, standard level)",
-    filter: null,
-    level: null, // default = standard
-    expect: {
-      CORE: true,
-      CODE_MODE: true,
-      HELP_GROUPS: true,
-      ACTIVE_TOOLS: false,
-    },
-  },
-  {
-    label: "full (all groups, essential level)",
-    filter: null,
-    level: "essential",
-    expect: {
-      CORE: true,
-      CODE_MODE: true,
-      HELP_GROUPS: false,
-      ACTIVE_TOOLS: false,
-    },
-  },
-  {
-    label: "full (all groups, full level)",
-    filter: null,
-    level: "full",
-    expect: {
-      CORE: true,
-      CODE_MODE: true,
-      HELP_GROUPS: true,
-      ACTIVE_TOOLS: true,
-    },
-  },
-  {
-    label: "core only (codemode auto-injected)",
-    filter: "core",
-    level: null,
-    expect: {
-      CORE: true,
-      CODE_MODE: true, // codemode auto-injected in whitelist mode
-      HELP_GROUPS: false, // core+codemode have no help content entries
-      ACTIVE_TOOLS: false,
-    },
-  },
-  {
-    label: "multiple groups test (core,transactions,json,schema,codemode)",
-    filter: "core,transactions,json,schema,codemode",
-    level: null,
-    expect: {
-      CORE: true,
-      CODE_MODE: true,
-      HELP_GROUPS: true,
-      ACTIVE_TOOLS: false,
-    },
-  },
-  {
-    label: "multiple groups test + full level",
-    filter: "core,transactions,json,schema,codemode",
-    level: "full",
-    expect: {
-      CORE: true,
-      CODE_MODE: true,
-      HELP_GROUPS: true,
-      ACTIVE_TOOLS: true,
-    },
-  },
-  {
-    label: "blacklist -codemode (no code mode)",
-    filter: "-codemode",
-    level: null,
-    expect: {
-      CORE: true,
-      CODE_MODE: false,
-      HELP_GROUPS: true,
-      ACTIVE_TOOLS: false,
-    },
-  },
-  {
-    label: "blacklist -spatial,-performance (groups absent from help)",
-    filter: "-spatial,-performance",
-    level: null,
-    expect: {
-      CORE: true,
-      CODE_MODE: true,
-      HELP_GROUPS: true,
-      ACTIVE_TOOLS: false,
-    },
-    // Additional validation: spatial and performance should NOT appear in help pointers
-    helpExcludes: ["spatial", "performance"],
-  },
-];
-
-/** Spawn server with given filter/level, send initialize, capture instructions */
-function runConfig(filter, level) {
+/**
+ * Start server, send initialize + resources/list, return results
+ */
+function testServer(args) {
   return new Promise((resolve, reject) => {
-    const args = ["dist/cli.js", "--log-level", "error"];
-    if (filter) args.push("--tool-filter", filter);
-    if (level) args.push("--instruction-level", level);
-
-    const proc = spawn("node", args, {
-      cwd: PROJECT_DIR,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
+    const proc = spawn(
+      "node",
+      ["dist/cli.js", "--log-level", "error", ...args],
+      {
+        cwd: PROJECT_DIR,
+        stdio: ["pipe", "pipe", "pipe"],
+      },
+    );
 
     let buffer = "";
+    let instructions = "";
+    let resourceUris = [];
+    let gotInitialize = false;
 
     proc.stdout.on("data", (chunk) => {
       buffer += chunk.toString();
       const lines = buffer.split("\n");
+      buffer = lines.pop(); // Keep incomplete line
+
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) continue;
         try {
           const msg = JSON.parse(trimmed);
+
+          // Response to initialize (id=1)
           if (msg.id === 1 && msg.result) {
-            const instructions =
+            instructions =
               msg.result?.serverInfo?.instructions ||
               msg.result?.instructions ||
               msg.result?.capabilities?.instructions ||
               "";
-            proc.kill();
-            resolve(instructions);
+            gotInitialize = true;
+
+            // Send resources/list
+            proc.stdin.write(
+              JSON.stringify({
+                jsonrpc: "2.0",
+                id: 2,
+                method: "resources/list",
+                params: {},
+              }) + "\n",
+            );
           }
-        } catch (e) {
-          // Incomplete JSON, keep buffering
-          // console.log(`Parse error on string of length ${trimmed.length}:`, e.message);
+
+          // Response to resources/list (id=2)
+          if (msg.id === 2 && msg.result) {
+            const resources = msg.result.resources || [];
+            resourceUris = resources.map((r) => r.uri);
+            proc.kill();
+            resolve({
+              instructions,
+              instructionChars: instructions.length,
+              resourceUris,
+            });
+          }
+        } catch {
+          // Not complete JSON yet
         }
       }
     });
 
+    proc.stderr.on("data", () => {});
+
+    // Send initialize request
     proc.stdin.write(
       JSON.stringify({
         jsonrpc: "2.0",
@@ -178,145 +101,148 @@ function runConfig(filter, level) {
         params: {
           protocolVersion: "2025-03-26",
           capabilities: {},
-          clientInfo: { name: "filter-instruction-test", version: "1.0" },
+          clientInfo: { name: "help-resource-test", version: "1.0" },
         },
       }) + "\n",
     );
 
-    proc.on("exit", (code) => {
-      if (code !== 0 && code !== null) {
-        reject(
-          new Error(
-            `Server exited prematurely with code ${code} (ensure MySQL is running on 3306)`,
-          ),
-        );
-      }
-    });
-
     setTimeout(() => {
       proc.kill();
-      reject(new Error("Timeout"));
+      reject(new Error(`Timeout for args: ${args.join(" ")}`));
     }, 15000);
   });
 }
 
-function tokenEstimate(text) {
-  return Math.round(text.length / 4);
-}
-
-function checkSections(instructions, expect) {
-  const results = {};
-  for (const [key, marker] of Object.entries(SECTIONS)) {
-    const present = instructions.includes(marker);
-    const shouldBePresent = expect[key];
-    results[key] = {
-      present,
-      expected: shouldBePresent,
-      pass: present === shouldBePresent,
-    };
-  }
-  return results;
-}
-
 async function main() {
-  console.log("=== Filter-Aware Instruction Validation ===\n");
+  let allPassed = true;
+
+  // ── Test 1: Slim Instructions ──
+  console.log("=== Test 1: Slim Instructions (No Filters) ===\n");
+
+  const baseResult = await testServer([]);
+  console.log(`  Instruction chars: ${baseResult.instructionChars}`);
   console.log(
-    "Checking that instruction sections are correctly included/excluded",
+    `  Token estimate: ~${Math.round(baseResult.instructionChars / 4)}`,
   );
-  console.log("per enabled tool groups and instruction level.\n");
 
-  let totalPassed = 0;
-  let totalFailed = 0;
-  const rows = [];
+  const isSlim = baseResult.instructionChars < 1000;
+  console.log(`  Under 1000 chars: ${isSlim ? "✅" : "❌"}`);
+  if (!isSlim) allPassed = false;
 
-  for (const config of TEST_CONFIGS) {
-    process.stdout.write(`  Testing: ${config.label} ... `);
-    let instructions;
-    try {
-      instructions = await runConfig(config.filter, config.level);
-    } catch (err) {
-      console.log(`❌ ERROR: ${err.message}`);
-      totalFailed++;
-      continue;
-    }
+  const hasHelpPointer = baseResult.instructions.includes("mysql://help");
+  console.log(
+    `  Contains mysql://help pointer: ${hasHelpPointer ? "✅" : "❌"}`,
+  );
+  if (!hasHelpPointer) allPassed = false;
 
-    const chars = instructions.length;
-    const tokens = tokenEstimate(instructions);
-    const sectionResults = checkSections(instructions, config.expect);
+  // ── Test 2: Core-only Filter ──
+  console.log("\n=== Test 2: Core-only Filter (--tool-filter core,-codemode) ===\n");
 
-    // Check help excludes if specified
-    let helpExcludeFailures = [];
-    if (config.helpExcludes) {
-      for (const group of config.helpExcludes) {
-        // The group name should not appear in the help pointers line
-        const helpLine = instructions
-          .split("\n")
-          .find((l) => l.includes("mysql://help/{group}"));
-        if (helpLine && helpLine.includes(group)) {
-          helpExcludeFailures.push(group);
-        }
-      }
-    }
+  const coreResult = await testServer(["--tool-filter", "core,-codemode"]);
+  const coreHelpUris = coreResult.resourceUris.filter((u) =>
+    u.startsWith("mysql://help"),
+  );
+  console.log(`  Help resources: ${coreHelpUris.join(", ") || "(none)"}`);
 
-    const sectionFailures = Object.entries(sectionResults).filter(
-      ([, r]) => !r.pass,
-    );
-    const allPass =
-      sectionFailures.length === 0 && helpExcludeFailures.length === 0;
+  const coreHasBaseHelp = coreHelpUris.includes("mysql://help");
+  console.log(`  Has mysql://help: ${coreHasBaseHelp ? "✅" : "❌"}`);
+  if (!coreHasBaseHelp) allPassed = false;
 
-    if (allPass) {
-      console.log(`✅ (${chars} chars, ~${tokens} tokens)`);
-      totalPassed++;
-    } else {
-      console.log(`❌ (${chars} chars, ~${tokens} tokens)`);
-      totalFailed++;
-      for (const [section, result] of sectionFailures) {
-        const action = result.expected ? "MISSING" : "UNEXPECTED";
-        console.log(
-          `      [${action}] ${section} — expected ${result.expected ? "present" : "absent"}, got ${result.present ? "present" : "absent"}`,
-        );
-        console.log(`        marker: "${SECTIONS[section]}"`);
-      }
-      for (const group of helpExcludeFailures) {
-        console.log(
-          `      [UNEXPECTED] help pointer for "${group}" — should be excluded by filter`,
-        );
-      }
-    }
+  const coreHasCoreHelp = coreHelpUris.includes("mysql://help/core");
+  console.log(`  Has mysql://help/core: ${coreHasCoreHelp ? "✅" : "❌"}`);
+  if (!coreHasCoreHelp) allPassed = false;
 
-    rows.push({
-      label: config.label,
-      chars,
-      tokens,
-      pass: allPass,
-      sectionResults,
-    });
+  const coreNoOtherGroupHelp = coreHelpUris.length === 2;
+  console.log(
+    `  No other group-specific help: ${coreNoOtherGroupHelp ? "✅" : "❌"} (count: ${coreHelpUris.length})`,
+  );
+  if (!coreNoOtherGroupHelp) allPassed = false;
+
+  // ── Test 3: Stats Filter ──
+  console.log("\n=== Test 3: Stats Filter (--tool-filter stats,-codemode) ===\n");
+
+  const statsResult = await testServer(["--tool-filter", "stats,-codemode"]);
+  const statsHelpUris = statsResult.resourceUris.filter((u) =>
+    u.startsWith("mysql://help"),
+  );
+  console.log(`  Help resources: ${statsHelpUris.join(", ")}`);
+
+  const statsHasBaseHelp = statsHelpUris.includes("mysql://help");
+  const statsHasStatsHelp = statsHelpUris.includes("mysql://help/stats");
+  console.log(`  Has mysql://help: ${statsHasBaseHelp ? "✅" : "❌"}`);
+  console.log(`  Has mysql://help/stats: ${statsHasStatsHelp ? "✅" : "❌"}`);
+  if (!statsHasBaseHelp || !statsHasStatsHelp) allPassed = false;
+
+  const statsNoJsonHelp = !statsHelpUris.includes("mysql://help/json");
+  console.log(`  No mysql://help/json: ${statsNoJsonHelp ? "✅" : "❌"}`);
+  if (!statsNoJsonHelp) allPassed = false;
+
+  // ── Test 4: Multi-group Filter ──
+  console.log(
+    "\n=== Test 4: Multi-group Filter (--tool-filter core,json,text,stats,-codemode) ===\n",
+  );
+
+  const multiResult = await testServer([
+    "--tool-filter",
+    "core,json,text,stats,-codemode",
+  ]);
+  const multiHelpUris = multiResult.resourceUris.filter((u) =>
+    u.startsWith("mysql://help"),
+  );
+  console.log(`  Help resources: ${multiHelpUris.join(", ")}`);
+
+  const expectedMulti = [
+    "mysql://help",
+    "mysql://help/core",
+    "mysql://help/json",
+    "mysql://help/text",
+    "mysql://help/stats",
+  ];
+  for (const uri of expectedMulti) {
+    const found = multiHelpUris.includes(uri);
+    console.log(`  Has ${uri}: ${found ? "✅" : "❌"}`);
+    if (!found) allPassed = false;
   }
 
-  // Token summary table
-  console.log("\n=== Token Estimates by Filter ===\n");
-  console.log(
-    `  ${"Filter".padEnd(55)} ${"Chars".padStart(6)} ${"~Tokens".padStart(8)} ${"Sections".padStart(30)}`,
-  );
-  console.log(
-    `  ${"-".repeat(55)} ${"-".repeat(6)} ${"-".repeat(8)} ${"-".repeat(30)}`,
-  );
-  for (const row of rows) {
-    const sectionSummary = Object.entries(row.sectionResults)
-      .map(([k, r]) =>
-        r.present ? k.toLowerCase().replace("_", "-").slice(0, 8) : null,
-      )
-      .filter(Boolean)
-      .join("+");
-    console.log(
-      `  ${row.label.padEnd(55)} ${String(row.chars).padStart(6)} ${String(row.tokens).padStart(8)}   ${sectionSummary}`,
-    );
-  }
+  const multiNoSpatial = !multiHelpUris.includes("mysql://help/spatial");
+  console.log(`  No mysql://help/spatial: ${multiNoSpatial ? "✅" : "❌"}`);
+  if (!multiNoSpatial) allPassed = false;
 
-  console.log(
-    `\n=== Results: ${totalPassed} passed, ${totalFailed} failed ===\n`,
+  // ── Test 5: Full Filter ──
+  console.log("\n=== Test 5: Full Filter (--tool-filter full) ===\n");
+
+  const fullResult = await testServer(["--tool-filter", "full"]);
+  const fullHelpUris = fullResult.resourceUris.filter((u) =>
+    u.startsWith("mysql://help"),
   );
-  process.exit(totalFailed > 0 ? 1 : 0);
+  console.log(
+    `  Help resources (${fullHelpUris.length}): ${fullHelpUris.join(", ")}`,
+  );
+
+  const expectedFull = [
+    "mysql://help",
+    "mysql://help/core",
+    "mysql://help/json",
+    "mysql://help/text",
+    "mysql://help/stats",
+    "mysql://help/spatial",
+    "mysql://help/admin",
+    "mysql://help/transactions",
+    "mysql://help/introspection",
+    "mysql://help/migration",
+    "mysql://help/cluster",
+    "mysql://help/proxysql",
+    "mysql://help/shell",
+  ];
+  const fullHasAll = expectedFull.every((u) => fullHelpUris.includes(u));
+  console.log(`  Has expected help resources: ${fullHasAll ? "✅" : "❌"}`);
+  if (!fullHasAll) allPassed = false;
+
+  // ── Summary ──
+  console.log(
+    `\n=== Overall: ${allPassed ? "✅ ALL PASSED" : "❌ FAILURES"} ===`,
+  );
+  process.exit(allPassed ? 0 : 1);
 }
 
 main().catch((err) => {

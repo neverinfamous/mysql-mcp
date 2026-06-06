@@ -24,6 +24,8 @@ When tasked with running tests from this folder, adhere to the following optimiz
 `| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |`
 Never proceed to the final step until every tool in a given group has both columns marked as ✅.
 
+> **Help Resources**: The server uses an Adaptive Instruction Architecture. The `mysql.*` API signatures are NOT injected into your prompt by default. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/schema`) before writing code to understand the expected methods and parameters.
+
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for tracking progress and testing results. DO NOT modify the testing prompt files directly.
 
 ### 4. Cleanup

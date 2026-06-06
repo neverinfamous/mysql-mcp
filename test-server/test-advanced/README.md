@@ -11,7 +11,7 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 
 ## Execution Parts
 
-The original monolithic advanced stress testing suite was split into 27 granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
+The original monolithic advanced stress testing suite was split into 26 granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
 | File                                   | Primary Focus       | Key Validations                                                                                     |
 | -------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------- |
@@ -47,7 +47,8 @@ The original monolithic advanced stress testing suite was split into 27 granular
 When testing the contents of this directory, you MUST adhere to the following rules:
 
 1. **Strict Code Mode Only:** All advanced stress tests must be executed entirely within the `node:worker_threads` sandbox via `mysql_execute_code`. Direct component tool calls are explicitly forbidden here unless specifically instructed for baseline comparison.
-2. **Sequential Grouping:** Because these operations are intensive, execute only **one markdown file at a time**. Report findings in `tmp/task.md` (the project-level scratchpad), fix errors, apply updates to the changelog, and commit the changes before advancing to the next file segment.
+2. **Help Resources (Adaptive Architecture):** Tool and method signatures are NO LONGER automatically injected into your system prompt. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/json`) to understand the `mysql.*` API before writing code.
+3. **Sequential Grouping:** Because these operations are intensive, execute only **one markdown file at a time**. Report findings in `tmp/task.md` (the project-level scratchpad), fix errors, apply updates to the changelog, and commit the changes before advancing to the next file segment.
 3. **Payload Optimization (Token Monitoring):**
    - These tests deliberately trigger large responses and deep architectural nesting.
    - You MUST closely monitor the `metrics.tokenEstimate` value returned from the `mysql_execute_code` payloads.

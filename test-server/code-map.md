@@ -391,7 +391,6 @@ try {
 | `test-server/test-tools.md`                 | Entry-point protocol (schema ref, reporting format)                  |
 | `test-server/test-prompts.md`               | Prompt testing plan (13 prompts)                                     |
 | `test-server/test-resources.md`             | Resource testing plan (18+ data resources)                           |
-| `test-server/test-instruction-levels.mjs`   | Integration test — slim instructions + help resource filtering       |
 | `test-server/advanced-test-tools.md`        | Stress tests (boundary, concurrency, cross-group)                    |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |

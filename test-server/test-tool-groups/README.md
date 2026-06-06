@@ -23,6 +23,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - **Scratchpad**: Use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify the testing prompt files directly unless there is an error in them.
 - `| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |`
   Never proceed to the final step until every tool in a given group is fully checked off.
+- **Help Resources**: The server uses an Adaptive Instruction Architecture. Tool signatures are NOT injected into your prompt by default. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/schema`) before testing to understand the expected parameters.
 - **Session Token Usage**: Use `read_resource` on `mysql://audit` at the end of your test group to capture the total `sessionTokenEstimate` and log it in your summaries.
 
 ### 4. Cleanup & Scope
