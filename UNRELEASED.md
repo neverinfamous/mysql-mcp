@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Changed
+- **Dependabot:** Disabled Dependabot auto-merging to prevent local merge conflicts.
 - **Package Manager:** Migrated from `npm` to `pnpm` across CI workflows, Docker builds, and documentation for enhanced security and performance.
 - **Supply Chain Hardening:** Added `.npmrc` with `ignore-scripts=true` to prevent automatic execution of install scripts from transitive dependencies, and configured `pnpm.onlyBuiltDependencies` to explicitly allow required build scripts only.
 - Migrated the build pipeline to use `tsup` (esbuild) instead of `tsc` for significantly faster bundling, and added `tsx` for local development. Parity reached with `db-mcp`.
