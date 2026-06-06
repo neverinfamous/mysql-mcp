@@ -17,6 +17,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - **Structured Error Path (P154)**: Ensure domain errors (e.g., nonexistent table) return an object `{"success": false, "error": "..."}`. A raw MCP error indicates a missing try/catch in the handler.
 - **Zod Exceptions**: Pass `{}` missing required parameters or invalid types. The error string must not be a raw JSON array but must be cleaned up by the handler's error formatter.
 - **Payload Limits**: Watch for payload bloat and explicitly log it as a 📦 warning if it risks overflowing context window token limits.
+- **Sandbox Boundaries**: Ensure the server is configured with an `ALLOWED_IO_ROOTS` environment variable (e.g., `ALLOWED_IO_ROOTS=/tmp`). When testing filesystem-interacting tools (`backup`, `shell`), deliberately attempt directory traversal (e.g., `../..`) and provide paths outside the allowed roots. Assert that the operation is blocked and returns a structured `SECURITY_ERROR` rather than a raw exception.
 
 ### 3. Tracking Metrics & Progress
 
