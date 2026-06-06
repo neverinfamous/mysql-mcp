@@ -187,6 +187,12 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
   test("create table, drop, recreate with different schema", async ({}, testInfo) => {
     const client = await createClient();
     try {
+      // Clean up orphaned table if any
+      await callToolAndParse(client, "mysql_drop_table", {
+        table: "_e2e_boundary_recreate",
+        ifExists: true,
+      }).catch(() => {});
+
       // Create v1
       const c1 = await callToolAndParse(client, "mysql_create_table", {
         table: "_e2e_boundary_recreate",
