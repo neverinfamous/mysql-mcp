@@ -8,6 +8,7 @@
 
 import { type ChildProcess, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
+import { tmpdir } from "node:os";
 import { expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
@@ -179,6 +180,7 @@ export async function startServer(
       env: {
         ...process.env,
         MCP_RATE_LIMIT_MAX: "10000",
+        ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
       },
     },
   );
