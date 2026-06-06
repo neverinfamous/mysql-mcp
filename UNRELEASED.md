@@ -4,9 +4,11 @@
 - **Package Manager:** Migrated from `npm` to `pnpm` across CI workflows, Docker builds, and documentation for enhanced security and performance.
 - **Supply Chain Hardening:** Added `.npmrc` with `ignore-scripts=true` to prevent automatic execution of install scripts from transitive dependencies, and configured `pnpm.onlyBuiltDependencies` to explicitly allow required build scripts only.
 - Migrated the build pipeline to use `tsup` (esbuild) instead of `tsc` for significantly faster bundling, and added `tsx` for local development. Parity reached with `db-mcp`.
+- Synchronized documentation (`README.md`, `CONTRIBUTING.md`) and internal `package.json` scripts with the new `pnpm`, `tsup`, and `tsx` architecture.
 - Refactored server instructions to an Adaptive Instruction Architecture (matching `db-mcp`) with a static slim payload and on-demand `mysql://help/{group}` resources.
 - Removed legacy `--instruction-level` CLI flag, environment variables, and `InstructionLevel` configuration options to reduce complexity and improve token efficiency.
 - Updated `scripts` tests and `test-server` prompt readmes to remove legacy `instruction-level` references and validate the new Adaptive Instruction Architecture parameters.
+- Bumped GitHub Actions dependencies (`trufflesecurity/trufflehog` to v3.95.3, `docker/login-action` to v4.1.0, `actions/upload-artifact` to v7.0.1, `actions/github-script` to v9.0.0, and `github/codeql-action` to v4.35.5).
 
 ### Fixed
 - Fixed a `MODULE_NOT_FOUND` error during Code Mode sandbox execution by adding `worker-script.ts` to `tsup.config.ts` entry points so it is properly bundled for the worker thread.

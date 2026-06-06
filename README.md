@@ -56,7 +56,7 @@
 #### NPM (Recommended)
 
 ```bash
-npm install -g @neverinfamous/mysql-mcp
+pnpm add -g @neverinfamous/mysql-mcp
 ```
 
 Run the server:
@@ -84,8 +84,8 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 ```bash
 git clone https://github.com/neverinfamous/mysql-mcp.git
 cd mysql-mcp
-npm install
-npm run build
+pnpm install
+pnpm run build
 node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
 ```
 
@@ -716,8 +716,8 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 See **[From Source](#from-source)** above for setup. After cloning:
 
 ```bash
-npm run lint && npm run typecheck  # Run checks
-npm test                           # Run tests
+pnpm run lint && pnpm run typecheck  # Run checks
+pnpm test                            # Run tests
 ```
 
 ### MCP Inspector
@@ -727,7 +727,7 @@ Use [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to visual
 Build the server first:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Launch Inspector with mysql-mcp:

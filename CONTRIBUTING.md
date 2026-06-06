@@ -323,8 +323,8 @@ src/
 
 | Script                  | Purpose                                              |
 | ----------------------- | ---------------------------------------------------- |
-| `pnpm run build`         | Production build via tsc                             |
-| `pnpm run dev`           | Watch mode (incremental builds)                      |
+| `pnpm run build`         | Production build via tsup                            |
+| `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
 | `pnpm run check`         | **Quality gate** — lint + typecheck (run before PRs) |
 | `pnpm run lint`          | ESLint only                                          |
 | `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
