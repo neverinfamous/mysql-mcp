@@ -58,7 +58,7 @@
 
 ### admin Group-Specific Testing
 
-admin Tool Group (6 tools +1 for code mode):
+admin Tool Group (7 tools +1 for code mode):
 
 1. 'mysql_optimize_table'
 2. 'mysql_analyze_table'
@@ -66,7 +66,9 @@ admin Tool Group (6 tools +1 for code mode):
 4. 'mysql_repair_table'
 5. 'mysql_flush_tables'
 6. 'mysql_kill_query'
-7. 'mysql_execute_code' (codemode, auto-added)
+7. 'mysql_append_insight'
+8. 'mysql_server_config'
+9. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
@@ -74,15 +76,22 @@ admin Tool Group (6 tools +1 for code mode):
 2. `mysql_check_table({table: "test_products"})` → verify `status: "OK"`
 3. `mysql_optimize_table({table: "test_products"})` → verify success response
 4. `mysql_kill_query({id: 99999})` → `{success: false}` or structured error (invalid process ID)
+5. `mysql_server_config({action: "get"})` → verify success and config object
+6. `mysql_server_config({action: "set", setting: "logLevel", value: "debug"})` → `{success: true, message: ...}`
+7. `mysql_server_config({action: "set", setting: "logLevel", value: "info"})` → `{success: true, message: ...}`
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
+8. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
+9. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
+10. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
 
 **Zod validation error paths (🔴):**
 
-6. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
+11. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
+12. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
+13. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
 
 **Wrong-type numeric param coercion (🔴):**
 
-7. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error (wrong-type numeric param)
+14. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error (wrong-type numeric param)

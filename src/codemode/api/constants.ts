@@ -93,6 +93,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     flush: "flushTables",
     kill: "killQuery",
     pool: "poolStats",
+    serverConfig: "serverConfig",
+    config: "serverConfig",
   },
   // Monitoring: intuitive aliases
   monitoring: {
@@ -293,6 +295,7 @@ export const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.admin.analyzeTable({ table: 'orders' })",
     "mysql.admin.flushTables()",
     "mysql.admin.killQuery({ processId: 12345 })",
+    "mysql.admin.serverConfig({ logLevel: 'debug' })",
   ],
   monitoring: [
     "mysql.monitoring.showStatus({ pattern: 'Threads%' })",
@@ -478,6 +481,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   analyzeTable: "table",
   killQuery: "processId",
   flushTables: "tables",
+  serverConfig: "logLevel",
 
   // ============ BACKUP GROUP ============
   createDump: "tables",

@@ -35,6 +35,7 @@ import { TokenValidator } from "../auth/token-validator.js";
 import { AuditLogger } from "../audit/logger.js";
 import { BackupManager } from "../audit/backup-manager.js";
 import { createAuditInterceptor } from "../audit/interceptor.js";
+import { registerAdminTools } from "./admin-tools.js";
 
 /**
  * Default server configuration
@@ -113,6 +114,12 @@ export class McpServer {
       toolFilter: this.config.toolFilter ?? "none",
       capabilities: ["logging"],
     });
+
+    // Register admin tools if the admin group is enabled
+    const enabledGroups = getEnabledGroups(this.toolFilter.enabledTools);
+    if (enabledGroups.has("admin")) {
+      registerAdminTools(this.server);
+    }
   }
 
   /**

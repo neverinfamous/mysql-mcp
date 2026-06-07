@@ -51,6 +51,7 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
     connect = vi.fn().mockResolvedValue(undefined);
     close = vi.fn().mockResolvedValue(undefined);
     tool = vi.fn();
+    registerTool = vi.fn();
     resource = vi.fn();
     registerResource = vi.fn();
     prompt = vi.fn();

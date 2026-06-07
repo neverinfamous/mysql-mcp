@@ -21,3 +21,4 @@
 - Fixed missing `mysql://help/introspection` and `mysql://help/migration` resources from the active help registry.
 - Fixed E2E testing to correctly validate the `ALLOWED_IO_ROOTS` boundary via MySQL Shell tool tests, and removed incorrect testing prompts from non-filesystem backup tools.
 - Audited and updated all documentation (`SECURITY.md`, `DOCKER_README.md`, `.env.example`, `mcp-config-example.json`) to accurately reflect the `ALLOWED_IO_ROOTS` feature and platform limits.
+- Audited and synchronized documentation and constant mapping files (`README.md`, `DOCKER_README.md`, `code-map.md`, `tool-reference.md`, `tool-constants.ts`, `api/constants.ts`) to accurately reflect the addition of the `mysql_server_config` tool, updating the server total tool count from 224 to 225 and registering the Code Mode aliases.

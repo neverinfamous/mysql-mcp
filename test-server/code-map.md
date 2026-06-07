@@ -117,7 +117,7 @@ src/
 
 ## Handler → Tool Mapping
 
-224 tools across 27 groups. Each handler file registers tools with `group` labels.
+225 tools across 27 groups. Each handler file registers tools with `group` labels.
 
 ### Tool Handlers (`src/adapters/mysql/tools/`)
 
@@ -154,7 +154,7 @@ src/
 |                   | `performance/anomaly-detection.ts`   | 2     | `detect_query_anomalies`, `detect_bloat_risk`                                                                                                                        |
 |                   | `performance/connection-analysis.ts` | 1     | `detect_connection_spike`                                                                                                                                            |
 | **optimization**  | `performance/optimization.ts`        | 4     | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace`                                                                                            |
-| **admin**         | `admin/maintenance.ts`               | 7     | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`, `append_insight`                                                     |
+| **admin**         | `admin/maintenance.ts`<br>`../../server/admin-tools.ts` | 8     | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`, `append_insight`, `server_config` |
 |                   | `admin/audit-backup.ts`              | 3     | `audit_list_backups`, `audit_diff_backup`, `audit_restore_backup` (require `--audit-backup` flag)                                                                    |
 |                   | `admin/monitoring.ts`                | 7     | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health`                                            |
 |                   | `admin/backup.ts`                    | 4     | `export_table`, `import_data`, `create_dump`, `restore_dump`                                                                                                         |
