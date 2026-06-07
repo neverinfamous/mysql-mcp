@@ -11,9 +11,9 @@
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
+[![E2E](https://img.shields.io/badge/E2E-433%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-89.42%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-89.63%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -657,6 +657,8 @@ This server exposes **18 resources** for database observability:
 
 ## 🔧 Advanced Configuration
 
+> **Tip:** You can now configure the server using native JSON or YAML configuration files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.yaml` and `server-config-example.json` templates at the root of the project for setup details.
+
 For specialized setups, see these Wiki pages:
 
 | Topic                                                                        | Description                                         |
@@ -687,6 +689,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
+| `--config`                | —                       | Configuration file path (.yaml or .json)            |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |

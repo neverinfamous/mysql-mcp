@@ -36,7 +36,17 @@ Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P
 
 ## Security Sandbox
 
-Tools interacting with the filesystem (like \`backup\` or \`shell\` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the \`ALLOWED_IO_ROOTS\` server configuration.`;
+Tools interacting with the filesystem (like \`backup\` or \`shell\` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the \`ALLOWED_IO_ROOTS\` server configuration.
+
+## Configuration
+
+The server supports \`.yaml\` or \`.json\` configuration files via the \`--config <path>\` flag. Configuration follows a strict precedence hierarchy:
+1. **CLI flags** (highest priority)
+2. **Environment variables**
+3. **Configuration file**
+4. **Defaults** (lowest priority)
+
+You can verify the final merged configuration the server will use by running with the \`--dump-config\` flag.`;
 
 /**
  * Help content keyed by group name.
@@ -64,7 +74,6 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Export error handling**: \`mysql_export_table\` returns \`{ exists: false, table }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., invalid WHERE clause, unknown column). No raw exceptions are thrown.
 - **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist. Returns \`{ exists: false, table }\` gracefully if the table does not exist.
 - **Import error handling**: \`mysql_import_data\` returns \`{ success: false, error, rowsInserted }\` for all insertion failures (duplicate keys, unknown columns, data truncation) instead of throwing, reporting how many rows were successfully inserted before the error.
-- **Filesystem Sandbox**: All tools writing or reading files require target paths to be absolute and strictly within the permitted \`ALLOWED_IO_ROOTS\` configuration.
 - **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.`],
   ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
 

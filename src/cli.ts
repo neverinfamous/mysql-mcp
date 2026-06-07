@@ -93,8 +93,36 @@ export async function main(args?: {
   databases: DatabaseConfig[];
   oauth: OAuthConfig | undefined;
   shouldExit?: boolean;
+  dumpConfig?: boolean;
 }): Promise<void> {
-  const { config, databases, oauth, shouldExit } = args ?? parseArgs();
+  const { config, databases, oauth, shouldExit, dumpConfig } = args ?? parseArgs();
+
+  if (dumpConfig) {
+    // Redact sensitive values before dumping
+    const safeConfig = JSON.parse(JSON.stringify({ config, databases, oauth })) as {
+      config?: { authToken?: string; [key: string]: unknown };
+      oauth?: { jwksUri?: string; [key: string]: unknown };
+      databases?: { password?: string; [key: string]: unknown }[];
+    };
+    
+    if (typeof safeConfig.config?.authToken === "string") {
+      safeConfig.config.authToken = "***REDACTED***";
+    }
+    
+    if (typeof safeConfig.oauth?.jwksUri === "string") {
+      safeConfig.oauth.jwksUri = "***REDACTED***";
+    }
+    
+    if (Array.isArray(safeConfig.databases)) {
+      for (const db of safeConfig.databases) {
+        if (typeof db.password === "string") {
+          db.password = "***REDACTED***";
+        }
+      }
+    }
+    process.stdout.write(JSON.stringify(safeConfig, null, 2) + "\n");
+    process.exit(0);
+  }
 
   if (shouldExit) {
     process.exit(0);

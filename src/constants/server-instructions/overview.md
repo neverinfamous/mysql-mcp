@@ -22,3 +22,13 @@ Table-querying tools return `{exists: false, table}` for nonexistent tables (P15
 ## Security Sandbox
 
 Tools interacting with the filesystem (like `backup` or `shell` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the `ALLOWED_IO_ROOTS` server configuration.
+
+## Configuration
+
+The server supports `.yaml` or `.json` configuration files via the `--config <path>` flag. Configuration follows a strict precedence hierarchy:
+1. **CLI flags** (highest priority)
+2. **Environment variables**
+3. **Configuration file**
+4. **Defaults** (lowest priority)
+
+You can verify the final merged configuration the server will use by running with the `--dump-config` flag.

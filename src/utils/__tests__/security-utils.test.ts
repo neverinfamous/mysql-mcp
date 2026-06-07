@@ -99,10 +99,7 @@ describe("security-utils", () => {
 
     it("throws IoPathError for path traversal strings", () => {
       // Using /../ physically in the string
-      const traversalPath = join(safeRoot, "..", "export.csv").replace(
-        /\\/g,
-        "/"
-      );
+      // Using /../ physically in the string
       // Wait, join might resolve .. but if we explicitly inject it:
       const rawTraversal = `${safeRoot}/../export.csv`;
       expect(() => assertSafeIoPath(rawTraversal, allowedRoots, true)).toThrow(

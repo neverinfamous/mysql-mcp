@@ -11,6 +11,129 @@ import type {
 } from "../types/index.js";
 import { logger } from "../utils/logger.js";
 import { parseAllowedIoRoots } from "../utils/security-utils.js";
+import fs from "node:fs";
+import yaml from "yaml";
+
+/**
+ * Load configuration from a JSON or YAML file
+ */
+function loadConfigFile(configPath: string): Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig } {
+  try {
+    const fileContent = fs.readFileSync(configPath, "utf-8");
+    if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
+      return yaml.parse(fileContent) as Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig };
+    } else {
+      return JSON.parse(fileContent) as Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig };
+    }
+  } catch (error) {
+    logger.error(`Failed to load config file: ${configPath}`, {
+      error: error instanceof Error ? error : new Error(String(error)),
+      module: "CLI",
+    });
+    process.exit(1);
+  }
+}
+
+/**
+ * Load configuration from environment variables
+ */
+function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServerConfig>; databases: DatabaseConfig[]; oauth?: OAuthConfig } {
+  const config: Partial<McpServerConfig> = {};
+  const databases: DatabaseConfig[] = [];
+  let oauth: OAuthConfig | undefined;
+
+  // Check for server host in environment
+  const host = process.env["MCP_HOST"] ?? process.env["HOST"];
+  if (host) config.host = host;
+
+  // Check for allowed IO roots in environment
+  const allowedIoRoots = process.env["ALLOWED_IO_ROOTS"];
+  if (allowedIoRoots) {
+    config.allowedIoRoots = parseAllowedIoRoots(allowedIoRoots);
+  }
+
+  // Check trust proxy environment variable
+  if (process.env["TRUST_PROXY"] === "true") {
+    config.trustProxy = true;
+  }
+
+  // Check HSTS environment variable
+  if (process.env["MCP_ENABLE_HSTS"] === "true") {
+    config.enableHSTS = true;
+  }
+
+  // Check for tool filter in environment
+  const toolFilter = process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
+  if (toolFilter) {
+    config.toolFilter = toolFilter;
+  }
+
+  // Check auth token environment variable
+  const authToken = process.env["MCP_AUTH_TOKEN"];
+  if (authToken) {
+    config.authToken = authToken;
+  }
+
+  // Check OAuth environment variables
+  if (process.env["OAUTH_ENABLED"] === "true") {
+    oauth = {
+      enabled: true,
+      authorizationServerUrl: process.env["OAUTH_ISSUER"],
+      issuer: process.env["OAUTH_ISSUER"],
+      audience: process.env["OAUTH_AUDIENCE"],
+      jwksUri: process.env["OAUTH_JWKS_URI"],
+      clockTolerance: process.env["OAUTH_CLOCK_TOLERANCE"] ? parseInt(process.env["OAUTH_CLOCK_TOLERANCE"], 10) : undefined,
+    };
+  }
+
+  // Check audit environment variables
+  const auditLogPath = process.env["AUDIT_LOG_PATH"];
+  if (auditLogPath) {
+    config.auditConfig = {
+      enabled: true,
+      logPath: auditLogPath,
+      redact: process.env["AUDIT_REDACT"] === "true",
+      auditReads: process.env["AUDIT_READS"] === "true",
+      maxSizeBytes: 10 * 1024 * 1024,
+    };
+
+    if (process.env["AUDIT_BACKUP"] === "true") {
+      config.auditConfig.backup = {
+        enabled: true,
+        includeData: process.env["AUDIT_BACKUP_DATA"] === "true",
+        maxAgeDays: 30, // Fixed default for now
+        maxCount: 1000, // Fixed default for now
+        maxDataSizeBytes: 50 * 1024 * 1024,
+      };
+    }
+  }
+
+  // Check database environment variables as fallback
+  const envHost = process.env["MYSQL_HOST"];
+  const envUser = process.env["MYSQL_USER"];
+  const envPassword = process.env["MYSQL_PASSWORD"];
+  const envDatabase = process.env["MYSQL_DATABASE"];
+  const envPort = process.env["MYSQL_PORT"];
+  const envPoolSize = process.env["MYSQL_POOL_SIZE"];
+
+  if (envHost && envUser && envDatabase) {
+    const envPoolConfig = { ...poolConfig };
+    if (envPoolSize) {
+      envPoolConfig.connectionLimit = parseInt(envPoolSize, 10);
+    }
+    databases.push({
+      type: "mysql",
+      host: envHost,
+      port: envPort ? parseInt(envPort, 10) : 3306,
+      username: envUser,
+      password: envPassword,
+      database: envDatabase,
+      pool: envPoolConfig,
+    });
+  }
+
+  return { config, databases, oauth };
+}
 
 /**
  * Parse command line arguments
@@ -20,11 +143,12 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
   databases: DatabaseConfig[];
   oauth: OAuthConfig | undefined;
   shouldExit: boolean;
+  dumpConfig?: boolean;
 } {
   const args = argv;
-  const config: Partial<McpServerConfig> = {};
-  const databases: DatabaseConfig[] = [];
-
+  const cliConfig: Partial<McpServerConfig> = {};
+  const cliDatabases: DatabaseConfig[] = [];
+  
   // Default pool config
   const poolConfig: PoolConfig = {
     connectionLimit: 10,
@@ -55,6 +179,9 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
   let auditBackupData = false;
   let auditBackupMaxSize = 50 * 1024 * 1024; // 50MB
 
+  let configPath: string | undefined;
+  let dumpConfig = false;
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     const nextArg = args[i + 1];
@@ -63,7 +190,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       case "--transport":
       case "-t":
         if (nextArg && !nextArg.startsWith("-")) {
-          config.transport = nextArg as TransportType;
+          cliConfig.transport = nextArg as TransportType;
           i++;
         }
         break;
@@ -71,14 +198,14 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
       case "--port":
       case "-p":
         if (nextArg && !nextArg.startsWith("-")) {
-          config.port = parseInt(nextArg, 10);
+          cliConfig.port = parseInt(nextArg, 10);
           i++;
         }
         break;
 
       case "--server-host":
         if (nextArg && !nextArg.startsWith("-")) {
-          config.host = nextArg;
+          cliConfig.host = nextArg;
           i++;
         }
         break;
@@ -89,7 +216,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
           // Parse connection string
           const dbConfig = parseMySQLConnectionString(nextArg);
           dbConfig.pool = poolConfig;
-          databases.push(dbConfig);
+          cliDatabases.push(dbConfig);
           i++;
         }
         break;
@@ -152,24 +279,22 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
 
       case "--tool-filter":
       case "-f":
-        // Note: tool filter values can start with '-' (e.g., "-base,-ecosystem,+starter")
-        // so we can't use the usual !nextArg.startsWith('-') check
         if (nextArg !== undefined) {
-          config.toolFilter = nextArg;
+          cliConfig.toolFilter = nextArg;
           i++;
         }
         break;
 
       case "--name":
         if (nextArg && !nextArg.startsWith("-")) {
-          config.name = nextArg;
+          cliConfig.name = nextArg;
           i++;
         }
         break;
 
       case "--allowed-io-roots":
         if (nextArg !== undefined) {
-          config.allowedIoRoots = parseAllowedIoRoots(nextArg);
+          cliConfig.allowedIoRoots = parseAllowedIoRoots(nextArg);
           i++;
         }
         break;
@@ -210,27 +335,26 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
 
       case "--auth-token":
         if (nextArg && !nextArg.startsWith("-")) {
-          config.authToken = nextArg;
+          cliConfig.authToken = nextArg;
           i++;
         }
         break;
 
       case "--stateless":
-        config.stateless = true;
+        cliConfig.stateless = true;
         break;
 
       case "--enable-hsts":
-        config.enableHSTS = true;
+        cliConfig.enableHSTS = true;
         break;
 
       case "--trust-proxy":
-        config.trustProxy = true;
+        cliConfig.trustProxy = true;
         break;
 
       case "--log-level":
         if (nextArg && !nextArg.startsWith("-")) {
           const level = nextArg.toLowerCase();
-          // Map convenience alias 'warn' → 'warning' (LogLevel uses RFC 5424 names)
           const mapped = level === "warn" ? "warning" : level;
           const validLevels = ["debug", "info", "warning", "error"];
           if (validLevels.includes(mapped)) {
@@ -272,15 +396,27 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      case "--config":
+      case "-c":
+        if (nextArg && !nextArg.startsWith("-")) {
+          configPath = nextArg;
+          i++;
+        }
+        break;
+
+      case "--dump-config":
+        dumpConfig = true;
+        break;
+
       case "--version":
       case "-v":
         console.error(`mysql-mcp version ${DEFAULT_CONFIG.version}`);
-        return { config, databases, oauth: undefined, shouldExit: true };
+        return { config: {}, databases: [], oauth: undefined, shouldExit: true };
 
       case "--help":
       case "-h":
         printHelp();
-        return { config, databases, oauth: undefined, shouldExit: true };
+        return { config: {}, databases: [], oauth: undefined, shouldExit: true };
 
       default:
         if (arg?.startsWith("-")) {
@@ -293,22 +429,13 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
 
   // Build database config from individual params if provided
   if (mysqlHost || mysqlUser || mysqlDatabase) {
-    // Check required fields
-    if (!mysqlHost) {
-      mysqlHost = process.env["MYSQL_HOST"] ?? "localhost";
-    }
-    if (!mysqlUser) {
-      mysqlUser = process.env["MYSQL_USER"];
-    }
-    if (!mysqlPassword) {
-      mysqlPassword = process.env["MYSQL_PASSWORD"];
-    }
-    if (!mysqlDatabase) {
-      mysqlDatabase = process.env["MYSQL_DATABASE"];
-    }
+    if (!mysqlHost) mysqlHost = process.env["MYSQL_HOST"] ?? "localhost";
+    if (!mysqlUser) mysqlUser = process.env["MYSQL_USER"];
+    if (!mysqlPassword) mysqlPassword = process.env["MYSQL_PASSWORD"];
+    if (!mysqlDatabase) mysqlDatabase = process.env["MYSQL_DATABASE"];
 
     if (mysqlUser && mysqlDatabase) {
-      databases.push({
+      cliDatabases.push({
         type: "mysql",
         host: mysqlHost,
         port: mysqlPort,
@@ -320,87 +447,10 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     }
   }
 
-  // Check environment variables as fallback
-  if (databases.length === 0) {
-    const envHost = process.env["MYSQL_HOST"];
-    const envUser = process.env["MYSQL_USER"];
-    const envPassword = process.env["MYSQL_PASSWORD"];
-    const envDatabase = process.env["MYSQL_DATABASE"];
-    const envPort = process.env["MYSQL_PORT"];
-    const envPoolSize = process.env["MYSQL_POOL_SIZE"];
-
-    if (envHost && envUser && envDatabase) {
-      if (envPoolSize) {
-        poolConfig.connectionLimit = parseInt(envPoolSize, 10);
-      }
-      databases.push({
-        type: "mysql",
-        host: envHost,
-        port: envPort ? parseInt(envPort, 10) : 3306,
-        username: envUser,
-        password: envPassword,
-        database: envDatabase,
-        pool: poolConfig,
-      });
-    }
-  }
-
-  // Check for tool filter in environment
-  if (!config.toolFilter) {
-    config.toolFilter =
-      process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
-  }
-
-  // Check for server host in environment
-  if (!config.host) {
-    config.host = process.env["MCP_HOST"] ?? process.env["HOST"];
-  }
-
-  // Check for allowed IO roots in environment
-  const allowedIoRoots = process.env["ALLOWED_IO_ROOTS"];
-  if (allowedIoRoots) {
-    config.allowedIoRoots = parseAllowedIoRoots(allowedIoRoots);
-  }
-
-  // Check OAuth environment variables
-  if (!oauthEnabled && process.env["OAUTH_ENABLED"] === "true") {
-    oauthEnabled = true;
-  }
-  if (!oauthIssuer) {
-    oauthIssuer = process.env["OAUTH_ISSUER"];
-  }
-  if (!oauthAudience) {
-    oauthAudience = process.env["OAUTH_AUDIENCE"];
-  }
-  if (!oauthJwksUri) {
-    oauthJwksUri = process.env["OAUTH_JWKS_URI"];
-  }
-  if (
-    oauthClockTolerance === undefined &&
-    process.env["OAUTH_CLOCK_TOLERANCE"]
-  ) {
-    oauthClockTolerance = parseInt(process.env["OAUTH_CLOCK_TOLERANCE"], 10);
-  }
-
-  // Check auth token environment variable
-  if (!config.authToken) {
-    config.authToken = process.env["MCP_AUTH_TOKEN"];
-  }
-
-  // Check trust proxy environment variable
-  if (!config.trustProxy && process.env["TRUST_PROXY"] === "true") {
-    config.trustProxy = true;
-  }
-
-  // Check HSTS environment variable
-  if (!config.enableHSTS && process.env["MCP_ENABLE_HSTS"] === "true") {
-    config.enableHSTS = true;
-  }
-
   // Build OAuth config if enabled
-  let oauth: OAuthConfig | undefined;
-  if (oauthEnabled) {
-    oauth = {
+  let cliOauth: OAuthConfig | undefined;
+  if (oauthEnabled || oauthIssuer || oauthAudience || oauthJwksUri || oauthClockTolerance !== undefined) {
+    cliOauth = {
       enabled: true,
       authorizationServerUrl: oauthIssuer,
       issuer: oauthIssuer,
@@ -410,26 +460,20 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     };
   }
 
-  // Check audit environment variables if log path wasn't provided via CLI
-  if (!auditLogPath && process.env["AUDIT_LOG_PATH"]) {
-    auditLogPath = process.env["AUDIT_LOG_PATH"];
-  }
-
   // Build audit config if enabled
   if (auditLogPath) {
-    config.auditConfig = {
+    cliConfig.auditConfig = {
       enabled: true,
       logPath: auditLogPath,
-      redact: auditRedact || process.env["AUDIT_REDACT"] === "true",
-      auditReads: auditReads || process.env["AUDIT_READS"] === "true",
+      redact: auditRedact,
+      auditReads: auditReads,
       maxSizeBytes: auditLogMaxSize,
     };
 
-    if (auditBackup || process.env["AUDIT_BACKUP"] === "true") {
-      config.auditConfig.backup = {
+    if (auditBackup) {
+      cliConfig.auditConfig.backup = {
         enabled: true,
-        includeData:
-          auditBackupData || process.env["AUDIT_BACKUP_DATA"] === "true",
+        includeData: auditBackupData,
         maxAgeDays: 30, // Fixed default for now
         maxCount: 1000, // Fixed default for now
         maxDataSizeBytes: auditBackupMaxSize,
@@ -437,7 +481,43 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     }
   }
 
-  return { config, databases, oauth, shouldExit: false };
+  // Load config file if specified
+  const fileConfigData: Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig } = configPath ? loadConfigFile(configPath) : {};
+  const { databases: fileDatabases = [], oauth: fileOauth, ...fileConfig } = fileConfigData;
+
+  // Load configuration from environment
+  const { config: envConfig, databases: envDatabases, oauth: envOauth } = loadEnvConfig(poolConfig);
+
+  // Merge Config Priority: CLI > ENV > FILE > DEFAULTS
+  const config = {
+    ...DEFAULT_CONFIG,
+    ...fileConfig,
+    ...envConfig,
+    ...cliConfig,
+  };
+
+  // Merge Databases Priority: CLI > ENV > FILE
+  // Only use ONE source for databases to avoid connecting to a random mix of local and prod.
+  let databases: DatabaseConfig[] = [];
+  if (cliDatabases.length > 0) {
+    databases = cliDatabases;
+  } else if (envDatabases.length > 0) {
+    databases = envDatabases;
+  } else if (fileDatabases.length > 0) {
+    databases = fileDatabases;
+  }
+
+  // Merge OAuth Priority: CLI > ENV > FILE
+  let oauth: OAuthConfig | undefined;
+  if (cliOauth?.enabled) {
+    oauth = cliOauth;
+  } else if (envOauth?.enabled) {
+    oauth = envOauth;
+  } else if (fileOauth?.enabled) {
+    oauth = fileOauth;
+  }
+
+  return { config, databases, oauth, shouldExit: false, dumpConfig };
 }
 
 /**
@@ -464,6 +544,8 @@ Pool Options:
   --pool-queue-limit <n>      Queue limit for waiting requests (default: 0)
 
 Server Options:
+  --config, -c <path>         Load configuration from YAML/JSON file
+  --dump-config               Print the resolved configuration and exit
   --transport, -t <type>      Transport type: stdio, http, sse (default: stdio)
   --port, -p <port>           HTTP port for http/sse transports
   --server-host <host>        Host to bind HTTP transport to (default: localhost)

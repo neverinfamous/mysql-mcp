@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { parseArgs } from "../args.js";
+import fs from "node:fs";
+
+vi.mock("node:fs", () => ({
+  default: { readFileSync: vi.fn() }
+}));
+vi.mock("yaml", () => ({
+  default: { parse: vi.fn() }
+}));
 
 // Mock process.exit
 vi.spyOn(process, "exit").mockImplementation(
@@ -315,6 +323,54 @@ describe("CLI Args", () => {
       expect(result.config.auditConfig?.backup?.enabled).toBe(true);
 
       vi.unstubAllEnvs();
+    });
+
+    it("should parse configuration file from --config", () => {
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+        host: "file-host",
+        databases: [{ type: "mysql", database: "file-db", username: "file-user" }]
+      }));
+
+      const result = parseArgs(["--config", "config.json"]);
+
+      expect(fs.readFileSync).toHaveBeenCalledWith("config.json", "utf-8");
+      expect(result.config.host).toBe("file-host");
+      expect(result.databases).toHaveLength(1);
+      expect(result.databases[0].database).toBe("file-db");
+    });
+
+    it("should prefer CLI over ENV over FILE", () => {
+      // 1. FILE config
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+        host: "file-host",
+        databases: [{ type: "mysql", database: "file-db", username: "file-user" }]
+      }));
+
+      // 2. ENV config
+      vi.stubEnv("MCP_HOST", "env-host");
+      vi.stubEnv("MYSQL_DATABASE", "env-db");
+      vi.stubEnv("MYSQL_USER", "env-user");
+      vi.stubEnv("MYSQL_HOST", "localhost"); // required for db creation from env
+
+      // 3. CLI args
+      const result = parseArgs(["--config", "config.json", "--mysql-database", "cli-db", "--mysql-user", "cli-user"]);
+
+      // CLI should win over ENV, and ENV should win over FILE
+      // For config.host: ENV is set, CLI is not, so ENV should win
+      expect(result.config.host).toBe("env-host");
+
+      // For databases: databases are not merged at the field level, but at the array level.
+      // Since CLI databases are present, CLI array should be used entirely.
+      expect(result.databases).toHaveLength(1);
+      expect(result.databases[0].database).toBe("cli-db");
+      expect(result.databases[0].username).toBe("cli-user");
+
+      vi.unstubAllEnvs();
+    });
+
+    it("should set dumpConfig true", () => {
+      const result = parseArgs(["--dump-config"]);
+      expect(result.dumpConfig).toBe(true);
     });
   });
 });
