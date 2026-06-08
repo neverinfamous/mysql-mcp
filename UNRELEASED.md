@@ -1,6 +1,8 @@
 # Unreleased
 
 ### Added
+- **Observability:** Implemented a zero-dependency in-memory `MetricsRegistry` and content-type-aware token estimator to track per-tool telemetry (latency percentiles, estimated tokens, error rates) and resource access metrics.
+- **Metrics Export:** Added native Prometheus export via the `--metrics-export` CLI flag (`/metrics` endpoint) and exposed live telemetry to agents via the new `mysql://metrics` resource.
 - **Capabilities:** Added support for the MCP `resources/subscribe` capability. Clients can now subscribe to `mysql://health` (polling) and `mysql://schema` / `mysql://tables` (event-driven) to receive live notifications of state changes.
 - **Core Database:** Added support for query result streaming in `mysql_read_query` via MCP progress notifications (`stream: true` and `chunkSize` arguments). This enables graceful and memory-safe transmission of large datasets directly to clients without blocking the event loop or triggering maximum payload limits.
 - **Configuration:** Added support for native JSON and YAML configuration files via the `--config <path>` CLI flag, allowing you to bundle all server settings, tools, databases, and OAuth parameters in a single file instead of relying entirely on environment variables or CLI arguments.
