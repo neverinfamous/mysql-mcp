@@ -19,6 +19,12 @@ Only help resources for your enabled tool groups are registered.
 All tools return `{success: false, error, code, category, suggestion, recoverable}` — never raw MCP exceptions.
 Table-querying tools return `{exists: false, table}` for nonexistent tables (P154 pattern).
 
+## Subscriptions
+
+The server supports MCP `resources/subscribe` for live updates. Subscribable URIs include:
+- `mysql://health`: Polled every 60 seconds for health changes.
+- `mysql://schema`, `mysql://tables`, `mysql://table/{name}`: Event-driven notifications on DDL changes.
+
 ## Security Sandbox
 
 Tools interacting with the filesystem (like `backup` or `shell` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the `ALLOWED_IO_ROOTS` server configuration.

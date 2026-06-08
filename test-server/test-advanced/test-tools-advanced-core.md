@@ -82,6 +82,10 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 16. Call `mysql_describe_table` with `name` alias — verify identical to `table`
 17. Call `mysql_describe_table` with `tableName` alias — verify identical to `table`
 
+## Category 5: Subscriptions
+
+18. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle the `mysql://health` resource URI.
+
 ## Cleanup
 
-18. Drop all `stress_*` tables
+19. Drop all `stress_*` tables

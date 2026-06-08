@@ -102,25 +102,29 @@ schema Tool Group (11 tools +1 for code mode):
 6. `mysql_list_functions({database: "testdb"})` → verify response structure
 7. `mysql_list_events({database: "testdb"})` → verify response structure
 
+**Subscription Verification:**
+
+8. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle `mysql://schema` and `mysql://tables` resource URIs.
+
 **Create → Use → Drop lifecycle:**
 
-8. `mysql_create_view({name: "temp_view_order_totals", query: "SELECT product_id, SUM(total_price) AS total FROM test_orders GROUP BY product_id"})` → `{success: true}`
-9. `mysql_list_views({database: "testdb"})` → verify `temp_view_order_totals` appears
+9. `mysql_create_view({name: "temp_view_order_totals", query: "SELECT product_id, SUM(total_price) AS total FROM test_orders GROUP BY product_id"})` → `{success: true}`
+10. `mysql_list_views({database: "testdb"})` → verify `temp_view_order_totals` appears
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql_list_constraints({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` or empty results — not raw MCP error
-11. 🔴 `mysql_drop_schema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}` handler error
+11. 🔴 `mysql_list_constraints({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` or empty results — not raw MCP error
+12. 🔴 `mysql_drop_schema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-12. 🔴 `mysql_create_view({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-13. 🔴 `mysql_create_schema({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+13. 🔴 `mysql_create_view({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+14. 🔴 `mysql_create_schema({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
 
 **Wrong-type numeric param coercion (🔴):**
 
-14. 🔴 `mysql_list_constraints({limit: "abc"})` → must NOT return raw MCP `-32602` error
+15. 🔴 `mysql_list_constraints({limit: "abc"})` → must NOT return raw MCP `-32602` error
 
 **Cleanup:**
 
-15. Drop `temp_view_order_totals` view via `mysql_drop_view({name: "temp_view_order_totals"})`
+16. Drop `temp_view_order_totals` view via `mysql_drop_view({name: "temp_view_order_totals"})`

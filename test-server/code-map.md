@@ -381,7 +381,7 @@ try {
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
 | `test-server/reset-database.ps1`            | Reset script — drops + re-seeds `testdb`                             |
-| `test-server/Tool-Reference.md`             | Complete 192-tool inventory with descriptions                        |
+| `test-server/Tool-Reference.md`             | Complete 225-tool inventory with descriptions                        |
 | `test-server/test-agent-experience.md`      | 35 open-ended scenarios — validates help resource sufficiency        |
 | `test-server/test-group-tools-core.md`      | Core/transactions/schema group checklists                            |
 | `test-server/test-group-tools-data.md`      | JSON/fulltext/docstore/text/stats checklists                         |

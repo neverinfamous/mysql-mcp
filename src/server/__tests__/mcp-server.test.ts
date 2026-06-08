@@ -55,6 +55,10 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
     resource = vi.fn();
     registerResource = vi.fn();
     prompt = vi.fn();
+    server = {
+      setRequestHandler: vi.fn(),
+      sendResourceUpdated: vi.fn(),
+    };
     constructor(_serverInfo: unknown, options: unknown) {
       lastMockMcpServerOptions = options;
     }

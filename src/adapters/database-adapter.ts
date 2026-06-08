@@ -5,6 +5,7 @@
  * Provides a consistent interface for database operations.
  */
 
+import { EventEmitter } from "node:events";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { logger } from "../utils/logger.js";
@@ -58,7 +59,7 @@ const WRITE_KEYWORDS: string[] = [
 /**
  * Abstract base class for database adapters
  */
-export abstract class DatabaseAdapter {
+export abstract class DatabaseAdapter extends EventEmitter {
   /** Database type identifier */
   abstract readonly type: DatabaseType;
 

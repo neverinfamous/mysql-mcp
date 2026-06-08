@@ -162,6 +162,19 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams,
           transactionId,
         );
+
+        // Auto-detect DDL statements to clear schema cache and notify subscribers
+        const upperQuery = query.trim().toUpperCase();
+        if (
+          upperQuery.startsWith("CREATE ") ||
+          upperQuery.startsWith("DROP ") ||
+          upperQuery.startsWith("ALTER ") ||
+          upperQuery.startsWith("RENAME ") ||
+          upperQuery.startsWith("TRUNCATE ")
+        ) {
+          adapter.clearSchemaCache();
+        }
+
         return withTokenEstimate({
           success: true,
           data: {

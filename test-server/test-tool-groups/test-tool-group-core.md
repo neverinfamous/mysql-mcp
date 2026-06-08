@@ -245,3 +245,7 @@ All tools implement P154 structured error handling for nonexistent tables. Test 
 29. `mysql_get_indexes({table: "temp_lifecycle"})` → verify `idx_temp_name` appears
 30. `mysql_drop_table({table: "temp_lifecycle", ifExists: true})` → `{success: true}`
 31. `mysql_drop_table({table: "temp_lifecycle", ifExists: true})` → `{success: true}` or `{existed: false}` (already dropped)
+
+**Subscription Verification:**
+
+32. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle the `mysql://health` resource URI.

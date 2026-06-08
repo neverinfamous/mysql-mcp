@@ -14,7 +14,13 @@ import {
 import { VERSION } from "../version.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import type { DatabaseAdapter } from "../adapters/database-adapter.js";
-import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
+import {
+  McpError,
+  ErrorCode,
+  SubscribeRequestSchema,
+  UnsubscribeRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
+import { SubscriptionManager } from "./subscription-manager.js";
 import type {
   McpServerConfig,
   TransportType,
@@ -59,6 +65,8 @@ export class McpServer {
   private activeTransport: { stop(): Promise<void> } | null = null;
   private auditLogger: AuditLogger | null = null;
   private backupManager: BackupManager | null = null;
+  public readonly subscriptionManager: SubscriptionManager;
+  private healthInterval: NodeJS.Timeout | null = null;
 
   constructor(config: Partial<McpServerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -75,10 +83,76 @@ export class McpServer {
       {
         capabilities: {
           logging: {},
+          resources: {
+            subscribe: true,
+          },
         },
         instructions,
       },
     );
+
+    this.subscriptionManager = new SubscriptionManager(this.server);
+
+    // Handle subscribe request
+    this.server.server.setRequestHandler(
+      SubscribeRequestSchema,
+      (request, extra) => {
+        const uri = request.params.uri;
+        let sessionId =
+          extra.sessionId ??
+          extra.requestInfo?.headers["mcp-session-id"] ??
+          undefined;
+
+        sessionId ??= "default";
+
+        // Allow subscriptions to schema, tables, health, and dynamic table URIs
+        if (
+          !["mysql://schema", "mysql://tables", "mysql://health"].includes(
+            uri,
+          ) &&
+          !uri.startsWith("mysql://table/")
+        ) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Resource ${uri} is not subscribable`,
+          );
+        }
+
+        this.subscriptionManager.subscribe(
+          uri,
+          sessionId as string | undefined,
+        );
+        return {};
+      },
+    );
+
+    // Handle unsubscribe request
+    this.server.server.setRequestHandler(
+      UnsubscribeRequestSchema,
+      (request, extra) => {
+        const uri = request.params.uri;
+        let sessionId =
+          extra.sessionId ??
+          extra.requestInfo?.headers["mcp-session-id"] ??
+          undefined;
+
+        sessionId ??= "default";
+
+        this.subscriptionManager.unsubscribe(
+          uri,
+          sessionId as string | undefined,
+        );
+        return {};
+      },
+    );
+
+    // Periodically push health updates if there are subscribers
+    this.healthInterval = setInterval(() => {
+      if (this.subscriptionManager.hasSubscribers("mysql://health")) {
+        void this.subscriptionManager.notifyResourceUpdated("mysql://health");
+      }
+    }, 60_000);
+    this.healthInterval.unref();
 
     // Register help resources (mysql://help and mysql://help/{group})
     this.registerHelpResources();
@@ -159,6 +233,11 @@ export class McpServer {
     adapter.registerTools(this.server, this.toolFilter.enabledTools);
     adapter.registerResources(this.server);
     adapter.registerPrompts(this.server);
+
+    // Wire up schema changed event to push resource updates
+    adapter.on("schemaChanged", () => {
+      void this.subscriptionManager.notifySchemaSubscribers();
+    });
 
     // Count enabled tools
     const enabledToolCount = allTools.filter((t) =>
@@ -351,6 +430,11 @@ export class McpServer {
     }
     if (this.auditLogger) {
       await this.auditLogger.close();
+    }
+
+    if (this.healthInterval) {
+      clearInterval(this.healthInterval);
+      this.healthInterval = null;
     }
 
     await this.server.close();

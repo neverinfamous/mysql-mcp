@@ -34,6 +34,12 @@ Only help resources for your enabled tool groups are registered.
 All tools return \`{success: false, error, code, category, suggestion, recoverable}\` — never raw MCP exceptions.
 Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).
 
+## Subscriptions
+
+The server supports MCP \`resources/subscribe\` for live updates. Subscribable URIs include:
+- \`mysql://health\`: Polled every 60 seconds for health changes.
+- \`mysql://schema\`, \`mysql://tables\`, \`mysql://table/{name}\`: Event-driven notifications on DDL changes.
+
 ## Security Sandbox
 
 Tools interacting with the filesystem (like \`backup\` or \`shell\` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the \`ALLOWED_IO_ROOTS\` server configuration.
@@ -299,7 +305,8 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Graceful schema errors**: \`mysql_create_schema\` returns \`{ success: false, error }\` when the schema already exists (with \`ifNotExists: false\`). With \`ifNotExists: true\` (default), returns \`{ success: true, skipped: true, reason: "Schema already exists" }\` for existing schemas. \`mysql_drop_schema\` returns \`{ success: false, error }\` when the schema does not exist (with \`ifExists: false\`). With \`ifExists: true\` (default), returns \`{ success: true, skipped: true, reason: "Schema did not exist" }\` for nonexistent schemas.
 - **Views**: \`mysql_create_view\` supports \`orReplace\` (default: false), \`algorithm\` (UNDEFINED/MERGE/TEMPTABLE), and \`checkOption\` (NONE/CASCADED/LOCAL). Returns \`{ success: false, error }\` when the view already exists without \`orReplace\` or when the SQL definition is invalid (e.g., referencing nonexistent tables). \`mysql_list_views\` shows definitions, security type, check option, and updatability (algorithm is not included in the listing output).
 - **Constraints**: \`mysql_list_constraints\` returns primary keys, foreign keys, unique, and check constraints. Use \`type\` parameter to filter (e.g., \`type: "FOREIGN KEY"\`). Returns \`{ exists: false, table }\` when the table does not exist.
-- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects. All accept optional \`schema\` parameter for cross-database inspection. \`mysql_list_triggers\` also accepts optional \`table\` parameter to filter by table name. Returns \`{ exists: false, table }\` when the specified table does not exist. \`mysql_list_events\` also accepts \`status\` filter (\`ENABLED\`, \`DISABLED\`, \`SLAVESIDE_DISABLED\`). Returns \`{ exists: false, schema }\` when the specified schema does not exist.`],
+- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects. All accept optional \`schema\` parameter for cross-database inspection. \`mysql_list_triggers\` also accepts optional \`table\` parameter to filter by table name. Returns \`{ exists: false, table }\` when the specified table does not exist. \`mysql_list_events\` also accepts \`status\` filter (\`ENABLED\`, \`DISABLED\`, \`SLAVESIDE_DISABLED\`). Returns \`{ exists: false, schema }\` when the specified schema does not exist.
+- **Live Notifications**: MCP clients can subscribe to \`mysql://schema\`, \`mysql://tables\`, or specific tables (\`mysql://table/{name}\`) to receive event-driven notifications when DDL changes occur (e.g., creating/dropping tables or views).`],
   ["security", `# Security Tools (\`mysql_security_*\`)
 
 - **SSL status**: \`mysql_security_ssl_status\` returns SSL/TLS connection status, cipher, certificate paths, and session statistics.

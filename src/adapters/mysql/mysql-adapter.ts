@@ -594,6 +594,7 @@ export class MySQLAdapter extends DatabaseAdapter {
    */
   clearSchemaCache(): void {
     this.schemaManager.clearCache();
+    this.emit("schemaChanged");
   }
 
   /**

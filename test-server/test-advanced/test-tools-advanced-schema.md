@@ -82,6 +82,11 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 16. `mysql_list_stored_procedures({database: "testdb"})` → log token estimate
 17. Flag any response > 500 tokens as 📦
 
+## Category 5: Subscriptions
+
+19. Verify that the server's `McpServer` handles `SubscribeRequestSchema` for `mysql://schema` and `mysql://tables` natively, as this cannot be directly executed via `mysql_execute_code`. Ensure `overview.md` reflects this capability.
+
 ## Cleanup
 
-18. Drop all `stress_*` schemas and views
+20. Drop all `stress_*` schemas and views
+
