@@ -30,6 +30,7 @@ export function createGroupApi(
       // Normalize positional arguments to object parameters
       const normalizedParams = normalizeParams(methodName, args) ?? {};
       const context = adapter.createContext();
+      context.isCodeMode = true;
 
       // §1: Wrap with audit interceptor when available
       if (auditInterceptor) {

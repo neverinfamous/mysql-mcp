@@ -35,7 +35,7 @@ import type {
   SnapshotMetadata,
   SnapshotContent,
 } from "./types.js";
-import { assertSafeIoPath } from "../utils/security-utils.js";
+
 
 /**
  * Tools that should receive pre-mutation snapshots, mapped to the
@@ -114,20 +114,15 @@ export class BackupManager {
   constructor(
     config: BackupConfig,
     auditLogPath: string,
-    allowedIoRoots?: string[],
   ) {
     this.config = config;
     // Snapshots live alongside the audit log file
     const logDir = dirname(auditLogPath);
     this.snapshotDir = join(logDir, "snapshots");
 
-    // Validate the snapshot directory against security boundaries if configured
-    if (allowedIoRoots && allowedIoRoots.length > 0) {
-      // Create a dummy filename to test the path validation logic
-      // BackupManager only writes .snapshot.json or .snapshot.json.gz
-      const dummyPath = join(this.snapshotDir, "test.snapshot.json");
-      assertSafeIoPath(dummyPath, allowedIoRoots, false);
-    }
+    // Note: We do not validate snapshotDir against allowedIoRoots because
+    // snapshots are internal server audit records that must reside outside
+    // the tool sandbox to prevent tampering.
   }
 
   /**

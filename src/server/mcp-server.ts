@@ -93,7 +93,6 @@ export class McpServer {
         this.backupManager = new BackupManager(
           this.config.auditConfig.backup,
           this.config.auditConfig.logPath,
-          this.config.allowedIoRoots,
         );
       }
       this.registerAuditResource();

@@ -30,6 +30,8 @@ import {
   withTokenEstimate,
 } from "./core/error-helpers.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
+import { buildProgressContext } from "../../../utils/progress-utils.js";
+import { streamResultRows } from "../../../utils/stream-utils.js";
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -91,12 +93,35 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           query,
           params: queryParams,
           transactionId,
+          stream,
+          chunkSize,
         } = ReadQuerySchema.parse(params);
         const result = await adapter.executeReadQuery(
           query,
           queryParams,
           transactionId,
         );
+
+        if (stream && !_context.isCodeMode) {
+          const progressCtx = buildProgressContext(_context);
+          if (progressCtx) {
+            const chunksEmitted = await streamResultRows(
+              progressCtx,
+              result.rows ?? [],
+              chunkSize,
+            );
+            return withTokenEstimate({
+              success: true,
+              data: {
+                streamed: true,
+                chunksEmitted,
+                rowCount: result.rows?.length ?? 0,
+                executionTimeMs: result.executionTimeMs,
+              },
+            });
+          }
+        }
+
         return withTokenEstimate({
           success: true,
           data: {

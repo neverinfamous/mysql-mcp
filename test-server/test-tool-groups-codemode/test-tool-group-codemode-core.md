@@ -97,7 +97,8 @@ core Tool Group (8 tools +1 code mode):
 1. `mysql.core.help()` → verify method listing includes `readQuery`, `writeQuery`, `listTables`, etc.
 2. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `n === 20`
 3. `mysql.core.readQuery({query: "SELECT id, name FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows
-4. `mysql.core.listTables({database: "testdb", limit: 5})` → 5 tables returned
+4. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders", stream: true, chunkSize: 5})` → verify returns `{rowCount: 1, rows: [{n: 20}]}` and DOES NOT return `streamed: true` (degrades gracefully in Code Mode)
+5. `mysql.core.listTables({database: "testdb", limit: 5})` → 5 tables returned
 5. `mysql.core.describeTable({table: "test_products"})` → columns include `id`, `name`, `price`
 6. `mysql.core.getIndexes({table: "test_orders"})` → verify `idx_orders_status` present
 

@@ -13,7 +13,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://img.shields.io/badge/E2E-433%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-89.4%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-89.16%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -447,7 +447,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
-**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to all 224 tools via a JavaScript sandbox.
+**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to all 225 tools via a JavaScript sandbox.
 
 ```json
 {

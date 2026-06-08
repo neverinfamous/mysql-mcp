@@ -1,6 +1,7 @@
 # Core Tools (`mysql_read_query`, `mysql_write_query`, `mysql_create_table`, etc.)
 
 - **Prepared statements**: `mysql_read_query` and `mysql_write_query` support parameterized queries via the `params` array. Use `?` placeholders: `query: "SELECT * FROM users WHERE id = ?", params: [123]`.
+- **Streaming results**: `mysql_read_query` supports `stream: true` + `chunkSize` to emit results incrementally via MCP progress notifications. It degrades gracefully (returning full results at once) in Code Mode or if no progress token is available.
 - **DDL statements**: DDL (e.g., `CREATE TABLE`, `ALTER TABLE`) is automatically handled via text protocol fallback in `mysql_write_query`.
 - **Query error handling**: `mysql_read_query` and `mysql_write_query` return `{ success: false, error }` for all query errors (nonexistent table, syntax, permissions, etc.), instead of throwing raw errors.
 - **Boolean defaults**: `mysql_create_table` auto-converts boolean `default: true` to `1` and `default: false` to `0` for MySQL compatibility. Alternatively, use `TINYINT(1)` with numeric defaults directly.

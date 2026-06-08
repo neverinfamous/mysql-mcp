@@ -200,7 +200,8 @@ All tools implement P154 structured error handling for nonexistent tables. Test 
 
 1. `mysql_read_query({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `{rows: [{n: 20}], rowCount: 1}`
 2. `mysql_read_query({query: "SELECT id, name, price FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows with valid data
-3. `mysql_list_tables({database: "testdb", limit: 5})` → `{tables: [...], count: 5, truncated: true}`
+3. `mysql_read_query({query: "SELECT * FROM test_measurements", stream: true, chunkSize: 50})` → verify returns `{streamed: true, chunksEmitted: 4, rowCount: 200}`
+4. `mysql_list_tables({database: "testdb", limit: 5})` → `{tables: [...], count: 5, truncated: true}`
 4. `mysql_describe_table({table: "test_products"})` → verify `columns` includes `id`, `name`, `price`, `category`, `metadata`; `primaryKey` present
 5. `mysql_get_indexes({table: "test_orders"})` → verify `idx_orders_status` and `idx_orders_date` in results
 6. `mysql_list_tables({database: "testdb"})` → verify ≥11 test tables present

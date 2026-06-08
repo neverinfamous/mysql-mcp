@@ -25,6 +25,14 @@ export const ReadQuerySchemaBase = z.object({
     .describe("Optional transaction ID for executing within a transaction"),
   txId: z.string().optional().describe("Alias for transactionId"),
   tx: z.string().optional().describe("Alias for transactionId"),
+  stream: z
+    .boolean()
+    .optional()
+    .describe("Stream results via progress notifications instead of returning them all at once (requires client support)"),
+  chunkSize: z
+    .number()
+    .optional()
+    .describe("Number of rows per chunk when streaming (default: 10)"),
 });
 
 // Transformed schema for handler parsing (normalizes aliases)
@@ -44,12 +52,22 @@ export const ReadQuerySchema = z
         .describe("Optional transaction ID for executing within a transaction"),
       txId: z.string().optional().describe("Alias for transactionId"),
       tx: z.string().optional().describe("Alias for transactionId"),
+      stream: z
+        .boolean()
+        .optional()
+        .describe("Stream results via progress notifications instead of returning them all at once (requires client support)"),
+      chunkSize: z
+        .number()
+        .optional()
+        .describe("Number of rows per chunk when streaming (default: 10)"),
     }),
   )
   .transform((data) => ({
     query: data.query ?? data.sql ?? "",
     params: data.params,
     transactionId: data.transactionId ?? data.txId ?? data.tx,
+    stream: data.stream,
+    chunkSize: data.chunkSize,
   }))
   .refine((data) => data.query !== "", {
     message: "query (or sql alias) is required",
