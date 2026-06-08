@@ -20,6 +20,10 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_drop_table",
     "mysql_create_index",
     "mysql_get_indexes",
+    "mysql_enable_versioning",
+    "mysql_disable_versioning",
+    "mysql_check_version",
+    "mysql_conditional_update",
   ],
   json: [
     "mysql_json_extract",

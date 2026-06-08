@@ -323,3 +323,56 @@ export const GetIndexesSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName alias) is required",
   });
+
+// --- Versioning (Optimistic Concurrency Control) ---
+
+export const EnableVersioningSchema = z.object({
+  table: z.string().min(1, "Table name is required").describe("Table to enable OCC on"),
+});
+
+export const EnableVersioningOutputSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  alreadyEnabled: z.boolean().optional(),
+});
+
+export const DisableVersioningSchema = z.object({
+  table: z.string().min(1, "Table name is required").describe("Table to disable OCC on"),
+  ifExists: z.boolean().optional().default(false).describe("If true, do not error if table does not exist"),
+});
+
+export const DisableVersioningOutputSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+
+export const CheckVersionSchema = z.object({
+  table: z.string().min(1, "Table name is required").describe("Table containing the row"),
+  idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided."),
+  rowId: z.unknown().describe("Primary key value of the row"),
+});
+
+export const CheckVersionOutputSchema = z.object({
+  success: z.boolean(),
+  version: z.number().optional(),
+  row: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const ConditionalUpdateSchema = z.object({
+  table: z.string().min(1, "Table name is required").describe("Table to update"),
+  data: z.record(z.string(), z.unknown()).describe("Column-value pairs to update"),
+  conditions: z.array(
+    z.object({
+      column: z.string(),
+      operator: z.string().optional(),
+      value: z.unknown(),
+    })
+  ).describe("Conditions identifying the row (e.g. primary key)"),
+  expectedVersion: z.number().describe("The _version value currently expected. Update fails if this does not match."),
+});
+
+export const ConditionalUpdateOutputSchema = z.object({
+  success: z.boolean(),
+  rowsAffected: z.number().optional(),
+  currentVersion: z.number().optional(),
+});

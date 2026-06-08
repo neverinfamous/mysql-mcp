@@ -117,7 +117,7 @@ src/
 
 ## Handler → Tool Mapping
 
-225 tools across 27 groups. Each handler file registers tools with `group` labels.
+229 tools across 27 groups. Each handler file registers tools with `group` labels.
 
 ### Tool Handlers (`src/adapters/mysql/tools/`)
 
@@ -125,6 +125,7 @@ src/
 | ----------------- | ------------------------------------ | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **codemode**      | `codemode/index.ts`                  | 1     | `mysql_execute_code`                                                                                                                                                 |
 | **core**          | `core.ts`                            | 8     | `read_query`, `write_query`, `list_tables`, `describe_table`, `create_table`, `drop_table`, `create_index`, `get_indexes`                                            |
+|                   | `core/versioning.ts`                 | 4     | `enable_versioning`, `disable_versioning`, `check_version`, `conditional_update`                                                                                     |
 |                   | `core/error-helpers.ts`              | —     | Shared `formatHandlerError()` orchestrator (handles ZodError, MySQLMcpError, generic Error)                                                                          |
 | **schema**        | `schema/management.ts`               | 3     | `list_schemas`, `create_schema`, `drop_schema`                                                                                                                       |
 |                   | `schema/views.ts`                    | 3     | `list_views`, `create_view`, `drop_view`                                                                                                                             |

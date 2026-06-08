@@ -19,16 +19,16 @@
 
 ## The Most Comprehensive MySQL MCP Server Available
 
-**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Features **Code Mode** — a revolutionary approach that provides access to all 225 tools through a single JavaScript sandbox, eliminating the massive token overhead of multi-step tool calls. Also includes deterministic error handling, process-isolated code execution, and enterprise-grade features without sacrificing ease of use.
+**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Features **Code Mode** — a revolutionary approach that provides access to all 229 tools through a single JavaScript sandbox, eliminating the massive token overhead of multi-step tool calls. Also includes deterministic error handling, process-isolated code execution, and enterprise-grade features without sacrificing ease of use.
 
 ## 🎯 What Sets Us Apart
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **225 Specialized Tools**             | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
+| **229 Specialized Tools**             | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
 | **18 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
-| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 225 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
+| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 229 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
 | **Smart Tool Filtering**              | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                                                                                                                      |
@@ -110,7 +110,7 @@ Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox i
 
 ### ⚡ Code Mode Only (Maximum Token Savings)
 
-If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 225 tools' worth of capability through the `mysql.*` API:
+If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 229 tools' worth of capability through the `mysql.*` API:
 
 ```json
 {
@@ -375,7 +375,7 @@ Use the remote hostname directly:
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 225 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 229 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -392,16 +392,16 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Shortcut        | Tools  | Use Case           | What's Included                                                    |
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
-| `starter`       | **39** | Standard Package   | core, json, transactions, text, codemode                           |
-| `essential`     | 16     | Minimal footprint  | core, transactions, codemode                                       |
-| `dev-power`     | 63     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
-| `ai-data`       | 46     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
-| `ai-spatial`    | 59     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
-| `dba-monitor`   | 39     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
-| `dba-manage`    | 38     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
-| `dba-secure`    | 33     | DBA Security       | core, security, roles, transactions, codemode                      |
-| `dba-schema`    | 32     | DBA Schema         | core, schema, introspection, migration, codemode                   |
-| `base-core`     | 50     | Base Ops           | core, json, transactions, text, schema, codemode                   |
+| `starter`       | **43** | Standard Package   | core, json, transactions, text, codemode                           |
+| `essential`     | 20     | Minimal footprint  | core, transactions, codemode                                       |
+| `dev-power`     | 67     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
+| `ai-data`       | 50     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
+| `ai-spatial`    | 63     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
+| `dba-monitor`   | 43     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
+| `dba-manage`    | 42     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
+| `dba-secure`    | 37     | DBA Security       | core, security, roles, transactions, codemode                      |
+| `dba-schema`    | 36     | DBA Schema         | core, schema, introspection, migration, codemode                   |
+| `base-core`     | 54     | Base Ops           | core, json, transactions, text, schema, codemode                   |
 | `base-advanced` | 53     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
 | `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell, codemode                         |
 
@@ -412,7 +412,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | Group           | Tools | Description                                             |
 | --------------- | ----- | ------------------------------------------------------- |
 | `codemode`      | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
-| `core`          | 8     | Read/write queries, tables, indexes                     |
+| `core`          | 12    | Read/write queries, tables, indexes                     |
 | `transactions`  | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
 | `json`          | 17    | JSON functions, merge, diff, stats                      |
 | `text`          | 6     | REGEXP, LIKE, SOUNDEX                                   |
@@ -447,7 +447,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
-**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to all 225 tools via a JavaScript sandbox.
+**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to all 229 tools via a JavaScript sandbox.
 
 ```json
 {
@@ -742,7 +742,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 225 tools, 18 resources, and 19 prompts interactively.
+Open **http://localhost:6274** to browse all 229 tools, 18 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 

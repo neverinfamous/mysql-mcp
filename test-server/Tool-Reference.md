@@ -1,12 +1,12 @@
 # Tool Reference
 
-Complete list of all **225 tools** across 27 categories.
+Complete list of all **229 tools** across 27 categories.
 
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
 ---
 
-## Core Database (8 tools)
+## Core Database (12 tools)
 
 | Tool                   | Description                           |
 | ---------------------- | ------------------------------------- |
@@ -15,9 +15,13 @@ Complete list of all **225 tools** across 27 categories.
 | `mysql_list_tables`    | List tables with metadata             |
 | `mysql_describe_table` | Get column definitions                |
 | `mysql_create_table`   | CREATE TABLE with engine/charset      |
-| `mysql_drop_table`     | DROP TABLE with IF EXISTS             |
-| `mysql_create_index`   | CREATE INDEX (BTREE, HASH, FULLTEXT)  |
-| `mysql_get_indexes`    | SHOW INDEX FROM table                 |
+| `mysql_drop_table`         | DROP TABLE with IF EXISTS               |
+| `mysql_create_index`       | CREATE INDEX (BTREE, HASH, FULLTEXT)    |
+| `mysql_get_indexes`        | SHOW INDEX FROM table                   |
+| `mysql_enable_versioning`  | Enable OCC on a table                   |
+| `mysql_disable_versioning` | Disable OCC on a table                  |
+| `mysql_check_version`      | Get current _version of a row           |
+| `mysql_conditional_update` | Update row conditionally based on version |
 
 ---
 

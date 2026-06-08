@@ -32,6 +32,12 @@ import {
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
 import { buildProgressContext } from "../../../utils/progress-utils.js";
 import { streamResultRows } from "../../../utils/stream-utils.js";
+import {
+  createEnableVersioningTool,
+  createDisableVersioningTool,
+  createCheckVersionTool,
+  createConditionalUpdateTool,
+} from "./core/versioning.js";
 
 /**
  * Pre-compiled identifier validation patterns (hoisted for performance)
@@ -71,6 +77,10 @@ export function getCoreTools(adapter: MySQLAdapter): ToolDefinition[] {
     createDropTableTool(adapter),
     createGetIndexesTool(adapter),
     createCreateIndexTool(adapter),
+    createEnableVersioningTool(adapter),
+    createDisableVersioningTool(adapter),
+    createCheckVersionTool(adapter),
+    createConditionalUpdateTool(adapter),
   ];
 }
 
