@@ -74,6 +74,12 @@ function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServerConfi
     config.authToken = authToken;
   }
 
+  // Check metrics export environment variable
+  const metricsExport = process.env["MCP_METRICS_EXPORT"];
+  if (metricsExport) {
+    config.metricsExport = metricsExport === "prometheus" ? "prometheus" : (metricsExport === "true");
+  }
+
   // Check OAuth environment variables
   if (process.env["OAUTH_ENABLED"] === "true") {
     oauth = {
@@ -364,6 +370,15 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         }
         break;
 
+      case "--metrics-export":
+        if (nextArg && !nextArg.startsWith("-")) {
+          cliConfig.metricsExport = nextArg === "prometheus" ? "prometheus" : (nextArg === "true");
+          i++;
+        } else {
+          cliConfig.metricsExport = true;
+        }
+        break;
+
       // Audit options
       case "--audit-log":
         if (nextArg && !nextArg.startsWith("-")) {
@@ -565,6 +580,7 @@ Authentication & Security:
   --enable-hsts               Enable HSTS header (use when behind HTTPS)
   --trust-proxy               Trust X-Forwarded-For header for client IP
   --log-level <level>         Log level: debug, info, warn, error (default: info)
+  --metrics-export [format]   Enable metrics export endpoint (prometheus)
 
 Audit Options:
   --audit-log <path>          Path to JSONL audit log file (or 'stderr' to stream)
@@ -593,6 +609,7 @@ Environment Variables:
   MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
   TRUST_PROXY                  Trust X-Forwarded-For (true/false)
   MCP_ENABLE_HSTS              Enable HSTS header (same as --enable-hsts)
+  MCP_METRICS_EXPORT           Enable metrics export endpoint (prometheus or true)
   ALLOWED_IO_ROOTS             Allowed input/output root directories
   LOG_LEVEL                   Log level (debug, info, warn, error)
   OAUTH_ENABLED               Enable OAuth (true/false)

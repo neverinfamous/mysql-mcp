@@ -39,9 +39,6 @@ Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P
 The server supports MCP \`resources/subscribe\` for live updates. Subscribable URIs include:
 - \`mysql://health\`: Polled every 60 seconds for health changes.
 - \`mysql://schema\`, \`mysql://tables\`, \`mysql://table/{name}\`: Event-driven notifications on DDL changes.
-- **Role Management**: (\`roles\`, \`security\`) Manage MySQL roles, grants, and permissions securely.
-- **Optimistic Concurrency**: (\`versioning\`) Use OCC tools to manage concurrent updates safely.
-- **System Administration**: (\`admin\`, \`cluster\`, \`replication\`) Server variables, processlist, plugins, and replication topology.
 
 ## Security Sandbox
 
@@ -233,7 +230,8 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Server health**: \`mysql_server_health\` returns latency, version, uptime, and pool stats in a single call.
 - **InnoDB status**: \`mysql_innodb_status\` returns InnoDB engine monitor output. Use \`summary: true\` for parsed key metrics (buffer pool, row ops, transactions).
 - **Replication**: \`mysql_replication_status\` shows replica/slave status. Returns \`configured: false\` if replication is not set up.
-- **Pool stats**: \`mysql_pool_stats\` returns connection pool metrics (total, active, idle, waiting connections).`],
+- **Pool stats**: \`mysql_pool_stats\` returns connection pool metrics (total, active, idle, waiting connections).
+- **In-Memory Metrics**: The \`mysql://metrics\` resource provides streaming metrics including p50/p95/p99 latency percentiles, error rates, and content-type-aware token usage for all tool calls and resource reads. If the server is started with \`--metrics-export prometheus\` (or \`MCP_METRICS_EXPORT=prometheus\`), these metrics are also exposed via HTTP \`GET /metrics\` in Prometheus format.`],
   ["optimization", `# Optimization Tools (\`mysql_index_recommendation\`, \`mysql_query_rewrite\`, etc.)
 
 - **Index recommendations**: \`mysql_index_recommendation\` analyzes table structure and suggests missing indexes. Returns \`{ exists: false, table }\` when the table does not exist.

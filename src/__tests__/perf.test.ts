@@ -65,9 +65,9 @@ describe("Performance Tests", () => {
       expect(cachedCallTime.avg).toBeLessThan(0.5);
     });
 
-    it("should return consistent count of 225 tools", () => {
+    it("should return consistent count of 229 tools", () => {
       const tools = getAllToolNames();
-      expect(tools).toHaveLength(225);
+      expect(tools).toHaveLength(229);
     });
   });
 
@@ -147,19 +147,19 @@ describe("Performance Tests", () => {
 
     it("should correctly filter to expected tool counts", () => {
       const starterConfig = parseToolFilter("starter");
-      expect(starterConfig.enabledTools.size).toBe(39);
+      expect(starterConfig.enabledTools.size).toBe(43);
 
       const aiDataConfig = parseToolFilter("ai-data");
-      expect(aiDataConfig.enabledTools.size).toBe(46);
+      expect(aiDataConfig.enabledTools.size).toBe(50);
 
       const dbaMonitorConfig = parseToolFilter("dba-monitor");
-      expect(dbaMonitorConfig.enabledTools.size).toBe(39);
+      expect(dbaMonitorConfig.enabledTools.size).toBe(43);
 
       const dbaSecureConfig = parseToolFilter("dba-secure");
-      expect(dbaSecureConfig.enabledTools.size).toBe(33);
+      expect(dbaSecureConfig.enabledTools.size).toBe(37);
 
       const devPowerConfig = parseToolFilter("dev-power");
-      expect(devPowerConfig.enabledTools.size).toBe(63);
+      expect(devPowerConfig.enabledTools.size).toBe(67);
     });
 
     describe("filterTools performance", () => {
@@ -187,7 +187,7 @@ describe("Performance Tests", () => {
 
         // Verify correct filtering
         const filtered = filterTools(mockTools, config);
-        expect(filtered).toHaveLength(39);
+        expect(filtered).toHaveLength(43);
       });
     });
 
@@ -198,7 +198,7 @@ describe("Performance Tests", () => {
 
         // First call builds the cache
         const firstCall = adapter.getToolDefinitions();
-        expect(firstCall).toHaveLength(224);
+        expect(firstCall).toHaveLength(228);
 
         // Subsequent calls should return same reference (cached)
         const secondCall = adapter.getToolDefinitions();
@@ -221,7 +221,7 @@ describe("Performance Tests", () => {
         // Wait, MySQLAdapter.getToolDefinitions() returns all tools?
         // Yes, checking the implementation... it usually does.
         const tools = adapter.getToolDefinitions();
-        expect(tools).toHaveLength(224);
+        expect(tools).toHaveLength(228);
       });
     });
   });

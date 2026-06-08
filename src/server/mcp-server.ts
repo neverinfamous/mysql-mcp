@@ -42,6 +42,7 @@ import { AuditLogger } from "../audit/logger.js";
 import { BackupManager } from "../audit/backup-manager.js";
 import { createAuditInterceptor } from "../audit/interceptor.js";
 import { registerAdminTools } from "./admin-tools.js";
+import { metrics } from "../observability/metrics.js";
 
 /**
  * Default server configuration
@@ -156,6 +157,9 @@ export class McpServer {
 
     // Register help resources (mysql://help and mysql://help/{group})
     this.registerHelpResources();
+
+    // Register observability resources
+    this.registerObservabilityResource();
 
     // Initialize MCP protocol logging so clients can receive log messages
     mcpLogger.setServer(this.server);
@@ -339,6 +343,9 @@ export class McpServer {
               : {}),
             stateless: this.config.stateless ?? false,
             trustProxy: this.config.trustProxy ?? false,
+            ...(this.config.metricsExport !== undefined
+              ? { metricsExport: this.config.metricsExport }
+              : {}),
             // Pass OAuth config if enabled
             ...(this.config.oauth?.enabled
               ? {
@@ -543,15 +550,18 @@ export class McpServer {
             "Critical gotchas, parameter aliases, and Code Mode API reference",
           mimeType: "text/markdown",
         },
-        () => ({
-          contents: [
-            {
-              uri: "mysql://help",
-              mimeType: "text/markdown",
-              text: gotchasContent,
-            },
-          ],
-        }),
+        () => {
+          metrics.recordResourceRead("mysql://help");
+          return {
+            contents: [
+              {
+                uri: "mysql://help",
+                mimeType: "text/markdown",
+                text: gotchasContent,
+              },
+            ],
+          };
+        },
       );
     }
 
@@ -609,15 +619,18 @@ export class McpServer {
           description: `Tool reference for the ${group} tool group`,
           mimeType: "text/markdown",
         },
-        () => ({
-          contents: [
-            {
-              uri: `mysql://help/${key}`,
-              mimeType: "text/markdown",
-              text: content,
-            },
-          ],
-        }),
+        () => {
+          metrics.recordResourceRead(`mysql://help/${key}`);
+          return {
+            contents: [
+              {
+                uri: `mysql://help/${key}`,
+                mimeType: "text/markdown",
+                text: content,
+              },
+            ],
+          };
+        },
       );
     }
 
@@ -646,6 +659,7 @@ export class McpServer {
         mimeType: "application/json",
       },
       async () => {
+        metrics.recordResourceRead("mysql://audit");
         if (!this.auditLogger) return { contents: [] };
 
         const recent = await this.auditLogger.recent(100);
@@ -686,6 +700,34 @@ export class McpServer {
       },
     );
     logger.info("Registered audit resource: mysql://audit");
+  }
+
+  /**
+   * Register mysql://metrics resource for in-memory telemetry
+   */
+  private registerObservabilityResource(): void {
+    this.server.registerResource(
+      "mysql_metrics",
+      "mysql://metrics",
+      {
+        description: "In-memory streaming metrics including p50/p95/p99 latency and token usage",
+        mimeType: "application/json",
+      },
+      () => {
+        metrics.recordResourceRead("mysql://metrics");
+        const summary = metrics.getSummary();
+        return {
+          contents: [
+            {
+              uri: "mysql://metrics",
+              mimeType: "application/json",
+              text: JSON.stringify(summary, null, 2),
+            },
+          ],
+        };
+      },
+    );
+    logger.info("Registered observability resource: mysql://metrics");
   }
 }
 

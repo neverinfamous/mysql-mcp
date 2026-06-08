@@ -109,7 +109,7 @@ src/
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 13+ MCP prompts (see § below)
-│       ├── resources/              # 18+ MCP resources (see § below)
+│       ├── resources/              # 19+ MCP resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -220,7 +220,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Resources (`src/adapters/mysql/resources/`)
 
-18 data resources + 24+ help resources providing read-only metadata and agent guidance:
+19 data resources + 24+ help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -244,6 +244,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `docstore.ts`     | `mysql://docstore/{collection}`        |
 | `spatial.ts`      | `mysql://spatial/{table}`              |
 | `sysschema.ts`    | `mysql://sys/{view}`                   |
+| `metrics.ts`      | `mysql://metrics`                      |
 
 ### Audit Resource (registered dynamically by McpServer when `--audit-log` is set)
 
@@ -382,7 +383,7 @@ try {
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
 | `test-server/reset-database.ps1`            | Reset script — drops + re-seeds `testdb`                             |
-| `test-server/Tool-Reference.md`             | Complete 225-tool inventory with descriptions                        |
+| `test-server/Tool-Reference.md`             | Complete 229-tool inventory with descriptions                        |
 | `test-server/test-agent-experience.md`      | 35 open-ended scenarios — validates help resource sufficiency        |
 | `test-server/test-group-tools-core.md`      | Core/transactions/schema group checklists                            |
 | `test-server/test-group-tools-data.md`      | JSON/fulltext/docstore/text/stats checklists                         |
@@ -391,7 +392,7 @@ try {
 | `test-server/test-group-tools-ecosystem.md` | Cluster/ProxySQL/Router/Shell checklists                             |
 | `test-server/test-tools.md`                 | Entry-point protocol (schema ref, reporting format)                  |
 | `test-server/test-prompts.md`               | Prompt testing plan (13 prompts)                                     |
-| `test-server/test-resources.md`             | Resource testing plan (18+ data resources)                           |
+| `test-server/test-resources.md`             | Resource testing plan (19+ data resources)                           |
 | `test-server/advanced-test-tools.md`        | Stress tests (boundary, concurrency, cross-group)                    |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |

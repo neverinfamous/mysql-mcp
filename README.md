@@ -11,9 +11,9 @@
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp)
 [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![E2E](https://img.shields.io/badge/E2E-437%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
+[![E2E](https://img.shields.io/badge/E2E-442%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-89.07%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-87.65%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -26,7 +26,7 @@
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **229 Specialized Tools**             | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
-| **18 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
+| **19 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 229 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
@@ -398,7 +398,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `ai-data`       | 50     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
 | `ai-spatial`    | 63     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
 | `dba-monitor`   | 43     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
-| `dba-manage`    | 42     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
+| `dba-manage`    | 43     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
 | `dba-secure`    | 37     | DBA Security       | core, security, roles, transactions, codemode                      |
 | `dba-schema`    | 36     | DBA Schema         | core, schema, introspection, migration, codemode                   |
 | `base-core`     | 54     | Base Ops           | core, json, transactions, text, schema, codemode                   |
@@ -630,7 +630,7 @@ This server includes **19 intelligent prompts** for guided workflows:
 
 ## 📊 Resources
 
-This server exposes **18 resources** for database observability:
+This server exposes **19 resources** for database observability:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
@@ -652,6 +652,7 @@ This server exposes **18 resources** for database observability:
 | **`mysql://cluster`**   | Group Replication/InnoDB Cluster status     |
 | **`mysql://spatial`**   | Spatial columns and indexes                 |
 | **`mysql://docstore`**  | Document Store collections                  |
+| **`mysql://metrics`**   | Real-time observability metrics             |
 
 ---
 
@@ -742,7 +743,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 229 tools, 18 resources, and 19 prompts interactively.
+Open **http://localhost:6274** to browse all 229 tools, 19 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 

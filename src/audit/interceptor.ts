@@ -21,6 +21,8 @@ import type { BackupManager, SnapshotQueryAdapter } from "./backup-manager.js";
 import type { AuditCategory } from "./types.js";
 import { getAuthContext } from "../auth/auth-context.js";
 import { getRequiredScope } from "../auth/scope-map.js";
+import { estimateTokens } from "../utils/tokens.js";
+import { metrics } from "../observability/metrics.js";
 
 /**
  * Audit interceptor interface — used by `DatabaseAdapter.registerTool()`.
@@ -119,7 +121,7 @@ export function createAuditInterceptor(
       try {
         const result = await fn();
 
-        // Compute token estimate from result (~4 bytes per token)
+        // Compute token estimate from result
         if (typeof result === "object" && result !== null) {
           try {
             // Match mcp-registry.ts exact payload token calculation (minified + _meta)
@@ -127,12 +129,13 @@ export function createAuditInterceptor(
               ...result,
               _meta: { tokenEstimate: 0 },
             });
-            tokenEstimate = Math.ceil(Buffer.byteLength(json, "utf8") / 4);
+            tokenEstimate = estimateTokens(json, "json");
           } catch {
             // Serialization failure must not block tool execution
           }
         } else if (typeof result === "string") {
-          tokenEstimate = Math.ceil(Buffer.byteLength(result, "utf8") / 4);
+          const isSql = /^\s*(?:SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|ALTER|DROP|PRAGMA)\b/i.test(result);
+          tokenEstimate = estimateTokens(result, isSql ? "sql" : "text");
         }
 
         return result;
@@ -152,11 +155,19 @@ export function createAuditInterceptor(
           ...errorResult,
           _meta: { tokenEstimate: 0 },
         });
-        tokenEstimate = Math.ceil(Buffer.byteLength(enriched, "utf8") / 4);
+        tokenEstimate = estimateTokens(enriched, "json");
 
         throw err; // Re-throw — don't swallow
       } finally {
         const durationMs = Math.round(performance.now() - start);
+
+        // Record metrics
+        metrics.recordToolCall(
+          options?.logAs ?? toolName,
+          durationMs,
+          success,
+          tokenEstimate ?? 0,
+        );
 
         if (isReadScope) {
           // Compact read entries — omit args, user, scopes for ~100 byte entries

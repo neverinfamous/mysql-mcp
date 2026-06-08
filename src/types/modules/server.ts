@@ -49,6 +49,9 @@ export interface McpServerConfig {
   /** Trust X-Forwarded-For header for client IP (behind reverse proxy) */
   trustProxy?: boolean;
 
+  /** Enable prometheus metrics export */
+  metricsExport?: "prometheus" | boolean;
+
   /** Tool filtering configuration */
   toolFilter?: string;
 

@@ -303,16 +303,16 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  * STRICT LIMIT: NO group may exceed 70 tools.
  *
  * Tool counts (verified):
- *   starter:       39 (core:8 + json:17 + transactions:7 + text:6 + codemode:1)
- *   essential:     16 (core:8 + transactions:7 + codemode:1)
- *   dev-power:     63 (core:8 + schema:11 + performance:11 + stats:20 + fulltext:5 + transactions:7 + codemode:1)
- *   ai-data:       46 (core:8 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
- *   ai-spatial:    59 (core:8 + spatial:12 + stats:20 + performance:11 + transactions:7 + codemode:1)
- *   dba-monitor:   39 (core:8 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
- *   dba-manage:    39 (core:8 + admin:8 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
- *   dba-secure:    33 (core:8 + security:9 + roles:8 + transactions:7 + codemode:1)
- *   dba-schema:    32 (core:8 + schema:11 + introspection:6 + migration:6 + codemode:1)
- *   base-core:     50 (core:8 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)
+ *   starter:       43 (core:12 + json:17 + transactions:7 + text:6 + codemode:1)
+ *   essential:     20 (core:12 + transactions:7 + codemode:1)
+ *   dev-power:     67 (core:12 + schema:11 + performance:11 + stats:20 + fulltext:5 + transactions:7 + codemode:1)
+ *   ai-data:       50 (core:12 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
+ *   ai-spatial:    63 (core:12 + spatial:12 + stats:20 + performance:11 + transactions:7 + codemode:1)
+ *   dba-monitor:   43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
+ *   dba-manage:    43 (core:12 + admin:8 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
+ *   dba-secure:    37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
+ *   dba-schema:    36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
+ *   base-core:     54 (core:12 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)
  *   base-advanced: 53 (docstore:9 + spatial:12 + stats:20 + fulltext:5 + events:6 + codemode:1)
  *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */

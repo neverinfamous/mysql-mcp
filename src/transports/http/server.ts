@@ -45,6 +45,7 @@ import {
   handleRootInfo,
   handleProtectedResourceMetadata,
 } from "./handlers.js";
+import { metrics } from "../../observability/metrics.js";
 
 // =============================================================================
 // HTTP Transport Class
@@ -232,6 +233,13 @@ export class HttpTransport {
     // Health check — bypasses rate limiting so monitoring probes always succeed
     if (url.pathname === "/health") {
       handleHealthCheck(res, this.config);
+      return;
+    }
+
+    // Metrics export
+    if (url.pathname === "/metrics" && this.config.metricsExport === "prometheus") {
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end(metrics.toPrometheus());
       return;
     }
 

@@ -2,7 +2,7 @@
 
 ## Resource Testing
 
-mysql-mcp exposes 18 `mysql://` resources. Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
+mysql-mcp exposes 19 `mysql://` resources. Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
 ### Setup
 
@@ -18,9 +18,9 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 
 **Step 1:** Read `C:\Users\chris\Desktop\mysql-mcp\test-server\test-resources.sql` to understand what resource seed data has been set up.
 
-**Step 2:** Test all 18 `mysql://` resources by reading each resource URI. For each resource, validate the output against the expected structure documented below.
+**Step 2:** Test all 19 `mysql://` resources by reading each resource URI. For each resource, validate the output against the expected structure documented below.
 
-### All 18 Resources
+### All 19 Resources
 
 | #   | Resource URI           | Expected Output Shape                          | Pass Criteria                                                             |
 | --- | ---------------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
@@ -42,6 +42,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | 16  | `mysql://cluster`      | `{ groupReplicationEnabled, ... }`             | Returns `groupReplicationEnabled: false` on standalone; `true` on cluster |
 | 17  | `mysql://spatial`      | `{ spatialColumns, spatialIndexes, ... }`      | `spatialColumnCount >= 1` (test_locations.geom), `spatialIndexCount >= 1` |
 | 18  | `mysql://docstore`     | `{ collections, ... }`                         | `collectionCount >= 1` (test_documents detected)                          |
+| 19  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking tool/resource telemetry         |
 
 ### How to Read Resources
 
@@ -62,4 +63,4 @@ For each resource, report:
 
 ### Final Summary
 
-Provide a summary table of all 18 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.
+Provide a summary table of all 19 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.

@@ -6,3 +6,4 @@
 - **InnoDB status**: `mysql_innodb_status` returns InnoDB engine monitor output. Use `summary: true` for parsed key metrics (buffer pool, row ops, transactions).
 - **Replication**: `mysql_replication_status` shows replica/slave status. Returns `configured: false` if replication is not set up.
 - **Pool stats**: `mysql_pool_stats` returns connection pool metrics (total, active, idle, waiting connections).
+- **In-Memory Metrics**: The `mysql://metrics` resource provides streaming metrics including p50/p95/p99 latency percentiles, error rates, and content-type-aware token usage for all tool calls and resource reads. If the server is started with `--metrics-export prometheus` (or `MCP_METRICS_EXPORT=prometheus`), these metrics are also exposed via HTTP `GET /metrics` in Prometheus format.

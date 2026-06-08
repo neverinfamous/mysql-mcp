@@ -1,7 +1,7 @@
 -- =============================================================================
 -- MySQL-MCP Resource Testing Seed Data
 -- =============================================================================
--- This file warms up MySQL internal statistics views so that all 18 resources
+-- This file warms up MySQL internal statistics views so that all 19 resources
 -- return meaningful data. Run AFTER test-seed.sql.
 --
 -- Target: testdb database on mysql-final Docker container

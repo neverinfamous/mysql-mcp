@@ -24,8 +24,8 @@ describe("getCoreTools", () => {
     tools = getCoreTools(adapter);
   });
 
-  it("should return 8 core tools", () => {
-    expect(tools).toHaveLength(8);
+  it("should return 12 core tools", () => {
+    expect(tools).toHaveLength(12);
   });
 
   it("should include all expected tool names", () => {

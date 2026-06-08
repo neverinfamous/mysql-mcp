@@ -22,7 +22,7 @@
 ### 🎯 Core Features
 
 - **229 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
-- **18 Observability Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
+- **19 Observability Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
 - **Code Mode (Token Savings)**: Execute complex operations locally inside a separate V8 isolate, reducing token overhead by up to 90%.
 - **Dual Transport & OAuth 2.1**: Full streamable HTTP and legacy SSE support, protected by granular scopes (`read`, `write`, `admin`, `full`).
 - **Deterministic Error Handling**: Every tool returns structured responses with actionable suggestions—no raw exceptions.
@@ -250,7 +250,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `ai-data`       | 50     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
 | `ai-spatial`    | 63     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
 | `dba-monitor`   | 43     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
-| `dba-manage`    | 42     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
+| `dba-manage`    | 43     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
 | `dba-secure`    | 37     | DBA Security       | core, security, roles, transactions, codemode                      |
 | `dba-schema`    | 36     | DBA Schema         | core, schema, introspection, migration, codemode                   |
 | `base-core`     | 54     | Base Ops           | core, json, transactions, text, schema, codemode                   |

@@ -67,6 +67,9 @@ export interface HttpTransportConfig {
   /** Enable stateless mode — no sessions, no SSE, each request is independent */
   stateless?: boolean;
 
+  /** Enable prometheus metrics export endpoint */
+  metricsExport?: "prometheus" | boolean;
+
   // =========================================================================
   // Security Options
   // =========================================================================
