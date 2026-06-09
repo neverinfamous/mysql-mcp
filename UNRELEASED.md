@@ -1,6 +1,8 @@
 # Unreleased
 
 ### Added
+- Typed error classes for specific scenarios (`TimeoutError`, `RateLimitError`, `ConflictError`, `ExtensionNotAvailableError`).
+- Expanded error suggestion pattern matching for wait timeouts, execution timeouts, and missing extensions/plugins.
 - **Security:** Implemented session timeout enforcement for the HTTP transport. Orphaned sessions are now automatically reaped via a 1-minute sweep interval if idle for 30 minutes, or if they exceed a 24-hour absolute TTL. Sessions with in-flight requests are protected from early termination.
 - **Observability:** Added `mysql_audit_search` tool to the `admin` group. This tool leverages the `SystemDb` backend to expose structured audit logs (with filters and pagination) to the agent, eliminating the 50-entry limitation of the `mysql://audit` resource.
 - **Observability:** Implemented a zero-dependency in-memory `MetricsRegistry` and content-type-aware token estimator to track per-tool telemetry (latency percentiles, estimated tokens, error rates) and resource access metrics.
@@ -20,6 +22,10 @@
 - Removed legacy `--instruction-level` CLI flag, environment variables, and `InstructionLevel` configuration options to reduce complexity and improve token efficiency.
 - Updated `scripts` tests and `test-server` prompt readmes to remove legacy `instruction-level` references and validate the new Adaptive Instruction Architecture parameters.
 - Bumped GitHub Actions dependencies (`trufflesecurity/trufflehog` to v3.95.3, `docker/login-action` to v4.1.0, `actions/upload-artifact` to v7.0.1, `actions/github-script` to v9.0.0, and `github/codeql-action` to v4.35.5).
+
+### Changed
+- Made `ErrorResponse` interface strictly typed (required `code`, `category`, `suggestion`, `details`, `recoverable` fields) to enforce consistent error API contracts.
+- Converted `ErrorCategory` enum to `as const` object.
 
 ### Fixed
 - Fixed an `IoPathError` false positive during server initialization by exempting the internal `BackupManager` snapshot generation from the `ALLOWED_IO_ROOTS` tool sandbox validations.

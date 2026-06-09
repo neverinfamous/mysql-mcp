@@ -108,7 +108,9 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
       error: formatZodError(err as ZodError),
       code: "VALIDATION_ERROR",
       category: ErrorCategory.VALIDATION,
+      suggestion: undefined,
       recoverable: false,
+      details: undefined,
     };
   } else {
     // Raw MySQL / unknown error
@@ -117,7 +119,9 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
       error: formatMysqlError(err),
       code: "UNKNOWN_ERROR",
       category: ErrorCategory.INTERNAL,
+      suggestion: undefined,
       recoverable: false,
+      details: undefined,
     };
   }
 

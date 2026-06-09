@@ -279,23 +279,27 @@ MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory,
 ├── AuthenticationError   code: AUTHENTICATION_ERROR   category: AUTHENTICATION
 ├── AuthorizationError    code: AUTHORIZATION_ERROR    category: AUTHORIZATION
 ├── ValidationError       code: VALIDATION_ERROR       category: VALIDATION
-└── TransactionError      code: TRANSACTION_ERROR      category: QUERY
+├── TransactionError      code: TRANSACTION_ERROR      category: QUERY
+├── TimeoutError          code: TIMEOUT_ERROR        category: CONNECTION
+├── RateLimitError        code: RATE_LIMIT_ERROR     category: CONNECTION
+├── ConflictError         code: CONFLICT_ERROR       category: QUERY
+└── ExtensionNotAvailableError  code: EXTENSION_MISSING  category: CONFIGURATION
 ```
 
-**ErrorCategory enum** (9 categories) — `src/types/modules/error-types.ts`:
+**ErrorCategory object** (9 categories) — `src/types/modules/error-types.ts`:
 
 ```typescript
-enum ErrorCategory {
-  CONNECTION,
-  QUERY,
-  VALIDATION,
-  AUTHENTICATION,
-  AUTHORIZATION,
-  RESOURCE,
-  CONFIGURATION,
-  TIMEOUT,
-  UNKNOWN,
-}
+const ErrorCategory = {
+  VALIDATION: "validation",
+  CONNECTION: "connection",
+  QUERY: "query",
+  PERMISSION: "permission",
+  CONFIGURATION: "config",
+  RESOURCE: "resource",
+  AUTHENTICATION: "authentication",
+  AUTHORIZATION: "authorization",
+  INTERNAL: "internal",
+} as const;
 ```
 
 **ErrorResponse interface** — `src/types/modules/error-types.ts` (returned by all handlers on failure):
@@ -304,11 +308,12 @@ enum ErrorCategory {
 interface ErrorResponse {
   success: false;
   error: string;
-  code?: string;
-  category?: ErrorCategory;
-  recoverable?: boolean;
-  suggestion?: string;
-  details?: Record<string, unknown>;
+  code: string;
+  category: ErrorCategory;
+  recoverable: boolean;
+  suggestion: string | undefined;
+  details: Record<string, unknown> | undefined;
+  metrics?: { tokenEstimate: number; [key: string]: number };
 }
 ```
 

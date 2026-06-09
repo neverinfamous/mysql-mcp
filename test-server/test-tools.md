@@ -67,10 +67,20 @@ The test database (`testdb`) contains these tables:
 All tools must return errors as structured objects instead of throwing. A thrown error propagates as a raw MCP error, which is unhelpful to clients. The expected pattern:
 
 ```json
-{ "success": false, "error": "Human-readable error message" }
+{
+  "success": false,
+  "error": "Human-readable error message",
+  "code": "VALIDATION_ERROR",
+  "category": "validation",
+  "suggestion": "Optional action",
+  "recoverable": false,
+  "details": {}
+}
 ```
 
 Some tools use `{ exists: false }` instead of `{ success: false }` for nonexistent objects. The `reason` field is reserved for informational `{ success: true, skipped: true, reason: "..." }` responses only — all error responses use `error`.
+
+> **Note**: `code` and `category` are strictly required fields and must always be present in a `{success: false}` error response.
 
 #### Handler Error vs MCP Error — How to Distinguish
 
@@ -142,6 +152,7 @@ During testing, check for these inconsistencies across tool groups:
 2. **Error field name**: All `{ success: false }` error responses should use `error` as the field name. The `reason` field is reserved for `{ success: true, skipped: true }` informational responses. If a tool uses `reason` in an error context, report as ⚠️.
 3. **Zod validation leaks**: If calling a tool with an invalid enum value or missing required field produces a raw MCP `-32602` Zod validation error instead of a structured response, report as ❌. This indicates the Zod schema is rejecting the input at the MCP framework level before the handler's `try/catch` can intercept.
 4. **Missing centralized error parser**: mysql-mcp lacks a `parseMysqlError`/`formatMysqlError` equivalent (compare: postgres-mcp has a 425-line centralized error parser). Document which tool groups have the worst ad-hoc error formatting to prioritize infrastructure work.
+5. **Error code coverage**: Verify that timeout errors carry `code: "TIMEOUT_ERROR"`, rate limit errors carry `code: "RATE_LIMIT_ERROR"`, and version conflicts carry `code: "CONFLICT_ERROR"` — not generic codes like `QUERY_ERROR` or `PERMISSION`.
 
 ### Split Schema Pattern Verification
 
@@ -167,6 +178,9 @@ For each tool group under test, verify at least one scenario from each applicabl
 | Missing required field via alias  | Core, transactions                    | `sql` alias instead of `query`                                          |
 | **Zod validation (empty params)** | **Every tool with required params**   | `{}` (empty object — must return handler error, not MCP `-32602` error) |
 | **Zod validation (wrong type)**   | **Tools with typed params**           | Pass string where number expected, etc.                                 |
+| Timeout error code                | Performance, core                     | Verify `TIMEOUT_ERROR` code on timed-out operations                     |
+| Rate limit error code             | Codemode                              | Verify `RATE_LIMIT_ERROR` code on excessive requests                    |
+| Conflict error code               | Core (versioning)                     | Verify `CONFLICT_ERROR` on version mismatch                             |
 
 ### Cleanup Conventions
 

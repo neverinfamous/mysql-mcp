@@ -67,6 +67,10 @@ export {
   AuthorizationError,
   ValidationError,
   TransactionError,
+  TimeoutError,
+  RateLimitError,
+  ConflictError,
+  ExtensionNotAvailableError,
 } from "./modules/errors.js";
 
 // Error types (harmonized standard)

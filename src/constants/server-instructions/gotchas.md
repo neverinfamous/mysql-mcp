@@ -18,6 +18,19 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **Column name**: `column` or `col` — accepted by Text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_collation_convert`).
 - **Admin tables array**: Admin maintenance tools accept a singular `table` (or `tableName`/`name`) as an alias for the `tables` array parameter, automatically wrapping it in an array.
 
+## Typed Error Codes
+
+All errors carry a `code` field for programmatic handling:
+
+| Code | Category | Recoverable | When |
+|---|---|---|---|
+| `TIMEOUT_ERROR` | connection | ✅ | Query or connection exceeded time limit |
+| `RATE_LIMIT_ERROR` | connection | ✅ | Too many requests — wait and retry |
+| `CONFLICT_ERROR` | query | ✅ | Optimistic concurrency version mismatch |
+| `EXTENSION_MISSING` | config | ❌ | Required MySQL plugin/extension not loaded |
+
+Recoverable errors can be retried. Check `recoverable: true` in the response.
+
 ## Code Mode (`mysql_execute_code`)
 
 - **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the `mysql.*` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.

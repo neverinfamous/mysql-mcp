@@ -19,6 +19,10 @@ Only help resources for your enabled tool groups are registered.
 All tools return `{success: false, error, code, category, suggestion, recoverable}` — never raw MCP exceptions.
 Table-querying tools return `{exists: false, table}` for nonexistent tables (P154 pattern).
 
+Error codes include: `CONNECTION_ERROR`, `QUERY_ERROR`, `VALIDATION_ERROR`, `AUTHENTICATION_ERROR`,
+`AUTHORIZATION_ERROR`, `TRANSACTION_ERROR`, `TIMEOUT_ERROR`, `RATE_LIMIT_ERROR`, `CONFLICT_ERROR`,
+`EXTENSION_MISSING`, plus auto-refined codes like `TABLE_NOT_FOUND`, `DUPLICATE_KEY`, `DEADLOCK`.
+
 ## Subscriptions
 
 The server supports MCP `resources/subscribe` for live updates. Subscribable URIs include:

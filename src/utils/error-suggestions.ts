@@ -258,6 +258,13 @@ const ERROR_SUGGESTIONS: {
   // Configuration errors
   // =========================================================================
   {
+    pattern: /(?:extension|plugin) .* (?:not available|not loaded|disabled)/i,
+    suggestion:
+      "Verify that the required plugin/extension is loaded on the MySQL server.",
+    category: ErrorCategory.CONFIGURATION,
+    code: "EXTENSION_MISSING",
+  },
+  {
     pattern: /Unknown system variable/i,
     suggestion:
       "Verify the variable name. Use mysql_show_variables to see available server variables.",
@@ -285,13 +292,15 @@ const ERROR_SUGGESTIONS: {
     pattern: /rate limit exceeded/i,
     suggestion:
       "Wait before retrying. Combine multiple operations into fewer mysql_execute_code calls.",
-    category: ErrorCategory.PERMISSION,
+    category: ErrorCategory.CONNECTION,
+    code: "RATE_LIMIT_ERROR",
   },
   {
-    pattern: /execution timed out/i,
+    pattern: /execution timed out|wait_timeout exceeded|read timeout/i,
     suggestion:
-      "Reduce code complexity or increase timeout (max 30s). Break into smaller operations.",
-    category: ErrorCategory.QUERY,
+      "Reduce query/code complexity or increase timeout. Break into smaller operations.",
+    category: ErrorCategory.CONNECTION,
+    code: "TIMEOUT_ERROR",
   },
   {
     pattern: /sandbox.*not initialized/i,

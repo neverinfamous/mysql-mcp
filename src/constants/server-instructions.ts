@@ -34,6 +34,10 @@ Only help resources for your enabled tool groups are registered.
 All tools return \`{success: false, error, code, category, suggestion, recoverable}\` — never raw MCP exceptions.
 Table-querying tools return \`{exists: false, table}\` for nonexistent tables (P154 pattern).
 
+Error codes include: \`CONNECTION_ERROR\`, \`QUERY_ERROR\`, \`VALIDATION_ERROR\`, \`AUTHENTICATION_ERROR\`,
+\`AUTHORIZATION_ERROR\`, \`TRANSACTION_ERROR\`, \`TIMEOUT_ERROR\`, \`RATE_LIMIT_ERROR\`, \`CONFLICT_ERROR\`,
+\`EXTENSION_MISSING\`, plus auto-refined codes like \`TABLE_NOT_FOUND\`, \`DUPLICATE_KEY\`, \`DEADLOCK\`.
+
 ## Subscriptions
 
 The server supports MCP \`resources/subscribe\` for live updates. Subscribable URIs include:
@@ -166,6 +170,19 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **WHERE clause**: \`where\` or \`filter\` — accepted by \`mysql_export_table\` and Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`).
 - **Column name**: \`column\` or \`col\` — accepted by Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_collation_convert\`).
 - **Admin tables array**: Admin maintenance tools accept a singular \`table\` (or \`tableName\`/\`name\`) as an alias for the \`tables\` array parameter, automatically wrapping it in an array.
+
+## Typed Error Codes
+
+All errors carry a \`code\` field for programmatic handling:
+
+| Code | Category | Recoverable | When |
+|---|---|---|---|
+| \`TIMEOUT_ERROR\` | connection | ✅ | Query or connection exceeded time limit |
+| \`RATE_LIMIT_ERROR\` | connection | ✅ | Too many requests — wait and retry |
+| \`CONFLICT_ERROR\` | query | ✅ | Optimistic concurrency version mismatch |
+| \`EXTENSION_MISSING\` | config | ❌ | Required MySQL plugin/extension not loaded |
+
+Recoverable errors can be retried. Check \`recoverable: true\` in the response.
 
 ## Code Mode (\`mysql_execute_code\`)
 
