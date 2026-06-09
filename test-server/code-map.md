@@ -58,6 +58,10 @@ src/
 │   ├── progress-reporter.ts         # MCP progress notification helpers
 │   └── index.ts                    # Barrel
 │
+├── observability/                  # Metrics registry and persistence
+│   ├── metrics.ts                  # In-memory metrics registry for MCP telemetry
+│   └── system-db.ts                # SQLite persistence for metrics via better-sqlite3
+│
 ├── audit/                          # Audit observability (interceptor, logger, backup manager)
 │   ├── interceptor.ts              # AuditInterceptor — wraps tool handlers, scope-based filtering,
 │   │                               #   tokenEstimate, redaction, OAuth identity capture

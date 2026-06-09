@@ -1,5 +1,5 @@
 ---
-description: "Audit the GitHub Wiki documentation for accuracy and consistency on every code PR"
+description: 'Audit the GitHub Wiki documentation for accuracy and consistency on every code PR'
 private: true
 labels: [documentation, automation, wiki]
 

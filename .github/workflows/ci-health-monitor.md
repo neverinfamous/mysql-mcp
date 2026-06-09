@@ -1,5 +1,5 @@
 ---
-description: "Weekly audit of CI workflows for deprecations, outdated actions, and health issues"
+description: 'Weekly audit of CI workflows for deprecations, outdated actions, and health issues'
 private: true
 labels: [maintenance, ci-cd]
 

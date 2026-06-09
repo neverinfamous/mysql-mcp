@@ -151,6 +151,7 @@ test.describe("Audit Backup Snapshots", () => {
       }
       if (client) await client.close();
       stopServer(port);
+      await delay(500);
       await rm(dir, { recursive: true, force: true });
     }
   });
@@ -230,6 +231,7 @@ test.describe("Audit Backup Snapshots", () => {
       }
       if (client) await client.close();
       stopServer(port);
+      await delay(500);
       await rm(dir, { recursive: true, force: true });
     }
   });
@@ -303,6 +305,7 @@ test.describe("Audit Backup Snapshots", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
+      await delay(500);
       await rm(dir, { recursive: true, force: true });
     }
   });
@@ -353,3 +356,4 @@ test.describe("Audit Backup Snapshots", () => {
     }
   });
 });
+

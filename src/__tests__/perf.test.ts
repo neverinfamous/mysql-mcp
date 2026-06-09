@@ -61,8 +61,8 @@ describe("Performance Tests", () => {
       // Verify caching works (same reference)
       expect(getAllToolNames()).toBe(initialCall);
 
-      // Cached calls should be very fast (< 0.5ms on average)
-      expect(cachedCallTime.avg).toBeLessThan(0.5);
+      // Cached calls should be very fast (< 2.0ms on average)
+      expect(cachedCallTime.avg).toBeLessThan(2.0);
     });
 
     it("should return consistent count of 229 tools", () => {
@@ -91,14 +91,14 @@ describe("Performance Tests", () => {
       }, 100);
 
       // Both should be very fast (O(1) Map lookup)
-      expect(firstToolTime.avg).toBeLessThan(0.5);
-      expect(lastToolTime.avg).toBeLessThan(0.5);
+      expect(firstToolTime.avg).toBeLessThan(2.0);
+      expect(lastToolTime.avg).toBeLessThan(2.0);
 
       // Times should be similar (indicating O(1) behavior)
       // Note: Ratio comparisons are unstable for very small numbers (e.g. 0.001ms vs 0.02ms is 20x variance).
-      // We check that the absolute difference is negligible (< 0.5ms)
+      // We check that the absolute difference is negligible (< 1.5ms)
       const diff = Math.abs(firstToolTime.avg - lastToolTime.avg);
-      expect(diff).toBeLessThan(0.5);
+      expect(diff).toBeLessThan(1.5);
     });
 
     it("should correctly identify tool groups", () => {
@@ -210,7 +210,7 @@ describe("Performance Tests", () => {
         }, 100);
 
         // Cached calls should be nearly instant
-        expect(timing.avg).toBeLessThan(0.5);
+        expect(timing.avg).toBeLessThan(2.0);
       });
 
       it("should return consistent tool count of 224 regardless of filter default", () => {

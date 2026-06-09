@@ -43,6 +43,7 @@ import { BackupManager } from "../audit/backup-manager.js";
 import { createAuditInterceptor } from "../audit/interceptor.js";
 import { registerAdminTools } from "./admin-tools.js";
 import { metrics } from "../observability/metrics.js";
+import { SystemDb } from "../observability/system-db.js";
 
 /**
  * Default server configuration
@@ -66,6 +67,8 @@ export class McpServer {
   private activeTransport: { stop(): Promise<void> } | null = null;
   private auditLogger: AuditLogger | null = null;
   private backupManager: BackupManager | null = null;
+  private systemDb: SystemDb | null = null;
+  private systemDbInitPromise: Promise<void> | null = null;
   public readonly subscriptionManager: SubscriptionManager;
   private healthInterval: NodeJS.Timeout | null = null;
 
@@ -174,6 +177,17 @@ export class McpServer {
         );
       }
       this.registerAuditResource();
+
+      if (this.config.auditConfig.logPath !== "stderr") {
+        const dbPath = this.config.auditConfig.logPath.replace(/\.jsonl$/, '') + '.sqlite';
+        const db = new SystemDb({ dbPath });
+        this.systemDb = db;
+        this.systemDbInitPromise = db.init().then(() => {
+          metrics.setSystemDb(db);
+        }).catch((err: unknown) => {
+          logger.error("Failed to initialize SystemDb", { error: String(err) });
+        });
+      }
     }
 
     // Initialize MCP protocol progress reporting for long-running operations
@@ -278,6 +292,10 @@ export class McpServer {
     if (this.started) {
       logger.warn("Server already started");
       return;
+    }
+
+    if (this.systemDbInitPromise) {
+      await this.systemDbInitPromise;
     }
 
     logger.info("Starting MCP server...");
@@ -437,6 +455,10 @@ export class McpServer {
     }
     if (this.auditLogger) {
       await this.auditLogger.close();
+    }
+    metrics.close();
+    if (this.systemDb) {
+      this.systemDb.close();
     }
 
     if (this.healthInterval) {
