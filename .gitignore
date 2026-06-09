@@ -22,6 +22,7 @@ lerna-debug.log*
 
 # Audit logs (runtime data — tracked structure via .gitkeep)
 logs/*.jsonl*
+logs/*.sqlite*
 logs/snapshots/
 
 # OS files
@@ -99,6 +100,8 @@ test-server/*.dump
 # Temporary scripts (dev only)
 tmp/
 test-results/
+test.jsonl
+test.sqlite
 
 # Playwright
 playwright-results.json
