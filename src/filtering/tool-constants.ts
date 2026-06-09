@@ -88,6 +88,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_kill_query",
     "mysql_append_insight",
     "mysql_server_config",
+    "mysql_audit_search",
   ],
   monitoring: [
     "mysql_show_processlist",
@@ -309,7 +310,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  *   ai-data:       50 (core:12 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
  *   ai-spatial:    63 (core:12 + spatial:12 + stats:20 + performance:11 + transactions:7 + codemode:1)
  *   dba-monitor:   43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
- *   dba-manage:    43 (core:12 + admin:8 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
+ *   dba-manage:    44 (core:12 + admin:9 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
  *   dba-secure:    37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
  *   dba-schema:    36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
  *   base-core:     54 (core:12 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)

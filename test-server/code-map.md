@@ -121,7 +121,7 @@ src/
 
 ## Handler → Tool Mapping
 
-229 tools across 27 groups. Each handler file registers tools with `group` labels.
+230 tools across 27 groups. Each handler file registers tools with `group` labels.
 
 ### Tool Handlers (`src/adapters/mysql/tools/`)
 
@@ -159,7 +159,7 @@ src/
 |                   | `performance/anomaly-detection.ts`   | 2     | `detect_query_anomalies`, `detect_bloat_risk`                                                                                                                        |
 |                   | `performance/connection-analysis.ts` | 1     | `detect_connection_spike`                                                                                                                                            |
 | **optimization**  | `performance/optimization.ts`        | 4     | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace`                                                                                            |
-| **admin**         | `admin/maintenance.ts`<br>`../../server/admin-tools.ts` | 8     | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`, `append_insight`, `server_config` |
+| **admin**         | `admin/maintenance.ts`<br>`../../server/admin-tools.ts` | 9     | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`, `append_insight`, `server_config`, `audit_search` |
 |                   | `admin/audit-backup.ts`              | 3     | `audit_list_backups`, `audit_diff_backup`, `audit_restore_backup` (require `--audit-backup` flag)                                                                    |
 |                   | `admin/monitoring.ts`                | 7     | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health`                                            |
 |                   | `admin/backup.ts`                    | 4     | `export_table`, `import_data`, `create_dump`, `restore_dump`                                                                                                         |
@@ -387,7 +387,7 @@ try {
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
 | `test-server/reset-database.ps1`            | Reset script — drops + re-seeds `testdb`                             |
-| `test-server/Tool-Reference.md`             | Complete 229-tool inventory with descriptions                        |
+| `test-server/Tool-Reference.md`             | Complete 230-tool inventory with descriptions                        |
 | `test-server/test-agent-experience.md`      | 35 open-ended scenarios — validates help resource sufficiency        |
 | `test-server/test-group-tools-core.md`      | Core/transactions/schema group checklists                            |
 | `test-server/test-group-tools-data.md`      | JSON/fulltext/docstore/text/stats checklists                         |

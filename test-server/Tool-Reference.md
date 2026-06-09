@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete list of all **229 tools** across 27 categories.
+Complete list of all **230 tools** across 27 categories.
 
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
@@ -199,7 +199,7 @@ Complete list of all **229 tools** across 27 categories.
 
 ---
 
-## Admin (8 tools)
+## Admin (9 tools)
 
 | Tool                   | Description              |
 | ---------------------- | ------------------------ |
@@ -211,6 +211,7 @@ Complete list of all **229 tools** across 27 categories.
 | `mysql_kill_query`     | KILL connection/query    |
 | `mysql_append_insight` | Append insight to log    |
 | `mysql_server_config`  | Manage server configs    |
+| `mysql_audit_search`   | Search and filter system audit logs |
 
 ---
 
