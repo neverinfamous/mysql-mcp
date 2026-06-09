@@ -41,6 +41,8 @@ import {
   createAuditDiffBackupTool,
 } from "./audit-backup.js";
 
+import { createAuditSearchTool } from "./audit-search.js";
+
 import { createAppendInsightTool } from "./insights.js";
 
 /**
@@ -55,6 +57,7 @@ export function getAdminTools(adapter: MySQLAdapter): ToolDefinition[] {
     createFlushTablesTool(adapter),
     createKillQueryTool(adapter),
     createAppendInsightTool(),
+    createAuditSearchTool(adapter),
   ];
 }
 

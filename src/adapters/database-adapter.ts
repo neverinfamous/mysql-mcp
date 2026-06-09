@@ -27,6 +27,7 @@ import type {
 import { ValidationError } from "../types/index.js";
 import type { AuditInterceptor } from "../audit/interceptor.js";
 import type { BackupManager } from "../audit/backup-manager.js";
+import type { AuditLogger } from "../audit/logger.js";
 
 /**
  * Dangerous SQL patterns for query validation (hoisted for performance)
@@ -192,6 +193,7 @@ export abstract class DatabaseAdapter extends EventEmitter {
   // Audit Subsystem
   // =========================================================================
 
+  protected auditLogger: AuditLogger | null = null;
   protected auditInterceptor: AuditInterceptor | null = null;
   protected backupManager: BackupManager | null = null;
   protected allowedIoRoots: string[] = [];
@@ -222,6 +224,20 @@ export abstract class DatabaseAdapter extends EventEmitter {
    */
   setBackupManager(manager: BackupManager): void {
     this.backupManager = manager;
+  }
+
+  /**
+   * Inject the audit logger for tools to use natively.
+   */
+  setAuditLogger(logger: AuditLogger): void {
+    this.auditLogger = logger;
+  }
+
+  /**
+   * Get the audit logger.
+   */
+  getAuditLogger(): AuditLogger | null {
+    return this.auditLogger;
   }
 
   /**

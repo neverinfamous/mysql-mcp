@@ -184,6 +184,7 @@ export class McpServer {
         this.systemDb = db;
         this.systemDbInitPromise = db.init().then(() => {
           metrics.setSystemDb(db);
+          this.auditLogger?.setSystemDb(db);
         }).catch((err: unknown) => {
           logger.error("Failed to initialize SystemDb", { error: String(err) });
         });
@@ -239,6 +240,7 @@ export class McpServer {
         adapter,
       );
       adapter.setAuditInterceptor(interceptor);
+      adapter.setAuditLogger(this.auditLogger);
       if (this.backupManager) {
         adapter.setBackupManager(this.backupManager);
       }

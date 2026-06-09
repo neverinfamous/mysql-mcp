@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Added
+- **Observability:** Added `mysql_audit_search` tool to the `admin` group. This tool leverages the `SystemDb` backend to expose structured audit logs (with filters and pagination) to the agent, eliminating the 50-entry limitation of the `mysql://audit` resource.
 - **Observability:** Implemented a zero-dependency in-memory `MetricsRegistry` and content-type-aware token estimator to track per-tool telemetry (latency percentiles, estimated tokens, error rates) and resource access metrics.
 - **Observability:** Added SQLite-backed metrics persistence via `SystemDb` (`better-sqlite3`) to persist telemetry data across server restarts. Automatically activated when `--audit-log` is configured.
 - **Metrics Export:** Added native Prometheus export via the `--metrics-export` CLI flag (`/metrics` endpoint) and exposed live telemetry to agents via the new `mysql://metrics` resource.

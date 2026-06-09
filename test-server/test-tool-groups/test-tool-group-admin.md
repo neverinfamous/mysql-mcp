@@ -68,7 +68,8 @@ admin Tool Group (7 tools +1 for code mode):
 6. 'mysql_kill_query'
 7. 'mysql_append_insight'
 8. 'mysql_server_config'
-9. 'mysql_execute_code' (codemode, auto-added)
+9. 'mysql_audit_search'
+10. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
@@ -79,19 +80,24 @@ admin Tool Group (7 tools +1 for code mode):
 5. `mysql_server_config({action: "get"})` → verify success and config object
 6. `mysql_server_config({action: "set", setting: "logLevel", value: "debug"})` → `{success: true, message: ...}`
 7. `mysql_server_config({action: "set", setting: "logLevel", value: "info"})` → `{success: true, message: ...}`
+8. `mysql_audit_search({})` → `{success: true, entries: [...]}`
+9. `mysql_audit_search({limit: 5, offset: 1})` → verify pagination
+10. `mysql_audit_search({tool: "mysql_write_query"})` → verify tool filtering
+11. `mysql_audit_search({success: false})` → verify outcome filtering
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
-9. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
-10. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
+12. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
+13. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
+14. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
-12. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
-13. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
+15. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
+16. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
+17. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
+18. 🔴 `mysql_audit_search({limit: "abc"})` → `{success: false, error: "..."}` (Zod validation, wrong type)
 
 **Wrong-type numeric param coercion (🔴):**
 
-14. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error (wrong-type numeric param)
+19. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error (wrong-type numeric param)
