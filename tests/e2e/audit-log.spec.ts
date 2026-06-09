@@ -29,6 +29,7 @@ import {
   createClient,
   callToolRaw,
   callToolAndParse,
+  cleanupAuditFiles,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
@@ -115,7 +116,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -152,7 +153,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -194,7 +195,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -226,7 +227,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -263,7 +264,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -294,7 +295,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -351,7 +352,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -400,7 +401,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 });
