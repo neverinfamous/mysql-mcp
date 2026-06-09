@@ -399,6 +399,7 @@ describe("McpServer", () => {
 
       const mockAdapter = createMockMySQLAdapter() as unknown as any;
       mockAdapter.setAuditInterceptor = vi.fn();
+      mockAdapter.setAuditLogger = vi.fn();
       mockAdapter.setBackupManager = vi.fn();
 
       auditServer.registerAdapter(

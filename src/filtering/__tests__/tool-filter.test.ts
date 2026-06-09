@@ -66,7 +66,7 @@ describe("TOOL_GROUPS", () => {
     expect(TOOL_GROUPS.fulltext).toHaveLength(5);
     expect(TOOL_GROUPS.performance).toHaveLength(11);
     expect(TOOL_GROUPS.optimization).toHaveLength(4);
-    expect(TOOL_GROUPS.admin).toHaveLength(8);
+    expect(TOOL_GROUPS.admin).toHaveLength(9);
     expect(TOOL_GROUPS.monitoring).toHaveLength(7);
     expect(TOOL_GROUPS.backup).toHaveLength(7);
     expect(TOOL_GROUPS.replication).toHaveLength(5);
@@ -86,9 +86,9 @@ describe("TOOL_GROUPS", () => {
     expect(TOOL_GROUPS.codemode).toHaveLength(1);
   });
 
-  it("should total 229 tools across all groups", () => {
+  it("should total 230 tools across all groups", () => {
     const totalTools = Object.values(TOOL_GROUPS).flat().length;
-    expect(totalTools).toBe(229);
+    expect(totalTools).toBe(230);
   });
 });
 
@@ -130,9 +130,9 @@ describe("META_GROUPS", () => {
 });
 
 describe("getAllToolNames", () => {
-  it("should return all 229 tool names", () => {
+  it("should return all 230 tool names", () => {
     const tools = getAllToolNames();
-    expect(tools).toHaveLength(229);
+    expect(tools).toHaveLength(230);
   });
 
   it("should return unique tool names", () => {
@@ -205,7 +205,7 @@ describe("getMetaGroupTools", () => {
 
   it("should return correct tools for dba-manage meta-group", () => {
     const tools = getMetaGroupTools("dba-manage");
-    expect(tools).toHaveLength(43);
+    expect(tools).toHaveLength(44);
   });
 
   it("should return correct tools for dba-secure meta-group", () => {
@@ -230,21 +230,21 @@ describe("parseToolFilter", () => {
 
   it("should disable a single tool", () => {
     const config = parseToolFilter("-mysql_read_query");
-    expect(config.enabledTools.size).toBe(228);
+    expect(config.enabledTools.size).toBe(229);
     expect(config.enabledTools.has("mysql_read_query")).toBe(false);
     expect(config.enabledTools.has("mysql_write_query")).toBe(true);
   });
 
   it("should disable a tool group", () => {
     const config = parseToolFilter("-core");
-    expect(config.enabledTools.size).toBe(217); // 229 - 12
+    expect(config.enabledTools.size).toBe(218); // 230 - 12
     expect(config.enabledTools.has("mysql_read_query")).toBe(false);
     expect(config.enabledTools.has("mysql_json_extract")).toBe(true);
   });
 
   it("should disable a meta-group", () => {
     const config = parseToolFilter("-ecosystem");
-    expect(config.enabledTools.size).toBe(188); // 229 - 41
+    expect(config.enabledTools.size).toBe(189); // 230 - 41
     expect(config.enabledTools.has("mysql_router_status")).toBe(false);
     expect(config.enabledTools.has("proxysql_status")).toBe(false);
     expect(config.enabledTools.has("mysqlsh_version")).toBe(false);
@@ -411,7 +411,7 @@ describe("getFilterSummary", () => {
   it("should generate summary for no filter", () => {
     const config = parseToolFilter("");
     const summary = getFilterSummary(config);
-    expect(summary).toContain("43/229 tools");
+    expect(summary).toContain("43/230 tools");
     expect(summary).toContain("Token savings");
   });
 

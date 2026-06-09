@@ -33,6 +33,19 @@ export const HTTP_KEEP_ALIVE_TIMEOUT_MS = 65_000;
 export const HTTP_HEADERS_TIMEOUT_MS = 66_000;
 
 // =============================================================================
+// Session Timeout Constants
+// =============================================================================
+
+/** Session idle timeout: 30 minutes */
+export const SESSION_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+
+/** Session sweep interval: 1 minute */
+export const SESSION_SWEEP_INTERVAL_MS = 60 * 1000;
+
+/** Session absolute TTL: 24 hours — hard cap regardless of activity */
+export const SESSION_ABSOLUTE_TTL_MS = 24 * 60 * 60 * 1000;
+
+// =============================================================================
 // HTTP Transport Configuration
 // =============================================================================
 

@@ -44,6 +44,10 @@ The server supports MCP \`resources/subscribe\` for live updates. Subscribable U
 
 Tools interacting with the filesystem (like \`backup\` or \`shell\` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the \`ALLOWED_IO_ROOTS\` server configuration.
 
+## Session Lifecycle (HTTP Mode)
+
+HTTP sessions have a **30-minute idle timeout** and a **24-hour absolute TTL**. Sessions expire automatically — clients should expect \`401\` responses if a session has been idle or has exceeded its maximum lifetime, and must re-initialize.
+
 ## Configuration
 
 The server supports \`.yaml\` or \`.json\` configuration files via the \`--config <path>\` flag. Configuration follows a strict precedence hierarchy:
@@ -228,6 +232,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Process list**: \`mysql_show_processlist\` shows active queries. Use \`full: true\` for complete query text.
 - **Status/Variables**: \`mysql_show_status\` and \`mysql_show_variables\` accept \`like\` for filtering (e.g., \`like: "%connections%"\`) and \`limit\` to cap rows (default: 100). Response includes \`totalAvailable\` and \`limited: true\` when truncated. RSA public key values in status output are automatically redacted.
 - **Server health**: \`mysql_server_health\` returns latency, version, uptime, and pool stats in a single call.
+- **Session count**: \`GET /health\` returns \`activeSessions\` — the number of active HTTP sessions. Sessions are swept every 60 seconds and expire after 30 minutes idle or 24 hours absolute.
 - **InnoDB status**: \`mysql_innodb_status\` returns InnoDB engine monitor output. Use \`summary: true\` for parsed key metrics (buffer pool, row ops, transactions).
 - **Replication**: \`mysql_replication_status\` shows replica/slave status. Returns \`configured: false\` if replication is not set up.
 - **Pool stats**: \`mysql_pool_stats\` returns connection pool metrics (total, active, idle, waiting connections).

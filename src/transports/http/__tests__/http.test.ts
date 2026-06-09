@@ -470,28 +470,26 @@ describe("HttpTransport", () => {
     });
 
     it("should close all transports on stop()", async () => {
-      const transports = transport.getTransports();
       const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
       const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
-      transports.set("session-1", mockT1 as never);
-      transports.set("session-2", mockT2 as never);
+      (transport as any).sessionManager.register("session-1", mockT1 as never);
+      (transport as any).sessionManager.register("session-2", mockT2 as never);
 
       await transport.stop();
 
       expect(mockT1.close).toHaveBeenCalled();
       expect(mockT2.close).toHaveBeenCalled();
-      expect(transports.size).toBe(0);
+      expect((transport as any).sessionManager.size).toBe(0);
     });
 
     it("should handle close errors gracefully during stop()", async () => {
-      const transports = transport.getTransports();
       const mockT = {
         close: vi.fn().mockRejectedValue(new Error("close error")),
       };
-      transports.set("session-err", mockT as never);
+      (transport as any).sessionManager.register("session-err", mockT as never);
 
       await transport.stop();
-      expect(transports.size).toBe(0);
+      expect((transport as any).sessionManager.size).toBe(0);
     });
   });
 
@@ -843,7 +841,7 @@ describe("handleRequest()", () => {
         "/messages",
         createMockResponse(),
       );
-      t.getTransports().set("mock-session", mockTransport as never);
+      (t as any).sessionManager.register("mock-session", mockTransport as never);
 
       const mockReqStream = new PassThrough();
       const mockReq = mockReqStream as unknown as IncomingMessage;
@@ -894,7 +892,7 @@ describe("handleRequest()", () => {
         "/messages",
         createMockResponse(),
       );
-      t.getTransports().set("mock-session", mockTransport as never);
+      (t as any).sessionManager.register("mock-session", mockTransport as never);
 
       const mockReqStream = new PassThrough();
       const mockReq = mockReqStream as unknown as IncomingMessage;

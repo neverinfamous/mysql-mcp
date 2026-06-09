@@ -33,7 +33,9 @@ import {
   HTTP_REQUEST_TIMEOUT_MS,
   HTTP_KEEP_ALIVE_TIMEOUT_MS,
   HTTP_HEADERS_TIMEOUT_MS,
+  SESSION_ABSOLUTE_TTL_MS,
 } from "./types.js";
+import { SessionManager } from "./session-manager.js";
 import {
   checkRateLimit,
   setSecurityHeaders,
@@ -63,11 +65,8 @@ export class HttpTransport {
   private readonly config: HttpTransportConfig;
   private readonly onConnect?: (transport: Transport) => void | Promise<void>;
 
-  /** Active transports by session ID (supports both transport types) */
-  private readonly transports = new Map<
-    string,
-    StreamableHTTPServerTransport | SSEServerTransport
-  >();
+  /** Session lifecycle manager (supports both transport types) */
+  private readonly sessionManager = new SessionManager();
 
   /** Rate limiting state */
   private readonly rateLimitMap = new Map<string, RateLimitEntry>();
@@ -144,6 +143,9 @@ export class HttpTransport {
         logger.info(
           `HTTP transport listening on ${this.config.host ?? "localhost"}:${String(this.config.port)}`,
         );
+        if (!this.config.stateless) {
+          this.sessionManager.startSweep();
+        }
         resolve();
       });
     });
@@ -158,14 +160,7 @@ export class HttpTransport {
       this.rateLimitCleanupInterval = null;
     }
 
-    for (const [sessionId, transport] of this.transports) {
-      try {
-        await transport.close();
-      } catch {
-        logger.warn("Error closing transport during shutdown", { sessionId });
-      }
-    }
-    this.transports.clear();
+    await this.sessionManager.closeAll();
 
     return new Promise((resolve) => {
       if (this.server) {
@@ -232,7 +227,7 @@ export class HttpTransport {
 
     // Health check — bypasses rate limiting so monitoring probes always succeed
     if (url.pathname === "/health") {
-      handleHealthCheck(res, this.config);
+      handleHealthCheck(res, this.config, this.sessionManager.size);
       return;
     }
 
@@ -457,10 +452,28 @@ export class HttpTransport {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
     if (req.method !== "POST") {
-      if (sessionId && this.transports.has(sessionId)) {
-        const existing = this.transports.get(sessionId);
-        if (existing instanceof StreamableHTTPServerTransport) {
-          await existing.handleRequest(req, res);
+      if (sessionId) {
+        const session = this.sessionManager.get(sessionId);
+        if (session && session.transport instanceof StreamableHTTPServerTransport) {
+          if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
+            res.writeHead(401, { "Content-Type": "application/json" });
+            res.end(
+              JSON.stringify({
+                jsonrpc: "2.0",
+                error: { code: -32000, message: "Unauthorized: Session absolute TTL expired" },
+                id: null,
+              }),
+            );
+            return;
+          }
+          this.sessionManager.touch(sessionId);
+          this.sessionManager.incrementInFlight(sessionId);
+          try {
+            await session.transport.handleRequest(req, res);
+          } finally {
+            this.sessionManager.decrementInFlight(sessionId);
+            this.sessionManager.touch(sessionId);
+          }
           return;
         }
       }
@@ -497,10 +510,28 @@ export class HttpTransport {
       return;
     }
 
-    if (sessionId && this.transports.has(sessionId)) {
-      const existing = this.transports.get(sessionId);
-      if (existing instanceof StreamableHTTPServerTransport) {
-        await existing.handleRequest(req, res, body);
+    if (sessionId) {
+      const session = this.sessionManager.get(sessionId);
+      if (session && session.transport instanceof StreamableHTTPServerTransport) {
+        if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              error: { code: -32000, message: "Unauthorized: Session absolute TTL expired" },
+              id: null,
+            }),
+          );
+          return;
+        }
+        this.sessionManager.touch(sessionId);
+        this.sessionManager.incrementInFlight(sessionId);
+        try {
+          await session.transport.handleRequest(req, res, body);
+        } finally {
+          this.sessionManager.decrementInFlight(sessionId);
+          this.sessionManager.touch(sessionId);
+        }
         return;
       }
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -522,20 +553,14 @@ export class HttpTransport {
       const newTransport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
         onsessioninitialized: (newSessionId: string) => {
-          logger.debug("Streamable HTTP session initialized", {
-            sessionId: newSessionId,
-          });
-          this.transports.set(newSessionId, newTransport);
+          this.sessionManager.register(newSessionId, newTransport);
         },
       });
 
       newTransport.onclose = () => {
         const sid = newTransport.sessionId;
-        if (sid && this.transports.has(sid)) {
-          logger.debug("Streamable HTTP transport closed", {
-            sessionId: sid,
-          });
-          this.transports.delete(sid);
+        if (sid) {
+          void this.sessionManager.close(sid);
         }
       };
 
@@ -543,7 +568,18 @@ export class HttpTransport {
         await this.onConnect(newTransport);
       }
 
-      await newTransport.handleRequest(req, res, body);
+      const sid = newTransport.sessionId;
+      if (sid) {
+        this.sessionManager.incrementInFlight(sid);
+      }
+      try {
+        await newTransport.handleRequest(req, res, body);
+      } finally {
+        if (sid) {
+          this.sessionManager.decrementInFlight(sid);
+          this.sessionManager.touch(sid);
+        }
+      }
       return;
     }
 
@@ -639,13 +675,10 @@ export class HttpTransport {
     logger.debug("Legacy SSE connection established");
 
     const transport = new SSEServerTransport("/messages", res);
-    this.transports.set(transport.sessionId, transport);
+    this.sessionManager.register(transport.sessionId, transport);
 
     res.on("close", () => {
-      logger.debug("Legacy SSE transport closed", {
-        sessionId: transport.sessionId,
-      });
-      this.transports.delete(transport.sessionId);
+      void this.sessionManager.close(transport.sessionId);
     });
 
     // Connect MCP server to this transport (must complete before client sends messages)
@@ -668,15 +701,15 @@ export class HttpTransport {
       return;
     }
 
-    const transport = this.transports.get(sessionId);
+    const session = this.sessionManager.get(sessionId);
 
-    if (!transport) {
+    if (!session) {
       res.writeHead(404, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "No transport found for sessionId" }));
       return;
     }
 
-    if (!(transport instanceof SSEServerTransport)) {
+    if (!(session.transport instanceof SSEServerTransport)) {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
@@ -684,6 +717,12 @@ export class HttpTransport {
             "Session exists but uses a different transport protocol. Use /mcp instead.",
         }),
       );
+      return;
+    }
+
+    if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Unauthorized: Session absolute TTL expired" }));
       return;
     }
 
@@ -700,7 +739,14 @@ export class HttpTransport {
       return;
     }
 
-    await transport.handlePostMessage(req, res, body);
+    this.sessionManager.touch(sessionId);
+    this.sessionManager.incrementInFlight(sessionId);
+    try {
+      await session.transport.handlePostMessage(req, res, body);
+    } finally {
+      this.sessionManager.decrementInFlight(sessionId);
+      this.sessionManager.touch(sessionId);
+    }
   }
 
   // ===========================================================================
@@ -714,7 +760,7 @@ export class HttpTransport {
     string,
     StreamableHTTPServerTransport | SSEServerTransport
   > {
-    return this.transports;
+    return this.sessionManager.getTransports();
   }
 }
 

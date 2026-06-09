@@ -29,6 +29,10 @@ The server supports MCP `resources/subscribe` for live updates. Subscribable URI
 
 Tools interacting with the filesystem (like `backup` or `shell` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the `ALLOWED_IO_ROOTS` server configuration.
 
+## Session Lifecycle (HTTP Mode)
+
+HTTP sessions have a **30-minute idle timeout** and a **24-hour absolute TTL**. Sessions expire automatically — clients should expect `401` responses if a session has been idle or has exceeded its maximum lifetime, and must re-initialize.
+
 ## Configuration
 
 The server supports `.yaml` or `.json` configuration files via the `--config <path>` flag. Configuration follows a strict precedence hierarchy:

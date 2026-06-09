@@ -34,9 +34,11 @@ The original monolithic advanced stress testing suite was split into 26 granular
 | `test-tools-advanced-security.md`      | Security            | Password validation boundaries, sensitive table detection, privilege enumeration edges              |
 | `test-tools-advanced-backup.md`        | Backup              | Export edge cases, format boundary values, dump parameter validation                                |
 | `test-tools-advanced-sys.md`           | Sys Schema          | Payload efficiency audit, empty state handling, sequential stability                                |
-| `test-tools-advanced-cluster.md`       | Cluster             | Graceful degradation, happy-path stress, summary mode and payload monitoring                        |
-| `test-tools-advanced-proxysql.md`      | ProxySQL            | Graceful degradation, happy-path stress, payload monitoring and filter boundaries                   |
-| `test-tools-advanced-router.md`        | Router              | Graceful degradation, invalid route name stress, happy-path, payload monitoring                     |
+| `test-tools-advanced-docstore.md`      | MySQL Document Store| NoSQL/CRUD operations, JSON collections, X Protocol patterns     |
+| `test-tools-advanced-cluster.md`       | InnoDB Cluster      | Group replication, clone plugin, router metadata                 |
+| `test-tools-advanced-proxysql.md`      | ProxySQL Admin      | Query rules, connection pooling, host groups                     |
+| `test-tools-advanced-router.md`        | MySQL Router        | Topology changes, metadata caching, route management             |
+| `test-tools-advanced-sessions.md`      | Session Lifecycle   | Idle timeout expiry, absolute TTL enforcement, in-flight protection, sweep behavior |
 | `test-tools-advanced-shell.md`         | Shell               | Graceful degradation, dry run boundaries, parameter validation, script execution safety             |
 | `test-tools-advanced-replication.md`   | Replication         | Single-server resilience, binlog boundary values, happy-path, payload monitoring                    |
 | `test-tools-advanced-admin.md`         | Admin/Error Quality | Cross-group error message quality, type mismatches, invalid parameter values, payload sizes         |
