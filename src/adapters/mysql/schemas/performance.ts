@@ -164,20 +164,39 @@ export const TableStatsSchema = z
 
 // Base schema for MCP visibility
 export const IndexRecommendationSchemaBase = z.object({
-  table: z.string().optional().describe("Table to analyze for missing indexes"),
+  table: z.string().optional().describe("Table to analyze (analyzes all tables if omitted)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  queries: z.array(z.string()).optional()
+    .describe("SQL queries to analyze with EXPLAIN for composite index recommendations"),
+  includeRedundant: z.boolean().optional()
+    .describe("Detect redundant/duplicate indexes (default: true)"),
+  includeUnindexed: z.boolean().optional()
+    .describe("Flag large tables without secondary indexes (default: true)"),
 });
 
 // Transformed schema for handler parsing
 export const IndexRecommendationSchema = z
   .preprocess(preprocessTableParams, IndexRecommendationSchemaBase)
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name,
+    queries: data.queries,
+    includeRedundant: data.includeRedundant,
+    includeUnindexed: data.includeUnindexed,
   }))
-  .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
-  });
+  .refine(
+    (data) => {
+      if (data.queries) {
+        return data.queries.every((q) => /^\s*SELECT/i.test(q));
+      }
+      return true;
+    },
+    { message: "Only SELECT queries are supported for EXPLAIN analysis" }
+  )
+  .refine(
+    (data) => !data.queries || data.queries.length <= 20,
+    { message: "Maximum of 20 queries can be analyzed at once" }
+  );
 
 // --- ForceIndex ---
 

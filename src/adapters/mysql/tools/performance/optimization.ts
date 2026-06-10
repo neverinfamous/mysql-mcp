@@ -1,8 +1,8 @@
 /**
  * MySQL Performance Tools - Optimization
  *
- * Query optimization and index recommendation tools.
- * 4 tools: index_recommendation, query_rewrite, force_index, optimizer_trace.
+ * Query optimization and index tools.
+ * 3 tools: query_rewrite, force_index, optimizer_trace.
  */
 
 import type { PoolConnection } from "mysql2/promise";
@@ -12,8 +12,6 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import {
-  IndexRecommendationSchema,
-  IndexRecommendationSchemaBase,
   ForceIndexSchema,
   ForceIndexSchemaBase,
   preprocessQueryOnlyParams,
@@ -182,89 +180,6 @@ function extractTraceSummary(
   return { success: true, data: { query, decisions } };
 }
 
-export function createIndexRecommendationTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
-  return {
-    name: "mysql_index_recommendation",
-    title: "MySQL Index Recommendation",
-    description:
-      "Analyze table and suggest potentially missing indexes based on query patterns.",
-    group: "optimization",
-    inputSchema: IndexRecommendationSchemaBase,
-    requiredScopes: ["read"],
-    annotations: READ_ONLY,
-    handler: async (params: unknown, _context: RequestContext) => {
-      try {
-        const { table } = IndexRecommendationSchema.parse(params);
-
-        // Get columns
-        const columns = await adapter.describeTable(table);
-
-        // Graceful handling for non-existent tables (P154)
-        if (!columns.columns || columns.columns.length === 0) {
-          throw new ValidationError(`Table '${table}' does not exist`);
-        }
-
-        // Get existing indexes
-        const indexes = await adapter.getTableIndexes(table);
-        const indexedColumns = new Set(indexes.flatMap((i) => i.columns));
-
-        // Analyze which columns might benefit from indexing
-        const recommendations: { column: string; reason: string }[] = [];
-
-        for (const col of columns.columns) {
-          if (indexedColumns.has(col.name)) continue;
-
-          // Suggest indexes for common patterns
-          if (col.name.endsWith("_id") || col.name === "id") {
-            recommendations.push({
-              column: col.name,
-              reason: "Foreign key or ID column often benefits from indexing",
-            });
-          } else if (
-            ["created_at", "updated_at", "date", "timestamp"].some((s) =>
-              col.name.includes(s),
-            )
-          ) {
-            recommendations.push({
-              column: col.name,
-              reason: "Timestamp columns often used in range queries",
-            });
-          } else if (
-            col.name === "status" ||
-            col.name === "type" ||
-            col.name === "category"
-          ) {
-            recommendations.push({
-              column: col.name,
-              reason: "Status/type columns often used in filtering",
-            });
-          }
-        }
-
-        const response = {
-          success: true,
-          data: {
-            exists: true,
-            table,
-            existingIndexes: indexes.map((i) => ({
-              name: i.name,
-              columns: i.columns,
-            })),
-            recommendations,
-          },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
-      } catch (err) {
-        return formatHandlerErrorResponse(err);
-      }
-    },
-  };
-}
 
 export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({

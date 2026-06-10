@@ -6,7 +6,6 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  createIndexRecommendationTool,
   createQueryRewriteTool,
   createForceIndexTool,
   createOptimizerTraceTool,
@@ -27,110 +26,6 @@ describe("Performance Optimization Tools", () => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
     mockContext = createMockRequestContext();
-  });
-
-  describe("createIndexRecommendationTool", () => {
-    it("should create tool with correct definition", () => {
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-
-      expect(tool.name).toBe("mysql_index_recommendation");
-      expect(tool.group).toBe("optimization");
-      expect(tool.requiredScopes).toContain("read");
-    });
-
-    it("should recommend indexes for ID and foreign key columns", async () => {
-      const mockTableInfo = createMockTableInfo("orders");
-      mockTableInfo.columns = [
-        { name: "id", type: "int", nullable: false, primaryKey: true },
-        { name: "user_id", type: "int", nullable: false, primaryKey: false },
-        { name: "status", type: "varchar", nullable: false, primaryKey: false },
-        {
-          name: "created_at",
-          type: "datetime",
-          nullable: false,
-          primaryKey: false,
-        },
-      ];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-
-      // Return only primary key index
-      mockAdapter.getTableIndexes.mockResolvedValue([
-        {
-          name: "PRIMARY",
-          tableName: "orders",
-          columns: ["id"],
-          unique: true,
-          type: "BTREE",
-        },
-      ]);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        data: { recommendations: unknown[] };
-      };
-
-      expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
-      expect(result.data.recommendations).toHaveLength(3);
-
-      // Check specific recommendations
-      const recs = result.data.recommendations as {
-        column: string;
-        reason: string;
-      }[];
-      expect(recs.find((r) => r.column === "user_id")).toBeDefined(); // Foreign key pattern
-      expect(recs.find((r) => r.column === "status")).toBeDefined(); // Status column
-      expect(recs.find((r) => r.column === "created_at")).toBeDefined(); // Timestamp
-    });
-
-    it("should not recommend indexes for already indexed columns", async () => {
-      const mockTableInfo = createMockTableInfo("orders");
-      mockTableInfo.columns = [
-        { name: "user_id", type: "int", nullable: false, primaryKey: false },
-      ];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-
-      // user_id is already indexed
-      mockAdapter.getTableIndexes.mockResolvedValue([
-        {
-          name: "idx_user_id",
-          tableName: "orders",
-          columns: ["user_id"],
-          unique: false,
-          type: "BTREE",
-        },
-      ]);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        data: { recommendations: unknown[] };
-      };
-
-      expect(result.data.recommendations).toHaveLength(0);
-    });
-
-    it("should return structured error for nonexistent table", async () => {
-      const mockTableInfo = createMockTableInfo("ghost");
-      mockTableInfo.columns = [];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "ghost" }, mockContext)) as {
-        success: boolean;
-        error: string;
-      };
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Table 'ghost' does not exist");
-      expect(mockAdapter.getTableIndexes).not.toHaveBeenCalled();
-    });
   });
 
   describe("createQueryRewriteTool", () => {
@@ -505,35 +400,6 @@ describe("Performance Optimization Tools", () => {
   });
 
   describe("alias support", () => {
-    it("mysql_index_recommendation should accept tableName alias", async () => {
-      const mockTableInfo = createMockTableInfo("orders");
-      mockTableInfo.columns = [
-        { name: "id", type: "int", nullable: false, primaryKey: true },
-      ];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-      mockAdapter.getTableIndexes.mockResolvedValue([
-        {
-          name: "PRIMARY",
-          tableName: "orders",
-          columns: ["id"],
-          unique: true,
-          type: "BTREE",
-        },
-      ]);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler(
-        { tableName: "orders" },
-        mockContext,
-      )) as { data: { exists: boolean; table: string } };
-
-      expect(result.data.exists).toBe(true);
-      expect(result.data.table).toBe("orders");
-      expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
-    });
-
     it("mysql_force_index should accept tableName alias", async () => {
       const mockTableInfo = createMockTableInfo("users");
       mockTableInfo.columns = [
@@ -566,21 +432,6 @@ describe("Performance Optimization Tools", () => {
   });
 
   describe("try/catch error handling", () => {
-    it("mysql_index_recommendation should return structured error on adapter throw", async () => {
-      mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "users" }, mockContext)) as {
-        success: boolean;
-        error: string;
-      };
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Connection lost");
-    });
-
     it("mysql_force_index should return structured error on adapter throw", async () => {
       mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
 

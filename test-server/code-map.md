@@ -70,6 +70,9 @@ src/
 │
 ├── auth/                           # OAuth 2.1 implementation (10 files)
 │   ├── middleware.ts               # Express-style OAuth middleware
+│   ├── optimization.ts           # Query rewrite, force index
+│   ├── index-audit.ts            # Index audit & composite recommendations
+│   └── trace.ts                  # Optimizer trace parsing, enforcement
 │   ├── token-validator.ts           # JWT/JWKS token validation
 │   ├── scopes.ts                   # Scope parsing, enforcement
 │   ├── scope-map.ts                # Tool→scope O(1) mapping (getRequiredScope(), getToolScopeMap())

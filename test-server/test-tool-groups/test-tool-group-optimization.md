@@ -61,17 +61,21 @@ optimization Tool Group (4 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
-1. `mysql_index_recommendation({table: "test_orders"})` → verify recommendations returned
-2. `mysql_query_rewrite({query: "SELECT * FROM test_products WHERE name = 'Laptop'"})` → verify optimization hints
-3. `mysql_force_index({table: "test_orders", index: "idx_orders_status", query: "SELECT * FROM test_orders WHERE status = 'completed'"})` → verify FORCE INDEX hint
-4. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → verify trace output
-5. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → verify summarized trace
+1. `mysql_index_recommendation({table: "test_orders"})` → verify recommendations returned, including missing FK checks and duplicate index checks
+2. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"]})` → verify EXPLAIN-based composite recommendations
+3. `mysql_index_recommendation({table: "test_orders", queries: ["SELECT * FROM test_orders WHERE status = 'completed' AND customer_name = 'Alice'"]})` → verify composite index suggestion for multi-column WHERE
+4. `mysql_index_recommendation({})` → verify database-wide audit runs (table is optional)
+5. `mysql_query_rewrite({query: "SELECT * FROM test_products WHERE name = 'Laptop'"})` → verify optimization hints
+6. `mysql_force_index({table: "test_orders", index: "idx_orders_status", query: "SELECT * FROM test_orders WHERE status = 'completed'"})` → verify FORCE INDEX hint
+7. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → verify trace output
+8. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → verify summarized trace
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql_index_recommendation({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error
+9. 🔴 `mysql_index_recommendation({queries: ["INSERT INTO test_products VALUES (999, 'x', 1, 'cat', '{}')"]})` → verify DML rejection
+10. 🔴 `mysql_index_recommendation({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql_index_recommendation({})` → `{success: false, error: "..."}` (Zod validation)
-8. 🔴 `mysql_optimizer_trace({})` → `{success: false, error: "..."}` (missing required `query`)
+11. 🔴 `mysql_index_recommendation({queries: "SELECT 1"})` → `{success: false, error: "..."}` (Zod validation, queries must be array)
+12. 🔴 `mysql_optimizer_trace({})` → `{success: false, error: "..."}` (missing required `query`)

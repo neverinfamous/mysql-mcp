@@ -20,8 +20,9 @@ import {
   createThreadStatsTool,
 } from "./analysis.js";
 
+import { createIndexRecommendationTool } from "./index-audit.js";
+
 import {
-  createIndexRecommendationTool,
   createQueryRewriteTool,
   createForceIndexTool,
   createOptimizerTraceTool,

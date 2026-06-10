@@ -33,16 +33,16 @@ Unused indexes:
 - Slow down INSERT/UPDATE/DELETE operations
 - Should be reviewed for removal
 
-### Check for Missing Indexes
-Use \`mysql_index_usage\` or \`mysql_explain_analyze\` on slow queries:
-- Look for full table scans (type = ALL)
-- Look for range scans that could use indexes (type = range without index)
-- Check for filesort and temporary table usage
-
-### Check for Duplicate Indexes
-The \`mysql://indexes\` resource identifies potential duplicates:
-- Indexes with same leading columns
-- Redundant indexes (e.g., INDEX(a) when INDEX(a,b) exists)
+### Audit for Structural Index Issues
+Use \`mysql_index_recommendation\` to perform a database-wide index audit:
+- Identifies redundant/duplicate indexes (prefix matches)
+- Detects missing foreign key indexes
+- Flags large tables without secondary indexes
+\`\`\`javascript
+mysql_index_recommendation({}) // Audit entire database
+// or
+mysql_index_recommendation({table: "orders"}) // Audit specific table
+\`\`\`
 
 ## Step 2: Analyze Query Patterns
 
@@ -64,10 +64,16 @@ Key things to look for:
 
 ## Step 3: Index Recommendations
 
-Use \`mysql_index_recommendation\` tool for AI-powered suggestions:
-- Composite index recommendations
-- Covering index opportunities
-- Index order optimization
+Use \`mysql_index_recommendation\` with the \`queries\` parameter to get AI-powered composite index suggestions:
+\`\`\`javascript
+mysql_index_recommendation({
+  queries: [
+    "SELECT * FROM orders WHERE status = 'active' AND user_id = 123",
+    "SELECT * FROM users WHERE last_login > '2023-01-01' ORDER BY created_at"
+  ]
+})
+\`\`\`
+This runs EXPLAIN on the queries to detect full table scans and suggests composite indexes for the filtered columns.
 
 ## Step 4: Implement Changes
 

@@ -8,11 +8,11 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  createIndexRecommendationTool,
   createQueryRewriteTool,
   createForceIndexTool,
   createOptimizerTraceTool,
 } from "../optimization.js";
+import { createIndexRecommendationTool } from "../index-audit.js";
 import type { MySQLAdapter } from "../../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
@@ -425,13 +425,13 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const tool = createIndexRecommendationTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({ table: "users" }, mockContext)) as {
-        recommendations: { column: string; reason: string }[];
-      };
+      const result = (await tool.handler({ table: "users" }, mockContext)) as any;
 
-      expect(result.data.recommendations).toHaveLength(1);
-      expect(result.data.recommendations[0].column).toBe("created_at");
-      expect(result.data.recommendations[0].reason).toContain("Timestamp");
+      expect(result.data.findings).toBeDefined();
+      const recs = result.data.recommendations;
+      expect(recs).toHaveLength(1);
+      expect(recs[0].column).toBe("created_at");
+      expect(recs[0].reason).toContain("Timestamp");
     });
 
     it("should suggest indexes for status columns", async () => {
@@ -448,9 +448,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const tool = createIndexRecommendationTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        recommendations: { column: string; reason: string }[];
-      };
+      const result = (await tool.handler({ table: "orders" }, mockContext)) as any;
 
       const statusRec = result.data.recommendations.find(
         (r) => r.column === "status",
