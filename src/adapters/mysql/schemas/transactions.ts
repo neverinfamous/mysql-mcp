@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 import {
   preprocessTransactionIdParams,
   preprocessSavepointParams,
@@ -34,6 +35,14 @@ export const TransactionBeginSchema = z.preprocess(
   }),
 );
 
+export const TransactionBeginOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    transactionId: z.string(),
+    isolationLevel: z.string().optional(),
+    message: z.string().optional(),
+  }).optional(),
+});
+
 // --- TransactionId ---
 
 // Base schema for MCP visibility
@@ -57,6 +66,13 @@ export const TransactionIdSchema = z
       "transactionId (or txId/tx alias) is required. Get one from mysql_transaction_begin first.",
   });
 
+export const TransactionIdOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    transactionId: z.string(),
+    message: z.string().optional(),
+  }).optional(),
+});
+
 // --- TransactionSavepoint ---
 
 // Base schema for MCP visibility
@@ -79,6 +95,14 @@ export const TransactionSavepointSchema = z
     message:
       'Both transactionId and savepoint are required. Example: {transactionId: "...", savepoint: "sp1"}',
   });
+
+export const TransactionSavepointOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    transactionId: z.string(),
+    savepoint: z.string(),
+    message: z.string().optional(),
+  }).optional(),
+});
 
 // --- TransactionExecute ---
 
@@ -115,3 +139,16 @@ export const TransactionExecuteSchema = z
         "Invalid isolationLevel. Expected one of: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE",
     },
   );
+
+export const TransactionExecuteOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    statementsExecuted: z.number(),
+    results: z.array(z.object({
+      statement: z.number(),
+      rowsAffected: z.number().optional(),
+      rows: z.array(z.record(z.string(), z.unknown())).optional(),
+      rowCount: z.number().optional(),
+    })),
+  }).optional(),
+  rolledBack: z.boolean().optional(),
+});

@@ -11,16 +11,20 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { ZodError } from "zod";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import {
   JsonSearchSchema,
   JsonSearchSchemaBase,
+  JsonSearchOutputSchema,
   JsonValidateSchema,
   JsonValidateSchemaBase,
+  JsonValidateOutputSchema,
   JsonGetSchema,
   JsonGetSchemaBase,
+  JsonGetOutputSchema,
   JsonUpdateSchema,
   JsonUpdateSchemaBase,
+  JsonUpdateOutputSchema,
 } from "../../schemas/index.js";
 import {
   validateQualifiedIdentifier,
@@ -40,6 +44,7 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Simple JSON value extraction by row ID.",
     group: "json",
     inputSchema: JsonGetSchemaBase,
+    outputSchema: JsonGetOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -78,10 +83,7 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
             response = { success: true as const, data: { value: rawValue } };
           }
         }
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -105,6 +107,7 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Simple JSON value update by row ID.",
     group: "json",
     inputSchema: JsonUpdateSchemaBase,
+    outputSchema: JsonUpdateOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -139,19 +142,13 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
             success: false as const,
             error: `No row found matching WHERE ${where}`,
           };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate(response);
         }
         const response = {
           success: true as const,
           data: { rowsAffected: result.rowsAffected },
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -176,6 +173,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
       "Search for a string value in JSON columns and return matching paths.",
     group: "json",
     inputSchema: JsonSearchSchemaBase,
+    outputSchema: JsonSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -194,17 +192,13 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
           mode,
           searchValue,
         ]);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             rows: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -228,6 +222,7 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Validate if a string is valid JSON.",
     group: "json",
     inputSchema: JsonValidateSchemaBase,
+    outputSchema: JsonValidateOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -238,22 +233,14 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [value]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
-        const response = { success: true as const, data: { valid: isValid } };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data: { valid: isValid } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Invalid JSON text")) {
-          const response = { success: true as const, data: { valid: false } };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ success: true, data: { valid: false } });
         }
         return formatHandlerErrorResponse(error);
       }

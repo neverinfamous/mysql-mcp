@@ -517,7 +517,7 @@ describe("InnoDB Cluster Tools", () => {
       )) as any;
 
       expect(result.error).toBeDefined();
-      expect(result.error).toContain("Expected boolean");
+      expect(result.error).toContain("expected boolean");
     });
 
     it("cluster_instances should return structured error for invalid limit type", async () => {
@@ -527,7 +527,7 @@ describe("InnoDB Cluster Tools", () => {
       const result = (await tool.handler({ limit: "abc" }, mockContext)) as any;
 
       expect(result.error).toBeDefined();
-      expect(result.error).toContain("Expected positive integer");
+      expect(result.error).toContain("expected number");
     });
 
     it("cluster_instances should return structured error for negative limit", async () => {
@@ -555,7 +555,7 @@ describe("InnoDB Cluster Tools", () => {
       const result = (await tool.handler({ summary: 123 }, mockContext)) as any;
 
       expect(result.error).toBeDefined();
-      expect(result.error).toContain("Expected boolean");
+      expect(result.error).toContain("expected boolean");
     });
   });
 });

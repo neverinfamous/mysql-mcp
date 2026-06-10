@@ -12,6 +12,12 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import {
+  TopNOutputSchema,
+  DistinctOutputSchema,
+  FrequencyOutputSchema,
+  SummaryOutputSchema,
+} from "../../schemas/stats.js";
+import {
   formatHandlerErrorResponse,
   formatMysqlError,
   withTokenEstimate,
@@ -140,6 +146,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
       "Get the top N rows ranked by a column. Auto-excludes long-content columns (text, json, blob) from output unless selectColumns is specified.",
     group: "stats",
     inputSchema: StatsTopNSchemaBase,
+    outputSchema: TopNOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -249,6 +256,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
       "Get distinct values from a column with count. Useful for understanding cardinality and unique value distribution.",
     group: "stats",
     inputSchema: StatsDistinctSchemaBase,
+    outputSchema: DistinctOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -331,6 +339,7 @@ export function createStatsFrequencyTool(
       "Get value frequency distribution (count per unique value) ordered by frequency descending. Shows the most common values first.",
     group: "stats",
     inputSchema: StatsFrequencySchemaBase,
+    outputSchema: FrequencyOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -418,6 +427,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
       "Get summary statistics (count, avg, min, max, stddev) for multiple numeric columns. Defaults to all numeric columns if none specified.",
     group: "stats",
     inputSchema: StatsSummarySchemaBase,
+    outputSchema: SummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

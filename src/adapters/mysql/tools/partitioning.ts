@@ -20,7 +20,11 @@ import {
   DropPartitionSchemaBase,
   ReorganizePartitionSchema,
   ReorganizePartitionSchemaBase,
-} from "../schemas/index.js";
+  PartitionInfoOutputSchema,
+  AddPartitionOutputSchema,
+  DropPartitionOutputSchema,
+  ReorganizePartitionOutputSchema,
+} from "../schemas/partitioning.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
 
 /**
@@ -42,6 +46,7 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get partition information for a table.",
     group: "partitioning",
     inputSchema: PartitionInfoSchemaBase,
+    outputSchema: PartitionInfoOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -144,6 +149,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Add a new partition to a partitioned table.",
     group: "partitioning",
     inputSchema: AddPartitionSchemaBase,
+    outputSchema: AddPartitionOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -265,6 +271,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
       "Drop a partition from a partitioned table. Warning: This deletes all data in the partition!",
     group: "partitioning",
     inputSchema: DropPartitionSchemaBase,
+    outputSchema: DropPartitionOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -356,6 +363,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Reorganize partitions by splitting or merging them.",
     group: "partitioning",
     inputSchema: ReorganizePartitionSchemaBase,
+    outputSchema: ReorganizePartitionOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {

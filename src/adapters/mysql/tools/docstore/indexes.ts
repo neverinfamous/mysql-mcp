@@ -16,6 +16,7 @@ import {
 import {
   CreateDocIndexSchema,
   CreateDocIndexSchemaBase,
+  CreateDocIndexOutputSchema,
 } from "../../schemas/index.js";
 import { WRITE } from "../../../../utils/annotations.js";
 
@@ -27,6 +28,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Create an index on document fields.",
       group: "docstore",
       inputSchema: CreateDocIndexSchemaBase,
+      outputSchema: CreateDocIndexOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {

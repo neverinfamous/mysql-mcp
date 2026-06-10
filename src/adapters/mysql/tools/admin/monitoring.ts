@@ -17,6 +17,13 @@ import {
   ShowStatusSchemaBase,
   ShowVariablesSchema,
   ShowVariablesSchemaBase,
+  ShowProcesslistOutputSchema,
+  ShowStatusOutputSchema,
+  ShowVariablesOutputSchema,
+  InnodbStatusOutputSchema,
+  ReplicationStatusOutputSchema,
+  PoolStatsOutputSchema,
+  ServerHealthOutputSchema,
 } from "../../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
@@ -31,6 +38,7 @@ export function createShowProcesslistTool(
     description: "Show all running processes and queries.",
     group: "monitoring",
     inputSchema: ShowProcesslistSchemaBase,
+    outputSchema: ShowProcesslistOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -68,6 +76,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Show server status variables.",
     group: "monitoring",
     inputSchema: ShowStatusSchemaBase,
+    outputSchema: ShowStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -148,6 +157,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Show server configuration variables.",
     group: "monitoring",
     inputSchema: ShowVariablesSchemaBase,
+    outputSchema: ShowVariablesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -318,6 +328,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
       "Get detailed InnoDB engine status. Defaults to parsed summary. Use summary=false for raw output.",
     group: "monitoring",
     inputSchema: InnodbStatusSchema,
+    outputSchema: InnodbStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -419,6 +430,7 @@ export function createReplicationStatusTool(
       "Show replication slave/replica status. Use summary=true for key metrics only.",
     group: "monitoring",
     inputSchema: schema,
+    outputSchema: ReplicationStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -539,6 +551,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get connection pool statistics.",
     group: "monitoring",
     inputSchema: schema,
+    outputSchema: PoolStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -571,6 +584,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get comprehensive server health information.",
     group: "monitoring",
     inputSchema: schema,
+    outputSchema: ServerHealthOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {

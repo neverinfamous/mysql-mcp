@@ -11,20 +11,28 @@ import { ValidationError } from "../../../types/index.js";
 import {
   ReadQuerySchema,
   ReadQuerySchemaBase,
+  ReadQueryOutputSchema,
   WriteQuerySchema,
   WriteQuerySchemaBase,
+  WriteQueryOutputSchema,
   CreateTableSchema,
   CreateTableSchemaBase,
+  CreateTableOutputSchema,
   DescribeTableSchema,
   DescribeTableSchemaBase,
+  DescribeTableOutputSchema,
   DropTableSchema,
   DropTableSchemaBase,
+  DropTableOutputSchema,
   CreateIndexSchema,
   CreateIndexSchemaBase,
+  CreateIndexOutputSchema,
   GetIndexesSchema,
   GetIndexesSchemaBase,
+  GetIndexesOutputSchema,
   ListTablesSchema,
   ListTablesSchemaBase,
+  ListTablesOutputSchema,
 } from "../schemas/index.js";
 import {
   formatHandlerErrorResponse,
@@ -96,6 +104,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
       "Execute a read-only SQL query (SELECT). Uses prepared statements for safety.",
     group: "core",
     inputSchema: ReadQuerySchemaBase,
+    outputSchema: ReadQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -208,6 +217,7 @@ function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
       "Execute a write SQL query (INSERT, UPDATE, DELETE). Uses prepared statements for safety.",
     group: "core",
     inputSchema: WriteQuerySchemaBase,
+    outputSchema: WriteQueryOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -260,6 +270,7 @@ function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
     description: "List all tables and views in the database with metadata.",
     group: "core",
     inputSchema: ListTablesSchemaBase,
+    outputSchema: ListTablesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -321,6 +332,7 @@ function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
       "Get detailed information about a table's structure including columns, types, and constraints.",
     group: "core",
     inputSchema: DescribeTableSchemaBase,
+    outputSchema: DescribeTableOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -392,6 +404,7 @@ function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
       "Create a new table with specified columns, engine, and charset.",
     group: "core",
     inputSchema: CreateTableSchemaBase,
+    outputSchema: CreateTableOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -529,6 +542,7 @@ function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Drop (delete) a table from the database.",
     group: "core",
     inputSchema: DropTableSchemaBase,
+    outputSchema: DropTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -602,6 +616,7 @@ function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
       "Get all indexes for a table including type, columns, and cardinality.",
     group: "core",
     inputSchema: GetIndexesSchemaBase,
+    outputSchema: GetIndexesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -638,6 +653,7 @@ function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
       "Create an index on a table. Supports BTREE, HASH, FULLTEXT, and SPATIAL index types.",
     group: "core",
     inputSchema: CreateIndexSchemaBase,
+    outputSchema: CreateIndexOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {

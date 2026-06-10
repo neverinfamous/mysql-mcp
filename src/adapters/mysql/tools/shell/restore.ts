@@ -22,6 +22,8 @@ import {
   ShellLoadDumpInputSchema,
   ShellRunScriptInputSchema,
   ShellRunScriptInputSchemaBase,
+  ShellLoadDumpOutputSchema,
+  ShellRunScriptOutputSchema,
 } from "../../schemas/shell.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
 
@@ -38,6 +40,7 @@ export function createShellLoadDumpTool(
       "Load a MySQL Shell dump using util.loadDump(). Restores data from a dump created by dumpInstance, dumpSchemas, or dumpTables. Supports parallel loading.",
     group: "shell",
     inputSchema: ShellLoadDumpInputSchema,
+    outputSchema: ShellLoadDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -259,6 +262,7 @@ export function createShellRunScriptTool(
       "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features. NOTE: The script executes inside the MySQL Shell process, so file access inside the script is not restricted by allowedIoRoots. Use carefully.",
     group: "shell",
     inputSchema: ShellRunScriptInputSchemaBase,
+    outputSchema: ShellRunScriptOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

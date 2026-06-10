@@ -11,6 +11,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { OutliersOutputSchema } from "../../schemas/stats.js";
 import {
   formatHandlerErrorResponse,
   formatMysqlError,
@@ -68,6 +69,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
       "Detect statistical outliers in a numeric column using IQR (interquartile range) or Z-score method. IQR is robust against non-normal distributions.",
     group: "stats",
     inputSchema: StatsOutliersSchemaBase,
+    outputSchema: OutliersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

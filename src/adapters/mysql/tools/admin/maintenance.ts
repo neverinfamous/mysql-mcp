@@ -28,6 +28,12 @@ import {
   FlushTablesSchemaBase,
   KillQuerySchema,
   KillQuerySchemaBase,
+  OptimizeTableOutputSchema,
+  AnalyzeTableOutputSchema,
+  CheckTableOutputSchema,
+  RepairTableOutputSchema,
+  FlushTablesOutputSchema,
+  KillQueryOutputSchema,
 } from "../../schemas/index.js";
 
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
@@ -45,6 +51,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Optimize tables to reclaim unused space and defragment data.",
     group: "admin",
     inputSchema: OptimizeTableSchemaBase,
+    outputSchema: OptimizeTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -93,6 +100,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
       "Analyze tables to update index statistics for the query optimizer.",
     group: "admin",
     inputSchema: AnalyzeTableSchemaBase,
+    outputSchema: AnalyzeTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -134,6 +142,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Check tables for errors.",
     group: "admin",
     inputSchema: CheckTableSchemaBase,
+    outputSchema: CheckTableOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -182,6 +191,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Repair corrupted tables (MyISAM only).",
     group: "admin",
     inputSchema: RepairTableSchemaBase,
+    outputSchema: RepairTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -232,6 +242,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Flush tables to ensure data is written to disk.",
     group: "admin",
     inputSchema: FlushTablesSchemaBase,
+    outputSchema: FlushTablesOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -294,6 +305,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Kill a running query or connection.",
     group: "admin",
     inputSchema: KillQuerySchemaBase,
+    outputSchema: KillQueryOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {

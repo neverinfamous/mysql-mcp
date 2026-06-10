@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -18,6 +22,13 @@ const ListViewsSchema = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+});
+
+const ListViewsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    views: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
 });
 
 const CreateViewSchemaBase = z.object({
@@ -50,6 +61,12 @@ const CreateViewSchema = z.object({
     .describe("WITH CHECK OPTION"),
 });
 
+const CreateViewOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    viewName: z.string(),
+  }).optional()
+});
+
 const DropViewSchemaBase = z.object({
   name: z.string().optional().describe("View name"),
   ifExists: z.boolean().optional().describe("Use IF EXISTS"),
@@ -58,6 +75,12 @@ const DropViewSchemaBase = z.object({
 const DropViewSchema = z.object({
   name: z.string().describe("View name"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
+});
+
+const DropViewOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    viewName: z.string(),
+  }).optional()
 });
 
 /**
@@ -71,6 +94,7 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
       "List all views with their definitions, security type, and check option.",
     group: "schema",
     inputSchema: ListViewsSchema,
+    outputSchema: ListViewsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -107,17 +131,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
         ]);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             views: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -136,6 +156,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
       "Create or replace a view with specified algorithm and check option.",
     group: "schema",
     inputSchema: CreateViewSchemaBase,
+    outputSchema: CreateViewOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -173,11 +194,10 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = { success: true as const, data: { viewName: name } };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({
+            success: true,
+            data: { viewName: name }
+          });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("already exists")) {
@@ -204,6 +224,7 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Drop a view.",
     group: "schema",
     inputSchema: DropViewSchemaBase,
+    outputSchema: DropViewOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -222,14 +243,10 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           await adapter.executeQuery(sql);
           adapter.clearSchemaCache();
-          const response = {
-            success: true as const,
+          return withTokenEstimate({
+            success: true,
             data: { viewName: parsedParams.name },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          });
         } catch (err: unknown) {
           return formatHandlerErrorResponse(err);
         }

@@ -10,6 +10,11 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  SecurityAuditOutputSchema,
+  SecurityFirewallStatusOutputSchema,
+  SecurityFirewallRulesOutputSchema,
+} from "../../schemas/security.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -57,6 +62,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
       "Query the MySQL audit log (requires Enterprise Audit or compatible plugin).",
     group: "security",
     inputSchema: AuditLogSchema,
+    outputSchema: SecurityAuditOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -204,6 +210,7 @@ export function createSecurityFirewallStatusTool(
     description: "Get MySQL Enterprise Firewall plugin status.",
     group: "security",
     inputSchema: z.object({}),
+    outputSchema: SecurityFirewallStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -276,6 +283,7 @@ export function createSecurityFirewallRulesTool(
     description: "List MySQL Enterprise Firewall allowlist rules.",
     group: "security",
     inputSchema: FirewallRulesSchema,
+    outputSchema: SecurityFirewallRulesOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

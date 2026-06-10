@@ -10,7 +10,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   DependencyGraphSchemaBase,
   DependencyGraphSchema,
@@ -19,6 +22,9 @@ import {
   CascadeSimulatorSchemaBase,
   CascadeSimulatorSchema,
   // Output schemas
+  DependencyGraphOutputSchema,
+  TopologicalSortOutputSchema,
+  CascadeSimulatorOutputSchema,
 } from "../../schemas/index.js";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
@@ -68,6 +74,7 @@ export function createDependencyGraphTool(
       "Get the full foreign key dependency graph with cascade paths, row counts, circular dependency detection, and severity assessment. Agent-optimized structured output.",
     group: "introspection",
     inputSchema: DependencyGraphSchemaBase,
+    outputSchema: DependencyGraphOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -254,7 +261,7 @@ export function createDependencyGraphTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -275,6 +282,7 @@ export function createTopologicalSortTool(
       "Get tables in safe DDL execution order. 'create' direction: dependencies first (for CREATE TABLE). 'drop' direction: dependents first (for DROP TABLE).",
     group: "introspection",
     inputSchema: TopologicalSortSchemaBase,
+    outputSchema: TopologicalSortOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -394,7 +402,7 @@ export function createTopologicalSortTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -415,6 +423,7 @@ export function createCascadeSimulatorTool(
       "Simulate the impact of DELETE, DROP, or TRUNCATE on a table. Returns affected tables, estimated row counts, cascade paths, and severity assessment.",
     group: "introspection",
     inputSchema: CascadeSimulatorSchemaBase,
+    outputSchema: CascadeSimulatorOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -575,7 +584,7 @@ export function createCascadeSimulatorTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

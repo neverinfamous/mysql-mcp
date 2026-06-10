@@ -12,6 +12,10 @@ import {
   VectorOptimizeSchema,
   VectorStatsSchemaBase,
   VectorStatsSchema,
+  VectorInfoOutputSchema,
+  VectorCreateIndexOutputSchema,
+  VectorOptimizeOutputSchema,
+  VectorStatsOutputSchema,
 } from "../../schemas/vector.js";
 import { ensureVectorSupport, ensureVectorIndexSupport, sanitizeIdentifier } from "./helpers.js";
 
@@ -22,6 +26,7 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
     description: "List all vector columns for a table and their dimensions.",
     group: "vector",
     inputSchema: VectorInfoSchemaBase,
+    outputSchema: VectorInfoOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -86,6 +91,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
     description: "Create an HNSW vector index for faster KNN searches (requires MySQL 9.1+).",
     group: "vector",
     inputSchema: VectorCreateIndexSchemaBase,
+    outputSchema: VectorCreateIndexOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -133,6 +139,7 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
     description: "Run ANALYZE TABLE to update vector index statistics.",
     group: "vector",
     inputSchema: VectorOptimizeSchemaBase,
+    outputSchema: VectorOptimizeOutputSchema,
     requiredScopes: ["write"],
     annotations: ADMIN,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -167,6 +174,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get statistics about a vector column, including dimension validation and sampling.",
     group: "vector",
     inputSchema: VectorStatsSchemaBase,
+    outputSchema: VectorStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

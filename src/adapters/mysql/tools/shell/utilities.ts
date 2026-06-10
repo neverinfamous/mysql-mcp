@@ -13,7 +13,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ShellCheckUpgradeInputSchema } from "../../schemas/shell.js";
+import { ShellCheckUpgradeInputSchema, ShellCheckUpgradeOutputSchema } from "../../schemas/shell.js";
 import { getShellConfig, escapeForJS, execShellJS } from "./common.js";
 
 /**
@@ -27,6 +27,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
       "Check MySQL server upgrade compatibility using util.checkForServerUpgrade(). Identifies potential issues before upgrading to a newer MySQL version.",
     group: "shell",
     inputSchema: ShellCheckUpgradeInputSchema,
+    outputSchema: ShellCheckUpgradeOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

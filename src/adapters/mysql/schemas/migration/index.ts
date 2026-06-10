@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "../output-schemas.js";
 
 // Migration Tracking Input Schemas
 // =============================================================================
@@ -163,5 +164,57 @@ export const MigrationStatusSchemaBase = z.object({
 });
 
 export const MigrationStatusSchema = MigrationStatusSchemaBase.default({});
+
+// Output Schemas
+// =============================================================================
+
+export const MigrationInitOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    tableCreated: z.boolean(),
+    tableName: z.string(),
+    existingRecords: z.number()
+  }).optional()
+});
+
+export const MigrationRecordOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    record: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+export const MigrationApplyOutputSchema = MigrationRecordOutputSchema;
+
+export const MigrationRollbackOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    dryRun: z.boolean(),
+    rollbackSql: z.string().nullable(),
+    record: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+export const MigrationHistoryOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    records: z.array(z.record(z.string(), z.unknown())),
+    total: z.number(),
+    limit: z.number(),
+    offset: z.number()
+  }).optional()
+});
+
+export const MigrationStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    initialized: z.boolean(),
+    latestVersion: z.string().nullable(),
+    latestAppliedAt: z.string().nullable(),
+    counts: z.object({
+      total: z.number(),
+      applied: z.number(),
+      recorded: z.number(),
+      rolledBack: z.number(),
+      failed: z.number()
+    }),
+    sourceSystems: z.array(z.string())
+  }).optional()
+});
 
 // =============================================================================

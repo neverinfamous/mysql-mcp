@@ -20,6 +20,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage && pnpm exec tsx scripts/update-badges.ts",
     "test:e2e": "playwright test && pnpm exec tsx scripts/update-badges.ts",
+    "test:zod": "node scripts/test-zod-errors.mjs",
     "check": "pnpm run lint && pnpm run typecheck",
     "clean": "rimraf dist",
     "generate:instructions": "node scripts/generate-server-instructions.ts",

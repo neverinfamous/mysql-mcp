@@ -7,7 +7,18 @@ import {
   stripErrorPrefix,
   formatZodError,
   formatHandlerErrorResponse,
+  withTokenEstimate,
 } from "./core/error-helpers.js";
+import {
+  RoleListOutputSchema,
+  RoleCreateOutputSchema,
+  RoleDropOutputSchema,
+  RoleGrantsOutputSchema,
+  RoleGrantPrivilegeOutputSchema,
+  RoleAssignOutputSchema,
+  RoleRevokeOutputSchema,
+  UserRolesOutputSchema,
+} from "../schemas/roles.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
@@ -196,6 +207,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "List all roles defined in MySQL.",
       group: "roles",
       inputSchema: RoleListSchema,
+      outputSchema: RoleListOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -214,7 +226,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           return formatHandlerErrorResponse(error);
         }
@@ -226,6 +238,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Create a new role.",
       group: "roles",
       inputSchema: RoleCreateSchemaBase,
+      outputSchema: RoleCreateOutputSchema,
       requiredScopes: ["admin"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -251,7 +264,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
               const tokenEstimate = Math.ceil(
                 Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
               );
-              return { ...response, metrics: { tokenEstimate } };
+              return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
             }
           }
 
@@ -262,7 +275,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           if (error instanceof ZodError) {
             return formatHandlerErrorResponse(new Error(formatZodError(error)));
@@ -286,13 +299,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
           const response = { success: false, error: stripErrorPrefix(message) };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
       },
     },
@@ -302,6 +315,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Drop a role.",
       group: "roles",
       inputSchema: RoleDropSchemaBase,
+      outputSchema: RoleDropOutputSchema,
       requiredScopes: ["admin"],
       annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -337,7 +351,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
 
           const data = { roleName: name };
@@ -345,7 +359,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           if (error instanceof ZodError) {
             return formatHandlerErrorResponse(new Error(formatZodError(error)));
@@ -369,13 +383,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
           const response = { success: false, error: stripErrorPrefix(message) };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
       },
     },
@@ -385,6 +399,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "List privileges granted to a role.",
       group: "roles",
       inputSchema: RoleGrantsSchemaBase,
+      outputSchema: RoleGrantsOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -411,7 +426,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           return formatHandlerErrorResponse(error);
         }
@@ -423,6 +438,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Grant privileges to a role.",
       group: "roles",
       inputSchema: RoleGrantPrivilegeSchemaBase,
+      outputSchema: RoleGrantPrivilegeOutputSchema,
       requiredScopes: ["admin"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -486,7 +502,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           if (error instanceof ZodError) {
             return formatHandlerErrorResponse(new Error(formatZodError(error)));
@@ -505,13 +521,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
           const response = { success: false, error: cleanMsg };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
       },
     },
@@ -521,6 +537,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Assign a role to a user.",
       group: "roles",
       inputSchema: RoleAssignSchemaBase,
+      outputSchema: RoleAssignOutputSchema,
       requiredScopes: ["admin"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -553,7 +570,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           if (error instanceof ZodError) {
             return formatHandlerErrorResponse(new Error(formatZodError(error)));
@@ -567,7 +584,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
       },
     },
@@ -577,6 +594,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Revoke a role from a user, or privileges from a role.",
       group: "roles",
       inputSchema: RoleRevokeSchemaBase,
+      outputSchema: RoleRevokeOutputSchema,
       requiredScopes: ["admin"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -630,7 +648,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           } else if (privileges.length > 0) {
             // Validate each privilege against allowlist
             for (const priv of privileges) {
@@ -664,7 +682,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           } else {
             const response = {
               success: false,
@@ -674,7 +692,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
         } catch (error: unknown) {
           if (error instanceof ZodError) {
@@ -697,13 +715,13 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
-            return { ...response, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
           const response = { success: false, error: cleanMsg };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
       },
     },
@@ -713,6 +731,7 @@ export function getRoleTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "List roles assigned to a user.",
       group: "roles",
       inputSchema: UserRolesSchemaBase,
+      outputSchema: UserRolesOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {

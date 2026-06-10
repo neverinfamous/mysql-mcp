@@ -342,3 +342,83 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),
   "Either geometry or geoJson must be provided, but not both",
 );
+
+// Output Schemas
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+export const SpatialPointOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    wkt: z.string().optional(),
+    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+    srid: z.number().optional(),
+    longitude: z.number(),
+    latitude: z.number(),
+  }).loose().optional(),
+});
+
+export const SpatialPolygonOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    wkt: z.string().optional(),
+    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+    area: z.number().optional(),
+    srid: z.number().optional(),
+  }).loose().optional(),
+});
+
+export const SpatialCreateColumnOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    column: z.string(),
+    type: z.string(),
+    srid: z.number().nullable(),
+    nullable: z.boolean(),
+  }).loose().optional(),
+});
+
+export const SpatialCreateIndexOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    column: z.string(),
+    indexName: z.string(),
+  }).loose().optional(),
+});
+
+export const SpatialIntersectionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    intersects: z.boolean(),
+    intersectionWkt: z.string().optional(),
+    intersectionGeoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+  }).loose().optional(),
+});
+
+export const SpatialBufferOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    wkt: z.string().optional(),
+    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+    area: z.number().optional(),
+  }).loose().optional(),
+});
+
+export const SpatialTransformOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    wkt: z.string().optional(),
+    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+    fromSrid: z.number().optional(),
+    toSrid: z.number().optional(),
+  }).loose().optional(),
+});
+
+export const SpatialGeoJSONOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    wkt: z.string().optional(),
+    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+    srid: z.number().optional(),
+  }).loose().optional(),
+});
+
+export const SpatialQueryResultOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    results: z.array(z.record(z.string(), z.unknown())),
+  }).loose().optional(),
+});

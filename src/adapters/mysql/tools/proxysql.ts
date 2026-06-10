@@ -27,6 +27,17 @@ import {
   ProxySQLVariableFilterSchemaBase,
   ProxySQLCommandInputSchema,
   ProxySQLCommandInputSchemaBase,
+  ProxySQLStatusOutputSchema,
+  ProxySQLRuntimeStatusOutputSchema,
+  ProxySQLServersOutputSchema,
+  ProxySQLQueryRulesOutputSchema,
+  ProxySQLQueryDigestOutputSchema,
+  ProxySQLConnectionPoolOutputSchema,
+  ProxySQLUsersOutputSchema,
+  ProxySQLGlobalVariablesOutputSchema,
+  ProxySQLMemoryStatsOutputSchema,
+  ProxySQLCommandsOutputSchema,
+  ProxySQLProcessListOutputSchema,
   type ProxySQLConfig,
 } from "../schemas/proxysql.js";
 
@@ -141,6 +152,7 @@ function createProxySQLStatusTool(): ToolDefinition {
       "Get ProxySQL version, uptime, and runtime statistics. Returns global status variables from stats_mysql_global. Use summary: true for condensed key metrics.",
     group: "proxysql",
     inputSchema: ProxySQLStatusInputSchemaBase,
+    outputSchema: ProxySQLStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -220,6 +232,7 @@ function createProxySQLRuntimeStatusTool(): ToolDefinition {
       "Get ProxySQL runtime configuration status including version info and admin variables. Use summary: true for condensed key variables only.",
     group: "proxysql",
     inputSchema: ProxySQLStatusInputSchemaBase,
+    outputSchema: ProxySQLRuntimeStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -295,6 +308,7 @@ function createProxySQLServersTool(): ToolDefinition {
       "List configured backend MySQL servers from mysql_servers table. Shows hostgroup, hostname, port, status, and weights.",
     group: "proxysql",
     inputSchema: ProxySQLHostgroupInputSchemaBase,
+    outputSchema: ProxySQLServersOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -339,6 +353,7 @@ function createProxySQLQueryRulesTool(): ToolDefinition {
       "List query routing rules from mysql_query_rules table. Shows rule IDs, match patterns, destination hostgroups, and cache settings.",
     group: "proxysql",
     inputSchema: ProxySQLLimitInputSchemaBase,
+    outputSchema: ProxySQLQueryRulesOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -377,6 +392,7 @@ function createProxySQLQueryDigestTool(): ToolDefinition {
       "Get query digest statistics showing top queries by execution count. Useful for identifying queries for routing, rewriting, or caching.",
     group: "proxysql",
     inputSchema: ProxySQLLimitInputSchemaBase,
+    outputSchema: ProxySQLQueryDigestOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -419,6 +435,7 @@ function createProxySQLConnectionPoolTool(): ToolDefinition {
       "Get connection pool statistics per backend server. Shows connections used/free, errors, queries, bytes transferred, and latency.",
     group: "proxysql",
     inputSchema: ProxySQLHostgroupInputSchemaBase,
+    outputSchema: ProxySQLConnectionPoolOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -463,6 +480,7 @@ function createProxySQLUsersTool(): ToolDefinition {
       "List configured MySQL users from mysql_users table. Shows username, active status, default hostgroup, and connection limits. Passwords are redacted.",
     group: "proxysql",
     inputSchema: ProxySQLBaseInputSchema,
+    outputSchema: ProxySQLUsersOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -504,6 +522,7 @@ function createProxySQLGlobalVariablesTool(): ToolDefinition {
       "Get ProxySQL global variables. Filter by prefix: mysql (MySQL proxy settings), admin (admin interface settings), or all. Use like parameter for pattern matching.",
     group: "proxysql",
     inputSchema: ProxySQLVariableFilterSchemaBase,
+    outputSchema: ProxySQLGlobalVariablesOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -583,6 +602,7 @@ function createProxySQLMemoryStatsTool(): ToolDefinition {
       "Get ProxySQL memory usage metrics from stats_memory_metrics. Shows memory for SQLite, auth, query digests, and more.",
     group: "proxysql",
     inputSchema: ProxySQLBaseInputSchema,
+    outputSchema: ProxySQLMemoryStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
@@ -621,6 +641,7 @@ function createProxySQLCommandsTool(): ToolDefinition {
       "Execute ProxySQL admin commands like LOAD/SAVE for users, servers, query rules, and variables. Also supports FLUSH commands.",
     group: "proxysql",
     inputSchema: ProxySQLCommandInputSchemaBase,
+    outputSchema: ProxySQLCommandsOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
@@ -659,6 +680,7 @@ function createProxySQLProcessListTool(): ToolDefinition {
       "Get active client sessions similar to MySQL SHOW PROCESSLIST. Shows session ID, user, database, client/server hosts, and current command.",
     group: "proxysql",
     inputSchema: ProxySQLLimitInputSchemaBase,
+    outputSchema: ProxySQLProcessListOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

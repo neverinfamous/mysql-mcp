@@ -25,8 +25,8 @@ describe("Audit Search Tool", () => {
       const tool = createAuditSearchTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as any;
       expect(result.success).toBe(true);
-      expect(result.entries.length).toBe(1);
-      expect(result.totalCount).toBe(1);
+      expect(result.data.entries.length).toBe(1);
+      expect(result.data.totalCount).toBe(1);
       expect(mockAuditLogger.search).toHaveBeenCalledWith({
         limit: 50,
         offset: 0,

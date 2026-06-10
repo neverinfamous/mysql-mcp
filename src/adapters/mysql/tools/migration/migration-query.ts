@@ -11,7 +11,10 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   MigrationRollbackSchemaBase,
   MigrationRollbackSchema,
@@ -20,6 +23,9 @@ import {
   MigrationStatusSchemaBase,
   MigrationStatusSchema,
   // Output schemas
+  MigrationRollbackOutputSchema,
+  MigrationHistoryOutputSchema,
+  MigrationStatusOutputSchema,
 } from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
@@ -43,6 +49,7 @@ export function createMigrationRollbackTool(
       "Use dryRun: true to preview the rollback SQL without executing.",
     group: "migration",
     inputSchema: MigrationRollbackSchemaBase,
+    outputSchema: MigrationRollbackOutputSchema,
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -66,7 +73,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         // Coerce id: functional param, return error on wrong type
@@ -84,7 +91,7 @@ export function createMigrationRollbackTool(
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
             );
-            return { ...errorResponse, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
           }
           coercedId = num;
         }
@@ -116,7 +123,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         const row = findRows[0] ?? {};
@@ -136,7 +143,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         if (rollbackSql === null) {
@@ -150,7 +157,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         if (parsed.dryRun === true) {
@@ -165,7 +172,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
         try {
@@ -189,7 +196,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
           const errorResponse = {
@@ -202,7 +209,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -225,6 +232,7 @@ export function createMigrationHistoryTool(
       "Returns paginated results ordered by applied_at descending.",
     group: "migration",
     inputSchema: MigrationHistorySchemaBase,
+    outputSchema: MigrationHistoryOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -292,7 +300,7 @@ export function createMigrationHistoryTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -314,6 +322,7 @@ export function createMigrationStatusTool(
       "and list of source systems. Returns initialized: false if tracking table doesn't exist.",
     group: "migration",
     inputSchema: MigrationStatusSchemaBase,
+    outputSchema: MigrationStatusOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -360,7 +369,7 @@ export function createMigrationStatusTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
@@ -424,7 +433,7 @@ export function createMigrationStatusTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

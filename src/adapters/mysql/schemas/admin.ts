@@ -260,3 +260,131 @@ export const ShowVariablesSchema = z
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
     { message: "limit must be a positive integer" },
   );
+
+// =============================================================================
+// Output Schemas
+// =============================================================================
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+// --- maintenance.ts ---
+export const OptimizeTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    results: z.array(z.record(z.string(), z.unknown())),
+    rowCount: z.number()
+  }).optional()
+});
+
+export const AnalyzeTableOutputSchema = OptimizeTableOutputSchema;
+export const CheckTableOutputSchema = OptimizeTableOutputSchema;
+export const RepairTableOutputSchema = OptimizeTableOutputSchema;
+
+export const FlushTablesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({}).optional()
+});
+
+export const KillQueryOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    killed: z.number(),
+    type: z.string()
+  }).optional()
+});
+
+// --- monitoring.ts ---
+export const ShowProcesslistOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    processes: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+    limited: z.boolean().optional(),
+    totalAvailable: z.number().optional()
+  }).optional()
+});
+
+export const ShowStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    status: z.record(z.string(), z.unknown()),
+    rowCount: z.number(),
+    totalAvailable: z.number(),
+    limited: z.boolean().optional()
+  }).optional()
+});
+
+export const ShowVariablesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    variables: z.record(z.string(), z.unknown()),
+    rowCount: z.number(),
+    totalAvailable: z.number(),
+    limited: z.boolean().optional()
+  }).optional()
+});
+
+export const InnodbStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    summary: z.record(z.string(), z.unknown()).optional(),
+    status: z.string().optional(),
+    truncated: z.boolean().optional()
+  }).optional()
+});
+
+export const ReplicationStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    configured: z.boolean(),
+    message: z.string().optional(),
+    status: z.record(z.string(), z.unknown()).optional(),
+    summary: z.boolean().optional()
+  }).optional()
+});
+
+export const PoolStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    poolStats: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+export const ServerHealthOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    serverHealth: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+// --- audit-search.ts ---
+export const AuditSearchOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    entries: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+    totalCount: z.number()
+  }).optional()
+});
+
+// --- audit-backup.ts ---
+export const AuditListBackupsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    backups: z.array(z.record(z.string(), z.unknown())),
+    total: z.number()
+  }).optional()
+});
+
+export const AuditRestoreBackupOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    dryRun: z.boolean().optional(),
+    sql: z.string().optional(),
+    restoredFilename: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional()
+  }).optional()
+});
+
+export const AuditDiffBackupOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    snapshotDdl: z.string(),
+    liveDdl: z.string(),
+    metadata: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+// --- insights.ts ---
+export const AppendInsightOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    insightCount: z.number(),
+    message: z.string()
+  }).optional()
+});

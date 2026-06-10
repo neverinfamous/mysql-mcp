@@ -11,7 +11,10 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   MigrationInitSchemaBase,
   MigrationInitSchema,
@@ -20,6 +23,9 @@ import {
   MigrationApplySchemaBase,
   MigrationApplySchema,
   // Output schemas
+  MigrationInitOutputSchema,
+  MigrationRecordOutputSchema,
+  MigrationApplyOutputSchema,
 } from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
@@ -42,6 +48,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
       "Idempotent — safe to call repeatedly. Returns current tracking state.",
     group: "migration",
     inputSchema: MigrationInitSchemaBase,
+    outputSchema: MigrationInitOutputSchema,
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -92,7 +99,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -116,6 +123,7 @@ export function createMigrationRecordTool(
       "Computes SHA-256 hash for idempotency detection.",
     group: "migration",
     inputSchema: MigrationRecordSchemaBase,
+    outputSchema: MigrationRecordOutputSchema,
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -127,7 +135,7 @@ export function createMigrationRecordTool(
           parsed.version,
           parsed.migrationSql,
         );
-        if (duplicateError) return duplicateError;
+        if (duplicateError) return withTokenEstimate(duplicateError);
 
         const dbRow = (
           await adapter.executeReadQuery("SELECT DATABASE() as db")
@@ -165,7 +173,7 @@ export function createMigrationRecordTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
         const row = resultRows[0] ?? {};
         const response = {
@@ -177,7 +185,7 @@ export function createMigrationRecordTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -200,6 +208,7 @@ export function createMigrationApplyTool(
       "Use mysql_migration_record instead if you only need to log an already-applied migration.",
     group: "migration",
     inputSchema: MigrationApplySchemaBase,
+    outputSchema: MigrationApplyOutputSchema,
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -211,7 +220,7 @@ export function createMigrationApplyTool(
           parsed.version,
           parsed.migrationSql,
         );
-        if (duplicateError) return duplicateError;
+        if (duplicateError) return withTokenEstimate(duplicateError);
 
         const dbRow = (
           await adapter.executeReadQuery("SELECT DATABASE() as db")
@@ -256,7 +265,7 @@ export function createMigrationApplyTool(
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
             );
-            return { ...errorResponse, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
           }
           const row = resultRows[0] ?? {};
           const response = {
@@ -268,7 +277,7 @@ export function createMigrationApplyTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
 
@@ -303,7 +312,7 @@ export function createMigrationApplyTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

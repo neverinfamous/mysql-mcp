@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 /**
  * Common schema fragments
@@ -222,4 +223,124 @@ export const VectorStatsSchema = z.object({
   table: tableParam,
   column: columnParam,
   sampleSize: z.number().int().positive().max(1000).optional().default(100),
+});
+
+// =============================================================================
+// Output Schemas
+// =============================================================================
+
+export const VectorStoreOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    stored: z.boolean(),
+    table: z.string(),
+    id: z.unknown(),
+    affectedRows: z.number().optional(),
+  }).loose().optional(),
+});
+
+export const VectorBatchStoreOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    stored: z.boolean(),
+    table: z.string(),
+    count: z.number(),
+    affectedRows: z.number().optional(),
+  }).loose().optional(),
+});
+
+export const VectorDeleteOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    deleted: z.boolean(),
+    table: z.string(),
+    id: z.unknown(),
+  }).loose().optional(),
+});
+
+export const VectorGetOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    exists: z.boolean(),
+    table: z.string(),
+    column: z.string().optional(),
+    id: z.unknown(),
+    vector: z.array(z.number()).nullable().optional(),
+  }).loose().optional(),
+});
+
+export const VectorSearchOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    metric: z.string(),
+    results: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const VectorRangeSearchOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    metric: z.string(),
+    maxDistance: z.number(),
+    results: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const VectorHybridSearchOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    results: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+    weights: z.object({
+      vector: z.number(),
+      text: z.number(),
+    }),
+  }).loose().optional(),
+});
+
+export const VectorInfoOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    columns: z.array(
+      z.object({
+        name: z.string(),
+        dimensions: z.number().nullable(),
+        isNullable: z.boolean(),
+        default: z.unknown(),
+      })
+    ),
+  }).loose().optional(),
+});
+
+export const VectorCreateIndexOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    created: z.boolean(),
+    table: z.string(),
+    column: z.string(),
+    indexName: z.string(),
+    metric: z.string(),
+  }).loose().optional(),
+});
+
+export const VectorOptimizeOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    optimized: z.boolean(),
+    table: z.string(),
+    result: z.array(z.record(z.string(), z.unknown())).optional(),
+  }).loose().optional(),
+});
+
+export const VectorStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    column: z.string(),
+    totalRows: z.number(),
+    stats: z.object({
+      nonNullCount: z.number(),
+      nullCount: z.number(),
+      dimensions: z.object({
+        consistent: z.boolean(),
+        min: z.number(),
+        max: z.number(),
+      }),
+    }).nullable(),
+  }).loose().optional(),
 });

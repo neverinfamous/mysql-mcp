@@ -16,6 +16,7 @@ import {
   formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import { WindowFunctionOutputSchema } from "../../schemas/stats.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -274,6 +275,7 @@ export function createStatsRowNumberTool(
       "Assign sequential row numbers within an ordered result set. Use partitionBy to restart numbering per group.",
     group: "stats",
     inputSchema: StatsRowNumberSchemaBase,
+    outputSchema: WindowFunctionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -341,6 +343,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
       "Assign rank within an ordered result set. Supports rank (gaps), dense_rank (no gaps), and percent_rank (0-1). Use partitionBy to rank within groups.",
     group: "stats",
     inputSchema: StatsRankSchemaBase,
+    outputSchema: WindowFunctionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -411,6 +414,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
       "Access data from previous (LAG) or next (LEAD) rows in an ordered set. Useful for comparisons, deltas, and change detection.",
     group: "stats",
     inputSchema: StatsLagLeadSchemaBase,
+    outputSchema: WindowFunctionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -494,6 +498,7 @@ export function createStatsRunningTotalTool(
       "Calculate cumulative running total (SUM OVER) for a numeric column. Use partitionBy to reset total per group.",
     group: "stats",
     inputSchema: StatsRunningTotalSchemaBase,
+    outputSchema: WindowFunctionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -569,6 +574,7 @@ export function createStatsMovingAvgTool(
       "Calculate moving average (AVG OVER sliding window) for a numeric column. Specify windowSize for the number of preceding rows to include.",
     group: "stats",
     inputSchema: StatsMovingAvgSchemaBase,
+    outputSchema: WindowFunctionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -645,6 +651,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
       "Divide ordered rows into N equal buckets (e.g., quartiles with buckets=4). Returns bucket assignment per row.",
     group: "stats",
     inputSchema: StatsNtileSchemaBase,
+    outputSchema: WindowFunctionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

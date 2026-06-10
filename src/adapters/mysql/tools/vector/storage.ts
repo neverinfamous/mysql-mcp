@@ -11,6 +11,10 @@ import {
   VectorDeleteSchema,
   VectorGetSchemaBase,
   VectorGetSchema,
+  VectorStoreOutputSchema,
+  VectorBatchStoreOutputSchema,
+  VectorDeleteOutputSchema,
+  VectorGetOutputSchema,
 } from "../../schemas/vector.js";
 import { ensureVectorSupport, formatVector, parseVector, sanitizeIdentifier } from "./helpers.js";
 
@@ -21,6 +25,7 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Store a single vector embedding in a table with a VECTOR column.",
     group: "vector",
     inputSchema: VectorStoreSchemaBase,
+    outputSchema: VectorStoreOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown) => {
@@ -65,6 +70,7 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
     description: "Store multiple vector embeddings in a single batch operation.",
     group: "vector",
     inputSchema: VectorBatchStoreSchemaBase,
+    outputSchema: VectorBatchStoreOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown) => {
@@ -115,6 +121,7 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Delete a vector embedding by its row identifier.",
     group: "vector",
     inputSchema: VectorDeleteSchemaBase,
+    outputSchema: VectorDeleteOutputSchema,
     requiredScopes: ["write"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown) => {
@@ -150,6 +157,7 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Retrieve a vector embedding by its row identifier.",
     group: "vector",
     inputSchema: VectorGetSchemaBase,
+    outputSchema: VectorGetOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown) => {

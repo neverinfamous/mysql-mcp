@@ -23,6 +23,10 @@ import {
   ModifyDocSchemaBase,
   RemoveDocSchema,
   RemoveDocSchemaBase,
+  FindDocOutputSchema,
+  AddDocOutputSchema,
+  ModifyDocOutputSchema,
+  RemoveDocOutputSchema,
 } from "../../schemas/index.js";
 import {
   READ_ONLY,
@@ -38,6 +42,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Query documents in a collection.",
       group: "docstore",
       inputSchema: FindSchemaBase,
+      outputSchema: FindDocOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -148,6 +153,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Add documents to a collection.",
       group: "docstore",
       inputSchema: AddDocSchemaBase,
+      outputSchema: AddDocOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -210,6 +216,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Update documents in a collection.",
       group: "docstore",
       inputSchema: ModifyDocSchemaBase,
+      outputSchema: ModifyDocOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -308,6 +315,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Remove documents from a collection.",
       group: "docstore",
       inputSchema: RemoveDocSchemaBase,
+      outputSchema: RemoveDocOutputSchema,
       requiredScopes: ["write"],
       annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {

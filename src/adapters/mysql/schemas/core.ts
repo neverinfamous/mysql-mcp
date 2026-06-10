@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 import {
   preprocessTableParams,
   preprocessQueryParams,
@@ -82,6 +83,17 @@ export const ReadQuerySchema = z
     message: "query (or sql alias) is required",
   });
 
+export const ReadQueryOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    rows: z.array(z.record(z.string(), z.unknown())).optional(),
+    rowCount: z.number(),
+    nextCursor: z.string().optional(),
+    executionTimeMs: z.number().optional(),
+    streamed: z.boolean().optional(),
+    chunksEmitted: z.number().optional(),
+  }).loose().optional(),
+});
+
 // --- WriteQuery ---
 
 // Base schema for MCP visibility
@@ -134,6 +146,14 @@ export const WriteQuerySchema = z
     message: "query (or sql alias) is required",
   });
 
+export const WriteQueryOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    rowsAffected: z.number().optional(),
+    lastInsertId: z.string().optional(),
+    executionTimeMs: z.number().optional(),
+  }).loose().optional(),
+});
+
 // --- ListTables ---
 
 // Base schema for MCP visibility
@@ -164,6 +184,20 @@ export const ListTablesSchema = z
     { message: "limit must be a positive number" },
   );
 
+export const ListTablesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    tables: z.array(z.object({
+      name: z.string(),
+      type: z.string(),
+      engine: z.string().optional(),
+      rowCount: z.number().optional(),
+      comment: z.string().optional(),
+    })),
+    count: z.number(),
+    truncated: z.boolean().optional(),
+  }).loose().optional(),
+});
+
 // --- DescribeTable ---
 
 // Base schema for MCP visibility
@@ -182,6 +216,18 @@ export const DescribeTableSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   });
+
+export const DescribeTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    name: z.string(),
+    exists: z.boolean(),
+    columns: z.array(z.record(z.string(), z.unknown())).optional(),
+    indexes: z.array(z.record(z.string(), z.unknown())).optional(),
+    foreignKeys: z.array(z.record(z.string(), z.unknown())).optional(),
+    comment: z.string().optional(),
+    collation: z.string().optional(),
+  }).loose().optional(),
+});
 
 // --- CreateTable ---
 
@@ -249,6 +295,14 @@ export const CreateTableSchema = z
     message: "columns array is required and must not be empty",
   });
 
+export const CreateTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    tableName: z.string(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).loose().optional(),
+});
+
 // --- DropTable ---
 
 // Base schema for MCP visibility
@@ -273,6 +327,14 @@ export const DropTableSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   });
+
+export const DropTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    tableName: z.string(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).loose().optional(),
+});
 
 // --- CreateIndex ---
 
@@ -315,6 +377,15 @@ export const CreateIndexSchema = z
     message: "columns array is required and must not be empty",
   });
 
+export const CreateIndexOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    indexName: z.string(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+    warning: z.string().optional(),
+  }).loose().optional(),
+});
+
 // --- GetIndexes ---
 
 // Base schema for MCP visibility
@@ -333,16 +404,24 @@ export const GetIndexesSchema = z
     message: "table (or tableName alias) is required",
   });
 
+export const GetIndexesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    exists: z.boolean(),
+    indexes: z.array(z.record(z.string(), z.unknown())),
+  }).loose().optional(),
+});
+
 // --- Versioning (Optimistic Concurrency Control) ---
 
 export const EnableVersioningSchema = z.object({
   table: z.string().min(1, "Table name is required").describe("Table to enable OCC on"),
 });
 
-export const EnableVersioningOutputSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  alreadyEnabled: z.boolean().optional(),
+export const EnableVersioningOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    message: z.string(),
+    alreadyEnabled: z.boolean().optional(),
+  }).loose().optional(),
 });
 
 export const DisableVersioningSchema = z.object({
@@ -350,9 +429,10 @@ export const DisableVersioningSchema = z.object({
   ifExists: z.boolean().optional().default(false).describe("If true, do not error if table does not exist"),
 });
 
-export const DisableVersioningOutputSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
+export const DisableVersioningOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    message: z.string(),
+  }).loose().optional(),
 });
 
 export const CheckVersionSchema = z.object({
@@ -361,10 +441,11 @@ export const CheckVersionSchema = z.object({
   rowId: z.unknown().describe("Primary key value of the row"),
 });
 
-export const CheckVersionOutputSchema = z.object({
-  success: z.boolean(),
-  version: z.number().optional(),
-  row: z.record(z.string(), z.unknown()).optional(),
+export const CheckVersionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    version: z.number().optional(),
+    row: z.record(z.string(), z.unknown()).optional(),
+  }).loose().optional(),
 });
 
 export const ConditionalUpdateSchema = z.object({
@@ -380,8 +461,9 @@ export const ConditionalUpdateSchema = z.object({
   expectedVersion: z.number().describe("The _version value currently expected. Update fails if this does not match."),
 });
 
-export const ConditionalUpdateOutputSchema = z.object({
-  success: z.boolean(),
-  rowsAffected: z.number().optional(),
-  currentVersion: z.number().optional(),
+export const ConditionalUpdateOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    rowsAffected: z.number().optional(),
+    currentVersion: z.number().optional(),
+  }).loose().optional(),
 });

@@ -22,6 +22,9 @@ import {
   ShellDumpSchemasInputSchemaBase,
   ShellDumpTablesInputSchema,
   ShellDumpTablesInputSchemaBase,
+  ShellDumpInstanceOutputSchema,
+  ShellDumpSchemasOutputSchema,
+  ShellDumpTablesOutputSchema,
 } from "../../schemas/shell.js";
 import { escapeForJS, execShellJS } from "./common.js";
 
@@ -38,6 +41,7 @@ export function createShellDumpInstanceTool(
       "Dump entire MySQL instance using util.dumpInstance(). Creates a compressed, parallel dump of all schemas (excluding system schemas). Ideal for full backups and migrations.",
     group: "shell",
     inputSchema: ShellDumpInstanceInputSchema,
+    outputSchema: ShellDumpInstanceOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
@@ -151,6 +155,7 @@ export function createShellDumpSchemasTool(
       "Dump selected schemas using util.dumpSchemas(). Creates a compressed, parallel dump of specified schemas. Use for partial backups.",
     group: "shell",
     inputSchema: ShellDumpSchemasInputSchemaBase,
+    outputSchema: ShellDumpSchemasOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
@@ -265,6 +270,7 @@ export function createShellDumpTablesTool(
       "Dump specific tables using util.dumpTables(). Creates a compressed, parallel dump of specified tables from a schema.",
     group: "shell",
     inputSchema: ShellDumpTablesInputSchemaBase,
+    outputSchema: ShellDumpTablesOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

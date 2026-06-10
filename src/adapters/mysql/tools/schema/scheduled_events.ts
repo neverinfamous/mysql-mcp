@@ -5,7 +5,11 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListEventsSchemaBase = z.object({
@@ -29,6 +33,13 @@ const ListEventsSchema = z.object({
     .describe("Filter by status"),
 });
 
+const ListEventsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    events: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
 /**
  * List scheduled events
  */
@@ -40,6 +51,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
       "List all scheduled events with execution status and schedule info.",
     group: "schema",
     inputSchema: ListEventsSchemaBase,
+    outputSchema: ListEventsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -93,17 +105,13 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
         query += " ORDER BY EVENT_NAME";
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             events: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

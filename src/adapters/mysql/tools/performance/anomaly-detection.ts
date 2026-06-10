@@ -19,6 +19,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  DetectQueryAnomaliesOutputSchema,
+  DetectBloatRiskOutputSchema,
+} from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -112,6 +116,7 @@ export function createDetectQueryAnomaliesTool(
     description:
       "Detects queries deviating from their historical execution time norms using MAX/AVG variance analysis. Requires performance_schema.",
     inputSchema: DetectQueryAnomaliesSchemaBase,
+    outputSchema: DetectQueryAnomaliesOutputSchema,
     group: "performance",
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -246,6 +251,7 @@ export function createDetectBloatRiskTool(
     description:
       "Scores tables by bloat/fragmentation risk using information_schema DATA_FREE vs DATA_LENGTH metrics. Returns per-table risk scores (0-100) with recommendations.",
     inputSchema: DetectBloatRiskSchemaBase,
+    outputSchema: DetectBloatRiskOutputSchema,
     group: "performance",
     requiredScopes: ["read"],
     annotations: READ_ONLY,

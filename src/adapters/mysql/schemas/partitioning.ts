@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { preprocessTableParams } from "./preprocess-utils.js";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // Partitioning Schemas
@@ -199,3 +200,35 @@ export const ReorganizePartitionSchema = z
   .refine((data) => data.toPartitions.length > 0, {
     message: "toPartitions is required",
   });
+
+export const PartitionInfoOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    partitioned: z.boolean(),
+    method: z.unknown().optional(),
+    expression: z.unknown().optional(),
+    partitions: z.array(z.record(z.string(), z.unknown())).optional(),
+  }).loose().optional(),
+});
+
+export const AddPartitionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    partitionName: z.string(),
+  }).loose().optional(),
+});
+
+export const DropPartitionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    partitionName: z.string(),
+    warning: z.string().optional(),
+  }).loose().optional(),
+});
+
+export const ReorganizePartitionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    fromPartitions: z.array(z.string()),
+    toPartitions: z.array(z.string()),
+  }).loose().optional(),
+});

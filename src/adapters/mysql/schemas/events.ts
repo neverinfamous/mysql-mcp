@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 export const EventCreateSchema = z.object({
   name: z.string().describe("Event name"),
@@ -51,4 +52,47 @@ export const EventStatusSchema = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+});
+
+export const SchedulerStatusSchema = z.object({});
+
+export const EventCreateOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    eventName: z.string(),
+  }).optional()
+});
+
+export const EventAlterOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    eventName: z.string(),
+  }).optional()
+});
+
+export const EventDropOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    eventName: z.string(),
+  }).optional()
+});
+
+export const EventListOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    events: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
+export const EventStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    event: z.record(z.string(), z.unknown()),
+  }).optional()
+});
+
+export const SchedulerStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schedulerEnabled: z.boolean(),
+    schedulerStatus: z.string(),
+    status: z.string(),
+    eventCounts: z.array(z.record(z.string(), z.unknown())),
+    recentlyExecuted: z.array(z.record(z.string(), z.unknown())),
+  }).optional()
 });

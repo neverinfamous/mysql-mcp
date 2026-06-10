@@ -15,6 +15,9 @@ import {
   ForceIndexSchema,
   ForceIndexSchemaBase,
   preprocessQueryOnlyParams,
+  QueryRewriteOutputSchema,
+  ForceIndexOutputSchema,
+  OptimizerTraceOutputSchema,
 } from "../../schemas/index.js";
 import { z } from "zod";
 import {
@@ -211,6 +214,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Analyze a query and suggest optimizations.",
     group: "optimization",
     inputSchema: schemaBase,
+    outputSchema: QueryRewriteOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -315,6 +319,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Generate a query with FORCE INDEX hint.",
     group: "optimization",
     inputSchema: ForceIndexSchemaBase,
+    outputSchema: ForceIndexOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -404,6 +409,7 @@ export function createOptimizerTraceTool(
     description: "Get detailed optimizer trace for a query.",
     group: "optimization",
     inputSchema: schemaBase,
+    outputSchema: OptimizerTraceOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

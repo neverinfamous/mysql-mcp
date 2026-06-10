@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // ProxySQL Configuration
@@ -271,3 +272,90 @@ export const ProxySQLCommandInputSchema = z.object({
 export type ProxySQLCommand = z.infer<
   typeof ProxySQLCommandInputSchema
 >["command"];
+
+// =============================================================================
+// Tool Output Schemas
+// =============================================================================
+
+export const ProxySQLStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    summary: z.boolean(),
+    version: z.string(),
+    uptime: z.string(),
+    stats: z.array(z.record(z.string(), z.unknown())),
+    totalVarsAvailable: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLRuntimeStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    summary: z.boolean(),
+    version: z.string(),
+    adminVariables: z.array(z.record(z.string(), z.unknown())),
+    totalAdminVarsAvailable: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLServersOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    servers: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLQueryRulesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    queryRules: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLQueryDigestOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    queryDigests: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLConnectionPoolOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    connectionPools: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLUsersOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    users: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLGlobalVariablesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    variables: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+    totalVarsAvailable: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLMemoryStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    memoryStats: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const ProxySQLCommandsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    command: z.string(),
+    message: z.string(),
+  }).loose().optional(),
+});
+
+export const ProxySQLProcessListOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    processes: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});

@@ -12,7 +12,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import { ShellVersionInputSchema } from "../../schemas/shell.js";
+import { ShellVersionInputSchema, ShellVersionOutputSchema } from "../../schemas/shell.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
 /**
@@ -26,6 +26,7 @@ export function createShellVersionTool(): ToolDefinition {
       "Get MySQL Shell version and installation status. Useful for verifying MySQL Shell is available before running other shell tools.",
     group: "shell",
     inputSchema: ShellVersionInputSchema,
+    outputSchema: ShellVersionOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,

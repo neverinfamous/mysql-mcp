@@ -102,3 +102,33 @@ export const ImportDataSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   });
+
+// =============================================================================
+// Output Schemas
+// =============================================================================
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+export const ExportTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    csv: z.string().optional(),
+    json: z.string().optional(),
+    sql: z.string().optional(),
+    rowCount: z.number()
+  }).optional()
+});
+
+export const ImportDataOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    rowsInserted: z.number()
+  }).optional()
+});
+
+export const CreateDumpOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    command: z.string(),
+    note: z.string()
+  }).optional()
+});
+
+export const RestoreDumpOutputSchema = CreateDumpOutputSchema;

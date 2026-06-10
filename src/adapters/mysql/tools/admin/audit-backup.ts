@@ -17,6 +17,11 @@ import type {
 import type { BackupManager } from "../../../../audit/backup-manager.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
+import {
+  AuditListBackupsOutputSchema,
+  AuditRestoreBackupOutputSchema,
+  AuditDiffBackupOutputSchema,
+} from "../../schemas/index.js";
 
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
@@ -42,6 +47,7 @@ export function createAuditListBackupsTool(
       "List available pre-mutation snapshots captured before destructive operations.",
     group: "backup",
     inputSchema: schema,
+    outputSchema: AuditListBackupsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -69,8 +75,10 @@ export function createAuditListBackupsTool(
 
         return withTokenEstimate({
           success: true,
-          backups: filtered.slice(0, limit),
-          total: filtered.length,
+          data: {
+            backups: filtered.slice(0, limit),
+            total: filtered.length,
+          }
         });
       } catch (err) {
         return withTokenEstimate(
@@ -102,6 +110,7 @@ export function createAuditRestoreBackupTool(
     description: "Restore a specific pre-mutation snapshot to the database.",
     group: "backup",
     inputSchema: schema,
+    outputSchema: AuditRestoreBackupOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -136,9 +145,11 @@ export function createAuditRestoreBackupTool(
         if (dryRun) {
           return withTokenEstimate({
             success: true,
-            dryRun: true,
-            sql: combinedSql,
-            metadata: snapshot.metadata,
+            data: {
+              dryRun: true,
+              sql: combinedSql,
+              metadata: snapshot.metadata,
+            }
           });
         }
 
@@ -157,8 +168,10 @@ export function createAuditRestoreBackupTool(
 
         return withTokenEstimate({
           success: true,
-          restoredFilename: filename,
-          metadata: snapshot.metadata,
+          data: {
+            restoredFilename: filename,
+            metadata: snapshot.metadata,
+          }
         });
       } catch (err) {
         return withTokenEstimate(
@@ -185,6 +198,7 @@ export function createAuditDiffBackupTool(
       "Compare a snapshot's DDL against the current live schema of the object.",
     group: "backup",
     inputSchema: schema,
+    outputSchema: AuditDiffBackupOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -255,9 +269,11 @@ export function createAuditDiffBackupTool(
 
         return withTokenEstimate({
           success: true,
-          snapshotDdl: snapshot.ddl,
-          liveDdl: liveDdl,
-          metadata: snapshot.metadata,
+          data: {
+            snapshotDdl: snapshot.ddl,
+            liveDdl: liveDdl,
+            metadata: snapshot.metadata,
+          }
         });
       } catch (err) {
         return withTokenEstimate(

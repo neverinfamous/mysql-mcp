@@ -5,6 +5,7 @@
  * and adapter capabilities.
  */
 
+import type { z } from "zod";
 import type { OAuthScope } from "./oauth.js";
 import type { RequestContext } from "./oauth.js";
 
@@ -217,8 +218,8 @@ export interface ToolDefinition {
   /** Human-readable display title (defaults to name if not provided) */
   title?: string;
 
-  /** JSON Schema for structured tool output (enables schema validation) */
-  outputSchema?: unknown;
+  /** Zod schema for structured tool output (enables SDK structured output validation) */
+  outputSchema?: z.ZodType;
 
   /** Behavioral hints for AI clients */
   annotations?: ToolAnnotations;

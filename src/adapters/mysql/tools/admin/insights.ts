@@ -16,6 +16,7 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/index.js";
+import { AppendInsightOutputSchema } from "../../schemas/index.js";
 
 // =============================================================================
 // Schemas
@@ -41,6 +42,7 @@ export function createAppendInsightTool(): ToolDefinition {
       "Append a business insight to the in-memory insights memo. Insights are accessible via the mysql://insights resource. Use to record key findings during database analysis.",
     group: "admin",
     inputSchema: AppendInsightSchema,
+    outputSchema: AppendInsightOutputSchema,
     annotations: {
       readOnlyHint: false,
       destructiveHint: false,
@@ -75,8 +77,10 @@ export function createAppendInsightTool(): ToolDefinition {
         return Promise.resolve(
           withTokenEstimate({
             success: true,
-            insightCount: insightsManager.count(),
-            message: `Insight recorded (${String(insightsManager.count())} total)`,
+            data: {
+              insightCount: insightsManager.count(),
+              message: `Insight recorded (${String(insightsManager.count())} total)`,
+            }
           }),
         );
       } catch (err: unknown) {

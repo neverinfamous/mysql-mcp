@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // Replication Schemas
@@ -31,4 +32,39 @@ export const BinlogEventsSchema = z.object({
     .describe(
       "Maximum events to return (default: 5, max: 50). Set higher for more events.",
     ),
+});
+
+export const MasterStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    status: z.record(z.string(), z.unknown()).optional(),
+  }).loose().optional(),
+});
+
+export const SlaveStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    status: z.record(z.string(), z.unknown()).optional(),
+  }).loose().optional(),
+});
+
+export const BinlogEventsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    events: z.array(z.record(z.string(), z.unknown())),
+  }).loose().optional(),
+});
+
+export const GtidStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    gtidExecuted: z.unknown(),
+    gtidPurged: z.unknown(),
+    gtidMode: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ReplicationLagOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    lagSeconds: z.unknown(),
+    ioRunning: z.unknown(),
+    sqlRunning: z.unknown(),
+    lastError: z.unknown(),
+  }).loose().optional(),
 });

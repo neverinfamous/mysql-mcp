@@ -11,16 +11,25 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import {
+  MemberSchema,
+  GRStatusOutputSchema,
+  GRMembersOutputSchema,
+  GRPrimaryOutputSchema,
+  GRTransactionsOutputSchema,
+  GRFlowControlOutputSchema,
+} from "../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
 // Schemas
 // =============================================================================
 
-const MemberSchema = z.object({
-  memberId: z.string().optional().describe("Filter by specific member UUID"),
-});
+// Moved to schemas/cluster.ts
 
 // =============================================================================
 // Tool Creation Functions
@@ -37,6 +46,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
       "Get comprehensive Group Replication status including mode and member state.",
     group: "cluster",
     inputSchema: z.object({}),
+    outputSchema: GRStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -105,10 +115,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
             };
           }),
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -127,6 +134,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
       "List all Group Replication members with detailed state information.",
     group: "cluster",
     inputSchema: MemberSchema,
+    outputSchema: GRMembersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -172,10 +180,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -194,6 +199,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
       "Identify the current primary member in a single-primary GR cluster.",
     group: "cluster",
     inputSchema: z.object({}),
+    outputSchema: GRPrimaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -222,10 +228,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -246,6 +249,7 @@ export function createGRTransactionsTool(
       "Get Group Replication transaction statistics and pending transactions.",
     group: "cluster",
     inputSchema: z.object({}),
+    outputSchema: GRTransactionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -292,10 +296,7 @@ export function createGRTransactionsTool(
             purged: gtid?.["gtidPurged"] ?? "",
           },
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -314,6 +315,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
       "Get Group Replication flow control statistics and throttling info.",
     group: "cluster",
     inputSchema: z.object({}),
+    outputSchema: GRFlowControlOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -371,10 +373,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             ? "Flow control is active. Consider investigating slow members or adjusting thresholds."
             : "Flow control is not currently throttling.",
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

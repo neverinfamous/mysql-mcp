@@ -16,6 +16,11 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  CorrelationOutputSchema,
+  RegressionOutputSchema,
+  HistogramOutputSchema,
+} from "../../schemas/stats.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -89,6 +94,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
       "Calculate Pearson correlation coefficient between two numeric columns.",
     group: "stats",
     inputSchema: CorrelationSchemaBase,
+    outputSchema: CorrelationOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -239,6 +245,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
       "Perform simple linear regression analysis (y = mx + b) between two columns.",
     group: "stats",
     inputSchema: RegressionSchemaBase,
+    outputSchema: RegressionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -403,6 +410,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
     description: "View or update column histogram statistics (MySQL 8.0+).",
     group: "stats",
     inputSchema: HistogramSchemaBase,
+    outputSchema: HistogramOutputSchema,
     requiredScopes: ["read"], // read for view, admin for update
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {

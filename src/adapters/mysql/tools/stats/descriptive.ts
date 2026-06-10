@@ -17,6 +17,13 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  DescriptiveStatsOutputSchema,
+  PercentilesOutputSchema,
+  DistributionOutputSchema,
+  TimeSeriesOutputSchema,
+  SampleOutputSchema,
+} from "../../schemas/stats.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -125,6 +132,7 @@ export function createDescriptiveStatsTool(
       "Calculate descriptive statistics (mean, median, stddev, min, max, count) for a numeric column.",
     group: "stats",
     inputSchema: DescriptiveStatsSchemaBase,
+    outputSchema: DescriptiveStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -255,6 +263,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Calculate percentile values for a numeric column.",
     group: "stats",
     inputSchema: PercentilesSchemaBase,
+    outputSchema: PercentilesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -382,6 +391,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
       "Analyze the distribution of values in a column with histogram buckets.",
     group: "stats",
     inputSchema: DistributionSchemaBase,
+    outputSchema: DistributionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -507,6 +517,7 @@ export function createTimeSeriesToolStats(
       "Aggregate and analyze time series data with specified intervals.",
     group: "stats",
     inputSchema: TimeSeriesSchemaBase,
+    outputSchema: TimeSeriesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -630,6 +641,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get a random sample of rows from a table.",
     group: "stats",
     inputSchema: SamplingSchemaBase,
+    outputSchema: SampleOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

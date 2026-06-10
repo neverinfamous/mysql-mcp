@@ -10,7 +10,10 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   checkSchemaExists,
   checkTableExists,
@@ -23,6 +26,8 @@ import {
   ConstraintAnalysisSchema,
   MigrationRisksSchemaBase,
   MigrationRisksSchema,
+  ConstraintAnalysisOutputSchema,
+  MigrationRisksOutputSchema,
 } from "../../schemas/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -39,6 +44,7 @@ export function createConstraintAnalysisTool(
       "Analyze all constraints for issues: missing NOT NULL, missing primary keys.",
     group: "introspection",
     inputSchema: ConstraintAnalysisSchemaBase,
+    outputSchema: ConstraintAnalysisOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -209,7 +215,7 @@ export function createConstraintAnalysisTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -369,6 +375,7 @@ export function createMigrationRisksTool(
       "Analyze proposed DDL statements for risks: data loss, lock contention, constraint violations, and breaking changes. Pre-flight check before executing migrations.",
     group: "introspection",
     inputSchema: MigrationRisksSchemaBase,
+    outputSchema: MigrationRisksOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -434,7 +441,7 @@ export function createMigrationRisksTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

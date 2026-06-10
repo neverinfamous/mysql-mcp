@@ -5,6 +5,7 @@
  */
 
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // Router Status Types
@@ -172,3 +173,64 @@ export const ConnectionPoolNameInputSchema = z
   .refine((data) => data.poolName !== "", {
     message: "poolName must not be empty",
   });
+
+// =============================================================================
+// Tool Output Schemas
+// =============================================================================
+
+export const RouterStatusOutputSchema = BaseOutputSchema.extend({
+  data: RouterStatusResponseSchema.optional(),
+});
+
+export const RouterRoutesOutputSchema = BaseOutputSchema.extend({
+  data: RouteListSchema.optional(),
+});
+
+export const RouterRouteStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    status: RouteStatusSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteHealthOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    health: RouteHealthSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteConnectionsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    connections: RouteConnectionsListSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteDestinationsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    destinations: RouteDestinationsListSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteBlockedHostsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    blockedHosts: BlockedHostsListSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterMetadataStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    metadataName: z.string(),
+    status: MetadataStatusSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterPoolStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    poolName: z.string(),
+    status: ConnectionPoolStatusSchema.optional(),
+  }).loose().optional(),
+});

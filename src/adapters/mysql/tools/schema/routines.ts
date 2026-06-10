@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -16,6 +20,20 @@ const ListObjectsSchema = z.object({
   database: z.string().optional().describe("Alias for schema"),
 });
 
+const ListStoredProceduresOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    procedures: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
+const ListFunctionsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    functions: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
 /**
  * List stored procedures
  */
@@ -28,6 +46,7 @@ export function createListStoredProceduresTool(
     description: "List all stored procedures with parameters and metadata.",
     group: "schema",
     inputSchema: ListObjectsSchema,
+    outputSchema: ListStoredProceduresOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -78,17 +97,13 @@ export function createListStoredProceduresTool(
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
         ]);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             procedures: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -107,6 +122,7 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
       "List all user-defined functions with return types and metadata.",
     group: "schema",
     inputSchema: ListObjectsSchema,
+    outputSchema: ListFunctionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -147,17 +163,13 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
         ]);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             functions: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

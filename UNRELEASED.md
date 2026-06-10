@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Added
+- **Formal Output Schemas**: Added strongly-typed OutputSchemas for all tools across the `stats`, `spatial`, `roles`, `docstore`, `vector`, `codemode`, `cluster`, `sysschema`, and all other remaining tool groups to enforce strict API contracts, match handler returns precisely, and compute `tokenEstimate` metrics uniformly.
 - **Vector Group Support**: Added comprehensive support for MySQL 9.0+ vector operations via the `vector` tool group, matching parity with `db-mcp` and `postgres-mcp` (increasing total tools from 230 to 241). Includes:
   - Vector storage and retrieval (`mysql_vector_store`, `mysql_vector_get`, `mysql_vector_delete`).
   - Native similarity search (`mysql_vector_search`, `mysql_vector_range_search`) supporting COSINE, DOT, and EUCLIDEAN metrics.
@@ -63,3 +64,7 @@
 - Cleansed `SECURITY.md` of copy-paste legacy artifacts from `postgres-mcp`, accurately replacing them with MySQL-specific bounds (e.g., 64-character constraints, MySQL parameters, and `writenotenow/mysql-mcp` references).
 - Re-nested `constants.ts` and distinctly grouped `monitoring` and `backup` handler files within the agent-facing `test-server/code-map.md` architecture map.
 - Fixed an issue in `scripts/reboot-cluster.ps1` where standard warnings written to `STDERR` (e.g., `LC_ALL` locale warnings, insecure password warnings) were incorrectly caught as terminating errors by PowerShell due to strict `$ErrorActionPreference = "Stop"` settings.
+- Fixed an issue in the `audit-backup` E2E test suite where validation assertions failed because the test was not unwrapping the `.data` property from the tool responses.
+- Fixed strict `OutputSchema` validation failures across the JSON, Spatial, and Stats tools (e.g. `mysql_stats_histogram`, `mysql_stats_correlation`, `mysql_spatial_geojson`, and `mysql_json_*`) by updating field schemas to properly handle `nullish()` and `optional()` values matching runtime returns.
+- Fixed an issue in `mysql_write_query` where executing a `SELECT` query gracefully resulted in a Zod validation error because `WriteQueryOutputSchema` strictly required a `rowsAffected` integer, which is now optional.
+- Ported `test-zod-errors.mjs` from db-mcp and applied the `McpServer` monkey-patch to ensure SDK-level Zod validation exceptions are gracefully intercepted and formatted as standard `VALIDATION_ERROR` payloads, rather than leaking raw `-32602` SDK errors.

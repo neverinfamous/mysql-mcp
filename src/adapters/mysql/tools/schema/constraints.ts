@@ -5,7 +5,11 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListConstraintsSchemaBase = z.object({
@@ -21,6 +25,13 @@ const ListConstraintsSchema = z.object({
     .describe("Filter by constraint type"),
 });
 
+const ListConstraintsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    constraints: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
 /**
  * List constraints
  */
@@ -34,6 +45,7 @@ export function createListConstraintsTool(
       "List all constraints (primary key, foreign key, unique, check) for a table.",
     group: "schema",
     inputSchema: ListConstraintsSchemaBase,
+    outputSchema: ListConstraintsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -95,17 +107,13 @@ export function createListConstraintsTool(
         query += " ORDER BY tc.CONSTRAINT_TYPE, tc.CONSTRAINT_NAME";
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             constraints: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

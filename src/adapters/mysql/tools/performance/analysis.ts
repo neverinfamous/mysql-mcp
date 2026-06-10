@@ -23,6 +23,14 @@ import {
   IndexUsageSchemaBase,
   TableStatsSchema,
   TableStatsSchemaBase,
+  ExplainOutputSchema,
+  ExplainAnalyzeOutputSchema,
+  SlowQueryOutputSchema,
+  QueryStatsOutputSchema,
+  IndexUsageOutputSchema,
+  TableStatsOutputSchema,
+  BufferPoolStatsOutputSchema,
+  ThreadStatsOutputSchema,
 } from "../../schemas/index.js";
 import { z } from "zod";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
@@ -94,6 +102,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get query execution plan using EXPLAIN.",
     group: "performance",
     inputSchema: ExplainSchemaBase,
+    outputSchema: ExplainOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -138,6 +147,7 @@ export function createExplainAnalyzeTool(
       "Get query execution plan with actual timing using EXPLAIN ANALYZE (MySQL 8.0+). Only TREE format is supported.",
     group: "performance",
     inputSchema: ExplainAnalyzeSchemaBase,
+    outputSchema: ExplainAnalyzeOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -180,6 +190,7 @@ export function createSlowQueriesTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get slow queries from performance_schema (if available).",
     group: "performance",
     inputSchema: SlowQuerySchemaBase,
+    outputSchema: SlowQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -232,6 +243,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get query statistics from performance_schema.",
     group: "performance",
     inputSchema: QueryStatsSchemaBase,
+    outputSchema: QueryStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -290,6 +302,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get index usage statistics from performance_schema.",
     group: "performance",
     inputSchema: IndexUsageSchemaBase,
+    outputSchema: IndexUsageOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -367,6 +380,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
       "Get detailed table statistics including size, rows, and engine info.",
     group: "performance",
     inputSchema: TableStatsSchemaBase,
+    outputSchema: TableStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -432,6 +446,7 @@ export function createBufferPoolStatsTool(
     description: "Get InnoDB buffer pool statistics.",
     group: "performance",
     inputSchema: schema,
+    outputSchema: BufferPoolStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -484,6 +499,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get thread activity statistics.",
     group: "performance",
     inputSchema: schemaBase,
+    outputSchema: ThreadStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

@@ -634,3 +634,52 @@ export const FulltextExpandSchema = z
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
     { message: "Validation error: limit must be a positive number" },
   );
+
+// =============================================================================
+// Output Schemas
+// =============================================================================
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+/** Output schema for basic text processing tools (regexp, like, substring, etc.) */
+export const TextQueryOutputSchema = BaseOutputSchema.extend({
+  data: z
+    .object({
+      rows: z.array(z.record(z.string(), z.unknown())),
+      count: z.number(),
+    })
+    .optional(),
+});
+
+/** Output schema for Fulltext Create */
+export const FulltextCreateOutputSchema = BaseOutputSchema.extend({
+  data: z
+    .object({
+      indexName: z.string(),
+      columns: z.array(z.string()),
+    })
+    .optional(),
+});
+
+/** Output schema for Fulltext Drop */
+export const FulltextDropOutputSchema = BaseOutputSchema.extend({
+  data: z
+    .object({
+      indexName: z.string(),
+      table: z.string(),
+    })
+    .optional(),
+});
+
+/** Output schema for Fulltext Search operations */
+export const FulltextSearchOutputSchema = BaseOutputSchema.extend({
+  data: z
+    .object({
+      rows: z.array(z.record(z.string(), z.unknown())),
+      count: z.number(),
+      nextCursor: z.string().optional(),
+      facets: z.record(z.string(), z.number()).optional(),
+      warnings: z.array(z.string()).optional(),
+    })
+    .optional(),
+});

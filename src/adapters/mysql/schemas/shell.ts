@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // Helper for boolean coercion (handles string "true"/"false" from MCP clients)
@@ -489,3 +490,105 @@ export const ShellRunScriptInputSchema = z
   .refine((data) => data.script !== "", {
     message: "Script content cannot be empty",
   });
+
+// =============================================================================
+// Tool Output Schemas
+// =============================================================================
+
+export const ShellVersionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    version: z.string(),
+    binPath: z.string().optional(),
+    rawOutput: z.string(),
+  }).loose().optional(),
+});
+
+export const ShellCheckUpgradeOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    targetVersion: z.string(),
+    serverVersion: z.string().optional(),
+    errorCount: z.number(),
+    warningCount: z.number(),
+    noticeCount: z.number(),
+    checksPerformed: z.number().optional(),
+    upgradeCheck: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellExportTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schema: z.string(),
+    table: z.string(),
+    outputPath: z.string(),
+    format: z.string().optional(),
+    result: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellImportTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    inputPath: z.string(),
+    schema: z.string(),
+    table: z.string(),
+    localInfileEnabled: z.boolean().optional(),
+    result: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellImportJSONOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    inputPath: z.string(),
+    schema: z.string(),
+    collection: z.string(),
+    protocol: z.string(),
+    result: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellDumpInstanceOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    outputDir: z.string(),
+    dryRun: z.boolean(),
+    result: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellDumpSchemasOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemas: z.array(z.string()),
+    outputDir: z.string(),
+    dryRun: z.boolean(),
+    ddlOnly: z.boolean(),
+    result: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellDumpTablesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schema: z.string(),
+    tables: z.array(z.string()),
+    outputDir: z.string(),
+    dryRun: z.boolean(),
+    triggersExcluded: z.boolean().optional(),
+    result: z.unknown(),
+  }).loose().optional(),
+});
+
+export const ShellLoadDumpOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    inputDir: z.string(),
+    dryRun: z.boolean(),
+    localInfileEnabled: z.boolean().optional(),
+    result: z.unknown().optional(),
+    dryRunOutput: z.string().optional(),
+  }).loose().optional(),
+});
+
+export const ShellRunScriptOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    language: z.string(),
+    exitCode: z.number(),
+    stdout: z.string(),
+    stderr: z.string(),
+  }).loose().optional(),
+});

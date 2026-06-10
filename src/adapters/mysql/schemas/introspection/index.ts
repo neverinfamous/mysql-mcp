@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BaseOutputSchema } from "../output-schemas.js";
 
 // Introspection Schemas
 // =============================================================================
@@ -263,5 +264,76 @@ export const MigrationRisksSchema = z.preprocess(
   },
   MigrationRisksSchemaBase.required({ statements: true }),
 );
+
+// Output Schemas
+// =============================================================================
+
+export const DependencyGraphOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    nodes: z.array(z.record(z.string(), z.unknown())).optional(),
+    edges: z.array(z.record(z.string(), z.unknown())).optional(),
+    circularDependencies: z.array(z.array(z.string())).optional(),
+    stats: z.record(z.string(), z.unknown()),
+    hint: z.string().optional()
+  }).optional()
+});
+
+export const TopologicalSortOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    order: z.array(z.record(z.string(), z.unknown())).optional(),
+    direction: z.string(),
+    hasCycles: z.boolean(),
+  }).optional()
+});
+
+export const CascadeSimulatorOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    sourceTable: z.string(),
+    operation: z.string(),
+    affectedTables: z.array(z.record(z.string(), z.unknown())).optional(),
+    severity: z.string(),
+    stats: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+export const SchemaSnapshotOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    tables: z.array(z.record(z.string(), z.unknown())).optional(),
+    views: z.array(z.record(z.string(), z.unknown())).optional(),
+    indexes: z.array(z.record(z.string(), z.unknown())).optional(),
+    constraints: z.array(z.record(z.string(), z.unknown())).optional(),
+    functions: z.array(z.record(z.string(), z.unknown())).optional(),
+    triggers: z.array(z.record(z.string(), z.unknown())).optional(),
+    sequences: z.array(z.record(z.string(), z.unknown())).optional(),
+    types: z.array(z.record(z.string(), z.unknown())).optional(),
+    extensions: z.array(z.record(z.string(), z.unknown())).optional(),
+    stats: z.record(z.string(), z.unknown()).optional(),
+    hint: z.string().optional()
+  }).optional()
+});
+
+export const ConstraintAnalysisOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    findings: z.array(z.record(z.string(), z.unknown())).optional(),
+    summary: z.object({
+      totalFindings: z.number(),
+      byType: z.record(z.string(), z.number()).optional(),
+      bySeverity: z.record(z.string(), z.number()).optional(),
+    }).optional()
+  }).optional()
+});
+
+export const MigrationRisksOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    risks: z.array(z.record(z.string(), z.unknown())).optional(),
+    summary: z.object({
+      totalStatements: z.number(),
+      totalRisks: z.number(),
+      highestSeverity: z.string(),
+      requiresDowntime: z.boolean(),
+      estimatedLockImpact: z.string()
+    }).optional()
+  }).optional()
+});
 
 // =============================================================================

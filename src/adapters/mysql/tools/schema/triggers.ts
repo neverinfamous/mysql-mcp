@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -17,6 +21,13 @@ const ListTriggersSchema = z.object({
   database: z.string().optional().describe("Alias for schema"),
 });
 
+const ListTriggersOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    triggers: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
 /**
  * List triggers
  */
@@ -27,6 +38,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
     description: "List all triggers with event timing, action, and definition.",
     group: "schema",
     inputSchema: ListTriggersSchema,
+    outputSchema: ListTriggersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -85,17 +97,13 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION";
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             triggers: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

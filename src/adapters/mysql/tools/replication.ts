@@ -10,7 +10,12 @@ import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   BinlogEventsSchemaBase,
   BinlogEventsSchema,
-} from "../schemas/index.js";
+  MasterStatusOutputSchema,
+  SlaveStatusOutputSchema,
+  BinlogEventsOutputSchema,
+  GtidStatusOutputSchema,
+  ReplicationLagOutputSchema,
+} from "../schemas/replication.js";
 import { z } from "zod";
 import {
   formatHandlerErrorResponse,
@@ -40,6 +45,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get binary log position from master/source server.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: MasterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -78,6 +84,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get detailed replication slave/replica status.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: SlaveStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -116,6 +123,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
       "View binary log events for point-in-time recovery or replication debugging.",
     group: "replication",
     inputSchema: BinlogEventsSchemaBase,
+    outputSchema: BinlogEventsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -206,6 +214,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get Global Transaction ID (GTID) status for replication.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: GtidStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -252,6 +261,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Calculate replication lag in seconds.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: ReplicationLagOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {

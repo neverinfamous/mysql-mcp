@@ -293,6 +293,7 @@ export abstract class DatabaseAdapter extends EventEmitter {
       {
         ...toolOptions,
         inputSchema: tool.inputSchema as z.ZodType,
+        ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}),
       },
       async (params: unknown, extra?: unknown) => {
         const extraMeta = extra as
@@ -304,7 +305,7 @@ export abstract class DatabaseAdapter extends EventEmitter {
         const execFn = async (): Promise<CallToolResult> => {
           const result = await tool.handler(params, context);
 
-          // Inject _meta.tokenEstimate into object responses (content[].text only)
+          // Inject _meta.tokenEstimate into object responses
           if (typeof result === "object" && result !== null) {
             const withMeta = JSON.stringify(
               { ...result, _meta: { tokenEstimate: 0 } },
@@ -318,6 +319,15 @@ export abstract class DatabaseAdapter extends EventEmitter {
               '"tokenEstimate": 0',
               `"tokenEstimate": ${String(tokenEstimate)}`,
             );
+            
+            // If tool declares an outputSchema, return structuredContent
+            if (tool.outputSchema) {
+              return {
+                content: [{ type: "text" as const, text: finalText }],
+                structuredContent: result as Record<string, unknown>,
+              };
+            }
+            
             return {
               content: [{ type: "text" as const, text: finalText }],
             };

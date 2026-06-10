@@ -20,6 +20,10 @@ import {
   ExportTableSchemaBase,
   ImportDataSchema,
   ImportDataSchemaBase,
+  ExportTableOutputSchema,
+  ImportDataOutputSchema,
+  CreateDumpOutputSchema,
+  RestoreDumpOutputSchema,
 } from "../../schemas/index.js";
 import {
   validateIdentifier,
@@ -106,6 +110,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Export table data as SQL INSERT statements or CSV format.",
     group: "backup",
     inputSchema: ExportTableSchemaBase,
+    outputSchema: ExportTableOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -264,6 +269,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Import data into a table from an array of row objects.",
     group: "backup",
     inputSchema: ImportDataSchemaBase,
+    outputSchema: ImportDataOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -393,6 +399,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     description: "Generate mysqldump command for backing up database.",
     group: "backup",
     inputSchema: schemaBase,
+    outputSchema: CreateDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -503,6 +510,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     description: "Generate command for restoring from mysqldump backup.",
     group: "backup",
     inputSchema: schemaBase,
+    outputSchema: RestoreDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {

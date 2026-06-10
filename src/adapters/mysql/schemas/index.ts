@@ -18,5 +18,7 @@ export * from "./text.js";
 export * from "./transactions.js";
 export * from "./introspection/index.js";
 export * from "./migration/index.js";
+export * from "./roles.js";
 export * from "./spatial.js";
+export * from "./stats.js";
 export * from "./vector.js";

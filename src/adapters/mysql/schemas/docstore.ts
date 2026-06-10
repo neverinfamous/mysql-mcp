@@ -205,3 +205,67 @@ export const CollectionInfoSchema = z.object({
   collection: z.string(),
   schema: z.string().optional(),
 });
+
+// Output Schemas
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+export const ListCollectionsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    collections: z.array(z.record(z.string(), z.unknown())),
+  }).loose().optional(),
+});
+
+export const CreateCollectionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    collection: z.string(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).loose().optional(),
+});
+
+export const DropCollectionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    collection: z.string(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).loose().optional(),
+});
+
+export const FindDocOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    documents: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).loose().optional(),
+});
+
+export const AddDocOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    inserted: z.number(),
+  }).loose().optional(),
+});
+
+export const ModifyDocOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    modified: z.number(),
+  }).loose().optional(),
+});
+
+export const RemoveDocOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    removed: z.number(),
+  }).loose().optional(),
+});
+
+export const CreateDocIndexOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    index: z.string(),
+  }).loose().optional(),
+});
+
+export const CollectionInfoOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    collection: z.string(),
+    info: z.record(z.string(), z.unknown()),
+  }).loose().optional(),
+});

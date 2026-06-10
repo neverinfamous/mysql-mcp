@@ -12,6 +12,7 @@ import type {
 import {
   IndexRecommendationSchema,
   IndexRecommendationSchemaBase,
+  IndexRecommendationOutputSchema,
 } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
@@ -476,6 +477,7 @@ export function createIndexRecommendationTool(
       "Analyze table and suggest potentially missing indexes based on query patterns. Run an index audit for redundant/duplicate indexes, missing foreign key indexes, and unindexed large tables.",
     group: "optimization",
     inputSchema: IndexRecommendationSchemaBase,
+    outputSchema: IndexRecommendationOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

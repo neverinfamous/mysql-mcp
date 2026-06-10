@@ -33,8 +33,8 @@ describe("Audit Backup Tools", () => {
       const tool = createAuditListBackupsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as any;
       expect(result.success).toBe(true);
-      expect(result.backups.length).toBe(2);
-      expect(result.total).toBe(2);
+      expect(result.data.backups.length).toBe(2);
+      expect(result.data.total).toBe(2);
     });
 
     it("should filter backups by target", async () => {
@@ -48,8 +48,8 @@ describe("Audit Backup Tools", () => {
         mockContext,
       )) as any;
       expect(result.success).toBe(true);
-      expect(result.backups.length).toBe(1);
-      expect(result.backups[0].target).toBe("users");
+      expect(result.data.backups.length).toBe(1);
+      expect(result.data.backups[0].target).toBe("users");
     });
 
     it("should handle no backupManager", async () => {
@@ -84,7 +84,7 @@ describe("Audit Backup Tools", () => {
         mockContext,
       )) as any;
       expect(result.success).toBe(true);
-      expect(result.restoredFilename).toBe("backup.sql");
+      expect(result.data.restoredFilename).toBe("backup.sql");
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalledWith(
         "CREATE TABLE users (id INT);\n\nINSERT INTO users VALUES (1);",
       );
@@ -101,8 +101,8 @@ describe("Audit Backup Tools", () => {
         mockContext,
       )) as any;
       expect(result.success).toBe(true);
-      expect(result.dryRun).toBe(true);
-      expect(result.sql).toBe("CREATE TABLE users (id INT);");
+      expect(result.data.dryRun).toBe(true);
+      expect(result.data.sql).toBe("CREATE TABLE users (id INT);");
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
 
@@ -149,8 +149,8 @@ describe("Audit Backup Tools", () => {
         mockContext,
       )) as any;
       expect(result.success).toBe(true);
-      expect(result.snapshotDdl).toBe("CREATE TABLE users (id INT);");
-      expect(result.liveDdl).toBe("CREATE TABLE users (id INT, new_col INT);");
+      expect(result.data.snapshotDdl).toBe("CREATE TABLE users (id INT);");
+      expect(result.data.liveDdl).toBe("CREATE TABLE users (id INT, new_col INT);");
     });
 
     it("should parse schema.table target format", async () => {
@@ -171,7 +171,7 @@ describe("Audit Backup Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
         expect.stringContaining("`db1`.`users`"),
       );
-      expect(result.liveDdl).toBe("LIVE DDL");
+      expect(result.data.liveDdl).toBe("LIVE DDL");
     });
 
     it("should return missing message if table not found", async () => {
@@ -189,7 +189,7 @@ describe("Audit Backup Tools", () => {
         mockContext,
       )) as any;
       expect(result.success).toBe(true);
-      expect(result.liveDdl).toContain("does not exist in current schema");
+      expect(result.data.liveDdl).toContain("does not exist in current schema");
     });
 
     it("should handle missing snapshot", async () => {

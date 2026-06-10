@@ -9,6 +9,11 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  SecuritySslStatusOutputSchema,
+  SecurityEncryptionStatusOutputSchema,
+  SecurityPasswordValidateOutputSchema,
+} from "../../schemas/security.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -48,6 +53,7 @@ export function createSecuritySSLStatusTool(
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
     inputSchema: z.object({}),
+    outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -129,6 +135,7 @@ export function createSecurityEncryptionStatusTool(
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
     inputSchema: z.object({}),
+    outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -215,6 +222,7 @@ export function createSecurityPasswordValidateTool(
       "Validate password strength using MySQL validate_password component.",
     group: "security",
     inputSchema: PasswordValidateSchemaBase,
+    outputSchema: SecurityPasswordValidateOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

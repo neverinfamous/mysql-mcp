@@ -23,6 +23,9 @@ import {
   FulltextBooleanSchemaBase,
   FulltextExpandSchema,
   FulltextExpandSchemaBase,
+  FulltextCreateOutputSchema,
+  FulltextDropOutputSchema,
+  FulltextSearchOutputSchema,
 } from "../../schemas/index.js";
 import { ZodError } from "zod";
 import {
@@ -98,6 +101,7 @@ export function createFulltextCreateTool(
       "Create a FULLTEXT index on specified columns for fast text search.",
     group: "fulltext",
     inputSchema: FulltextCreateSchemaBase,
+    outputSchema: FulltextCreateOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -157,6 +161,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Drop a FULLTEXT index from a table.",
     group: "fulltext",
     inputSchema: FulltextDropSchemaBase,
+    outputSchema: FulltextDropOutputSchema,
     requiredScopes: ["write"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -212,6 +217,7 @@ export function createFulltextSearchTool(
     description: "Perform FULLTEXT search with relevance ranking.",
     group: "fulltext",
     inputSchema: FulltextSearchSchemaBase,
+    outputSchema: FulltextSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -367,6 +373,7 @@ export function createFulltextBooleanTool(
       "Perform FULLTEXT search in BOOLEAN MODE with operators (+, -, *, etc.).",
     group: "fulltext",
     inputSchema: FulltextBooleanSchemaBase,
+    outputSchema: FulltextSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -508,6 +515,7 @@ export function createFulltextExpandTool(
       "Perform FULLTEXT search WITH QUERY EXPANSION for finding related terms.",
     group: "fulltext",
     inputSchema: FulltextExpandSchemaBase,
+    outputSchema: FulltextSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

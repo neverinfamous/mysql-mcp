@@ -14,14 +14,19 @@ import { z, ZodError } from "zod";
 import {
   JsonNormalizeSchema,
   JsonNormalizeSchemaBase,
+  JsonNormalizeOutputSchema,
   JsonStatsSchema,
   JsonStatsSchemaBase,
+  JsonStatsOutputSchema,
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
+  JsonIndexSuggestOutputSchema,
   JsonMergeSchemaBase,
+  JsonMergeOutputSchema,
   JsonDiffSchemaBase,
+  JsonDiffOutputSchema,
 } from "../../schemas/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
@@ -95,6 +100,7 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
       "Merge two JSON documents using JSON_MERGE_PATCH or JSON_MERGE_PRESERVE.",
     group: "json",
     inputSchema: JsonMergeSchemaBase,
+    outputSchema: JsonMergeOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -107,8 +113,8 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [json1, json2]);
 
         const merged = result.rows?.[0]?.["merged"];
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             merged:
               typeof merged === "string"
@@ -116,11 +122,7 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
                 : merged,
             mode,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err: unknown) {
         if (err instanceof ZodError) {
           return formatHandlerErrorResponse(err);
@@ -138,6 +140,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Compare two JSON documents and identify differences.",
     group: "json",
     inputSchema: JsonDiffSchemaBase,
+    outputSchema: JsonDiffOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -236,8 +239,8 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             identical,
             json1ContainsJson2: row?.["json1_contains_json2"] === 1,
@@ -250,11 +253,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
             removedKeys,
             differences,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err: unknown) {
         if (err instanceof ZodError) {
           return formatHandlerErrorResponse(err);
@@ -273,6 +272,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
       "Normalize JSON column structure by extracting all unique keys across documents.",
     group: "json",
     inputSchema: JsonNormalizeSchemaBase,
+    outputSchema: JsonNormalizeOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -320,19 +320,15 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             uniqueKeys,
             keyCount: uniqueKeys.length,
             keyStats,
             truncated: uniqueKeys.length > 20,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -357,6 +353,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
       "Analyze statistics for a JSON column including depth, size, and key frequency.",
     group: "json",
     inputSchema: JsonStatsSchemaBase,
+    outputSchema: JsonStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -406,8 +403,8 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
           // Ignore if JSON_TABLE is not supported or errors out
         }
 
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             totalSampled: Number(row?.["total_rows"] ?? 0),
             nullCount: Number(row?.["null_count"] ?? 0),
@@ -427,11 +424,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
             sampleSize,
             topKeys,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
@@ -458,6 +451,7 @@ export function createJsonIndexSuggestTool(
       "Suggest functional indexes for frequently accessed JSON paths.",
     group: "json",
     inputSchema: JsonIndexSuggestSchemaBase,
+    outputSchema: JsonIndexSuggestOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -543,8 +537,8 @@ export function createJsonIndexSuggestTool(
         // Sort by cardinality (higher is better for indexing)
         suggestions.sort((a, b) => b.cardinality - a.cardinality);
 
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             table,
             column,
@@ -552,11 +546,7 @@ export function createJsonIndexSuggestTool(
             suggestion:
               "Indexes on high-cardinality paths provide the most benefit. Consider query patterns when creating indexes.",
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);

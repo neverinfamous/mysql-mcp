@@ -11,57 +11,35 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import {
+  LimitSchemaBase,
+  SummarySchemaBase,
+  ClusterStatusOutputSchema,
+  ClusterInstancesOutputSchema,
+  ClusterTopologyOutputSchema,
+  ClusterRouterStatusOutputSchema,
+  ClusterSwitchoverOutputSchema,
+} from "../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
 // Schemas
 // =============================================================================
 
-const LimitSchemaBase = z.object({
-  limit: z.unknown().optional().describe("Maximum number of results"),
+const SummarySchema = z.object({
+  summary: z.boolean().optional(),
 });
 
-const LimitSchema = z
-  .object({
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    limit: data.limit !== undefined ? Number(data.limit) : 100,
-  }))
-  .refine(
-    (data) =>
-      !Number.isNaN(data.limit) &&
-      Number.isInteger(data.limit) &&
-      data.limit > 0,
-    { message: "Expected positive integer number" },
-  );
-
-const SummarySchemaBase = z.object({
-  summary: z
-    .unknown()
-    .optional()
-    .describe("If true, return condensed output without configuration blobs"),
+const LimitSchema = z.object({
+  limit: z.number().int("Expected positive integer").positive("Expected positive integer").optional().default(10),
 });
+// =============================================================================
 
-const SummarySchema = z
-  .object({
-    summary: z.unknown().optional(),
-  })
-  .transform((data, ctx) => {
-    if (data.summary === undefined) return { summary: false };
-    if (typeof data.summary === "boolean") return { summary: data.summary };
-    if (typeof data.summary === "string") {
-      const lower = data.summary.toLowerCase();
-      if (lower === "true") return { summary: true };
-      if (lower === "false") return { summary: false };
-    }
-    ctx.addIssue({
-      code: "custom",
-      message: "Expected boolean or 'true'/'false' string",
-    });
-    return z.NEVER;
-  });
+// Input schemas moved to schemas/cluster.ts
 
 // =============================================================================
 // Tool Creation Functions
@@ -78,6 +56,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       "Get overall InnoDB Cluster status (requires mysql_innodb_cluster_metadata schema).",
     group: "cluster",
     inputSchema: SummarySchemaBase,
+    outputSchema: ClusterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -104,10 +83,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
               "InnoDB Cluster metadata not found. Using Group Replication status.",
             onlineMembers: grResult.rows?.[0]?.["memberCount"] ?? 0,
           };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-          );
-          return { success: true, data, metrics: { tokenEstimate } };
+          return withTokenEstimate({ success: true, data });
         }
 
         // Get cluster info
@@ -162,10 +138,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
             status,
             topology,
           };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-          );
-          return { success: true, data, metrics: { tokenEstimate } };
+          return withTokenEstimate({ success: true, data });
         }
 
         // Full mode: include all cluster metadata including options/attributes
@@ -201,10 +174,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           status,
           topology,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -224,6 +194,7 @@ export function createClusterInstancesTool(
     description: "List all instances in the InnoDB Cluster.",
     group: "cluster",
     inputSchema: LimitSchemaBase,
+    outputSchema: ClusterInstancesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -256,10 +227,7 @@ export function createClusterInstancesTool(
           instances: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (primaryError) {
         // Fallback to GR members
         try {
@@ -280,10 +248,7 @@ export function createClusterInstancesTool(
             instances: grResult.rows ?? [],
             count: grResult.rows?.length ?? 0,
           };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-          );
-          return { success: true, data, metrics: { tokenEstimate } };
+          return withTokenEstimate({ success: true, data });
         } catch (fallbackError) {
           const fallbackMsg =
             fallbackError instanceof Error
@@ -316,6 +281,7 @@ export function createClusterTopologyTool(
     description: "Get a visual representation of the cluster topology.",
     group: "cluster",
     inputSchema: z.object({}),
+    outputSchema: ClusterTopologyOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -420,10 +386,7 @@ export function createClusterTopologyTool(
           totalMembers: allMembers,
           onlineMembers: members.filter((m) => m["state"] === "ONLINE").length,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -443,6 +406,7 @@ export function createClusterRouterStatusTool(
     description: "Get status of MySQL Routers connected to the cluster.",
     group: "cluster",
     inputSchema: SummarySchemaBase,
+    outputSchema: ClusterRouterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -482,10 +446,7 @@ export function createClusterRouterStatusTool(
             count: routers.length,
             staleCount,
           };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-          );
-          return { success: true, data, metrics: { tokenEstimate } };
+          return withTokenEstimate({ success: true, data });
         }
 
         // Full mode: include attributes but strip bulky Configuration blob
@@ -526,10 +487,7 @@ export function createClusterRouterStatusTool(
           count: routers.length,
           staleCount,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         const baseError =
           error instanceof ZodError
@@ -560,6 +518,7 @@ export function createClusterSwitchoverTool(
       "Analyze cluster state and provide switchover recommendations.",
     group: "cluster",
     inputSchema: z.object({}),
+    outputSchema: ClusterSwitchoverOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -645,10 +604,7 @@ export function createClusterSwitchoverTool(
                 ? "All secondaries have significant replication lag. Switchover not recommended."
                 : undefined,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

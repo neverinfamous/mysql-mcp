@@ -10,11 +10,15 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import { checkSchemaExists } from "./helpers.js";
 import {
   SchemaSnapshotSchemaBase,
   SchemaSnapshotSchema,
+  SchemaSnapshotOutputSchema,
 } from "../../schemas/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -31,6 +35,7 @@ export function createSchemaSnapshotTool(
       "Get a complete schema snapshot in a single agent-optimized JSON structure. Includes tables, columns, constraints, indexes, views, routines, and triggers.",
     group: "introspection",
     inputSchema: SchemaSnapshotSchemaBase,
+    outputSchema: SchemaSnapshotOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -298,7 +303,7 @@ export function createSchemaSnapshotTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

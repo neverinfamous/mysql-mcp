@@ -10,6 +10,11 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  SysSchemaStatsOutputSchema,
+  SysInnoDBLockWaitsOutputSchema,
+  SysMemorySummaryOutputSchema,
+} from "../../schemas/sysschema.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -74,6 +79,7 @@ export function createSysSchemaStatsTool(
       "Get aggregated statistics for a schema including tables, indexes, and auto-increment status.",
     group: "sysschema",
     inputSchema: SchemaStatsSchemaBase,
+    outputSchema: SysSchemaStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -206,6 +212,7 @@ export function createSysInnoDBLockWaitsTool(
       "Get current InnoDB lock contention information from sys schema.",
     group: "sysschema",
     inputSchema: LimitSchemaBase,
+    outputSchema: SysInnoDBLockWaitsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -269,6 +276,7 @@ export function createSysMemorySummaryTool(
     description: "Get memory usage summary by allocation type from sys schema.",
     group: "sysschema",
     inputSchema: LimitSchemaBase,
+    outputSchema: SysMemorySummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

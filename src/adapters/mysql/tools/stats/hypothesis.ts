@@ -16,6 +16,7 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
+import { TTestOutputSchema } from "../../schemas/stats.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -64,6 +65,7 @@ export function createStatsHypothesisTool(
       "Perform one-sample t-test or z-test against a hypothesized mean. For z-test, provide populationStdDev (sigma) for accurate results. Use groupBy to test each group separately.",
     group: "stats",
     inputSchema: StatsHypothesisSchemaBase,
+    outputSchema: TTestOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

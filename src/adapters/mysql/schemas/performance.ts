@@ -247,3 +247,130 @@ export const ForceIndexSchema = z
   .refine((data) => data.indexName !== "", {
     message: "indexName (or index alias) is required",
   });
+
+// =============================================================================
+// Output Schemas
+// =============================================================================
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+// --- analysis.ts ---
+export const ExplainOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    plan: z.unknown()
+  }).optional()
+});
+
+export const ExplainAnalyzeOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    analysis: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+export const SlowQueryOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    slowQueries: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+export const QueryStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    queries: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+export const IndexUsageOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    indexUsage: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+export const TableStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    stats: z.record(z.string(), z.unknown())
+  }).optional()
+});
+
+export const BufferPoolStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    bufferPoolStats: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+export const ThreadStatsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    threads: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+// --- anomaly-detection.ts ---
+export const DetectQueryAnomaliesOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    anomalies: z.array(z.record(z.string(), z.unknown())),
+    riskLevel: z.string(),
+    totalAnalyzed: z.number(),
+    anomalyCount: z.number(),
+    summary: z.string()
+  }).optional()
+});
+
+export const DetectBloatRiskOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    tables: z.array(z.record(z.string(), z.unknown())),
+    highRiskCount: z.number(),
+    totalAnalyzed: z.number(),
+    summary: z.string()
+  }).optional()
+});
+
+// --- connection-analysis.ts ---
+export const DetectConnectionSpikeOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    totalConnections: z.number(),
+    maxConnections: z.number(),
+    usagePercent: z.number(),
+    byState: z.array(z.record(z.string(), z.unknown())),
+    concentrations: z.array(z.record(z.string(), z.unknown())),
+    warnings: z.array(z.string()),
+    riskLevel: z.string(),
+    summary: z.string()
+  }).optional()
+});
+
+// --- index-audit.ts ---
+export const IndexRecommendationOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string().optional(),
+    existingIndexes: z.array(z.record(z.string(), z.unknown())),
+    findings: z.array(z.record(z.string(), z.unknown())),
+    summary: z.record(z.string(), z.number()),
+    recommendations: z.array(z.record(z.string(), z.unknown()))
+  }).optional()
+});
+
+// --- optimization.ts ---
+export const QueryRewriteOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    originalQuery: z.string(),
+    rewrittenQuery: z.string(),
+    suggestions: z.array(z.string()),
+    explainPlan: z.unknown(),
+    explainError: z.string().optional()
+  }).optional()
+});
+
+export const ForceIndexOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    originalQuery: z.string(),
+    rewrittenQuery: z.string(),
+    hint: z.string()
+  }).optional()
+});
+
+export const OptimizerTraceOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    query: z.string(),
+    decisions: z.array(z.record(z.string(), z.unknown())).optional(),
+    trace: z.array(z.record(z.string(), z.unknown())).optional()
+  }).optional()
+});

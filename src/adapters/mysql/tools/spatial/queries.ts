@@ -27,6 +27,7 @@ import {
   ContainsSchema,
   WithinSchemaBase,
   WithinSchema,
+  SpatialQueryResultOutputSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -63,6 +64,7 @@ export function createSpatialDistanceTool(
       "Find rows within a certain distance from a point (Cartesian distance).",
     group: "spatial",
     inputSchema: DistanceSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -151,6 +153,7 @@ export function createSpatialDistanceSphereTool(
       "Calculate distance on a sphere (for geographic coordinates). Returns distance in meters.",
     group: "spatial",
     inputSchema: DistanceSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -240,6 +243,7 @@ export function createSpatialContainsTool(
       "Find rows where the geometry is contained within a specified polygon.",
     group: "spatial",
     inputSchema: ContainsSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -313,6 +317,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Find rows where the geometry is within a specified geometry.",
     group: "spatial",
     inputSchema: WithinSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

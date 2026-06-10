@@ -9,6 +9,11 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  SecurityMaskDataOutputSchema,
+  SecurityUserPrivilegesOutputSchema,
+  SecuritySensitiveTablesOutputSchema,
+} from "../../schemas/security.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -118,6 +123,7 @@ export function createSecurityMaskDataTool(
       "Apply data masking to sensitive values (implementation for Community Edition).",
     group: "security",
     inputSchema: MaskDataSchema,
+    outputSchema: SecurityMaskDataOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: (params: unknown, _context: RequestContext): Promise<unknown> => {
@@ -259,6 +265,7 @@ export function createSecurityUserPrivilegesTool(
     description: "Get comprehensive privilege report for users.",
     group: "security",
     inputSchema: UserPrivilegesSchema,
+    outputSchema: SecurityUserPrivilegesOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -424,6 +431,7 @@ export function createSecuritySensitiveTablesTool(
     description: "Identify tables and columns that may contain sensitive data.",
     group: "security",
     inputSchema: SensitiveTablesSchemaBase,
+    outputSchema: SecuritySensitiveTablesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

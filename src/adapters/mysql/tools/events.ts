@@ -5,7 +5,7 @@
  * 6 tools total.
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -16,6 +16,13 @@ import {
   EventDropSchema,
   EventListSchema,
   EventStatusSchema,
+  SchedulerStatusSchema,
+  EventCreateOutputSchema,
+  EventAlterOutputSchema,
+  EventDropOutputSchema,
+  EventListOutputSchema,
+  EventStatusOutputSchema,
+  SchedulerStatusOutputSchema,
 } from "../schemas/events.js";
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
@@ -46,6 +53,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
       "Create a scheduled event (one-time or recurring) to execute SQL at specified times.",
     group: "events",
     inputSchema: EventCreateSchema,
+    outputSchema: EventCreateOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -130,6 +138,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
       "Modify an existing scheduled event schedule, body, or status.",
     group: "events",
     inputSchema: EventAlterSchema,
+    outputSchema: EventAlterOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -229,6 +238,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Remove a scheduled event.",
     group: "events",
     inputSchema: EventDropSchema,
+    outputSchema: EventDropOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -287,6 +297,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
       "List all scheduled events with status, schedule, and execution info.",
     group: "events",
     inputSchema: EventListSchema,
+    outputSchema: EventListOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -363,6 +374,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
       "Get detailed status and execution history for a specific event.",
     group: "events",
     inputSchema: EventStatusSchema,
+    outputSchema: EventStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -442,7 +454,8 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Scheduler Status",
     description: "Get the global Event Scheduler status and event statistics.",
     group: "events",
-    inputSchema: z.object({}),
+    inputSchema: SchedulerStatusSchema,
+    outputSchema: SchedulerStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {

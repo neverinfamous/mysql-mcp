@@ -20,6 +20,8 @@ import {
   PointSchema,
   PolygonSchemaBase,
   PolygonSchema,
+  SpatialPointOutputSchema,
+  SpatialPolygonOutputSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -61,6 +63,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Create a POINT geometry from longitude/latitude coordinates.",
     group: "spatial",
     inputSchema: PointSchemaBase,
+    outputSchema: SpatialPointOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -106,6 +109,7 @@ export function createSpatialPolygonTool(
     description: "Create a POLYGON geometry from coordinates.",
     group: "spatial",
     inputSchema: PolygonSchemaBase,
+    outputSchema: SpatialPolygonOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

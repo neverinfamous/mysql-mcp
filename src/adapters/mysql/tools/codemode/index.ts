@@ -143,6 +143,7 @@ return results;
 \`\`\``,
     group: "codemode",
     inputSchema: ExecuteCodeSchema,
+    outputSchema: ExecuteCodeOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,

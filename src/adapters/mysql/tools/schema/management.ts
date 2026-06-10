@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -17,6 +21,13 @@ const ListSchemasSchema = z.object({
     .string()
     .optional()
     .describe('Filter pattern (LIKE syntax, e.g. "app_%")'),
+});
+
+const ListSchemasOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemas: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
 });
 
 const CreateSchemaSchemaBase = z.object({
@@ -41,6 +52,14 @@ const CreateSchemaSchema = z.object({
     .describe("Add IF NOT EXISTS clause"),
 });
 
+const CreateSchemaOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemaName: z.string().optional(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).optional()
+});
+
 const DropSchemaSchemaBase = z.object({
   name: z.string().optional().describe("Schema/database name to drop"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
@@ -55,6 +74,14 @@ const DropSchemaSchema = z.object({
     .describe("Add IF EXISTS clause"),
 });
 
+const DropSchemaOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemaName: z.string().optional(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).optional()
+});
+
 /**
  * List all schemas/databases
  */
@@ -66,6 +93,7 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
       "List all databases/schemas with metadata including charset and collation.",
     group: "schema",
     inputSchema: ListSchemasSchema,
+    outputSchema: ListSchemasOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -89,17 +117,13 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
         query += " ORDER BY SCHEMA_NAME";
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             schemas: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -118,6 +142,7 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       "Create a new database/schema with specified charset and collation.",
     group: "schema",
     inputSchema: CreateSchemaSchemaBase,
+    outputSchema: CreateSchemaOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -149,17 +174,13 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (schemaExists) {
           if (ifNotExists) {
-            const response = {
-              success: true as const,
+            return withTokenEstimate({
+              success: true,
               data: {
                 skipped: true,
                 reason: `Schema already exists`,
               },
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
+            });
           } else {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' already exists`),
@@ -172,14 +193,10 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           await adapter.executeQuery(sql);
-          const response = {
-            success: true as const,
+          return withTokenEstimate({
+            success: true,
             data: { schemaName: name },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("database exists")) {
@@ -207,6 +224,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       "Drop a database/schema. WARNING: This permanently deletes all data.",
     group: "schema",
     inputSchema: DropSchemaSchemaBase,
+    outputSchema: DropSchemaOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -239,17 +257,13 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (schemaAbsent) {
           if (ifExists) {
-            const response = {
-              success: true as const,
+            return withTokenEstimate({
+              success: true,
               data: {
                 skipped: true,
                 reason: `Schema did not exist`,
               },
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
+            });
           } else {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' does not exist`),
@@ -263,14 +277,10 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             `DROP DATABASE ${ifExistsClause}\`${name}\``,
           );
 
-          const response = {
-            success: true as const,
+          return withTokenEstimate({
+            success: true,
             data: { schemaName: name },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (

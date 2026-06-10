@@ -26,6 +26,8 @@ import {
   SpatialColumnSchema,
   SpatialIndexSchemaBase,
   SpatialIndexSchema,
+  SpatialCreateColumnOutputSchema,
+  SpatialCreateIndexOutputSchema,
 } from "../../schemas/spatial.js";
 import { WRITE } from "../../../../utils/annotations.js";
 
@@ -61,6 +63,7 @@ export function createSpatialCreateColumnTool(
     description: "Add a geometry/spatial column to an existing table.",
     group: "spatial",
     inputSchema: SpatialColumnSchemaBase,
+    outputSchema: SpatialCreateColumnOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -150,6 +153,7 @@ export function createSpatialCreateIndexTool(
       "Create a SPATIAL index on a geometry column for faster queries.",
     group: "spatial",
     inputSchema: SpatialIndexSchemaBase,
+    outputSchema: SpatialCreateIndexOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {

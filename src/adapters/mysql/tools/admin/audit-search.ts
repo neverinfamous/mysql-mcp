@@ -15,6 +15,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 import { hasScope, SCOPES } from "../../../../auth/scopes.js";
 import { getAuthContext } from "../../../../auth/auth-context.js";
 import { InsufficientScopeError } from "../../../../auth/errors.js";
+import { AuditSearchOutputSchema } from "../../schemas/index.js";
 
 export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
@@ -35,6 +36,7 @@ export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
       "Search and filter structured audit logs from the System Database. Returns recent tool invocations, outcomes, token estimates, and parameters.",
     group: "admin",
     inputSchema: schema,
+    outputSchema: AuditSearchOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -58,9 +60,11 @@ export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         return withTokenEstimate({
           success: true,
-          entries,
-          count: entries.length,
-          totalCount,
+          data: {
+            entries,
+            count: entries.length,
+            totalCount,
+          }
         });
       } catch (err) {
         return withTokenEstimate(

@@ -23,6 +23,7 @@ import {
   ConcatSchemaBase,
   CollationConvertSchema,
   CollationConvertSchemaBase,
+  TextQueryOutputSchema,
 } from "../../schemas/index.js";
 import {
   validateIdentifier,
@@ -43,6 +44,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Find rows where column matches a regular expression pattern.",
     group: "text",
     inputSchema: RegexpMatchSchemaBase,
+    outputSchema: TextQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -88,6 +90,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
       "Find rows using LIKE pattern matching with % and _ wildcards.",
     group: "text",
     inputSchema: LikeSearchSchemaBase,
+    outputSchema: TextQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -132,6 +135,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Find rows with phonetically similar values using SOUNDEX.",
     group: "text",
     inputSchema: SoundexSchemaBase,
+    outputSchema: TextQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -176,6 +180,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Extract substrings from column values.",
     group: "text",
     inputSchema: SubstringSchemaBase,
+    outputSchema: TextQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -227,6 +232,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Concatenate multiple columns with an optional separator.",
     group: "text",
     inputSchema: ConcatSchemaBase,
+    outputSchema: TextQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -291,6 +297,7 @@ export function createCollationConvertTool(
       "Convert column values to a different character set or collation.",
     group: "text",
     inputSchema: CollationConvertSchemaBase,
+    outputSchema: TextQueryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

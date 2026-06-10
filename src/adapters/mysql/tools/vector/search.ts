@@ -10,6 +10,9 @@ import {
   VectorRangeSearchSchema,
   VectorHybridSearchSchemaBase,
   VectorHybridSearchSchema,
+  VectorSearchOutputSchema,
+  VectorRangeSearchOutputSchema,
+  VectorHybridSearchOutputSchema,
 } from "../../schemas/vector.js";
 import { ensureVectorSupport, formatVector, parseVector, sanitizeIdentifier } from "./helpers.js";
 import { sanitizeFulltextQuery } from "../text/fulltext-helpers.js";
@@ -23,6 +26,7 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Find the K nearest neighbors to a query vector.",
     group: "vector",
     inputSchema: VectorSearchSchemaBase,
+    outputSchema: VectorSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -93,6 +97,7 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
     description: "Find all vectors within a maximum distance threshold.",
     group: "vector",
     inputSchema: VectorRangeSearchSchemaBase,
+    outputSchema: VectorRangeSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -157,6 +162,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
     description: "Combine vector similarity and fulltext search using Reciprocal Rank Fusion (RRF).",
     group: "vector",
     inputSchema: VectorHybridSearchSchemaBase,
+    outputSchema: VectorHybridSearchOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

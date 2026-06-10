@@ -24,6 +24,10 @@ import {
   TransformSchema,
   GeoJSONSchemaBase,
   GeoJSONSchema,
+  SpatialIntersectionOutputSchema,
+  SpatialBufferOutputSchema,
+  SpatialTransformOutputSchema,
+  SpatialGeoJSONOutputSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -67,6 +71,7 @@ export function createSpatialIntersectionTool(
     description: "Calculate the intersection of two geometries.",
     group: "spatial",
     inputSchema: IntersectionSchemaBase,
+    outputSchema: SpatialIntersectionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -122,6 +127,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Create a buffer (expanded area) around a geometry.",
     group: "spatial",
     inputSchema: BufferSchemaBase,
+    outputSchema: SpatialBufferOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -183,6 +189,7 @@ export function createSpatialTransformTool(
       "Transform a geometry from one spatial reference system to another.",
     group: "spatial",
     inputSchema: TransformSchemaBase,
+    outputSchema: SpatialTransformOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -232,6 +239,7 @@ export function createSpatialGeoJSONTool(
     description: "Convert geometry between WKT and GeoJSON formats.",
     group: "spatial",
     inputSchema: GeoJSONSchemaBase,
+    outputSchema: SpatialGeoJSONOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

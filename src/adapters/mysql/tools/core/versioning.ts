@@ -4,9 +4,13 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "./error-helpers.js";
 import {
   EnableVersioningSchema,
+  EnableVersioningOutputSchema,
   DisableVersioningSchema,
+  DisableVersioningOutputSchema,
   CheckVersionSchema,
+  CheckVersionOutputSchema,
   ConditionalUpdateSchema,
+  ConditionalUpdateOutputSchema,
 } from "../../schemas/index.js";
 
 /**
@@ -47,6 +51,7 @@ export function createEnableVersioningTool(
       "Enable optimistic concurrency control (OCC) on a table. Adds a _version column and an auto-increment trigger.",
     group: "core",
     inputSchema: EnableVersioningSchema,
+    outputSchema: EnableVersioningOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -128,6 +133,7 @@ export function createDisableVersioningTool(
       "Disable optimistic concurrency control (OCC) on a table. Drops the _version column and its trigger.",
     group: "core",
     inputSchema: DisableVersioningSchema,
+    outputSchema: DisableVersioningOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -194,6 +200,7 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
       "Read the current _version of a specific row for optimistic concurrency control.",
     group: "core",
     inputSchema: CheckVersionSchema,
+    outputSchema: CheckVersionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -255,6 +262,7 @@ export function createConditionalUpdateTool(
       "Update a row only if its _version matches expectedVersion. Prevents lost updates in multi-agent environments.",
     group: "core",
     inputSchema: ConditionalUpdateSchema,
+    outputSchema: ConditionalUpdateOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {

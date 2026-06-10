@@ -14,6 +14,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { DetectConnectionSpikeOutputSchema } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
@@ -67,6 +68,7 @@ export function createDetectConnectionSpikeTool(
     description:
       "Detects unusual connection patterns by analyzing concentration by user, host, and state. Flags when a single user monopolizes the pool or idle connections accumulate.",
     inputSchema: DetectConnectionSpikeSchemaBase,
+    outputSchema: DetectConnectionSpikeOutputSchema,
     group: "performance",
     requiredScopes: ["read"],
     annotations: READ_ONLY,

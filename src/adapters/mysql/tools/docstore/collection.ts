@@ -22,6 +22,10 @@ import {
   DropCollectionSchemaBase,
   CollectionInfoSchema,
   CollectionInfoSchemaBase,
+  ListCollectionsOutputSchema,
+  CreateCollectionOutputSchema,
+  DropCollectionOutputSchema,
+  CollectionInfoOutputSchema,
 } from "../../schemas/index.js";
 import {
   READ_ONLY,
@@ -37,6 +41,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "List JSON document collections in a schema.",
       group: "docstore",
       inputSchema: ListCollectionsSchemaBase,
+      outputSchema: ListCollectionsOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -95,6 +100,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Create a new JSON document collection.",
       group: "docstore",
       inputSchema: CreateCollectionSchemaBase,
+      outputSchema: CreateCollectionOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -193,6 +199,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Drop a document collection.",
       group: "docstore",
       inputSchema: DropCollectionSchemaBase,
+      outputSchema: DropCollectionOutputSchema,
       requiredScopes: ["admin"],
       annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -271,6 +278,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Get collection statistics.",
       group: "docstore",
       inputSchema: CollectionInfoSchemaBase,
+      outputSchema: CollectionInfoOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {

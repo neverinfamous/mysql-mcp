@@ -10,6 +10,10 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  SysUserSummaryOutputSchema,
+  SysHostSummaryOutputSchema,
+} from "../../schemas/sysschema.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -74,6 +78,7 @@ export function createSysUserSummaryTool(
       "Get user activity summary including statements, connections, and latency from sys schema.",
     group: "sysschema",
     inputSchema: UserSummarySchemaBase,
+    outputSchema: SysUserSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -132,6 +137,7 @@ export function createSysHostSummaryTool(
     description: "Get connection and activity summary by host from sys schema.",
     group: "sysschema",
     inputSchema: HostSummarySchemaBase,
+    outputSchema: SysHostSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {

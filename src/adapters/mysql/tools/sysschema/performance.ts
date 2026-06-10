@@ -10,6 +10,11 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  SysStatementSummaryOutputSchema,
+  SysWaitSummaryOutputSchema,
+  SysIoSummaryOutputSchema,
+} from "../../schemas/sysschema.js";
 import type { MySQLAdapter } from "../../mysql-adapter.js";
 import type {
   ToolDefinition,
@@ -109,6 +114,7 @@ export function createSysStatementSummaryTool(
       "Get statement execution statistics including latency and row counts from sys schema.",
     group: "sysschema",
     inputSchema: StatementSummarySchemaBase,
+    outputSchema: SysStatementSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -175,6 +181,7 @@ export function createSysWaitSummaryTool(
       "Get wait event summary for performance analysis from sys schema.",
     group: "sysschema",
     inputSchema: WaitSummarySchemaBase,
+    outputSchema: SysWaitSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -279,6 +286,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
       "Get I/O usage summary by file, table, or global from sys schema.",
     group: "sysschema",
     inputSchema: IOSummarySchemaBase,
+    outputSchema: SysIoSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
