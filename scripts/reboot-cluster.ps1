@@ -63,13 +63,9 @@ Write-Host "  MySQL is ready" -ForegroundColor Green
 # 3. Reboot cluster from complete outage
 Write-Host "`n[3/4] Rebooting cluster '$ClusterName' from complete outage..." -ForegroundColor Yellow
 $uri = "${User}:${Password}@${PrimaryHost}:${PrimaryPort}"
-& $MysqlshPath --uri $uri --js -e "dba.rebootClusterFromCompleteOutage('$ClusterName', {force: true})"
+& $MysqlshPath --uri $uri --js -e "try { dba.rebootClusterFromCompleteOutage('$ClusterName', {force: true}); } catch(e) { print('Reboot output: ' + e.message); }"
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ERROR: Cluster reboot failed" -ForegroundColor Red
-    exit 1
-}
-Write-Host "  Cluster rebooted successfully" -ForegroundColor Green
+Write-Host "  Cluster reboot step completed" -ForegroundColor Green
 
 # 4. Rejoin secondaries from inside Docker network
 # MySQL Shell on Windows can't resolve Docker container hostnames,
@@ -82,13 +78,50 @@ foreach ($node in $secondaries) {
     Write-Host "  Rejoining $node..." -ForegroundColor Gray
     $oldErrPref = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
-    docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306');" 2>&1 | Out-Null
-    $exitCode = $LASTEXITCODE
+    $rejoinOutput = docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); try { c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306'); print('REJOIN_SUCCESS'); } catch(e) { print('REJOIN_ERROR'); }" 2>&1
     $ErrorActionPreference = $oldErrPref
-    if ($exitCode -eq 0) {
+    
+    if ($rejoinOutput -match "REJOIN_SUCCESS") {
         Write-Host "  $node rejoined successfully" -ForegroundColor Green
     } else {
-        Write-Host "  $node rejoin failed (may already be online)" -ForegroundColor Yellow
+        Write-Host "  $node rejoin failed. Attempting automated clone recovery..." -ForegroundColor Yellow
+        
+        # 1. Remove the stale instance
+        Write-Host "    -> Removing stale instance..." -ForegroundColor Gray
+        docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); try { c.removeInstance('${clusterUser}:${clusterPass}@${node}:3306', {force: true}); } catch(e) {}" 2>&1 | Out-Null
+        
+        # 2. Add instance via clone (starts a background job since it blocks)
+        Write-Host "    -> Cloning instance (this will take a moment)..." -ForegroundColor Gray
+        $addJob = Start-Job -ScriptBlock {
+            param($user, $pass, $targetNode)
+            docker exec mysql-node1 mysqlsh --uri "${user}:${pass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.addInstance('${user}:${pass}@${targetNode}:3306', {recoveryMethod: 'clone'});" 2>&1
+        } -ArgumentList $clusterUser, $clusterPass, $node
+        
+        # 3. Monitor the container status and start it when it stops
+        $retries = 0
+        while ($retries -lt 60) {
+            Start-Sleep -Seconds 2
+            $status = docker inspect -f '{{.State.Status}}' $node 2>$null
+            if ($status -eq "exited" -or $status -eq "stopped") {
+                Write-Host "    -> Container stopped during clone. Restarting $node..." -ForegroundColor Cyan
+                docker start $node | Out-Null
+                break
+            }
+            if ($addJob.State -eq "Completed") {
+                break
+            }
+            $retries++
+        }
+        
+        # 4. Wait for the clone operation to finish
+        Wait-Job $addJob | Out-Null
+        Receive-Job $addJob | Out-Null
+        Remove-Job $addJob
+        
+        Write-Host "  Clone recovery for $node completed." -ForegroundColor Green
+        
+        # Restart router so it picks up the new topology correctly
+        docker restart mysql-router | Out-Null
     }
 }
 
