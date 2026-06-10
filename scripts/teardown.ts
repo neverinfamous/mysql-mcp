@@ -22,7 +22,7 @@ export default async function globalTeardown() {
     const filePath = path.join(rootDir, file);
     try {
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+        fs.rmSync(filePath, { force: true, maxRetries: 10, retryDelay: 500 });
         console.log(`[teardown] Cleaned up test artifact: ${file}`);
       }
     } catch (e) {
