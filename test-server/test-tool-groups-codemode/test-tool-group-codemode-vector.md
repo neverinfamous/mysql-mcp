@@ -107,15 +107,33 @@ try {
   });
   if (!range.success || range.data.count === 0) failures.push("Range search failed");
 
-  // 8. Hybrid Search
-  const hybrid = await mysql.vector.hybridSearch({
-    table: "temp_code_embeddings",
-    vectorColumn: "embedding",
-    textColumn: "content",
-    queryText: "learning",
-    queryVector: [0.1, 0.2, 0.3]
-  });
-  if (!hybrid.success || hybrid.data.count === 0) failures.push("Hybrid search failed");
+  // 8. Hybrid Search & Features
+  const hybrid = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning", queryVector: [0.1, 0.2, 0.3] });
+  if (!hybrid.success || hybrid.data.count === 0) failures.push("8. Hybrid search failed");
+  
+  // 8a. Metric
+  const hMetric = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning", queryVector: [0.1, 0.2, 0.3], metric: "EUCLIDEAN" });
+  if (!hMetric.success) failures.push("8a. Hybrid metric failed");
+  
+  // 8b. rrfK
+  const hRrfK = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning", queryVector: [0.1, 0.2, 0.3], rrfK: 1 });
+  if (!hRrfK.success) failures.push("8b. Hybrid rrfK failed");
+  
+  // 8c. Select filtering
+  const hSelect = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning", queryVector: [0.1, 0.2, 0.3], select: ["id"] });
+  if (!hSelect.success || hSelect.data.results[0].content !== undefined) failures.push("8c. Hybrid select failed");
+  
+  // 8d. Pre-filter
+  const hFilter = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning", queryVector: [0.1, 0.2, 0.3], filter: "id = 1" });
+  if (!hFilter.success || hFilter.data.count !== 1) failures.push("8d. Hybrid filter failed");
+  
+  // 8e. Text-only fallback
+  const hTextOnly = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning" });
+  if (!hTextOnly.success || hTextOnly.data.results[0].vector_distance !== null) failures.push("8e. Hybrid text-only fallback failed");
+  
+  // 8f. Sanitization
+  const hSanitized = await mysql.vector.hybridSearch({ table: "temp_code_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "learning) +(", queryVector: [0.1, 0.2, 0.3] });
+  if (!hSanitized.success) failures.push("8f. Hybrid sanitization failed");
 
   // 9. Create Index
   const idx = await mysql.vector.createIndex({ table: "temp_code_embeddings", column: "embedding" });

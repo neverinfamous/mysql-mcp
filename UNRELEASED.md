@@ -4,7 +4,7 @@
 - **Vector Group Support**: Added comprehensive support for MySQL 9.0+ vector operations via the `vector` tool group, matching parity with `db-mcp` and `postgres-mcp` (increasing total tools from 230 to 241). Includes:
   - Vector storage and retrieval (`mysql_vector_store`, `mysql_vector_get`, `mysql_vector_delete`).
   - Native similarity search (`mysql_vector_search`, `mysql_vector_range_search`) supporting COSINE, DOT, and EUCLIDEAN metrics.
-  - Reciprocal Rank Fusion (RRF) via `mysql_vector_hybrid_search` to combine fulltext and vector similarity scoring.
+  - Upgraded `mysql_vector_hybrid_search` to match `postgres-mcp` and `db-mcp` parity, including CTE query deduplication, `metric` / `rrfK` / `select` / `filter` parameters, robust FTS query sanitization, graceful fallback modes, and structured errors for missing FTS indexes.
   - HNSW index creation and optimization support for MySQL 9.1+ (`mysql_vector_create_index`, `mysql_vector_optimize`).
   - Column statistics and dimensionality validation (`mysql_vector_info`, `mysql_vector_stats`).
   - Full Playwright E2E test suite running natively against the latest MySQL 9.6.0 testing environment.

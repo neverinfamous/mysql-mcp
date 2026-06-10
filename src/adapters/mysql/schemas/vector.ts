@@ -150,8 +150,12 @@ export const VectorHybridSearchSchemaBase = z.object({
   queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
   queryText: z.unknown().optional().describe("Natural language search query"),
   k: z.unknown().optional().describe("Number of fused results to return (default: 10)"),
+  metric: z.unknown().optional().describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')"),
+  rrfK: z.unknown().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
   vectorWeight: z.unknown().optional().describe("Weight for vector score in RRF (0.0 to 1.0, default: 0.5)"),
   textWeight: z.unknown().optional().describe("Weight for text score in RRF (0.0 to 1.0, default: 0.5)"),
+  select: z.unknown().optional().describe("Array of column names to return alongside scores"),
+  filter: z.unknown().optional().describe("Optional SQL WHERE clause fragment to pre-filter results"),
 });
 
 export const VectorHybridSearchSchema = z.object({
@@ -161,8 +165,12 @@ export const VectorHybridSearchSchema = z.object({
   queryVector: z.array(z.number()).min(1).optional(),
   queryText: z.string().optional(),
   k: z.number().int().positive().max(1000).optional().default(10),
+  metric: metricParam,
+  rrfK: z.number().int().min(1).max(1000).optional().default(60),
   vectorWeight: z.number().min(0).max(1).optional().default(0.5),
   textWeight: z.number().min(0).max(1).optional().default(0.5),
+  select: z.array(z.string().min(1)).optional(),
+  filter: filterParam,
 }).refine(data => data.queryVector !== undefined || data.queryText !== undefined, {
   message: "At least one of queryVector or queryText must be provided",
   path: ["queryVector"],

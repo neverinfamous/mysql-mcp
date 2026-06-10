@@ -125,12 +125,80 @@ try {
     });
     failures.push("Hybrid search should fail cleanly when no fulltext index exists");
   } catch (e) {
-    // Expected DB error
+    if (e.code !== "FULLTEXT_INDEX_MISSING") failures.push("Expected FULLTEXT_INDEX_MISSING code");
   }
 } catch (e) {
   failures.push(`Hybrid edge case error: ${e.message}`);
 } finally {
   await mysql.core.writeQuery({ query: "DROP TABLE IF EXISTS stress_vec_hybrid" });
+}
+return { failures, success: failures.length === 0 };
+```
+
+## Category 5: Hybrid Search Parity
+
+```javascript
+const failures = [];
+await mysql.core.writeQuery({ query: "CREATE TABLE stress_hybrid_parity (id INT PRIMARY KEY, category VARCHAR(50), txt TEXT, vec VECTOR(2));" });
+await mysql.core.writeQuery({ query: "ALTER TABLE stress_hybrid_parity ADD FULLTEXT(txt);" });
+
+try {
+  await mysql.vector.batchStore({
+    table: "stress_hybrid_parity",
+    column: "vec",
+    items: [
+      { id: 1, vector: [1, 0] },
+      { id: 2, vector: [0, 1] },
+      { id: 3, vector: [0.7, 0.7] }
+    ]
+  });
+  await mysql.core.writeQuery({ query: "UPDATE stress_hybrid_parity SET txt = 'exact match', category = 'A' WHERE id = 1" });
+  await mysql.core.writeQuery({ query: "UPDATE stress_hybrid_parity SET txt = 'partial match', category = 'B' WHERE id = 2" });
+  await mysql.core.writeQuery({ query: "UPDATE stress_hybrid_parity SET txt = 'exact match', category = 'B' WHERE id = 3" });
+
+  const queryVector = [0, 1]; // favors id 2
+  const queryText = "exact match"; // favors id 1 and 3
+
+  // 1. Weight Dominance
+  const textDominant = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, textWeight: 1.0, vectorWeight: 0.0 });
+  const vecDominant = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, textWeight: 0.0, vectorWeight: 1.0 });
+  if (textDominant.data.results[0].id === 2) failures.push("Text dominance failed (ID 2 should not win text search)");
+  if (vecDominant.data.results[0].id !== 2) failures.push("Vector dominance failed (ID 2 should win vector search)");
+
+  // 2. rrfK Sensitivity
+  const rrfSmall = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, rrfK: 1 });
+  const rrfLarge = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, rrfK: 1000 });
+  if (!rrfSmall.success || !rrfLarge.success) failures.push("rrfK bounds handling failed");
+  if (rrfSmall.data.results[0].combined_score === rrfLarge.data.results[0].combined_score) failures.push("rrfK did not affect score spread");
+
+  // 3. All 3 metrics
+  for (const metric of ["COSINE", "EUCLIDEAN", "DOT"]) {
+    const mTest = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, metric });
+    if (!mTest.success) failures.push(`Metric ${metric} failed in hybrid search`);
+  }
+
+  // 4. Empty filter handling
+  const emptyFilter = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, filter: "" });
+  if (!emptyFilter.success) failures.push("Empty filter string failed");
+
+  // 5. Pre-filter leak detection
+  const filterLeak = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, filter: "category = 'B'" });
+  if (filterLeak.data.results.some(r => r.category !== 'B')) failures.push("Filter leak: Returned row not matching WHERE clause");
+  if (filterLeak.data.count !== 2) failures.push("Filter count incorrect");
+
+  // 6. Select column leak detection
+  const selectLeak = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText, select: ["id"] });
+  if (selectLeak.data.results[0].category !== undefined || selectLeak.data.results[0].txt !== undefined) failures.push("Select leak: Returned unrequested columns");
+
+  // 7. Sanitization Stress
+  const giantInput = "word ".repeat(200) + ") OR 1=1; DROP TABLE stress_hybrid_parity; --";
+  const sanitizeStress = await mysql.vector.hybridSearch({ table: "stress_hybrid_parity", vectorColumn: "vec", textColumn: "txt", queryVector, queryText: giantInput });
+  if (!sanitizeStress.success) failures.push("Sanitization stress failed (crashed on 1000+ char malicious FTS input)");
+
+} catch (e) {
+  failures.push(`Hybrid parity error: ${e.message}`);
+} finally {
+  await mysql.core.writeQuery({ query: "DROP TABLE IF EXISTS stress_hybrid_parity" });
 }
 return { failures, success: failures.length === 0 };
 ```

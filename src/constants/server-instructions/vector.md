@@ -5,14 +5,24 @@
 - **Batch store**: `mysql_vector_batch_store({ table, column, items: [{ id, vector }] })` → bulk insert. Significantly faster than individual stores. All vectors must have matching dimensions.
 - **Delete**: `mysql_vector_delete({ table, id })` → deletes by primary key. Returns `{ success: false, error }` if row doesn't exist (P154).
 - **Get**: `mysql_vector_get({ table, id })` → retrieves vector as `number[]` via `VECTOR_TO_STRING()`. Returns `{ exists: false }` if row doesn't exist.
-- **KNN search**: `mysql_vector_search({ table, column, queryVector, k?, metric? })` → top-k nearest neighbors. Metrics: `COSINE` (default), `EUCLIDEAN`, `DOT`. Use `filter` for WHERE clause conditions.
+- **KNN search**: `mysql_vector_search({ table, column, queryVector, k?, metric?, filter?, select? })` → top-k nearest neighbors. Metrics: `COSINE` (default), `EUCLIDEAN`, `DOT`. Use `filter` for WHERE clause conditions. Use `select` to limit returned columns.
 - **Range search**: `mysql_vector_range_search({ table, column, queryVector, maxDistance })` → all vectors within distance threshold. Default limit: 50.
-- **Hybrid search**: `mysql_vector_hybrid_search({ table, vectorColumn, textColumn, queryVector?, queryText? })` → combines DISTANCE() + MATCH...AGAINST via RRF. Requires FULLTEXT index on `textColumn`. At least one of `queryVector` or `queryText` required.
+- **Hybrid search**: `mysql_vector_hybrid_search({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, vectorWeight?, textWeight?, select?, filter? })` → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
+  - Requires FULLTEXT index on `textColumn`. At least one of `queryVector` or `queryText` required.
+  - `metric`: COSINE (default), EUCLIDEAN, or DOT — controls the vector distance function.
+  - `rrfK`: RRF smoothing constant (default: 60). Lower = more weight to top ranks, higher = more uniform fusion.
+  - `vectorWeight`/`textWeight`: Relative importance (0.0–1.0, default: 0.5 each). Semantic workloads: `vectorWeight: 0.7`. Keyword workloads: `textWeight: 0.7`.
+  - `select`: Array of column names to return (default: all non-vector columns). Use to reduce token consumption.
+  - `filter`: SQL WHERE clause applied as pre-filter before scoring (e.g., `"category = 'tech'"`).
+  - `queryText` is automatically sanitized (unbalanced quotes/parens stripped, dangling operators removed).
+  - Provides three fallback modes: both signals → full RRF, vector only → vector-ranked, text only → FTS-ranked.
 - **Info**: `mysql_vector_info({ table })` → lists all VECTOR columns with dimensions, row counts, index status. Use this first to check compatibility.
 - **Create index**: `mysql_vector_create_index({ table, column })` → creates HNSW vector index (MySQL 9.1+ only). Speeds up KNN search significantly on large tables.
 - **Optimize**: `mysql_vector_optimize({ table })` → runs `ANALYZE TABLE` to update vector index statistics.
 - **Stats**: `mysql_vector_stats({ table, column })` → dimension count, vector count, null count, sample distance distribution.
 - ❌ Don't store raw text in VECTOR columns — convert embeddings to `number[]` first.
 - ❌ Don't mix dimensions within the same column — all vectors must have the same dimensionality.
+- ❌ Don't use `mysql_vector_hybrid_search` without a FULLTEXT index on `textColumn` — returns `FULLTEXT_INDEX_MISSING` error.
 - ✅ Always use `mysql_vector_info` to verify a table has VECTOR columns before attempting operations.
 - ✅ Use `COSINE` metric for normalized embeddings (most common for OpenAI, Cohere, etc.).
+- ✅ Use `select` on hybrid/KNN search to limit returned columns and reduce token consumption.

@@ -419,7 +419,7 @@ Complete list of all **241 tools** across 28 categories.
 | `mysql_vector_get`             | Retrieve a vector by primary key                                            |
 | `mysql_vector_search`          | Top-k nearest neighbors (KNN) search                                        |
 | `mysql_vector_range_search`    | Find all vectors within a distance threshold                                |
-| `mysql_vector_hybrid_search`   | Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion|
+| `mysql_vector_hybrid_search`   | Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion. **v3.1:** `metric`, `rrfK`, `select`, `filter` parameters|
 | `mysql_vector_info`            | View table vector columns and dimensions                                    |
 | `mysql_vector_create_index`    | Create HNSW vector index (MySQL 9.1+)                                       |
 | `mysql_vector_optimize`        | Optimize vector index statistics                                            |

@@ -1,26 +1,18 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getVectorTools } from "../../adapters/mysql/tools/vector/index.js";
 import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
 import type { ToolDefinition } from "../../types/index.js";
 
 // Mock the MySQLAdapter
-const mockExecuteQuery = Object.assign(
-  function () {
-    return Promise.resolve({ rows: [], affectedRows: 0 });
-  },
-  { _isMockFunction: true }
-);
-
-const mockGetServerVersion = Object.assign(
-  function () {
-    return Promise.resolve({ major: 9, minor: 0, patch: 0, raw: "9.0.0" });
-  },
-  { _isMockFunction: true }
-);
+const mockExecuteQuery = vi.fn().mockImplementation(async (sql) => {
+  if (sql === "SELECT VERSION() as version") {
+    return { rows: [{ version: "9.0.0" }] };
+  }
+  return { rows: [], affectedRows: 0 };
+});
 
 const mockAdapter = {
   executeQuery: mockExecuteQuery,
-  getServerVersion: mockGetServerVersion,
 } as unknown as MySQLAdapter;
 
 describe("Vector Tools", () => {
@@ -32,21 +24,19 @@ describe("Vector Tools", () => {
     
     // Reset mocks
     mockExecuteQuery.mockClear?.();
-    mockGetServerVersion.mockClear?.();
   });
 
   describe("Version Gating", () => {
     it("should return an error for MySQL versions < 9.0 on vector tools", async () => {
       // Mock version 8.0.35
-      const oldVersionMock = Object.assign(
-        function () {
-          return Promise.resolve({ major: 8, minor: 0, patch: 35, raw: "8.0.35" });
-        },
-        { _isMockFunction: true }
-      );
+      const oldExecuteQuery = vi.fn().mockImplementation(async (sql) => {
+        if (sql === "SELECT VERSION() as version") {
+          return { rows: [{ version: "8.0.35" }] };
+        }
+        return { rows: [], affectedRows: 0 };
+      });
       const oldAdapter = {
-        executeQuery: mockExecuteQuery,
-        getServerVersion: oldVersionMock,
+        executeQuery: oldExecuteQuery,
       } as unknown as MySQLAdapter;
       
       const oldToolsArray = getVectorTools(oldAdapter);
@@ -135,7 +125,6 @@ describe("Vector Tools", () => {
       );
       const successAdapter = {
         executeQuery: mockResult,
-        getServerVersion: mockGetServerVersion,
       } as unknown as MySQLAdapter;
       
       const successTool = getVectorTools(successAdapter).find(t => t.name === "mysql_vector_search")!;
@@ -162,6 +151,59 @@ describe("Vector Tools", () => {
       expect(result.success).toBe(false);
       expect(result.category).toBe("validation");
       expect(result.error).toContain("At least one of queryVector or queryText must be provided");
+    });
+
+    it("should handle missing FULLTEXT index gracefully", async () => {
+      const tool = tools.get("mysql_vector_hybrid_search")!;
+      mockAdapter.executeQuery.mockImplementation(async (sql) => {
+        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
+        throw new Error("Can't find FULLTEXT index");
+      });
+      
+      const result = await tool.handler(
+        { table: "t1", vectorColumn: "v1", textColumn: "t1", queryText: "test" },
+        {} as any
+      ) as any;
+      
+      expect(result.success).toBe(false);
+      expect(result.code).toBe("FULLTEXT_INDEX_MISSING");
+      expect(result.suggestion).toContain("Create a FULLTEXT index");
+    });
+
+    it("should handle missing table gracefully", async () => {
+      const tool = tools.get("mysql_vector_hybrid_search")!;
+      mockAdapter.executeQuery.mockImplementation(async (sql) => {
+        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
+        throw new Error("Table 't1' doesn't exist");
+      });
+      
+      const result = await tool.handler(
+        { table: "t1", vectorColumn: "v1", textColumn: "t1", queryVector: [1,2,3] },
+        {} as any
+      ) as any;
+      
+      expect(result.success).toBe(false);
+      expect(result.code).toBe("TABLE_NOT_FOUND");
+    });
+
+    it("should strip vectorColumn from default select output", async () => {
+      const tool = tools.get("mysql_vector_hybrid_search")!;
+      mockAdapter.executeQuery.mockImplementation(async (sql) => {
+        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
+        if (sql.includes("INFORMATION_SCHEMA.COLUMNS")) return { rows: [{ COLUMN_NAME: 'id' }] };
+        return { rows: [{ id: 1, v1: '[0.1, 0.2]', text: 'hello', combined_score: 1.0 }] };
+      });
+      
+      const result = await tool.handler(
+        { table: "t1", vectorColumn: "v1", textColumn: "t1", queryVector: [1,2,3], queryText: "hello" },
+        {} as any
+      ) as any;
+      
+      console.log("TEST RESULT:", result);
+      expect(result.success).toBe(true);
+      expect(result.data.results[0]).not.toHaveProperty('v1');
+      expect(result.data.results[0]).toHaveProperty('id');
+      expect(result.data.results[0]).toHaveProperty('text');
     });
   });
 });

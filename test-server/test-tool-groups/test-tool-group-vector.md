@@ -76,8 +76,22 @@ First, create a temp table for testing:
    - Verify it returns nearest neighbors (id 3 should be closest).
 8. `mysql_vector_range_search({ table: "temp_embeddings", column: "embedding", queryVector: [0.1, 0.2, 0.3], maxDistance: 0.1 })`
    - Verify it finds id 1.
-9. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine learning" })`
+79. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine learning" })`
    - Verify it returns results with `vector_distance`, `text_score`, and `combined_score`.
+79a. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1] })`
+   - Verify vector-only fallback works (`text_score` = 0).
+79b. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryText: "machine learning" })`
+   - Verify text-only fallback works (`vector_distance` = null).
+79c. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine learning", metric: "EUCLIDEAN" })`
+   - Verify EUCLIDEAN metric works.
+79d. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine learning", select: ["id"] })`
+   - Verify select column filtering works (returns only `id` and scoring columns, no `content`).
+79e. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine learning", rrfK: 1 })`
+   - Verify rrfK param works without error.
+79f. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine learning", filter: "id = 1" })`
+   - Verify filter works (should only return id 1).
+79g. `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.9, 0.1, 0.1], queryText: "machine) +(learning" })`
+   - Verify FTS query sanitization works (should not crash on invalid FTS syntax).
 10. `mysql_vector_stats({ table: "temp_embeddings", column: "embedding" })`
     - Verify it shows 3 rows, dimensions consistent, min/max 3.
 11. `mysql_vector_create_index({ table: "temp_embeddings", column: "embedding" })`
@@ -102,9 +116,17 @@ First, create a temp table for testing:
     - Must return Zod validation error.
 21. 🔴 `mysql_vector_search({ table: "temp_embeddings", column: "embedding", queryVector: [0.1, 0.2, 0.3], k: "abc" })`
     - Must NOT return a raw MCP error; should handle type coercion or validation gracefully.
-22. 🔴 `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content" })`
+106. 🔴 `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content" })`
     - Must return Zod validation error (requires either queryVector or queryText).
-23. Drop `temp_embeddings` table.
+107. 🔴 `mysql_vector_hybrid_search({ table: "test_articles", vectorColumn: "nonexistent", textColumn: "title", queryVector: [0.1], queryText: "test" })`
+    - Must return COLUMN_NOT_FOUND.
+108. 🔴 `mysql_vector_hybrid_search({ table: "test_users", vectorColumn: "email", textColumn: "role", queryVector: [0.1], queryText: "test" })`
+    - Must return FULLTEXT_INDEX_MISSING (test_users has no FTS index).
+109. 🔴 `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.1], queryText: "test", metric: "INVALID" })`
+    - Must return Zod validation error for invalid metric.
+110. 🔴 `mysql_vector_hybrid_search({ table: "temp_embeddings", vectorColumn: "embedding", textColumn: "content", queryVector: [0.1], queryText: "test", rrfK: -1 })`
+    - Must return Zod validation error for out-of-bounds rrfK.
+111. Drop `temp_embeddings` table.
 
 ## Post-Test Workflow
 If you found any issues or bugs:
