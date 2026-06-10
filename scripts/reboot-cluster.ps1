@@ -43,10 +43,14 @@ $maxRetries = 30
 $retry = 0
 do {
     $retry++
-    try {
-        docker exec mysql-node1 mysqladmin ping -h localhost -uroot -proot 2>$null | Out-Null
-        if ($LASTEXITCODE -eq 0) { break }
-    } catch {}
+    $oldErrPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    docker exec mysql-node1 mysqladmin ping -h localhost -uroot -proot 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { 
+        $ErrorActionPreference = $oldErrPref
+        break 
+    }
+    $ErrorActionPreference = $oldErrPref
     if ($retry -ge $maxRetries) {
         Write-Host "  ERROR: MySQL not ready after $maxRetries attempts" -ForegroundColor Red
         exit 1
@@ -76,8 +80,12 @@ $clusterPass = "cluster_admin"
 $secondaries = @("mysql-node2", "mysql-node3")
 foreach ($node in $secondaries) {
     Write-Host "  Rejoining $node..." -ForegroundColor Gray
-    docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306');" 2>&1
-    if ($LASTEXITCODE -eq 0) {
+    $oldErrPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306');" 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+    $ErrorActionPreference = $oldErrPref
+    if ($exitCode -eq 0) {
         Write-Host "  $node rejoined successfully" -ForegroundColor Green
     } else {
         Write-Host "  $node rejoin failed (may already be online)" -ForegroundColor Yellow

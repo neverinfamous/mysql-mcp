@@ -54,3 +54,4 @@
 - Removed the `if` constraint from the Docker Hub description update workflow step, enabling automated description updates upon every successful Docker image deployment.
 - Cleansed `SECURITY.md` of copy-paste legacy artifacts from `postgres-mcp`, accurately replacing them with MySQL-specific bounds (e.g., 64-character constraints, MySQL parameters, and `writenotenow/mysql-mcp` references).
 - Re-nested `constants.ts` and distinctly grouped `monitoring` and `backup` handler files within the agent-facing `test-server/code-map.md` architecture map.
+- Fixed an issue in `scripts/reboot-cluster.ps1` where standard warnings written to `STDERR` (e.g., `LC_ALL` locale warnings, insecure password warnings) were incorrectly caught as terminating errors by PowerShell due to strict `$ErrorActionPreference = "Stop"` settings.
