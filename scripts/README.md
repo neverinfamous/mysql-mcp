@@ -59,6 +59,14 @@ Config: innodb-cluster.yml (gitignored, local only)
 
 These scripts are used to validate MCP server behavior dynamically:
 
+### `test-zod-errors.mjs`
+
+Starts the MCP server with `--tool-filter +all` and dynamically retrieves the schema for every registered tool. It then hammers each tool with intentionally malformed inputs (e.g., numbers instead of strings) to ensure that the global `McpServer` interceptor correctly catches SDK-level Zod parsing exceptions and formats them into standard `VALIDATION_ERROR` payloads, preventing raw `-32602` SDK errors from leaking to clients.
+
+```bash
+node scripts/test-zod-errors.mjs
+```
+
 ### `test-filter-instructions.mjs`
 
 Starts the server with various `--tool-filter` configurations and verifies that instruction sections are slim and that the correct `mysql://help/{group}` resources are registered based on enabled tool groups.
