@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete list of all **230 tools** across 27 categories.
+Complete list of all **241 tools** across 28 categories.
 
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
@@ -404,6 +404,26 @@ Complete list of all **230 tools** across 27 categories.
 | `mysqlsh_dump_tables`   | Dump specific tables. **v2.1:** `all` controls trigger inclusion                    |
 | `mysqlsh_load_dump`     | Load MySQL Shell dump. **v2.1:** `updateServerSettings` auto-enables `local_infile` |
 | `mysqlsh_run_script`    | Execute JS/Python/SQL script via MySQL Shell                                        |
+
+---
+
+## Vector (11 tools)
+
+> Vector embeddings, KNN search, and hybrid search (MySQL 9.0+)
+
+| Tool                           | Description                                                                 |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| `mysql_vector_store`           | Store a single vector embedding                                             |
+| `mysql_vector_batch_store`     | Bulk insert vector embeddings                                               |
+| `mysql_vector_delete`          | Delete a vector by primary key                                              |
+| `mysql_vector_get`             | Retrieve a vector by primary key                                            |
+| `mysql_vector_search`          | Top-k nearest neighbors (KNN) search                                        |
+| `mysql_vector_range_search`    | Find all vectors within a distance threshold                                |
+| `mysql_vector_hybrid_search`   | Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion|
+| `mysql_vector_info`            | View table vector columns and dimensions                                    |
+| `mysql_vector_create_index`    | Create HNSW vector index (MySQL 9.1+)                                       |
+| `mysql_vector_optimize`        | Optimize vector index statistics                                            |
+| `mysql_vector_stats`           | Get vector dimension, count, and distance statistics                        |
 
 ---
 

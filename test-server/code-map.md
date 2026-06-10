@@ -125,7 +125,7 @@ src/
 
 ## Handler → Tool Mapping
 
-230 tools across 27 groups. Each handler file registers tools with `group` labels.
+241 tools across 28 groups. Each handler file registers tools with `group` labels.
 
 ### Tool Handlers (`src/adapters/mysql/tools/`)
 
@@ -182,6 +182,7 @@ src/
 |                   | `cluster/innodb-cluster.ts`          | 5     | `cluster_status`, `cluster_instances`, `cluster_topology`, `cluster_router_status`, `cluster_switchover`                                                             |
 | **router**        | `router.ts`                          | 9     | `router_status/routes/route_status/route_health/route_connections/route_destinations/route_blocked_hosts/metadata_status/pool_status`                                |
 | **proxysql**      | `proxysql.ts`                        | 11    | `proxysql_status/servers/query_rules/query_digest/connection_pool/users/global_variables/runtime_status/memory_stats/commands/process_list`                          |
+| **vector**        | `vector/storage.ts`<br>`vector/management.ts`<br>`vector/search.ts` | 11    | `mysql_vector_store`, `batch_store`, `delete`, `get`, `search`, `range_search`, `hybrid_search`, `info`, `create_index`, `optimize`, `stats` |
 | **shell**         | `shell/common.ts`                    | —     | Shared MySQL Shell execution helpers                                                                                                                                 |
 |                   | `shell/info.ts`                      | 1     | `mysqlsh_version`                                                                                                                                                    |
 |                   | `shell/backup.ts`                    | 3     | `mysqlsh_dump_instance/dump_schemas/dump_tables`                                                                                                                     |
@@ -396,7 +397,7 @@ try {
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
 | `test-server/reset-database.ps1`            | Reset script — drops + re-seeds `testdb`                             |
-| `test-server/Tool-Reference.md`             | Complete 230-tool inventory with descriptions                        |
+| `test-server/Tool-Reference.md`             | Complete 241-tool inventory with descriptions                        |
 | `test-server/test-agent-experience.md`      | 35 open-ended scenarios — validates help resource sufficiency        |
 | `test-server/test-group-tools-core.md`      | Core/transactions/schema group checklists                            |
 | `test-server/test-group-tools-data.md`      | JSON/fulltext/docstore/text/stats checklists                         |

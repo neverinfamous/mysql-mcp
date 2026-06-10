@@ -17,8 +17,6 @@ const proc = spawn(
     "dist/cli.js",
     "--log-level",
     "error",
-    "--instruction-level",
-    "full",
     "--tool-filter",
     "-nonexistent",
   ],

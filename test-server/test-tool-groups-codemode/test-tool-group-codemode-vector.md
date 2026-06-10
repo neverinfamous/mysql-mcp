@@ -66,13 +66,17 @@ try {
   const info = await mysql.vector.info({ table: "temp_code_embeddings" });
   if (!info.success || info.data.columns.length !== 1) failures.push("Info failed");
 
-  // 3. Batch Store
+  // 3. Store (Single)
+  const store1 = await mysql.vector.store({ table: "temp_code_embeddings", column: "embedding", id: 1, vector: [0.1, 0.2, 0.3] });
+  if (!store1.success) failures.push("Single store failed");
+
+  // 4. Batch Store
   const batch = await mysql.vector.batchStore({ 
     table: "temp_code_embeddings", 
     column: "embedding", 
     items: [
-      { id: 1, vector: [0.1, 0.2, 0.3] },
-      { id: 2, vector: [0.9, 0.1, 0.1] }
+      { id: 2, vector: [0.9, 0.1, 0.1] },
+      { id: 3, vector: [0.1, 0.8, 0.1] }
     ] 
   });
   if (!batch.success || batch.data.count !== 2) failures.push("Batch store failed");
@@ -80,20 +84,30 @@ try {
   // Update text
   await mysql.core.writeQuery({ query: "UPDATE temp_code_embeddings SET content = 'machine learning' WHERE id = 1" });
   await mysql.core.writeQuery({ query: "UPDATE temp_code_embeddings SET content = 'deep learning' WHERE id = 2" });
+  await mysql.core.writeQuery({ query: "UPDATE temp_code_embeddings SET content = 'artificial intelligence' WHERE id = 3" });
 
-  // 4. Get
+  // 5. Get
   const get = await mysql.vector.get({ table: "temp_code_embeddings", id: 1 });
   if (!get.success || !get.data.vector) failures.push("Get failed");
 
-  // 5. Search
+  // 6. Search
   const search = await mysql.vector.search({ 
     table: "temp_code_embeddings", 
     column: "embedding", 
     queryVector: [0.1, 0.9, 0.1] 
   });
-  if (!search.success || search.data.count !== 2) failures.push("Search failed");
+  if (!search.success || search.data.count !== 3) failures.push("Search failed");
 
-  // 6. Hybrid Search
+  // 7. Range Search
+  const range = await mysql.vector.rangeSearch({
+    table: "temp_code_embeddings",
+    column: "embedding",
+    queryVector: [0.1, 0.2, 0.3],
+    maxDistance: 0.1
+  });
+  if (!range.success || range.data.count === 0) failures.push("Range search failed");
+
+  // 8. Hybrid Search
   const hybrid = await mysql.vector.hybridSearch({
     table: "temp_code_embeddings",
     vectorColumn: "embedding",
@@ -103,11 +117,19 @@ try {
   });
   if (!hybrid.success || hybrid.data.count === 0) failures.push("Hybrid search failed");
 
-  // 7. Stats
-  const stats = await mysql.vector.stats({ table: "temp_code_embeddings", column: "embedding" });
-  if (!stats.success || stats.data.totalRows !== 2) failures.push("Stats failed");
+  // 9. Create Index
+  const idx = await mysql.vector.createIndex({ table: "temp_code_embeddings", column: "embedding" });
+  if (!idx.success && idx.error?.code !== "EXTENSION_MISSING") failures.push("Create index failed unexpectedly");
 
-  // 8. Delete
+  // 10. Optimize
+  const opt = await mysql.vector.optimize({ table: "temp_code_embeddings" });
+  if (!opt.success) failures.push("Optimize failed");
+
+  // 11. Stats
+  const stats = await mysql.vector.stats({ table: "temp_code_embeddings", column: "embedding" });
+  if (!stats.success || stats.data.totalRows !== 3) failures.push("Stats failed");
+
+  // 12. Delete
   const del = await mysql.vector.delete({ table: "temp_code_embeddings", id: 1 });
   if (!del.success) failures.push("Delete failed");
 
