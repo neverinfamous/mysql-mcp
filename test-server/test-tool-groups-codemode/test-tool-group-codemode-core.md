@@ -98,9 +98,11 @@ core Tool Group (8 tools +1 code mode):
 2. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `n === 20`
 3. `mysql.core.readQuery({query: "SELECT id, name FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows
 4. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders", stream: true, chunkSize: 5})` → verify returns `{rowCount: 1, rows: [{n: 20}]}` and DOES NOT return `streamed: true` (degrades gracefully in Code Mode)
-5. `mysql.core.listTables({database: "testdb", limit: 5})` → 5 tables returned
-5. `mysql.core.describeTable({table: "test_products"})` → columns include `id`, `name`, `price`
-6. `mysql.core.getIndexes({table: "test_orders"})` → verify `idx_orders_status` present
+5. `mysql.core.readQuery({query: "SELECT id FROM test_measurements"})` → verify `count` is 50, retrieve `nextCursor`
+6. `mysql.core.readQuery({query: "SELECT id FROM test_measurements", cursor: <nextCursor from previous call>})` → verify pagination works
+7. `mysql.core.listTables({database: "testdb", limit: 5})` → 5 tables returned
+8. `mysql.core.describeTable({table: "test_products"})` → columns include `id`, `name`, `price`
+9. `mysql.core.getIndexes({table: "test_orders"})` → verify `idx_orders_status` present
 
 **Create → Use → Drop lifecycle:**
 

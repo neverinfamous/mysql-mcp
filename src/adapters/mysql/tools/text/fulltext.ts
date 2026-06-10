@@ -10,6 +10,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ValidationError } from "../../../../types/index.js";
+import { sanitizeFulltextQuery } from "./fulltext-helpers.js";
 import {
   FulltextCreateSchema,
   FulltextCreateSchemaBase,
@@ -215,7 +217,7 @@ export function createFulltextSearchTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = FulltextSearchSchema.parse(params);
-        const { table, columns, query, mode, maxLength, limit } = parsed;
+        const { table, columns, query, mode, maxLength, limit, includeFacets, cursor } = parsed;
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
@@ -223,39 +225,105 @@ export function createFulltextSearchTool(
           validateIdentifier(col, "column");
         }
 
+        const sanitizedQuery = sanitizeFulltextQuery(query);
+        if (!sanitizedQuery) {
+          return withTokenEstimate({
+            success: true,
+            data: { rows: [], count: 0 },
+          });
+        }
+
+        let offset = 0;
+        if (cursor) {
+          try {
+            const cursorData = JSON.parse(
+              Buffer.from(cursor, "base64").toString("utf8"),
+            ) as Record<string, unknown>;
+            if (typeof cursorData["offset"] === "number") {
+              offset = cursorData["offset"];
+            }
+          } catch {
+            throw new ValidationError("Invalid cursor format", {
+              suggestion: "Use the nextCursor value returned from a previous query.",
+            });
+          }
+        }
+
         const columnList = columns.map((c) => `\`${c}\``).join(", ");
         let matchClause: string;
+        let matchModeModifier: string;
 
         switch (mode) {
           case "BOOLEAN":
+            matchModeModifier = "IN BOOLEAN MODE";
             matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
             break;
           case "EXPANSION":
+            matchModeModifier = "WITH QUERY EXPANSION";
             matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
             break;
           default:
+            matchModeModifier = "IN NATURAL LANGUAGE MODE";
             matchClause = `MATCH(${columnList}) AGAINST(? IN NATURAL LANGUAGE MODE)`;
         }
 
         // Return searched columns and relevance for minimal payload
         let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-        const queryArgs: (string | number)[] = [query, query];
+        const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
+        if (offset > 0) {
+          sql += ` OFFSET ${offset}`;
+        }
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
+          const rawData = result.rows ?? [];
           const data = truncateRowValues(
-            result.rows ?? [],
+            rawData,
             columns,
             maxLength ?? 250,
           );
+
+          let nextCursor: string | undefined;
+          if (data.length === finalLimit) {
+            nextCursor = Buffer.from(
+              JSON.stringify({ offset: offset + finalLimit }),
+            ).toString("base64");
+          }
+
+          let facets: Record<string, number> | undefined;
+          let warnings: string[] | undefined;
+          if (includeFacets && data.length > 0) {
+            facets = {};
+            for (const col of columns) {
+              const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
+              try {
+                const facetResult = await adapter.executeReadQuery(facetSql, [sanitizedQuery]);
+                const firstRow = facetResult.rows?.[0];
+                facets[col] = Number(firstRow?.["cnt"] ?? 0);
+              } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                if (msg.includes("FULLTEXT index") || msg.includes("ER_FT_MATCHING_KEY_NOT_FOUND")) {
+                  warnings ??= [];
+                  warnings.push(`Facet skipped for '${col}': Requires individual FULLTEXT index`);
+                } else {
+                  throw err;
+                }
+              }
+            }
+            if (Object.keys(facets).length === 0) facets = undefined;
+          }
+
           return withTokenEstimate({
             success: true,
             data: {
               rows: data,
               count: data.length,
+              ...(nextCursor ? { nextCursor } : {}),
+              ...(facets ? { facets } : {}),
+              ...(warnings ? { warnings } : {}),
             },
           });
         } catch (error) {
@@ -303,7 +371,7 @@ export function createFulltextBooleanTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, columns, query, maxLength, limit } =
+        const { table, columns, query, maxLength, limit, includeFacets, cursor } =
           FulltextBooleanSchema.parse(params);
 
         // Validate inputs
@@ -312,28 +380,91 @@ export function createFulltextBooleanTool(
           validateIdentifier(col, "column");
         }
 
+        const sanitizedQuery = sanitizeFulltextQuery(query);
+        if (!sanitizedQuery) {
+          return withTokenEstimate({
+            success: true,
+            data: { rows: [], count: 0 },
+          });
+        }
+
+        let offset = 0;
+        if (cursor) {
+          try {
+            const cursorData = JSON.parse(
+              Buffer.from(cursor, "base64").toString("utf8"),
+            ) as Record<string, unknown>;
+            if (typeof cursorData["offset"] === "number") {
+              offset = cursorData["offset"];
+            }
+          } catch {
+            throw new ValidationError("Invalid cursor format", {
+              suggestion: "Use the nextCursor value returned from a previous query.",
+            });
+          }
+        }
+
         const columnList = columns.map((c) => `\`${c}\``).join(", ");
-        const matchClause = `MATCH(${columnList}) AGAINST(? IN BOOLEAN MODE)`;
+        const matchModeModifier = "IN BOOLEAN MODE";
+        const matchClause = `MATCH(${columnList}) AGAINST(? ${matchModeModifier})`;
 
         // Return searched columns and relevance for minimal payload
         let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-        const queryArgs: (string | number)[] = [query, query];
+        const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
+        if (offset > 0) {
+          sql += ` OFFSET ${offset}`;
+        }
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
+          const rawData = result.rows ?? [];
           const data = truncateRowValues(
-            result.rows ?? [],
+            rawData,
             columns,
             maxLength ?? 250,
           );
+
+          let nextCursor: string | undefined;
+          if (data.length === finalLimit) {
+            nextCursor = Buffer.from(
+              JSON.stringify({ offset: offset + finalLimit }),
+            ).toString("base64");
+          }
+
+          let facets: Record<string, number> | undefined;
+          let warnings: string[] | undefined;
+          if (includeFacets && data.length > 0) {
+            facets = {};
+            for (const col of columns) {
+              const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
+              try {
+                const facetResult = await adapter.executeReadQuery(facetSql, [sanitizedQuery]);
+                const firstRow = facetResult.rows?.[0];
+                facets[col] = Number(firstRow?.["cnt"] ?? 0);
+              } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                if (msg.includes("FULLTEXT index") || msg.includes("ER_FT_MATCHING_KEY_NOT_FOUND")) {
+                  warnings ??= [];
+                  warnings.push(`Facet skipped for '${col}': Requires individual FULLTEXT index`);
+                } else {
+                  throw err;
+                }
+              }
+            }
+            if (Object.keys(facets).length === 0) facets = undefined;
+          }
+
           return withTokenEstimate({
             success: true,
             data: {
               rows: data,
               count: data.length,
+              ...(nextCursor ? { nextCursor } : {}),
+              ...(facets ? { facets } : {}),
+              ...(warnings ? { warnings } : {}),
             },
           });
         } catch (error) {
@@ -381,7 +512,7 @@ export function createFulltextExpandTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, columns, query, maxLength, limit } =
+        const { table, columns, query, maxLength, limit, includeFacets, cursor } =
           FulltextExpandSchema.parse(params);
 
         // Validate inputs
@@ -390,28 +521,91 @@ export function createFulltextExpandTool(
           validateIdentifier(col, "column");
         }
 
+        const sanitizedQuery = sanitizeFulltextQuery(query);
+        if (!sanitizedQuery) {
+          return withTokenEstimate({
+            success: true,
+            data: { rows: [], count: 0 },
+          });
+        }
+
+        let offset = 0;
+        if (cursor) {
+          try {
+            const cursorData = JSON.parse(
+              Buffer.from(cursor, "base64").toString("utf8"),
+            ) as Record<string, unknown>;
+            if (typeof cursorData["offset"] === "number") {
+              offset = cursorData["offset"];
+            }
+          } catch {
+            throw new ValidationError("Invalid cursor format", {
+              suggestion: "Use the nextCursor value returned from a previous query.",
+            });
+          }
+        }
+
         const columnList = columns.map((c) => `\`${c}\``).join(", ");
-        const matchClause = `MATCH(${columnList}) AGAINST(? WITH QUERY EXPANSION)`;
+        const matchModeModifier = "WITH QUERY EXPANSION";
+        const matchClause = `MATCH(${columnList}) AGAINST(? ${matchModeModifier})`;
 
         // Return searched columns and relevance for minimal payload
         let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
-        const queryArgs: (string | number)[] = [query, query];
+        const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 3;
         sql += ` LIMIT ${Math.floor(finalLimit)}`;
+        if (offset > 0) {
+          sql += ` OFFSET ${offset}`;
+        }
 
         try {
           const result = await adapter.executeReadQuery(sql, queryArgs);
+          const rawData = result.rows ?? [];
           const data = truncateRowValues(
-            result.rows ?? [],
+            rawData,
             columns,
             maxLength ?? 250,
           );
+
+          let nextCursor: string | undefined;
+          if (data.length === finalLimit) {
+            nextCursor = Buffer.from(
+              JSON.stringify({ offset: offset + finalLimit }),
+            ).toString("base64");
+          }
+
+          let facets: Record<string, number> | undefined;
+          let warnings: string[] | undefined;
+          if (includeFacets && data.length > 0) {
+            facets = {};
+            for (const col of columns) {
+              const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
+              try {
+                const facetResult = await adapter.executeReadQuery(facetSql, [sanitizedQuery]);
+                const firstRow = facetResult.rows?.[0];
+                facets[col] = Number(firstRow?.["cnt"] ?? 0);
+              } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                if (msg.includes("FULLTEXT index") || msg.includes("ER_FT_MATCHING_KEY_NOT_FOUND")) {
+                  warnings ??= [];
+                  warnings.push(`Facet skipped for '${col}': Requires individual FULLTEXT index`);
+                } else {
+                  throw err;
+                }
+              }
+            }
+            if (Object.keys(facets).length === 0) facets = undefined;
+          }
+
           return withTokenEstimate({
             success: true,
             data: {
               rows: data,
               count: data.length,
+              ...(nextCursor ? { nextCursor } : {}),
+              ...(facets ? { facets } : {}),
+              ...(warnings ? { warnings } : {}),
             },
           });
         } catch (error) {

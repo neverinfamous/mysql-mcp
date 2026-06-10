@@ -88,6 +88,10 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 3. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results containing both terms
 4. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL -JSON"})` → results with MySQL but not JSON
 5. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
+6. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
+7. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` is returned
+8. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor from previous call>"})` → verify pagination
+9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
 
 **Domain error paths (🔴):**
 

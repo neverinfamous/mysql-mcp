@@ -68,6 +68,8 @@ During error path testing, if an invalid Code Mode call returns a raw error stri
 9. Search for very long query string (1000+ chars) — verify handling
 10. Search with special characters `@!#$%` — verify no SQL injection
 11. Search on table without FULLTEXT index — verify structured error
+12. Search with `includeFacets: true` when pagination requires multiple pages — verify counts reflect total matches, not just the single page
+13. Search with `limit: 1` and paginate through all 5 rows using `cursor` — verify total rows retrieved exactly equals 5
 
 ## Cleanup
 

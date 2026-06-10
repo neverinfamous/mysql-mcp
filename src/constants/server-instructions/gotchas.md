@@ -18,6 +18,10 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **Column name**: `column` or `col` — accepted by Text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_collation_convert`).
 - **Admin tables array**: Admin maintenance tools accept a singular `table` (or `tableName`/`name`) as an alias for the `tables` array parameter, automatically wrapping it in an array.
 
+## Pagination & Limits
+
+- **Default LIMIT 50**: `mysql_read_query` injects a default `LIMIT 50` on queries without an explicit `LIMIT` clause. Use `cursor`/`nextCursor` to page through results. Add your own `LIMIT` clause to override this default.
+
 ## Typed Error Codes
 
 All errors carry a `code` field for programmatic handling:

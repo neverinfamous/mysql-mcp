@@ -19,6 +19,10 @@ export const ReadQuerySchemaBase = z.object({
     .array(z.unknown())
     .optional()
     .describe("Query parameters for prepared statement"),
+  cursor: z
+    .string()
+    .optional()
+    .describe("Opaque cursor for pagination (use nextCursor from previous response)"),
   transactionId: z
     .string()
     .optional()
@@ -46,6 +50,10 @@ export const ReadQuerySchema = z
         .array(z.unknown())
         .optional()
         .describe("Query parameters for prepared statement"),
+      cursor: z
+        .string()
+        .optional()
+        .describe("Opaque cursor for pagination (use nextCursor from previous response)"),
       transactionId: z
         .string()
         .optional()
@@ -65,6 +73,7 @@ export const ReadQuerySchema = z
   .transform((data) => ({
     query: data.query ?? data.sql ?? "",
     params: data.params,
+    cursor: data.cursor,
     transactionId: data.transactionId ?? data.txId ?? data.tx,
     stream: data.stream,
     chunkSize: data.chunkSize,

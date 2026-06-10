@@ -116,7 +116,8 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Create/Drop safety**: \`mysql_create_table\` returns \`{ success: false, error }\` when the table already exists (without \`ifNotExists\`). With \`ifNotExists: true\`, creating a table that already exists returns \`{ success: true, skipped: true, reason: "Table already exists" }\`. \`mysql_drop_table\` returns \`{ success: false, error }\` when the table does not exist (without \`ifExists\`). With \`ifExists: true\`, dropping a nonexistent table returns \`{ success: true, skipped: true, reason: "Table did not exist" }\`. All other errors (e.g., permissions) return \`{ success: false, error }\` instead of throwing raw exceptions.
 - **List tables**: \`mysql_list_tables\` accepts an optional \`database\` parameter. When the specified database does not exist, returns \`{ exists: false, database, message }\` instead of an empty result set.
 - **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use \`ifNotExists: true\` to skip if the index already exists. Returns \`{ success: false, error }\` when the index already exists (without \`ifNotExists\`), when a specified column does not exist on the table, or for any other error. Returns \`{ exists: false, table }\` only when the target table itself does not exist. Note: InnoDB only supports BTREE indexes; HASH type is silently converted to BTREE (the response includes a \`warning\` field). HASH is only effective with the MEMORY engine.
-- **Table names**: All core tools support qualified names (\`schema.table\` format) for cross-database operations.`],
+- **Table names**: All core tools support qualified names (\`schema.table\` format) for cross-database operations.
+- **Cursor pagination**: \`mysql_read_query\` injects a default \`LIMIT 50\` on SELECT/WITH queries that lack an explicit LIMIT clause. Use the \`cursor\` parameter (from a previous response's \`nextCursor\`) to paginate through large result sets. The cursor is an opaque base64 string — do not construct it manually. When the result has more pages, \`nextCursor\` is included in the response. If your query already includes a \`LIMIT\`, the safety limit is not injected and cursor pagination still works via OFFSET.`],
   ["docstore", `# Document Store (\`mysql_doc_*\`)
 
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
@@ -150,7 +151,10 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Query expansion** (\`mysql_fulltext_expand\`): Finds related terms - may return more rows than exact match.
 - **Column matching**: MATCH column list must exactly match the columns of an existing FULLTEXT index. Searching a subset of indexed columns will fail.
 - **Output**: Tools return only \`id\`, searched column(s), and \`relevance\` score. Use \`maxLength\` parameter to truncate long text columns in results (e.g., \`maxLength: 200\` truncates values over 200 characters with \`...\`).
-- **Error handling**: All fulltext tools return \`{ exists: false, table }\` for nonexistent tables. Search tools (\`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`) also return \`{ success: false, error }\` for other query errors (e.g., FULLTEXT index column mismatch). No raw MySQL errors are thrown.`],
+- **Error handling**: All fulltext tools return \`{ exists: false, table }\` for nonexistent tables. Search tools (\`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`) also return \`{ success: false, error }\` for other query errors (e.g., FULLTEXT index column mismatch). No raw MySQL errors are thrown.
+- **Query sanitization**: All fulltext search tools (\`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`) automatically sanitize queries — balancing unmatched quotes and parentheses, stripping dangling operators, and normalizing whitespace. If sanitization results in an empty query, the tool returns \`{ rows: [], count: 0 }\` instead of a MySQL parse error.
+- **Faceted results**: Set \`includeFacets: true\` on any fulltext search tool to receive a \`facets\` object in the response showing per-column hit distribution (e.g., \`{ "title": 8, "body": 3 }\`). Useful for understanding which columns are most relevant to the search terms. Note: MySQL requires each column to have an individual FULLTEXT index for faceted counting. If an individual index is missing, the tool gracefully skips that column's facet and returns a \`warnings\` array in the response (e.g., \`["Facet skipped for 'title': Requires individual FULLTEXT index"]\`) instead of failing the primary search.
+- **Cursor pagination**: All fulltext search tools support \`cursor\` parameter for paginating through large result sets. Use \`nextCursor\` from a previous response. Default limit: 5 (configurable via \`limit\` parameter).`],
   ["gotchas", `# Critical Gotchas & Always-Available Reference
 
 ## Server Identity
@@ -170,6 +174,10 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **WHERE clause**: \`where\` or \`filter\` — accepted by \`mysql_export_table\` and Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`).
 - **Column name**: \`column\` or \`col\` — accepted by Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_collation_convert\`).
 - **Admin tables array**: Admin maintenance tools accept a singular \`table\` (or \`tableName\`/\`name\`) as an alias for the \`tables\` array parameter, automatically wrapping it in an array.
+
+## Pagination & Limits
+
+- **Default LIMIT 50**: \`mysql_read_query\` injects a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use \`cursor\`/\`nextCursor\` to page through results. Add your own \`LIMIT\` clause to override this default.
 
 ## Typed Error Codes
 

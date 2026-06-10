@@ -146,7 +146,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM users",
+        "SELECT * FROM users LIMIT 50",
         undefined,
         undefined,
       );
@@ -161,7 +161,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM users WHERE id = ?",
+        "SELECT * FROM users WHERE id = ? LIMIT 50",
         [1],
         undefined,
       );
@@ -175,7 +175,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM users",
+        "SELECT * FROM users LIMIT 50",
         undefined,
         "txn-123",
       );

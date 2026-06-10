@@ -7,6 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { ValidationError } from "../../../types/index.js";
 import {
   ReadQuerySchema,
   ReadQuerySchemaBase,
@@ -102,15 +103,62 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         const {
           query,
           params: queryParams,
+          cursor,
           transactionId,
           stream,
           chunkSize,
         } = ReadQuerySchema.parse(params);
+
+        let finalQuery = query.replace(/[\s;]+$/g, "");
+        let offset = 0;
+
+        if (cursor) {
+          try {
+            const cursorData = JSON.parse(
+              Buffer.from(cursor, "base64").toString("utf8"),
+            ) as Record<string, unknown>;
+            if (typeof cursorData["offset"] === "number") {
+              offset = cursorData["offset"];
+            }
+          } catch {
+            throw new ValidationError("Invalid cursor format", {
+              suggestion: "Use the nextCursor value returned from a previous query.",
+            });
+          }
+        }
+
+        const upperForLimit = finalQuery.toUpperCase();
+        const isLimitable =
+          upperForLimit.startsWith("SELECT") ||
+          upperForLimit.startsWith("WITH");
+
+        const limit = 50;
+        const hasLimit = /\bLIMIT\b/i.test(finalQuery);
+        
+        if (isLimitable && !hasLimit) {
+          finalQuery = `${finalQuery} LIMIT ${limit}`;
+          if (offset > 0) {
+            finalQuery = `${finalQuery} OFFSET ${offset}`;
+          }
+        } else if (isLimitable && hasLimit && offset > 0) {
+          if (!/\bOFFSET\b/i.test(finalQuery)) {
+            finalQuery = `${finalQuery} OFFSET ${offset}`;
+          }
+        }
+
         const result = await adapter.executeReadQuery(
-          query,
+          finalQuery,
           queryParams,
           transactionId,
         );
+
+        let nextCursor: string | undefined;
+        if (isLimitable && !hasLimit && result.rows?.length === limit) {
+          const nextOffset = offset + limit;
+          nextCursor = Buffer.from(
+            JSON.stringify({ offset: nextOffset }),
+          ).toString("base64");
+        }
 
         if (stream && !_context.isCodeMode) {
           const progressCtx = buildProgressContext(_context);
@@ -126,6 +174,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
                 streamed: true,
                 chunksEmitted,
                 rowCount: result.rows?.length ?? 0,
+                nextCursor,
                 executionTimeMs: result.executionTimeMs,
               },
             });
@@ -137,6 +186,7 @@ function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             rows: result.rows,
             rowCount: result.rows?.length ?? 0,
+            nextCursor,
             executionTimeMs: result.executionTimeMs,
           },
         });

@@ -13,7 +13,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://img.shields.io/badge/E2E-442%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-87.23%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-86.67%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -419,7 +419,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `fulltext`      | 5     | Natural language & boolean search                       |
 | `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
 | `optimization`  | 4     | Index hints, recommendations                            |
-| `admin`         | 8     | OPTIMIZE, ANALYZE, CHECK, insights                      |
+| `admin`         | 9     | OPTIMIZE, ANALYZE, CHECK, insights                      |
 | `monitoring`    | 7     | PROCESSLIST, status variables                           |
 | `backup`        | 7     | Export, import, mysqldump, audit backups                |
 | `replication`   | 5     | Master/slave, binlog                                    |

@@ -346,7 +346,6 @@ jobs:
 
       # Update Docker Hub description
       - name: Update Docker Hub Description
-        if: github.ref == 'refs/heads/main'
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
         continue-on-error: true
         timeout-minutes: 5
@@ -355,7 +354,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "MySQL MCP: 229 Tools, Code Mode, HTTP/SSE, OAuth 2.1, Connection Pooling & Audit Logs."
+          short-description: "MySQL MCP: 230 Tools, Code Mode, HTTP/SSE, OAuth 2.1, Connection Pooling & Audit Logs."
 
       - name: Deployment Summary
         if: github.ref == 'refs/heads/main'

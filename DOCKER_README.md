@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-87.23%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-86.67%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -271,7 +271,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `fulltext`      | 5     | Natural language & boolean search                       |
 | `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
 | `optimization`  | 4     | Index hints, recommendations                            |
-| `admin`         | 8     | OPTIMIZE, ANALYZE, CHECK, insights                      |
+| `admin`         | 9     | OPTIMIZE, ANALYZE, CHECK, insights                      |
 | `monitoring`    | 7     | PROCESSLIST, status variables                           |
 | `backup`        | 7     | Export, import, mysqldump, audit backups                |
 | `replication`   | 5     | Master/slave, binlog                                    |

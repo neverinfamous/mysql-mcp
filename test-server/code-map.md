@@ -98,6 +98,7 @@ src/
 │   ├── worker-script.ts            # Worker thread entry point (runs inside vm)
 │   ├── api/
 │   │   ├── MysqlApi.ts             # mysql.* API bridge — injects AuditInterceptor into all 24 groups
+│   │   ├── constants.ts            # Code Mode method aliases, positional params, prefix rules
 │   │   ├── generator.ts            # createGroupApi() — dynamic tool→method generator with audit wrapper
 │   │   └── index.ts                # Barrel
 │   ├── security.ts                 # Code validation (blocked patterns, injection prevention)
@@ -161,8 +162,8 @@ src/
 | **optimization**  | `performance/optimization.ts`        | 4     | `index_recommendation`, `query_rewrite`, `force_index`, `optimizer_trace`                                                                                            |
 | **admin**         | `admin/maintenance.ts`<br>`../../server/admin-tools.ts` | 9     | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`, `append_insight`, `server_config`, `audit_search` |
 |                   | `admin/audit-backup.ts`              | 3     | `audit_list_backups`, `audit_diff_backup`, `audit_restore_backup` (require `--audit-backup` flag)                                                                    |
-|                   | `admin/monitoring.ts`                | 7     | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health`                                            |
-|                   | `admin/backup.ts`                    | 4     | `export_table`, `import_data`, `create_dump`, `restore_dump`                                                                                                         |
+| **monitoring**    | `admin/monitoring.ts`                | 7     | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health`                                            |
+| **backup**        | `admin/backup.ts`                    | 4     | `export_table`, `import_data`, `create_dump`, `restore_dump`                                                                                                         |
 | **security**      | `security/audit.ts`                  | 3     | `security_audit`, `security_firewall_status`, `security_firewall_rules`                                                                                              |
 |                   | `security/data-protection.ts`        | 3     | `security_mask_data`, `security_user_privileges`, `security_sensitive_tables`                                                                                        |
 |                   | `security/encryption.ts`             | 3     | `security_ssl_status`, `security_encryption_status`, `security_password_validate`                                                                                    |

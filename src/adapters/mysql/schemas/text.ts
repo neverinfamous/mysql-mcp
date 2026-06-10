@@ -397,6 +397,17 @@ export const FulltextSearchSchemaBase = z.object({
       "Optional max characters per text column in results. Truncates with '...' if exceeded.",
     ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  includeFacets: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Include per-column hit distribution in results"),
+  cursor: z
+    .string()
+    .optional()
+    .describe(
+      "Opaque cursor for pagination (use nextCursor from previous response)",
+    ),
 });
 
 export const FulltextSearchSchema = z
@@ -418,6 +429,8 @@ export const FulltextSearchSchema = z
         .default("NATURAL"),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
+      includeFacets: z.boolean().optional().default(false),
+      cursor: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -427,6 +440,8 @@ export const FulltextSearchSchema = z
     mode: data.mode,
     maxLength: data.maxLength,
     limit: data.limit,
+    includeFacets: data.includeFacets,
+    cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -498,6 +513,17 @@ export const FulltextBooleanSchemaBase = z.object({
       "Optional max characters per text column in results. Truncates with '...' if exceeded.",
     ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  includeFacets: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Include per-column hit distribution in results"),
+  cursor: z
+    .string()
+    .optional()
+    .describe(
+      "Opaque cursor for pagination (use nextCursor from previous response)",
+    ),
 });
 
 export const FulltextBooleanSchema = z
@@ -511,6 +537,8 @@ export const FulltextBooleanSchema = z
       query: z.string().optional(),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
+      includeFacets: z.boolean().optional().default(false),
+      cursor: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -519,6 +547,8 @@ export const FulltextBooleanSchema = z
     query: data.query ?? "",
     maxLength: data.maxLength,
     limit: data.limit,
+    includeFacets: data.includeFacets,
+    cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -551,6 +581,17 @@ export const FulltextExpandSchemaBase = z.object({
       "Optional max characters per text column in results. Truncates with '...' if exceeded.",
     ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  includeFacets: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Include per-column hit distribution in results"),
+  cursor: z
+    .string()
+    .optional()
+    .describe(
+      "Opaque cursor for pagination (use nextCursor from previous response)",
+    ),
 });
 
 export const FulltextExpandSchema = z
@@ -564,6 +605,8 @@ export const FulltextExpandSchema = z
       query: z.string().optional(),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
+      includeFacets: z.boolean().optional().default(false),
+      cursor: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -572,6 +615,8 @@ export const FulltextExpandSchema = z
     query: data.query ?? "",
     maxLength: data.maxLength,
     limit: data.limit,
+    includeFacets: data.includeFacets,
+    cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
