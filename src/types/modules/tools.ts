@@ -39,6 +39,7 @@ export type ToolGroup =
   | "docstore" // Document Store / X DevAPI
   | "introspection" // Schema introspection and cascade analysis
   | "migration" // Schema migration and version tracking
+  | "vector" // Vector / AI operations
   | "codemode"; // Code Mode sandbox execution
 
 /**
@@ -51,6 +52,7 @@ export type MetaGroup =
   | "dev-power" // Power Developer (Core, Schema, Perf, Stats, Fulltext) ~45 tools
   | "ai-data" // AI Data Analyst (Core, JSON, DocStore, Text, Fulltext) ~44 tools
   | "ai-spatial" // AI Spatial Analyst (Core, Spatial, Stats, Perf) ~43 tools
+  | "ai-vector" // AI Vector Analyst (Core, Vector, Stats, Perf) ~40 tools
   | "dba-monitor" // DBA Monitoring (Core, Monitor, Perf, SysSchema, Opt) ~35 tools
   | "dba-manage" // DBA Management (Core, Admin, Backup, Repl, Parts, Events) ~33 tools
   | "dba-secure" // DBA Security (Core, Security, Roles) ~32 tools

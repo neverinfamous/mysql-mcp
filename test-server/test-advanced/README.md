@@ -19,6 +19,7 @@ The original monolithic advanced stress testing suite was split into 26 granular
 | `test-tools-advanced-transactions.md`  | Transactions        | Aborted transaction recovery, savepoint stress, mixed statement execution, failure rollback         |
 | `test-tools-advanced-schema.md`        | Schema              | DDL idempotency, cross-object dependencies, parameter alias parity, payload monitoring              |
 | `test-tools-advanced-json.md`          | JSON                | Deep mutation workflows, nested path operations, merge operations                                   |
+| `test-tools-advanced-vector.md`        | Vector              | Bounds, metric consistency, hybrid search edge cases                                                |
 | `test-tools-advanced-spatial.md`       | Spatial             | Boundary coordinates, out-of-bounds validation, exact boundary values                               |
 | `test-tools-advanced-document.md`      | Document Store      | Empty array edge cases, nonexistent field criteria, collection lifecycle                            |
 | `test-tools-advanced-fulltext.md`      | Fulltext/Search     | Search pipeline lifecycle, temp table FTS index creation and search                                 |

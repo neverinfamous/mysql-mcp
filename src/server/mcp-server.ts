@@ -628,6 +628,7 @@ export class McpServer {
       { group: "proxysql", key: "proxysql" },
       { group: "router", key: "router" },
       { group: "shell", key: "shell" },
+      { group: "vector", key: "vector" },
     ];
 
     for (const { group, key } of groupHelpKeys) {

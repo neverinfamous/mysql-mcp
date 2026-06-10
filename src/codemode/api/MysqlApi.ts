@@ -39,6 +39,7 @@ export class MysqlApi {
   // Phase 3 groups
   readonly introspection: GroupApiRecord;
   readonly migration: GroupApiRecord;
+  readonly vector: GroupApiRecord;
 
   private readonly toolsByGroup: Map<string, ToolDefinition[]>;
   private readonly isReadonly: boolean;
@@ -211,6 +212,12 @@ export class MysqlApi {
       this.toolsByGroup.get("migration") ?? [],
       audit,
     );
+    this.vector = createGroupApi(
+      adapter,
+      "vector",
+      this.toolsByGroup.get("vector") ?? [],
+      audit,
+    );
   }
 
   /**
@@ -320,6 +327,7 @@ export class MysqlApi {
       ]),
       fulltext: new Set(["fulltextCreate", "fulltextDrop"]),
       spatial: new Set(["createColumn", "createIndex"]),
+      vector: new Set(["store", "batchStore", "delete", "createIndex", "optimize"]),
     };
 
     const groupNames = [
@@ -349,6 +357,7 @@ export class MysqlApi {
       "docstore",
       "introspection",
       "migration",
+      "vector",
     ] as const;
 
     for (const groupName of groupNames) {
@@ -603,6 +612,21 @@ export class MysqlApi {
       ]) {
         if (statsApi[method] !== undefined) {
           bindings[method] = statsApi[method];
+        }
+      }
+    }
+
+    // Vector aliases: mysql.vectorSearch() → mysql.vector.search()
+    const vectorApi = bindings["vector"] as GroupApiRecord | undefined;
+    if (vectorApi !== undefined) {
+      for (const method of [
+        "search",
+        "rangeSearch",
+        "hybridSearch",
+      ]) {
+        if (vectorApi[method] !== undefined) {
+          bindings[`vector${method.charAt(0).toUpperCase()}${method.slice(1)}`] =
+            vectorApi[method];
         }
       }
     }

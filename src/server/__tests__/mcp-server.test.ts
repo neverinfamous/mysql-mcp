@@ -420,7 +420,7 @@ describe("McpServer", () => {
         fs.rmSync(path.join(cwd, "test-mcp-server.sqlite"), { force: true });
         fs.rmSync(path.join(cwd, "test-mcp-server.sqlite-shm"), { force: true });
         fs.rmSync(path.join(cwd, "test-mcp-server.sqlite-wal"), { force: true });
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     });

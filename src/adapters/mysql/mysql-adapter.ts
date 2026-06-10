@@ -64,6 +64,7 @@ import { getRoleTools } from "./tools/roles.js";
 import { getDocStoreTools } from "./tools/docstore/index.js";
 import { getIntrospectionTools } from "./tools/introspection/index.js";
 import { getMigrationTools } from "./tools/migration/index.js";
+import { getVectorTools } from "./tools/vector/index.js";
 import { getCodeModeTools } from "./tools/codemode/index.js";
 import { getMySQLResources } from "./resources/index.js";
 import { getMySQLPrompts } from "./prompts/index.js";
@@ -515,6 +516,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       "docstore",
       "introspection",
       "migration",
+      "vector",
       "codemode",
     ];
   }
@@ -558,6 +560,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       ...getDocStoreTools(this),
       ...getIntrospectionTools(this),
       ...getMigrationTools(this),
+      ...getVectorTools(this),
       ...getCodeModeTools(this),
     ];
 

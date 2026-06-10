@@ -294,6 +294,19 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_migration_history",
     "mysql_migration_status",
   ],
+  vector: [
+    "mysql_vector_store",
+    "mysql_vector_batch_store",
+    "mysql_vector_delete",
+    "mysql_vector_get",
+    "mysql_vector_search",
+    "mysql_vector_range_search",
+    "mysql_vector_hybrid_search",
+    "mysql_vector_info",
+    "mysql_vector_create_index",
+    "mysql_vector_optimize",
+    "mysql_vector_stats",
+  ],
   codemode: ["mysql_execute_code"],
 };
 
@@ -307,14 +320,15 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  *   starter:       43 (core:12 + json:17 + transactions:7 + text:6 + codemode:1)
  *   essential:     20 (core:12 + transactions:7 + codemode:1)
  *   dev-power:     67 (core:12 + schema:11 + performance:11 + stats:20 + fulltext:5 + transactions:7 + codemode:1)
- *   ai-data:       50 (core:12 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
+ *   ai-data:       61 (core:12 + json:17 + docstore:9 + text:6 + fulltext:5 + vector:11 + codemode:1)
  *   ai-spatial:    63 (core:12 + spatial:12 + stats:20 + performance:11 + transactions:7 + codemode:1)
+ *   ai-vector:     29 (core:12 + vector:11 + fulltext:5 + codemode:1)
  *   dba-monitor:   43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
  *   dba-manage:    44 (core:12 + admin:9 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
  *   dba-secure:    37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
  *   dba-schema:    36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
  *   base-core:     54 (core:12 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)
- *   base-advanced: 53 (docstore:9 + spatial:12 + stats:20 + fulltext:5 + events:6 + codemode:1)
+ *   base-advanced: 64 (docstore:9 + spatial:12 + stats:20 + fulltext:5 + events:6 + vector:11 + codemode:1)
  *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */
 export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
@@ -332,7 +346,7 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
   ],
 
   // 2. AI Workloads
-  "ai-data": ["core", "json", "docstore", "text", "fulltext", "codemode"],
+  "ai-data": ["core", "json", "docstore", "text", "fulltext", "vector", "codemode"],
   "ai-spatial": [
     "core",
     "spatial",
@@ -341,6 +355,7 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "transactions",
     "codemode",
   ],
+  "ai-vector": ["core", "vector", "fulltext", "codemode"],
 
   // 3. DBA Workloads
   "dba-monitor": [
@@ -371,6 +386,7 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "stats",
     "fulltext",
     "events",
+    "vector",
     "codemode",
   ],
 

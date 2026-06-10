@@ -75,3 +75,6 @@ export { getIntrospectionTools } from "./introspection/index.js";
 
 // Migration tools
 export { getMigrationTools } from "./migration/index.js";
+
+// Vector tools
+export { getVectorTools } from "./vector/index.js";

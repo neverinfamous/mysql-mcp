@@ -61,6 +61,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 24. `sys` (8 tools)
 25. `text` (6 tools)
 26. `transactions` (7 tools)
+27. `vector` (11 tools)
 
 ## Execution
 
