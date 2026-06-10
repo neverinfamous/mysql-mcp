@@ -1,6 +1,10 @@
 # Unreleased
 
 ### Added
+- **Documentation:** Added [Capacity-Planning](https://github.com/neverinfamous/mysql-mcp/wiki/Capacity-Planning) wiki guide covering connection pool sizing, vector storage capacity, schema cache footprint, InnoDB maintenance operations, buffer pool monitoring, and token budget planning.
+- **Documentation:** Added [Performance-Tuning](https://github.com/neverinfamous/mysql-mcp/wiki/Performance-Tuning) wiki guide covering schema caching, connection pool tuning, tool filtering strategies, Code Mode efficiency, query performance analysis workflow, InnoDB tuning, and benchmark highlights.
+- **Documentation:** Added `.github/workflows/README.md` with a Mermaid workflow map, categorized workflow tables, release pipeline diagram, secrets reference, and editing guidelines.
+- **Documentation:** Updated wiki sidebar and Home page to include the new Capacity Planning and Performance Tuning pages under a new "📊 Operations" section.
 - **Formal Output Schemas**: Added strongly-typed OutputSchemas for all tools across the `stats`, `spatial`, `roles`, `docstore`, `vector`, `codemode`, `cluster`, `sysschema`, and all other remaining tool groups to enforce strict API contracts, match handler returns precisely, and compute `tokenEstimate` metrics uniformly.
 - **Vector Group Support**: Added comprehensive support for MySQL 9.0+ vector operations via the `vector` tool group, matching parity with `db-mcp` and `postgres-mcp` (increasing total tools from 230 to 241). Includes:
   - Vector storage and retrieval (`mysql_vector_store`, `mysql_vector_get`, `mysql_vector_delete`).
