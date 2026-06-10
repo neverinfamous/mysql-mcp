@@ -7,6 +7,7 @@
   - Reciprocal Rank Fusion (RRF) via `mysql_vector_hybrid_search` to combine fulltext and vector similarity scoring.
   - HNSW index creation and optimization support for MySQL 9.1+ (`mysql_vector_create_index`, `mysql_vector_optimize`).
   - Column statistics and dimensionality validation (`mysql_vector_info`, `mysql_vector_stats`).
+  - Full Playwright E2E test suite running natively against the latest MySQL 9.6.0 testing environment.
 - Added the new `ai-vector` meta-group (combining `core`, `vector`, `fulltext`, and `codemode`) to the tool-groups configuration mapping.
 - **Q5 Index Recommendation Engine Upgrade**: `mysql_index_recommendation` now performs comprehensive index audits, including:
   - Database-wide redundant and duplicate index detection.
