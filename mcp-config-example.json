@@ -16,7 +16,9 @@
         "MYSQL_MCP_TOOL_FILTER": "starter",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODEMODE_ISOLATION": "worker",
-        "CODE_MODE_MAX_RESULT_SIZE": "102400"
+        "CODE_MODE_MAX_RESULT_SIZE": "102400",
+        "PROJECT_REGISTRY": "github.com/your-org",
+        "TEAM_DB_PATH": "/data/shared-dbs"
       }
     }
   }

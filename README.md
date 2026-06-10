@@ -418,7 +418,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `text`          | 6     | REGEXP, LIKE, SOUNDEX                                   |
 | `fulltext`      | 5     | Natural language & boolean search                       |
 | `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
-| `optimization`  | 4     | Index hints, recommendations                            |
+| `optimization`  | 4     | Index hints, database-wide audits, EXPLAIN recommendations |
 | `admin`         | 9     | OPTIMIZE, ANALYZE, CHECK, insights                      |
 | `monitoring`    | 7     | PROCESSLIST, status variables                           |
 | `backup`        | 7     | Export, import, mysqldump, audit backups                |

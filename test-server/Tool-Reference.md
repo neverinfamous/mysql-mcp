@@ -192,7 +192,7 @@ Complete list of all **230 tools** across 27 categories.
 
 | Tool                         | Description                                        |
 | ---------------------------- | -------------------------------------------------- |
-| `mysql_index_recommendation` | Suggest missing indexes                            |
+| `mysql_index_recommendation` | Suggest missing indexes. **v2.2:** `queries`, `includeRedundant`, `includeUnindexed` params |
 | `mysql_query_rewrite`        | Query optimization hints                           |
 | `mysql_force_index`          | Generate FORCE INDEX hints                         |
 | `mysql_optimizer_trace`      | View optimizer decisions. **v2.2:** `summary` mode |

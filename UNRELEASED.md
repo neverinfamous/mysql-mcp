@@ -6,6 +6,7 @@
   - Foreign key columns lacking indexes (slow JOINs/deletes).
   - Identification of large tables (1000+ rows) without secondary indexes.
   - EXPLAIN-based composite index recommendations via the new `queries` array parameter.
+- Synchronized documentation (`Tool-Reference.md`, `code-map.md`, `README.md`, `mcp-config-example.json`) to accurately reflect the Q5 Index Recommendation Engine upgrades and maintain parity.
 - **Pagination & Search Alignment:** Brought `mysql-mcp` into architectural parity with `db-mcp` by implementing default `LIMIT 50` safety injections and opaque base64 cursor pagination for `mysql_read_query` and fulltext tools.
 - **Faceted Search:** Added `includeFacets` option to all fulltext search tools (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) to return per-column hit distributions.
 - **FTS Sanitization:** Implemented automatic query sanitization for fulltext search tools to safely handle unbalanced quotes, unmatched parentheses, and dangling boolean operators.
