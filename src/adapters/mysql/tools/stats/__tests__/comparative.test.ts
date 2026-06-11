@@ -3,7 +3,7 @@ import {
   createCorrelationTool,
   createRegressionTool,
   createHistogramTool,
-} from "../comparative.js";
+} from "../comparative/index.js";
 import { MySQLAdapter } from "../../../mysql-adapter/index.js";
 
 describe("Comparative Stats Tools", () => {

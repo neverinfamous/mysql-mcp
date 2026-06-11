@@ -24,7 +24,7 @@ import {
   createFulltextSearchTool,
   createFulltextBooleanTool,
   createFulltextExpandTool,
-} from "./fulltext.js";
+} from "./fulltext/index.js";
 
 /**
  * Get text processing tools

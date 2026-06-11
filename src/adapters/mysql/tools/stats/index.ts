@@ -15,13 +15,13 @@ import {
   createDistributionTool,
   createTimeSeriesToolStats,
   createSamplingTool,
-} from "./descriptive.js";
+} from "./descriptive/index.js";
 
 import {
   createCorrelationTool,
   createRegressionTool,
   createHistogramTool,
-} from "./comparative.js";
+} from "./comparative/index.js";
 
 import {
   createStatsRowNumberTool,
@@ -30,7 +30,7 @@ import {
   createStatsRunningTotalTool,
   createStatsMovingAvgTool,
   createStatsNtileTool,
-} from "./window.js";
+} from "./window/index.js";
 
 import { createStatsHypothesisTool } from "./hypothesis.js";
 import { createStatsOutliersTool } from "./outlier.js";

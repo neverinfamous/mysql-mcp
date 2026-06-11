@@ -11,7 +11,7 @@ import {
   createFulltextSearchTool,
   createFulltextBooleanTool,
   createFulltextExpandTool,
-} from "../fulltext.js";
+} from "../fulltext/index.js";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,

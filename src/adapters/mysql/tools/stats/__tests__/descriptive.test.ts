@@ -5,7 +5,7 @@ import {
   createDistributionTool,
   createTimeSeriesToolStats,
   createSamplingTool,
-} from "../descriptive.js";
+} from "../descriptive/index.js";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
