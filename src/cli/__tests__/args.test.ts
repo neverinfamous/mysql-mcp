@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { parseArgs } from "../args.js";
+import { parseArgs } from "../args/index.js";
 import fs from "node:fs";
 
 vi.mock("node:fs", () => ({

@@ -1,145 +1,19 @@
 import {
   parseMySQLConnectionString,
   DEFAULT_CONFIG,
-} from "../server/mcp-server.js";
+} from "../../server/mcp-server/index.js";
 import type {
   McpServerConfig,
   TransportType,
   DatabaseConfig,
   PoolConfig,
   OAuthConfig,
-} from "../types/index.js";
-import { logger } from "../utils/logger.js";
-import { parseAllowedIoRoots } from "../utils/security-utils.js";
-import fs from "node:fs";
-import yaml from "yaml";
-
-/**
- * Load configuration from a JSON or YAML file
- */
-function loadConfigFile(configPath: string): Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig } {
-  try {
-    const fileContent = fs.readFileSync(configPath, "utf-8");
-    if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
-      return yaml.parse(fileContent) as Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig };
-    } else {
-      return JSON.parse(fileContent) as Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig };
-    }
-  } catch (error) {
-    logger.error(`Failed to load config file: ${configPath}`, {
-      error: error instanceof Error ? error : new Error(String(error)),
-      module: "CLI",
-    });
-    process.exit(1);
-  }
-}
-
-/**
- * Load configuration from environment variables
- */
-function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServerConfig>; databases: DatabaseConfig[]; oauth?: OAuthConfig } {
-  const config: Partial<McpServerConfig> = {};
-  const databases: DatabaseConfig[] = [];
-  let oauth: OAuthConfig | undefined;
-
-  // Check for server host in environment
-  const host = process.env["MCP_HOST"] ?? process.env["HOST"];
-  if (host) config.host = host;
-
-  // Check for allowed IO roots in environment
-  const allowedIoRoots = process.env["ALLOWED_IO_ROOTS"];
-  if (allowedIoRoots) {
-    config.allowedIoRoots = parseAllowedIoRoots(allowedIoRoots);
-  }
-
-  // Check trust proxy environment variable
-  if (process.env["TRUST_PROXY"] === "true") {
-    config.trustProxy = true;
-  }
-
-  // Check HSTS environment variable
-  if (process.env["MCP_ENABLE_HSTS"] === "true") {
-    config.enableHSTS = true;
-  }
-
-  // Check for tool filter in environment
-  const toolFilter = process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
-  if (toolFilter) {
-    config.toolFilter = toolFilter;
-  }
-
-  // Check auth token environment variable
-  const authToken = process.env["MCP_AUTH_TOKEN"];
-  if (authToken) {
-    config.authToken = authToken;
-  }
-
-  // Check metrics export environment variable
-  const metricsExport = process.env["MCP_METRICS_EXPORT"];
-  if (metricsExport) {
-    config.metricsExport = metricsExport === "prometheus" ? "prometheus" : (metricsExport === "true");
-  }
-
-  // Check OAuth environment variables
-  if (process.env["OAUTH_ENABLED"] === "true") {
-    oauth = {
-      enabled: true,
-      authorizationServerUrl: process.env["OAUTH_ISSUER"],
-      issuer: process.env["OAUTH_ISSUER"],
-      audience: process.env["OAUTH_AUDIENCE"],
-      jwksUri: process.env["OAUTH_JWKS_URI"],
-      clockTolerance: process.env["OAUTH_CLOCK_TOLERANCE"] ? parseInt(process.env["OAUTH_CLOCK_TOLERANCE"], 10) : undefined,
-    };
-  }
-
-  // Check audit environment variables
-  const auditLogPath = process.env["AUDIT_LOG_PATH"];
-  if (auditLogPath) {
-    config.auditConfig = {
-      enabled: true,
-      logPath: auditLogPath,
-      redact: process.env["AUDIT_REDACT"] === "true",
-      auditReads: process.env["AUDIT_READS"] === "true",
-      maxSizeBytes: 10 * 1024 * 1024,
-    };
-
-    if (process.env["AUDIT_BACKUP"] === "true") {
-      config.auditConfig.backup = {
-        enabled: true,
-        includeData: process.env["AUDIT_BACKUP_DATA"] === "true",
-        maxAgeDays: 30, // Fixed default for now
-        maxCount: 1000, // Fixed default for now
-        maxDataSizeBytes: 50 * 1024 * 1024,
-      };
-    }
-  }
-
-  // Check database environment variables as fallback
-  const envHost = process.env["MYSQL_HOST"];
-  const envUser = process.env["MYSQL_USER"];
-  const envPassword = process.env["MYSQL_PASSWORD"];
-  const envDatabase = process.env["MYSQL_DATABASE"];
-  const envPort = process.env["MYSQL_PORT"];
-  const envPoolSize = process.env["MYSQL_POOL_SIZE"];
-
-  if (envHost && envUser && envDatabase) {
-    const envPoolConfig = { ...poolConfig };
-    if (envPoolSize) {
-      envPoolConfig.connectionLimit = parseInt(envPoolSize, 10);
-    }
-    databases.push({
-      type: "mysql",
-      host: envHost,
-      port: envPort ? parseInt(envPort, 10) : 3306,
-      username: envUser,
-      password: envPassword,
-      database: envDatabase,
-      pool: envPoolConfig,
-    });
-  }
-
-  return { config, databases, oauth };
-}
+} from "../../types/index.js";
+import { logger } from "../../utils/logger.js";
+import { parseAllowedIoRoots } from "../../utils/security-utils.js";
+import { loadConfigFile } from "./load-config-file.js";
+import { loadEnvConfig } from "./load-env-config.js";
+import { printHelp } from "./print-help.js";
 
 /**
  * Parse command line arguments
@@ -533,89 +407,4 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
   }
 
   return { config, databases, oauth, shouldExit: false, dumpConfig };
-}
-
-/**
- * Print help message
- */
-export function printHelp(): void {
-  console.error(`
-mysql-mcp - Enterprise MySQL MCP Server
-
-Usage: mysql-mcp [options]
-
-Connection Options:
-  --mysql, -m <url>           MySQL connection string
-                              (mysql://user:pass@host:port/database)
-  --mysql-host <host>         MySQL host (default: localhost)
-  --mysql-port <port>         MySQL port (default: 3306)
-  --mysql-user <user>         MySQL username
-  --mysql-password <pass>     MySQL password
-  --mysql-database <db>       MySQL database name
-
-Pool Options:
-  --pool-size <n>             Connection pool size (default: 10)
-  --pool-timeout <ms>         Connection acquire timeout (default: 10000)
-  --pool-queue-limit <n>      Queue limit for waiting requests (default: 0)
-
-Server Options:
-  --config, -c <path>         Load configuration from YAML/JSON file
-  --dump-config               Print the resolved configuration and exit
-  --transport, -t <type>      Transport type: stdio, http, sse (default: stdio)
-  --port, -p <port>           HTTP port for http/sse transports
-  --server-host <host>        Host to bind HTTP transport to (default: localhost)
-  --tool-filter, -f <filter>  Tool filter string (e.g., "-replication,-partitioning")
-  --name <name>               Server name (default: mysql-mcp)
-
-OAuth Options:
-  --oauth-enabled, -o         Enable OAuth 2.1 authentication
-  --oauth-issuer <url>        Authorization server URL (issuer)
-  --oauth-audience <aud>      Expected token audience
-  --oauth-jwks-uri <url>      JWKS URI (auto-discovered from issuer if not set)
-  --oauth-clock-tolerance <s> Clock tolerance in seconds (default: 60)
-
-Authentication & Security:
-  --auth-token <token>        Simple bearer token for HTTP authentication (env: MCP_AUTH_TOKEN)
-  --stateless                 Enable stateless HTTP mode (no sessions, no SSE)
-  --enable-hsts               Enable HSTS header (use when behind HTTPS)
-  --trust-proxy               Trust X-Forwarded-For header for client IP
-  --log-level <level>         Log level: debug, info, warn, error (default: info)
-  --metrics-export [format]   Enable metrics export endpoint (prometheus)
-
-Audit Options:
-  --audit-log <path>          Path to JSONL audit log file (or 'stderr' to stream)
-  --audit-redact              Redact tool arguments from audit log
-  --audit-reads               Log read operations in addition to writes/admins
-  --audit-log-max-size <b>    Max audit log size in bytes before rotation (default: 10MB)
-  --audit-backup              Enable pre-mutation DDL snapshots for destructive tools
-  --audit-backup-data         Include sample data rows in pre-mutation snapshots
-  --audit-backup-max-size <b> Max table size in bytes for data capture (default: 50MB)
-
-  --allowed-io-roots <paths>  Allowed input/output root directories (comma-separated or JSON array)
-
-Other:
-  --version, -v               Show version
-  --help, -h                  Show this help
-
-Environment Variables:
-  MYSQL_HOST                  MySQL host
-  MYSQL_PORT                  MySQL port
-  MYSQL_USER                  MySQL username
-  MYSQL_PASSWORD              MySQL password
-  MYSQL_DATABASE              MySQL database
-  MYSQL_POOL_SIZE             Connection pool size
-  MYSQL_MCP_TOOL_FILTER       Tool filter string
-  MCP_HOST                    Host to bind HTTP transport to
-  MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
-  TRUST_PROXY                  Trust X-Forwarded-For (true/false)
-  MCP_ENABLE_HSTS              Enable HSTS header (same as --enable-hsts)
-  MCP_METRICS_EXPORT           Enable metrics export endpoint (prometheus or true)
-  ALLOWED_IO_ROOTS             Allowed input/output root directories
-  LOG_LEVEL                   Log level (debug, info, warn, error)
-  OAUTH_ENABLED               Enable OAuth (true/false)
-  OAUTH_ISSUER                Authorization server URL
-  OAUTH_AUDIENCE              Expected token audience
-  OAUTH_JWKS_URI              JWKS endpoint URL
-  OAUTH_CLOCK_TOLERANCE       Clock tolerance in seconds
-`);
 }

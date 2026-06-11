@@ -11,7 +11,7 @@ import {
   createServer,
   parseMySQLConnectionString,
   DEFAULT_CONFIG,
-} from "../mcp-server.js";
+} from "../mcp-server/index.js";
 import { createMockMySQLAdapter } from "../../__tests__/mocks/index.js";
 import { VERSION } from "../../version.js";
 import type { TransportType } from "../../types/index.js";
@@ -383,7 +383,7 @@ describe("McpServer", () => {
       const auditServer = new McpServer({
         auditConfig: {
           enabled: true,
-          logPath: "test-mcp-server.jsonl",
+          logPath: "test-mcp-server/index.jsonl",
           redact: false,
           auditReads: false,
           maxSizeBytes: 10485760,
@@ -416,7 +416,7 @@ describe("McpServer", () => {
         const fs = await import("node:fs");
         const path = await import("node:path");
         const cwd = process.cwd();
-        fs.rmSync(path.join(cwd, "test-mcp-server.jsonl"), { force: true });
+        fs.rmSync(path.join(cwd, "test-mcp-server/index.jsonl"), { force: true });
         fs.rmSync(path.join(cwd, "test-mcp-server.sqlite"), { force: true });
         fs.rmSync(path.join(cwd, "test-mcp-server.sqlite-shm"), { force: true });
         fs.rmSync(path.join(cwd, "test-mcp-server.sqlite-wal"), { force: true });

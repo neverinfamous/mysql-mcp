@@ -14,7 +14,7 @@ import type {
   RouterConfig,
   ErrorResponse,
 } from "../../../types/index.js";
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import https from "node:https";
 import {
   formatHandlerErrorResponse,

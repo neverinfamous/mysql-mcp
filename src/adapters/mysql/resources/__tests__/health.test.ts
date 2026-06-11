@@ -5,7 +5,7 @@ import {
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
 import { createHealthResource } from "../health.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Health Resource", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;

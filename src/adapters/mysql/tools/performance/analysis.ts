@@ -5,7 +5,7 @@
  * 8 tools: explain, explain_analyze, slow_queries, query_stats, index_usage, table_stats, buffer_pool_stats, thread_stats.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,

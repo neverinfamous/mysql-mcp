@@ -4,7 +4,7 @@
  * Provides structured data access via URI patterns.
  * 19 resources total.
  */
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ResourceDefinition } from "../../../types/index.js";
 
 // Core resources

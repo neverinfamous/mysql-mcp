@@ -5,7 +5,7 @@ import {
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
 import { createSpatialResource } from "../spatial.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Spatial Resource", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;

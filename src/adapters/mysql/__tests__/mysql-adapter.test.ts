@@ -13,7 +13,7 @@ import {
   afterEach,
   type Mock,
 } from "vitest";
-import { MySQLAdapter } from "../mysql-adapter.js";
+import { MySQLAdapter } from "../mysql-adapter/index.js";
 import { ConnectionPool } from "../../../pool/connection-pool.js";
 import {
   ConnectionError,

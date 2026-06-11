@@ -5,7 +5,7 @@ import {
   createJsonReplaceTool,
   createJsonArrayAppendTool,
 } from "../core.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

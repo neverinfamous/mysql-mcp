@@ -4,7 +4,7 @@ import {
   createMockQueryResult,
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { createClusterResource } from "../cluster.js";
 
 describe("Cluster Resource", () => {

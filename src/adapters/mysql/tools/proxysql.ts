@@ -14,7 +14,7 @@ import {
   withTokenEstimate,
 } from "./core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import {
   ProxySQLBaseInputSchema,
   ProxySQLStatusInputSchema,

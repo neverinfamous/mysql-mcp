@@ -5,14 +5,14 @@
  * Entry point for running the mysql-mcp server from the command line.
  */
 
-import { createServer } from "./server/mcp-server.js";
-import { MySQLAdapter } from "./adapters/mysql/mysql-adapter.js";
+import { createServer } from "./server/mcp-server/index.js";
+import { MySQLAdapter } from "./adapters/mysql/mysql-adapter/index.js";
 import type {
   McpServerConfig,
   DatabaseConfig,
   OAuthConfig,
 } from "./types/index.js";
-import { parseArgs } from "./cli/args.js";
+import { parseArgs } from "./cli/args/index.js";
 import { logger } from "./utils/logger.js";
 
 /**

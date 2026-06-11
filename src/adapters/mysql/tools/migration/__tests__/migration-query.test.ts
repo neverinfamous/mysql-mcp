@@ -4,7 +4,7 @@ import {
   createMigrationHistoryTool,
   createMigrationStatusTool,
 } from "../migration-query.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * mysql-mcp - JSON Enhanced Tools Unit Tests
  *
  * Comprehensive tests for enhanced.ts module functions.
@@ -12,7 +12,7 @@ import {
   createJsonStatsTool,
   createJsonIndexSuggestTool,
 } from "../enhanced.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

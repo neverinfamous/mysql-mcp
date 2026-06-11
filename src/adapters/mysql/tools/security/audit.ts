@@ -15,7 +15,7 @@ import {
   SecurityFirewallStatusOutputSchema,
   SecurityFirewallRulesOutputSchema,
 } from "../../schemas/security.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getVectorTools } from "../../adapters/mysql/tools/vector/index.js";
-import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
+import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition } from "../../types/index.js";
 
 // Mock the MySQLAdapter

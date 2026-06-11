@@ -17,7 +17,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { assertSafeIoPath } from "../../../../utils/security-utils.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellLoadDumpInputSchema,
   ShellRunScriptInputSchema,

@@ -11,7 +11,7 @@ import {
 } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Security: Validation Flow Integration", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;

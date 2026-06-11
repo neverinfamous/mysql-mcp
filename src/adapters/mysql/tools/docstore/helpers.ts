@@ -1,4 +1,4 @@
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 

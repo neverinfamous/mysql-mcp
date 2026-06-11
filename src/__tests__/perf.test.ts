@@ -13,7 +13,7 @@ import {
   filterTools,
   clearToolFilterCaches,
 } from "../filtering/tool-filter.js";
-import { MySQLAdapter } from "../adapters/mysql/mysql-adapter.js";
+import { MySQLAdapter } from "../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition } from "../types/index.js";
 
 /**

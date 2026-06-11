@@ -4,7 +4,7 @@
  * Comprehensive index auditing and AI-powered recommendations based on EXPLAIN analysis.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,

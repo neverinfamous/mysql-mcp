@@ -1,4 +1,4 @@
-import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition } from "../../types/index.js";
 import type { AuditInterceptor } from "../../audit/interceptor.js";
 import { METHOD_ALIASES, GROUP_EXAMPLES } from "./constants.js";

@@ -10,7 +10,7 @@ import {
   createSecurityFirewallStatusTool,
   createSecurityFirewallRulesTool,
 } from "../audit.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

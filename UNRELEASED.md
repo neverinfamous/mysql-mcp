@@ -49,6 +49,7 @@
 - Refactored `src/server/mcp-server.ts` into `src/server/mcp-server/` module structure to cleanly separate auth, subscriptions, resources, and SDK patch logic.
 - Refactored `src/adapters/database-adapter.ts` into a cohesive module structure to significantly reduce file size while maintaining all public APIs.
 - Refactored `src/cli/args.ts` into smaller sub-modules within `src/cli/args/` to improve maintainability and adhere to file size limits.
+- Refactored `src/adapters/mysql/mysql-adapter.ts` into a modular `src/adapters/mysql/mysql-adapter/` directory, moving initialization, tool handling, and resource handling to separate sub-modules.
 - Made `ErrorResponse` interface strictly typed (required `code`, `category`, `suggestion`, `details`, `recoverable` fields) to enforce consistent error API contracts.
 - Converted `ErrorCategory` enum to `as const` object.
 

@@ -4,7 +4,7 @@
  * Comprehensive database health status including connection pool,
  * thread activity, and InnoDB status.
  */
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type {
   ResourceDefinition,
   RequestContext,

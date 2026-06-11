@@ -5,7 +5,7 @@
  * 7 tools: processlist, status, variables, innodb_status, replication, pool_stats, health.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,

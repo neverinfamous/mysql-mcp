@@ -15,7 +15,7 @@ import {
   createBufferPoolStatsTool,
   createThreadStatsTool,
 } from "../analysis.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

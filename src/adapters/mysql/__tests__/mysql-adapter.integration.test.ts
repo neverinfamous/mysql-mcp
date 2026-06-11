@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { MySQLAdapter } from "../mysql-adapter.js";
+import { MySQLAdapter } from "../mysql-adapter/index.js";
 
 describe("MySQLAdapter Integration", () => {
   let adapter: MySQLAdapter;

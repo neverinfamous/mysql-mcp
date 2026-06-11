@@ -5,7 +5,7 @@
  * used by graph analysis and schema analysis tools.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { ValidationError } from "../../../../types/index.js";
 
 // =============================================================================

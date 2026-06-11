@@ -5,7 +5,7 @@
  * 7 tools total.
  */
 
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,

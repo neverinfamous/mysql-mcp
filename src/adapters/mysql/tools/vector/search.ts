@@ -1,6 +1,6 @@
 import type { ToolDefinition } from "../../../../types/index.js";
 import type { RequestContext } from "../../../../types/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 import {

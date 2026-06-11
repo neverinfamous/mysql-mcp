@@ -4,7 +4,7 @@
  * AI-powered prompts for query building, schema design, and optimization.
  * 19 prompts total.
  */
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type {
   PromptDefinition,
   RequestContext,

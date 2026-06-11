@@ -8,13 +8,13 @@ import {
   type Mock,
 } from "vitest";
 import { main } from "../../cli.js";
-import { createServer } from "../../server/mcp-server.js";
-import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
+import { createServer } from "../../server/mcp-server/index.js";
+import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 
 // Mock dependencies
-vi.mock("../../server/mcp-server.js");
-vi.mock("../../adapters/mysql/mysql-adapter.js");
-vi.mock("../args.js", () => ({
+vi.mock("../../server/mcp-server/index.js");
+vi.mock("../../adapters/mysql/mysql-adapter/index.js");
+vi.mock("../args/index.js", () => ({
   parseArgs: vi.fn(() => ({
     config: { name: "test-server", version: "1.0.0" },
     databases: [],

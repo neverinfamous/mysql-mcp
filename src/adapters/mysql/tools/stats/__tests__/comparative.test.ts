@@ -4,7 +4,7 @@ import {
   createRegressionTool,
   createHistogramTool,
 } from "../comparative.js";
-import { MySQLAdapter } from "../../../mysql-adapter.js";
+import { MySQLAdapter } from "../../../mysql-adapter/index.js";
 
 describe("Comparative Stats Tools", () => {
   let mockAdapter: any;

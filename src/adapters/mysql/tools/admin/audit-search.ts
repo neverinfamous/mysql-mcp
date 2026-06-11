@@ -9,7 +9,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 import { hasScope, SCOPES } from "../../../../auth/scopes.js";

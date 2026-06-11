@@ -4,7 +4,7 @@ import {
   createSecurityEncryptionStatusTool,
   createSecurityPasswordValidateTool,
 } from "../encryption.js";
-import { MySQLAdapter } from "../../../mysql-adapter.js";
+import { MySQLAdapter } from "../../../mysql-adapter/index.js";
 
 describe("Security Encryption Tools", () => {
   let mockAdapter: MySQLAdapter;

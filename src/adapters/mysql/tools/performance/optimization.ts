@@ -6,7 +6,7 @@
  */
 
 import type { PoolConnection } from "mysql2/promise";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
