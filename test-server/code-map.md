@@ -66,7 +66,7 @@ src/
 │   ├── interceptor.ts              # AuditInterceptor — wraps tool handlers, scope-based filtering,
 │   │                               #   tokenEstimate, redaction, OAuth identity capture
 │   ├── logger.ts                   # AuditLogger — JSONL file I/O, buffered flush, rotation, recent()
-│   └── backup-manager.ts           # BackupManager — pre-mutation DDL/data snapshots, diff, restore
+│   └── backup-manager/             # BackupManager — pre-mutation DDL/data snapshots, diff, restore
 │
 ├── auth/                           # OAuth 2.1 implementation (10 files)
 │   ├── middleware.ts               # Express-style OAuth middleware
@@ -100,8 +100,8 @@ src/
 │   ├── worker-sandbox.ts           # Worker thread sandbox (MessagePort RPC bridge)
 │   ├── worker-script.ts            # Worker thread entry point (runs inside vm)
 │   ├── api/
-│   │   ├── MysqlApi.ts             # mysql.* API bridge — injects AuditInterceptor into all 24 groups
-│   │   ├── constants.ts            # Code Mode method aliases, positional params, prefix rules
+│   │   ├── mysql-api/              # mysql.* API bridge — injects AuditInterceptor into all 24 groups
+│   │   ├── constants/              # Code Mode method aliases, positional params, prefix rules
 │   │   ├── generator.ts            # createGroupApi() — dynamic tool→method generator with audit wrapper
 │   │   └── index.ts                # Barrel
 │   ├── security.ts                 # Code validation (blocked patterns, injection prevention)

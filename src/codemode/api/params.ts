@@ -1,4 +1,4 @@
-import { POSITIONAL_PARAM_MAP, ARRAY_WRAP_MAP } from "./constants.js";
+import { POSITIONAL_PARAM_MAP, ARRAY_WRAP_MAP } from "./constants/index.js";
 
 /**
  * Normalize parameters to support positional arguments.

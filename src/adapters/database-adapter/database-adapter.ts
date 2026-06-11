@@ -22,7 +22,7 @@ import type {
   ToolGroup,
 } from "../../types/index.js";
 import type { AuditInterceptor } from "../../audit/interceptor.js";
-import type { BackupManager } from "../../audit/backup-manager.js";
+import type { BackupManager } from "../../audit/backup-manager/index.js";
 import type { AuditLogger } from "../../audit/logger.js";
 import { validateSqlSafety } from "./validation.js";
 import {

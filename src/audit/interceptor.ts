@@ -17,7 +17,7 @@
 
 import { performance } from "node:perf_hooks";
 import type { AuditLogger } from "./logger.js";
-import type { BackupManager, SnapshotQueryAdapter } from "./backup-manager.js";
+import type { BackupManager, SnapshotQueryAdapter } from "./backup-manager/index.js";
 import type { AuditCategory } from "./types.js";
 import { getAuthContext } from "../auth/auth-context.js";
 import { getRequiredScope } from "../auth/scope-map.js";

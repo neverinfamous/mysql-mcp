@@ -18,7 +18,7 @@ import { logger } from "../../utils/logger.js";
 import { mcpLogger } from "../../logging/mcp-logging.js";
 import { progressFactory } from "../../progress/progress-reporter.js";
 import { AuditLogger } from "../../audit/logger.js";
-import { BackupManager } from "../../audit/backup-manager.js";
+import { BackupManager } from "../../audit/backup-manager/index.js";
 import { createAuditInterceptor } from "../../audit/interceptor.js";
 import { registerAdminTools } from "../admin-tools.js";
 import { metrics } from "../../observability/metrics.js";

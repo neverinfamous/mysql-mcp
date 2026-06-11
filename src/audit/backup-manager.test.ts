@@ -16,7 +16,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { join } from "node:path";
 import { rm, writeFile, mkdir, mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { BackupManager, type SnapshotQueryAdapter } from "./backup-manager.js";
+import { BackupManager, type SnapshotQueryAdapter } from "./backup-manager/index.js";
 import type { BackupConfig } from "./types.js";
 
 /** Helper: create a unique temp directory using mkdtemp (atomic, no TOCTOU) */

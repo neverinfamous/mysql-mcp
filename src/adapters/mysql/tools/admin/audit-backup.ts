@@ -14,7 +14,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import type { BackupManager } from "../../../../audit/backup-manager.js";
+import type { BackupManager } from "../../../../audit/backup-manager/index.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
 import {

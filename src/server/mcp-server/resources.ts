@@ -6,7 +6,7 @@ import { metrics } from "../../observability/metrics.js";
 import { logger } from "../../utils/logger.js";
 import type { ToolGroup } from "../../types/index.js";
 import type { AuditLogger } from "../../audit/logger.js";
-import type { BackupManager } from "../../audit/backup-manager.js";
+import type { BackupManager } from "../../audit/backup-manager/index.js";
 
 /**
  * Register mysql://help resources for on-demand reference documentation.

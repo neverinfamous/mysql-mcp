@@ -57,6 +57,9 @@
 - Refactored `src/adapters/mysql/tools/admin/monitoring.ts`, `src/adapters/mysql/tools/performance/analysis.ts`, `src/adapters/mysql/tools/performance/index-audit.ts`, `src/adapters/mysql/tools/cluster/innodb-cluster.ts`, `src/adapters/mysql/tools/introspection/graph.ts`, and `src/adapters/mysql/tools/json/enhanced.ts` into modular directory structures to adhere to file size limits.
 - Made `ErrorResponse` interface strictly typed (required `code`, `category`, `suggestion`, `details`, `recoverable` fields) to enforce consistent error API contracts.
 - Converted `ErrorCategory` enum to `as const` object.
+- Refactored `src/audit/backup-manager.ts` into a cohesive module structure (`src/audit/backup-manager/`) to adhere to file size limits.
+- Refactored Code Mode's `src/codemode/api/MysqlApi.ts` into a modular directory structure (`src/codemode/api/mysql-api/`) and normalized file names to kebab-case to adhere to repository standards.
+- Split Code Mode's `src/codemode/api/constants.ts` into a `src/codemode/api/constants/` module to organize aliasing, positional parameters, and examples.
 
 ### Fixed
 - Standardized error handling across `shell`, `vector`, `performance/index-audit`, and `codemode` tool handlers by replacing raw `Error` throws with strongly typed Error subclasses (`TimeoutError`, `QueryError`, `ValidationError`, `PoolError`, `AuthorizationError`) to ensure proper structured formatting via the MCP `ErrorResponse` interceptors.
