@@ -10,14 +10,14 @@
 
 ```
 src/
-├── cli.ts                          # CLI entry point (legacy, calls cli/args.ts)
+├── cli.ts                          # CLI entry point (legacy, calls cli/args/index.ts)
 ├── index.ts                        # Barrel re-export for library consumers
 │
 ├── cli/
-│   └── args.ts                     # Argument parsing, transport/auth/stateless/trustProxy selection
+│   └── args/                       # Argument parsing, transport/auth/stateless/trustProxy selection
 │
 ├── server/
-│   └── mcp-server.ts                # McpServer setup, adapter registration, tool/resource/prompt wiring
+│   └── mcp-server/                 # McpServer setup, adapter registration, tool/resource/prompt wiring
 │
 ├── types/                          # Core TypeScript types (barrel: types/index.ts)
 │   ├── index.ts                    # Barrel — also re-exports error classes from modules/errors.ts
@@ -109,10 +109,10 @@ src/
 │   └── index.ts                    # Barrel
 │
 ├── adapters/
-│   ├── database-adapter.ts          # Abstract DatabaseAdapter base class
+│   ├── database-adapter/            # Abstract DatabaseAdapter base class module
 │   │
 │   └── mysql/                      # ── MySQL adapter (mysql2) ──
-│       ├── mysql-adapter.ts         # MySQLAdapter class (extends DatabaseAdapter)
+│       ├── mysql-adapter/           # MySQLAdapter module (extends DatabaseAdapter)
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
@@ -385,7 +385,7 @@ try {
 
 - All imports use **`.js` extension** (ESM requirement): `import { x } from "./foo/index.js"`
 - Error classes: import from `../../types/index.js` (barrel re-export)
-- Note: mysql-mcp uses **kebab-case filenames** (e.g., `mysql-adapter.ts`, `mcp-server.ts`)
+- Note: mysql-mcp uses **kebab-case filenames** (e.g., `schema-manager.ts`, `tool-filter.ts`)
 
 ---
 

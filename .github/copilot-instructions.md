@@ -23,7 +23,7 @@ If you find issues during code review, use `create_entry` with tag `copilot-find
 
 ### Naming
 
-- **Files and folders**: Always kebab-case (`database-adapter.ts`, `tool-filter.ts`)
+- **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
 - **Never** PascalCase or camelCase for filenames
 
 ### Modularity

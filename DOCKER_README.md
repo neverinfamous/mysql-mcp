@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-85.64%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-85.65%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -21,7 +21,7 @@
 
 ### 🎯 Core Features
 
-- **230 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
+- **241 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
 - **19 Observability Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
 - **Code Mode (Token Savings)**: Execute complex operations locally inside a separate V8 isolate, reducing token overhead by up to 90%.
 - **Dual Transport & OAuth 2.1**: Full streamable HTTP and legacy SSE support, protected by granular scopes (`read`, `write`, `admin`, `full`).
@@ -97,7 +97,7 @@ Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox i
 
 ### ⚡ Code Mode Only (Maximum Token Savings)
 
-If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 230 tools' worth of capability through the `mysql.*` API:
+If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 241 tools' worth of capability through the `mysql.*` API:
 
 ```json
 {
@@ -214,7 +214,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 ## 🛠️ Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 230 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
