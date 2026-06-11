@@ -54,7 +54,7 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
               roleName: name,
               reason: "Role already exists",
             };
-            const response = { success: true as const, data };
+            const response = { success: true, data };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
@@ -65,7 +65,7 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
         const clause = ifNotExists ? "IF NOT EXISTS " : "";
         await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
         const data = { roleName: name };
-        const response = { success: true as const, data };
+        const response = { success: true, data };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
@@ -76,14 +76,20 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Operation CREATE ROLE failed")) {
-          const parsed =
-            params !== null && typeof params === "object"
-              ? (params as Record<string, unknown>)
-              : {};
           const pName =
-            typeof parsed["name"] === "string" ? parsed["name"] : undefined;
+            params !== null &&
+            typeof params === "object" &&
+            "name" in params &&
+            typeof params.name === "string"
+              ? params.name
+              : undefined;
           const pRole =
-            typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            params !== null &&
+            typeof params === "object" &&
+            "role" in params &&
+            typeof params.role === "string"
+              ? params.role
+              : undefined;
           const roleName = pName ?? pRole ?? "unknown";
           const response = {
             success: false,

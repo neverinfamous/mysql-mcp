@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getClusterTools } from "../cluster/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -19,7 +19,7 @@ describe("getClusterTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getClusterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -68,7 +68,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getClusterTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getClusterTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -109,7 +109,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string; // Second call is the query
+      const call = mockAdapter.executeQuery.mock.calls[1][0]; // Second call is the query
       expect(call).toContain("replication_group_members");
       expect(Reflect.get(result || {}, "data")).toHaveProperty("members");
       expect(Reflect.get(result || {}, "data")).toHaveProperty("count");

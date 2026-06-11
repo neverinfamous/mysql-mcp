@@ -9,7 +9,7 @@ import {
   createSpatialPointTool,
   createSpatialPolygonTool,
 } from "../geometry.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -29,7 +29,7 @@ describe("Spatial Geometry Tools", () => {
   describe("createSpatialPointTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_point");
       expect(tool.group).toBe("spatial");
@@ -46,7 +46,7 @@ describe("Spatial Geometry Tools", () => {
       );
 
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { longitude: 10, latitude: 20 },
@@ -54,7 +54,7 @@ describe("Spatial Geometry Tools", () => {
       )) as { data: { wkt: string; geoJson: any } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       // With axis-order=long-lat, longitude comes first in POINT
       expect(call).toContain("POINT(10 20)");
       expect(call).toContain("axis-order=long-lat");
@@ -69,11 +69,11 @@ describe("Spatial Geometry Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ longitude: 10, latitude: 20 }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("4326");
     });
 
@@ -81,14 +81,14 @@ describe("Spatial Geometry Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         { longitude: 10, latitude: 20, srid: 3857 },
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("3857");
     });
   });
@@ -96,7 +96,7 @@ describe("Spatial Geometry Tools", () => {
   describe("createSpatialPolygonTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialPolygonTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_polygon");
     });
@@ -113,7 +113,7 @@ describe("Spatial Geometry Tools", () => {
       );
 
       const tool = createSpatialPolygonTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const coordinates = [
         [
@@ -130,10 +130,10 @@ describe("Spatial Geometry Tools", () => {
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       // Now using axis-order=long-lat for correct coordinate handling
       expect(call).toContain("axis-order=long-lat");
-      const args = mockAdapter.executeQuery.mock.calls[0][1] as any[];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       expect(args[0]).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
 
       expect(result.data.wkt).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");

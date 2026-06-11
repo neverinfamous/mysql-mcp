@@ -14,7 +14,7 @@ describe("Shell Utilities Tools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
   });
 
   afterEach(() => {
@@ -135,7 +135,7 @@ describe("Shell Utilities Tools", () => {
       const tool = createShellCheckUpgradeTool();
       await tool.handler({ targetVersion: "8.4.0" }, mockContext);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4] as string;
+      const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('targetVersion: "8.4.0"');
     });
 
@@ -145,7 +145,7 @@ describe("Shell Utilities Tools", () => {
       const tool = createShellCheckUpgradeTool();
       await tool.handler({ outputFormat: "JSON" }, mockContext);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4] as string;
+      const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('outputFormat: "JSON"');
     });
 
@@ -158,7 +158,7 @@ describe("Shell Utilities Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4] as string;
+      const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('targetVersion: "9.0.0"');
       // We always force JSON internally for reliable parsing
       expect(jsArg).toContain('outputFormat: "JSON"');

@@ -6,7 +6,6 @@ import {
   createGRTransactionsTool,
   createGRFlowControlTool,
 } from "../group-replication.js";
-import { MySQLAdapter } from "../../../mysql-adapter/index.js";
 
 describe("Group Replication Tools", () => {
   let mockAdapter: MySQLAdapter;
@@ -16,7 +15,7 @@ describe("Group Replication Tools", () => {
     mockExecuteQuery = vi.fn();
     mockAdapter = {
       executeQuery: mockExecuteQuery,
-    } as unknown as MySQLAdapter;
+    };
   });
 
   describe("mysql_gr_status", () => {
@@ -59,7 +58,7 @@ describe("Group Replication Tools", () => {
           rows: [{ serverUuid: "member-1" }],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result).toEqual({
         success: true,
@@ -94,7 +93,7 @@ describe("Group Replication Tools", () => {
 
       mockExecuteQuery.mockResolvedValueOnce({ rows: [] }); // Plugin not found or not active
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.error).toContain("not active");
     });
@@ -115,7 +114,7 @@ describe("Group Replication Tools", () => {
           rows: [{ serverUuid: "member-1" }],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.data.enabled).toBe(true);
       expect(result.data.groupName).toBeNull();
@@ -157,7 +156,7 @@ describe("Group Replication Tools", () => {
           ],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.data.isThrottling).toBe(false);
       expect(result.data.memberQueues).toHaveLength(1);
@@ -191,7 +190,7 @@ describe("Group Replication Tools", () => {
           ],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.data.isThrottling).toBe(true);
     });
@@ -215,7 +214,7 @@ describe("Group Replication Tools", () => {
           ],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.data.isThrottling).toBe(true);
       expect(result.data.recommendation).toContain("Flow control is active");
@@ -231,14 +230,14 @@ describe("Group Replication Tools - Error Handling", () => {
     mockExecuteQuery = vi.fn();
     mockAdapter = {
       executeQuery: mockExecuteQuery,
-    } as unknown as MySQLAdapter;
+    };
   });
 
   it("mysql_gr_status should return structured error when query fails", async () => {
     const tool = createGRStatusTool(mockAdapter);
     mockExecuteQuery.mockRejectedValue(new Error("Connection refused"));
 
-    const result = await tool.handler({}, {} as any);
+    const result = await tool.handler({}, {});
 
     expect(result.error).toBe("Connection refused");
   });
@@ -247,7 +246,7 @@ describe("Group Replication Tools - Error Handling", () => {
     const tool = createGRMembersTool(mockAdapter);
     mockExecuteQuery.mockRejectedValue(new Error("Access denied"));
 
-    const result = await tool.handler({}, {} as any);
+    const result = await tool.handler({}, {});
 
     expect(result.error).toBe("Access denied");
   });
@@ -256,7 +255,7 @@ describe("Group Replication Tools - Error Handling", () => {
     const tool = createGRPrimaryTool(mockAdapter);
     mockExecuteQuery.mockRejectedValue(new Error("Connection lost"));
 
-    const result = await tool.handler({}, {} as any);
+    const result = await tool.handler({}, {});
 
     expect(result.error).toBe("Connection lost");
   });
@@ -265,7 +264,7 @@ describe("Group Replication Tools - Error Handling", () => {
     const tool = createGRTransactionsTool(mockAdapter);
     mockExecuteQuery.mockRejectedValue(new Error("Permission denied"));
 
-    const result = await tool.handler({}, {} as any);
+    const result = await tool.handler({}, {});
 
     expect(result.error).toBe("Permission denied");
   });
@@ -274,7 +273,7 @@ describe("Group Replication Tools - Error Handling", () => {
     const tool = createGRFlowControlTool(mockAdapter);
     mockExecuteQuery.mockRejectedValue(new Error("Timeout"));
 
-    const result = await tool.handler({}, {} as any);
+    const result = await tool.handler({}, {});
 
     expect(result.error).toBe("Timeout");
   });

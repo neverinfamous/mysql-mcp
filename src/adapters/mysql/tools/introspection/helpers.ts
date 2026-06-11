@@ -79,11 +79,11 @@ export async function fetchForeignKeys(
   const edgeMap = new Map<string, FkEdge>();
 
   for (const row of result.rows ?? []) {
-    const constraintName = row["constraint_name"] as string;
-    const fromSchema = row["from_schema"] as string;
-    const fromTable = row["from_table"] as string;
-    const toSchema = row["to_schema"] as string;
-    const toTable = row["to_table"] as string;
+    const constraintName = typeof row["constraint_name"] === "string" ? row["constraint_name"] : "";
+    const fromSchema = typeof row["from_schema"] === "string" ? row["from_schema"] : "";
+    const fromTable = typeof row["from_table"] === "string" ? row["from_table"] : "";
+    const toSchema = typeof row["to_schema"] === "string" ? row["to_schema"] : "";
+    const toTable = typeof row["to_table"] === "string" ? row["to_table"] : "";
 
     // Fallback schema if UNIQUE_CONSTRAINT_SCHEMA is null (sometimes happens in older MySQL versions)
     const finalToSchema = toSchema || fromSchema;
@@ -99,18 +99,18 @@ export async function fetchForeignKeys(
         toSchema: finalToSchema,
         toTable,
         toColumns: [],
-        onDelete: (row["on_delete"] as string) || "NO ACTION",
-        onUpdate: (row["on_update"] as string) || "NO ACTION",
+        onDelete: (typeof row["on_delete"] === "string" ? row["on_delete"] : "") || "NO ACTION",
+        onUpdate: (typeof row["on_update"] === "string" ? row["on_update"] : "") || "NO ACTION",
       });
     }
 
     const edge = edgeMap.get(key);
     if (!edge) continue;
-    if (row["from_column"] != null) {
-      edge.fromColumns.push(row["from_column"] as string);
+    if (row["from_column"] != null && typeof row["from_column"] === "string") {
+      edge.fromColumns.push(row["from_column"]);
     }
-    if (row["to_column"] != null) {
-      edge.toColumns.push(row["to_column"] as string);
+    if (row["to_column"] != null && typeof row["to_column"] === "string") {
+      edge.toColumns.push(row["to_column"]);
     }
   }
 
@@ -146,16 +146,16 @@ export async function fetchTableNodes(
   );
 
   return (result.rows ?? []).map((row) => ({
-    schema: row["schema_name"] as string,
-    table: row["table_name"] as string,
+    schema: typeof row["schema_name"] === "string" ? row["schema_name"] : "",
+    table: typeof row["table_name"] === "string" ? row["table_name"] : "",
     rowCount:
       typeof row["row_count"] === "number"
         ? row["row_count"]
-        : parseInt(row["row_count"] as string, 10) || 0,
+        : parseInt(typeof row["row_count"] === "string" ? row["row_count"] : "0", 10) || 0,
     sizeBytes:
       typeof row["size_bytes"] === "number"
         ? row["size_bytes"]
-        : parseInt(row["size_bytes"] as string, 10) || 0,
+        : parseInt(typeof row["size_bytes"] === "string" ? row["size_bytes"] : "0", 10) || 0,
   }));
 }
 
@@ -205,7 +205,7 @@ export async function checkTableExists(
   if (!currentSchema) {
     const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db"))
       .rows?.[0];
-    currentSchema = (dbRow?.["db"] as string) || "mysql";
+    currentSchema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "mysql";
   }
 
   const result = await adapter.executeReadQuery(

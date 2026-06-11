@@ -82,7 +82,7 @@ function extractTraceSummary(
   }
 
   try {
-    const trace = JSON.parse(traceStr) as {
+    interface OptimizerTrace {
       steps?: {
         join_optimization?: {
           select?: number;
@@ -117,7 +117,14 @@ function extractTraceSummary(
           }[];
         };
       }[];
-    };
+    }
+    const isOptimizerTrace = (val: unknown): val is OptimizerTrace => typeof val === "object" && val !== null;
+    
+    const parsed: unknown = JSON.parse(traceStr);
+    if (!isOptimizerTrace(parsed)) {
+      throw new Error("Invalid trace data");
+    }
+    const trace = parsed;
 
     const steps = trace.steps ?? [];
     for (const step of steps) {
@@ -277,7 +284,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
           if (result.rows?.[0]) {
             const explainStr = result.rows[0]["EXPLAIN"];
             if (typeof explainStr === "string") {
-              explainResult = JSON.parse(explainStr) as unknown;
+              explainResult = JSON.parse(explainStr);
             }
           }
         } catch (err: unknown) {
@@ -297,8 +304,9 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         if (explainError) {
           response["success"] = false;
           response["error"] = explainError;
-          (response["data"] as Record<string, unknown>)["explainError"] =
-            explainError;
+          if (typeof response["data"] === "object" && response["data"] !== null) {
+            Object.assign(response["data"], { explainError });
+          }
         }
 
         const tokenEstimate = Math.ceil(
@@ -462,11 +470,20 @@ export function createOptimizerTraceTool(
         );
 
         if (summary) {
+          const traceRows: Record<string, unknown>[] = [];
+          if (Array.isArray(rows)) {
+            for (const r of rows) {
+              if (typeof r === "object" && r !== null && !Array.isArray(r)) {
+                const newRow: Record<string, unknown> = {};
+                for (const [key, value] of Object.entries(r)) {
+                  newRow[key] = value;
+                }
+                traceRows.push(newRow);
+              }
+            }
+          }
           // Extract key decisions from the trace
-          const response = extractTraceSummary(
-            rows as Record<string, unknown>[],
-            query,
-          );
+          const response = extractTraceSummary(traceRows, query);
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );

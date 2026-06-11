@@ -23,7 +23,7 @@ export function createRouterStatusTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await safeRouterFetch<unknown>("/router/status");
+      const result = await safeRouterFetch("/router/status");
       if (!result.success) {
         return result.response;
       }
@@ -51,7 +51,7 @@ export function createRouterRoutesTool(): ToolDefinition {
       openWorldHint: true,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await safeRouterFetch<unknown>("/routes");
+      const result = await safeRouterFetch("/routes");
       if (!result.success) {
         return result.response;
       }

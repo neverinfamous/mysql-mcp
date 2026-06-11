@@ -12,7 +12,7 @@ import {
   createClusterSwitchoverTool,
   createClusterTopologyTool,
 } from "../innodb-cluster/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -58,7 +58,7 @@ describe("InnoDB Cluster Tools", () => {
         ); // Full cluster info (non-summary mode)
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -78,7 +78,7 @@ describe("InnoDB Cluster Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ memberCount: 3 }])); // GR member count
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -93,7 +93,7 @@ describe("InnoDB Cluster Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ memberCount: 2 }])); // GR member count
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -107,7 +107,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -118,7 +118,7 @@ describe("InnoDB Cluster Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue("String error");
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -133,7 +133,7 @@ describe("InnoDB Cluster Tools", () => {
         .mockRejectedValueOnce(new Error("GR query also failed")); // Fallback fails
 
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: 10 }, mockContext);
 
@@ -157,7 +157,7 @@ describe("InnoDB Cluster Tools", () => {
         ); // GR fallback
 
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: 10 }, mockContext);
 
@@ -173,7 +173,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -189,7 +189,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -214,7 +214,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { summary: false },
@@ -249,7 +249,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { summary: false },
@@ -303,7 +303,7 @@ describe("InnoDB Cluster Tools", () => {
         );
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { summary: false },
@@ -337,7 +337,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -372,7 +372,7 @@ describe("InnoDB Cluster Tools", () => {
         );
 
       const tool = createClusterTopologyTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -403,7 +403,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -432,7 +432,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -466,7 +466,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -485,7 +485,7 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterTopologyTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -498,7 +498,7 @@ describe("InnoDB Cluster Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -509,7 +509,7 @@ describe("InnoDB Cluster Tools", () => {
   describe("Zod validation leak prevention", () => {
     it("cluster_status should return structured error for invalid summary type", async () => {
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { summary: "yes" },
@@ -522,7 +522,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("cluster_instances should return structured error for invalid limit type", async () => {
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: "abc" }, mockContext);
 
@@ -532,7 +532,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("cluster_instances should return structured error for negative limit", async () => {
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: -5 }, mockContext);
 
@@ -541,7 +541,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("cluster_instances should return structured error for float limit", async () => {
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: 0.5 }, mockContext);
 
@@ -550,7 +550,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("cluster_router_status should return structured error for invalid summary type", async () => {
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ summary: 123 }, mockContext);
 

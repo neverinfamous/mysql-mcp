@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createIndexRecommendationTool } from "../index-audit/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -25,7 +25,7 @@ describe("Index Audit Tool", () => {
   describe("createIndexRecommendationTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_index_recommendation");
@@ -39,7 +39,7 @@ describe("Index Audit Tool", () => {
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ table: "ghost" }, mockContext)) as {
         success: boolean;
@@ -60,7 +60,7 @@ describe("Index Audit Tool", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([]);
       
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { tableName: "orders" },
@@ -73,7 +73,7 @@ describe("Index Audit Tool", () => {
 
     it("should reject non-SELECT queries for EXPLAIN analysis", async () => {
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { queries: ["DELETE FROM users"] },
@@ -87,7 +87,7 @@ describe("Index Audit Tool", () => {
     it("should limit the number of queries to 20", async () => {
       const queries = Array(21).fill("SELECT 1");
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { queries },
@@ -111,7 +111,7 @@ describe("Index Audit Tool", () => {
         mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
         const tool = createIndexRecommendationTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler({ table: "users" }, mockContext);
 
@@ -132,7 +132,7 @@ describe("Index Audit Tool", () => {
         mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
         const tool = createIndexRecommendationTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler({ table: "users" }, mockContext);
 
@@ -153,7 +153,7 @@ describe("Index Audit Tool", () => {
         mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
         const tool = createIndexRecommendationTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler({ table: "orders" }, mockContext);
 
@@ -177,7 +177,7 @@ describe("Index Audit Tool", () => {
         mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
         const tool = createIndexRecommendationTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler({ table: "logs" }, mockContext);
 
@@ -214,7 +214,7 @@ describe("Index Audit Tool", () => {
         });
 
         const tool = createIndexRecommendationTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler(
           { table: "users", queries: ["SELECT * FROM users WHERE status = 'active' AND role = 'admin'"] },
@@ -241,7 +241,7 @@ describe("Index Audit Tool", () => {
         mockAdapter.getTableIndexes.mockResolvedValue([]);
 
         const tool = createIndexRecommendationTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler({ table: "orders" }, mockContext);
 

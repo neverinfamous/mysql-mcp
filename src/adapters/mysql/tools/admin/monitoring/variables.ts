@@ -25,14 +25,11 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
         if (limit !== undefined && limit < 1) {
-          const response = {
-            success: false as const,
-            error: "limit must be a positive integer",
-          };
+          const error = "limit must be a positive integer";
           const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            Buffer.byteLength(JSON.stringify({ success: false, error }), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return { success: false, error, metrics: { tokenEstimate } };
         }
         const effectiveLimit = limit ?? 30;
 
@@ -51,12 +48,10 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         // Handle both uppercase and Pascal case column names
         const variables: Record<string, string> = {};
         for (const row of result.rows ?? []) {
-          const name = (row["Variable_name"] ??
-            row["VARIABLE_NAME"] ??
-            row["variable_name"]) as string;
-          const value = (row["Value"] ??
-            row["VALUE"] ??
-            row["value"]) as string;
+          const rawName = row["Variable_name"] ?? row["VARIABLE_NAME"] ?? row["variable_name"];
+          const name = typeof rawName === "string" ? rawName : "";
+          const rawValue = row["Value"] ?? row["VALUE"] ?? row["value"];
+          const value = typeof rawValue === "string" ? rawValue : "";
           if (name) {
             variables[name] = value;
           }
@@ -69,19 +64,16 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
           ? Object.fromEntries(entries.slice(0, effectiveLimit))
           : variables;
 
-        const response = {
-          success: true as const,
-          data: {
-            variables: truncated,
-            rowCount: Object.keys(truncated).length,
-            totalAvailable,
-            ...(limited && { limited: true }),
-          },
+        const data = {
+          variables: truncated,
+          rowCount: Object.keys(truncated).length,
+          totalAvailable,
+          ...(limited && { limited: true }),
         };
         const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          Buffer.byteLength(JSON.stringify({ success: true, data }), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

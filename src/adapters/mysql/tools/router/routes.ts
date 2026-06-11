@@ -29,7 +29,7 @@ export function createRouterRouteStatusTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { routeName } = RouteNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/status`,
         );
         if (!result.success) {
@@ -67,7 +67,7 @@ export function createRouterRouteHealthTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { routeName } = RouteNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/health`,
         );
         if (!result.success) {
@@ -105,7 +105,7 @@ export function createRouterRouteConnectionsTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { routeName } = RouteNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/connections`,
         );
         if (!result.success) {
@@ -143,7 +143,7 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { routeName } = RouteNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/destinations`,
         );
         if (!result.success) {
@@ -181,7 +181,7 @@ export function createRouterRouteBlockedHostsTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { routeName } = RouteNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/blockedHosts`,
         );
         if (!result.success) {

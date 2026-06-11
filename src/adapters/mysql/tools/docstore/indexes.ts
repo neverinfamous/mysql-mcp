@@ -32,9 +32,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
+        let collection: string | undefined;
+        let name: string | undefined;
         try {
-          const { collection, schema, name, fields, unique } =
-            CreateDocIndexSchema.parse(params);
+          const parsed = CreateDocIndexSchema.parse(params);
+          collection = parsed.collection;
+          name = parsed.name;
+          const { schema, fields, unique } = parsed;
           if (!IDENTIFIER_RE.test(collection))
             return withTokenEstimate({
               success: false,
@@ -104,7 +108,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           ) {
             return withTokenEstimate({
               success: false,
-              error: `Index '${(params as { name?: string })?.name ?? "unknown"}' or its generated columns already exist on '${(params as { collection?: string })?.collection ?? "unknown"}'`,
+              error: `Index '${name ?? "unknown"}' or its generated columns already exist on '${collection ?? "unknown"}'`,
             });
           }
           return withTokenEstimate({ success: false, error: message });

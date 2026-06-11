@@ -88,6 +88,10 @@ export function stripErrorPrefix(msg: string): string {
  * }
  * ```
  */
+const isZodError = (err: unknown): err is ZodError => {
+  return err instanceof ZodError || (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError");
+};
+
 export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   let response: ErrorResponse;
 
@@ -95,17 +99,11 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   if (err instanceof MySQLMcpError) {
     response = err.toResponse();
     response.error = formatMysqlError(response.error);
-  } else if (
-    err instanceof ZodError ||
-    (err !== null &&
-      typeof err === "object" &&
-      "name" in err &&
-      err.name === "ZodError")
-  ) {
+  } else if (isZodError(err)) {
     // Zod validation error
     response = {
       success: false,
-      error: formatZodError(err as ZodError),
+      error: formatZodError(err),
       code: "VALIDATION_ERROR",
       category: ErrorCategory.VALIDATION,
       suggestion: undefined,

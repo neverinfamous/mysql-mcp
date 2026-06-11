@@ -35,7 +35,7 @@ export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
           roles: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const response = { success: true as const, data };
+        const response = { success: true, data };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );

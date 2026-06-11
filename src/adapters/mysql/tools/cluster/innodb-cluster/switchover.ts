@@ -51,8 +51,8 @@ export function createClusterSwitchoverTool(
         // Analyze each secondary for switchover suitability
         const candidates = onlineSecondaries.map((s) => {
           const sec = s;
-          const txQueue = (sec["txQueue"] as number) ?? 0;
-          const applierQueue = (sec["applierQueue"] as number) ?? 0;
+          const txQueue = Number(sec["txQueue"] ?? 0);
+          const applierQueue = Number(sec["applierQueue"] ?? 0);
           const totalQueue = txQueue + applierQueue;
 
           let suitability: "GOOD" | "ACCEPTABLE" | "NOT_RECOMMENDED";

@@ -27,7 +27,19 @@ export async function proxySQLQuery(
 
   try {
     const [rows] = await connection.query(sql);
-    return rows as Record<string, unknown>[];
+    const validRows: Record<string, unknown>[] = [];
+    if (Array.isArray(rows)) {
+      for (const r of rows) {
+        if (typeof r === "object" && r !== null) {
+          const rec: Record<string, unknown> = {};
+          for (const [k, v] of Object.entries(r)) {
+            rec[k] = v;
+          }
+          validRows.push(rec);
+        }
+      }
+    }
+    return validRows;
   } finally {
     await connection.end();
   }
@@ -39,7 +51,8 @@ export function redactSensitiveVariables(
   rows: Record<string, unknown>[],
 ): Record<string, unknown>[] {
   return rows.map((row) => {
-    const varName = (row["variable_name"] as string) ?? "";
+    const varName =
+      typeof row["variable_name"] === "string" ? row["variable_name"] : "";
     const isSensitive = SENSITIVE_VARIABLE_PATTERNS.some((p) =>
       p.test(varName),
     );

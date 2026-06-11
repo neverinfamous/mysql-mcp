@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getStatsTools } from "../stats/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -18,7 +18,7 @@ describe("getStatsTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getStatsTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getStatsTools(createMockMySQLAdapter());
   });
 
   it("should return 20 stats tools", () => {
@@ -64,7 +64,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getStatsTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getStatsTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -101,7 +101,7 @@ describe("Handler Execution", () => {
 
       // Verify all queries were made
       const calls = mockAdapter.executeQuery.mock.calls.map(
-        (c) => c[0] as string,
+        (c) => c[0],
       );
       expect(calls.some((c) => c.includes("COUNT(*)"))).toBe(true);
       expect(calls.some((c) => c.includes("OFFSET"))).toBe(true);
@@ -127,7 +127,7 @@ describe("Handler Execution", () => {
 
       // Check that WHERE clause was present in all queries
       const calls = mockAdapter.executeQuery.mock.calls.map(
-        (c) => c[0] as string,
+        (c) => c[0],
       );
       expect(calls.length).toBeGreaterThan(0);
       for (const call of calls) {
@@ -348,7 +348,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("RAND()");
       expect(result).toHaveProperty("data.sample");
     });
@@ -366,7 +366,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("`id`");
       expect(call).toContain("`name`");
     });
@@ -407,7 +407,7 @@ describe("Handler Execution", () => {
 
       // calls[0] is table existence check, calls[1] is ANALYZE TABLE
       const calls = mockAdapter.executeQuery.mock.calls.map(
-        (c) => c[0] as string,
+        (c) => c[0],
       );
       expect(calls.some((c) => c.includes("ANALYZE TABLE"))).toBe(true);
     });
@@ -425,7 +425,7 @@ describe("Handler Execution", () => {
 
       // Verify ANALYZE TABLE used clamped value
       const calls = mockAdapter.executeQuery.mock.calls.map(
-        (c) => c[0] as string,
+        (c) => c[0],
       );
       const analyzeCall = calls.find((c) => c.includes("ANALYZE TABLE"));
       expect(analyzeCall).toContain("1024 BUCKETS");
@@ -469,7 +469,7 @@ describe("Stats Validation Errors", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getStatsTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getStatsTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -678,7 +678,7 @@ describe("Stats Validation Errors", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("%H:%i");
     });
   });
@@ -796,7 +796,7 @@ describe("Stats Validation Errors", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("RAND(42)");
     });
   });
@@ -840,7 +840,7 @@ describe("Stats Nonexistent Table Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getStatsTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getStatsTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -979,7 +979,7 @@ describe("Stats Zod Validation Guards", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const mockAdapter = createMockMySQLAdapter();
-    tools = getStatsTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getStatsTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 

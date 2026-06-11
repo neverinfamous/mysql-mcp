@@ -81,12 +81,12 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           // Try performance_schema alternative
           let query = `
                         SELECT
-                            e.EVENT_NAME as event,
-                            e.OBJECT_TYPE as objectType,
-                            e.OBJECT_NAME as objectName,
-                            t.PROCESSLIST_USER as user,
-                            t.PROCESSLIST_HOST as host,
-                            e.TIMER_START as startTime
+                            e.EVENT_NAME AS event,
+                            e.OBJECT_TYPE AS objectType,
+                            e.OBJECT_NAME AS objectName,
+                            t.PROCESSLIST_USER AS user,
+                            t.PROCESSLIST_HOST AS host,
+                            e.TIMER_START AS startTime
                         FROM performance_schema.events_statements_history e
                         JOIN performance_schema.threads t
                           ON e.THREAD_ID = t.THREAD_ID
@@ -124,7 +124,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeQuery(query, []);
           const data: Record<string, unknown> = {
             source: "performance_schema",
-            message: "Using performance_schema as audit log is not available",
+            message: "Using performance_schema AS audit log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
@@ -290,13 +290,14 @@ export function createSecurityFirewallRulesTool(
       try {
         const { user, mode } = FirewallRulesSchema.parse(params);
 
-        const validModes = [
+
+        const validModes: readonly ["RECORDING", "PROTECTING", "DETECTING", "OFF"] = [
           "RECORDING",
           "PROTECTING",
           "DETECTING",
           "OFF",
-        ] as const;
-        if (mode && !validModes.includes(mode as (typeof validModes)[number])) {
+        ];
+        if (mode && !validModes.some(m => m === mode)) {
           return formatHandlerErrorResponse(
             new Error(
               `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,

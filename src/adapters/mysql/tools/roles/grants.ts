@@ -97,7 +97,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
           const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
           const grants = (result.rows ?? []).map((r) => Object.values(r)[0]);
           const data = { role, grants, exists: true };
-          const response = { success: true as const, data };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
@@ -167,7 +167,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
             database: targetDb,
             table: targetTable,
           };
-          const response = { success: true as const, data };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
@@ -178,12 +178,13 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           const message = error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(message);
-          const parsed =
-            params !== null && typeof params === "object"
-              ? (params as Record<string, unknown>)
-              : {};
           const pRole =
-            typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            params !== null &&
+            typeof params === "object" &&
+            "role" in params &&
+            typeof params.role === "string"
+              ? params.role
+              : undefined;
           if (pRole !== undefined) {
             const response = { success: false, role: pRole, error: cleanMsg };
             const tokenEstimate = Math.ceil(

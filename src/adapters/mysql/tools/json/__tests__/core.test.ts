@@ -15,7 +15,7 @@ import {
   createJsonKeysTool,
   createJsonArrayAppendTool,
 } from "../core.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -39,7 +39,7 @@ describe("JSON Core Tools", () => {
       );
 
       const tool = createJsonExtractTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -51,7 +51,7 @@ describe("JSON Core Tools", () => {
       )) as { data: { rows: unknown[] } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_EXTRACT(`json_col`, ?)");
       expect(result.data.rows).toHaveLength(1);
     });
@@ -64,7 +64,7 @@ describe("JSON Core Tools", () => {
         insertId: 0,
       });
 
-      const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonSetTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "data",
@@ -77,13 +77,13 @@ describe("JSON Core Tools", () => {
       )) as { data: { rowsAffected: number } };
 
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
       expect(call).toContain("JSON_SET");
       expect(result.data.rowsAffected).toBe(1);
     });
 
     it("should stringify object value", async () => {
-      const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonSetTool(mockAdapter);
       await tool.handler(
         {
           table: "data",
@@ -95,7 +95,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const args = mockAdapter.executeWriteQuery.mock.calls[0][1] as unknown[];
+      const args = mockAdapter.executeWriteQuery.mock.calls[0][1];
       expect(args[1]).toBe('{"foo":"bar"}');
     });
   });
@@ -111,7 +111,7 @@ describe("JSON Core Tools", () => {
         insertId: 0,
       });
 
-      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonInsertTool(mockAdapter);
       await tool.handler(
         {
           table: "data",
@@ -123,7 +123,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
       expect(call).toContain("JSON_INSERT");
     });
 
@@ -137,7 +137,7 @@ describe("JSON Core Tools", () => {
         insertId: 0,
       });
 
-      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonInsertTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "data",
@@ -163,7 +163,7 @@ describe("JSON Core Tools", () => {
         insertId: 0,
       });
 
-      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonInsertTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "data",
@@ -191,7 +191,7 @@ describe("JSON Core Tools", () => {
       });
 
       const tool = createJsonReplaceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -204,7 +204,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
       expect(call).toContain("JSON_REPLACE");
     });
   });
@@ -216,7 +216,7 @@ describe("JSON Core Tools", () => {
         insertId: 0,
       });
 
-      const tool = createJsonRemoveTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonRemoveTool(mockAdapter);
       await tool.handler(
         {
           table: "data",
@@ -227,7 +227,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
       expect(call).toContain("JSON_REMOVE");
       // Should contain multiple ? based on paths length
       // Implementation: JSON_REMOVE(\`json_col\`, ?, ?)
@@ -241,7 +241,7 @@ describe("JSON Core Tools", () => {
       );
 
       const tool = createJsonContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -253,7 +253,7 @@ describe("JSON Core Tools", () => {
       );
 
       // Should use executeReadQuery twice: once for the actual query
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_CONTAINS");
       expect(call).toContain("SELECT id, `json_col`");
       expect(call).not.toContain("SELECT *");
@@ -263,7 +263,7 @@ describe("JSON Core Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createJsonContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -276,8 +276,8 @@ describe("JSON Core Tools", () => {
       );
 
       // Expect JSON_CONTAINS(col, val, path)
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      const args = mockAdapter.executeReadQuery.mock.calls[0][1] as unknown[];
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
+      const args = mockAdapter.executeReadQuery.mock.calls[0][1];
       expect(call).toContain("JSON_CONTAINS");
       expect(args).toHaveLength(2); // jsonValue, path
     });
@@ -289,7 +289,7 @@ describe("JSON Core Tools", () => {
         createMockQueryResult([{ json_keys: '["a", "b"]' }]),
       );
 
-      const tool = createJsonKeysTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonKeysTool(mockAdapter);
       await tool.handler(
         {
           table: "data",
@@ -298,7 +298,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_KEYS");
     });
 
@@ -310,7 +310,7 @@ describe("JSON Core Tools", () => {
         ]),
       );
 
-      const tool = createJsonKeysTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonKeysTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "data",
@@ -331,7 +331,7 @@ describe("JSON Core Tools", () => {
       });
 
       const tool = createJsonArrayAppendTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -344,7 +344,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
       expect(call).toContain("JSON_ARRAY_APPEND");
     });
   });
@@ -355,7 +355,7 @@ describe("JSON Core Tools", () => {
     it("json_extract should return exists: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(tableError);
       const tool = createJsonExtractTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { table: "nonexistent", column: "doc", path: "$.x" },
@@ -369,7 +369,7 @@ describe("JSON Core Tools", () => {
 
     it("json_set should return exists: false for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
-      const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonSetTool(mockAdapter);
       const result = await tool.handler(
         {
           table: "nonexistent",
@@ -388,7 +388,7 @@ describe("JSON Core Tools", () => {
 
     it("json_insert should return exists: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(tableError);
-      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonInsertTool(mockAdapter);
       const result = await tool.handler(
         {
           table: "nonexistent",
@@ -408,7 +408,7 @@ describe("JSON Core Tools", () => {
     it("json_replace should return exists: false for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
       const tool = createJsonReplaceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -428,7 +428,7 @@ describe("JSON Core Tools", () => {
 
     it("json_remove should return exists: false for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
-      const tool = createJsonRemoveTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonRemoveTool(mockAdapter);
       const result = await tool.handler(
         {
           table: "nonexistent",
@@ -447,7 +447,7 @@ describe("JSON Core Tools", () => {
     it("json_contains should return exists: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(tableError);
       const tool = createJsonContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { table: "nonexistent", column: "doc", value: "1" },
@@ -461,7 +461,7 @@ describe("JSON Core Tools", () => {
 
     it("json_keys should return exists: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(tableError);
-      const tool = createJsonKeysTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonKeysTool(mockAdapter);
       const result = await tool.handler(
         { table: "nonexistent", column: "doc" },
         mockContext,
@@ -475,7 +475,7 @@ describe("JSON Core Tools", () => {
     it("json_array_append should return exists: false for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
       const tool = createJsonArrayAppendTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -498,7 +498,7 @@ describe("JSON Core Tools", () => {
         new Error("Connection lost"),
       );
       const tool = createJsonExtractTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { table: "data", column: "doc", path: "$.x" },

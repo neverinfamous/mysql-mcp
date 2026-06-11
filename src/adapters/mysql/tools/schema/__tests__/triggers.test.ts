@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createListTriggersTool } from "../triggers.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -26,12 +26,12 @@ describe("Schema Trigger Tools", () => {
       );
 
       const tool = createListTriggersTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("information_schema.TRIGGERS");
       expect(result).toBeDefined();
     });
@@ -40,7 +40,7 @@ describe("Schema Trigger Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createListTriggersTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
@@ -56,7 +56,7 @@ describe("Schema Trigger Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListTriggersTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent_table" },
@@ -76,14 +76,14 @@ describe("Schema Trigger Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListTriggersTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ table: "users" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("EVENT_OBJECT_TABLE = ?");
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params).toContain("users");
     });
   });

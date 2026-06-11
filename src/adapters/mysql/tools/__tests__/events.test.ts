@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getEventTools } from "../events.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -18,7 +18,7 @@ describe("getEventTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getEventTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getEventTools(createMockMySQLAdapter());
   });
 
   it("should return 6 event tools", () => {
@@ -62,7 +62,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getEventTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getEventTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -81,7 +81,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("CREATE EVENT");
       expect(call).toContain("ON SCHEDULE AT");
       expect(result).toHaveProperty("success", true);
@@ -100,7 +100,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("EVERY 1 DAY");
     });
   });
@@ -119,7 +119,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ALTER EVENT");
       expect(result).toHaveProperty("success", true);
     });
@@ -136,7 +136,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("RENAME TO");
     });
 
@@ -154,7 +154,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       const renameIndex = call.indexOf("RENAME TO");
       const commentIndex = call.indexOf("COMMENT");
       const doIndex = call.indexOf("DO ");
@@ -179,7 +179,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
-      const dropCall = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const dropCall = mockAdapter.executeQuery.mock.calls[0][0];
       expect(dropCall).toContain("DROP EVENT");
       expect(result).toHaveProperty("success", true);
     });
@@ -201,7 +201,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const dropCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(dropCall).toContain("IF EXISTS");
     });
 
@@ -288,7 +288,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_event_list")!;
       await tool.handler({ includeDisabled: false }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ENABLED");
     });
   });
@@ -370,7 +370,7 @@ describe("Event Create Advanced", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getEventTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getEventTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -390,7 +390,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[1][0];
     expect(call).toContain("IF NOT EXISTS");
   });
 
@@ -434,7 +434,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("STARTS");
     expect(call).toContain("ENDS");
   });
@@ -453,7 +453,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("COMMENT");
     expect(call).toContain("This is a test event");
   });
@@ -472,7 +472,7 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("DISABLE");
   });
 
@@ -503,7 +503,7 @@ describe("Event Alter Advanced", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getEventTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getEventTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -519,7 +519,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("ON SCHEDULE AT");
   });
 
@@ -536,7 +536,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("EVERY 2 HOUR");
     expect(call).toContain("STARTS");
     expect(call).toContain("ENDS");
@@ -554,7 +554,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("DO CALL new_procedure()");
   });
 
@@ -570,7 +570,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("ON COMPLETION PRESERVE");
   });
 
@@ -586,7 +586,7 @@ describe("Event Alter Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).toContain("COMMENT 'Updated comment'");
   });
 
@@ -649,7 +649,7 @@ describe("Event Drop Advanced", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getEventTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getEventTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -681,7 +681,7 @@ describe("Event Drop Advanced", () => {
       mockContext,
     );
 
-    const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const call = mockAdapter.executeQuery.mock.calls[0][0];
     expect(call).not.toContain("IF EXISTS");
   });
 });
@@ -694,7 +694,7 @@ describe("Event Graceful Error Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getEventTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getEventTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 

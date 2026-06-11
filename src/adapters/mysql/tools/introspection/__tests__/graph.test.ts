@@ -4,7 +4,7 @@ import {
   createTopologicalSortTool,
   createCascadeSimulatorTool,
 } from "../graph/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -70,7 +70,7 @@ describe("Graph Tools", () => {
     let tool: ReturnType<typeof createDependencyGraphTool>;
 
     beforeEach(() => {
-      tool = createDependencyGraphTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createDependencyGraphTool(mockAdapter);
     });
 
     it("should generate a dependency graph", async () => {
@@ -121,7 +121,7 @@ describe("Graph Tools", () => {
     let tool: ReturnType<typeof createTopologicalSortTool>;
 
     beforeEach(() => {
-      tool = createTopologicalSortTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createTopologicalSortTool(mockAdapter);
     });
 
     it("should return tables in dependency order", async () => {
@@ -200,7 +200,7 @@ describe("Graph Tools", () => {
     let tool: ReturnType<typeof createCascadeSimulatorTool>;
 
     beforeEach(() => {
-      tool = createCascadeSimulatorTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createCascadeSimulatorTool(mockAdapter);
     });
 
     it("should simulate delete cascades", async () => {

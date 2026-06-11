@@ -117,21 +117,16 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery("SHOW ENGINE INNODB STATUS");
         const rawRow = result.rows?.[0];
         const rawStatus =
-          (rawRow?.["Status"] as string) ??
-          (rawRow?.["STATUS"] as string) ??
+          typeof rawRow?.["Status"] === "string" ? rawRow["Status"] :
+          typeof rawRow?.["STATUS"] === "string" ? rawRow["STATUS"] :
           "";
 
         if (summary) {
-          const response = {
-            success: true as const,
-            data: {
-              summary: parseInnodbStatusSummary(rawStatus),
-            },
-          };
+          const data = { summary: parseInnodbStatusSummary(rawStatus) };
           const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            Buffer.byteLength(JSON.stringify({ success: true, data }), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return { success: true, data, metrics: { tokenEstimate } };
         }
 
         const maxRawLength = 1000;
@@ -140,17 +135,14 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
             ? rawStatus.substring(0, maxRawLength) + "\n... (truncated)"
             : rawStatus;
 
-        const response = {
-          success: true as const,
-          data: {
-            status: statusStr,
-            ...(rawStatus.length > maxRawLength && { truncated: true }),
-          },
+        const data = {
+          status: statusStr,
+          ...(rawStatus.length > maxRawLength && { truncated: true }),
         };
         const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          Buffer.byteLength(JSON.stringify({ success: true, data }), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return { success: true, data, metrics: { tokenEstimate } };
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

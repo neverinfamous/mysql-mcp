@@ -139,10 +139,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           }
         } catch (dbErr) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(dbErr) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(dbErr) }
           );
         }
 
@@ -166,10 +163,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           reporter?.progress(1, `Processing ${rows.length} rows...`);
         } catch (error) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(error) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(error) }
           );
         }
 
@@ -255,7 +249,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -355,7 +349,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -421,10 +415,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           }
         } catch (dbErr) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(dbErr) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(dbErr) }
           );
         }
 
@@ -444,10 +435,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
               }
             } catch (tableErr) {
               return withTokenEstimate(
-                formatHandlerErrorResponse(tableErr) as unknown as Record<
-                  string,
-                  unknown
-                >,
+                { ...formatHandlerErrorResponse(tableErr) }
               );
             }
           }
@@ -478,7 +466,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -531,10 +519,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           }
         } catch (dbErr) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(dbErr) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(dbErr) }
           );
         }
 
@@ -549,7 +534,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },

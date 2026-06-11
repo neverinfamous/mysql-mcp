@@ -46,11 +46,11 @@ export async function getAllUserIndexes(
   const currentIndexes = new Map<string, ExistingIndex>();
 
   for (const row of rows) {
-    const tableName = row["TABLE_NAME"] as string;
-    const indexName = row["INDEX_NAME"] as string;
-    const colName = row["COLUMN_NAME"] as string;
+    const tableName = typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : "";
+    const indexName = typeof row["INDEX_NAME"] === "string" ? row["INDEX_NAME"] : "";
+    const colName = typeof row["COLUMN_NAME"] === "string" ? row["COLUMN_NAME"] : "";
     const nonUnique = Number(row["NON_UNIQUE"]) === 1;
-    const indexType = row["INDEX_TYPE"] as string;
+    const indexType = typeof row["INDEX_TYPE"] === "string" ? row["INDEX_TYPE"] : "";
 
     const key = `${tableName}.${indexName}`;
     const existing = currentIndexes.get(key);
@@ -145,8 +145,8 @@ export async function detectMissingFkIndexes(
     const fks = (result.rows ?? []);
 
     for (const row of fks) {
-      const table = row["TABLE_NAME"] as string;
-      const column = row["COLUMN_NAME"] as string;
+      const table = typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : "";
+      const column = typeof row["COLUMN_NAME"] === "string" ? row["COLUMN_NAME"] : "";
 
       const tableIndexes = indexesByTable.get(table) ?? [];
       const isIndexed = tableIndexes.some((idx) => idx.columns[0] === column);
@@ -198,7 +198,7 @@ export async function detectUnindexedTables(
     const tables = (result.rows ?? []);
 
     for (const row of tables) {
-      const table = row["TABLE_NAME"] as string;
+      const table = typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : "";
       const rowCount = Number(row["TABLE_ROWS"]);
 
       const tableIndexes = indexesByTable.get(table) ?? [];
@@ -244,16 +244,18 @@ export async function analyzeQueriesWithExplain(
       const rows = explainResult.rows ?? [];
       if (rows.length === 0) continue;
 
-      const explainStr = rows[0]?.["EXPLAIN"] as string | undefined;
-      if (!explainStr) continue;
+      const explainRaw = rows[0]?.["EXPLAIN"];
+      if (typeof explainRaw !== "string") continue;
+      const explainStr = explainRaw;
 
-      const parsedExplain = JSON.parse(explainStr) as unknown;
+      const parsedExplain: unknown = JSON.parse(explainStr);
 
-      // Deep search the EXPLAIN JSON tree for problematic nodes
-      const analyzeNode = (node: unknown): void => {
-        if (node == null || typeof node !== "object") return;
+      const isRecord = (val: unknown): val is Record<string, unknown> => typeof val === "object" && val !== null && !Array.isArray(val);
 
-        const obj = node as Record<string, unknown>;
+      const analyzeNodeInternal = (node: unknown): void => {
+        if (!isRecord(node)) return;
+
+        const obj = node;
 
         // Check for full table scan
         if (obj["access_type"] === "ALL" && typeof obj["table_name"] === "string") {
@@ -305,28 +307,28 @@ export async function analyzeQueriesWithExplain(
         // Recursive tree walk
         if (Array.isArray(obj["nested_loop"])) {
           for (const nl of obj["nested_loop"]) {
-            if (nl != null && typeof nl === "object" && "table" in nl) {
-              analyzeNode((nl as Record<string, unknown>)["table"]);
+            if (isRecord(nl) && "table" in nl) {
+              analyzeNodeInternal(nl["table"]);
             }
           }
         }
         
-        if (obj["query_block"] != null && typeof obj["query_block"] === "object") {
-          const qb = obj["query_block"] as Record<string, unknown>;
-          if (qb["table"] != null) {
-            analyzeNode(qb["table"]);
+        if (isRecord(obj["query_block"])) {
+          const qb = obj["query_block"];
+          if ("table" in qb && qb["table"] != null) {
+            analyzeNodeInternal(qb["table"]);
           }
           if (Array.isArray(qb["nested_loop"])) {
             for (const nl of qb["nested_loop"]) {
-              if (nl != null && typeof nl === "object" && "table" in nl) {
-                analyzeNode((nl as Record<string, unknown>)["table"]);
+              if (isRecord(nl) && "table" in nl) {
+                analyzeNodeInternal(nl["table"]);
               }
             }
           }
         }
       };
 
-      analyzeNode(parsedExplain);
+      analyzeNodeInternal(parsedExplain);
     } catch {
       // Ignore EXPLAIN failures (could be bad query syntax)
       continue;

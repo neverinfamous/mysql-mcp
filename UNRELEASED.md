@@ -88,4 +88,5 @@
 - Ported `test-zod-errors.mjs` from db-mcp and applied the `McpServer` monkey-patch to ensure SDK-level Zod validation exceptions are gracefully intercepted and formatted as standard `VALIDATION_ERROR` payloads, rather than leaking raw `-32602` SDK errors.
 
 ### Changed
-- **Type Safety (Thread 1):** Eliminated loose ny and s type assertions across the core dapters and uth modules. Replaced unsafe property access with unknown and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.
+- **Type Safety (Thread 1):** Eliminated loose `any` and `as` type assertions across the core `adapters` and `auth` modules. Replaced unsafe property access with `unknown` and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.
+- **Type Safety (Thread 2):** Eliminated `any` and `as` type assertions across the core tool handlers (`src/adapters/mysql/tools/`). Replaced unsafe dynamic property access with `unknown` types and strict validation, improved JSON parsing safety, and removed blind casts from all test mock implementations.

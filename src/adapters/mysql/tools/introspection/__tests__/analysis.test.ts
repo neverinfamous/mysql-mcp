@@ -3,7 +3,7 @@ import {
   createConstraintAnalysisTool,
   createMigrationRisksTool,
 } from "../analysis.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -18,7 +18,7 @@ describe("Constraint Analysis Tool", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tool = createConstraintAnalysisTool(mockAdapter as unknown as MySQLAdapter);
+    tool = createConstraintAnalysisTool(mockAdapter);
     mockContext = createMockRequestContext();
 
     // Mock for schema/table existence
@@ -164,7 +164,7 @@ describe("Migration Risks Tool", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tool = createMigrationRisksTool(mockAdapter as unknown as MySQLAdapter);
+    tool = createMigrationRisksTool(mockAdapter);
     mockContext = createMockRequestContext();
   });
 

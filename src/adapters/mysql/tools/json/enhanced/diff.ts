@@ -55,9 +55,10 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
 
         const parseKeys = (raw: unknown): string[] => {
           if (typeof raw === "string") {
-            return JSON.parse(raw) as string[];
+            const parsed: unknown = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed.map(String) : [];
           }
-          return (raw as string[]) ?? [];
+          return Array.isArray(raw) ? raw.map(String) : [];
         };
 
         const json1Keys = parseKeys(row?.["json1_keys"]);
@@ -102,7 +103,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
               const parseValue = (raw: unknown): unknown => {
                 if (typeof raw === "string") {
                   try {
-                    return JSON.parse(raw) as unknown;
+                    return JSON.parse(raw);
                   } catch {
                     return raw;
                   }

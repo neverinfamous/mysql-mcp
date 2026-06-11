@@ -11,7 +11,7 @@ import {
   createSpatialContainsTool,
   createSpatialWithinTool,
 } from "../queries.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -31,7 +31,7 @@ describe("Spatial Queries Tools", () => {
   describe("createSpatialDistanceTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialDistanceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_distance");
     });
@@ -47,7 +47,7 @@ describe("Spatial Queries Tools", () => {
       );
 
       const tool = createSpatialDistanceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -59,7 +59,7 @@ describe("Spatial Queries Tools", () => {
       )) as { data: { results: unknown[] } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance");
       // Check SRID default with axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
@@ -70,7 +70,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialDistanceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -84,18 +84,18 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance");
       expect(call).toContain("<= ?");
       expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
       expect(call).toContain("LIMIT 5");
-      const args = mockAdapter.executeQuery.mock.calls[0][1] as any[];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       expect(args).toContain(500);
     });
 
     it("should validate table name", async () => {
       const tool = createSpatialDistanceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -114,7 +114,7 @@ describe("Spatial Queries Tools", () => {
 
     it("should validate column name", async () => {
       const tool = createSpatialDistanceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -136,10 +136,10 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
         rows: null,
-      } as any);
+      });
 
       const tool = createSpatialDistanceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -158,7 +158,7 @@ describe("Spatial Queries Tools", () => {
   describe("createSpatialDistanceSphereTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialDistanceSphereTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_distance_sphere");
     });
@@ -167,7 +167,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialDistanceSphereTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -178,7 +178,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance_Sphere");
     });
 
@@ -186,7 +186,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialDistanceSphereTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -198,13 +198,13 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("<= ?");
     });
 
     it("should validate identifiers", async () => {
       const tool = createSpatialDistanceSphereTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -225,7 +225,7 @@ describe("Spatial Queries Tools", () => {
   describe("createSpatialContainsTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_contains");
     });
@@ -234,7 +234,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -245,7 +245,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Contains");
       // Verify SRID is applied with default 4326 and axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
@@ -255,7 +255,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -267,13 +267,13 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
     });
 
     it("should validate identifiers", async () => {
       const tool = createSpatialContainsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -294,7 +294,7 @@ describe("Spatial Queries Tools", () => {
   describe("createSpatialWithinTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialWithinTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_within");
     });
@@ -303,7 +303,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialWithinTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -314,7 +314,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Within");
       // Verify SRID is applied with default 4326 and axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
@@ -324,7 +324,7 @@ describe("Spatial Queries Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialWithinTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -336,13 +336,13 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
     });
 
     it("should validate identifiers", async () => {
       const tool = createSpatialWithinTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {

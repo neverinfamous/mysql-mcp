@@ -4,7 +4,6 @@ import {
   createRegressionTool,
   createHistogramTool,
 } from "../comparative/index.js";
-import { MySQLAdapter } from "../../../mysql-adapter/index.js";
 
 describe("Comparative Stats Tools", () => {
   let mockAdapter: any;
@@ -59,7 +58,7 @@ describe("Comparative Stats Tools", () => {
           column1: "x",
           column2: "y",
         },
-        {} as any,
+        {},
       );
 
       expect(result.data.correlation).toBe(0.95);
@@ -94,7 +93,7 @@ describe("Comparative Stats Tools", () => {
           column1: "x",
           column2: "y",
         },
-        {} as any,
+        {},
       );
 
       expect(result.data.interpretation).toBe("Very weak / No correlation");
@@ -107,7 +106,7 @@ describe("Comparative Stats Tools", () => {
           column1: "x",
           column2: "y",
         },
-        {} as any,
+        {},
       );
 
       expect(result.success).toBe(false);
@@ -144,7 +143,7 @@ describe("Comparative Stats Tools", () => {
           xColumn: "x",
           yColumn: "y",
         },
-        {} as any,
+        {},
       );
 
       expect(result.success).toBe(false);
@@ -191,7 +190,7 @@ describe("Comparative Stats Tools", () => {
           xColumn: "x",
           yColumn: "y",
         },
-        {} as any,
+        {},
       );
 
       expect(result.data.slope).toBeCloseTo(1);
@@ -216,11 +215,11 @@ describe("Comparative Stats Tools", () => {
           column: "age",
           update: true,
         },
-        {} as any,
+        {},
       );
 
       const calls = mockAdapter.executeQuery.mock.calls.map(
-        (c: any[]) => c[0] as string,
+        (c: any[]) => c[0],
       );
       expect(calls.some((c: string) => c.includes("ANALYZE TABLE"))).toBe(true);
       expect(result.data.exists).toBe(true);
@@ -238,7 +237,7 @@ describe("Comparative Stats Tools", () => {
           table: "users",
           column: "age",
         },
-        {} as any,
+        {},
       );
 
       expect(result.success).toBe(true);
@@ -256,7 +255,7 @@ describe("Comparative Stats Tools", () => {
           table: "users",
           column: "nonexistent_col",
         },
-        {} as any,
+        {},
       );
 
       expect(result.success).toBe(false);

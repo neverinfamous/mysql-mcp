@@ -4,7 +4,6 @@ import {
   createSecurityEncryptionStatusTool,
   createSecurityPasswordValidateTool,
 } from "../encryption.js";
-import { MySQLAdapter } from "../../../mysql-adapter/index.js";
 
 describe("Security Encryption Tools", () => {
   let mockAdapter: MySQLAdapter;
@@ -14,7 +13,7 @@ describe("Security Encryption Tools", () => {
     mockExecuteQuery = vi.fn();
     mockAdapter = {
       executeQuery: mockExecuteQuery,
-    } as unknown as MySQLAdapter;
+    };
   });
 
   describe("mysql_security_ssl_status", () => {
@@ -44,7 +43,7 @@ describe("Security Encryption Tools", () => {
           rows: [{ cipher: "AES256-SHA" }],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result).toMatchObject({
         success: true,
@@ -74,7 +73,7 @@ describe("Security Encryption Tools", () => {
         .mockResolvedValueOnce({ rows: [] }) // Variables
         .mockResolvedValueOnce({ rows: [] }); // Connection
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.data.sslEnabled).toBe(false);
       expect(result.data.currentCipher).toBe("None");
@@ -103,7 +102,7 @@ describe("Security Encryption Tools", () => {
           rows: [{ Variable_name: "innodb_redo_log_encrypt", Value: "ON" }],
         });
 
-      const result = await tool.handler({}, {} as any);
+      const result = await tool.handler({}, {});
 
       expect(result.data.keyringInstalled).toBe(true);
       expect(result.data.tdeAvailable).toBe(true);
@@ -132,7 +131,7 @@ describe("Security Encryption Tools", () => {
 
       const result = await tool.handler(
         { password: "StrongPassword123!" },
-        {} as any,
+        {},
       );
 
       expect(result.data.interpretation).toBe("Very Strong");
@@ -153,7 +152,7 @@ describe("Security Encryption Tools", () => {
 
       const result = await tool.handler(
         { password: "123" },
-        {} as any,
+        {},
       );
 
       expect(result.data.interpretation).toBe("Very Weak");
@@ -167,7 +166,7 @@ describe("Security Encryption Tools", () => {
 
       const result = await tool.handler(
         { password: "pass" },
-        {} as any,
+        {},
       );
 
       expect(result.success).toBe(false);
@@ -185,7 +184,7 @@ describe("Security Encryption Tools", () => {
 
       const result = await tool.handler(
         { password: "pass" },
-        {} as any,
+        {},
       );
 
       expect(result.success).toBe(false);

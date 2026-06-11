@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createSchemaSnapshotTool } from "../snapshot.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -15,7 +15,7 @@ describe("Schema Snapshot Tool", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tool = createSchemaSnapshotTool(mockAdapter as unknown as MySQLAdapter);
+    tool = createSchemaSnapshotTool(mockAdapter);
     mockContext = createMockRequestContext();
 
     // Mock for schema/table existence

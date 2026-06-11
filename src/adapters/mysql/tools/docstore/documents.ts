@@ -118,9 +118,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             const row = r;
             const docValue = row["doc"];
             const idValue = row["_id"];
-            const parsed =
+            const parsed: unknown =
               typeof docValue === "string"
-                ? (JSON.parse(docValue) as Record<string, unknown>)
+                ? JSON.parse(docValue)
                 : docValue;
 
             if (
@@ -129,8 +129,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               typeof parsed === "object" &&
               !Array.isArray(parsed)
             ) {
-              if (!("_id" in (parsed as Record<string, unknown>))) {
-                (parsed as Record<string, unknown>)["_id"] = idValue;
+              if (!("_id" in parsed)) {
+                Object.assign(parsed, { _id: idValue });
               }
             }
             return parsed;

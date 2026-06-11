@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatsOutliersTool } from "../outlier.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -21,7 +21,7 @@ describe("Outliers Tool", () => {
     let tool: ReturnType<typeof createStatsOutliersTool>;
 
     beforeEach(() => {
-      tool = createStatsOutliersTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsOutliersTool(mockAdapter);
     });
 
     it("should detect outliers using Z-score", async () => {

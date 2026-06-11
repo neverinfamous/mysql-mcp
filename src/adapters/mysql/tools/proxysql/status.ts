@@ -35,12 +35,18 @@ export function createProxySQLStatusTool(): ToolDefinition {
         const [versionRow] = await proxySQLQuery(
           "SELECT variable_value FROM global_variables WHERE variable_name = 'admin-version'",
         );
-        const version = (versionRow?.["variable_value"] as string) ?? "unknown";
+        const version =
+          typeof versionRow?.["variable_value"] === "string"
+            ? versionRow["variable_value"]
+            : "unknown";
 
         const uptimeRow = rows.find(
           (r) => r["Variable_Name"] === "ProxySQL_Uptime",
         );
-        const uptime = (uptimeRow?.["Variable_Value"] as string) ?? "0";
+        const uptime =
+          typeof uptimeRow?.["Variable_Value"] === "string"
+            ? uptimeRow["Variable_Value"]
+            : "0";
 
         if (summary) {
           const keyMetrics = [
@@ -57,9 +63,10 @@ export function createProxySQLStatusTool(): ToolDefinition {
             "mysql_backend_buffers_bytes",
             "mysql_frontend_buffers_bytes",
           ];
-          const filteredRows = rows.filter((row) =>
-            keyMetrics.includes(row["Variable_Name"] as string),
-          );
+          const filteredRows = rows.filter((row) => {
+            const varName = row["Variable_Name"];
+            return typeof varName === "string" && keyMetrics.includes(varName);
+          });
           return withTokenEstimate({
             success: true,
             data: {
@@ -126,9 +133,10 @@ export function createProxySQLRuntimeStatusTool(): ToolDefinition {
             "admin-web_enabled",
             "admin-stats_mysql_connection_pool",
           ];
-          const filteredVars = redactedVars.filter((row) =>
-            keyAdminVars.includes(row["variable_name"] as string),
-          );
+          const filteredVars = redactedVars.filter((row) => {
+            const varName = row["variable_name"];
+            return typeof varName === "string" && keyAdminVars.includes(varName);
+          });
           return withTokenEstimate({
             success: true,
             data: {

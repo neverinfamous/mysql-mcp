@@ -27,7 +27,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(new Error("Pool not available"));
         }
         const response = {
-          success: true as const,
+          success: true,
           data: { poolStats: pool.getStats() },
         };
         const tokenEstimate = Math.ceil(

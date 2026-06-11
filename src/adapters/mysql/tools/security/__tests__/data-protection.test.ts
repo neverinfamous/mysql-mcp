@@ -10,7 +10,7 @@ import {
   createSecurityUserPrivilegesTool,
   createSecuritySensitiveTablesTool,
 } from "../data-protection.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -30,7 +30,7 @@ describe("Security Data Protection Tools", () => {
   describe("createSecurityMaskDataTool", () => {
     it("should mask email addresses", async () => {
       const tool = createSecurityMaskDataTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -45,7 +45,7 @@ describe("Security Data Protection Tools", () => {
 
     it("should mask phone numbers", async () => {
       const tool = createSecurityMaskDataTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -60,7 +60,7 @@ describe("Security Data Protection Tools", () => {
 
     it("should mask partial text", async () => {
       const tool = createSecurityMaskDataTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -112,7 +112,7 @@ describe("Security Data Protection Tools", () => {
       );
 
       const tool = createSecurityUserPrivilegesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -148,7 +148,7 @@ describe("Security Data Protection Tools", () => {
       );
 
       const tool = createSecuritySensitiveTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {

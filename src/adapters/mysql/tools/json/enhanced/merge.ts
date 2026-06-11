@@ -38,7 +38,13 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             merged:
               typeof merged === "string"
-                ? (JSON.parse(merged) as Record<string, unknown>)
+                ? (() => {
+                    const parsed: unknown = JSON.parse(merged);
+                    if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+                      return Object.fromEntries(Object.entries(parsed));
+                    }
+                    return {};
+                  })()
                 : merged,
             mode,
           },

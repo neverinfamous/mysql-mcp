@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getProxySQLTools } from "../proxysql/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -30,7 +30,7 @@ describe("getProxySQLTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -78,7 +78,7 @@ describe("Tool Structure Validation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -121,7 +121,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     mockContext = createMockRequestContext();
 
@@ -694,7 +694,7 @@ describe("Connection Error Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     mockContext = createMockRequestContext();
   });
@@ -736,7 +736,7 @@ describe("Crash Tests (all 12 handlers)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     mockContext = createMockRequestContext();
 

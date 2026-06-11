@@ -136,7 +136,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             `SET DEFAULT ROLE '${role}' TO '${user}'@'${host}'`,
           );
           const data = { role, user, host };
-          const response = { success: true as const, data };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
@@ -208,7 +208,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
 
             await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
             const data = { role, user, host };
-            const response = { success: true as const, data };
+            const response = { success: true, data };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
@@ -241,7 +241,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
               database: targetDb,
               table: targetTable,
             };
-            const response = { success: true as const, data };
+            const response = { success: true, data };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
             );
@@ -266,12 +266,13 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             return formatHandlerErrorResponse(new Error("User does not exist"));
           }
           const cleanMsg = stripErrorPrefix(message);
-          const parsed =
-            params !== null && typeof params === "object"
-              ? (params as Record<string, unknown>)
-              : {};
           const pRole =
-            typeof parsed["role"] === "string" ? parsed["role"] : undefined;
+            params !== null &&
+            typeof params === "object" &&
+            "role" in params &&
+            typeof params.role === "string"
+              ? params.role
+              : undefined;
           if (pRole !== undefined) {
             const response = { success: false, role: pRole, error: cleanMsg };
             const tokenEstimate = Math.ceil(
@@ -314,7 +315,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             [user, host],
           );
           const data = { user, host, roles: result.rows ?? [] };
-          const response = { success: true as const, data };
+          const response = { success: true, data };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );

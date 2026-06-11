@@ -36,7 +36,7 @@ describe("Shell Restore Tools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
     mockAdapter = createMockMySQLAdapter();
   });
 
@@ -216,7 +216,7 @@ describe("Shell Restore Tools", () => {
           language: "js",
         },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(true);
       expect(result.data.stdout).toBe("Script output");
@@ -235,7 +235,7 @@ describe("Shell Restore Tools", () => {
           language: "py",
         },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(true);
       const args = mockSpawn.mock.calls[0][1];

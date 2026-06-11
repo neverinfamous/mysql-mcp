@@ -91,7 +91,8 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
                 SELECT @@server_uuid as serverUuid
             `);
 
-        const localUuid = localResult.rows?.[0]?.["serverUuid"] as string;
+        const localUuidVal = localResult.rows?.[0]?.["serverUuid"];
+        const localUuid = typeof localUuidVal === "string" ? localUuidVal : "";
         const members = memberResult.rows ?? [];
         const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
 
@@ -356,12 +357,12 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         // Determine if flow control is active
         const isThrottling = (queueResult.rows ?? []).some((row) => {
           const r = row;
-          const certQueue = r["certifyQueue"] as number;
-          const appQueue = r["applierQueue"] as number;
-          const certThreshold =
-            (config?.["certifierThreshold"] as number) ?? 25000;
-          const appThreshold =
-            (config?.["applierThreshold"] as number) ?? 25000;
+          const certQueue = Number(r["certifyQueue"] ?? 0);
+          const appQueue = Number(r["applierQueue"] ?? 0);
+
+          const certThreshold = Number(config?.["certifierThreshold"] ?? 25000);
+
+          const appThreshold = Number(config?.["applierThreshold"] ?? 25000);
           return certQueue > certThreshold || appQueue > appThreshold;
         });
 

@@ -32,7 +32,7 @@ export function createExplainTool(adapter: MySQLAdapter): ToolDefinition {
           const explainRow = result.rows[0];
           const jsonStr = explainRow["EXPLAIN"];
           if (typeof jsonStr === "string") {
-            const parsed = JSON.parse(jsonStr) as unknown;
+            const parsed: unknown = JSON.parse(jsonStr);
             const optimizedPlan = optimizeExplainJson(parsed);
             const response = { success: true, data: { plan: optimizedPlan } };
             const tokenEstimate = Math.ceil(

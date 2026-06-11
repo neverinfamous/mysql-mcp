@@ -24,7 +24,7 @@ describe("Shell Backup Tools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
     mockAdapter = createMockMySQLAdapter();
   });
 

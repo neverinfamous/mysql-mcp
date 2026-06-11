@@ -6,7 +6,7 @@ import {
   createTimeSeriesToolStats,
   createSamplingTool,
 } from "../descriptive/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -27,7 +27,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createDescriptiveStatsTool>;
 
     beforeEach(() => {
-      tool = createDescriptiveStatsTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createDescriptiveStatsTool(mockAdapter);
     });
 
     it("should calculate descriptive stats", async () => {
@@ -103,7 +103,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createPercentilesTool>;
 
     beforeEach(() => {
-      tool = createPercentilesTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createPercentilesTool(mockAdapter);
     });
 
     it("should calculate percentiles", async () => {
@@ -154,7 +154,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createDistributionTool>;
 
     beforeEach(() => {
-      tool = createDistributionTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createDistributionTool(mockAdapter);
     });
 
     it("should calculate distribution buckets", async () => {
@@ -191,7 +191,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createTimeSeriesToolStats>;
 
     beforeEach(() => {
-      tool = createTimeSeriesToolStats(mockAdapter as unknown as MySQLAdapter);
+      tool = createTimeSeriesToolStats(mockAdapter);
     });
 
     it("should aggregate time series data", async () => {
@@ -246,7 +246,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createSamplingTool>;
 
     beforeEach(() => {
-      tool = createSamplingTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createSamplingTool(mockAdapter);
     });
 
     it("should return random sample", async () => {

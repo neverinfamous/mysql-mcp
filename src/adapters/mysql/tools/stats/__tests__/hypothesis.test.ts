@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatsHypothesisTool } from "../hypothesis.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -21,7 +21,7 @@ describe("Hypothesis Tool", () => {
     let tool: ReturnType<typeof createStatsHypothesisTool>;
 
     beforeEach(() => {
-      tool = createStatsHypothesisTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsHypothesisTool(mockAdapter);
     });
 
     it("should perform t-test", async () => {

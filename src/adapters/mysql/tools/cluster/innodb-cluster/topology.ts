@@ -40,7 +40,7 @@ export function createClusterTopologyTool(
 
         const members = membersResult.rows ?? [];
         const grMemberIds = new Set(
-          members.map((m) => m["id"] as string).filter(Boolean),
+          members.map((m) => (typeof m["id"] === "string" ? m["id"] : "")).filter(Boolean),
         );
 
         // Cross-reference with cluster metadata for offline instances
@@ -55,7 +55,7 @@ export function createClusterTopologyTool(
               `);
           if (metaResult.rows) {
             metadataOffline = metaResult.rows
-              .filter((i) => !grMemberIds.has(i["id"] as string))
+              .filter((i) => !grMemberIds.has(typeof i["id"] === "string" ? i["id"] : ""))
               .map((i) => ({
                 id: i["id"],
                 host: i["host"],
@@ -90,7 +90,7 @@ export function createClusterTopologyTool(
           ascii += "  PRIMARY:\n";
           for (const p of topology.primary) {
             const pm = p;
-            ascii += `    ★ ${pm["host"] as string}:${String(pm["port"])} (${pm["state"] as string})\n`;
+            ascii += `    ★ ${String(pm["host"])}:${String(pm["port"])} (${String(pm["state"])})\n`;
           }
         }
 
@@ -98,7 +98,7 @@ export function createClusterTopologyTool(
           ascii += "\n  SECONDARY:\n";
           for (const s of topology.secondaries) {
             const sm = s;
-            ascii += `    ○ ${sm["host"] as string}:${String(sm["port"])} (${sm["state"] as string})\n`;
+            ascii += `    ○ ${String(sm["host"])}:${String(sm["port"])} (${String(sm["state"])})\n`;
           }
         }
 
@@ -106,7 +106,7 @@ export function createClusterTopologyTool(
           ascii += "\n  RECOVERING:\n";
           for (const r of topology.recovering) {
             const rm = r;
-            ascii += `    ⟳ ${rm["host"] as string}:${String(rm["port"])}\n`;
+            ascii += `    ⟳ ${String(rm["host"])}:${String(rm["port"])}\n`;
           }
         }
 
@@ -114,7 +114,7 @@ export function createClusterTopologyTool(
           ascii += "\n  OFFLINE/ERROR:\n";
           for (const o of topology.offline) {
             const om = o;
-            ascii += `    ✗ ${om["host"] as string}:${String(om["port"])} (${om["state"] as string})\n`;
+            ascii += `    ✗ ${String(om["host"])}:${String(om["port"])} (${String(om["state"])})\n`;
           }
         }
 

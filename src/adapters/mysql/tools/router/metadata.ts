@@ -25,7 +25,7 @@ export function createRouterMetadataStatusTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { metadataName } = MetadataNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/metadata/${encodeURIComponent(metadataName)}/status`,
         );
         if (!result.success) {

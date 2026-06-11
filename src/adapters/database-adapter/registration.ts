@@ -54,8 +54,8 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
     tool.name,
     {
       ...toolOptions,
-      inputSchema: tool.inputSchema ? tool.inputSchema : {},
-      ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}),
+      inputSchema: tool.inputSchema ?? {},
+      ...(tool.outputSchema !== undefined ? { outputSchema: tool.outputSchema } : {}),
     },
     async (params: unknown, extra?: unknown) => {
       let progressToken: string | number | undefined;
@@ -169,8 +169,8 @@ export function registerResource(
   }
 
   server.registerResource(
-    resource.uri,
     resource.name,
+    resource.uri,
     resourceMeta,
     async (uri: string | URL, _extra?: unknown) => {
       const context = adapter.createContext();

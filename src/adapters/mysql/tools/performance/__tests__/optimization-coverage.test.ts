@@ -13,7 +13,7 @@ import {
   createOptimizerTraceTool,
 } from "../optimization.js";
 import { createIndexRecommendationTool } from "../index-audit/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -43,7 +43,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         .mockResolvedValueOnce(createMockQueryResult([])); // OPTIMIZER_TRACE empty
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT 1", summary: true },
@@ -89,7 +89,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson }]));
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE email = 'test'", summary: true },
@@ -129,7 +129,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson }]));
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM orders", summary: true },
@@ -183,7 +183,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson }]));
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -207,7 +207,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT 1", summary: true },
@@ -224,7 +224,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: 12345 }]));
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT 1", summary: true },
@@ -241,7 +241,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: true },
@@ -259,7 +259,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: false },
@@ -279,7 +279,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE id = 1 OR name = 'test'" },
@@ -297,7 +297,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE id NOT IN (1,2,3)" },
@@ -313,7 +313,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT id FROM users ORDER BY name" },
@@ -331,7 +331,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users WHERE name LIKE '%test'" },
@@ -353,7 +353,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT 1 FROM dual LIMIT 1" },
@@ -369,7 +369,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent LIMIT 1" },
@@ -384,7 +384,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { sql: "SELECT 1 FROM dual LIMIT 1" },
@@ -396,7 +396,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
 
     it("should return error when no query provided", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -423,7 +423,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       ]);
 
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ table: "users" }, mockContext);
 
@@ -446,7 +446,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       ]);
 
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ table: "orders" }, mockContext);
 
@@ -461,7 +461,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.describeTable.mockResolvedValue({ columns: [] });
 
       const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent" },
@@ -485,7 +485,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         { name: "PRIMARY", columns: ["id"], unique: true },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -502,7 +502,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
     it("should handle nonexistent table in force index", async () => {
       mockAdapter.describeTable.mockResolvedValue({ columns: [] });
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "nonexistent",

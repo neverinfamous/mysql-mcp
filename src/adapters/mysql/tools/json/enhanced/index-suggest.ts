@@ -52,7 +52,7 @@ export function createJsonIndexSuggestTool(
 
         const keysResult = await adapter.executeQuery(keysQuery);
         const keys = (keysResult.rows ?? []).map(
-          (r) => r["key_name"] as string,
+          (r) => typeof r["key_name"] === "string" ? r["key_name"] : "",
         );
 
         // Check cardinality and suggest indexes
@@ -92,7 +92,7 @@ export function createJsonIndexSuggestTool(
           ]);
           const cardRow = cardResult.rows?.[0];
 
-          const valueType = cardRow?.["value_type"] as string | undefined;
+          const valueType = typeof cardRow?.["value_type"] === "string" ? cardRow["value_type"] : undefined;
           const cardinality = Number(cardRow?.["cardinality"] ?? 0);
 
           if (cardinality > 1) {

@@ -11,7 +11,7 @@ import {
 } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 
 describe("Security: SQL Injection Prevention", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -25,7 +25,7 @@ describe("Security: SQL Injection Prevention", () => {
 
   describe("Backup Tools - mysql_export_table", () => {
     it("should reject table name with SQL injection", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -41,7 +41,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject table name starting with number", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -57,7 +57,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject WHERE clause with stacked queries", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -74,7 +74,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject WHERE clause with UNION attack", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -91,7 +91,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject WHERE clause with timing attack (SLEEP)", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -108,7 +108,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject WHERE clause with unbalanced quotes", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -127,7 +127,7 @@ describe("Security: SQL Injection Prevention", () => {
     it("should accept valid table and WHERE", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue({ rows: [] });
 
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       await expect(
@@ -145,7 +145,7 @@ describe("Security: SQL Injection Prevention", () => {
 
   describe("Backup Tools - mysql_import_data", () => {
     it("should reject table name with injection", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const importTool = tools.find((t) => t.name === "mysql_import_data")!;
 
       const result = (await importTool.handler(
@@ -161,7 +161,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject column name with injection", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const importTool = tools.find((t) => t.name === "mysql_import_data")!;
 
       const result = (await importTool.handler(
@@ -179,7 +179,7 @@ describe("Security: SQL Injection Prevention", () => {
 
   describe("JSON Tools - Injection Prevention", () => {
     it("should reject table name with injection in mysql_json_extract", async () => {
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const extractTool = tools.find((t) => t.name === "mysql_json_extract")!;
 
       await expect(
@@ -198,7 +198,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject column name with injection in mysql_json_extract", async () => {
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const extractTool = tools.find((t) => t.name === "mysql_json_extract")!;
 
       await expect(
@@ -217,7 +217,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject WHERE clause with BENCHMARK attack in mysql_json_set", async () => {
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const setTool = tools.find((t) => t.name === "mysql_json_set")!;
 
       await expect(
@@ -238,7 +238,7 @@ describe("Security: SQL Injection Prevention", () => {
     });
 
     it("should reject WHERE clause with file operation attack", async () => {
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const setTool = tools.find((t) => t.name === "mysql_json_set")!;
 
       await expect(
@@ -261,7 +261,7 @@ describe("Security: SQL Injection Prevention", () => {
     it("should accept valid inputs in mysql_json_set", async () => {
       mockAdapter.executeWriteQuery.mockResolvedValue({ rowsAffected: 1 });
 
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const setTool = tools.find((t) => t.name === "mysql_json_set")!;
 
       await expect(

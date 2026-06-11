@@ -257,12 +257,12 @@ export function createSecurityPasswordValidateTool(
 
         // Use validate_password function
         const result = await adapter.executeQuery(
-          "SELECT VALIDATE_PASSWORD_STRENGTH(?) as strength",
+          "SELECT VALIDATE_PASSWORD_STRENGTH(?) AS strength",
           [password],
         );
 
         const row = result.rows?.[0];
-        const strength = (row?.["strength"] as number) ?? 0;
+        const strength = typeof row?.["strength"] === "number" ? row["strength"] : 0;
 
         let interpretation: string;
         if (strength >= 100) interpretation = "Very Strong";

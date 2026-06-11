@@ -42,7 +42,7 @@ export function createCascadeSimulatorTool(
           const dbRow = (
             await adapter.executeReadQuery("SELECT DATABASE() as db")
           ).rows?.[0];
-          schema = (dbRow?.["db"] as string) || "mysql";
+          schema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "mysql";
         }
 
         const operation = parsed.operation ?? "DELETE";

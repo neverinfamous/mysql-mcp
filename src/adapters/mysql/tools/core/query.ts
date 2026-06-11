@@ -44,11 +44,16 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (cursor) {
           try {
-            const cursorData = JSON.parse(
+            const parsed: unknown = JSON.parse(
               Buffer.from(cursor, "base64").toString("utf8"),
-            ) as Record<string, unknown>;
-            if (typeof cursorData["offset"] === "number") {
-              offset = cursorData["offset"];
+            );
+            if (
+              parsed !== null &&
+              typeof parsed === "object" &&
+              "offset" in parsed &&
+              typeof parsed.offset === "number"
+            ) {
+              offset = parsed.offset;
             }
           } catch {
             throw new ValidationError("Invalid cursor format", {

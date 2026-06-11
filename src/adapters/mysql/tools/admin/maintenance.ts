@@ -258,7 +258,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           );
           const foundTables = new Set(
             (checkResult.rows ?? []).map(
-              (r: Record<string, unknown>) => r["TABLE_NAME"] as string,
+              (r: Record<string, unknown>) => typeof r["TABLE_NAME"] === "string" ? r["TABLE_NAME"] : String(r["TABLE_NAME"]),
             ),
           );
           const notFound = tables.filter((t) => !foundTables.has(t));

@@ -14,7 +14,7 @@ import {
   createPoolStatsTool,
   createServerHealthTool,
 } from "../monitoring/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -34,7 +34,7 @@ describe("Admin Monitoring Tools", () => {
   describe("createShowProcesslistTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createShowProcesslistTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_show_processlist");
@@ -60,7 +60,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createShowProcesslistTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ full: true }, mockContext);
 
@@ -74,7 +74,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createShowProcesslistTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -88,7 +88,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
       const tool = createShowProcesslistTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: false;
@@ -102,7 +102,7 @@ describe("Admin Monitoring Tools", () => {
 
   describe("createShowStatusTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_show_status");
       expect(tool.group).toBe("monitoring");
@@ -118,7 +118,7 @@ describe("Admin Monitoring Tools", () => {
         ]),
       );
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -135,11 +135,11 @@ describe("Admin Monitoring Tools", () => {
         ]),
       );
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = await tool.handler({ like: "Threads%" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("LIKE 'Threads%'");
       expect(result).toHaveProperty("data.status");
     });
@@ -147,7 +147,7 @@ describe("Admin Monitoring Tools", () => {
     it("should show session status when global is false", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       await tool.handler({ global: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("SHOW STATUS");
@@ -156,10 +156,10 @@ describe("Admin Monitoring Tools", () => {
     it("should handle session status with LIKE filter", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       await tool.handler({ global: false, like: "Com_%" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).not.toContain("GLOBAL");
       expect(call).toContain("LIKE 'Com_%'");
     });
@@ -172,7 +172,7 @@ describe("Admin Monitoring Tools", () => {
         ]),
       );
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         data: { status: Record<string, string> };
       };
@@ -188,7 +188,7 @@ describe("Admin Monitoring Tools", () => {
       }));
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult(rows));
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         data: {
           status: Record<string, string>;
@@ -211,7 +211,7 @@ describe("Admin Monitoring Tools", () => {
       }));
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult(rows));
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler({ limit: 5 }, mockContext)) as {
         data: {
           status: Record<string, string>;
@@ -239,7 +239,7 @@ describe("Admin Monitoring Tools", () => {
         ]),
       );
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         data: { status: Record<string, string> };
       };
@@ -253,7 +253,7 @@ describe("Admin Monitoring Tools", () => {
     it("should return structured error on query failure", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         success: false;
         error: string;
@@ -264,7 +264,7 @@ describe("Admin Monitoring Tools", () => {
     });
 
     it("should return structured error on Zod validation failure", async () => {
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler(
         { limit: "not-a-number" },
         mockContext,
@@ -281,7 +281,7 @@ describe("Admin Monitoring Tools", () => {
   describe("createShowVariablesTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_show_variables");
@@ -298,7 +298,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -317,11 +317,11 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ like: "max%" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("LIKE 'max%'");
     });
 
@@ -329,7 +329,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ global: false }, mockContext);
 
@@ -345,7 +345,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: { variables: Record<string, string> };
@@ -366,7 +366,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult(rows));
 
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -389,7 +389,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: false;
@@ -404,7 +404,7 @@ describe("Admin Monitoring Tools", () => {
   describe("createInnodbStatusTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_innodb_status");
@@ -425,7 +425,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ summary: false }, mockContext);
 
@@ -439,7 +439,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ summary: false }, mockContext);
 
@@ -452,7 +452,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: false;
@@ -467,7 +467,7 @@ describe("Admin Monitoring Tools", () => {
   describe("createReplicationStatusTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createReplicationStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_replication_status");
@@ -488,12 +488,12 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createReplicationStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("SHOW REPLICA STATUS");
       expect(result).toHaveProperty("data.status");
     });
@@ -502,7 +502,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createReplicationStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: { status: unknown[] };
@@ -522,7 +522,7 @@ describe("Admin Monitoring Tools", () => {
         );
 
       const tool = createReplicationStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -533,7 +533,7 @@ describe("Admin Monitoring Tools", () => {
 
   describe("createPoolStatsTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createPoolStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createPoolStatsTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_pool_stats");
       expect(tool.group).toBe("monitoring");
@@ -551,7 +551,7 @@ describe("Admin Monitoring Tools", () => {
       };
       mockAdapter.getPool = vi.fn().mockReturnValue(mockPool);
 
-      const tool = createPoolStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createPoolStatsTool(mockAdapter);
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.getPool).toHaveBeenCalled();
@@ -561,7 +561,7 @@ describe("Admin Monitoring Tools", () => {
     it("should handle pool not available", async () => {
       mockAdapter.getPool = vi.fn().mockReturnValue(undefined);
 
-      const tool = createPoolStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createPoolStatsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         success: false;
         error: string;
@@ -579,7 +579,7 @@ describe("Admin Monitoring Tools", () => {
       };
       mockAdapter.getPool = vi.fn().mockReturnValue(mockPool);
 
-      const tool = createPoolStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createPoolStatsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         success: false;
         error: string;
@@ -593,7 +593,7 @@ describe("Admin Monitoring Tools", () => {
   describe("createServerHealthTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createServerHealthTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_server_health");
@@ -608,7 +608,7 @@ describe("Admin Monitoring Tools", () => {
       );
 
       const tool = createServerHealthTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -633,7 +633,7 @@ describe("Admin Monitoring Tools", () => {
         );
 
       const tool = createServerHealthTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -658,7 +658,7 @@ describe("Admin Monitoring Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createServerHealthTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -682,7 +682,7 @@ describe("Admin Monitoring Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createServerHealthTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -701,7 +701,7 @@ describe("Admin Monitoring Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
       const tool = createServerHealthTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: false;

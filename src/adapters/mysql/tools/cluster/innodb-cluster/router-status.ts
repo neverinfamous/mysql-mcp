@@ -31,7 +31,7 @@ export function createClusterRouterStatusTool(
       // Compute staleness: null lastCheckIn or >1 hour old
       const computeStale = (lastCheckIn: unknown): boolean => {
         if (lastCheckIn == null) return true;
-        const checkInTime = new Date(lastCheckIn as string).getTime();
+        const checkInTime = new Date(typeof lastCheckIn === "string" || typeof lastCheckIn === "number" ? lastCheckIn : 0).getTime();
         if (isNaN(checkInTime)) return true;
         return Date.now() - checkInTime > 3_600_000; // 1 hour
       };

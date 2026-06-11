@@ -12,7 +12,7 @@ import {
   createJsonStatsTool,
   createJsonIndexSuggestTool,
 } from "../enhanced/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -35,7 +35,7 @@ describe("JSON Enhanced Tools", () => {
         createMockQueryResult([{ merged: '{"a":1}' }]),
       );
 
-      const tool = createJsonMergeTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonMergeTool(mockAdapter);
       const result = (await tool.handler(
         {
           json1: "{}",
@@ -46,7 +46,7 @@ describe("JSON Enhanced Tools", () => {
       )) as { data: { merged: any } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_MERGE_PATCH");
       expect(result.data.merged).toEqual({ a: 1 });
     });
@@ -56,7 +56,7 @@ describe("JSON Enhanced Tools", () => {
         createMockQueryResult([{ merged: "[1, 2]" }]),
       );
 
-      const tool = createJsonMergeTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonMergeTool(mockAdapter);
       await tool.handler(
         {
           json1: "[1]",
@@ -66,7 +66,7 @@ describe("JSON Enhanced Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_MERGE_PRESERVE");
     });
 
@@ -76,7 +76,7 @@ describe("JSON Enhanced Tools", () => {
         createMockQueryResult([{ merged: { direct: "object" } }]),
       );
 
-      const tool = createJsonMergeTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonMergeTool(mockAdapter);
       const result = (await tool.handler(
         {
           json1: "{}",
@@ -104,7 +104,7 @@ describe("JSON Enhanced Tools", () => {
         ]),
       );
 
-      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonDiffTool(mockAdapter);
       const result = (await tool.handler(
         {
           json1: "{}",
@@ -142,7 +142,7 @@ describe("JSON Enhanced Tools", () => {
         ]),
       );
 
-      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonDiffTool(mockAdapter);
       const result = (await tool.handler(
         {
           json1: '{"a":1,"b":2}',
@@ -175,7 +175,7 @@ describe("JSON Enhanced Tools", () => {
         ]),
       );
 
-      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonDiffTool(mockAdapter);
       const result = (await tool.handler(
         {
           json1: '{"x":1,"y":2}',
@@ -211,7 +211,7 @@ describe("JSON Enhanced Tools", () => {
         // age: different values
         .mockResolvedValueOnce(createMockQueryResult([{ v1: "30", v2: "31" }]));
 
-      const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonDiffTool(mockAdapter);
       const result = (await tool.handler(
         {
           json1: '{"name":"Alice","age":30}',
@@ -249,7 +249,7 @@ describe("JSON Enhanced Tools", () => {
         ); // k2 types
 
       const tool = createJsonNormalizeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -272,7 +272,7 @@ describe("JSON Enhanced Tools", () => {
         );
 
       const tool = createJsonNormalizeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -284,7 +284,7 @@ describe("JSON Enhanced Tools", () => {
         mockContext,
       );
 
-      const keysQuery = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const keysQuery = mockAdapter.executeQuery.mock.calls[0][0];
       expect(keysQuery).toContain("WHERE active = 1");
     });
 
@@ -303,7 +303,7 @@ describe("JSON Enhanced Tools", () => {
       }
 
       const tool = createJsonNormalizeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -331,7 +331,7 @@ describe("JSON Enhanced Tools", () => {
         ]),
       );
 
-      const tool = createJsonStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonStatsTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "data",
@@ -354,7 +354,7 @@ describe("JSON Enhanced Tools", () => {
         ]),
       );
 
-      const tool = createJsonStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonStatsTool(mockAdapter);
       await tool.handler(
         {
           table: "data",
@@ -364,7 +364,7 @@ describe("JSON Enhanced Tools", () => {
         mockContext,
       );
 
-      const query = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const query = mockAdapter.executeQuery.mock.calls[0][0];
       expect(query).toContain('WHERE status = "active"');
     });
   });
@@ -383,7 +383,7 @@ describe("JSON Enhanced Tools", () => {
         ); // type card
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -407,7 +407,7 @@ describe("JSON Enhanced Tools", () => {
         );
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -428,7 +428,7 @@ describe("JSON Enhanced Tools", () => {
         );
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -451,7 +451,7 @@ describe("JSON Enhanced Tools", () => {
         );
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -470,7 +470,7 @@ describe("JSON Enhanced Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ cardinality: 10 }])); // No value_type
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -500,7 +500,7 @@ describe("JSON Enhanced Tools", () => {
       }
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -521,7 +521,7 @@ describe("JSON Enhanced Tools", () => {
         );
 
       const tool = createJsonIndexSuggestTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -549,7 +549,7 @@ describe("JSON Enhanced Tools", () => {
       it("json_normalize should return exists: false for nonexistent table", async () => {
         mockAdapter.executeQuery.mockRejectedValue(tableError);
         const tool = createJsonNormalizeTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler(
           { table: "nonexistent", column: "doc" },
@@ -564,7 +564,7 @@ describe("JSON Enhanced Tools", () => {
       it("json_stats should return exists: false for nonexistent table", async () => {
         mockAdapter.executeQuery.mockRejectedValue(tableError);
         const tool = createJsonStatsTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler(
           { table: "nonexistent", column: "doc" },
@@ -579,7 +579,7 @@ describe("JSON Enhanced Tools", () => {
       it("json_index_suggest should return exists: false for nonexistent table", async () => {
         mockAdapter.executeQuery.mockRejectedValue(tableError);
         const tool = createJsonIndexSuggestTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler(
           { table: "nonexistent", column: "doc" },
@@ -596,7 +596,7 @@ describe("JSON Enhanced Tools", () => {
           new Error("Invalid JSON text"),
         );
         const tool = createJsonMergeTool(
-          mockAdapter as unknown as MySQLAdapter,
+          mockAdapter,
         );
         const result = await tool.handler(
           { json1: "not-json", json2: "{}" },
@@ -612,7 +612,7 @@ describe("JSON Enhanced Tools", () => {
         mockAdapter.executeReadQuery.mockRejectedValue(
           new Error("Invalid JSON text"),
         );
-        const tool = createJsonDiffTool(mockAdapter as unknown as MySQLAdapter);
+        const tool = createJsonDiffTool(mockAdapter);
         const result = await tool.handler(
           { json1: "not-json", json2: "{}" },
           mockContext,

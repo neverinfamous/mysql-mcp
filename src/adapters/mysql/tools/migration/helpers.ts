@@ -198,7 +198,7 @@ export function formatRecord(row: Record<string, unknown>): FormattedRecord {
   const appliedAtStr =
     appliedAt instanceof Date
       ? appliedAt.toISOString()
-      : ((appliedAt as string | null) ?? "");
+      : ((typeof appliedAt === "string" ? appliedAt : null) ?? "");
   return {
     id: row["id"] as number,
     version: row["version"] as string,

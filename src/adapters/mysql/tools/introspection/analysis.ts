@@ -102,8 +102,8 @@ export function createConstraintAnalysisTool(
               type: "missing_pk",
               severity: "error",
               table: qualifiedName(
-                row["schema_name"] as string,
-                row["table_name"] as string,
+                typeof row["schema_name"] === "string" ? row["schema_name"] : "",
+                typeof row["table_name"] === "string" ? row["table_name"] : "",
               ),
               description: "Table has no primary key",
               suggestion:
@@ -187,11 +187,11 @@ export function createConstraintAnalysisTool(
               type: "missing_not_null",
               severity: "info",
               table: qualifiedName(
-                row["schema_name"] as string,
-                row["table_name"] as string,
+                typeof row["schema_name"] === "string" ? row["schema_name"] : "",
+                typeof row["table_name"] === "string" ? row["table_name"] : "",
               ),
-              description: `Column '${row["column_name"] as string}' (${row["type"] as string}) is nullable but commonly expected to be NOT NULL`,
-              suggestion: `ALTER TABLE ${qualifiedName(row["schema_name"] as string, row["table_name"] as string)} MODIFY COLUMN \`${row["column_name"] as string}\` ${row["type"] as string} NOT NULL`,
+              description: `Column '${typeof row["column_name"] === "string" ? row["column_name"] : ""}' (${typeof row["type"] === "string" ? row["type"] : ""}) is nullable but commonly expected to be NOT NULL`,
+              suggestion: `ALTER TABLE ${qualifiedName(typeof row["schema_name"] === "string" ? row["schema_name"] : "", typeof row["table_name"] === "string" ? row["table_name"] : "")} MODIFY COLUMN \`${typeof row["column_name"] === "string" ? row["column_name"] : ""}\` ${typeof row["type"] === "string" ? row["type"] : ""} NOT NULL`,
             });
           }
         }

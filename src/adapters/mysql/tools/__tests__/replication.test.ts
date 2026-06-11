@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getReplicationTools } from "../replication.js";
 import { getPartitioningTools } from "../partitioning.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -20,7 +20,7 @@ describe("getReplicationTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getReplicationTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -62,7 +62,7 @@ describe("getPartitioningTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getPartitioningTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -105,7 +105,7 @@ describe("Replication Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getReplicationTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getReplicationTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -151,7 +151,7 @@ describe("Replication Handler Execution", () => {
       await tool.handler({ logFile: "mysql-bin.000001" }, mockContext);
 
       // With explicit logFile, no master status query needed
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("BINLOG EVENTS");
       expect(call).toContain("IN 'mysql-bin.000001'");
     });
@@ -165,7 +165,7 @@ describe("Replication Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("LIMIT 10");
     });
 
@@ -185,7 +185,7 @@ describe("Replication Handler Execution", () => {
       await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const binlogCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const binlogCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(binlogCall).toContain("IN 'mysql-bin.000010'");
     });
   });
@@ -244,7 +244,7 @@ describe("Partitioning Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getPartitioningTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getPartitioningTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -267,7 +267,7 @@ describe("Partitioning Handler Execution", () => {
       await tool.handler({ table: "logs" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("PARTITIONS");
     });
 
@@ -332,7 +332,7 @@ describe("Partitioning Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("ADD PARTITION");
       expect(call).toContain("VALUES LESS THAN");
       expect(result).toHaveProperty("success", true);
@@ -356,7 +356,7 @@ describe("Partitioning Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("VALUES IN");
     });
 
@@ -376,7 +376,7 @@ describe("Partitioning Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("PARTITIONS 4");
     });
 
@@ -396,7 +396,7 @@ describe("Partitioning Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("PARTITIONS 8");
     });
   });
@@ -417,7 +417,7 @@ describe("Partitioning Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("DROP PARTITION");
       expect(result).toHaveProperty("success", true);
     });
@@ -444,7 +444,7 @@ describe("Partitioning Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("REORGANIZE PARTITION");
       expect(result).toHaveProperty("success", true);
     });
@@ -706,7 +706,7 @@ describe("Replication Fallback Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getReplicationTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getReplicationTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -781,7 +781,7 @@ describe("Replication Fallback Handling", () => {
       await tool.handler({ logFile: "mysql-bin.000005" }, mockContext);
 
       // With explicit logFile, first call is the binlog query itself
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("IN 'mysql-bin.000005'");
     });
 
@@ -797,7 +797,7 @@ describe("Replication Fallback Handling", () => {
       await tool.handler({ position: 12345 }, mockContext);
 
       // Second call is the actual SHOW BINLOG EVENTS query
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("FROM 12345");
     });
 

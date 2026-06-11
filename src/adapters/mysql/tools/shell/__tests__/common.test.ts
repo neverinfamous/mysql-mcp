@@ -102,7 +102,7 @@ describe("Subprocess Execution", () => {
     const promise = execMySQLShell(["--version"]);
 
     const error = new Error("spawn ENOENT");
-    mockChild.emit("error", error as any);
+    mockChild.emit("error", error);
 
     await expect(promise).rejects.toThrow("MySQL Shell not found");
   });

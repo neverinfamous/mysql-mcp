@@ -72,9 +72,10 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
             response = { success: true as const, data: { value: rawValue } };
           } else if (typeof rawValue === "string") {
             try {
+              const parsed: unknown = JSON.parse(rawValue);
               response = {
                 success: true as const,
-                data: { value: JSON.parse(rawValue) as unknown },
+                data: { value: parsed },
               };
             } catch {
               response = { success: true as const, data: { value: rawValue } };

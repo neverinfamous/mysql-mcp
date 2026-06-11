@@ -31,7 +31,7 @@ describe("Security Tools", () => {
       );
 
       const tool = tools.find((t) => t.name === "mysql_security_audit");
-      const result = (await tool?.handler({ limit: 10 }, mockContext)) as any;
+      const result = (await tool?.handler({ limit: 10 }, mockContext));
 
       expect(result.data.source).toBe("performance_schema");
       expect(result.data.events).toHaveLength(1);
@@ -52,11 +52,11 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { limit: 10, user: "root" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.source).toBe("mysql.audit_log");
       expect(result.data.events).toHaveLength(1);
-      const queryArgs = mockAdapter.executeQuery.mock.calls[1][1] as any[];
+      const queryArgs = mockAdapter.executeQuery.mock.calls[1][1];
       expect(queryArgs).toContain("%root%");
     });
 
@@ -69,7 +69,7 @@ describe("Security Tools", () => {
       const tool = tools.find((t) => t.name === "mysql_security_audit");
       await tool?.handler({ startTime: "2023-01-01" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("timestamp >= ?");
     });
 
@@ -86,8 +86,8 @@ describe("Security Tools", () => {
       );
 
       const callArgs = mockAdapter.executeQuery.mock.calls[1];
-      const query = callArgs[0] as string;
-      const params = callArgs[1] as any[];
+      const query = callArgs[0];
+      const params = callArgs[1];
 
       expect(query).toContain("event_type = ?");
       expect(query).toContain("timestamp >= ?");
@@ -99,7 +99,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connect error"));
 
       const tool = tools.find((t) => t.name === "mysql_security_audit");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Connect error");
@@ -109,7 +109,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = tools.find((t) => t.name === "mysql_security_audit");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Audit logging is not enabled");
@@ -135,7 +135,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { user: "root" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.userCount).toBe(1);
       expect(result.data.ruleCount).toBe(1);
@@ -151,7 +151,7 @@ describe("Security Tools", () => {
       );
       await tool?.handler({ mode: "PROTECTING" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("MODE = ?");
     });
 
@@ -161,7 +161,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_firewall_rules",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Firewall tables not accessible");
@@ -185,7 +185,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_firewall_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.installed).toBe(true);
       expect(result.data.configuration).toHaveProperty(
@@ -200,7 +200,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_firewall_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.installed).toBe(false);
       expect(result.data.message).toContain("not installed");
@@ -212,7 +212,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_firewall_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Firewall plugin check failed");
@@ -228,7 +228,7 @@ describe("Security Tools", () => {
           type: "email",
         },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.masked).toBe("j******e@example.com");
     });
@@ -240,35 +240,35 @@ describe("Security Tools", () => {
       const resNoAt = (await tool?.handler(
         { value: "invalid-email", type: "email" },
         mockContext,
-      )) as any;
+      ));
       expect(resNoAt.data.masked).toBe("*************");
 
       // Phone
       const resPhone = (await tool?.handler(
         { value: "1234567890", type: "phone" },
         mockContext,
-      )) as any;
+      ));
       expect(resPhone.data.masked).toBe("******7890");
 
       // SSN
       const resSSN = (await tool?.handler(
         { value: "123456789", type: "ssn" },
         mockContext,
-      )) as any;
+      ));
       expect(resSSN.data.masked).toBe("***-**-6789");
 
       // Credit Card
       const resCC = (await tool?.handler(
         { value: "1234567812345678", type: "credit_card" },
         mockContext,
-      )) as any;
+      ));
       expect(resCC.data.masked).toBe("1234********5678");
 
       // Partial
       const resPartial = (await tool?.handler(
         { value: "abcdef", type: "partial", keepFirst: 2, keepLast: 2 },
         mockContext,
-      )) as any;
+      ));
       expect(resPartial.data.masked).toBe("ab**ef");
 
       // Default fallback
@@ -286,7 +286,7 @@ describe("Security Tools", () => {
           type: "credit_card",
         },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.masked).toBe("1234********3456");
     });
@@ -296,7 +296,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { value: "123", type: "credit_card" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.original).toBe("123");
       expect(result.data.masked).toBe("***");
@@ -309,7 +309,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { value: "12345678", type: "credit_card" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.original).toBe("12345678");
       expect(result.data.masked).toBe("********");
@@ -322,7 +322,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { value: "AB", type: "partial", keepFirst: 5, keepLast: 5 },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.original).toBe("AB");
       expect(result.data.masked).toBe("AB");
@@ -335,7 +335,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { value: "", type: "partial", keepFirst: 0, keepLast: 0 },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.original).toBe("");
       expect(result.data.masked).toBe("");
@@ -363,7 +363,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { password: "StrongPassword123!" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.strength).toBe(100);
       expect(result.data.interpretation).toBe("Very Strong");
@@ -390,7 +390,7 @@ describe("Security Tools", () => {
       const resultStrong = (await tool?.handler(
         { password: "Strong1" },
         mockContext,
-      )) as any;
+      ));
       expect(resultStrong.data.interpretation).toBe("Strong");
 
       // Medium
@@ -405,7 +405,7 @@ describe("Security Tools", () => {
       const resultMedium = (await tool?.handler(
         { password: "Medium1" },
         mockContext,
-      )) as any;
+      ));
       expect(resultMedium.data.interpretation).toBe("Medium");
 
       // Weak
@@ -420,7 +420,7 @@ describe("Security Tools", () => {
       const resultWeak = (await tool?.handler(
         { password: "Weak1" },
         mockContext,
-      )) as any;
+      ));
       expect(resultWeak.data.interpretation).toBe("Weak");
 
       // Very Weak
@@ -435,7 +435,7 @@ describe("Security Tools", () => {
       const resultVeryWeak = (await tool?.handler(
         { password: "VeryWeak" },
         mockContext,
-      )) as any;
+      ));
       expect(resultVeryWeak.data.interpretation).toBe("Very Weak");
     });
 
@@ -449,7 +449,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { password: "test" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("not installed");
@@ -471,7 +471,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { password: "test" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("failed");
@@ -497,7 +497,7 @@ describe("Security Tools", () => {
       );
 
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.sslEnabled).toBe(true);
       expect(result.data.currentCipher).toBe("AES256-SHA");
@@ -510,7 +510,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.sslEnabled).toBe(false);
       expect(result.data.currentCipher).toBe("None");
@@ -530,7 +530,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.sslEnabled).toBe(false);
       expect(result.data.currentCipher).toBe("None");
@@ -566,7 +566,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.count).toBe(1);
       expect(result.data.users[0].user).toBe("root");
@@ -594,7 +594,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { user: "root", includeRoles: true },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.users[0].roles).toContain("app_role@%");
     });
@@ -607,7 +607,7 @@ describe("Security Tools", () => {
       );
       await tool?.handler({ host: "127.0.0.1" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("Host = ?");
     });
 
@@ -640,7 +640,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { summary: true },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.summary).toBe(true);
       expect(result.data.users[0].grantCount).toBe(1);
@@ -661,7 +661,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { user: "nonexistent_user" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("does not exist");
@@ -693,7 +693,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { schema: "test" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.data.tableCount).toBe(1);
       expect(result.data.sensitiveTables[0].table).toBe("users");
@@ -710,7 +710,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler(
         { schema: "nonexistent_schema" },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("does not exist");
@@ -746,7 +746,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_encryption_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.keyringInstalled).toBe(true);
       expect(result.data.encryptedTablespaceCount).toBe(1);
@@ -762,7 +762,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_encryption_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.keyringInstalled).toBe(false);
       expect(result.data.tdeAvailable).toBe(false);
@@ -781,12 +781,12 @@ describe("Security Tools", () => {
       // Variables (undefined rows)
       mockAdapter.executeQuery.mockResolvedValueOnce({
         rows: undefined,
-      } as any);
+      });
       // Connection
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.sslEnabled).toBe(true);
       expect(result.data.configuration.sslCa).toBe("");
@@ -799,11 +799,11 @@ describe("Security Tools", () => {
       // Keyring
       mockAdapter.executeQuery.mockResolvedValueOnce({
         rows: undefined,
-      } as any);
+      });
       // Tablespaces
       mockAdapter.executeQuery.mockResolvedValueOnce({
         rows: undefined,
-      } as any);
+      });
       // Variables with invalid names
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ Variable_name: 123, Value: "invalid" }]),
@@ -816,7 +816,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_encryption_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.data.keyringInstalled).toBe(false);
       expect(result.data.encryptedTablespaceCount).toBe(0);
@@ -829,7 +829,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = tools.find((t) => t.name === "mysql_security_ssl_status");
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Access denied");
@@ -843,7 +843,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_encryption_status",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Access denied");
@@ -857,7 +857,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Access denied to mysql.user");
@@ -871,7 +871,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_sensitive_tables",
       );
-      const result = (await tool?.handler({}, mockContext)) as any;
+      const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Connection lost");
@@ -907,7 +907,7 @@ describe("Security Tools", () => {
       await tool?.handler({}, mockContext);
 
       // The SHOW GRANTS call is the second call (index 1)
-      const grantsCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const grantsCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(grantsCall).toContain("`test_user`@`localhost`");
       expect(grantsCall).not.toContain("'test_user'@'localhost'");
     });

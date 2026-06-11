@@ -41,7 +41,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
         const queries = queriesResult.rows?.[0]?.["Value"];
 
         const response = {
-          success: true as const,
+          success: true,
           data: {
             serverHealth: {
               ...health,

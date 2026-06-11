@@ -10,7 +10,7 @@ import {
   createSysInnoDBLockWaitsTool,
   createSysMemorySummaryTool,
 } from "../resources.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -30,7 +30,7 @@ describe("Sys Schema Resource Tools", () => {
   describe("createSysSchemaStatsTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_schema_stats");
     });
@@ -46,7 +46,7 @@ describe("Sys Schema Resource Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ column_name: "id" }])); // Auto-inc
 
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -78,12 +78,12 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({}, mockContext);
 
       // First call is SELECT DATABASE(), second is table stats
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("LIMIT 2");
     });
 
@@ -95,15 +95,15 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ schema: "test_db" }, mockContext);
 
       // First call is schema existence check
-      const schemaCheck = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const schemaCheck = mockAdapter.executeQuery.mock.calls[0][0];
       expect(schemaCheck).toContain("information_schema.SCHEMATA");
       // Second call is table stats with schema param
-      const args = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const args = mockAdapter.executeQuery.mock.calls[1][1];
       expect(args).toContain("test_db");
     });
 
@@ -111,10 +111,10 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
         rows: null,
-      } as any);
+      });
 
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -131,7 +131,7 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
@@ -156,7 +156,7 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         schemaName: string;
@@ -170,7 +170,7 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.data?.indexStatisticsCount).toBe(0);
       expect(result.data?.autoIncrementStatusCount).toBe(0);
       // First call should be SELECT DATABASE()
-      const firstCall = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const firstCall = mockAdapter.executeQuery.mock.calls[0][0];
       expect(firstCall).toContain("SELECT DATABASE()");
     });
   });
@@ -178,7 +178,7 @@ describe("Sys Schema Resource Tools", () => {
   describe("createSysInnoDBLockWaitsTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysInnoDBLockWaitsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_innodb_lock_waits");
     });
@@ -194,14 +194,14 @@ describe("Sys Schema Resource Tools", () => {
       );
 
       const tool = createSysInnoDBLockWaitsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         hasContention: boolean;
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.innodb_lock_waits");
       expect(result.data?.hasContention).toBe(true);
     });
@@ -210,7 +210,7 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysInnoDBLockWaitsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         hasContention: boolean;
@@ -223,10 +223,10 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
         rows: null,
-      } as any);
+      });
 
       const tool = createSysInnoDBLockWaitsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -239,7 +239,7 @@ describe("Sys Schema Resource Tools", () => {
   describe("createSysMemorySummaryTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysMemorySummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_memory_summary");
     });
@@ -252,7 +252,7 @@ describe("Sys Schema Resource Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ user: "root" }])); // User
 
       const tool = createSysMemorySummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -274,10 +274,10 @@ describe("Sys Schema Resource Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
         rows: null,
-      } as any);
+      });
 
       const tool = createSysMemorySummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 

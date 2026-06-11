@@ -70,7 +70,7 @@ export async function routerFetch(
           let parsedData: unknown;
           try {
             if (data) {
-              parsedData = JSON.parse(data) as unknown;
+              parsedData = JSON.parse(data);
               errorDetail = JSON.stringify(parsedData);
             }
           } catch {
@@ -79,21 +79,20 @@ export async function routerFetch(
           const err = new Error(
             `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}${errorDetail ? ` - ${errorDetail}` : ""}`,
           );
-          const extendedErr = err as Error & {
-            statusCode: number;
-            responseData?: unknown;
-          };
-          extendedErr.statusCode = statusCode;
+          Object.assign(err, { statusCode });
           if (parsedData !== undefined) {
-            extendedErr.responseData = parsedData;
+            Object.assign(err, { responseData: parsedData });
           }
-          reject(extendedErr);
+          reject(err);
         }
       });
     });
 
     req.on("error", (error) => {
-      const errorCode = (error as NodeJS.ErrnoException).code;
+      const errorCode =
+        error instanceof Error && "code" in error && typeof error.code === "string"
+          ? error.code
+          : undefined;
       let message = error.message;
       if (errorCode === "ECONNREFUSED") {
         message = `Connection refused - MySQL Router REST API is not reachable at ${baseUrl}`;
@@ -126,34 +125,35 @@ export async function routerFetch(
   });
 }
 
-export async function safeRouterFetch<T>(path: string): Promise<SafeRouterResult<T>> {
+export async function safeRouterFetch(path: string): Promise<SafeRouterResult<unknown>> {
   try {
-    const data = (await routerFetch(path)) as T;
+    const data = await routerFetch(path);
     return { success: true, data };
   } catch (error) {
-    const extendedErr = error as Error & {
-      statusCode?: number;
-      responseData?: unknown;
-    };
+    const statusCode =
+      error !== null && typeof error === "object" && "statusCode" in error && typeof error.statusCode === "number"
+        ? error.statusCode
+        : undefined;
+    const responseData =
+      error !== null && typeof error === "object" && "responseData" in error
+        ? error.responseData
+        : undefined;
 
-    if (extendedErr.statusCode === 404) {
+    if (statusCode === 404) {
       return {
         success: false,
         response: formatHandlerErrorResponse(error),
       };
     }
 
-    const resData = extendedErr.responseData as
-      | Record<string, unknown>
-      | undefined;
     if (
-      extendedErr.statusCode === 500 &&
-      resData !== undefined &&
-      resData !== null &&
-      typeof resData === "object" &&
-      typeof resData["isAlive"] === "boolean"
+      statusCode === 500 &&
+      responseData !== undefined &&
+      responseData !== null &&
+      typeof responseData === "object" &&
+      typeof Reflect.get(responseData, "isAlive") === "boolean"
     ) {
-      return { success: true, data: resData as T };
+      return { success: true, data: responseData };
     }
 
     return {

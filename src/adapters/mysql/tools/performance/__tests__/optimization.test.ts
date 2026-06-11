@@ -10,7 +10,7 @@ import {
   createForceIndexTool,
   createOptimizerTraceTool,
 } from "../optimization.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -31,14 +31,14 @@ describe("Performance Optimization Tools", () => {
   describe("createQueryRewriteTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_query_rewrite");
     });
 
     it("should suggest optimizations for SELECT *", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
@@ -52,7 +52,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should suggest optimizations for missing LIMIT", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT id FROM users" },
@@ -66,7 +66,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should suggest optimizations for leading wildcard LIKE", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT id FROM users WHERE name LIKE '%Bob'" },
@@ -88,7 +88,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
@@ -105,7 +105,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
@@ -120,7 +120,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should accept sql alias for query parameter", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { sql: "SELECT * FROM users" },
@@ -136,7 +136,7 @@ describe("Performance Optimization Tools", () => {
 
   describe("createForceIndexTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       expect(tool.name).toBe("mysql_force_index");
     });
 
@@ -151,7 +151,7 @@ describe("Performance Optimization Tools", () => {
         },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -177,7 +177,7 @@ describe("Performance Optimization Tools", () => {
         },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -209,7 +209,7 @@ describe("Performance Optimization Tools", () => {
       ];
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -230,7 +230,7 @@ describe("Performance Optimization Tools", () => {
       mockTableInfo.columns = [];
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "ghost",
@@ -249,7 +249,7 @@ describe("Performance Optimization Tools", () => {
   describe("createOptimizerTraceTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_optimizer_trace");
     });
@@ -260,7 +260,7 @@ describe("Performance Optimization Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: "{}" }])); // The trace
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { query: "SELECT * FROM users", summary: false },
@@ -293,7 +293,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
@@ -317,7 +317,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
@@ -343,7 +343,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
@@ -362,7 +362,7 @@ describe("Performance Optimization Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: "{}" }])); // The trace
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { sql: "SELECT * FROM users", summary: false },
@@ -382,7 +382,7 @@ describe("Performance Optimization Tools", () => {
         .mockRejectedValueOnce(new Error("Access denied for OPTIMIZER_TRACE")); // The trace fetch fails
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
@@ -416,7 +416,7 @@ describe("Performance Optimization Tools", () => {
         },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           tableName: "users",
@@ -435,7 +435,7 @@ describe("Performance Optimization Tools", () => {
     it("mysql_force_index should return structured error on adapter throw", async () => {
       mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -451,7 +451,7 @@ describe("Performance Optimization Tools", () => {
 
     it("mysql_query_rewrite should return structured error on parse failure", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -464,7 +464,7 @@ describe("Performance Optimization Tools", () => {
 
     it("mysql_optimizer_trace should return structured error on missing query", async () => {
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -487,7 +487,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost" },

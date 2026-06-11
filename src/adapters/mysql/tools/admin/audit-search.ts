@@ -68,7 +68,7 @@ export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) },
         );
       }
     },

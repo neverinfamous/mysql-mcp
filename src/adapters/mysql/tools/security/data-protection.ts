@@ -71,11 +71,10 @@ const SensitiveTablesSchema = z
   .preprocess(
     (val: unknown) => {
       if (typeof val !== "object" || val === null) return val;
-      const v = val as Record<string, unknown>;
-      if (v["schema"] === undefined && v["database"] !== undefined) {
-        v["schema"] = v["database"];
+      if (!("schema" in val) && "database" in val) {
+        return { ...val, schema: val.database };
       }
-      return v;
+      return val;
     },
     z.object({
       schema: z.string().optional(),
@@ -131,14 +130,14 @@ export function createSecurityMaskDataTool(
         const { value, type, keepFirst, keepLast, maskChar } =
           MaskDataSchema.parse(params);
 
-        const validTypes = [
+        const validTypes: readonly ["email", "phone", "ssn", "credit_card", "partial"] = [
           "email",
           "phone",
           "ssn",
           "credit_card",
           "partial",
-        ] as const;
-        if (!validTypes.includes(type as (typeof validTypes)[number])) {
+        ];
+        if (!validTypes.some(t => t === type)) {
           return Promise.resolve(
             formatHandlerErrorResponse(
               new Error(
@@ -289,12 +288,12 @@ export function createSecurityUserPrivilegesTool(
         // Get users
         let usersQuery = `
                 SELECT User, Host,
-                       plugin as authPlugin,
-                       account_locked as accountLocked,
-                       password_expired as passwordExpired,
-                       password_lifetime as passwordLifetime,
-                       max_connections as maxConnections,
-                       max_user_connections as maxUserConnections
+                       plugin AS authPlugin,
+                       account_locked AS accountLocked,
+                       password_expired AS passwordExpired,
+                       password_lifetime AS passwordLifetime,
+                       max_connections AS maxConnections,
+                       max_user_connections AS maxUserConnections
                 FROM mysql.user
             `;
 
@@ -320,8 +319,8 @@ export function createSecurityUserPrivilegesTool(
         const userPrivileges = [];
         for (const userRow of usersResult.rows ?? []) {
           const u = userRow;
-          const userName = u["User"] as string;
-          const userHost = u["Host"] as string;
+          const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+          const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
 
           const grantsResult = await adapter.executeQuery(
             `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
@@ -329,7 +328,7 @@ export function createSecurityUserPrivilegesTool(
 
           const grants = (grantsResult.rows ?? []).map((r) => {
             const values = Object.values(r);
-            return values[0] as string;
+            return typeof values[0] === "string" ? values[0] : String(values[0]);
           });
 
           let roles: string[] = [];
@@ -345,8 +344,9 @@ export function createSecurityUserPrivilegesTool(
               );
 
               roles = (rolesResult.rows ?? []).map((r) => {
-                const role = r;
-                return `${role["FROM_USER"] as string}@${role["FROM_HOST"] as string}`;
+                const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
+                const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
+                return `${fromUser}@${fromHost}`;
               });
             } catch {
               // Role edges table might not exist in older versions
@@ -465,12 +465,12 @@ export function createSecuritySensitiveTablesTool(
 
         const query = `
                 SELECT
-                    TABLE_NAME as tableName,
-                    COLUMN_NAME as columnName,
-                    DATA_TYPE as dataType,
-                    COLUMN_TYPE as columnType,
-                    IS_NULLABLE as nullable,
-                    COLUMN_COMMENT as comment
+                    TABLE_NAME AS tableName,
+                    COLUMN_NAME AS columnName,
+                    DATA_TYPE AS dataType,
+                    COLUMN_TYPE AS columnType,
+                    IS_NULLABLE AS nullable,
+                    COLUMN_COMMENT AS comment
                 FROM information_schema.COLUMNS
                 WHERE ${schemaCondition}
                   AND (${patternConditions})
@@ -486,7 +486,7 @@ export function createSecuritySensitiveTablesTool(
         const tableMap = new Map<string, Record<string, unknown>[]>();
         for (const row of result.rows ?? []) {
           const r = row;
-          const tableName = r["tableName"] as string;
+          const tableName = typeof r["tableName"] === "string" ? r["tableName"] : String(r["tableName"]);
           if (!tableMap.has(tableName)) {
             tableMap.set(tableName, []);
           }

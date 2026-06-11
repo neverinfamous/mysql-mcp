@@ -19,6 +19,7 @@ describe("Audit Backup Tools", () => {
       executeQuery: vi.fn(),
       executeWriteQuery: vi.fn(),
       executeReadQuery: vi.fn(),
+      getBackupManager: vi.fn().mockImplementation(() => mockAdapter.backupManager),
       backupManager: mockBackupManager,
     };
     mockContext = { connectionId: "test" };

@@ -7,7 +7,7 @@ import {
   createStatsMovingAvgTool,
   createStatsNtileTool,
 } from "../window/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -44,7 +44,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsRowNumberTool>;
 
     beforeEach(() => {
-      tool = createStatsRowNumberTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsRowNumberTool(mockAdapter);
     });
 
     it("should assign row numbers", async () => {
@@ -55,7 +55,7 @@ describe("Window Function Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY `score DESC`)");
     });
 
@@ -94,7 +94,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsRankTool>;
 
     beforeEach(() => {
-      tool = createStatsRankTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsRankTool(mockAdapter);
     });
 
     it("should assign ranks", async () => {
@@ -105,7 +105,7 @@ describe("Window Function Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain("DENSE_RANK() OVER( ORDER BY `score DESC`)");
     });
   });
@@ -114,7 +114,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsLagLeadTool>;
 
     beforeEach(() => {
-      tool = createStatsLagLeadTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsLagLeadTool(mockAdapter);
     });
 
     it("should use LAG", async () => {
@@ -131,7 +131,7 @@ describe("Window Function Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY `date`)");
     });
 
@@ -174,7 +174,7 @@ describe("Window Function Tools", () => {
 
     beforeEach(() => {
       tool = createStatsRunningTotalTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
     });
 
@@ -186,7 +186,7 @@ describe("Window Function Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain(
         "SUM(`amount`) OVER( ORDER BY `date` ROWS UNBOUNDED PRECEDING)",
       );
@@ -197,7 +197,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsMovingAvgTool>;
 
     beforeEach(() => {
-      tool = createStatsMovingAvgTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsMovingAvgTool(mockAdapter);
     });
 
     it("should calculate moving average", async () => {
@@ -208,7 +208,7 @@ describe("Window Function Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain(
         "AVG(`amount`) OVER( ORDER BY `date` ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)",
       );
@@ -219,7 +219,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsNtileTool>;
 
     beforeEach(() => {
-      tool = createStatsNtileTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsNtileTool(mockAdapter);
     });
 
     it("should assign ntile buckets", async () => {
@@ -230,7 +230,7 @@ describe("Window Function Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain("NTILE(4) OVER( ORDER BY `score DESC`)");
     });
   });

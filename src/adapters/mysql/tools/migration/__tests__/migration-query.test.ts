@@ -4,7 +4,7 @@ import {
   createMigrationHistoryTool,
   createMigrationStatusTool,
 } from "../migration-query.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -37,7 +37,7 @@ describe("Migration Query Tools", () => {
 
     beforeEach(() => {
       tool = createMigrationRollbackTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
     });
 
@@ -61,7 +61,7 @@ describe("Migration Query Tools", () => {
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const calls = mockAdapter.executeWriteQuery.mock.calls;
-      const executedQueries = calls.map((c) => c[0] as string);
+      const executedQueries = calls.map((c) => c[0]);
 
       // Should execute rollback SQL
       expect(executedQueries.includes("DROP TABLE a")).toBe(true);
@@ -124,7 +124,7 @@ describe("Migration Query Tools", () => {
     let tool: ReturnType<typeof createMigrationHistoryTool>;
 
     beforeEach(() => {
-      tool = createMigrationHistoryTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createMigrationHistoryTool(mockAdapter);
     });
 
     it("should retrieve history with pagination", async () => {
@@ -173,7 +173,7 @@ describe("Migration Query Tools", () => {
     let tool: ReturnType<typeof createMigrationStatusTool>;
 
     beforeEach(() => {
-      tool = createMigrationStatusTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createMigrationStatusTool(mockAdapter);
     });
 
     it("should return initialized false if table is missing", async () => {

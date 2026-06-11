@@ -218,6 +218,13 @@ export abstract class DatabaseAdapter extends EventEmitter {
   }
 
   /**
+   * Get the backup manager.
+   */
+  getBackupManager(): BackupManager | null {
+    return this.backupManager;
+  }
+
+  /**
    * Get the audit interceptor (used by Code Mode to wrap inner tool calls).
    */
   getAuditInterceptor(): AuditInterceptor | null {

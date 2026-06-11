@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createSysIOSummaryTool } from "../performance.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -14,10 +14,10 @@ describe("Sys Schema I/O Summary Compatibility Fix", () => {
 
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = createSysIOSummaryTool(mockAdapter as unknown as MySQLAdapter);
+    const tool = createSysIOSummaryTool(mockAdapter);
     await tool.handler({ type: "global", limit: 1 }, mockContext);
 
-    const executedQuery = mockAdapter.executeQuery.mock.calls[0][0] as string;
+    const executedQuery = mockAdapter.executeQuery.mock.calls[0][0];
 
     // STRICTLY verify the column presence
     expect(executedQuery).toContain("event_name");

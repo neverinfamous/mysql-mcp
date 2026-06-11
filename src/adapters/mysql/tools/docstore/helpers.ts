@@ -25,17 +25,17 @@ export function parseDocFilter(filter: string): {
   // Check if it's a stringified JSON object (e.g. from criteria: {"name":"Alice"})
   if (filter.trim().startsWith("{") && filter.trim().endsWith("}")) {
     try {
-      const parsed = JSON.parse(filter) as unknown;
+      const parsed: unknown = JSON.parse(filter);
       if (
         typeof parsed === "object" &&
         parsed !== null &&
         !Array.isArray(parsed)
       ) {
-        const record = parsed as Record<string, unknown>;
-        const keys = Object.keys(record);
+        const keys = Object.keys(parsed);
         const field = keys[0];
         if (typeof field === "string") {
-          const value = record[field];
+          const descriptor = Object.getOwnPropertyDescriptor(parsed, field);
+          const value: unknown = descriptor ? descriptor.value : undefined;
           if (IDENTIFIER_RE.test(field)) {
             const numVal = Number(value);
             if (

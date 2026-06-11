@@ -410,7 +410,7 @@ export function createMigrationStatusTool(
           latestAppliedAt =
             appliedAt instanceof Date
               ? appliedAt.toISOString()
-              : ((appliedAt as string | null) ?? "");
+              : ((typeof appliedAt === "string" ? appliedAt : null) ?? "");
         }
 
         const response = {

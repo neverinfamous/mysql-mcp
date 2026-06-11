@@ -25,7 +25,7 @@ export function createRouterPoolStatusTool(): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { poolName } = ConnectionPoolNameInputSchema.parse(params);
-        const result = await safeRouterFetch<unknown>(
+        const result = await safeRouterFetch(
           `/connection_pool/${encodeURIComponent(poolName)}/status`,
         );
         if (!result.success) {

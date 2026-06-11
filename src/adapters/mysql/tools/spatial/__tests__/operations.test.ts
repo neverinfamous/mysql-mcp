@@ -11,7 +11,7 @@ import {
   createSpatialTransformTool,
   createSpatialGeoJSONTool,
 } from "../operations.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -31,7 +31,7 @@ describe("Spatial Operations Tools", () => {
   describe("createSpatialIntersectionTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialIntersectionTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_intersection");
     });
@@ -48,7 +48,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialIntersectionTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -73,7 +73,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialIntersectionTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -90,7 +90,7 @@ describe("Spatial Operations Tools", () => {
   describe("createSpatialBufferTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialBufferTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_buffer");
     });
@@ -106,7 +106,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialBufferTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -117,7 +117,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       // Default SRID is 4326 (geographic) — ST_Buffer_Strategy is not used
       expect(call).not.toContain("ST_Buffer_Strategy");
       expect(Reflect.get(result || {}, "data")).toHaveProperty("bufferWkt");
@@ -135,7 +135,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialBufferTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -147,7 +147,7 @@ describe("Spatial Operations Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
       expect(Reflect.get(result || {}, "data")).toHaveProperty("segments", 4);
     });
@@ -156,7 +156,7 @@ describe("Spatial Operations Tools", () => {
   describe("createSpatialTransformTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialTransformTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_transform");
     });
@@ -172,7 +172,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialTransformTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {
@@ -184,7 +184,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Transform");
       expect(call).toContain("4326");
       expect(call).toContain("3857");
@@ -195,7 +195,7 @@ describe("Spatial Operations Tools", () => {
   describe("createSpatialGeoJSONTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialGeoJSONTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_geojson");
     });
@@ -210,7 +210,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialGeoJSONTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { geometry: "POINT(10 20)" },
@@ -234,7 +234,7 @@ describe("Spatial Operations Tools", () => {
       );
 
       const tool = createSpatialGeoJSONTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { geoJson: '{"type":"Point","coordinates":[10,20]}' },
@@ -247,7 +247,7 @@ describe("Spatial Operations Tools", () => {
 
     it("should return structured error if neither geometry nor geoJson provided", async () => {
       const tool = createSpatialGeoJSONTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
       expect(result).toMatchObject({
@@ -260,7 +260,7 @@ describe("Spatial Operations Tools", () => {
 
     it("should return structured error if both geometry and geoJson provided", async () => {
       const tool = createSpatialGeoJSONTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         {

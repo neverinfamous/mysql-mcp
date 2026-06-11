@@ -108,7 +108,7 @@ export function createSysSchemaStatsTool(
           );
           const rows = dbResult.rows ?? [];
           const dbRow = rows[0];
-          resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
+          resolvedSchema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "unknown";
         }
 
         // Get table statistics

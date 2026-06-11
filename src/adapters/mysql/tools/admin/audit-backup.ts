@@ -14,7 +14,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import type { BackupManager } from "../../../../audit/backup-manager/index.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
 import {
@@ -22,6 +21,8 @@ import {
   AuditRestoreBackupOutputSchema,
   AuditDiffBackupOutputSchema,
 } from "../../schemas/index.js";
+
+
 
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
@@ -54,11 +55,7 @@ export function createAuditListBackupsTool(
       try {
         const { limit, target } = schema.parse(params);
 
-        // This relies on the DatabaseAdapter having the backupManager available
-        // Need to add it to the MySQLAdapter subclass
-        const backupManager = (
-          adapter as unknown as { backupManager?: BackupManager }
-        ).backupManager;
+        const backupManager = adapter.getBackupManager();
         if (!backupManager) {
           return withTokenEstimate({
             success: false,
@@ -82,7 +79,7 @@ export function createAuditListBackupsTool(
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -117,9 +114,7 @@ export function createAuditRestoreBackupTool(
       try {
         const { filename, includeData, dryRun } = schema.parse(params);
 
-        const backupManager = (
-          adapter as unknown as { backupManager?: BackupManager }
-        ).backupManager;
+        const backupManager = adapter.getBackupManager();
         if (!backupManager) {
           return withTokenEstimate({
             success: false,
@@ -175,7 +170,7 @@ export function createAuditRestoreBackupTool(
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -205,9 +200,7 @@ export function createAuditDiffBackupTool(
       try {
         const { filename } = schema.parse(params);
 
-        const backupManager = (
-          adapter as unknown as { backupManager?: BackupManager }
-        ).backupManager;
+        const backupManager = adapter.getBackupManager();
         if (!backupManager) {
           return withTokenEstimate({
             success: false,
@@ -277,7 +270,7 @@ export function createAuditDiffBackupTool(
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },

@@ -12,7 +12,7 @@ import {
   createFulltextBooleanTool,
   createFulltextExpandTool,
 } from "../fulltext/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -32,14 +32,14 @@ describe("Text Fulltext Tools", () => {
   describe("createFulltextCreateTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_fulltext_create");
     });
 
     it("should create fulltext index", async () => {
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -51,7 +51,7 @@ describe("Text Fulltext Tools", () => {
       )) as { data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain(
         "CREATE FULLTEXT INDEX `ft_idx` ON `articles` (`title`, `content`)",
       );
@@ -60,7 +60,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should generate index name if not provided", async () => {
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -71,7 +71,7 @@ describe("Text Fulltext Tools", () => {
       )) as { data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain(
         "CREATE FULLTEXT INDEX `ft_articles_title_content`",
       );
@@ -84,7 +84,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(dupError);
 
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -106,7 +106,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", columns: ["title"], indexName: "ft_idx" },
@@ -125,7 +125,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(colError);
 
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -146,7 +146,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextCreateTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], indexName: "ft_idx" },
@@ -161,14 +161,14 @@ describe("Text Fulltext Tools", () => {
   describe("createFulltextDropTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createFulltextDropTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_fulltext_drop");
     });
 
     it("should drop fulltext index", async () => {
       const tool = createFulltextDropTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", indexName: "ft_idx" },
@@ -176,7 +176,7 @@ describe("Text Fulltext Tools", () => {
       )) as { success: boolean; data: { indexName: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("DROP INDEX `ft_idx` ON `articles`");
       expect(result.success).toBe(true);
     });
@@ -189,7 +189,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(dropError);
 
       const tool = createFulltextDropTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", indexName: "ft_nonexistent" },
@@ -205,7 +205,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createFulltextDropTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", indexName: "ft_idx" },
@@ -222,7 +222,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextDropTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent", indexName: "ft_idx" },
@@ -237,7 +237,7 @@ describe("Text Fulltext Tools", () => {
   describe("createFulltextSearchTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_fulltext_search");
     });
@@ -248,7 +248,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -259,7 +259,7 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain(
         "MATCH(`title`, `content`) AGAINST(? IN NATURAL LANGUAGE MODE)",
       );
@@ -269,7 +269,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -281,7 +281,7 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("MATCH(`title`) AGAINST(? IN BOOLEAN MODE)");
     });
 
@@ -289,7 +289,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -301,7 +301,7 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("MATCH(`title`) AGAINST(? WITH QUERY EXPANSION)");
     });
 
@@ -314,7 +314,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -327,8 +327,8 @@ describe("Text Fulltext Tools", () => {
       )) as { data: { rows: Record<string, unknown>[] } };
 
       expect(result.data.rows.length).toBe(2);
-      expect((result.data.rows[0].body as string).length).toBe(53); // 50 + "..."
-      expect((result.data.rows[0].body as string).endsWith("...")).toBe(true);
+      expect((result.data.rows[0].body).length).toBe(53); // 50 + "..."
+      expect((result.data.rows[0].body).endsWith("...")).toBe(true);
       expect(result.data.rows[1].body).toBe("Short text"); // Not truncated
     });
 
@@ -339,7 +339,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -350,8 +350,8 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect((result.data.rows[0].body as string).length).toBe(253); // 250 + "..."
-      expect((result.data.rows[0].body as string).endsWith("...")).toBe(true);
+      expect((result.data.rows[0].body).length).toBe(253); // 250 + "..."
+      expect((result.data.rows[0].body).endsWith("...")).toBe(true);
     });
 
     it("should return success:false for nonexistent table", async () => {
@@ -360,7 +360,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], query: "test" },
@@ -377,7 +377,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextSearchTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", columns: ["title"], query: "test" },
@@ -392,7 +392,7 @@ describe("Text Fulltext Tools", () => {
   describe("createFulltextBooleanTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createFulltextBooleanTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_fulltext_boolean");
     });
@@ -401,7 +401,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFulltextBooleanTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -412,7 +412,7 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("MATCH(`title`) AGAINST(? IN BOOLEAN MODE)");
     });
 
@@ -424,7 +424,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextBooleanTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -436,8 +436,8 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect((result.data.rows[0].content as string).length).toBe(103); // 100 + "..."
-      expect((result.data.rows[0].content as string).endsWith("...")).toBe(
+      expect((result.data.rows[0].content).length).toBe(103); // 100 + "..."
+      expect((result.data.rows[0].content).endsWith("...")).toBe(
         true,
       );
     });
@@ -448,7 +448,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextBooleanTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], query: "+test" },
@@ -465,7 +465,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextBooleanTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", columns: ["title"], query: "+test" },
@@ -480,7 +480,7 @@ describe("Text Fulltext Tools", () => {
   describe("createFulltextExpandTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createFulltextExpandTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_fulltext_expand");
     });
@@ -489,7 +489,7 @@ describe("Text Fulltext Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFulltextExpandTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -500,7 +500,7 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("MATCH(`title`) AGAINST(? WITH QUERY EXPANSION)");
     });
 
@@ -512,7 +512,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextExpandTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -524,8 +524,8 @@ describe("Text Fulltext Tools", () => {
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 
-      expect((result.data.rows[0].body as string).length).toBe(83); // 80 + "..."
-      expect((result.data.rows[0].body as string).endsWith("...")).toBe(true);
+      expect((result.data.rows[0].body).length).toBe(83); // 80 + "..."
+      expect((result.data.rows[0].body).endsWith("...")).toBe(true);
     });
 
     it("should return success:false for nonexistent table", async () => {
@@ -534,7 +534,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextExpandTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent", columns: ["title"], query: "test" },
@@ -551,7 +551,7 @@ describe("Text Fulltext Tools", () => {
       );
 
       const tool = createFulltextExpandTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "articles", columns: ["title"], query: "test" },

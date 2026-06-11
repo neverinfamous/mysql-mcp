@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createListConstraintsTool } from "../constraints.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -31,12 +31,12 @@ describe("Schema Constraint Tools", () => {
       );
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ table: "users" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("information_schema");
       expect(result).toBeDefined();
     });
@@ -50,12 +50,12 @@ describe("Schema Constraint Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ table: "users" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params).toContain("users");
     });
 
@@ -68,14 +68,14 @@ describe("Schema Constraint Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ table: "users", type: "PRIMARY KEY" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("CONSTRAINT_TYPE = ?");
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params).toContain("PRIMARY KEY");
     });
 
@@ -88,11 +88,11 @@ describe("Schema Constraint Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ table: "myschema.users" }, mockContext);
 
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params[0]).toBe("myschema"); // schemaName
       expect(params[1]).toBe("users"); // tableName
     });
@@ -106,11 +106,11 @@ describe("Schema Constraint Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ table: "users" }, mockContext);
 
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params[0]).toBeNull(); // schemaName should be null
       expect(params[1]).toBe("users");
     });
@@ -132,14 +132,14 @@ describe("Schema Constraint Tools", () => {
       );
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { table: "test_db.order_items" },
         mockContext,
       );
 
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params[0]).toBe("test_db");
       expect(params[1]).toBe("order_items");
       expect(result).toHaveProperty("data.constraints");
@@ -150,7 +150,7 @@ describe("Schema Constraint Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent_table" },
@@ -164,7 +164,7 @@ describe("Schema Constraint Tools", () => {
     });
     it("should return structured error for invalid constraint type", async () => {
       const tool = createListConstraintsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", type: "INVALID_TYPE" },

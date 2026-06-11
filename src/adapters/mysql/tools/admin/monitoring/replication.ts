@@ -72,7 +72,7 @@ export function createReplicationStatusTool(
           const result = await adapter.executeQuery("SHOW REPLICA STATUS");
           if (!result.rows || result.rows.length === 0) {
             const response = {
-              success: true as const,
+              success: true,
               data: {
                 configured: false,
                 message: "Replication is not configured on this server",
@@ -86,7 +86,7 @@ export function createReplicationStatusTool(
           const first = result.rows[0];
           if (!first) {
             const response = {
-              success: true as const,
+              success: true,
               data: {
                 configured: false,
                 message: "Replication is not configured on this server",
@@ -98,7 +98,7 @@ export function createReplicationStatusTool(
             return { ...response, metrics: { tokenEstimate } };
           }
           const response = {
-            success: true as const,
+            success: true,
             data: {
               configured: true,
               status: summary ? extractReplicationSummary(first) : first,
@@ -114,7 +114,7 @@ export function createReplicationStatusTool(
             const result = await adapter.executeQuery("SHOW SLAVE STATUS");
             if (!result.rows || result.rows.length === 0) {
               const response = {
-                success: true as const,
+                success: true,
                 data: {
                   configured: false,
                   message: "Replication is not configured on this server",
@@ -128,7 +128,7 @@ export function createReplicationStatusTool(
             const first = result.rows[0];
             if (!first) {
               const response = {
-                success: true as const,
+                success: true,
                 data: {
                   configured: false,
                   message: "Replication is not configured on this server",
@@ -140,7 +140,7 @@ export function createReplicationStatusTool(
               return { ...response, metrics: { tokenEstimate } };
             }
             const response = {
-              success: true as const,
+              success: true,
               data: {
                 configured: true,
                 status: summary ? extractReplicationSummary(first) : first,
@@ -153,7 +153,7 @@ export function createReplicationStatusTool(
             return { ...response, metrics: { tokenEstimate } };
           } catch {
             const response = {
-              success: true as const,
+              success: true,
               data: {
                 configured: false,
                 message: "Replication is not configured on this server",

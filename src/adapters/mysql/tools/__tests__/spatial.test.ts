@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -19,7 +19,7 @@ describe("getSpatialTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getSpatialTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -70,7 +70,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getSpatialTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getSpatialTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -90,7 +90,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ADD COLUMN");
       expect(result).toHaveProperty("success", true);
     });
@@ -108,7 +108,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("NOT NULL");
     });
   });
@@ -134,7 +134,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
-      const call = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[2][0];
       expect(call).toContain("SPATIAL INDEX");
       expect(result).toHaveProperty("success", true);
     });
@@ -231,7 +231,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("POINT");
       expect(result).toBeDefined();
     });
@@ -299,7 +299,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance");
     });
   });
@@ -324,7 +324,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance_Sphere");
     });
   });
@@ -346,7 +346,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Contains");
     });
   });
@@ -368,7 +368,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Within");
     });
   });
@@ -391,7 +391,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Intersection");
     });
   });
@@ -409,7 +409,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Buffer");
     });
   });
@@ -427,7 +427,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ST_Transform");
     });
   });

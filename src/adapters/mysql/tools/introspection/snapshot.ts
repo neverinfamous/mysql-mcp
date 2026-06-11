@@ -212,7 +212,17 @@ export function createSchemaSnapshotTool(
             }
             return obj;
           };
-          return rows.map((r) => clean(r) as Record<string, unknown>);
+          return rows.map((r) => {
+            const cleaned = clean(r);
+            if (cleaned !== null && typeof cleaned === "object" && !Array.isArray(cleaned)) {
+              const result: Record<string, unknown> = {};
+              for (const [k, v] of Object.entries(cleaned)) {
+                result[k] = v;
+              }
+              return result;
+            }
+            return {};
+          });
         };
 
         // If not compact mode, query columns and append them to tables
@@ -230,7 +240,7 @@ export function createSchemaSnapshotTool(
           );
 
           for (const row of colsResult.rows ?? []) {
-            const key = `${row["TABLE_SCHEMA"] as string}.${row["TABLE_NAME"] as string}`;
+            const key = `${typeof row["TABLE_SCHEMA"] === "string" ? row["TABLE_SCHEMA"] : ""}.${typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : ""}`;
             if (!columnsMap.has(key)) columnsMap.set(key, []);
             columnsMap.get(key)?.push({
               name: row["COLUMN_NAME"],
@@ -242,7 +252,7 @@ export function createSchemaSnapshotTool(
           }
 
           for (const row of tablesResult.rows) {
-            const key = `${row["schema_name"] as string}.${row["name"] as string}`;
+            const key = `${typeof row["schema_name"] === "string" ? row["schema_name"] : ""}.${typeof row["name"] === "string" ? row["name"] : ""}`;
             if (columnsMap.has(key)) {
               row["columns"] = columnsMap.get(key);
             }

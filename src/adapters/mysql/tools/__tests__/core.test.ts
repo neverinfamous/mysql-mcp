@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getCoreTools } from "../core/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -20,7 +20,7 @@ describe("getCoreTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    adapter = createMockMySQLAdapter() as unknown as MySQLAdapter;
+    adapter = createMockMySQLAdapter();
     tools = getCoreTools(adapter);
   });
 
@@ -63,7 +63,7 @@ describe("Tool Annotations", () => {
   let tools: ReturnType<typeof getCoreTools>;
 
   beforeEach(() => {
-    tools = getCoreTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getCoreTools(createMockMySQLAdapter());
   });
 
   it("mysql_read_query should be read-only", () => {
@@ -101,7 +101,7 @@ describe("Required Scopes", () => {
   let tools: ReturnType<typeof getCoreTools>;
 
   beforeEach(() => {
-    tools = getCoreTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getCoreTools(createMockMySQLAdapter());
   });
 
   it("read_query should require read scope", () => {
@@ -130,7 +130,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getCoreTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getCoreTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -387,7 +387,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("CURRENT_TIMESTAMP");
     });
 
@@ -408,7 +408,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("IF NOT EXISTS");
     });
 
@@ -430,7 +430,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("UNIQUE");
     });
 
@@ -447,10 +447,10 @@ describe("Handler Execution", () => {
       );
 
       // First call should be USE statement
-      const useCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const useCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(useCall).toBe("USE `db`");
       // Second call should be CREATE TABLE
-      const sqlCall = mockAdapter.executeQuery.mock.calls[1]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[1]?.[0];
       expect(sqlCall).toContain("`db`.`table`");
       expect(result).toHaveProperty("success", true);
     });
@@ -528,7 +528,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ table: "old_table" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("DROP TABLE");
       expect(result).toHaveProperty("success", true);
     });
@@ -539,7 +539,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_drop_table")!;
       await tool.handler({ table: "old_table", ifExists: true }, mockContext);
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("IF EXISTS");
     });
 
@@ -559,7 +559,7 @@ describe("Handler Execution", () => {
 
       await tool.handler({ table: "db.table" }, mockContext);
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("DROP TABLE `db`.`table`");
     });
 
@@ -653,7 +653,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("UNIQUE");
     });
 
@@ -730,7 +730,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("ON `db`.`table`");
     });
 
@@ -905,7 +905,7 @@ describe("Handler Execution", () => {
       );
       const sqlCall = mockAdapter.executeQuery.mock.calls[
         mockAdapter.executeQuery.mock.calls.length - 1
-      ][0] as string;
+      ][0];
       expect(sqlCall).toContain("DEFAULT 1");
     });
 

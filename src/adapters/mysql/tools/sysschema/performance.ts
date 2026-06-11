@@ -30,13 +30,13 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Zod Schemas
 // =============================================================================
 
-const VALID_ORDER_BY = [
+const VALID_ORDER_BY: readonly string[] = [
   "total_latency",
   "exec_count",
   "avg_latency",
   "rows_sent",
   "rows_examined",
-] as const;
+];
 
 const StatementSummarySchemaBase = z.object({
   orderBy: z.string().optional().describe("Order results by"),
@@ -56,12 +56,12 @@ const StatementSummarySchema = z
     message: "limit must be a positive number",
   });
 
-const VALID_WAIT_TYPES = [
+const VALID_WAIT_TYPES: readonly string[] = [
   "global",
   "by_host",
   "by_user",
   "by_instance",
-] as const;
+];
 
 const WaitSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of wait summary"),
@@ -81,7 +81,7 @@ const WaitSummarySchema = z
     message: "limit must be a positive number",
   });
 
-const VALID_IO_TYPES = ["file", "table", "global"] as const;
+const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 
 const IOSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of I/O summary"),
@@ -122,7 +122,7 @@ export function createSysStatementSummaryTool(
         const { orderBy, limit } = StatementSummarySchema.parse(params);
 
         if (
-          !VALID_ORDER_BY.includes(orderBy as (typeof VALID_ORDER_BY)[number])
+          !VALID_ORDER_BY.includes(orderBy)
         ) {
           return withTokenEstimate({
             success: false,
@@ -189,7 +189,7 @@ export function createSysWaitSummaryTool(
         const { type, limit } = WaitSummarySchema.parse(params);
 
         if (
-          !VALID_WAIT_TYPES.includes(type as (typeof VALID_WAIT_TYPES)[number])
+          !VALID_WAIT_TYPES.includes(type)
         ) {
           return withTokenEstimate({
             success: false,
@@ -293,7 +293,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { type, limit } = IOSummarySchema.parse(params);
 
-        if (!VALID_IO_TYPES.includes(type as (typeof VALID_IO_TYPES)[number])) {
+        if (!VALID_IO_TYPES.includes(type)) {
           return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_IO_TYPES.join(", ")}`,

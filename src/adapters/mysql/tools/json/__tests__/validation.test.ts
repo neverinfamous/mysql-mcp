@@ -5,7 +5,7 @@ import {
   createJsonReplaceTool,
   createJsonArrayAppendTool,
 } from "../core.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -28,7 +28,7 @@ describe("JSON Tool Validation", () => {
 
   describe("Validation Logic", () => {
     it('should accept bare string "green" (auto-wrapped)', async () => {
-      const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonSetTool(mockAdapter);
       // Bare strings are now auto-wrapped to valid JSON strings
       await expect(
         tool.handler(
@@ -45,7 +45,7 @@ describe("JSON Tool Validation", () => {
     });
 
     it('should accept quoted string "\\"green\\""', async () => {
-      const tool = createJsonSetTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonSetTool(mockAdapter);
       await expect(
         tool.handler(
           {
@@ -61,7 +61,7 @@ describe("JSON Tool Validation", () => {
     });
 
     it("should accept numbers", async () => {
-      const tool = createJsonInsertTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createJsonInsertTool(mockAdapter);
       await expect(
         tool.handler(
           {
@@ -76,9 +76,9 @@ describe("JSON Tool Validation", () => {
       ).resolves.not.toThrow();
     });
 
-    it("should accept invalid JSON object string (auto-wrapped as string)", async () => {
+    it("should accept invalid JSON object string (auto-wrapped)", async () => {
       const tool = createJsonReplaceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       // Invalid JSON is now wrapped as a plain string, not rejected
       await expect(
@@ -97,7 +97,7 @@ describe("JSON Tool Validation", () => {
 
     it("should accept array append with bare string (auto-wrapped)", async () => {
       const tool = createJsonArrayAppendTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       // Bare strings are now auto-wrapped
       await expect(

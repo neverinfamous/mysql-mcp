@@ -33,7 +33,7 @@ export function createShowProcesslistTool(
         const limited = totalAvailable > limit;
         const processes = limited ? allRows.slice(0, limit) : allRows;
         const response = {
-          success: true as const,
+          success: true,
           data: {
             processes,
             count: processes.length,

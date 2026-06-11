@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createListViewsTool, createCreateViewTool } from "../views.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -25,11 +25,11 @@ describe("Schema View Tools", () => {
         ]),
       );
 
-      const tool = createListViewsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createListViewsTool(mockAdapter);
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("information_schema.VIEWS");
       expect(result).toBeDefined();
     });
@@ -37,7 +37,7 @@ describe("Schema View Tools", () => {
     it("should return exists false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createListViewsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createListViewsTool(mockAdapter);
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
@@ -52,7 +52,7 @@ describe("Schema View Tools", () => {
     it("should execute CREATE VIEW query", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
       const result = (await tool.handler(
         {
           name: "active_users",
@@ -62,7 +62,7 @@ describe("Schema View Tools", () => {
       )) as { success: boolean };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("CREATE");
       expect(call).toContain("VIEW");
       expect(result.success).toBe(true);
@@ -71,7 +71,7 @@ describe("Schema View Tools", () => {
     it("should use CREATE OR REPLACE when orReplace is true", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
       await tool.handler(
         {
           name: "active_users",
@@ -81,12 +81,12 @@ describe("Schema View Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("OR REPLACE");
     });
 
     it("should return structured error for invalid view name", async () => {
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
       const result = (await tool.handler(
         {
           name: "invalid-name",
@@ -101,7 +101,7 @@ describe("Schema View Tools", () => {
 
     it("should include WITH CHECK OPTION when specified", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
 
       await tool.handler(
         {
@@ -112,7 +112,7 @@ describe("Schema View Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("WITH CASCADED CHECK OPTION");
     });
 
@@ -120,7 +120,7 @@ describe("Schema View Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Table 'my_view' already exists"),
       );
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
 
       const result = (await tool.handler(
         {
@@ -138,7 +138,7 @@ describe("Schema View Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent_table' doesn't exist"),
       );
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
 
       const result = (await tool.handler(
         {
@@ -152,7 +152,7 @@ describe("Schema View Tools", () => {
       expect(result.error).toContain("doesn't exist");
     });
     it("should return structured error for invalid algorithm", async () => {
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
       const result = (await tool.handler(
         {
           name: "test_view",
@@ -168,7 +168,7 @@ describe("Schema View Tools", () => {
     });
 
     it("should return structured error for invalid checkOption", async () => {
-      const tool = createCreateViewTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateViewTool(mockAdapter);
       const result = (await tool.handler(
         {
           name: "test_view",

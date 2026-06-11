@@ -5,7 +5,7 @@ import {
   createStatsFrequencyTool,
   createStatsSummaryTool,
 } from "../advanced.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -26,7 +26,7 @@ describe("Advanced Stats Tools", () => {
     let tool: ReturnType<typeof createStatsTopNTool>;
 
     beforeEach(() => {
-      tool = createStatsTopNTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsTopNTool(mockAdapter);
     });
 
     it("should fetch top N with auto-excluded text columns", async () => {
@@ -53,7 +53,7 @@ describe("Advanced Stats Tools", () => {
       expect(data.count).toBe(1);
       expect(data.hint).toContain("body"); // Should warn about excluded column
 
-      const selectSql = mockAdapter.executeQuery.mock.calls[1]?.[0] as string;
+      const selectSql = mockAdapter.executeQuery.mock.calls[1]?.[0];
       expect(selectSql).toContain("`id`");
       expect(selectSql).not.toContain("`body`");
     });
@@ -70,7 +70,7 @@ describe("Advanced Stats Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const selectSql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const selectSql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(selectSql).toContain("`id`, `body`");
     });
   });
@@ -79,7 +79,7 @@ describe("Advanced Stats Tools", () => {
     let tool: ReturnType<typeof createStatsDistinctTool>;
 
     beforeEach(() => {
-      tool = createStatsDistinctTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsDistinctTool(mockAdapter);
     });
 
     it("should fetch distinct values", async () => {
@@ -113,7 +113,7 @@ describe("Advanced Stats Tools", () => {
     let tool: ReturnType<typeof createStatsFrequencyTool>;
 
     beforeEach(() => {
-      tool = createStatsFrequencyTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsFrequencyTool(mockAdapter);
     });
 
     it("should calculate frequency distribution", async () => {
@@ -147,7 +147,7 @@ describe("Advanced Stats Tools", () => {
     let tool: ReturnType<typeof createStatsSummaryTool>;
 
     beforeEach(() => {
-      tool = createStatsSummaryTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsSummaryTool(mockAdapter);
     });
 
     it("should summarize auto-detected numeric columns", async () => {

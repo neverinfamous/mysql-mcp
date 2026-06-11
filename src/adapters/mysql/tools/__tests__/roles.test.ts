@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getRoleTools } from "../roles/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -18,7 +18,7 @@ describe("getRoleTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRoleTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRoleTools(createMockMySQLAdapter());
   });
 
   it("should return 8 role tools", () => {
@@ -52,7 +52,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getRoleTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getRoleTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -76,7 +76,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_list")!;
       await tool.handler({ pattern: "admin%" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("LIKE 'admin%'");
     });
   });
@@ -92,7 +92,7 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "test_role", ifNotExists: true }, mockContext);
 
       // Second call should be the CREATE ROLE
-      const createCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const createCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(createCall).toContain("CREATE ROLE IF NOT EXISTS");
     });
 
@@ -104,7 +104,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("CREATE ROLE 'test_role'");
     });
 
@@ -157,7 +157,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("GRANT SELECT ON `testdb`.* TO 'test_role'");
     });
 
@@ -169,7 +169,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain(
         "GRANT SELECT ON `testdb`.`mytable` TO 'test_role'",
       );
@@ -202,7 +202,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("REVOKE");
     });
 
@@ -241,7 +241,7 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "test_role", ifExists: true }, mockContext);
 
       // Second call should be the DROP ROLE
-      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const dropCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(dropCall).toContain("DROP ROLE IF EXISTS");
     });
 
@@ -250,7 +250,7 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "test_role", ifExists: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("DROP ROLE 'test_role'");
     });
 
@@ -296,7 +296,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("GRANT");
     });
 
@@ -312,7 +312,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("WITH ADMIN OPTION");
     });
   });
@@ -327,7 +327,7 @@ describe("Handler Execution", () => {
       await tool.handler({ role: "test_role" }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("SHOW GRANTS");
     });
   });
@@ -342,7 +342,7 @@ describe("Handler Execution", () => {
       await tool.handler({ user: "testuser", host: "localhost" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("mysql.user");
     });
 

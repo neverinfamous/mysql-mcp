@@ -14,7 +14,7 @@ describe("Shell Info Tools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
   });
 
   afterEach(() => {

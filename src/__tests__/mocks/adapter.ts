@@ -132,6 +132,7 @@ export class MockMySQLAdapter extends MySQLAdapter {
   override getAllowedIoRoots: Mock<() => string[]> = vi.fn().mockReturnValue(["/tmp", "C:\\temp", "/backup", "/o", "/in"]);
 
   override clearSchemaCache: Mock<() => void> = vi.fn();
+  override getBackupManager: Mock<() => any> = vi.fn().mockReturnValue(undefined);
 
   override getPool: Mock<() => any> = vi.fn().mockImplementation(() => ({
     getConnection: vi.fn().mockResolvedValue({
