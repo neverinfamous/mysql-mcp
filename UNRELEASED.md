@@ -50,6 +50,8 @@
 - Refactored `src/adapters/database-adapter.ts` into a cohesive module structure to significantly reduce file size while maintaining all public APIs.
 - Refactored `src/cli/args.ts` into smaller sub-modules within `src/cli/args/` to improve maintainability and adhere to file size limits.
 - Refactored `src/adapters/mysql/mysql-adapter.ts` into a modular `src/adapters/mysql/mysql-adapter/` directory, moving initialization, tool handling, and resource handling to separate sub-modules.
+- Refactored `src/adapters/mysql/schemas/text.ts` into a cohesive module structure (`text/`) to adhere to file size limits.
+- Refactored `src/adapters/mysql/schemas/shell.ts` into a cohesive module structure (`shell/`) to adhere to file size limits.
 - Made `ErrorResponse` interface strictly typed (required `code`, `category`, `suggestion`, `details`, `recoverable` fields) to enforce consistent error API contracts.
 - Converted `ErrorCategory` enum to `as const` object.
 

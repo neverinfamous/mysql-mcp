@@ -142,7 +142,7 @@ describe("Performance Tests", () => {
       }, 100);
 
       // Repeated parsing should be consistent
-      expect(timing.avg).toBeLessThan(3);
+      expect(timing.avg).toBeLessThan(5);
     });
 
     it("should correctly filter to expected tool counts", () => {

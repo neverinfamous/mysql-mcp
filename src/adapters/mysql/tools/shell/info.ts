@@ -12,7 +12,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import { ShellVersionInputSchema, ShellVersionOutputSchema } from "../../schemas/shell.js";
+import { ShellVersionInputSchema, ShellVersionOutputSchema } from "../../schemas/shell/index.js";
 import { getShellConfig, execMySQLShell } from "./common.js";
 
 /**

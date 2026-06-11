@@ -26,7 +26,7 @@ import {
   ShellExportTableOutputSchema,
   ShellImportTableOutputSchema,
   ShellImportJSONOutputSchema,
-} from "../../schemas/shell.js";
+} from "../../schemas/shell/index.js";
 import {
   getShellConfig,
   escapeForJS,

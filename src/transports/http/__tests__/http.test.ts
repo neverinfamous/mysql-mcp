@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { HttpTransport, createHttpTransport } from "../server.js";
+import { HttpTransport, createHttpTransport } from "../server/index.js";
 import {
   setSecurityHeaders,
   setCorsHeaders,

@@ -13,7 +13,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ShellCheckUpgradeInputSchema, ShellCheckUpgradeOutputSchema } from "../../schemas/shell.js";
+import { ShellCheckUpgradeInputSchema, ShellCheckUpgradeOutputSchema } from "../../schemas/shell/index.js";
 import { getShellConfig, escapeForJS, execShellJS } from "./common.js";
 
 /**

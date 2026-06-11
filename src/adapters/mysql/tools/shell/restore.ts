@@ -24,7 +24,7 @@ import {
   ShellRunScriptInputSchemaBase,
   ShellLoadDumpOutputSchema,
   ShellRunScriptOutputSchema,
-} from "../../schemas/shell.js";
+} from "../../schemas/shell/index.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
 
 /**

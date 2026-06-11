@@ -4,7 +4,7 @@
  * Barrel re-export for the HTTP transport module.
  */
 
-export { HttpTransport, createHttpTransport } from "./server.js";
+export { HttpTransport, createHttpTransport } from "./server/index.js";
 export { SessionManager } from "./session-manager.js";
 export type { HttpTransportConfig } from "./types.js";
 export {

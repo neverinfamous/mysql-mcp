@@ -25,7 +25,7 @@ import {
   ShellDumpInstanceOutputSchema,
   ShellDumpSchemasOutputSchema,
   ShellDumpTablesOutputSchema,
-} from "../../schemas/shell.js";
+} from "../../schemas/shell/index.js";
 import { escapeForJS, execShellJS } from "./common.js";
 
 /**

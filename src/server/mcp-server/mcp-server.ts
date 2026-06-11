@@ -10,6 +10,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { INSTRUCTIONS } from "../../constants/server-instructions.js";
 import type { DatabaseAdapter } from "../../adapters/database-adapter/index.js";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SubscriptionManager } from "../subscription-manager.js";
 import type { McpServerConfig, TransportType, ToolFilterConfig } from "../../types/index.js";
 import { parseToolFilter, getFilterSummary, getEnabledGroups } from "../../filtering/tool-filter.js";
@@ -267,7 +268,7 @@ export class McpServer {
                 }
               : {}),
           },
-          async (mcpTransport) => {
+          async (mcpTransport: Transport) => {
             logger.info("New client connection");
             const server = this.server;
             if (server.isConnected()) {
