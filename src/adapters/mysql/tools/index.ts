@@ -5,7 +5,7 @@
  */
 
 // Core tools
-export { getCoreTools } from "./core.js";
+export { getCoreTools } from "./core/index.js";
 
 // Transaction tools
 export { getTransactionTools } from "./transactions.js";
@@ -38,10 +38,10 @@ export { getReplicationTools } from "./replication.js";
 export { getPartitioningTools } from "./partitioning.js";
 
 // Router management tools
-export { getRouterTools } from "./router.js";
+export { getRouterTools } from "./router/index.js";
 
 // ProxySQL management tools
-export { getProxySQLTools } from "./proxysql.js";
+export { getProxySQLTools } from "./proxysql/index.js";
 
 // Schema management tools
 export { getSchemaTools } from "./schema/index.js";
@@ -65,7 +65,7 @@ export { getSecurityTools } from "./security/index.js";
 export { getClusterTools } from "./cluster/index.js";
 
 // Role management tools
-export { getRoleTools } from "./roles.js";
+export { getRoleTools } from "./roles/index.js";
 
 // Document Store tools
 export { getDocStoreTools } from "./docstore/index.js";

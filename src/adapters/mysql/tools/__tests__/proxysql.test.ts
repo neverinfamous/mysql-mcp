@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getProxySQLTools } from "../proxysql.js";
+import { getProxySQLTools } from "../proxysql/index.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,

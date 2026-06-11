@@ -8,7 +8,7 @@ import type {
 } from "../../../types/index.js";
 
 // Import tool modules
-import { getCoreTools } from "../tools/core.js";
+import { getCoreTools } from "../tools/core/index.js";
 import { getTransactionTools } from "../tools/transactions.js";
 import { getJsonTools, getJsonHelperTools, getJsonEnhancedTools } from "../tools/json/index.js";
 import { getTextTools, getFulltextTools } from "../tools/text/index.js";
@@ -16,8 +16,8 @@ import { getPerformanceTools, getOptimizationTools } from "../tools/performance/
 import { getAdminTools, getMonitoringTools, getBackupTools } from "../tools/admin/index.js";
 import { getReplicationTools } from "../tools/replication.js";
 import { getPartitioningTools } from "../tools/partitioning.js";
-import { getRouterTools } from "../tools/router.js";
-import { getProxySQLTools } from "../tools/proxysql.js";
+import { getRouterTools } from "../tools/router/index.js";
+import { getProxySQLTools } from "../tools/proxysql/index.js";
 import { getShellTools } from "../tools/shell/index.js";
 import { getSchemaTools } from "../tools/schema/index.js";
 import { getEventTools } from "../tools/events.js";
@@ -26,7 +26,7 @@ import { getStatsTools } from "../tools/stats/index.js";
 import { getSpatialTools } from "../tools/spatial/index.js";
 import { getSecurityTools } from "../tools/security/index.js";
 import { getClusterTools } from "../tools/cluster/index.js";
-import { getRoleTools } from "../tools/roles.js";
+import { getRoleTools } from "../tools/roles/index.js";
 import { getDocStoreTools } from "../tools/docstore/index.js";
 import { getIntrospectionTools } from "../tools/introspection/index.js";
 import { getMigrationTools } from "../tools/migration/index.js";
