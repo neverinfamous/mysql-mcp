@@ -91,10 +91,10 @@ describe("createEventsResource", () => {
   });
   it("should handle undefined rows gracefully", async () => {
     // Mock scheduler variable with undefined rows
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any);
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     // Mock events list with undefined rows
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any);
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     const result = await resource.handler(resource.uri, mockContext);
 

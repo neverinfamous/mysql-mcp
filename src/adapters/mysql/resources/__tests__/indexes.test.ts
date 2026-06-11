@@ -67,9 +67,9 @@ describe("createIndexesResource", () => {
       unused_indexes: expect.any(Array),
       potential_duplicates: expect.any(Array),
     });
-    expect((result as any).indexes).toHaveLength(1);
-    expect((result as any).unused_indexes).toHaveLength(1);
-    expect((result as any).potential_duplicates).toHaveLength(1);
+    expect(Reflect.get(result || {}, "indexes")).toHaveLength(1);
+    expect(Reflect.get(result || {}, "unused_indexes")).toHaveLength(1);
+    expect(Reflect.get(result || {}, "potential_duplicates")).toHaveLength(1);
   });
 
   it("should handle failures in optional queries (unused/duplicates) gracefully", async () => {
@@ -103,7 +103,7 @@ describe("createIndexesResource", () => {
   });
   it("should handle undefined rows gracefully", async () => {
     // Mock Database select with undefined rows
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any);
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     // First attempt with undefined rows for database selection
     const result1 = await resource.handler(resource.uri, mockContext);
@@ -113,9 +113,9 @@ describe("createIndexesResource", () => {
     mockAdapter.executeQuery.mockResolvedValueOnce(
       createMockQueryResult([{ db: "test_db" }]),
     );
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any); // Indexes
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any); // Unused
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any); // Duplicates
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // Indexes
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // Unused
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // Duplicates
 
     const result2 = await resource.handler(resource.uri, mockContext);
     expect(result2).toEqual({

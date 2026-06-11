@@ -95,7 +95,7 @@ describe("Anomaly Detection Tools", () => {
       });
 
       const tool = createDetectQueryAnomaliesTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(true);
       expect(result.data.anomalyCount).toBe(1);
       expect(result.data.riskLevel).toBe("high");
@@ -120,7 +120,7 @@ describe("Anomaly Detection Tools", () => {
       });
 
       const tool = createDetectQueryAnomaliesTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(true);
       expect(result.data.anomalyCount).toBe(10);
       expect(result.data.riskLevel).toBe("high");
@@ -134,7 +134,7 @@ describe("Anomaly Detection Tools", () => {
       });
 
       const tool = createDetectQueryAnomaliesTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(true);
       expect(result.data.anomalyCount).toBe(0);
       expect(result.data.summary).toContain("No query anomalies");
@@ -142,10 +142,10 @@ describe("Anomaly Detection Tools", () => {
 
     it("should catch unexpected errors and return structured error", async () => {
       const tool = createDetectQueryAnomaliesTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { minCalls: "not a number" },
         mockContext,
-      )) as any;
+      );
       expect(result.success).toBe(false);
       expect(result.error).toContain("expected number, received NaN");
     });
@@ -154,10 +154,10 @@ describe("Anomaly Detection Tools", () => {
   describe("mysql_detect_bloat_risk", () => {
     it("should return error for invalid schema name", async () => {
       const tool = createDetectBloatRiskTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { schema: "invalid name" },
         mockContext,
-      )) as any;
+      );
       expect(result.success).toBe(false);
       expect(result.error).toContain("Invalid schema");
     });
@@ -178,7 +178,7 @@ describe("Anomaly Detection Tools", () => {
         ],
       });
       const tool = createDetectBloatRiskTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(true);
       expect(result.data.highRiskCount).toBe(1);
       expect(result.data.tables[0].riskScore).toBeGreaterThanOrEqual(100);
@@ -221,7 +221,7 @@ describe("Anomaly Detection Tools", () => {
         ],
       });
       const tool = createDetectBloatRiskTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(true);
       expect(result.data.tables.length).toBe(3);
     });
@@ -237,17 +237,17 @@ describe("Anomaly Detection Tools", () => {
     it("should catch outer errors", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("outer"));
       const tool = createDetectBloatRiskTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(false);
       expect(result.error).toContain("outer");
     });
 
     it("should catch zod validation errors", async () => {
       const tool = createDetectBloatRiskTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { minSizeMb: "not a number" },
         mockContext,
-      )) as any;
+      );
       expect(result.success).toBe(false);
       expect(result.error).toContain("expected number, received NaN");
     });

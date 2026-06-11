@@ -15,7 +15,7 @@ describe("Security Tools", () => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
     mockContext = createMockRequestContext();
-    tools = getSecurityTools(mockAdapter as any);
+    tools = getSecurityTools(mockAdapter );
   });
 
   describe("mysql_security_audit", () => {

@@ -43,7 +43,7 @@ describe("scope-map", () => {
     it("should be read-only", () => {
       const map = getToolScopeMap();
       expect(typeof map.get).toBe("function");
-      expect(typeof (map as any).set).toBe("function"); // ReadonlyMap still has set on Map
+      expect(typeof (map ).set).toBe("function"); // ReadonlyMap still has set on Map
     });
   });
 });

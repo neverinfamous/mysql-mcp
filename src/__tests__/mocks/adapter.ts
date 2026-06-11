@@ -1,12 +1,5 @@
-/**
- * mysql-mcp - MySQL Adapter Mock
- *
- * Provides mock implementation of MySQLAdapter for testing
- * tools, resources, and prompts without database dependency.
- */
-
-import { vi } from "vitest";
-import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
+import { vi, type Mock } from "vitest";
+import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type {
   QueryResult,
   TableInfo,
@@ -14,11 +7,9 @@ import type {
   SchemaInfo,
   HealthStatus,
   ColumnInfo,
+  DatabaseConfig,
 } from "../../types/index.js";
 
-/**
- * Create a mock query result
- */
 export function createMockQueryResult(
   rows: Record<string, unknown>[] = [],
   affectedRows = 0,
@@ -30,26 +21,15 @@ export function createMockQueryResult(
   };
 }
 
-/**
- * Create a mock column info
- */
 export function createMockColumnInfo(
   name: string,
   type: string,
   nullable = true,
   primaryKey = false,
 ): ColumnInfo {
-  return {
-    name,
-    type,
-    nullable,
-    primaryKey,
-  };
+  return { name, type, nullable, primaryKey };
 }
 
-/**
- * Create a mock table info
- */
 export function createMockTableInfo(name: string, rowCount = 100): TableInfo {
   return {
     name,
@@ -65,9 +45,6 @@ export function createMockTableInfo(name: string, rowCount = 100): TableInfo {
   };
 }
 
-/**
- * Create mock index info
- */
 export function createMockIndexInfo(
   tableName: string,
   indexName: string,
@@ -81,9 +58,6 @@ export function createMockIndexInfo(
   };
 }
 
-/**
- * Create mock schema info
- */
 export function createMockSchemaInfo(): SchemaInfo {
   return {
     tables: [createMockTableInfo("users"), createMockTableInfo("products")],
@@ -92,9 +66,6 @@ export function createMockSchemaInfo(): SchemaInfo {
   };
 }
 
-/**
- * Create mock health status
- */
 export function createMockHealthStatus(connected = true): HealthStatus {
   return {
     connected,
@@ -110,244 +81,135 @@ export function createMockHealthStatus(connected = true): HealthStatus {
   };
 }
 
-/**
- * Create a mock MySQLAdapter
- */
-export function createMockMySQLAdapter(): Partial<MySQLAdapter> & {
-  executeQuery: ReturnType<typeof vi.fn>;
-  executeReadQuery: ReturnType<typeof vi.fn>;
-  executeWriteQuery: ReturnType<typeof vi.fn>;
-  rawQuery: ReturnType<typeof vi.fn>;
-  getTableIndexes: ReturnType<typeof vi.fn>;
-  describeTable: ReturnType<typeof vi.fn>;
-  listTables: ReturnType<typeof vi.fn>;
-  getSchema: ReturnType<typeof vi.fn>;
-} {
-  const mockQueryResult = createMockQueryResult([{ id: 1, name: "test" }]);
+export class MockMySQLAdapter extends MySQLAdapter {
+  override connect: Mock<(config: DatabaseConfig) => Promise<void>> = vi.fn().mockResolvedValue(undefined);
+  override disconnect: Mock<() => Promise<void>> = vi.fn().mockResolvedValue(undefined);
+  override getHealth: Mock<() => Promise<HealthStatus>> = vi.fn().mockResolvedValue(createMockHealthStatus());
+  override isConnected: Mock<() => boolean> = vi.fn().mockReturnValue(true);
 
-  const adapter = {
-    type: "mysql" as const,
-    name: "MySQL Adapter",
-    version: "0.1.0",
+  override executeQuery: Mock<(sql: string, params?: unknown[], txId?: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
+  override executeReadQuery: Mock<(sql: string, params?: unknown[]) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
+  override executeWriteQuery: Mock<(sql: string, params?: unknown[], txId?: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
+  override rawQuery: Mock<(sql: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
 
-    // Connection methods
-    connect: vi.fn().mockResolvedValue(undefined),
-    disconnect: vi.fn().mockResolvedValue(undefined),
-    getHealth: vi.fn().mockResolvedValue(createMockHealthStatus()),
-    isConnected: vi.fn().mockReturnValue(true),
+  override beginTransaction: Mock<(txId?: string) => Promise<string>> = vi.fn().mockResolvedValue("txn-123");
+  override commitTransaction: Mock<(txId: string) => Promise<void>> = vi.fn().mockResolvedValue(undefined);
+  override rollbackTransaction: Mock<(txId: string) => Promise<void>> = vi.fn().mockResolvedValue(undefined);
+  override getTransactionConnection: Mock<(txId: string) => any> = vi.fn().mockReturnValue(undefined);
 
-    // Query execution
-    executeQuery: vi.fn().mockResolvedValue(mockQueryResult),
-    executeReadQuery: vi.fn().mockResolvedValue(mockQueryResult),
-    executeWriteQuery: vi.fn().mockResolvedValue(mockQueryResult),
-    rawQuery: vi.fn().mockResolvedValue(mockQueryResult),
+  override getSchema: Mock<() => Promise<SchemaInfo>> = vi.fn().mockResolvedValue(createMockSchemaInfo());
+  override listTables: Mock<(schema?: string) => Promise<TableInfo[]>> = vi.fn().mockResolvedValue([createMockTableInfo("users")]);
+  override describeTable: Mock<(name: string) => Promise<TableInfo>> = vi.fn().mockResolvedValue(createMockTableInfo("users"));
+  override listSchemas: Mock<() => Promise<string[]>> = vi.fn().mockResolvedValue(["testdb", "information_schema"]);
+  override getTableIndexes: Mock<(name: string) => Promise<IndexInfo[]>> = vi.fn().mockResolvedValue([createMockIndexInfo("users", "PRIMARY")]);
 
-    // Transaction methods
-    beginTransaction: vi.fn().mockResolvedValue("txn-123"),
-    commitTransaction: vi.fn().mockResolvedValue(undefined),
-    rollbackTransaction: vi.fn().mockResolvedValue(undefined),
-    getTransactionConnection: vi.fn().mockReturnValue(undefined),
+  override getCapabilities: Mock<() => any> = vi.fn().mockReturnValue({
+    json: true,
+    fullTextSearch: true,
+    vector: false,
+    geospatial: true,
+    transactions: true,
+    preparedStatements: true,
+    connectionPooling: true,
+    partitioning: true,
+    replication: true,
+  });
+  
+  override getSupportedToolGroups: Mock<() => any> = vi.fn().mockReturnValue([
+    "core", "transactions", "json", "text", "fulltext", "performance",
+    "optimization", "admin", "monitoring", "backup"
+  ]);
 
-    // Schema methods
-    getSchema: vi.fn().mockResolvedValue(createMockSchemaInfo()),
-    listTables: vi.fn().mockResolvedValue([createMockTableInfo("users")]),
-    describeTable: vi.fn().mockResolvedValue(createMockTableInfo("users")),
-    listSchemas: vi.fn().mockResolvedValue(["testdb", "information_schema"]),
-    getTableIndexes: vi
-      .fn()
-      .mockResolvedValue([createMockIndexInfo("users", "PRIMARY")]),
+  override getToolDefinitions: Mock<() => any[]> = vi.fn().mockReturnValue([]);
+  override getResourceDefinitions: Mock<() => any[]> = vi.fn().mockReturnValue([]);
+  override getPromptDefinitions: Mock<() => any[]> = vi.fn().mockReturnValue([]);
 
-    // Capabilities
-    getCapabilities: vi.fn().mockReturnValue({
-      json: true,
-      fullTextSearch: true,
-      vector: false,
-      geospatial: true,
-      transactions: true,
-      preparedStatements: true,
-      connectionPooling: true,
-      partitioning: true,
-      replication: true,
-    }),
-    getSupportedToolGroups: vi
-      .fn()
-      .mockReturnValue([
-        "core",
-        "transactions",
-        "json",
-        "text",
-        "fulltext",
-        "performance",
-        "optimization",
-        "admin",
-        "monitoring",
-        "backup",
-      ]),
+  override registerTools: Mock<(server: any, adapter: any) => void> = vi.fn();
+  override registerResources: Mock<(server: any) => void> = vi.fn();
+  override registerPrompts: Mock<(server: any) => void> = vi.fn();
 
-    // Definition getters
-    getToolDefinitions: vi.fn().mockReturnValue([]),
-    getResourceDefinitions: vi.fn().mockReturnValue([]),
-    getPromptDefinitions: vi.fn().mockReturnValue([]),
+  override setAllowedIoRoots: Mock<(roots: string[] | undefined) => void> = vi.fn();
+  override getAllowedIoRoots: Mock<() => string[]> = vi.fn().mockReturnValue(["/tmp", "C:\\temp", "/backup", "/o", "/in"]);
 
-    // Registration methods (used by McpServer)
-    registerTools: vi.fn(),
-    registerResources: vi.fn(),
-    registerPrompts: vi.fn(),
+  override clearSchemaCache: Mock<() => void> = vi.fn();
 
-    // Security context
-    setAllowedIoRoots: vi.fn(),
-    getAllowedIoRoots: vi.fn().mockReturnValue(["/tmp", "C:\\temp", "/backup", "/o", "/in"]),
-
-    // Schema cache invalidation
-    clearSchemaCache: vi.fn(),
-
-    // EventEmitter methods
-    on: vi.fn(),
-  };
-
-  (adapter as any).getPool = vi.fn().mockReturnValue({
+  override getPool: Mock<() => any> = vi.fn().mockImplementation(() => ({
     getConnection: vi.fn().mockResolvedValue({
-      query: vi.fn().mockImplementation((...args: any[]) => {
-        const sql = typeof args[0] === "string" ? args[0] : args[0]?.sql;
-        if (
-          sql &&
-          typeof sql === "string" &&
-          sql.trim().toUpperCase().startsWith("SET")
-        ) {
-          return adapter
-            .executeQuery(sql)
-            .then((res: any) => [res.rows ?? [], []]);
+      query: vi.fn().mockImplementation(async (...args: unknown[]) => {
+        const sql = typeof args[0] === "string" ? args[0] : (args[0] && typeof args[0] === "object" && "sql" in args[0] ? String(Reflect.get(args[0], "sql")) : "");
+        if (sql.trim().toUpperCase().startsWith("SET")) {
+          const res = await this.executeQuery(sql);
+          return [res.rows ?? [], []];
         }
-        return adapter
-          .executeReadQuery(sql)
-          .then((res: any) => [res.rows ?? [], []]);
+        const res = await this.executeReadQuery(sql);
+        return [res.rows ?? [], []];
       }),
-      execute: vi.fn().mockImplementation((...args: any[]) => {
-        const sql = typeof args[0] === "string" ? args[0] : args[0]?.sql;
-        return adapter
-          .executeReadQuery(sql)
-          .then((res: any) => [res.rows ?? [], []]);
+      execute: vi.fn().mockImplementation(async (...args: unknown[]) => {
+        const sql = typeof args[0] === "string" ? args[0] : (args[0] && typeof args[0] === "object" && "sql" in args[0] ? String(Reflect.get(args[0], "sql")) : "");
+        const res = await this.executeReadQuery(sql);
+        return [res.rows ?? [], []];
       }),
       release: vi.fn(),
     }),
     releaseConnection: vi.fn(),
     getStats: vi.fn().mockReturnValue(createMockHealthStatus().poolStats),
-  });
-
-  return adapter as unknown as Partial<MySQLAdapter> & {
-    executeQuery: ReturnType<typeof vi.fn>;
-    executeReadQuery: ReturnType<typeof vi.fn>;
-    executeWriteQuery: ReturnType<typeof vi.fn>;
-    rawQuery: ReturnType<typeof vi.fn>;
-    getTableIndexes: ReturnType<typeof vi.fn>;
-    describeTable: ReturnType<typeof vi.fn>;
-    listTables: ReturnType<typeof vi.fn>;
-    getSchema: ReturnType<typeof vi.fn>;
-  };
+  }));
 }
 
-/**
- * Create a mock RequestContext for handler testing
- */
-export function createMockRequestContext(): {
-  timestamp: Date;
-  requestId: string;
-} {
-  return {
-    timestamp: new Date(),
-    requestId: "test-request-" + Math.random().toString(36).slice(2, 9),
-  };
+export function createMockMySQLAdapter(): MockMySQLAdapter {
+  return new MockMySQLAdapter();
 }
 
-/**
- * Helper to configure mock adapter response for specific queries
- */
+export function createMockRequestContext(): { timestamp: Date; requestId: string } {
+  return { timestamp: new Date(), requestId: "test-request-" + Math.random().toString(36).slice(2, 9) };
+}
+
 export function configureMockAdapterQuery(
-  adapter: ReturnType<typeof createMockMySQLAdapter>,
+  adapter: MockMySQLAdapter,
   pattern: string,
   result: QueryResult,
 ): void {
-  const originalImpl = adapter.executeQuery.getMockImplementation() as
-    | ((sql: string) => Promise<QueryResult>)
-    | undefined;
-
-  adapter.executeQuery.mockImplementation((sql: string) => {
+  const originalImpl = adapter.executeQuery.getMockImplementation();
+  adapter.executeQuery.mockImplementation((sql: string, params?: unknown[], txId?: string) => {
     if (sql.includes(pattern)) {
       return Promise.resolve(result);
     }
-    return originalImpl?.(sql) ?? Promise.resolve(createMockQueryResult());
+    return originalImpl ? originalImpl(sql, params, txId) : Promise.resolve(createMockQueryResult([]));
   });
 }
 
-/**
- * Create a mock MySQLAdapter that returns empty results
- */
-export function createMockMySQLAdapterEmpty(): ReturnType<
-  typeof createMockMySQLAdapter
-> {
+export function createMockMySQLAdapterEmpty(): MockMySQLAdapter {
   const adapter = createMockMySQLAdapter();
   const emptyResult = createMockQueryResult([]);
-
   adapter.executeQuery.mockResolvedValue(emptyResult);
   adapter.executeReadQuery.mockResolvedValue(emptyResult);
-  adapter.executeWriteQuery.mockResolvedValue({
-    rows: [],
-    rowsAffected: 0,
-    executionTimeMs: 1,
-  });
+  adapter.executeWriteQuery.mockResolvedValue({ rows: [], rowsAffected: 0, executionTimeMs: 1 });
   adapter.rawQuery.mockResolvedValue(emptyResult);
-
   return adapter;
 }
 
-/**
- * Create a mock MySQLAdapter that throws on query execution
- */
 export function createMockMySQLAdapterWithError(
   errorMessage = "Database connection failed",
-): ReturnType<typeof createMockMySQLAdapter> {
+): MockMySQLAdapter {
   const adapter = createMockMySQLAdapter();
   const dbError = new Error(errorMessage);
-
   adapter.executeQuery.mockRejectedValue(dbError);
   adapter.executeReadQuery.mockRejectedValue(dbError);
   adapter.executeWriteQuery.mockRejectedValue(dbError);
   adapter.rawQuery.mockRejectedValue(dbError);
-  (adapter.getHealth as ReturnType<typeof vi.fn>).mockResolvedValue(
-    createMockHealthStatus(false),
-  );
-
+  adapter.getHealth.mockResolvedValue(createMockHealthStatus(false));
   return adapter;
 }
 
-/**
- * Create a mock adapter for transaction testing with a mock connection
- */
-export function createMockMySQLAdapterWithTransaction(): ReturnType<
-  typeof createMockMySQLAdapter
-> & {
-  mockConnection: {
-    query: ReturnType<typeof vi.fn>;
-    execute: ReturnType<typeof vi.fn>;
-    release: ReturnType<typeof vi.fn>;
-  };
+export function createMockMySQLAdapterWithTransaction(): MockMySQLAdapter & {
+  mockConnection: { query: Mock; execute: Mock; release: Mock };
 } {
   const adapter = createMockMySQLAdapter();
-
   const mockConnection = {
     query: vi.fn().mockResolvedValue([[], []]),
     execute: vi.fn().mockResolvedValue([[], []]),
     release: vi.fn(),
   };
-
-  (
-    adapter.getTransactionConnection as ReturnType<typeof vi.fn>
-  ).mockReturnValue(mockConnection);
-
-  return { ...adapter, mockConnection };
+  adapter.getTransactionConnection.mockReturnValue(mockConnection);
+  return Object.assign(adapter, { mockConnection });
 }
-
-/**
- * Type alias for the mock adapter return type
- */
-export type MockMySQLAdapter = ReturnType<typeof createMockMySQLAdapter>;

@@ -74,7 +74,7 @@ describe("Connection Analysis Tools", () => {
       });
 
       const tool = createDetectConnectionSpikeTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
       expect(result.data.totalConnections).toBe(2);
@@ -126,10 +126,10 @@ describe("Connection Analysis Tools", () => {
       });
 
       const tool = createDetectConnectionSpikeTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { windowMinutes: 5, warningPercent: 70 },
         mockContext,
-      )) as any;
+      );
       console.log("RESULT USER CONC:", JSON.stringify(result.data, null, 2));
 
       expect(result.success).toBe(true);
@@ -180,7 +180,7 @@ describe("Connection Analysis Tools", () => {
       });
 
       const tool = createDetectConnectionSpikeTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
       expect(result.data.usagePercent).toBe(85);
@@ -195,17 +195,17 @@ describe("Connection Analysis Tools", () => {
     it("should catch unexpected errors and return structured error", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("unexpected"));
       const tool = createDetectConnectionSpikeTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(false);
       expect(result.error).toContain("unexpected");
     });
 
     it("should catch zod validation errors", async () => {
       const tool = createDetectConnectionSpikeTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { warningPercent: "not a number" },
         mockContext,
-      )) as any;
+      );
       expect(result.success).toBe(false);
       expect(result.error).toContain("expected number");
     });

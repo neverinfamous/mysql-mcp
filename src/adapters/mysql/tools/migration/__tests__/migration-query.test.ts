@@ -58,7 +58,7 @@ describe("Migration Query Tools", () => {
 
       const result = await tool.handler({ id: 1 }, mockContext);
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const calls = mockAdapter.executeWriteQuery.mock.calls;
       const executedQueries = calls.map((c) => c[0] as string);
@@ -96,9 +96,9 @@ describe("Migration Query Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      expect((result as any).data.dryRun).toBe(true);
-      expect((result as any).data.rollbackSql).toBe("DROP TABLE a");
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect(Reflect.get(result || {}, "data").dryRun).toBe(true);
+      expect(Reflect.get(result || {}, "data").rollbackSql).toBe("DROP TABLE a");
 
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
@@ -115,8 +115,8 @@ describe("Migration Query Tools", () => {
 
       const result = await tool.handler({ version: "1.0" }, mockContext);
 
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("no rollback SQL stored");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("no rollback SQL stored");
     });
   });
 
@@ -143,8 +143,8 @@ describe("Migration Query Tools", () => {
 
       const result = await tool.handler({ limit: 10, offset: 0 }, mockContext);
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.total).toBe(2);
       expect(data.records.length).toBe(2);
       expect(data.records[0].version).toBe("2.0");
@@ -165,7 +165,7 @@ describe("Migration Query Tools", () => {
       );
 
       const result = await tool.handler({ status: "failed" }, mockContext);
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
     });
   });
 
@@ -185,8 +185,8 @@ describe("Migration Query Tools", () => {
 
       const result = await tool.handler({ schema: "testdb" }, mockContext);
 
-      expect((result as any).success).toBe(true);
-      expect((result as any).data.initialized).toBe(false);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect(Reflect.get(result || {}, "data").initialized).toBe(false);
     });
 
     it("should return aggregated status when table exists", async () => {
@@ -206,8 +206,8 @@ describe("Migration Query Tools", () => {
 
       const result = await tool.handler({ schema: "testdb" }, mockContext);
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.initialized).toBe(true);
       expect(data.latestVersion).toBe("2.0");
       expect(data.counts.total).toBe(10);

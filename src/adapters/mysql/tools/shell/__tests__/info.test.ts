@@ -51,7 +51,7 @@ describe("Shell Info Tools", () => {
       setupMockSpawn("mysqlsh   Ver 8.0.35 for Linux on x86_64");
 
       const tool = createShellVersionTool();
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
       expect(result.data.version).toBe("8.0.35");
@@ -66,7 +66,7 @@ describe("Shell Info Tools", () => {
       setupMockSpawn("Some other output");
 
       const tool = createShellVersionTool();
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.version).toBe("unknown");
     });

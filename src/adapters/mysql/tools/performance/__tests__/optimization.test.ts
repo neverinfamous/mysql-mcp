@@ -284,7 +284,7 @@ describe("Performance Optimization Tools", () => {
         'SET optimizer_trace="enabled=off"',
       );
 
-      expect((result as any).data).toHaveProperty("trace");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("trace");
     });
 
     it("should handle query execution failure gracefully", async () => {
@@ -373,7 +373,7 @@ describe("Performance Optimization Tools", () => {
         1,
         "SELECT * FROM users",
       );
-      expect((result as any).data).toHaveProperty("trace");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("trace");
     });
 
     it("should return structured error when trace fetch fails", async () => {

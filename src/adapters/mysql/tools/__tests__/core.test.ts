@@ -359,7 +359,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("tableName", "new_table");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("tableName", "new_table");
     });
 
     it("should handle column defaults correctly", async () => {
@@ -510,8 +510,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("skipped", true);
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "reason",
         "Table already exists",
       );
@@ -592,8 +592,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("skipped", true);
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "reason",
         "Table did not exist",
       );
@@ -632,7 +632,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "indexName",
         "idx_users_email",
       );
@@ -678,7 +678,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect((result as any).data).toHaveProperty("skipped", true);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
@@ -750,9 +750,9 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("warning");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("warning");
       expect(
-        ((result as any).data as Record<string, unknown>).warning,
+        (Reflect.get(result || {}, "data") as Record<string, unknown>).warning,
       ).toContain("MEMORY");
     });
 
@@ -928,7 +928,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(true);
-      expect((result as any).data.skipped).toBe(true);
+      expect(Reflect.get(result || {}, "data").skipped).toBe(true);
     });
 
     it("mysql_drop_table should format error on unknown table", async () => {
@@ -1001,7 +1001,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(true);
-      expect((result as any).data.skipped).toBe(true);
+      expect(Reflect.get(result || {}, "data").skipped).toBe(true);
     });
 
     it("mysql_create_index should return error for Key column doesnt exist", async () => {

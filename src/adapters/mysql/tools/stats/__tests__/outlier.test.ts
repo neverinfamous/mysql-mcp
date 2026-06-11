@@ -43,8 +43,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.method).toBe("zscore");
       expect(data.outliers.length).toBe(1);
       expect(data.outliers[0].value).toBe(20);
@@ -67,8 +67,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      expect((result as any).data.outlierCount).toBe(0);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect(Reflect.get(result || {}, "data").outlierCount).toBe(0);
     });
 
     it("should detect outliers using IQR", async () => {
@@ -97,8 +97,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.method).toBe("iqr");
       expect(data.stats.q1).toBe(10);
       expect(data.stats.q3).toBe(20);
@@ -122,9 +122,9 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      expect((result as any).data.totalRows).toBe(0);
-      expect((result as any).data.outlierCount).toBe(0);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect(Reflect.get(result || {}, "data").totalRows).toBe(0);
+      expect(Reflect.get(result || {}, "data").outlierCount).toBe(0);
     });
   });
 });

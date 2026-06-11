@@ -113,7 +113,7 @@ describe("Index Audit Tool", () => {
         const tool = createIndexRecommendationTool(
           mockAdapter as unknown as MySQLAdapter,
         );
-        const result = (await tool.handler({ table: "users" }, mockContext)) as any;
+        const result = await tool.handler({ table: "users" }, mockContext);
 
         const redundantFindings = result.data.findings.filter((f: any) => f.type === "redundant");
         expect(redundantFindings).toHaveLength(1);
@@ -134,7 +134,7 @@ describe("Index Audit Tool", () => {
         const tool = createIndexRecommendationTool(
           mockAdapter as unknown as MySQLAdapter,
         );
-        const result = (await tool.handler({ table: "users" }, mockContext)) as any;
+        const result = await tool.handler({ table: "users" }, mockContext);
 
         const redundantFindings = result.data.findings.filter((f: any) => f.type === "redundant");
         expect(redundantFindings).toHaveLength(0);
@@ -155,7 +155,7 @@ describe("Index Audit Tool", () => {
         const tool = createIndexRecommendationTool(
           mockAdapter as unknown as MySQLAdapter,
         );
-        const result = (await tool.handler({ table: "orders" }, mockContext)) as any;
+        const result = await tool.handler({ table: "orders" }, mockContext);
 
         const fkFindings = result.data.findings.filter((f: any) => f.type === "missing_fk_index");
         expect(fkFindings).toHaveLength(1);
@@ -179,7 +179,7 @@ describe("Index Audit Tool", () => {
         const tool = createIndexRecommendationTool(
           mockAdapter as unknown as MySQLAdapter,
         );
-        const result = (await tool.handler({ table: "logs" }, mockContext)) as any;
+        const result = await tool.handler({ table: "logs" }, mockContext);
 
         const unindexedFindings = result.data.findings.filter((f: any) => f.type === "unindexed_large_table");
         expect(unindexedFindings).toHaveLength(1);
@@ -216,10 +216,10 @@ describe("Index Audit Tool", () => {
         const tool = createIndexRecommendationTool(
           mockAdapter as unknown as MySQLAdapter,
         );
-        const result = (await tool.handler(
+        const result = await tool.handler(
           { table: "users", queries: ["SELECT * FROM users WHERE status = 'active' AND role = 'admin'"] },
           mockContext,
-        )) as any;
+        );
 
         const compositeFindings = result.data.findings.filter((f: any) => f.type === "composite");
         expect(compositeFindings).toHaveLength(1);
@@ -243,7 +243,7 @@ describe("Index Audit Tool", () => {
         const tool = createIndexRecommendationTool(
           mockAdapter as unknown as MySQLAdapter,
         );
-        const result = (await tool.handler({ table: "orders" }, mockContext)) as any;
+        const result = await tool.handler({ table: "orders" }, mockContext);
 
         const heuristicFindings = result.data.findings.filter((f: any) => f.type === "heuristic");
         expect(heuristicFindings).toHaveLength(3); // id, user_id, status

@@ -39,10 +39,9 @@ describe("Spatial Resource", () => {
 
   it("should handle null query results", async () => {
     mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+      createMockQueryResult(null ),
     ); // Columns
-    mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult(null ),
     ); // Indexes
 
     const resource = createSpatialResource(

@@ -219,10 +219,10 @@ describe("Handler Execution", () => {
         ]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: false },
         mockContext,
-      )) as any;
+      );
 
       const credVar = result.data.adminVariables.find(
         (v: any) => v.variable_name === "admin-admin_credentials",
@@ -268,10 +268,10 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockAdminVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: true },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.summary).toBe(true);
@@ -565,7 +565,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       // Non-sensitive should be preserved
       const threads = result.data.variables.find(

@@ -121,7 +121,7 @@ describe("MySQLAdapter", () => {
         rollback: vi.fn().mockResolvedValue(undefined),
         release: vi.fn(),
       };
-      (adapter as any).activeTransactions.set("tx-1", mockConn);
+      (adapter ).activeTransactions.set("tx-1", mockConn);
 
       await adapter.disconnect();
 
@@ -135,7 +135,7 @@ describe("MySQLAdapter", () => {
         rollback: vi.fn().mockRejectedValue(new Error("Rollback failed")),
         release: vi.fn(),
       };
-      (adapter as any).activeTransactions.set("tx-1", mockConn);
+      (adapter ).activeTransactions.set("tx-1", mockConn);
 
       // Should not throw
       await expect(adapter.disconnect()).resolves.not.toThrow();

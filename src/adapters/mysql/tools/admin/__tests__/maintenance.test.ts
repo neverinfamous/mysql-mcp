@@ -63,7 +63,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "OPTIMIZE TABLE `users`",
       );
-      expect((result as any).data).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
       expect(
         Array.isArray(
           (result as { data: { results: unknown[] } }).data.results,
@@ -133,7 +133,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "ANALYZE TABLE `products`",
       );
-      expect((result as any).data).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
     });
 
     it("should execute ANALYZE TABLE for multiple tables", async () => {
@@ -171,8 +171,8 @@ describe("Admin Maintenance Tools", () => {
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith("CHECK TABLE `users`");
-      expect((result as any).data).toHaveProperty("results");
-      expect((result as any).data).toHaveProperty("rowCount");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("rowCount");
     });
 
     it("should execute CHECK TABLE with EXTENDED option", async () => {
@@ -292,7 +292,7 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `myisam_table`",
       );
-      expect((result as any).data).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
     });
 
     it("should execute REPAIR TABLE with QUICK option", async () => {

@@ -86,3 +86,6 @@
 - Fixed strict `OutputSchema` validation failures across the JSON, Spatial, and Stats tools (e.g. `mysql_stats_histogram`, `mysql_stats_correlation`, `mysql_spatial_geojson`, and `mysql_json_*`) by updating field schemas to properly handle `nullish()` and `optional()` values matching runtime returns.
 - Fixed an issue in `mysql_write_query` where executing a `SELECT` query gracefully resulted in a Zod validation error because `WriteQueryOutputSchema` strictly required a `rowsAffected` integer, which is now optional.
 - Ported `test-zod-errors.mjs` from db-mcp and applied the `McpServer` monkey-patch to ensure SDK-level Zod validation exceptions are gracefully intercepted and formatted as standard `VALIDATION_ERROR` payloads, rather than leaking raw `-32602` SDK errors.
+
+### Changed
+- **Type Safety (Thread 1):** Eliminated loose ny and s type assertions across the core dapters and uth modules. Replaced unsafe property access with unknown and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.

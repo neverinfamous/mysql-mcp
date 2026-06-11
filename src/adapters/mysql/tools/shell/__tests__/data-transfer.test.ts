@@ -66,7 +66,7 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn(successJson);
 
       const tool = createShellExportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
@@ -74,7 +74,7 @@ describe("Shell Data Transfer Tools", () => {
           format: "csv",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.result).toEqual({ rows: 100 });
@@ -146,7 +146,7 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "Access denied for user", 1);
 
       const tool = createShellExportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
@@ -154,7 +154,7 @@ describe("Shell Data Transfer Tools", () => {
           format: "csv",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("privilege");
@@ -165,7 +165,7 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "Connection timeout", 1);
 
       const tool = createShellExportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
@@ -173,7 +173,7 @@ describe("Shell Data Transfer Tools", () => {
           format: "csv",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Connection timeout");
@@ -189,7 +189,7 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn(successJson);
 
       const tool = createShellImportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
@@ -201,7 +201,7 @@ describe("Shell Data Transfer Tools", () => {
           columns: ["id", "name"],
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       const jsArg = mockSpawn.mock.calls[0][1][4];
@@ -222,7 +222,7 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn(successJson);
 
       const tool = createShellImportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
@@ -230,7 +230,7 @@ describe("Shell Data Transfer Tools", () => {
           updateServerSettings: true,
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.localInfileEnabled).toBe(true);
@@ -243,14 +243,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "ERROR: local_infile is disabled", 1);
 
       const tool = createShellImportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
           inputPath: "/tmp/data.csv",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
@@ -261,14 +261,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "Loading local data is disabled", 1);
 
       const tool = createShellImportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
           inputPath: "/tmp/data.csv",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
@@ -279,14 +279,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "Some other error", 1);
 
       const tool = createShellImportTableTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           schema: "test",
           table: "users",
           inputPath: "/tmp/data.csv",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Some other error");
@@ -302,14 +302,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn(successJson);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.protocol).toBe("X Protocol");
@@ -350,14 +350,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("Some non-JSON success output", "", 0);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.result.raw).toBe("Some non-JSON success output");
@@ -367,14 +367,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("Import failed", "", 1);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/bad.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Import failed");
@@ -384,14 +384,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "Access denied for user", 0);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("X Protocol authentication failed");
@@ -402,14 +402,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "MySQL Error 1045: Access denied", 0);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("X Protocol authentication failed");
@@ -424,14 +424,14 @@ describe("Shell Data Transfer Tools", () => {
       );
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "nonexistent",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Collection not found");
@@ -441,14 +441,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn(JSON.stringify({ success: false }), "", 0);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Unknown MySQL Shell error");
@@ -463,14 +463,14 @@ describe("Shell Data Transfer Tools", () => {
       );
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.result).toBe("ok");
@@ -484,14 +484,14 @@ describe("Shell Data Transfer Tools", () => {
       );
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/docs.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.result).toBe("data");
@@ -501,14 +501,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("", "Fatal shell error", 1);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/bad.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Fatal shell error");
@@ -518,14 +518,14 @@ describe("Shell Data Transfer Tools", () => {
       setupMockSpawn("stdout error message only", "", 1);
 
       const tool = createShellImportJSONTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           inputPath: "/tmp/bad.json",
           schema: "test",
           collection: "docs",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("stdout error message only");

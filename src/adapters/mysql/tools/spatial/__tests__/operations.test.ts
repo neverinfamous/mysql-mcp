@@ -120,8 +120,8 @@ describe("Spatial Operations Tools", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       // Default SRID is 4326 (geographic) — ST_Buffer_Strategy is not used
       expect(call).not.toContain("ST_Buffer_Strategy");
-      expect((result as any).data).toHaveProperty("bufferWkt");
-      expect((result as any).data).toHaveProperty("segments", 8);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("bufferWkt");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("segments", 8);
     });
 
     it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
@@ -149,7 +149,7 @@ describe("Spatial Operations Tools", () => {
 
       const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
       expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
-      expect((result as any).data).toHaveProperty("segments", 4);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("segments", 4);
     });
   });
 
@@ -188,7 +188,7 @@ describe("Spatial Operations Tools", () => {
       expect(call).toContain("ST_Transform");
       expect(call).toContain("4326");
       expect(call).toContain("3857");
-      expect((result as any).data).toHaveProperty("transformedWkt");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("transformedWkt");
     });
   });
 

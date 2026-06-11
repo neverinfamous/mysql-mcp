@@ -141,14 +141,14 @@ describe("Spatial Queries Tools", () => {
       const tool = createSpatialDistanceTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           table: "locations",
           spatialColumn: "geom",
           point: { longitude: 0, latitude: 0 },
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.data.results).toEqual([]);
       expect(result.data.count).toBe(0);

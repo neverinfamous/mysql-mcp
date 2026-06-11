@@ -39,10 +39,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.role).toBe("standalone");
     expect(result.source).toBeNull();
@@ -78,10 +78,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.role).toBe("source");
     expect(result.source).toBeDefined();
@@ -118,10 +118,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.role).toBe("replica");
     expect(result.replica).toBeDefined();
@@ -148,10 +148,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.role).toBe("replica-source");
     expect(result.gtid).toEqual({});
@@ -182,10 +182,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.role).toBe("source");
     expect(result.gtid).toEqual({
@@ -219,10 +219,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.replica).toBeDefined();
     expect(result.replica.source_host).toBe("master1");
@@ -256,10 +256,10 @@ describe("Replication Resource", () => {
     const resource = createReplicationResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://replication",
       mockContext,
-    )) as any;
+    );
 
     expect(result.role).toBe("source");
     expect(result.connected_replicas).toHaveLength(1);

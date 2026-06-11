@@ -427,8 +427,8 @@ describe("DatabaseAdapter", () => {
         adapter.registerResources(mockServer as never);
 
         expect(mockServer.registerResource).toHaveBeenCalledWith(
-          "Test Resource",
           "mysql://test",
+          "Test Resource",
           expect.anything(),
           expect.any(Function),
         );

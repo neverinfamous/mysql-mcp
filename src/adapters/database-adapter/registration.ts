@@ -54,14 +54,20 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
     tool.name,
     {
       ...toolOptions,
-      inputSchema: tool.inputSchema as z.ZodType,
+      inputSchema: tool.inputSchema ? tool.inputSchema : {},
       ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}),
     },
     async (params: unknown, extra?: unknown) => {
-      const extraMeta = extra as
-        | { _meta?: { progressToken?: string | number } }
-        | undefined;
-      const progressToken = extraMeta?._meta?.progressToken;
+      let progressToken: string | number | undefined;
+      if (typeof extra === "object" && extra !== null && "_meta" in extra) {
+        const meta = extra._meta;
+        if (typeof meta === "object" && meta !== null && "progressToken" in meta) {
+          const pt = meta.progressToken;
+          if (typeof pt === "string" || typeof pt === "number") {
+            progressToken = pt;
+          }
+        }
+      }
       const context = adapter.createContext(undefined, server, progressToken);
 
       const execFn = async (): Promise<CallToolResult> => {
@@ -85,27 +91,27 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
           // If tool declares an outputSchema, return structuredContent
           if (tool.outputSchema) {
             return {
-              content: [{ type: "text" as const, text: finalText }],
-              structuredContent: result as Record<string, unknown>,
-            };
+              content: [{ type: "text", text: finalText }],
+              structuredContent: isRecord(result) ? result : undefined,
+            } satisfies CallToolResult;
           }
           
           return {
-            content: [{ type: "text" as const, text: finalText }],
-          };
+            content: [{ type: "text", text: finalText }],
+          } satisfies CallToolResult;
         }
 
         return {
           content: [
             {
-              type: "text" as const,
+              type: "text",
               text:
                 typeof result === "string"
                   ? result
                   : JSON.stringify(result, null, 2),
             },
           ],
-        };
+        } satisfies CallToolResult;
       };
 
       const auditInterceptor = adapter.getAuditInterceptor();
@@ -133,6 +139,11 @@ export function registerResources(adapter: DatabaseAdapter, server: McpServer): 
   logger.info(`Registered ${resources.length} resources from ${adapter.name}`);
 }
 
+// Helper to type guard records
+function isRecord(obj: unknown): obj is Record<string, unknown> {
+  return typeof obj === "object" && obj !== null && !Array.isArray(obj);
+}
+
 /**
  * Register a single resource with the MCP server
  */
@@ -158,10 +169,10 @@ export function registerResource(
   }
 
   server.registerResource(
-    resource.name,
     resource.uri,
+    resource.name,
     resourceMeta,
-    async (uri: URL) => {
+    async (uri: string | URL, _extra?: unknown) => {
       const context = adapter.createContext();
       const result = await resource.handler(uri.toString(), context);
       return {
@@ -195,14 +206,6 @@ export function registerPrompts(adapter: DatabaseAdapter, server: McpServer): vo
  * Register a single prompt with the MCP server
  */
 export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prompt: PromptDefinition): void {
-  // Build a Zod raw shape from prompt.arguments so the SDK can
-  // advertise argument metadata in prompts/list via promptArgumentsFromSchema().
-  //
-  // ALL fields are .optional() because the SDK validates BEFORE our handler
-  // runs. If required fields used z.string() (non-optional), clients that
-  // invoke prompts without filling in required args would get a raw Zod
-  // error instead of our graceful guide message. Required-ness is enforced
-  // by the handler-level missing-arg check below.
   let argsSchema: Record<string, z.ZodType> | undefined;
   if (prompt.arguments && prompt.arguments.length > 0) {
     argsSchema = {};
@@ -219,8 +222,14 @@ export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prom
     },
     async (providedArgs) => {
       const context = adapter.createContext();
-      // Cast args to Record<string, string> for handler compatibility
-      const args = (providedArgs ?? {}) as Record<string, string>;
+      const args: Record<string, string> = {};
+      if (typeof providedArgs === "object" && providedArgs !== null) {
+        for (const [k, v] of Object.entries(providedArgs)) {
+          if (typeof v === "string") {
+            args[k] = v;
+          }
+        }
+      }
 
       // Check for missing required arguments
       const requiredArgs = prompt.arguments?.filter((a) => a.required) ?? [];
@@ -236,9 +245,9 @@ export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prom
         return {
           messages: [
             {
-              role: "user" as const,
+              role: "user",
               content: {
-                type: "text" as const,
+                type: "text",
                 text: `# ${prompt.name}\n\n${prompt.description}\n\n## Arguments\n\n${argList}\n\nPlease provide the required arguments to use this prompt.`,
               },
             },
@@ -248,11 +257,11 @@ export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prom
 
       const result = await prompt.handler(args, context);
       return {
-        messages: [
+          messages: [
           {
-            role: "user" as const,
+            role: "user",
             content: {
-              type: "text" as const,
+              type: "text",
               text:
                 typeof result === "string"
                   ? result
@@ -265,20 +274,23 @@ export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prom
   );
 
   // Patch the SDK's stored Zod object schema to accept `undefined` input.
-  // The SDK's prompts/get handler calls safeParseAsync(argsSchema, args)
-  // where args may be `undefined` when clients omit them. Zod v4's
-  // z.object().safeParse(undefined) rejects — but we need it to succeed
-  // (coercing to {}) so our handler-level required-arg check can provide
-  // a graceful guide message instead of a raw Zod crash.
-  // The metadata (shape, type) is preserved for promptArgumentsFromSchema().
-  if (registered.argsSchema) {
-    const schema = registered.argsSchema as unknown as {
-      _zod: { run: (ctx: { value: unknown }) => unknown };
-    };
-    const originalRun = schema._zod.run.bind(schema._zod);
-    schema._zod.run = (ctx: { value: unknown }) => {
-      ctx.value ??= {};
-      return originalRun(ctx);
-    };
+  if (registered.argsSchema && typeof registered.argsSchema === "object") {
+    const zodObj: unknown = Reflect.get(registered.argsSchema, "_zod");
+    if (typeof zodObj === "object" && zodObj !== null) {
+      const runFn: unknown = Reflect.get(zodObj, "run");
+      if (typeof runFn === "function") {
+        Reflect.set(zodObj, "run", (...args: unknown[]) => {
+          const payload = args[0];
+          if (typeof payload === "object" && payload !== null && "value" in payload) {
+            const val = Reflect.get(payload, "value");
+            if (val === undefined || val === null) {
+              Reflect.set(payload, "value", {});
+            }
+          }
+          const res: unknown = Reflect.apply(runFn, zodObj, args);
+          return res;
+        });
+      }
+    }
   }
 }

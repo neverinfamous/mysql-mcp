@@ -119,8 +119,8 @@ describe("Schema Snapshot Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.snapshot.tables).toBeDefined();
     expect(data.snapshot.views).toBeDefined();
     expect(data.snapshot.indexes).toBeDefined();
@@ -139,8 +139,8 @@ describe("Schema Snapshot Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.snapshot.tables).toBeDefined();
     expect(data.snapshot.views).toBeUndefined();
     expect(data.snapshot.indexes).toBeUndefined();
@@ -152,8 +152,8 @@ describe("Schema Snapshot Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.snapshot.views).toBeDefined();
     expect(data.snapshot.views[0].definition).toBeUndefined(); // Compact mode sets definition to NULL which gets stripped
   });

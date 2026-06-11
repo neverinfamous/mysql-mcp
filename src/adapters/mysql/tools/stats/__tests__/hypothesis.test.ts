@@ -39,8 +39,8 @@ describe("Hypothesis Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.testType).toBe("t_test");
       expect(data.results.sampleSize).toBe(100);
       expect(data.results.testStatistic).toBeCloseTo(2.5, 1);
@@ -64,8 +64,8 @@ describe("Hypothesis Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.testType).toBe("z_test");
       expect(data.results.populationStdDev).toBe(1.5);
       expect(data.results.testStatistic).toBeCloseTo(3.33, 1); // (5.5 - 5.0) / (1.5 / 10)
@@ -91,8 +91,8 @@ describe("Hypothesis Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.count).toBe(2);
       expect(data.groups[0].groupKey).toBe("A");
       expect(data.groups[0].results.sampleMean).toBe(6.0);
@@ -115,8 +115,8 @@ describe("Hypothesis Tool", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Insufficient data");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Insufficient data");
     });
   });
 });

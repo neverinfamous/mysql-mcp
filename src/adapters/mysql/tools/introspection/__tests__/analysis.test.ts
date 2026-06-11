@@ -51,8 +51,8 @@ describe("Constraint Analysis Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.findings).toBeDefined();
     expect(data.findings[0].type).toBe("missing_pk");
     expect(data.findings[0].table).toBe("testdb.no_pk_table");
@@ -119,8 +119,8 @@ describe("Constraint Analysis Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.findings).toBeDefined();
     expect(data.findings.length).toBeGreaterThan(0);
     expect(data.findings[0].type).toBe("circular_dependency");
@@ -148,8 +148,8 @@ describe("Constraint Analysis Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.findings).toBeDefined();
     expect(data.findings[0].type).toBe("missing_not_null");
     expect(data.findings[0].table).toBe("testdb.users");
@@ -179,8 +179,8 @@ describe("Migration Risks Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.risks).toBeDefined();
     expect(data.risks[0].severity).toBe("critical");
     expect(data.summary.highestSeverity).toBe("critical");
@@ -196,8 +196,8 @@ describe("Migration Risks Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.risks).toBeDefined();
     // MODIFY COLUMN is high, NOT NULL is high
     expect(data.summary.highestSeverity).toBe("high");
@@ -213,8 +213,8 @@ describe("Migration Risks Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.risks).toBeDefined();
     expect(data.summary.highestSeverity).toBe("medium");
   });
@@ -225,8 +225,8 @@ describe("Migration Risks Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
     expect(data.risks).toBeDefined();
     expect(data.summary.highestSeverity).toBe("low");
   });

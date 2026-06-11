@@ -62,10 +62,10 @@ describe("InnoDB Resource", () => {
     const resource = createInnodbResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://innodb",
       mockContext,
-    )) as any;
+    );
 
     expect(result.buffer_pool.hit_ratio_percent).toBe(100); // Default when requests=0
     expect(result.buffer_pool.pages.dirty_percent).toBe(0); // Default when total=0
@@ -87,10 +87,10 @@ describe("InnoDB Resource", () => {
     const resource = createInnodbResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://innodb",
       mockContext,
-    )) as any;
+    );
 
     expect(result.buffer_pool.size_bytes).toBe(1024);
     expect(result.buffer_pool.instances).toBe(2);

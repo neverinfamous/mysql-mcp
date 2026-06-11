@@ -73,7 +73,7 @@ describe("Subprocess Execution", () => {
     mockChild.stdin = { write: vi.fn(), end: vi.fn() };
     mockChild.kill = vi.fn();
 
-    (spawn as any).mockReturnValue(mockChild);
+    (spawn ).mockReturnValue(mockChild);
   });
 
   it("should resolve with stdout on success", async () => {
@@ -138,7 +138,7 @@ describe("execShellJS", () => {
     mockChild.stdout = new EventEmitter();
     mockChild.stderr = new EventEmitter();
     mockChild.kill = vi.fn();
-    (spawn as any).mockReturnValue(mockChild);
+    (spawn ).mockReturnValue(mockChild);
   });
 
   it("should parse JSON result", async () => {

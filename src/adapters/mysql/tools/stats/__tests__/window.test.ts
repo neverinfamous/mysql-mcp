@@ -53,7 +53,7 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY `score DESC`)");
@@ -64,8 +64,8 @@ describe("Window Function Tools", () => {
         { table: "users;", orderBy: "score DESC" },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Invalid table name");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Invalid table name");
     });
 
     it("should handle Zod validation errors", async () => {
@@ -73,8 +73,8 @@ describe("Window Function Tools", () => {
         { table: "users" }, // Missing orderBy
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Validation error");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Validation error");
     });
 
     it("should handle table not found error", async () => {
@@ -85,8 +85,8 @@ describe("Window Function Tools", () => {
         { table: "unknown", orderBy: "score DESC" },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("doesn't exist");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("doesn't exist");
     });
   });
 
@@ -103,7 +103,7 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain("DENSE_RANK() OVER( ORDER BY `score DESC`)");
@@ -129,7 +129,7 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY `date`)");
@@ -145,8 +145,8 @@ describe("Window Function Tools", () => {
         },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Invalid column name");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Invalid column name");
     });
 
     it("should handle unknown column error", async () => {
@@ -162,8 +162,8 @@ describe("Window Function Tools", () => {
         },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain(
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain(
         "One or more referenced columns do not exist",
       );
     });
@@ -184,7 +184,7 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain(
@@ -206,7 +206,7 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain(
@@ -228,7 +228,7 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(sql).toContain("NTILE(4) OVER( ORDER BY `score DESC`)");

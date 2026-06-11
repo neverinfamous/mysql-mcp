@@ -8,6 +8,7 @@
 import type { z } from "zod";
 import type { OAuthScope } from "./oauth.js";
 import type { RequestContext } from "./oauth.js";
+import type { ZodRawShape, ZodType } from "zod";
 
 /**
  * Tool group identifiers for MySQL
@@ -205,7 +206,7 @@ export interface ToolDefinition {
   group: ToolGroup;
 
   /** Zod schema for input validation */
-  inputSchema: unknown;
+  inputSchema: ZodRawShape | ZodType;
 
   /** Required OAuth scopes */
   requiredScopes?: OAuthScope[];

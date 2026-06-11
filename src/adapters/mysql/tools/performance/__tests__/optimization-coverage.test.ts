@@ -425,7 +425,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const tool = createIndexRecommendationTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({ table: "users" }, mockContext)) as any;
+      const result = await tool.handler({ table: "users" }, mockContext);
 
       expect(result.data.findings).toBeDefined();
       const recs = result.data.recommendations;
@@ -448,7 +448,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const tool = createIndexRecommendationTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({ table: "orders" }, mockContext)) as any;
+      const result = await tool.handler({ table: "orders" }, mockContext);
 
       const statusRec = result.data.recommendations.find(
         (r) => r.column === "status",

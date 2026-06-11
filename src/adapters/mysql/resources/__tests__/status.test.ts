@@ -52,7 +52,7 @@ describe("Status Resource", () => {
 
   it("should handle null query results", async () => {
     mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+      createMockQueryResult(null ),
     );
 
     const resource = createStatusResource(

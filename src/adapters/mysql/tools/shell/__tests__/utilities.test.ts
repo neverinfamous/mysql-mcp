@@ -58,10 +58,10 @@ describe("Shell Utilities Tools", () => {
       setupMockSpawn(`${successJson}\n`, "");
 
       const tool = createShellCheckUpgradeTool();
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { targetVersion: "8.0.35" },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.upgradeCheck).toEqual({ status: "OK" });
@@ -77,7 +77,7 @@ describe("Shell Utilities Tools", () => {
       setupMockSpawn("Raw text output", "", 0);
 
       const tool = createShellCheckUpgradeTool();
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
       expect(result.data.upgradeCheck).toEqual({ raw: "Raw text output" });
@@ -89,12 +89,12 @@ describe("Shell Utilities Tools", () => {
 
       const tool = createShellCheckUpgradeTool();
 
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           targetVersion: "8.4.0",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -104,10 +104,10 @@ describe("Shell Utilities Tools", () => {
       setupMockSpawn("Non-JSON output", "", 0);
 
       const tool = createShellCheckUpgradeTool();
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { targetVersion: "8.0.0" },
         mockContext,
-      )) as any;
+      );
 
       expect(result.data.upgradeCheck.raw).toBe("Non-JSON output");
     });

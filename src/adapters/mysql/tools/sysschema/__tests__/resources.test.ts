@@ -116,7 +116,7 @@ describe("Sys Schema Resource Tools", () => {
       const tool = createSysSchemaStatsTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.tableStatistics).toEqual([]);
       expect(result.data.indexStatistics).toEqual([]);
@@ -228,7 +228,7 @@ describe("Sys Schema Resource Tools", () => {
       const tool = createSysInnoDBLockWaitsTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data?.rows).toBeNull(); // or null, queryResult.rows is returned directly
       expect(result.data?.count).toBe(0);
@@ -279,7 +279,7 @@ describe("Sys Schema Resource Tools", () => {
       const tool = createSysMemorySummaryTool(
         mockAdapter as unknown as MySQLAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.globalMemory).toEqual([]);
       expect(result.data.memoryByUser).toEqual([]);

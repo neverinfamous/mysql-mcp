@@ -492,7 +492,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_list")!;
       const result = await tool.handler({ pattern: 123 }, mockContext); // invalid pattern type
       expect(result).toEqual(expect.objectContaining({ success: false }));
-      expect((result as any).error).toContain("pattern");
+      expect(Reflect.get(result || {}, "error")).toContain("pattern");
     });
 
     it("should handle Zod validation errors for mysql_role_create", async () => {

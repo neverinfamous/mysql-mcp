@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { normalizeParams } from "../params.js";
 
-vi.mock("../constants.js", () => ({
+vi.mock("../constants/positional.js", () => ({
   POSITIONAL_PARAM_MAP: {
     singleStringMethod: "strParam",
     multiStringMethod: ["firstParam", "secondParam"],

@@ -48,8 +48,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.count).toBe(1);
       expect(data.hint).toContain("body"); // Should warn about excluded column
 
@@ -68,7 +68,7 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const selectSql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
       expect(selectSql).toContain("`id`, `body`");
@@ -102,8 +102,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.distinctCount).toBe(3);
       expect(data.values).toEqual(["A", "B", "C"]);
     });
@@ -135,8 +135,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.distinctValues).toBe(2);
       expect(data.distribution[0].value).toBe("A");
       expect(data.distribution[0].percentage).toBe(80);
@@ -177,8 +177,8 @@ describe("Advanced Stats Tools", () => {
 
       const result = await tool.handler({ table: "users" }, mockContext);
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.summaries.length).toBe(1);
       expect(data.summaries[0].column).toBe("age");
       expect(data.summaries[0].avg).toBe(25.5);
@@ -197,8 +197,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("doesn't exist");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("doesn't exist");
     });
   });
 });

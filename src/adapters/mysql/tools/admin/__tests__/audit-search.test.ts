@@ -23,7 +23,7 @@ describe("Audit Search Tool", () => {
         totalCount: 1,
       });
       const tool = createAuditSearchTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(true);
       expect(result.data.entries.length).toBe(1);
       expect(result.data.totalCount).toBe(1);
@@ -39,10 +39,10 @@ describe("Audit Search Tool", () => {
         totalCount: 0,
       });
       const tool = createAuditSearchTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { tool: "test_tool", success: false, limit: 10 },
         mockContext,
-      )) as any;
+      );
       expect(result.success).toBe(true);
       expect(mockAuditLogger.search).toHaveBeenCalledWith({
         tool: "test_tool",
@@ -55,17 +55,17 @@ describe("Audit Search Tool", () => {
     it("should handle missing auditLogger", async () => {
       mockAdapter.getAuditLogger.mockReturnValue(null);
       const tool = createAuditSearchTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
       expect(result.success).toBe(false);
       expect(result.error).toContain("Audit Logger is not enabled or available");
     });
 
     it("should return validation error on invalid params", async () => {
       const tool = createAuditSearchTool(mockAdapter);
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { limit: -1 }, // Invalid limit
         mockContext,
-      )) as any;
+      );
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
