@@ -50,6 +50,8 @@
 - Converted `ErrorCategory` enum to `as const` object.
 
 ### Fixed
+- Standardized error handling across `shell`, `vector`, `performance/index-audit`, and `codemode` tool handlers by replacing raw `Error` throws with strongly typed Error subclasses (`TimeoutError`, `QueryError`, `ValidationError`, `PoolError`, `AuthorizationError`) to ensure proper structured formatting via the MCP `ErrorResponse` interceptors.
+- Fixed a `no-control-regex` ESLint suppression in `src/utils/logger.ts` by dynamically constructing the `CONTROL_CHAR_PATTERN` RegExp instead of bypassing the rule.
 - Fixed an `IoPathError` false positive during server initialization by exempting the internal `BackupManager` snapshot generation from the `ALLOWED_IO_ROOTS` tool sandbox validations.
 - Fixed a `MODULE_NOT_FOUND` error during Code Mode sandbox execution by adding `worker-script.ts` to `tsup.config.ts` entry points so it is properly bundled for the worker thread.
 - Fixed an issue where `version.ts` failed to resolve `package.json` at runtime due to `tsup` flattening output directories, by moving it to `src/version.ts` to reach parity with `db-mcp`.

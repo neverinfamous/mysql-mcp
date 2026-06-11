@@ -1,5 +1,5 @@
 import type { MySQLAdapter } from "../../mysql-adapter.js";
-import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
+import { ExtensionNotAvailableError, ValidationError } from "../../../../types/modules/errors.js";
 
 /**
  * Get MySQL server version
@@ -65,7 +65,7 @@ export function formatVector(vector: number[]): string {
  */
 export function parseVector(vectorStr: string): number[] {
   if (!vectorStr || !vectorStr.startsWith("[") || !vectorStr.endsWith("]")) {
-    throw new Error("Invalid vector format returned from database");
+    throw new ValidationError("Invalid vector format returned from database");
   }
   
   const content = vectorStr.slice(1, -1).trim();
@@ -73,7 +73,7 @@ export function parseVector(vectorStr: string): number[] {
   
   return content.split(",").map((num) => {
     const parsed = parseFloat(num.trim());
-    if (isNaN(parsed)) throw new Error("Invalid number in vector string");
+    if (isNaN(parsed)) throw new ValidationError("Invalid number in vector string");
     return parsed;
   });
 }

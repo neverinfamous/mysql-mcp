@@ -16,6 +16,7 @@ import {
 } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 
 // ============================================================================
 // Types
@@ -67,7 +68,7 @@ export interface FkRelationship {
 async function validateTable(adapter: MySQLAdapter, table: string): Promise<void> {
   const tableInfo = await adapter.describeTable(table);
   if (!tableInfo.columns || tableInfo.columns.length === 0) {
-    throw new Error(`Table '${table}' does not exist`);
+    throw new ValidationError(`Table '${table}' does not exist`);
   }
 }
 

@@ -20,6 +20,7 @@ import {
   type ExecutionMetrics,
 } from "./types.js";
 import { transformAutoReturn } from "./auto-return.js";
+import { PoolError } from "../types/modules/errors.js";
 
 /**
  * A sandboxed execution context using Node.js vm module
@@ -319,7 +320,7 @@ export class SandboxPool {
    */
   acquire(): CodeModeSandbox {
     if (this.disposed) {
-      throw new Error("Pool has been disposed");
+      throw new PoolError("Sandbox pool has been disposed");
     }
 
     // Try to get an available sandbox
@@ -342,7 +343,7 @@ export class SandboxPool {
     }
 
     // Pool exhausted
-    throw new Error(
+    throw new PoolError(
       `Sandbox pool exhausted (max: ${String(this.options.maxInstances)})`,
     );
   }

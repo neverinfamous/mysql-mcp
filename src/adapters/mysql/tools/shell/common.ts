@@ -5,6 +5,11 @@
  */
 
 import { spawn } from "child_process";
+import {
+  QueryError,
+  TimeoutError,
+  AuthorizationError,
+} from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Configuration
@@ -96,7 +101,7 @@ export async function execMySQLShell(
     const timer = setTimeout(() => {
       killed = true;
       child.kill("SIGTERM");
-      reject(new Error(`MySQL Shell command timed out after ${timeout}ms`));
+      reject(new TimeoutError(`MySQL Shell command timed out after ${timeout}ms`));
     }, timeout);
 
     child.stdout.on("data", (data: Buffer) => {
@@ -127,7 +132,7 @@ export async function execMySQLShell(
       clearTimeout(timer);
       if (err.message.includes("ENOENT")) {
         reject(
-          new Error(
+          new QueryError(
             `MySQL Shell not found at '${config.binPath}'. ` +
               "Please install MySQL Shell or set MYSQLSH_PATH environment variable.",
           ),
@@ -179,7 +184,7 @@ export async function execShellJS(
       stderrClean.includes("local_infile") ||
       stderrClean.includes("Loading local data is disabled")
     ) {
-      throw new Error(
+      throw new AuthorizationError(
         `MySQL Shell operation failed: local_infile is disabled on the server. ` +
           `Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
           `or manually run: SET GLOBAL local_infile = ON`,
@@ -190,7 +195,7 @@ export async function execShellJS(
       stderrClean.includes("privilege") ||
       stderrClean.includes("Access denied")
     ) {
-      throw new Error(
+      throw new AuthorizationError(
         `MySQL Shell operation failed due to insufficient privileges: ${stderrClean}`,
       );
     }
@@ -208,11 +213,11 @@ export async function execShellJS(
           : null;
 
       if (specificError) {
-        throw new Error(specificError);
+        throw new QueryError(specificError);
       }
 
       // Fallback: no specific error extracted, use generic message with privilege hint
-      throw new Error(
+      throw new QueryError(
         `MySQL Shell dump failed: Fatal error during dump. ` +
           `This may be caused by missing privileges. For dumpSchemas, try excludeEvents: true. ` +
           `For dumpTables, try all: false.`,
@@ -251,11 +256,11 @@ export async function execShellJS(
             const specificError = errorLines
               .map((line) => line.trim().replace(/^ERROR:\s*/i, ""))
               .join("; ");
-            throw new Error(specificError);
+            throw new QueryError(specificError);
           }
         }
 
-        throw new Error(errorMsg);
+        throw new QueryError(errorMsg);
       }
       return parsed.result;
     }
@@ -263,12 +268,12 @@ export async function execShellJS(
 
   // If no JSON found but there's stderr content, that's likely an error
   if (stderrClean && result.exitCode !== 0) {
-    throw new Error(stderrClean);
+    throw new QueryError(stderrClean);
   }
 
   // If no JSON found, return raw output
   if (result.exitCode !== 0) {
-    throw new Error(
+    throw new QueryError(
       result.stderr || result.stdout || "MySQL Shell command failed",
     );
   }
