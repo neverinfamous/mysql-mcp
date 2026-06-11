@@ -12,7 +12,7 @@ import {
   createReplicationStatusTool,
   createShowStatusTool,
   createShowVariablesTool,
-} from "../monitoring.js";
+} from "../monitoring/index.js";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,

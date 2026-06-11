@@ -11,7 +11,7 @@ import {
   createJsonNormalizeTool,
   createJsonStatsTool,
   createJsonIndexSuggestTool,
-} from "../enhanced.js";
+} from "../enhanced/index.js";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,

@@ -11,7 +11,7 @@ import {
   createClusterRouterStatusTool,
   createClusterSwitchoverTool,
   createClusterTopologyTool,
-} from "../innodb-cluster.js";
+} from "../innodb-cluster/index.js";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,

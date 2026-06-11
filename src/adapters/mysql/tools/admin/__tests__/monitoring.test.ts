@@ -13,7 +13,7 @@ import {
   createReplicationStatusTool,
   createPoolStatsTool,
   createServerHealthTool,
-} from "../monitoring.js";
+} from "../monitoring/index.js";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
