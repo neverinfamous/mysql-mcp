@@ -9,7 +9,7 @@ import {
   createDependencyGraphTool,
   createTopologicalSortTool,
   createCascadeSimulatorTool,
-} from "./graph.js";
+} from "./graph/index.js";
 
 import {
   createConstraintAnalysisTool,

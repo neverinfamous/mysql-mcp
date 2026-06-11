@@ -1,71 +1,9 @@
-/**
- * MySQL Performance Tools - Index Audit & Recommendations
- *
- * Comprehensive index auditing and AI-powered recommendations based on EXPLAIN analysis.
- */
-
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
-} from "../../../../types/index.js";
-import {
-  IndexRecommendationSchema,
-  IndexRecommendationSchemaBase,
-  IndexRecommendationOutputSchema,
-} from "../../schemas/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
-import { READ_ONLY } from "../../../../utils/annotations.js";
-import { ValidationError } from "../../../../types/modules/errors.js";
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export type FindingType =
-  | "redundant"
-  | "missing_fk_index"
-  | "unindexed_large_table"
-  | "composite"
-  | "covering"
-  | "heuristic";
-
-export type FindingSeverity = "info" | "warning" | "error";
-
-export interface IndexFinding {
-  type: FindingType;
-  severity: FindingSeverity;
-  table: string;
-  index?: string;
-  redundantOf?: string;
-  column?: string;
-  columns?: string[];
-  rationale: string;
-  suggestion: string;
-  createStatement?: string;
-}
-
-export interface ExistingIndex {
-  name: string;
-  table: string;
-  columns: string[];
-  unique: boolean;
-  type: string;
-}
-
-export interface FkRelationship {
-  table: string;
-  column: string;
-  refTable: string;
-  refColumn: string;
-}
-
-// ============================================================================
-// Internal Helpers
-// ============================================================================
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import { ValidationError } from "../../../../../types/modules/errors.js";
+import type { ExistingIndex, IndexFinding } from "./types.js";
 
 /** Ensure the table exists if one was specifically requested */
-async function validateTable(adapter: MySQLAdapter, table: string): Promise<void> {
+export async function validateTable(adapter: MySQLAdapter, table: string): Promise<void> {
   const tableInfo = await adapter.describeTable(table);
   if (!tableInfo.columns || tableInfo.columns.length === 0) {
     throw new ValidationError(`Table '${table}' does not exist`);
@@ -73,7 +11,7 @@ async function validateTable(adapter: MySQLAdapter, table: string): Promise<void
 }
 
 /** Get all user-created indexes grouped by table */
-async function getAllUserIndexes(
+export async function getAllUserIndexes(
   adapter: MySQLAdapter,
   table?: string,
 ): Promise<Map<string, ExistingIndex[]>> {
@@ -143,7 +81,7 @@ async function getAllUserIndexes(
  * Check 1: Redundant indexes (prefix duplicates)
  * An index on (A) is redundant if an index on (A, B) exists on the same table.
  */
-function detectRedundantIndexes(
+export function detectRedundantIndexes(
   indexesByTable: Map<string, ExistingIndex[]>,
 ): IndexFinding[] {
   const findings: IndexFinding[] = [];
@@ -184,7 +122,7 @@ function detectRedundantIndexes(
 /**
  * Check 2: Missing FK indexes
  */
-async function detectMissingFkIndexes(
+export async function detectMissingFkIndexes(
   adapter: MySQLAdapter,
   indexesByTable: Map<string, ExistingIndex[]>,
   targetTable?: string,
@@ -236,7 +174,7 @@ async function detectMissingFkIndexes(
 /**
  * Check 3: Large tables without secondary indexes
  */
-async function detectUnindexedTables(
+export async function detectUnindexedTables(
   adapter: MySQLAdapter,
   indexesByTable: Map<string, ExistingIndex[]>,
   targetTable?: string,
@@ -287,7 +225,7 @@ async function detectUnindexedTables(
 /**
  * Check 4: EXPLAIN-based composite/covering index analysis
  */
-async function analyzeQueriesWithExplain(
+export async function analyzeQueriesWithExplain(
   adapter: MySQLAdapter,
   queries: string[],
 ): Promise<IndexFinding[]> {
@@ -402,7 +340,7 @@ async function analyzeQueriesWithExplain(
  * Check 5: Legacy heuristic matching for column names
  * Used when no specific queries are provided.
  */
-async function heuristicColumnRecommendations(
+export async function heuristicColumnRecommendations(
   adapter: MySQLAdapter,
   indexesByTable: Map<string, ExistingIndex[]>,
   targetTable?: string,
@@ -462,115 +400,4 @@ async function heuristicColumnRecommendations(
   }
 
   return findings;
-}
-
-// ============================================================================
-// Tool Creator
-// ============================================================================
-
-export function createIndexRecommendationTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
-  return {
-    name: "mysql_index_recommendation",
-    title: "MySQL Index Recommendation",
-    description:
-      "Analyze table and suggest potentially missing indexes based on query patterns. Run an index audit for redundant/duplicate indexes, missing foreign key indexes, and unindexed large tables.",
-    group: "optimization",
-    inputSchema: IndexRecommendationSchemaBase,
-    outputSchema: IndexRecommendationOutputSchema,
-    requiredScopes: ["read"],
-    annotations: READ_ONLY,
-    handler: async (params: unknown, _context: RequestContext) => {
-      try {
-        const { table, queries, includeRedundant, includeUnindexed } =
-          IndexRecommendationSchema.parse(params);
-
-        if (table) {
-          // P154: Validate table exists before proceeding
-          try {
-            await validateTable(adapter, table);
-          } catch (err: unknown) {
-            return formatHandlerErrorResponse(err);
-          }
-        }
-
-        const indexesByTable = await getAllUserIndexes(adapter, table);
-        const findings: IndexFinding[] = [];
-
-        // Run Check 1: Redundant Indexes
-        if (includeRedundant !== false) {
-          findings.push(...detectRedundantIndexes(indexesByTable));
-        }
-
-        // Run Check 2: Missing FKs
-        findings.push(...(await detectMissingFkIndexes(adapter, indexesByTable, table)));
-
-        // Run Check 3: Unindexed large tables
-        if (includeUnindexed !== false) {
-          findings.push(...(await detectUnindexedTables(adapter, indexesByTable, table)));
-        }
-
-        // Run Check 4: Query Analysis via EXPLAIN
-        if (queries && queries.length > 0) {
-          findings.push(...(await analyzeQueriesWithExplain(adapter, queries)));
-        } else {
-          // Fallback Check 5: Heuristic column names (only if no queries provided)
-          findings.push(
-            ...(await heuristicColumnRecommendations(
-              adapter,
-              indexesByTable,
-              table,
-            )),
-          );
-        }
-
-        // Build flat existing indexes array
-        const existingIndexes = Array.from(indexesByTable.values())
-          .flat()
-          .map((i) => ({
-            name: i.name,
-            columns: i.columns,
-            unique: i.unique,
-            type: i.type,
-          }));
-
-        // Build legacy recommendations array for backwards compatibility
-        const legacyRecommendations: { column: string; reason: string }[] = [];
-        for (const f of findings) {
-          if (f.column != null && f.type === "heuristic") {
-            legacyRecommendations.push({
-              column: f.column,
-              reason: f.rationale,
-            });
-          }
-        }
-
-        const response = {
-          success: true,
-          data: {
-            table,
-            existingIndexes,
-            findings,
-            summary: {
-              redundant: findings.filter((f) => f.type === "redundant").length,
-              missingFk: findings.filter((f) => f.type === "missing_fk_index").length,
-              unindexedLarge: findings.filter((f) => f.type === "unindexed_large_table").length,
-              composite: findings.filter((f) => f.type === "composite").length,
-              heuristic: findings.filter((f) => f.type === "heuristic").length,
-              total: findings.length,
-            },
-            recommendations: legacyRecommendations,
-          },
-        };
-
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
-      } catch (err) {
-        return formatHandlerErrorResponse(err);
-      }
-    },
-  };
 }

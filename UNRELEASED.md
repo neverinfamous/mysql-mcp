@@ -54,6 +54,7 @@
 - Refactored `src/adapters/mysql/schemas/shell.ts` into a cohesive module structure (`shell/`) to adhere to file size limits.
 - Refactored `src/adapters/mysql/tools/roles.ts`, `core.ts`, `proxysql.ts`, and `router.ts` into modular directory structures to adhere to file size limits.
 - Refactored `src/adapters/mysql/tools/stats/descriptive.ts`, `window.ts`, `comparative.ts`, and `src/adapters/mysql/tools/text/fulltext.ts` into modular directory structures to adhere to file size limits.
+- Refactored `src/adapters/mysql/tools/admin/monitoring.ts`, `src/adapters/mysql/tools/performance/analysis.ts`, `src/adapters/mysql/tools/performance/index-audit.ts`, `src/adapters/mysql/tools/cluster/innodb-cluster.ts`, `src/adapters/mysql/tools/introspection/graph.ts`, and `src/adapters/mysql/tools/json/enhanced.ts` into modular directory structures to adhere to file size limits.
 - Made `ErrorResponse` interface strictly typed (required `code`, `category`, `suggestion`, `details`, `recoverable` fields) to enforce consistent error API contracts.
 - Converted `ErrorCategory` enum to `as const` object.
 

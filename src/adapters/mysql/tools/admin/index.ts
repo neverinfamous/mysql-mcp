@@ -26,7 +26,7 @@ import {
   createReplicationStatusTool,
   createPoolStatsTool,
   createServerHealthTool,
-} from "./monitoring.js";
+} from "./monitoring/index.js";
 
 import {
   createExportTableTool,

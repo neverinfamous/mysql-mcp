@@ -33,7 +33,7 @@ import {
   createJsonNormalizeTool,
   createJsonStatsTool,
   createJsonIndexSuggestTool,
-} from "./enhanced.js";
+} from "./enhanced/index.js";
 
 /**
  * Get JSON operation tools

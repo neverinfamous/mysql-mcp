@@ -23,7 +23,7 @@ import {
   createClusterTopologyTool,
   createClusterRouterStatusTool,
   createClusterSwitchoverTool,
-} from "./innodb-cluster.js";
+} from "./innodb-cluster/index.js";
 
 /**
  * Get all cluster tools

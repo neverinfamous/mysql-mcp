@@ -18,9 +18,9 @@ import {
   createTableStatsTool,
   createBufferPoolStatsTool,
   createThreadStatsTool,
-} from "./analysis.js";
+} from "./analysis/index.js";
 
-import { createIndexRecommendationTool } from "./index-audit.js";
+import { createIndexRecommendationTool } from "./index-audit/index.js";
 
 import {
   createQueryRewriteTool,
