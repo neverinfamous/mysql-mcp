@@ -41,7 +41,7 @@ describe("SystemDb", () => {
     stmt.run(new Date().toISOString(), "test_tool", 5, 1, 20, 30, 40, 500);
 
     // Verify record
-    const row = sqliteDb.prepare("SELECT * FROM metrics_snapshots WHERE tool = ?").get("test_tool") as any;
+    const row = sqliteDb.prepare("SELECT * FROM metrics_snapshots WHERE tool = ?").get("test_tool") as { tool: string; calls: number; errors: number; tokens: number };
     
     expect(row).toBeDefined();
     expect(row.tool).toBe("test_tool");

@@ -89,6 +89,15 @@ class ToolMetric {
   }
 }
 
+import { z } from "zod";
+
+const SnapshotRowSchema = z.object({
+  tool: z.string(),
+  max_calls: z.number(),
+  max_errors: z.number(),
+  max_tokens: z.number(),
+});
+
 class ResourceMetric {
   public reads = 0;
 
@@ -126,14 +135,11 @@ export class MetricsRegistry {
         GROUP BY tool
       `,
         )
-        .all() as {
-        tool: string;
-        max_calls: number;
-        max_errors: number;
-        max_tokens: number;
-      }[];
+        .all();
 
-      for (const row of rows) {
+      const parsedRows = z.array(SnapshotRowSchema).parse(rows);
+
+      for (const row of parsedRows) {
         const metric = new ToolMetric();
         metric.calls = row.max_calls;
         metric.errors = row.max_errors;

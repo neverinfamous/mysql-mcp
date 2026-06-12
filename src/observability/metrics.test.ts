@@ -22,7 +22,7 @@ describe("MetricsRegistry", () => {
     registry.recordToolCall("mysql_read_query", 250, true, 100);
     
     const summary = registry.getSummary();
-    const tools = summary.tools as Record<string, any>;
+    const tools = summary.tools as Record<string, { calls: number; errors: number; tokens: number }>;
     const toolMetrics = tools["mysql_read_query"];
     
     expect(toolMetrics).toBeDefined();
@@ -35,7 +35,7 @@ describe("MetricsRegistry", () => {
     registry.recordToolCall("mysql_write_query", 50, false, 0);
     
     const summary = registry.getSummary();
-    const tools = summary.tools as Record<string, any>;
+    const tools = summary.tools as Record<string, { calls: number; errors: number; tokens: number }>;
     expect(tools["mysql_write_query"].errors).toBe(1);
   });
 
@@ -63,7 +63,7 @@ describe("MetricsRegistry", () => {
       vi.advanceTimersByTime(5 * 60 * 1000);
       
       const db = systemDb.getDb();
-      const rows = db.prepare("SELECT * FROM metrics_snapshots").all() as any[];
+      const rows = db.prepare("SELECT * FROM metrics_snapshots").all() as { tool: string; calls: number }[];
       expect(rows.length).toBeGreaterThan(0);
       
       const testToolSnapshot = rows.find(h => h.tool === "test_tool");
@@ -77,7 +77,7 @@ describe("MetricsRegistry", () => {
       registry.close();
       
       const db = systemDb.getDb();
-      const rows = db.prepare("SELECT * FROM metrics_snapshots").all() as any[];
+      const rows = db.prepare("SELECT * FROM metrics_snapshots").all() as { tool: string; calls: number }[];
       const testToolSnapshot = rows.find(h => h.tool === "flush_tool");
       
       expect(testToolSnapshot).toBeDefined();
