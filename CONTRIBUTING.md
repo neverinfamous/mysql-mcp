@@ -75,7 +75,7 @@ We especially welcome contributions in these areas:
 
 ### 🔍 Medium Priority
 
-- **Enhanced Code Mode** worker-thread operations and sandbox capabilities
+- **Enhanced Code Mode** `isolated-vm` operations and sandbox capabilities
 - **Additional MySQL 8.0+ feature coverage** (CTEs, window functions, JSON improvements)
 - **New MySQL extension integrations** (e.g., ProxySQL, MySQL Router)
 - **Documentation improvements** and Playwright end-to-end examples
