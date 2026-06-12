@@ -191,6 +191,81 @@ export class CodeModeSandbox {
           info: (...args) => logRef.applyIgnored(undefined, ['INFO', ...args], { arguments: { copy: true } }),
           debug: (...args) => logRef.applyIgnored(undefined, ['DEBUG', ...args], { arguments: { copy: true } })
         };
+        
+        globalThis.wrapResult = function(result) {
+            if (result !== null && result !== undefined && typeof result === 'object') {
+                const isFailed = 'success' in result && result.success === false;
+                if (isFailed) {
+                    return new Proxy(result, {
+                        get(target, prop) {
+                            if (prop in target) return target[prop];
+                            if (typeof prop === 'string' && !['then', 'catch', 'finally', 'constructor', 'prototype', 'toJSON'].includes(prop)) {
+                                const errVal = target.error;
+                                const errorMsg = typeof errVal === 'string' ? errVal : 'Unknown error';
+                                throw new Error("Attempted to access missing property '" + prop + "' on a failed operation. API Error: " + errorMsg);
+                            }
+                            return undefined;
+                        }
+                    });
+                }
+                
+                if (!Array.isArray(result)) {
+                    return new Proxy(result, {
+                        get(target, prop) {
+                            if (prop in target) return target[prop];
+                            
+                            const searchObj = (target.data && typeof target.data === 'object') ? target.data : target;
+                            
+                            if (typeof prop === 'string' && prop in searchObj) {
+                                return searchObj[prop];
+                            }
+                            
+                            if (prop === Symbol.iterator) {
+                                const arrayKeys = Object.keys(searchObj).filter(k => Array.isArray(searchObj[k]));
+                                const targetKey = arrayKeys.find(k => ['rows', 'columns', 'tables', 'results', 'items', 'entries', 'keys'].includes(k)) || arrayKeys[0];
+                                if (targetKey !== undefined) {
+                                    return function* () {
+                                        yield* searchObj[targetKey];
+                                    };
+                                }
+                            }
+                            
+                            if (typeof prop === 'string' && ['map', 'filter', 'reduce', 'forEach', 'find', 'some', 'every', 'flatMap', 'slice', 'length'].includes(prop)) {
+                                const arrayKeys = Object.keys(searchObj).filter(k => Array.isArray(searchObj[k]));
+                                const targetKey = arrayKeys.find(k => ['rows', 'columns', 'tables', 'results', 'items', 'entries', 'keys'].includes(k)) || arrayKeys[0];
+                                if (targetKey !== undefined) {
+                                    const arr = searchObj[targetKey];
+                                    if (prop === 'length') return arr.length;
+                                    const method = arr[prop];
+                                    if (typeof method === 'function') {
+                                        return (...args) => method.apply(arr, args);
+                                    }
+                                }
+                                const keys = Object.keys(searchObj).join(', ') || 'none';
+                                throw new TypeError("CodeMode Non-Array Proxy Error: Attempted to call Array method '" + prop + "' on an Object. The returned result is not an Array, and no array properties could be automatically resolved. Keys available: " + keys + ". Target JSON: " + JSON.stringify(target));
+                            }
+                            return undefined;
+                        }
+                    });
+                }
+            }
+            return result;
+        };
+        
+        globalThis.wrapPromise = function(promise, methodName) {
+            return new Proxy(promise, {
+                get(target, prop) {
+                    if (prop === 'then') return target.then.bind(target);
+                    if (prop === 'catch') return target.catch.bind(target);
+                    if (prop === 'finally') return target.finally.bind(target);
+                    if (typeof prop === 'string' && !['constructor', 'toString', 'valueOf', 'toJSON'].includes(prop)) {
+                        throw new Error("Attempted to access property '" + prop + "' on a Promise object. Did you forget to 'await' the tool call? (e.g. const result = await mysql.group." + methodName + "(...))");
+                    }
+                    return Reflect.get(target, prop);
+                }
+            });
+        };
+
         globalThis.mysql = {};
       `;
       context.evalSync(setupScript);
@@ -227,8 +302,9 @@ export class CodeModeSandbox {
               refCleanup.push(fnRef);
               const refName = `fnRef_${groupName}_${methodName}`;
               context.global.setSync(refName, fnRef);
-              batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = async (...args) => {
-                  return await globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } });
+              batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
+                  const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(globalThis.wrapResult);
+                  return globalThis.wrapPromise(promise, ${JSON.stringify(methodName)});
                 };\n`;
             }
           }
@@ -253,8 +329,9 @@ export class CodeModeSandbox {
           refCleanup.push(fnRef);
           const refName = `fnRef_${groupName}`;
           context.global.setSync(refName, fnRef);
-          batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = async (...args) => {
-              return await globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } });
+          batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = (...args) => {
+              const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(globalThis.wrapResult);
+              return globalThis.wrapPromise(promise, ${JSON.stringify(groupName)});
             };\n`;
         }
       }
@@ -283,7 +360,10 @@ export class CodeModeSandbox {
         }
       `);
 
-      const wrappedCode = `(async () => { ${transformAutoReturn(code)} })()`;
+      const wrappedCode = `(async () => { 
+        const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
+        return __sandbox_result === undefined ? undefined : JSON.parse(JSON.stringify(__sandbox_result));
+      })()`;
       script = isolate.compileScriptSync(wrappedCode, {
         filename: `code-mode.js`,
       });

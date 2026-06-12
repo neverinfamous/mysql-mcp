@@ -51,7 +51,7 @@
 - Bumped GitHub Actions dependencies (`trufflesecurity/trufflehog` to v3.95.3, `docker/login-action` to v4.1.0, `actions/upload-artifact` to v7.0.1, `actions/github-script` to v9.0.0, and `github/codeql-action` to v4.35.5).
 
 - **Security:** Re-architected Code Mode sandbox by replacing the insecure `worker_threads` + `node:vm` engine with `isolated-vm` (C++ V8 bindings). This guarantees strict heap limits, eliminates prototype pollution vectors, prevents dynamic constructor chain escapes natively, and provides synchronous execution limits. Expanded static blocked patterns to 29 regex rules including Unicode escape detection, NFKC normalization, and comment stripping before pattern validation.
-
+- **Hallucination Smoothing:** Added `wrapResult` and `wrapPromise` smart proxies to the Code Mode sandbox to intercept missing `await` errors and safely auto-resolve array methods and property destructuring against nested `data.rows` tool payloads, achieving parity with `memory-journal-mcp` and eliminating common agent syntax errors.
 ### Changed
 - **Shortcuts**: Refactored `dev-power`, `ai-data`, `ai-spatial`, and `base-*` meta-groups to logically split oversized bundles (getting all shortcuts under the ideal 50-tool limit). Added `dev-analytics`, `ai-data-nosql`, `ai-search`, `base-relational`, `base-analytics`, and `base-nosql`.
 - **Scripts:** Converted the PowerShell database reset script (`reset-database.ps1`) to a cross-platform Node.js script (`scripts/reset-database.mjs`), updating all internal testing references and documentation.

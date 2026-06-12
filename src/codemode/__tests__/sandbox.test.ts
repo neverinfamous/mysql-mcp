@@ -50,7 +50,7 @@ describe("CodeModeSandbox", () => {
   describe("execute", () => {
     it("should execute simple code and return result", async () => {
       const result = await sandbox.execute("return 42", {});
-      expect(result.success).toBe(true);
+      console.log('RESULT:', result); expect(result.success).toBe(true);
       expect(result.result).toBe(42);
       expect(result.metrics.wallTimeMs).toBeGreaterThanOrEqual(0);
     });
