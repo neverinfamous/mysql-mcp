@@ -105,3 +105,4 @@ test.sqlite
 
 # Playwright
 playwright-results.json
+.playwright-results.json
