@@ -67,11 +67,12 @@ export class CodeModeSecurityManager {
       return { valid: false, errors };
     }
 
-    // Normalize and strip comments before pattern matching
+    // Normalize and strip comments/template literals before pattern matching
     const strippedCode = code
       .normalize("NFKC")
       .replace(/\/\*[\s\S]*?\*\//g, " ")  // block comments
-      .replace(/\/\/[^\n]*/g, " ");       // line comments
+      .replace(/\/\/[^\n]*/g, " ")        // line comments
+      .replace(/`(?:[^`\\]|\\.)*`/g, '``'); // Template literals
 
     // Check for blocked patterns
     for (const pattern of this.config.blockedPatterns) {
