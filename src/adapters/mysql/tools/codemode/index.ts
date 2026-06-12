@@ -50,6 +50,7 @@ export const ExecuteCodeOutputSchema = z
       .optional()
       .describe("Return value from the executed code"),
     error: z.string().optional().describe("Error message if execution failed"),
+    logs: z.array(z.string()).optional().describe("Captured console output from execution"),
     metrics: z
       .object({
         wallTimeMs: z
