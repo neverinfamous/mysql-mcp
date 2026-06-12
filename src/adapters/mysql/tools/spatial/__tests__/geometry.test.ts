@@ -51,7 +51,7 @@ describe("Spatial Geometry Tools", () => {
       const result = (await tool.handler(
         { longitude: 10, latitude: 20 },
         mockContext,
-      )) as { data: { wkt: string; geoJson: any } };
+      )) as { data: { wkt: string; geoJson: Record<string, unknown> } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0];

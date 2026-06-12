@@ -52,7 +52,7 @@ export function createDescriptiveStatsTool(
         const countResult = await adapter.executeQuery(
           `SELECT COUNT(*) as count FROM \`${table}\` ${whereClause}`,
         );
-        const totalCount = (countResult.rows?.[0]?.["count"] as number) ?? 0;
+        const totalCount = Number(countResult.rows?.[0]?.["count"] ?? 0);
 
         if (totalCount === 0) {
           return withTokenEstimate({
@@ -138,7 +138,7 @@ export function createDescriptiveStatsTool(
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });

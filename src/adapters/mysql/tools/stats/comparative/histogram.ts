@@ -149,7 +149,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });

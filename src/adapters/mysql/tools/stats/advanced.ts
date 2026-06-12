@@ -178,10 +178,10 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             ORDER BY ORDINAL_POSITION
           `;
           const colResult = await adapter.executeQuery(colQuery, [table]);
-          const allCols = (colResult.rows ?? []) as {
-            COLUMN_NAME: string;
-            DATA_TYPE: string;
-          }[];
+          const allCols = (colResult.rows ?? []).map((row) => ({
+            COLUMN_NAME: String(row["COLUMN_NAME"]),
+            DATA_TYPE: String(row["DATA_TYPE"]),
+          }));
 
           const excluded: string[] = [];
           const included: string[] = [];
@@ -236,7 +236,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });
@@ -288,9 +288,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         `;
 
         const result = await adapter.executeQuery(sql);
-        const values = (result.rows ?? []).map(
-          (row) => (row as { value: unknown }).value,
-        );
+        const values = (result.rows ?? []).map((row) => row["value"]);
 
         // Get total distinct count
         const countSql = `
@@ -299,10 +297,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
           ${whereClause}
         `;
         const countResult = await adapter.executeQuery(countSql);
-        const distinctCount = Number(
-          (countResult.rows?.[0] as { cnt: string | number } | undefined)
-            ?.cnt ?? 0,
-        );
+        const distinctCount = Number(countResult.rows?.[0]?.["cnt"] ?? 0);
 
         return withTokenEstimate({
           success: true,
@@ -318,7 +313,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });
@@ -388,10 +383,7 @@ export function createStatsFrequencyTool(
           ${whereClause}
         `;
         const countResult = await adapter.executeQuery(countSql);
-        const distinctValues = Number(
-          (countResult.rows?.[0] as { cnt: string | number } | undefined)
-            ?.cnt ?? 0,
-        );
+        const distinctValues = Number(countResult.rows?.[0]?.["cnt"] ?? 0);
 
         return withTokenEstimate({
           success: true,
@@ -407,7 +399,7 @@ export function createStatsFrequencyTool(
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });
@@ -474,10 +466,10 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             ORDER BY ORDINAL_POSITION
           `;
           const colResult = await adapter.executeQuery(colQuery, [table]);
-          const colRows = (colResult.rows ?? []) as {
-            COLUMN_NAME: string;
-            DATA_TYPE: string;
-          }[];
+          const colRows = (colResult.rows ?? []).map((row) => ({
+            COLUMN_NAME: String(row["COLUMN_NAME"]),
+            DATA_TYPE: String(row["DATA_TYPE"]),
+          }));
 
           targetColumns = colRows
             .filter((row) => NUMERIC_TYPES.has(row.DATA_TYPE.toLowerCase()))
@@ -542,7 +534,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });

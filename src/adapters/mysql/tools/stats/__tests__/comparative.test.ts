@@ -6,10 +6,10 @@ import {
 } from "../comparative/index.js";
 
 describe("Comparative Stats Tools", () => {
-  let mockAdapter: any;
-  let correlationTool: any;
-  let regressionTool: any;
-  let histogramTool: any;
+  let mockAdapter: MySQLAdapter;
+  let correlationTool: ToolDefinition;
+  let regressionTool: ToolDefinition;
+  let histogramTool: ToolDefinition;
 
   beforeEach(() => {
     mockAdapter = {
@@ -23,7 +23,7 @@ describe("Comparative Stats Tools", () => {
   describe("mysql_stats_correlation", () => {
     it("should interpret strong correlation", async () => {
       mockAdapter.executeQuery.mockImplementation(
-        async (query: string, params?: any[]) => {
+        async (query: string, params?: unknown[]) => {
           if (
             typeof query === "string" &&
             query.includes("information_schema.COLUMNS")
@@ -52,7 +52,7 @@ describe("Comparative Stats Tools", () => {
         },
       );
 
-      const result: any = await correlationTool.handler(
+      const result = await correlationTool.handler(
         {
           table: "data",
           column1: "x",
@@ -67,7 +67,7 @@ describe("Comparative Stats Tools", () => {
 
     it("should interpret weak correlation", async () => {
       mockAdapter.executeQuery.mockImplementation(
-        async (query: string, params?: any[]) => {
+        async (query: string, params?: unknown[]) => {
           if (
             typeof query === "string" &&
             query.includes("information_schema.COLUMNS")
@@ -87,7 +87,7 @@ describe("Comparative Stats Tools", () => {
         },
       );
 
-      const result: any = await correlationTool.handler(
+      const result = await correlationTool.handler(
         {
           table: "data",
           column1: "x",
@@ -100,7 +100,7 @@ describe("Comparative Stats Tools", () => {
     });
 
     it("should validate inputs", async () => {
-      const result: any = await correlationTool.handler(
+      const result = await correlationTool.handler(
         {
           table: "bad;table",
           column1: "x",
@@ -117,7 +117,7 @@ describe("Comparative Stats Tools", () => {
   describe("mysql_stats_regression", () => {
     it("should handle insufficient data", async () => {
       mockAdapter.executeQuery.mockImplementation(
-        async (query: string, params?: any[]) => {
+        async (query: string, params?: unknown[]) => {
           if (
             typeof query === "string" &&
             query.includes("information_schema.COLUMNS")
@@ -137,7 +137,7 @@ describe("Comparative Stats Tools", () => {
         },
       );
 
-      const result: any = await regressionTool.handler(
+      const result = await regressionTool.handler(
         {
           table: "data",
           xColumn: "x",
@@ -153,7 +153,7 @@ describe("Comparative Stats Tools", () => {
     it("should calculate regression and interpretation", async () => {
       // Need n, sum_x, sum_y, sum_xy, sum_x2, sum_y2 to calculate slope/intercept/r2
       mockAdapter.executeQuery.mockImplementation(
-        async (query: string, params?: any[]) => {
+        async (query: string, params?: unknown[]) => {
           if (
             typeof query === "string" &&
             query.includes("information_schema.COLUMNS")
@@ -184,7 +184,7 @@ describe("Comparative Stats Tools", () => {
         },
       );
 
-      const result: any = await regressionTool.handler(
+      const result = await regressionTool.handler(
         {
           table: "data",
           xColumn: "x",
@@ -209,7 +209,7 @@ describe("Comparative Stats Tools", () => {
         .mockResolvedValueOnce({}) // analyze table
         .mockResolvedValueOnce({ rows: [{ histogramType: "SINGLETON" }] }); // select info
 
-      const result: any = await histogramTool.handler(
+      const result = await histogramTool.handler(
         {
           table: "users",
           column: "age",
@@ -219,7 +219,7 @@ describe("Comparative Stats Tools", () => {
       );
 
       const calls = mockAdapter.executeQuery.mock.calls.map(
-        (c: any[]) => c[0],
+        (c: unknown[]) => c[0],
       );
       expect(calls.some((c: string) => c.includes("ANALYZE TABLE"))).toBe(true);
       expect(result.data.exists).toBe(true);
@@ -232,7 +232,7 @@ describe("Comparative Stats Tools", () => {
         .mockResolvedValueOnce({ rows: [{ COLUMN_NAME: "age" }] }) // column check
         .mockResolvedValueOnce({ rows: [] }); // histogram query
 
-      const result: any = await histogramTool.handler(
+      const result = await histogramTool.handler(
         {
           table: "users",
           column: "age",
@@ -250,7 +250,7 @@ describe("Comparative Stats Tools", () => {
         .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
         .mockResolvedValueOnce({ rows: [] }); // column check - not found
 
-      const result: any = await histogramTool.handler(
+      const result = await histogramTool.handler(
         {
           table: "users",
           column: "nonexistent_col",

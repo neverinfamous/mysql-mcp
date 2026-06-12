@@ -118,7 +118,8 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query);
         const stats = result.rows?.[0];
 
-        const correlation = stats?.["correlation"] as number | null;
+        const correlationVal = stats?.["correlation"];
+        const correlation = typeof correlationVal === "number" ? correlationVal : null;
         let interpretation = "N/A";
         if (correlation !== null) {
           const absCorr = Math.abs(correlation);
@@ -155,7 +156,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });

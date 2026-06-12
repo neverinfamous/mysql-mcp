@@ -215,7 +215,7 @@ describe("Spatial Operations Tools", () => {
       const result = (await tool.handler(
         { geometry: "POINT(10 20)" },
         mockContext,
-      )) as { data: { geoJson: any } };
+      )) as { data: { geoJson: Record<string, unknown> } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result.data.geoJson).toEqual({

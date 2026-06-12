@@ -40,13 +40,14 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
   }
   if (typeof value === "string") {
     try {
-      return JSON.parse(value) as Record<string, unknown>;
+      const parsed: unknown = JSON.parse(value);
+      return typeof parsed === "object" && parsed !== null ? (parsed as Record<string, unknown>) : {};
     } catch {
       return null;
     }
   }
   if (typeof value === "object") {
-    return value as Record<string, unknown>;
+    return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
   }
   return null;
 }

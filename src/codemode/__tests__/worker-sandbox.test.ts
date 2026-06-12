@@ -19,9 +19,9 @@ vi.mock("node:worker_threads", async (importOriginal) => {
   return {
     ...actual,
     Worker: class MockWorker {
-      listeners: Record<string, ((data: any) => void)[]> = {};
+      listeners: Record<string, ((data: unknown) => void)[]> = {};
 
-      constructor(path: string, options: any) {
+      constructor(path: string, options: Record<string, unknown>) {
         setTimeout(() => {
           if (options.workerData.code.includes("timeout")) {
             // Do nothing, let timeout trigger
@@ -47,12 +47,12 @@ vi.mock("node:worker_threads", async (importOriginal) => {
         }, 10);
       }
 
-      on(event: string, fn: (data: any) => void) {
+      on(event: string, fn: (data: unknown) => void) {
         if (!this.listeners[event]) this.listeners[event] = [];
         this.listeners[event].push(fn);
       }
 
-      emit(event: string, data: any) {
+      emit(event: string, data: unknown) {
         if (this.listeners[event]) {
           this.listeners[event].forEach((fn) => fn(data));
         }
@@ -113,7 +113,7 @@ describe("WorkerSandbox", () => {
         },
       };
 
-      const serialized = (sandbox as any).serializeBindings(bindings);
+      const serialized = (sandbox as unknown as { serializeBindings: (b: Record<string, unknown>) => Record<string, string[]> }).serializeBindings(bindings);
       expect(serialized).toHaveProperty("core");
       expect(serialized).toHaveProperty("json");
       expect(serialized["core"]).toContain("readQuery");
@@ -127,14 +127,14 @@ describe("WorkerSandbox", () => {
         core: { readQuery: vi.fn() },
       };
 
-      const serialized = (sandbox as any).serializeBindings(bindings);
+      const serialized = (sandbox as unknown as { serializeBindings: (b: Record<string, unknown>) => Record<string, string[]> }).serializeBindings(bindings);
       expect(serialized).toHaveProperty("_topLevel");
       expect(serialized["_topLevel"]).toContain("readQuery");
       expect(serialized["_topLevel"]).toContain("help");
     });
 
     it("should handle empty bindings", () => {
-      const serialized = (sandbox as any).serializeBindings({});
+      const serialized = (sandbox as unknown as { serializeBindings: (b: Record<string, unknown>) => Record<string, string[]> }).serializeBindings({});
       expect(Object.keys(serialized)).toHaveLength(0);
     });
   });
@@ -144,7 +144,7 @@ describe("WorkerSandbox", () => {
   // ===========================================================================
   describe("calculateMetrics", () => {
     it("should calculate correct metrics", () => {
-      const metrics = (sandbox as any).calculateMetrics(0, 150, 1000, 3000);
+      const metrics = (sandbox as unknown as { calculateMetrics: (st: number, et: number, sm: number, em: number) => unknown }).calculateMetrics(0, 150, 1000, 3000);
       expect(metrics.wallTimeMs).toBe(150);
       expect(metrics.memoryUsedMb).toBeGreaterThanOrEqual(0);
     });

@@ -4,12 +4,12 @@ import { EventEmitter } from "events";
 // Mock worker_threads module before import
 const { mockParentPort, mockRpcPort } = vi.hoisted(() => {
   class FakeEventEmitter {
-    listeners: Record<string, ((...args: any[]) => void)[]> = {};
-    on(event: string, fn: (...args: any[]) => void) {
+    listeners: Record<string, ((...args: unknown[]) => void)[]> = {};
+    on(event: string, fn: (...args: unknown[]) => void) {
       if (!this.listeners[event]) this.listeners[event] = [];
       this.listeners[event].push(fn);
     }
-    emit(event: string, data: any) {
+    emit(event: string, data: unknown) {
       if (this.listeners[event]) {
         this.listeners[event].forEach((fn) => fn(data));
       }
@@ -20,7 +20,7 @@ const { mockParentPort, mockRpcPort } = vi.hoisted(() => {
   }
 
   const mockParentPort = { postMessage: vi.fn() };
-  const mockRpcPort = new FakeEventEmitter() as any;
+  const mockRpcPort = new FakeEventEmitter() as unknown as MessagePort;
   mockRpcPort.postMessage = vi.fn();
   mockRpcPort.ref = vi.fn();
   mockRpcPort.unref = vi.fn();
@@ -44,8 +44,8 @@ vi.mock("node:worker_threads", () => ({
     port1 = new EventEmitter();
     port2 = new EventEmitter();
     constructor() {
-      (this.port1 as any).close = vi.fn();
-      (this.port2 as any).close = vi.fn();
+      (this.port1 as unknown as { close: ReturnType<typeof vi.fn> }).close = vi.fn();
+      (this.port2 as unknown as { close: ReturnType<typeof vi.fn> }).close = vi.fn();
     }
   },
 }));
@@ -66,7 +66,7 @@ describe("Worker Script", () => {
         _topLevel: ["readQuery"],
       };
 
-      const proxy = buildMysqlProxy(bindings, mockRpcPort) as any;
+      const proxy = buildMysqlProxy(bindings, mockRpcPort);
 
       expect(proxy).toHaveProperty("core");
       expect(proxy).toHaveProperty("readQuery");
@@ -91,7 +91,7 @@ describe("Worker Script", () => {
 
     it("should handle top-level methods", async () => {
       const bindings = { _topLevel: ["readQuery"] };
-      const proxy = buildMysqlProxy(bindings, mockRpcPort) as any;
+      const proxy = buildMysqlProxy(bindings, mockRpcPort);
 
       const promise = proxy.readQuery("SELECT 1");
       const callArgs = mockRpcPort.postMessage.mock.calls[0][0];

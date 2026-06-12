@@ -43,7 +43,7 @@ function paramStr(params: unknown, key: string): string {
     typeof params === "object" &&
     key in params
   ) {
-    const val = (params as Record<string, unknown>)[key];
+    const val = typeof params === "object" && params !== null ? (params as Record<string, unknown>)[key] : undefined;
     return typeof val === "string" ? val : "";
   }
   return "";

@@ -119,19 +119,21 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(statsQuery);
         const stats = result.rows?.[0];
 
-        if (!stats || (stats["n"] as number) < 2) {
+        const nVal = stats?.["n"];
+        const n = typeof nVal === "number" ? nVal : Number(nVal) || 0;
+        
+        if (!stats || n < 2) {
           return withTokenEstimate({
             success: false,
             error: "Insufficient data points for regression (need at least 2)",
           });
         }
 
-        const n = stats["n"] as number;
-        const sumX = stats["sum_x"] as number;
-        const sumY = stats["sum_y"] as number;
-        const sumXY = stats["sum_xy"] as number;
-        const sumX2 = stats["sum_x2"] as number;
-        const sumY2 = stats["sum_y2"] as number;
+        const sumX = Number(stats["sum_x"]);
+        const sumY = Number(stats["sum_y"]);
+        const sumXY = Number(stats["sum_xy"]);
+        const sumX2 = Number(stats["sum_x2"]);
+        const sumY2 = Number(stats["sum_y2"]);
 
         // Calculate slope and intercept
         const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
@@ -170,7 +172,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
+            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
           });
         }
         return withTokenEstimate({ success: false, error: msg });
