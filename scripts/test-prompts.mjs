@@ -97,6 +97,8 @@ async function main() {
     { name: "mysql_sys_schema_guide", args: {}, expect: "sys" },
     { name: "mysql_setup_cluster", args: {}, expect: "cluster" },
     { name: "mysql_setup_docstore", args: {}, expect: "document" },
+    { name: "mysql_setup_proxysql", args: {}, expect: "proxysql" },
+    { name: "mysql_setup_shell", args: {}, expect: "shell" },
 
     // Required-argument prompts
     {
