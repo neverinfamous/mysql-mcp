@@ -17,7 +17,7 @@
 | `test-resources.sql`         | Seed SQL for resource testing                                                                                                                 | Reference                                    |
 | `test-prompts-notes.md`      | Prompt testing plan                                                                                                                           | When testing prompts                         |
 | `test-prompts.sql`           | Seed SQL for prompt testing                                                                                                                   | Reference                                    |
-| `reset-database.ps1`         | Reset + re-seed `testdb`                                                                                                                      | When data is dirty                           |
+| `../scripts/reset-database.mjs`| Reset + re-seed `testdb`                                                                                          | When data is dirty                           |
 | `test-seed.sql`              | Primary seed SQL (DDL + DML) for all `test_*` tables                                                                                          | Reference only                               |
 | `sample.csv`, `sample.json`  | Fixtures for import/export testing                                                                                                            | Used by text/CSV tools                       |
 | `../scripts/test-*.mjs`      | Automated test scripts                                                                                                                        | Run after build                              |

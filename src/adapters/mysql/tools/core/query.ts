@@ -94,9 +94,9 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           ).toString("base64");
         }
 
-        if (stream && !_context.isCodeMode) {
-          if (_context.progressToken) {
-            const chunksEmitted = await streamResultRows(
+        if (stream === true && _context.isCodeMode !== true) {
+          if (_context.progressToken !== undefined) {
+            const chunksEmitted = streamResultRows(
               _context.progressToken,
               result.rows ?? [],
               chunkSize,

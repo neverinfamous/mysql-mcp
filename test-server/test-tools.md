@@ -3,7 +3,7 @@
 ## Reset mysql-mcp Test Database
 
 ```powershell
-.\test-server\reset-database.ps1
+node scripts/reset-database.mjs
 ```
 
 ## Connection Details

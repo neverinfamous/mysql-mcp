@@ -59,6 +59,22 @@ Config: innodb-cluster.yml (gitignored, local only)
 
 These scripts are used to validate MCP server behavior dynamically:
 
+### `reset-database.mjs`
+
+Resets the `testdb` database with fresh seed data. This is typically used to clean up test tables before running a new suite of tests.
+By default, it verifies all tables were created and populated correctly.
+
+```bash
+# Reset default test database
+node scripts/reset-database.mjs
+
+# Skip table verification step
+node scripts/reset-database.mjs --SkipVerify
+
+# Target the InnoDB Cluster instead of standalone MySQL
+node scripts/reset-database.mjs --Cluster
+```
+
 ### `test-zod-errors.mjs`
 
 Starts the MCP server with `--tool-filter +all` and dynamically retrieves the schema for every registered tool. It then hammers each tool with intentionally malformed inputs (e.g., numbers instead of strings) to ensure that the global `McpServer` interceptor correctly catches SDK-level Zod parsing exceptions and formats them into standard `VALIDATION_ERROR` payloads, preventing raw `-32602` SDK errors from leaking to clients.

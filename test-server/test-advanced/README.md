@@ -7,7 +7,7 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 ## Pre-requisites
 
 1. Basic deterministic tool group checklists (located in `../test-tool-groups-codemode/*.md`) MUST be successfully passed before running these advanced tests.
-2. The testing database MUST be freshly seeded or reset to the baseline schema utilizing the `../reset-database.ps1` script to ensure deterministic results.
+2. The testing database MUST be freshly seeded or reset to the baseline schema utilizing the `node ../../scripts/reset-database.mjs` script to ensure deterministic results.
 
 ## Execution Parts
 

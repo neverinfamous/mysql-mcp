@@ -4,7 +4,7 @@
 1. Prerequisite: The standard Code Mode tests (`test-tool-group-codemode-vector.md`) MUST pass before running these.
 2. Run these tests EXCLUSIVELY using the `mysql_execute_code` tool.
 3. You must use `--tool-filter codemode` when starting the server.
-4. Ensure the database is freshly seeded using `../reset-database.ps1`.
+4. Ensure the database is freshly seeded using `node ../../scripts/reset-database.mjs`.
 5. Tables created here must be prefixed with `stress_*`.
 6. Drop all `stress_*` tables at the end.
 

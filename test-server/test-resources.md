@@ -8,7 +8,7 @@ mysql-mcp exposes 19 `mysql://` resources. Many query internal views (`performan
 
 ```powershell
 # 1. Reset base tables
-.\test-server\reset-database.ps1
+node scripts/reset-database.mjs
 
 # 2. Seed resource data (warms up statistics, creates test events)
 Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb

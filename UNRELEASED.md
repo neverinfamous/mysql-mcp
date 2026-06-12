@@ -53,6 +53,7 @@
 - **Security:** Re-architected Code Mode sandbox by replacing the insecure `worker_threads` + `node:vm` engine with `isolated-vm` (C++ V8 bindings). This guarantees strict heap limits, eliminates prototype pollution vectors, prevents dynamic constructor chain escapes natively, and provides synchronous execution limits. Expanded static blocked patterns to 29 regex rules including Unicode escape detection, NFKC normalization, and comment stripping before pattern validation.
 
 ### Changed
+- **Scripts:** Converted the PowerShell database reset script (`reset-database.ps1`) to a cross-platform Node.js script (`scripts/reset-database.mjs`), updating all internal testing references and documentation.
 - **Audit:** Conducted comprehensive code quality audit. Cleaned up unused `devDependencies` (`rimraf`, `ts-morph`) and added missing `dotenv` dependency.
 - **Workflow:** Updated `audit-code-quality` workflow to explicitly exclude test files from the 500-line length limit.
 - Refactored `src/server/mcp-server.ts` into `src/server/mcp-server/` module structure to cleanly separate auth, subscriptions, resources, and SDK patch logic.

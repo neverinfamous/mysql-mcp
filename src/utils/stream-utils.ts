@@ -12,11 +12,11 @@ export const STREAM_CHUNK_SIZE = 10;
  * @param chunkSize Optional custom chunk size (defaults to STREAM_CHUNK_SIZE)
  * @returns Number of chunks emitted
  */
-export async function streamResultRows(
+export function streamResultRows(
   progressToken: ProgressToken,
   rows: Record<string, unknown>[],
   chunkSize: number = STREAM_CHUNK_SIZE,
-): Promise<number> {
+): number {
   if (rows.length === 0) {
     return 0;
   }
