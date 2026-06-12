@@ -26,13 +26,13 @@ function isCliLogLevel(level: string): level is "debug" | "info" | "warning" | "
 /**
  * Parse command line arguments
  */
-export function parseArgs(argv: string[] = process.argv.slice(2)): {
+export async function parseArgs(argv: string[] = process.argv.slice(2)): Promise<{
   config: Partial<McpServerConfig>;
   databases: DatabaseConfig[];
   oauth: OAuthConfig | undefined;
   shouldExit: boolean;
   dumpConfig?: boolean;
-} {
+}> {
   const args = argv;
   const cliConfig: Partial<McpServerConfig> = {};
   const cliDatabases: DatabaseConfig[] = [];
@@ -378,7 +378,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
   }
 
   // Load config file if specified
-  const fileConfigData: Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig } = configPath ? loadConfigFile(configPath) : {};
+  const fileConfigData: Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig } = configPath ? await loadConfigFile(configPath) : {};
   const { databases: fileDatabases = [], oauth: fileOauth, ...fileConfig } = fileConfigData;
 
   // Load configuration from environment

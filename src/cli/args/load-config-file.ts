@@ -29,9 +29,9 @@ const ConfigFileSchema = z.object({
 /**
  * Load configuration from a JSON or YAML file
  */
-export function loadConfigFile(configPath: string): Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig } {
+export async function loadConfigFile(configPath: string): Promise<Partial<McpServerConfig> & { databases?: DatabaseConfig[], oauth?: OAuthConfig }> {
   try {
-    const fileContent = fs.readFileSync(configPath, "utf-8");
+    const fileContent = await fs.promises.readFile(configPath, "utf-8");
     let parsed: unknown;
     if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
       parsed = yaml.parse(fileContent);

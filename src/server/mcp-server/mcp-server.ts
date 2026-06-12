@@ -179,6 +179,11 @@ export class McpServer {
       this.toolFilter.enabledTools.has(t.name),
     ).length;
 
+    if (!this.config.toolFilter && enabledToolCount > 50) {
+      logger.warn(`CONTEXT BLOAT WARNING: ${enabledToolCount} tools are being registered without a tool filter.`);
+      logger.warn(`  This may consume excessive context window in the LLM. Consider using '--tool-filter codemode' or '--tool-filter starter' to save tokens.`);
+    }
+
     logger.info(`Registered adapter: ${adapter.name} (${key})`);
     logger.info(`  Tools: ${enabledToolCount}/${allTools.length} enabled`);
     logger.info(`  Resources: ${allResources.length}`);

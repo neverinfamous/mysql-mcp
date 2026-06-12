@@ -95,7 +95,7 @@ export async function main(args?: {
   shouldExit?: boolean;
   dumpConfig?: boolean;
 }): Promise<void> {
-  const { config, databases, oauth, shouldExit, dumpConfig } = args ?? parseArgs();
+  const { config, databases, oauth, shouldExit, dumpConfig } = args ?? await parseArgs();
 
   if (dumpConfig) {
     // Redact sensitive values before dumping

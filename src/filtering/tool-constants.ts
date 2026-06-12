@@ -10,7 +10,7 @@ import type { ToolGroup, MetaGroup } from "../types/index.js";
  * Default tool groups and their member tools.
  * This serves as the canonical mapping of tools to groups.
  */
-export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
+export const TOOL_GROUPS = {
   core: [
     "mysql_read_query",
     "mysql_write_query",
@@ -308,7 +308,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_vector_stats",
   ],
   codemode: ["mysql_execute_code"],
-};
+} satisfies Record<ToolGroup, string[]>;
 
 /**
  * Meta-groups that expand to multiple tool groups.
@@ -331,7 +331,7 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  *   base-advanced: 64 (docstore:9 + spatial:12 + stats:20 + fulltext:5 + events:6 + vector:11 + codemode:1)
  *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */
-export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
+export const META_GROUPS = {
   // 1. General Use
   starter: ["core", "json", "transactions", "text", "codemode"],
   essential: ["core", "transactions", "codemode"],
@@ -392,4 +392,4 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
 
   // 5. Ecosystem
   ecosystem: ["router", "proxysql", "shell", "cluster", "codemode"],
-};
+} satisfies Record<MetaGroup, ToolGroup[]>;
