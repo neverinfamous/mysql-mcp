@@ -113,6 +113,7 @@ export function createDetectQueryAnomaliesTool(
 ): ToolDefinition {
   return {
     name: "mysql_detect_query_anomalies",
+    title: "Detect Query Anomalies",
     description:
       "Detects queries deviating from their historical execution time norms using MAX/AVG variance analysis. Requires performance_schema.",
     inputSchema: DetectQueryAnomaliesSchemaBase,
@@ -248,6 +249,7 @@ export function createDetectBloatRiskTool(
 ): ToolDefinition {
   return {
     name: "mysql_detect_bloat_risk",
+    title: "Detect Bloat Risk",
     description:
       "Scores tables by bloat/fragmentation risk using information_schema DATA_FREE vs DATA_LENGTH metrics. Returns per-table risk scores (0-100) with recommendations.",
     inputSchema: DetectBloatRiskSchemaBase,

@@ -43,6 +43,7 @@ export function createMigrationRollbackTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_rollback",
+    title: "Migration Rollback",
     description:
       "Roll back a specific migration by ID or version. " +
       "Executes the stored rollback_sql and updates status to 'rolled_back'. " +
@@ -227,6 +228,7 @@ export function createMigrationHistoryTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_history",
+    title: "Migration History",
     description:
       "Query migration history with optional filtering by status and source system. " +
       "Returns paginated results ordered by applied_at descending.",
@@ -317,6 +319,7 @@ export function createMigrationStatusTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_status",
+    title: "Migration Status",
     description:
       "Get current migration tracking status: latest version, counts by status, " +
       "and list of source systems. Returns initialized: false if tracking table doesn't exist.",

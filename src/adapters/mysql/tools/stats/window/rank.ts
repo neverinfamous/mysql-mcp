@@ -21,6 +21,7 @@ import { selectList, partitionClause, whereClause } from "./helpers.js";
 export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_rank",
+    title: "Stats Rank",
     description:
       "Assign rank within an ordered result set. Supports rank (gaps), dense_rank (no gaps), and percent_rank (0-1). Use partitionBy to rank within groups.",
     group: "stats",

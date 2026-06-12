@@ -27,7 +27,9 @@ describe("Schema Snapshot Tool", () => {
         return createMockQueryResult([
           {
             schema_name: "testdb",
+    title: "Testdb",
             name: "users",
+    title: "Users",
             type: "BASE TABLE",
             row_count: 100,
             size_bytes: 1024,
@@ -39,7 +41,9 @@ describe("Schema Snapshot Tool", () => {
         return createMockQueryResult([
           {
             schema_name: "testdb",
+    title: "Testdb",
             name: "active_users",
+    title: "Active Users",
             type: "view",
             definition: isCompact ? null : "SELECT * FROM users",
           },
@@ -49,8 +53,11 @@ describe("Schema Snapshot Tool", () => {
         return createMockQueryResult([
           {
             name: "PRIMARY",
+    title: "PRIMARY",
             table_name: "users",
+    title: "Users",
             schema_name: "testdb",
+    title: "Testdb",
             type: "BTREE",
             is_unique: 1,
           },
@@ -60,8 +67,11 @@ describe("Schema Snapshot Tool", () => {
         return createMockQueryResult([
           {
             name: "PRIMARY",
+    title: "PRIMARY",
             table_name: "users",
+    title: "Users",
             schema_name: "testdb",
+    title: "Testdb",
             type: "PRIMARY KEY",
           },
         ]);
@@ -70,7 +80,9 @@ describe("Schema Snapshot Tool", () => {
         return createMockQueryResult([
           {
             schema_name: "testdb",
+    title: "Testdb",
             name: "get_user",
+    title: "Get User",
             type: "PROCEDURE",
             return_type: "int",
             volatility: "CONTAINS SQL",
@@ -82,8 +94,11 @@ describe("Schema Snapshot Tool", () => {
         return createMockQueryResult([
           {
             name: "before_insert",
+    title: "Before Insert",
             table_name: "users",
+    title: "Users",
             schema_name: "testdb",
+    title: "Testdb",
             timing: "BEFORE",
             events: "INSERT",
             definition: "SET NEW.id = 1",

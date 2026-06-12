@@ -168,6 +168,7 @@ describe("Anomaly Detection Tools", () => {
           {
             db_schema: "test",
             table_name: "users",
+    title: "Users",
             engine: "InnoDB",
             row_count: 1000,
             data_bytes: 1024 * 1024,
@@ -191,6 +192,7 @@ describe("Anomaly Detection Tools", () => {
           {
             db_schema: "test",
             table_name: "orders",
+    title: "Orders",
             engine: "InnoDB",
             row_count: 1000,
             data_bytes: 100,
@@ -201,6 +203,7 @@ describe("Anomaly Detection Tools", () => {
           {
             db_schema: "test",
             table_name: "logs",
+    title: "Logs",
             engine: "InnoDB",
             row_count: 1000,
             data_bytes: 100,
@@ -211,6 +214,7 @@ describe("Anomaly Detection Tools", () => {
           {
             db_schema: "test",
             table_name: "small",
+    title: "Small",
             engine: "InnoDB",
             row_count: 1000,
             data_bytes: 100,

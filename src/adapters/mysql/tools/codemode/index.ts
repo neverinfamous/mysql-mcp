@@ -151,7 +151,8 @@ return results;
       readOnlyHint: false,
       destructiveHint: true,
       idempotentHint: false,
-      openWorldHint: false,
+      openWorldHint: true,
+      sensitiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       const { code, readonly, timeout } = params as ExecuteCodeOptions & { timeout?: number };

@@ -31,6 +31,7 @@ export function createSchemaSnapshotTool(
 ): ToolDefinition {
   return {
     name: "mysql_schema_snapshot",
+    title: "Schema Snapshot",
     description:
       "Get a complete schema snapshot in a single agent-optimized JSON structure. Includes tables, columns, constraints, indexes, views, routines, and triggers.",
     group: "introspection",

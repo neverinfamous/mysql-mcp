@@ -142,6 +142,7 @@ export const StatsSummarySchema = z.object({
 export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_top_n",
+    title: "Stats Top N",
     description:
       "Get the top N rows ranked by a column. Auto-excludes long-content columns (text, json, blob) from output unless selectColumns is specified.",
     group: "stats",
@@ -252,6 +253,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
 export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_distinct",
+    title: "Stats Distinct",
     description:
       "Get distinct values from a column with count. Useful for understanding cardinality and unique value distribution.",
     group: "stats",
@@ -330,6 +332,7 @@ export function createStatsFrequencyTool(
 ): ToolDefinition {
   return {
     name: "mysql_stats_frequency",
+    title: "Stats Frequency",
     description:
       "Get value frequency distribution (count per unique value) ordered by frequency descending. Shows the most common values first.",
     group: "stats",
@@ -415,6 +418,7 @@ export function createStatsFrequencyTool(
 export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_summary",
+    title: "Stats Summary",
     description:
       "Get summary statistics (count, avg, min, max, stddev) for multiple numeric columns. Defaults to all numeric columns if none specified.",
     group: "stats",

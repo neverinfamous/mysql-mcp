@@ -144,6 +144,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "PRIMARY",
+    title: "PRIMARY",
           tableName: "users",
           columns: ["id"],
           unique: true,
@@ -170,6 +171,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "idx_name",
+    title: "Idx Name",
           tableName: "users",
           columns: ["name"],
           unique: false,
@@ -197,6 +199,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "PRIMARY",
+    title: "PRIMARY",
           tableName: "users",
           columns: ["id"],
           unique: true,
@@ -409,6 +412,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "idx_name",
+    title: "Idx Name",
           tableName: "users",
           columns: ["name"],
           unique: false,

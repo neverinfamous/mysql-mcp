@@ -21,6 +21,8 @@ export function createRouterPoolStatusTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

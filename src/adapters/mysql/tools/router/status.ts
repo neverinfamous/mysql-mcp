@@ -21,6 +21,8 @@ export function createRouterStatusTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
       const result = await safeRouterFetch("/router/status");
@@ -49,6 +51,8 @@ export function createRouterRoutesTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
       const result = await safeRouterFetch("/routes");

@@ -473,6 +473,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             database_name: "testdb",
+    title: "Testdb",
             query_text: "DROP TABLE IF EXISTS `t`",
             execution_count: 3,
             avg_time_ms: 18446743555252.1,
@@ -502,6 +503,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             database_name: "testdb",
+    title: "Testdb",
             query_text: "SELECT 1",
             execution_count: 10,
             avg_time_ms: 250,
@@ -531,6 +533,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             database_name: "testdb",
+    title: "Testdb",
             query_text: "SELECT * FROM users",
             execution_count: 5,
             avg_time_ms: "209241.7573",
@@ -669,6 +672,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             table_name: "users",
+    title: "Users",
             estimated_rows: 1000,
           },
         ]),

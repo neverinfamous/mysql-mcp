@@ -46,6 +46,8 @@ export function createShellDumpInstanceTool(
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -160,6 +162,8 @@ export function createShellDumpSchemasTool(
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -275,6 +279,8 @@ export function createShellDumpTablesTool(
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

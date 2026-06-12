@@ -31,6 +31,7 @@ export function createTopologicalSortTool(
 ): ToolDefinition {
   return {
     name: "mysql_topological_sort",
+    title: "Topological Sort",
     description:
       "Get tables in safe DDL execution order. 'create' direction: dependencies first (for CREATE TABLE). 'drop' direction: dependents first (for DROP TABLE).",
     group: "introspection",

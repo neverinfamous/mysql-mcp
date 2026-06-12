@@ -43,6 +43,7 @@ import { WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
 export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_migration_init",
+    title: "Migration Init",
     description:
       "Initialize or verify the schema version tracking table (_mcp_schema_versions). " +
       "Idempotent — safe to call repeatedly. Returns current tracking state.",
@@ -116,6 +117,7 @@ export function createMigrationRecordTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_record",
+    title: "Migration Record",
     description:
       "Record a migration in the schema version tracking table with status 'recorded' (metadata only, SQL not executed). " +
       "Use mysql_migration_apply instead to execute SQL and record with status 'applied'. " +
@@ -202,6 +204,7 @@ export function createMigrationApplyTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_apply",
+    title: "Migration Apply",
     description:
       "Execute migration SQL and record it atomically. Note: MySQL DDL statements cannot be rolled back, they commit the current transaction. " +
       "Auto-provisions the tracking table on first use. " +

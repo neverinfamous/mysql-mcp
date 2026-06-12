@@ -32,6 +32,8 @@ export function createShellVersionTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
       try {

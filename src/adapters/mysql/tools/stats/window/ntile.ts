@@ -21,6 +21,7 @@ import { selectList, partitionClause, whereClause } from "./helpers.js";
 export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_ntile",
+    title: "Stats Ntile",
     description:
       "Divide ordered rows into N equal buckets (e.g., quartiles with buckets=4). Returns bucket assignment per row.",
     group: "stats",

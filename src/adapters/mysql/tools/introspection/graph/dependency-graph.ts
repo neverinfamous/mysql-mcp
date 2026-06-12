@@ -29,6 +29,7 @@ export function createDependencyGraphTool(
 ): ToolDefinition {
   return {
     name: "mysql_dependency_graph",
+    title: "Dependency Graph",
     description:
       "Get the full foreign key dependency graph with cascade paths, row counts, circular dependency detection, and severity assessment. Agent-optimized structured output.",
     group: "introspection",

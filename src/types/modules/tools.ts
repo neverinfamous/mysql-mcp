@@ -190,6 +190,12 @@ export interface ToolAnnotations {
    * May have side effects outside the server.
    */
   openWorldHint?: boolean;
+
+  /**
+   * Tool accesses or modifies highly sensitive data (PII, credentials, etc.)
+   * or performs critical operations. AI clients should exercise extreme caution.
+   */
+  sensitiveHint?: boolean;
 }
 
 /**

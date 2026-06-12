@@ -28,6 +28,8 @@ export function createProxySQLQueryRulesTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -64,6 +66,8 @@ export function createProxySQLQueryDigestTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -99,6 +103,8 @@ export function createProxySQLCommandsTool(): ToolDefinition {
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

@@ -21,6 +21,7 @@ import { selectList, partitionClause, whereClause } from "./helpers.js";
 export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_lag_lead",
+    title: "Stats Lag Lead",
     description:
       "Access data from previous (LAG) or next (LEAD) rows in an ordered set. Useful for comparisons, deltas, and change detection.",
     group: "stats",

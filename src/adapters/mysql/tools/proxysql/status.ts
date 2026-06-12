@@ -27,6 +27,8 @@ export function createProxySQLStatusTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -110,6 +112,8 @@ export function createProxySQLRuntimeStatusTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -178,6 +182,8 @@ export function createProxySQLMemoryStatsTool(): ToolDefinition {
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
       try {

@@ -23,6 +23,7 @@ export function createStatsRowNumberTool(
 ): ToolDefinition {
   return {
     name: "mysql_stats_row_number",
+    title: "Stats Row Number",
     description:
       "Assign sequential row numbers within an ordered result set. Use partitionBy to restart numbering per group.",
     group: "stats",

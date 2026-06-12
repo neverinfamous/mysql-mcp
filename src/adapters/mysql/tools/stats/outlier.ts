@@ -65,6 +65,7 @@ export const StatsOutliersSchema = z.object({
 export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_outliers",
+    title: "Stats Outliers",
     description:
       "Detect statistical outliers in a numeric column using IQR (interquartile range) or Z-score method. IQR is robust against non-normal distributions.",
     group: "stats",

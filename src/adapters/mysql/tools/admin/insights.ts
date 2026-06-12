@@ -48,6 +48,7 @@ export function createAppendInsightTool(): ToolDefinition {
       destructiveHint: false,
       idempotentHint: false,
       openWorldHint: false,
+      sensitiveHint: false,
     },
     handler: (params: unknown, _context: RequestContext) => {
       try {

@@ -23,6 +23,7 @@ export function createStatsMovingAvgTool(
 ): ToolDefinition {
   return {
     name: "mysql_stats_moving_avg",
+    title: "Stats Moving Avg",
     description:
       "Calculate moving average (AVG OVER sliding window) for a numeric column. Specify windowSize for the number of preceding rows to include.",
     group: "stats",

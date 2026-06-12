@@ -65,6 +65,7 @@ export function createDetectConnectionSpikeTool(
 ): ToolDefinition {
   return {
     name: "mysql_detect_connection_spike",
+    title: "Detect Connection Spike",
     description:
       "Detects unusual connection patterns by analyzing concentration by user, host, and state. Flags when a single user monopolizes the pool or idle connections accumulate.",
     inputSchema: DetectConnectionSpikeSchemaBase,

@@ -27,6 +27,7 @@ export function createCascadeSimulatorTool(
 ): ToolDefinition {
   return {
     name: "mysql_cascade_simulator",
+    title: "Cascade Simulator",
     description:
       "Simulate the impact of DELETE, DROP, or TRUNCATE on a table. Returns affected tables, estimated row counts, cascade paths, and severity assessment.",
     group: "introspection",

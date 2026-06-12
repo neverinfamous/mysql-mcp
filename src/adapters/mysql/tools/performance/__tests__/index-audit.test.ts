@@ -203,6 +203,7 @@ describe("Index Audit Tool", () => {
                 query_block: {
                   table: {
                     table_name: "users",
+    title: "Users",
                     access_type: "ALL",
                     attached_condition: "(`users`.`status` = 'active' and `users`.`role` = 'admin')"
                   }

@@ -1,15 +1,411 @@
+/**
+ * Integration Test: Tool Annotations
+ *
+ * Comprehensive validation of MCP tool annotations across all db-mcp tools.
+ * Validates annotation presence, field coverage, logical consistency,
+ * and correctness of behavioral hints.
+ *
+ * Checks:
+ *   1. Tool count matches expected total
+ *   2. All tools have an annotations object
+ *   3. All tools have explicit openWorldHint
+ *   4. openWorldHint=true matches an exact allowlist (FS/code tools only)
+ *   5. All tools have explicit readOnlyHint
+ *   6. All tools have explicit destructiveHint
+ *   7. No tools have readOnlyHint=true AND destructiveHint=true (contradiction)
+ *   8. All tools have explicit sensitiveHint or are audit/built-in
+ *   9. All tools have a title string
+ *  10. Read-only tools ideally have idempotentHint=true (advisory)
+ *
+ * Usage:
+ *   npm run build
+ *   node test-server/scripts/test-tool-annotations.mjs
+ */
+
 import { spawn } from "child_process";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectDir = resolve(__dirname, "..");
+// =============================================================================
+// Configuration
+// =============================================================================
 
-// Ensure DB connection env vars are present (inherit from shell or use Docker defaults)
-if (!process.env.MYSQL_HOST) process.env.MYSQL_HOST = "127.0.0.1";
-if (!process.env.MYSQL_USER) process.env.MYSQL_USER = "root";
-if (!process.env.MYSQL_PASSWORD) process.env.MYSQL_PASSWORD = "root";
-if (!process.env.MYSQL_DATABASE) process.env.MYSQL_DATABASE = "testdb";
+const projectDir = "C:\\Users\\chris\\Desktop\\mysql-mcp";
+
+/** Expected total tool count */
+const EXPECTED_TOOL_COUNT = 241;
+
+/**
+ * Tools registered directly via SDK's registerTool() cannot carry sensitiveHint
+ * because the SDK's ToolAnnotations type doesn't include it. Only our custom
+ * ToolDefinition type supports sensitiveHint.
+ */
+const SDK_REGISTERED_TOOLS = new Set([
+  "mysql_server_config",
+]);
+
+/**
+ * Exact allowlist of tools that legitimately need openWorldHint=true.
+ * These tools interact with the network, filesystem or execute arbitrary code
+ * that can reach the filesystem.
+ */
+const OPEN_WORLD_ALLOWLIST = new Set([
+
+  "mysql_execute_code",
+  "mysql_router_status",
+  "mysql_router_routes",
+  "mysql_router_route_status",
+  "mysql_router_route_health",
+  "mysql_router_route_connections",
+  "mysql_router_route_destinations",
+  "mysql_router_route_blocked_hosts",
+  "mysql_router_metadata_status",
+  "mysql_router_pool_status",
+  "proxysql_status",
+  "proxysql_servers",
+  "proxysql_query_rules",
+  "proxysql_query_digest",
+  "proxysql_connection_pool",
+  "proxysql_users",
+  "proxysql_global_variables",
+  "proxysql_runtime_status",
+  "proxysql_memory_stats",
+  "proxysql_commands",
+  "proxysql_process_list",
+  "mysqlsh_version",
+  "mysqlsh_check_upgrade",
+  "mysqlsh_export_table",
+  "mysqlsh_import_table",
+  "mysqlsh_import_json",
+  "mysqlsh_dump_instance",
+  "mysqlsh_dump_schemas",
+  "mysqlsh_dump_tables",
+  "mysqlsh_load_dump",
+  "mysqlsh_run_script",
+]);
+
+// =============================================================================
+// Result Tracking
+// =============================================================================
+
+const results = [];
+const warnings = [];
+
+function pass(label, detail) {
+  results.push({ status: "pass", label, detail });
+}
+
+function fail(label, detail) {
+  results.push({ status: "fail", label, detail });
+}
+
+function warn(label, detail) {
+  warnings.push({ label, detail });
+}
+
+// =============================================================================
+// Validation Logic
+// =============================================================================
+
+function validateAnnotations(tools) {
+  console.log(`Total tools: ${tools.length}\n`);
+
+  // â”€â”€ 1. Tool count â”€â”€
+  if (tools.length === EXPECTED_TOOL_COUNT) {
+    pass("Tool count", `${tools.length} (expected ${EXPECTED_TOOL_COUNT})`);
+  } else {
+    fail("Tool count", `${tools.length} (expected ${EXPECTED_TOOL_COUNT})`);
+  }
+
+  // â”€â”€ Collect per-field stats â”€â”€
+  const stats = {
+    hasAnnotations: 0,
+    hasOpenWorldHint: 0,
+    hasReadOnlyHint: 0,
+    hasDestructiveHint: 0,
+    hasSensitiveHint: 0,
+    hasIdempotentHint: 0,
+    hasTitle: 0,
+    openWorldTrue: [],
+    openWorldFalse: 0,
+    readOnlyTrue: [],
+    destructiveTrue: [],
+    sensitiveTrue: [],
+    contradictions: [], // readOnly + destructive
+    missingAnnotations: [],
+    missingOpenWorld: [],
+    missingReadOnly: [],
+    missingDestructive: [],
+    missingSensitive: [],
+    missingTitle: [],
+    readOnlyMissingIdempotent: [],
+  };
+
+  for (const tool of tools) {
+    const a = tool.annotations;
+
+    if (!a) {
+      stats.missingAnnotations.push(tool.name);
+      continue;
+    }
+
+    stats.hasAnnotations++;
+
+    // openWorldHint
+    if (typeof a.openWorldHint === "boolean") {
+      stats.hasOpenWorldHint++;
+      if (a.openWorldHint) {
+        stats.openWorldTrue.push(tool.name);
+      } else {
+        stats.openWorldFalse++;
+      }
+    } else {
+      stats.missingOpenWorld.push(tool.name);
+    }
+
+    // readOnlyHint
+    if (typeof a.readOnlyHint === "boolean") {
+      stats.hasReadOnlyHint++;
+      if (a.readOnlyHint) {
+        stats.readOnlyTrue.push(tool.name);
+      }
+    } else {
+      stats.missingReadOnly.push(tool.name);
+    }
+
+    // destructiveHint
+    if (typeof a.destructiveHint === "boolean") {
+      stats.hasDestructiveHint++;
+      if (a.destructiveHint) {
+        stats.destructiveTrue.push(tool.name);
+      }
+    } else {
+      stats.missingDestructive.push(tool.name);
+    }
+
+    // sensitiveHint
+    if (typeof a.sensitiveHint === "boolean") {
+      stats.hasSensitiveHint++;
+      if (a.sensitiveHint) {
+        stats.sensitiveTrue.push(tool.name);
+      }
+    } else {
+      stats.missingSensitive.push(tool.name);
+    }
+
+    // idempotentHint
+    if (typeof a.idempotentHint === "boolean") {
+      stats.hasIdempotentHint++;
+    }
+
+    // title â€” check both tool.title (SDK top-level) and annotations.title (helper pattern)
+    const topTitle = typeof tool.title === "string" && tool.title.length > 0;
+    const annotTitle = typeof a.title === "string" && a.title.length > 0;
+    if (topTitle || annotTitle) {
+      stats.hasTitle++;
+    } else {
+      stats.missingTitle.push(tool.name);
+    }
+
+    // Contradiction check: readOnly + destructive
+    if (a.readOnlyHint === true && a.destructiveHint === true) {
+      stats.contradictions.push(tool.name);
+    }
+
+    // Advisory: read-only tools should have idempotentHint=true
+    if (a.readOnlyHint === true && a.idempotentHint !== true) {
+      stats.readOnlyMissingIdempotent.push(tool.name);
+    }
+  }
+
+  // â”€â”€ 2. All tools have annotations â”€â”€
+  if (stats.hasAnnotations === tools.length) {
+    pass(
+      "All tools have annotations",
+      `${stats.hasAnnotations}/${tools.length}`,
+    );
+  } else {
+    fail(
+      "All tools have annotations",
+      `${stats.hasAnnotations}/${tools.length} â€” missing: ${stats.missingAnnotations.join(", ")}`,
+    );
+  }
+
+  // â”€â”€ 3. All tools have explicit openWorldHint â”€â”€
+  if (stats.missingOpenWorld.length === 0) {
+    pass("openWorldHint coverage", `${stats.hasOpenWorldHint}/${tools.length}`);
+  } else {
+    fail(
+      "openWorldHint coverage",
+      `missing on: ${stats.missingOpenWorld.join(", ")}`,
+    );
+  }
+
+  // â”€â”€ 4. openWorldHint=true matches exact allowlist â”€â”€
+  const actualSet = new Set(stats.openWorldTrue);
+  const unexpected = stats.openWorldTrue.filter(
+    (name) => !OPEN_WORLD_ALLOWLIST.has(name),
+  );
+  const missing = [...OPEN_WORLD_ALLOWLIST].filter(
+    (name) => !actualSet.has(name),
+  );
+
+  if (unexpected.length === 0 && missing.length === 0) {
+    pass(
+      "openWorldHint allowlist",
+      `${stats.openWorldTrue.length} tools match (${stats.openWorldFalse} local)`,
+    );
+  } else {
+    const parts = [];
+    if (unexpected.length > 0) {
+      parts.push(`unexpected true: ${unexpected.join(", ")}`);
+    }
+    if (missing.length > 0) {
+      parts.push(`expected true but false/missing: ${missing.join(", ")}`);
+    }
+    fail("openWorldHint allowlist", parts.join(" | "));
+  }
+
+  // â”€â”€ 5. All tools have explicit readOnlyHint â”€â”€
+  if (stats.missingReadOnly.length === 0) {
+    pass("readOnlyHint coverage", `${stats.hasReadOnlyHint}/${tools.length}`);
+  } else {
+    fail(
+      "readOnlyHint coverage",
+      `missing on: ${stats.missingReadOnly.join(", ")}`,
+    );
+  }
+
+  // â”€â”€ 6. All tools have explicit destructiveHint â”€â”€
+  if (stats.missingDestructive.length === 0) {
+    pass(
+      "destructiveHint coverage",
+      `${stats.hasDestructiveHint}/${tools.length}`,
+    );
+  } else {
+    fail(
+      "destructiveHint coverage",
+      `missing on: ${stats.missingDestructive.join(", ")}`,
+    );
+  }
+
+  // â”€â”€ 7. No readOnly+destructive contradictions â”€â”€
+  if (stats.contradictions.length === 0) {
+    pass("No readOnly+destructive contradictions", "0 violations");
+  } else {
+    fail(
+      "No readOnly+destructive contradictions",
+      `contradictions: ${stats.contradictions.join(", ")}`,
+    );
+  }
+
+  // â”€â”€ 8. sensitiveHint coverage â”€â”€
+  // SDK-registered tools (built-in + audit) can't carry sensitiveHint because
+  // the SDK's ToolAnnotations type doesn't include it. Only flag non-SDK tools.
+  const sensitiveMissingNonSdk = stats.missingSensitive.filter(
+    (name) => !SDK_REGISTERED_TOOLS.has(name),
+  );
+  if (sensitiveMissingNonSdk.length === 0) {
+    pass(
+      "sensitiveHint coverage",
+      `${stats.hasSensitiveHint}/${tools.length} (${stats.missingSensitive.length} SDK-registered excluded)`,
+    );
+  } else {
+    fail(
+      "sensitiveHint coverage",
+      `missing on non-SDK tools: ${sensitiveMissingNonSdk.join(", ")}`,
+    );
+  }
+  if (stats.missingSensitive.length > 0) {
+    warn(
+      "sensitiveHint missing on SDK-registered tools",
+      `${stats.missingSensitive.join(", ")} (SDK ToolAnnotations type lacks sensitiveHint)`,
+    );
+  }
+
+  // â”€â”€ 9. All tools have a title â”€â”€
+  if (stats.missingTitle.length === 0) {
+    pass("title coverage", `${stats.hasTitle}/${tools.length}`);
+  } else {
+    fail("title coverage", `missing on: ${stats.missingTitle.join(", ")}`);
+  }
+
+  // â”€â”€ 10. Advisory: read-only tools should have idempotentHint=true â”€â”€
+  if (stats.readOnlyMissingIdempotent.length > 0) {
+    warn(
+      "Read-only tools missing idempotentHint=true",
+      stats.readOnlyMissingIdempotent.join(", "),
+    );
+  }
+
+  // â”€â”€ Summary â”€â”€
+  console.log("â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”");
+  console.log("â”‚                  ANNOTATION AUDIT RESULTS               â”‚");
+  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+
+  const hasFailure = results.some((r) => r.status === "fail");
+
+  for (const r of results) {
+    const icon = r.status === "pass" ? "âœ…" : "âŒ";
+    console.log(`â”‚ ${icon} ${r.label}`);
+    console.log(`â”‚    ${r.detail}`);
+  }
+
+  if (warnings.length > 0) {
+    console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+    console.log("â”‚ âš ï¸  ADVISORY WARNINGS (non-blocking)                    â”‚");
+    for (const w of warnings) {
+      console.log(`â”‚ âš ï¸  ${w.label}`);
+      console.log(`â”‚    ${w.detail}`);
+    }
+  }
+
+  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+  console.log("â”‚ FIELD COVERAGE SUMMARY                                  â”‚");
+  console.log(
+    `â”‚   openWorldHint:   ${pct(stats.hasOpenWorldHint, tools.length)}`,
+  );
+  console.log(
+    `â”‚   readOnlyHint:    ${pct(stats.hasReadOnlyHint, tools.length)}`,
+  );
+  console.log(
+    `â”‚   destructiveHint: ${pct(stats.hasDestructiveHint, tools.length)}`,
+  );
+  console.log(
+    `â”‚   sensitiveHint:   ${pct(stats.hasSensitiveHint, tools.length)}`,
+  );
+  console.log(
+    `â”‚   idempotentHint:  ${pct(stats.hasIdempotentHint, tools.length)} (optional)`,
+  );
+  console.log(`â”‚   title:           ${pct(stats.hasTitle, tools.length)}`);
+  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+  console.log(
+    `â”‚ BREAKDOWN: readOnlyHint=true: ${stats.readOnlyTrue.length} | destructiveHint=true: ${stats.destructiveTrue.length} | sensitiveHint=true: ${stats.sensitiveTrue.length}`,
+  );
+  console.log(
+    `â”‚ BREAKDOWN: openWorldHint=true: ${stats.openWorldTrue.length} (${stats.openWorldTrue.join(", ")})`,
+  );
+  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+
+  const verdict = hasFailure ? "âŒ FAIL" : "âœ… PASS";
+  console.log(`â”‚ VERDICT: ${verdict}`);
+  console.log("â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜");
+
+  return hasFailure ? 1 : 0;
+}
+
+function pct(count, total) {
+  const p = total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
+  return `${count}/${total} (${p}%)`;
+}
+
+// =============================================================================
+// Server Communication (JSON-RPC over stdio)
+// =============================================================================
+
+const cleanEnv = { ...process.env };
+if (!cleanEnv.MYSQL_HOST) cleanEnv.MYSQL_HOST = "127.0.0.1";
+if (!cleanEnv.MYSQL_USER) cleanEnv.MYSQL_USER = "root";
+if (!cleanEnv.MYSQL_PASSWORD) cleanEnv.MYSQL_PASSWORD = "root";
+if (!cleanEnv.MYSQL_DATABASE) cleanEnv.MYSQL_DATABASE = "testdb";
 
 const proc = spawn(
   "node",
@@ -23,15 +419,16 @@ const proc = spawn(
   {
     cwd: projectDir,
     stdio: ["pipe", "pipe", "pipe"],
+    env: cleanEnv,
   },
 );
 
 let buffer = "";
+let finished = false;
 
 proc.stdout.on("data", (chunk) => {
   buffer += chunk.toString();
 
-  // Try to parse complete JSON-RPC responses
   const lines = buffer.split("\n");
   for (const line of lines) {
     const trimmed = line.trim();
@@ -39,51 +436,15 @@ proc.stdout.on("data", (chunk) => {
     try {
       const msg = JSON.parse(trimmed);
       if (msg.id === 1) {
-        // Initialize response — skip
+        // Initialize response â€” skip
       } else if (msg.id === 2) {
         // tools/list response
         const tools = msg.result?.tools || [];
-        console.log(`Total tools: ${tools.length}`);
+        const exitCode = validateAnnotations(tools);
 
-        let withAnnotations = 0;
-        let openWorldTrue = 0;
-        let openWorldFalse = 0;
-        let missing = 0;
-        const trueNames = [];
-        const missingNames = [];
-
-        for (const tool of tools) {
-          if (tool.annotations) {
-            withAnnotations++;
-            if (tool.annotations.openWorldHint === true) {
-              openWorldTrue++;
-              trueNames.push(tool.name);
-            } else if (tool.annotations.openWorldHint === false) {
-              openWorldFalse++;
-            } else {
-              missing++;
-              missingNames.push(tool.name);
-            }
-          } else {
-            missing++;
-            missingNames.push(tool.name);
-          }
-        }
-
-        console.log(`Tools with annotations: ${withAnnotations}`);
-        console.log(`openWorldHint=true (GitHub): ${openWorldTrue}`);
-        console.log(`openWorldHint=false (core/local): ${openWorldFalse}`);
-        console.log(`Missing openWorldHint: ${missing}`);
-
-        if (trueNames.length > 0) {
-          console.log(`\nopenWorldHint=true tools: ${trueNames.join(", ")}`);
-        }
-        if (missingNames.length > 0) {
-          console.log(`\nMISSING annotations: ${missingNames.join(", ")}`);
-        }
-
-        clearTimeout(killTimeout);
-        process.exit(0);
+        finished = true;
+        proc.kill();
+        process.exit(exitCode);
       }
     } catch {
       // Not complete JSON yet
@@ -102,7 +463,7 @@ proc.stdin.write(
     params: {
       protocolVersion: "2025-03-26",
       capabilities: {},
-      clientInfo: { name: "test-script", version: "1.0" },
+      clientInfo: { name: "test", version: "1.0" },
     },
   }) + "\n",
 );
@@ -128,8 +489,10 @@ setTimeout(() => {
   }, 500);
 }, 1500);
 
-const killTimeout = setTimeout(() => {
-  console.log("Timeout — killing process");
-  proc.kill();
-  process.exit(1);
+setTimeout(() => {
+  if (!finished) {
+    console.log("Timeout â€” killing process");
+    proc.kill();
+    process.exit(1);
+  }
 }, 15000);

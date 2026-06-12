@@ -40,6 +40,7 @@ export function createConstraintAnalysisTool(
 ): ToolDefinition {
   return {
     name: "mysql_constraint_analysis",
+    title: "Constraint Analysis",
     description:
       "Analyze all constraints for issues: missing NOT NULL, missing primary keys.",
     group: "introspection",
@@ -371,6 +372,7 @@ export function createMigrationRisksTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_risks",
+    title: "Migration Risks",
     description:
       "Analyze proposed DDL statements for risks: data loss, lock contention, constraint violations, and breaking changes. Pre-flight check before executing migrations.",
     group: "introspection",

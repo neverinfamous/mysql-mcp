@@ -52,6 +52,8 @@ export function createShellExportTableTool(
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -138,6 +140,8 @@ export function createShellImportTableTool(
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -253,6 +257,8 @@ export function createShellImportJSONTool(
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

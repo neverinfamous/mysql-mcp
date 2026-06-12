@@ -32,13 +32,17 @@ describe("Graph Tools", () => {
         return createMockQueryResult([
           {
             schema_name: "testdb",
+    title: "Testdb",
             table_name: "A",
+    title: "A",
             row_count: 100,
             size_bytes: 1024,
           },
           {
             schema_name: "testdb",
+    title: "Testdb",
             table_name: "B",
+    title: "B",
             row_count: 200,
             size_bytes: 2048,
           },
@@ -48,6 +52,7 @@ describe("Graph Tools", () => {
         return createMockQueryResult([
           {
             constraint_name: "fk_a_b",
+    title: "Fk A B",
             from_schema: "testdb",
             from_table: "A",
             from_column: "b_id",
@@ -165,6 +170,7 @@ describe("Graph Tools", () => {
           return createMockQueryResult([
             {
               constraint_name: "fk_a_b",
+    title: "Fk A B",
               from_schema: "testdb",
               from_table: "A",
               from_column: "b_id",
@@ -176,6 +182,7 @@ describe("Graph Tools", () => {
             },
             {
               constraint_name: "fk_b_a",
+    title: "Fk B A",
               from_schema: "testdb",
               from_table: "B",
               from_column: "a_id",
