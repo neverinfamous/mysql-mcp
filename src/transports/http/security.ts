@@ -11,6 +11,8 @@ import {
   DEFAULT_RATE_LIMIT_MAX_REQUESTS,
   DEFAULT_HSTS_MAX_AGE,
 } from "./types.js";
+import { logger } from "../../utils/logger.js";
+import type { RedisClientType } from "redis";
 
 // =============================================================================
 // Rate Limiting
@@ -38,11 +40,12 @@ export function getClientIp(
  * Check rate limit for a request.
  * Returns object with `allowed` flag and optional `retryAfterSeconds`.
  */
-export function checkRateLimit(
+export async function checkRateLimit(
   req: IncomingMessage,
   config: HttpTransportConfig,
   rateLimitMap: Map<string, RateLimitEntry>,
-): { allowed: boolean; retryAfterSeconds?: number } {
+  redisClient?: RedisClientType,
+): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
   if (!config.enableRateLimit) {
     return { allowed: true };
   }
@@ -52,6 +55,27 @@ export function checkRateLimit(
   const windowMs = config.rateLimitWindowMs ?? DEFAULT_RATE_LIMIT_WINDOW_MS;
   const maxRequests =
     config.rateLimitMaxRequests ?? DEFAULT_RATE_LIMIT_MAX_REQUESTS;
+
+  if (redisClient?.isOpen) {
+    try {
+      const key = `http:rl:${clientIp}`;
+      const current = await redisClient.incr(key);
+      if (current === 1) {
+        await redisClient.pExpire(key, windowMs);
+      }
+      
+      if (current > maxRequests) {
+        const ttl = await redisClient.pTTL(key);
+        const retryAfterSeconds = Math.ceil(Math.max(0, ttl) / 1000);
+        return { allowed: false, retryAfterSeconds };
+      }
+      return { allowed: true };
+    } catch (err) {
+      logger.error("Redis HTTP rate limit error, falling back to memory", {
+        error: err instanceof Error ? err : new Error(String(err)),
+      });
+    }
+  }
 
   const entry = rateLimitMap.get(clientIp);
 

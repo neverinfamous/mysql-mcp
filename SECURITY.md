@@ -79,7 +79,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8)
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — 30s hard limit (configurable) enforced by the isolate engine.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — 60 executions per minute per client.
+- ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -111,7 +111,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ### **Rate Limiting & Timeouts**
 
-- ✅ **Built-in Rate Limiting** — 100 requests/minute per IP
+- ✅ **Built-in Rate Limiting** — 100 requests/minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
 - ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
@@ -236,11 +236,11 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Code Mode RPC quotas (100 calls per execution)
 - [x] Code Mode streaming egress boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (30s hard limit)
-- [x] Code Mode rate limiting (60 executions/min)
+- [x] Code Mode rate limiting (60 executions/min, Redis-backed with in-memory fallback)
 - [x] Code Mode audit logging
 - [x] HTTP body size limit (configurable, default 1 MB)
 - [x] Configurable CORS with origin whitelist
-- [x] Rate limiting (100 req/min per IP)
+- [x] Rate limiting (100 req/min per IP, Redis-backed with in-memory fallback)
 - [x] Slowloris DoS timeouts (`MCP_REQUEST_TIMEOUT`, `MCP_HEADERS_TIMEOUT`)
 - [x] DNS rebinding protection via Host header validation
 - [x] Security headers (CSP, X-Content-Type-Options, X-Frame-Options, Cache-Control, Referrer-Policy, Permissions-Policy)

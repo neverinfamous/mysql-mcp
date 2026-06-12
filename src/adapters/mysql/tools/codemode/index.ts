@@ -179,7 +179,7 @@ return results;
 
       // Check rate limit
       const clientId = "default";
-      if (!security.checkRateLimit(clientId)) {
+      if (!(await security.checkRateLimit(clientId))) {
         return {
           success: false,
           error: "Rate limit exceeded. Please wait before executing more code.",

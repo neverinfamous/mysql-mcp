@@ -20,6 +20,7 @@ import {
 } from "../types.js";
 import { SessionManager } from "../session-manager.js";
 import { checkRateLimit, setSecurityHeaders, setCorsHeaders } from "../security.js";
+import { createClient, type RedisClientType } from "redis";
 import {
   handleHealthCheck,
   handleRootInfo,
@@ -49,6 +50,7 @@ export class HttpTransport {
   /** Rate limiting state */
   private readonly rateLimitMap = new Map<string, RateLimitEntry>();
   private rateLimitCleanupInterval: NodeJS.Timeout | null = null;
+  private redisClient?: RedisClientType;
 
   constructor(
     config: HttpTransportConfig,
@@ -124,6 +126,16 @@ export class HttpTransport {
         if (!this.config.stateless) {
           this.sessionManager.startSweep();
         }
+        
+        if (process.env["REDIS_URL"]) {
+          this.redisClient = createClient({ url: process.env["REDIS_URL"] });
+          this.redisClient.connect().catch((err: unknown) => {
+            logger.error("Redis connection failed in HttpTransport", {
+              error: err instanceof Error ? err : new Error(String(err)),
+            });
+          });
+        }
+        
         resolve();
       });
     });
@@ -136,6 +148,10 @@ export class HttpTransport {
     if (this.rateLimitCleanupInterval) {
       clearInterval(this.rateLimitCleanupInterval);
       this.rateLimitCleanupInterval = null;
+    }
+
+    if (this.redisClient?.isOpen) {
+      this.redisClient.destroy();
     }
 
     await this.sessionManager.closeAll();
@@ -244,7 +260,7 @@ export class HttpTransport {
     }
 
     // Check rate limit (after health check bypass)
-    const rateLimitResult = checkRateLimit(req, this.config, this.rateLimitMap);
+    const rateLimitResult = await checkRateLimit(req, this.config, this.rateLimitMap, this.redisClient);
     if (!rateLimitResult.allowed) {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",

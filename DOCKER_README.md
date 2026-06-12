@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-85.12%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-85.04%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -82,18 +82,16 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
 
-Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
+Code executes in a **C++ V8 isolate sandbox** (via `isolated-vm`) — a physically separate V8 isolate with strict heap limits and synchronous termination guarantees. All `mysql.*` API calls are mapped through the isolate boundary using native `ivm.Reference` wrappers. This provides:
 
-- **V8 code generation restrictions** — `eval()` and `Function()` construction from strings disabled at the engine level via `codeGeneration: { strings: false, wasm: false }`
-- **Frozen prototypes** — all built-in prototypes frozen inside the vm context to prevent dynamic constructor chain escapes
-- **18 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network access
-- **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
+- **Strict Isolate Boundary** — prevents native object cross-talk and eliminates prototype pollution vectors entirely since objects cannot cross the C++ boundary.
+- **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
+- **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
+- **Rate limiting** — 60 executions per minute per client, distributed via Redis (if `REDIS_URL` is set) with graceful in-memory fallback
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — worker termination if execution exceeds the configured limit
+- **Hard timeouts** — synchronous engine-level termination if execution exceeds the configured limit
 - **Full API access** — all 25 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
-
-Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
 
 ### ⚡ Code Mode Only (Maximum Token Savings)
 
@@ -116,7 +114,8 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "your_user",
         "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database"
+        "MYSQL_DATABASE": "your_database",
+        "REDIS_URL": "redis://localhost:6379"
       }
     }
   }
