@@ -223,18 +223,33 @@ async function main() {
     "mysql://help",
     "mysql://help/core",
     "mysql://help/json",
+    "mysql://help/transactions",
     "mysql://help/text",
+    "mysql://help/fulltext",
     "mysql://help/stats",
     "mysql://help/spatial",
     "mysql://help/admin",
-    "mysql://help/transactions",
+    "mysql://help/monitoring",
+    "mysql://help/performance",
+    "mysql://help/optimization",
+    "mysql://help/backup",
+    "mysql://help/replication",
+    "mysql://help/partitioning",
+    "mysql://help/schema",
     "mysql://help/introspection",
     "mysql://help/migration",
+    "mysql://help/events",
+    "mysql://help/sysschema",
+    "mysql://help/security",
+    "mysql://help/roles",
+    "mysql://help/docstore",
     "mysql://help/cluster",
     "mysql://help/proxysql",
+    "mysql://help/router",
     "mysql://help/shell",
+    "mysql://help/vector"
   ];
-  const fullHasAll = expectedFull.every((u) => fullHelpUris.includes(u));
+  const fullHasAll = expectedFull.length === fullHelpUris.length && expectedFull.every((u) => fullHelpUris.includes(u));
   console.log(`  Has expected help resources: ${fullHasAll ? "✅" : "❌"}`);
   if (!fullHasAll) allPassed = false;
 
