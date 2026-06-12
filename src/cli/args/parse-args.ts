@@ -15,6 +15,14 @@ import { loadConfigFile } from "./load-config-file.js";
 import { loadEnvConfig } from "./load-env-config.js";
 import { printHelp } from "./print-help.js";
 
+function isTransportType(val: string): val is TransportType {
+  return val === "stdio" || val === "http" || val === "sse";
+}
+
+function isCliLogLevel(level: string): level is "debug" | "info" | "warning" | "error" {
+  return level === "debug" || level === "info" || level === "warning" || level === "error";
+}
+
 /**
  * Parse command line arguments
  */
@@ -69,8 +77,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
     switch (arg) {
       case "--transport":
       case "-t":
-        if (nextArg && !nextArg.startsWith("-")) {
-          cliConfig.transport = nextArg as TransportType;
+        if (nextArg && !nextArg.startsWith("-") && isTransportType(nextArg)) {
+          cliConfig.transport = nextArg;
           i++;
         }
         break;
@@ -236,9 +244,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): {
         if (nextArg && !nextArg.startsWith("-")) {
           const level = nextArg.toLowerCase();
           const mapped = level === "warn" ? "warning" : level;
-          const validLevels = ["debug", "info", "warning", "error"];
-          if (validLevels.includes(mapped)) {
-            logger.setLevel(mapped as "debug" | "info" | "warning" | "error");
+          if (isCliLogLevel(mapped)) {
+            logger.setLevel(mapped);
           }
           i++;
         }

@@ -27,11 +27,11 @@ vi.mock("../args/index.js", () => ({
 const originalExit = process.exit;
 
 describe("CLI Main", () => {
-  let mockServer: any;
-  let mockAdapter: any;
-  let mockExit: any;
-  let mockConsoleError: any;
-  let mockProcessOn: any;
+  let mockServer: { start: Mock; stop: Mock; registerAdapter: Mock };
+  let mockAdapter: { connect: Mock; disconnect: Mock; getCapabilities: Mock; isConnected: Mock };
+  let mockExit: Mock;
+  let mockConsoleError: Mock;
+  let mockProcessOn: Mock;
 
   // Custom error to simulate process.exit
   class ExitError extends Error {
@@ -205,7 +205,7 @@ describe("CLI Main", () => {
 
     // Get the shutdown handler
     const shutdownHandler = mockProcessOn.mock.calls.find(
-      (call: any[]) => call[0] === "SIGINT",
+      (call: unknown[]) => call[0] === "SIGINT",
     )[1];
 
     // Override mockExit to not throw for this test to avoid Unhandled Rejection in the void wrapper

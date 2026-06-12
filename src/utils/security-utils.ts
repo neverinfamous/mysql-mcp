@@ -186,11 +186,11 @@ export function parseAllowedIoRoots(
   try {
     if (raw.trim().startsWith("[")) {
       const parsed: unknown = JSON.parse(raw);
-      if (
-        Array.isArray(parsed) &&
-        parsed.every((p) => typeof p === "string" && isAbsolute(p))
-      ) {
-        paths = parsed as string[];
+      const isAbsoluteStringArray = (arr: unknown[]): arr is string[] => 
+        arr.every((p) => typeof p === "string" && isAbsolute(p));
+        
+      if (Array.isArray(parsed) && isAbsoluteStringArray(parsed)) {
+        paths = parsed;
       } else {
         throw new ValidationError("Must be an array of absolute paths");
       }

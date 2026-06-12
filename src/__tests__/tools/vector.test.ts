@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getVectorTools } from "../../adapters/mysql/tools/vector/index.js";
 import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
-import type { ToolDefinition } from "../../types/index.js";
+import type { ToolDefinition, RequestContext } from "../../types/index.js";
 
 // Mock the MySQLAdapter
 const mockExecuteQuery = vi.fn().mockImplementation(async (sql) => {
@@ -14,6 +14,8 @@ const mockExecuteQuery = vi.fn().mockImplementation(async (sql) => {
 const mockAdapter = {
   executeQuery: mockExecuteQuery,
 } as unknown as MySQLAdapter;
+
+const mockContext: RequestContext = { timestamp: new Date(), requestId: "test" };
 
 describe("Vector Tools", () => {
   let tools: Map<string, ToolDefinition>;
@@ -46,8 +48,8 @@ describe("Vector Tools", () => {
       
       const result = await storeTool.handler(
         { table: "t1", column: "v1", id: 1, vector: [1, 2, 3] },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.code).toBe("EXTENSION_MISSING");
@@ -59,8 +61,8 @@ describe("Vector Tools", () => {
       
       const result = await indexTool.handler(
         { table: "t1", column: "v1" },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.code).toBe("EXTENSION_MISSING");
@@ -73,8 +75,8 @@ describe("Vector Tools", () => {
       const tool = tools.get("mysql_vector_store")!;
       const result = await tool.handler(
         { table: "t1", column: "v1", id: 1, vector: [] },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.category).toBe("validation");
@@ -86,8 +88,8 @@ describe("Vector Tools", () => {
       const tool = tools.get("mysql_vector_batch_store")!;
       const result = await tool.handler(
         { table: "t1", column: "v1", items: [] },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.category).toBe("validation");
@@ -99,8 +101,8 @@ describe("Vector Tools", () => {
       const tool = tools.get("mysql_vector_search")!;
       const result = await tool.handler(
         { table: "t1", column: "v1", queryVector: [1,2,3], metric: "INVALID" },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.category).toBe("validation");
@@ -131,8 +133,8 @@ describe("Vector Tools", () => {
       
       const result = await successTool.handler(
         { table: "t1", column: "v1", queryVector: [1, 2, 3] },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       console.log(result);
       expect(result.success).toBe(true);
@@ -145,8 +147,8 @@ describe("Vector Tools", () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
       const result = await tool.handler(
         { table: "t1", vectorColumn: "v1", textColumn: "t1" },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.category).toBe("validation");
@@ -162,8 +164,8 @@ describe("Vector Tools", () => {
       
       const result = await tool.handler(
         { table: "t1", vectorColumn: "v1", textColumn: "t1", queryText: "test" },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.code).toBe("FULLTEXT_INDEX_MISSING");
@@ -179,8 +181,8 @@ describe("Vector Tools", () => {
       
       const result = await tool.handler(
         { table: "t1", vectorColumn: "v1", textColumn: "t1", queryVector: [1,2,3] },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       expect(result.success).toBe(false);
       expect(result.code).toBe("TABLE_NOT_FOUND");
@@ -196,8 +198,8 @@ describe("Vector Tools", () => {
       
       const result = await tool.handler(
         { table: "t1", vectorColumn: "v1", textColumn: "t1", queryVector: [1,2,3], queryText: "hello" },
-        {} as any
-      ) as any;
+        mockContext
+      );
       
       console.log("TEST RESULT:", result);
       expect(result.success).toBe(true);

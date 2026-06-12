@@ -156,6 +156,10 @@ const SENSITIVE_KEY_PATTERN = new RegExp(
     .join("|"),
 );
 
+function isLogContext(value: unknown): value is LogContext {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /**
  * Sanitize log context by redacting sensitive values
  */
@@ -172,12 +176,8 @@ function sanitizeContext(context: LogContext): LogContext {
       result[key] = "[REDACTED]";
     } else if (typeof value === "string") {
       result[key] = redactSensitive(value);
-    } else if (
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value)
-    ) {
-      result[key] = sanitizeContext(value as LogContext);
+    } else if (isLogContext(value)) {
+      result[key] = sanitizeContext(value);
     } else {
       result[key] = value;
     }
@@ -448,8 +448,12 @@ class ModuleLogger {
 
 export const logger = new Logger();
 
+function isLogLevel(level: string): level is LogLevel {
+  return level in LEVEL_PRIORITY;
+}
+
 // Initialize log level from environment
 const envLevel = process.env["LOG_LEVEL"]?.toLowerCase();
-if (envLevel && envLevel in LEVEL_PRIORITY) {
-  logger.setLevel(envLevel as LogLevel);
+if (envLevel && isLogLevel(envLevel)) {
+  logger.setLevel(envLevel);
 }

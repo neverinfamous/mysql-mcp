@@ -40,12 +40,29 @@ export function buildProgressContext(
     return undefined;
   }
   
-  // Handle both direct Server instances and McpServer wrappers
-  const serverObj = ctx.server as unknown as { server?: NotificationSender };
-  const server = serverObj.server ?? ctx.server;
+  interface ServerWrapper { server?: NotificationSender }
+  const hasInnerServer = (s: unknown): s is ServerWrapper => {
+    return typeof s === 'object' && s !== null && 'server' in s;
+  };
+  const isNotificationSender = (s: unknown): s is NotificationSender => {
+    return typeof s === 'object' && s !== null && 'notification' in s;
+  };
+
+  const serverObj = ctx.server;
+  let server: NotificationSender | undefined;
+
+  if (hasInnerServer(serverObj) && isNotificationSender(serverObj.server)) {
+    server = serverObj.server;
+  } else if (isNotificationSender(serverObj)) {
+    server = serverObj;
+  }
+
+  if (!server) {
+    return undefined;
+  }
 
   return {
-    server: server as NotificationSender,
+    server,
     progressToken: ctx.progressToken,
   };
 }
