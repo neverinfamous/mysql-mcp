@@ -93,21 +93,26 @@ describe("TOOL_GROUPS", () => {
 });
 
 describe("META_GROUPS", () => {
-  it("should contain all 12 meta-groups", () => {
+  it("should contain all 16 meta-groups", () => {
     const expectedMetaGroups = [
       "starter",
       "essential",
       "dev-power",
-      "ai-data",
+      "dev-analytics",
+      "ai-data-nosql",
+      "ai-search",
       "ai-spatial",
+      "ai-vector",
       "dba-monitor",
       "dba-manage",
       "dba-secure",
-      "base-core",
-      "base-advanced",
+      "dba-schema",
+      "base-relational",
+      "base-analytics",
+      "base-nosql",
       "ecosystem",
     ];
-    expect(Object.keys(META_GROUPS)).toHaveLength(13);
+    expect(Object.keys(META_GROUPS)).toHaveLength(16);
     for (const metaGroup of expectedMetaGroups) {
       expect(META_GROUPS).toHaveProperty(metaGroup);
     }
@@ -186,16 +191,16 @@ describe("getMetaGroupTools", () => {
     expect(tools).toHaveLength(41);
   });
 
-  it("should return correct tools for base-core meta-group", () => {
-    const tools = getMetaGroupTools("base-core");
-    // base-core = core(12) + json(17) + transactions(7) + text(6) + schema(11) + codemode(1) = 54
-    expect(tools).toHaveLength(54);
+  it("should return correct tools for base-relational meta-group", () => {
+    const tools = getMetaGroupTools("base-relational");
+    // base-relational = core(12) + transactions(7) + text(6) + schema(11) + codemode(1) = 37
+    expect(tools).toHaveLength(37);
   });
 
-  it("should return correct tools for base-advanced meta-group", () => {
-    const tools = getMetaGroupTools("base-advanced");
-    // base-advanced = docstore(9) + spatial(12) + stats(20) + fulltext(5) + events(6) + codemode(1) + vector(11) = 64
-    expect(tools).toHaveLength(64);
+  it("should return correct tools for base-nosql meta-group", () => {
+    const tools = getMetaGroupTools("base-nosql");
+    // base-nosql = docstore(9) + spatial(12) + vector(11) + codemode(1) = 33
+    expect(tools).toHaveLength(33);
   });
 
   it("should return correct tools for dba-monitor meta-group", () => {
@@ -458,9 +463,9 @@ describe("getToolGroupInfo", () => {
 });
 
 describe("getMetaGroupInfo", () => {
-  it("should return info for all 13 meta-groups", () => {
+  it("should return info for all 16 meta-groups", () => {
     const info = getMetaGroupInfo();
-    expect(info).toHaveLength(13);
+    expect(info).toHaveLength(16);
   });
 
   it("should include correct expanded counts", () => {

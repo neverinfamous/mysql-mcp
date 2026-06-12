@@ -149,8 +149,8 @@ describe("Performance Tests", () => {
       const starterConfig = parseToolFilter("starter");
       expect(starterConfig.enabledTools.size).toBe(43);
 
-      const aiDataConfig = parseToolFilter("ai-data");
-      expect(aiDataConfig.enabledTools.size).toBe(61);
+      const aiDataConfig = parseToolFilter("ai-data-nosql");
+      expect(aiDataConfig.enabledTools.size).toBe(39);
 
       const dbaMonitorConfig = parseToolFilter("dba-monitor");
       expect(dbaMonitorConfig.enabledTools.size).toBe(43);
@@ -159,7 +159,7 @@ describe("Performance Tests", () => {
       expect(dbaSecureConfig.enabledTools.size).toBe(37);
 
       const devPowerConfig = parseToolFilter("dev-power");
-      expect(devPowerConfig.enabledTools.size).toBe(67);
+      expect(devPowerConfig.enabledTools.size).toBe(47);
     });
 
     describe("filterTools performance", () => {

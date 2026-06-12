@@ -51,16 +51,19 @@ export type ToolGroup =
 export type MetaGroup =
   | "starter" // Recommended default (Core, JSON, Trans, Text) ~38 tools
   | "essential" // Minimal footprint (Core, Trans) ~15 tools
-  | "dev-power" // Power Developer (Core, Schema, Perf, Stats, Fulltext) ~45 tools
-  | "ai-data" // AI Data Analyst (Core, JSON, DocStore, Text, Fulltext) ~44 tools
-  | "ai-spatial" // AI Spatial Analyst (Core, Spatial, Stats, Perf) ~43 tools
-  | "ai-vector" // AI Vector Analyst (Core, Vector, Stats, Perf) ~40 tools
-  | "dba-monitor" // DBA Monitoring (Core, Monitor, Perf, SysSchema, Opt) ~35 tools
-  | "dba-manage" // DBA Management (Core, Admin, Backup, Repl, Parts, Events) ~33 tools
-  | "dba-secure" // DBA Security (Core, Security, Roles) ~32 tools
-  | "dba-schema" // DBA Schema (Core, Schema, Introspection, Migration) ~31 tools
-  | "base-core" // Base: Core Operations ~48 tools
-  | "base-advanced" // Base: Advanced Features ~39 tools
+  | "dev-power" // Power Developer (Core, Schema, Perf, Fulltext) ~47 tools
+  | "dev-analytics" // Developer Analytics (Core, Stats, Perf) ~44 tools
+  | "ai-data-nosql" // AI Data NoSQL (Core, JSON, DocStore) ~39 tools
+  | "ai-search" // AI Search (Core, Text, Fulltext, Vector) ~35 tools
+  | "ai-spatial" // AI Spatial Analyst (Core, Spatial) ~32 tools
+  | "ai-vector" // AI Vector Analyst (Core, Vector, Fulltext) ~29 tools
+  | "dba-monitor" // DBA Monitoring (Core, Monitor, Perf, SysSchema, Opt) ~43 tools
+  | "dba-manage" // DBA Management (Core, Admin, Backup, Repl, Parts, Events) ~44 tools
+  | "dba-secure" // DBA Security (Core, Security, Roles) ~37 tools
+  | "dba-schema" // DBA Schema (Core, Schema, Introspection, Migration) ~36 tools
+  | "base-relational" // Base: Relational (Core, Trans, Text, Schema) ~37 tools
+  | "base-analytics" // Base: Analytics (Stats, Events) ~27 tools
+  | "base-nosql" // Base: NoSQL (DocStore, Spatial, Vector) ~33 tools
   | "ecosystem"; // External Tools + Cluster ~41 tools
 
 /**

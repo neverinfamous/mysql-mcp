@@ -145,7 +145,10 @@ describe("Admin Maintenance Tools", () => {
       await tool.handler({ tables: ["table1", "table2"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
-        "ANALYZE TABLE `table1`, `table2`",
+        "ANALYZE TABLE `table1`",
+      );
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
+        "ANALYZE TABLE `table2`",
       );
     });
   });
@@ -210,7 +213,10 @@ describe("Admin Maintenance Tools", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
-        "CHECK TABLE `t1`, `t2` MEDIUM",
+        "CHECK TABLE `t1` MEDIUM",
+      );
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
+        "CHECK TABLE `t2` MEDIUM",
       );
     });
 

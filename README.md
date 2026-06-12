@@ -391,18 +391,22 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Shortcut        | Tools  | Use Case           | What's Included                                                    |
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
-| `starter`       | **43** | Standard Package   | core, json, transactions, text, codemode                           |
-| `essential`     | 20     | Minimal footprint  | core, transactions, codemode                                       |
-| `dev-power`     | 67     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
-| `ai-data`       | 50     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
-| `ai-spatial`    | 63     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
-| `dba-monitor`   | 43     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
-| `dba-manage`    | 43     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
-| `dba-secure`    | 37     | DBA Security       | core, security, roles, transactions, codemode                      |
-| `dba-schema`    | 36     | DBA Schema         | core, schema, introspection, migration, codemode                   |
-| `base-core`     | 54     | Base Ops           | core, json, transactions, text, schema, codemode                   |
-| `base-advanced` | 53     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
-| `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell, codemode                         |
+| `starter`         | **43** | Standard Package    | core, json, transactions, text, codemode                         |
+| `essential`       | 20     | Minimal footprint   | core, transactions, codemode                                     |
+| `dev-power`       | 47     | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
+| `dev-analytics`   | 44     | Developer Analytics | core, stats, performance, codemode                               |
+| `ai-data-nosql`   | 39     | AI Data NoSQL       | core, json, docstore, codemode                                   |
+| `ai-search`       | 35     | AI Search           | core, text, fulltext, vector, codemode                           |
+| `ai-spatial`      | 32     | AI Spatial Analyst  | core, spatial, transactions, codemode                            |
+| `ai-vector`       | 29     | AI Vector Analyst   | core, vector, fulltext, codemode                                 |
+| `dba-monitor`     | 43     | DBA Monitoring      | core, monitoring, performance, sysschema, optimization, codemode |
+| `dba-manage`      | 44     | DBA Management      | core, admin, backup, replication, partitioning, events, codemode |
+| `dba-secure`      | 37     | DBA Security        | core, security, roles, transactions, codemode                    |
+| `dba-schema`      | 36     | DBA Schema          | core, schema, introspection, migration, codemode                 |
+| `base-relational` | 37     | Base Relational     | core, transactions, text, schema, codemode                       |
+| `base-analytics`  | 27     | Base Analytics      | stats, events, codemode                                          |
+| `base-nosql`      | 33     | Base NoSQL          | docstore, spatial, vector, codemode                              |
+| `ecosystem`       | 41     | External Tools      | cluster, proxysql, router, shell, codemode                       |
 
 ### Tool Groups (28 Available)
 

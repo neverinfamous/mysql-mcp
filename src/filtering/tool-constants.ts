@@ -317,19 +317,22 @@ export const TOOL_GROUPS = {
  * STRICT LIMIT: NO group may exceed 70 tools.
  *
  * Tool counts (verified):
- *   starter:       43 (core:12 + json:17 + transactions:7 + text:6 + codemode:1)
- *   essential:     20 (core:12 + transactions:7 + codemode:1)
- *   dev-power:     67 (core:12 + schema:11 + performance:11 + stats:20 + fulltext:5 + transactions:7 + codemode:1)
- *   ai-data:       61 (core:12 + json:17 + docstore:9 + text:6 + fulltext:5 + vector:11 + codemode:1)
- *   ai-spatial:    63 (core:12 + spatial:12 + stats:20 + performance:11 + transactions:7 + codemode:1)
- *   ai-vector:     29 (core:12 + vector:11 + fulltext:5 + codemode:1)
- *   dba-monitor:   43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
- *   dba-manage:    44 (core:12 + admin:9 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
- *   dba-secure:    37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
- *   dba-schema:    36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
- *   base-core:     54 (core:12 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)
- *   base-advanced: 64 (docstore:9 + spatial:12 + stats:20 + fulltext:5 + events:6 + vector:11 + codemode:1)
- *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
+ *   starter:         43 (core:12 + json:17 + transactions:7 + text:6 + codemode:1)
+ *   essential:       20 (core:12 + transactions:7 + codemode:1)
+ *   dev-power:       47 (core:12 + schema:11 + performance:11 + fulltext:5 + transactions:7 + codemode:1)
+ *   dev-analytics:   44 (core:12 + stats:20 + performance:11 + codemode:1)
+ *   ai-data-nosql:   39 (core:12 + json:17 + docstore:9 + codemode:1)
+ *   ai-search:       35 (core:12 + text:6 + fulltext:5 + vector:11 + codemode:1)
+ *   ai-spatial:      32 (core:12 + spatial:12 + transactions:7 + codemode:1)
+ *   ai-vector:       29 (core:12 + vector:11 + fulltext:5 + codemode:1)
+ *   dba-monitor:     43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
+ *   dba-manage:      44 (core:12 + admin:9 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
+ *   dba-secure:      37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
+ *   dba-schema:      36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
+ *   base-relational: 37 (core:12 + transactions:7 + text:6 + schema:11 + codemode:1)
+ *   base-analytics:  27 (stats:20 + events:6 + codemode:1)
+ *   base-nosql:      33 (docstore:9 + spatial:12 + vector:11 + codemode:1)
+ *   ecosystem:       41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */
 export const META_GROUPS = {
   // 1. General Use
@@ -339,22 +342,16 @@ export const META_GROUPS = {
     "core",
     "schema",
     "performance",
-    "stats",
     "fulltext",
     "transactions",
     "codemode",
   ],
+  "dev-analytics": ["core", "stats", "performance", "codemode"],
 
   // 2. AI Workloads
-  "ai-data": ["core", "json", "docstore", "text", "fulltext", "vector", "codemode"],
-  "ai-spatial": [
-    "core",
-    "spatial",
-    "stats",
-    "performance",
-    "transactions",
-    "codemode",
-  ],
+  "ai-data-nosql": ["core", "json", "docstore", "codemode"],
+  "ai-search": ["core", "text", "fulltext", "vector", "codemode"],
+  "ai-spatial": ["core", "spatial", "transactions", "codemode"],
   "ai-vector": ["core", "vector", "fulltext", "codemode"],
 
   // 3. DBA Workloads
@@ -379,16 +376,9 @@ export const META_GROUPS = {
   "dba-schema": ["core", "schema", "introspection", "migration", "codemode"],
 
   // 4. Base Blocks (Building Blocks)
-  "base-core": ["core", "json", "transactions", "text", "schema", "codemode"],
-  "base-advanced": [
-    "docstore",
-    "spatial",
-    "stats",
-    "fulltext",
-    "events",
-    "vector",
-    "codemode",
-  ],
+  "base-relational": ["core", "transactions", "text", "schema", "codemode"],
+  "base-analytics": ["stats", "events", "codemode"],
+  "base-nosql": ["docstore", "spatial", "vector", "codemode"],
 
   // 5. Ecosystem
   ecosystem: ["router", "proxysql", "shell", "cluster", "codemode"],
