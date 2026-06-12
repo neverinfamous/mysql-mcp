@@ -6,8 +6,7 @@ export default defineConfig({
     globalTeardown: "./scripts/teardown.ts",
     include: ["src/**/*.test.ts"],
     exclude: ["node_modules", "dist"],
-    reporters: ["default", "json"],
-    outputFile: "test-results.json",
+    reporters: ["default"],
     testTimeout: 10000,
     hookTimeout: 10000,
     coverage: {
