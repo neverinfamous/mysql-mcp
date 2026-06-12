@@ -1,4 +1,4 @@
 allowBuilds:
   better-sqlite3: true
   esbuild: true
-  isolated-vm: set this to true or false
+  isolated-vm: true

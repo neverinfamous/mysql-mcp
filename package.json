@@ -81,11 +81,5 @@
     "@modelcontextprotocol/sdk": {
       "ajv": "8.18.0"
     }
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3",
-      "isolated-vm"
-    ]
   }
 }
