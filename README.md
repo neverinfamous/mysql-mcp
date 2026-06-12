@@ -28,7 +28,7 @@
 | **241 Specialized Tools**             | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
 | **19 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
-| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 241 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
+| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`isolated-vm`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 241 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
 | **Smart Tool Filtering**              | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                                                                                                                      |
@@ -95,18 +95,15 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
 
-Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
+Code executes in a **C++ V8 isolate sandbox** (via `isolated-vm`) — a physically separate V8 isolate with strict heap limits and synchronous termination guarantees. All `mysql.*` API calls are mapped through the isolate boundary using native `ivm.Reference` wrappers. This provides:
 
-- **V8 code generation restrictions** — `eval()` and `Function()` construction from strings disabled at the engine level via `codeGeneration: { strings: false, wasm: false }`
-- **Frozen prototypes** — all built-in prototypes frozen inside the vm context to prevent dynamic constructor chain escapes
-- **18 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network access
-- **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
+- **Strict Isolate Boundary** — prevents native object cross-talk and eliminates prototype pollution vectors entirely since objects cannot cross the C++ boundary.
+- **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
+- **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — worker termination if execution exceeds the configured limit
+- **Hard timeouts** — synchronous engine-level termination if execution exceeds the configured limit
 - **Full API access** — all 25 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
-
-Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
 
 ### ⚡ Code Mode Only (Maximum Token Savings)
 

@@ -15,11 +15,11 @@ import {
   createSandboxPool,
   getDefaultSandboxMode,
   type ISandboxPool,
-  type SandboxMode,
 } from "../../../../codemode/sandbox-factory.js";
 import { CodeModeSecurityManager } from "../../../../codemode/security.js";
 import { createMysqlApi } from "../../../../codemode/api/index.js";
 import type { ExecuteCodeOptions } from "../../../../codemode/types.js";
+import { logger } from "../../../../utils/logger.js";
 
 import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
 
@@ -78,22 +78,23 @@ let securityManager: CodeModeSecurityManager | null = null;
 /**
  * Get isolation mode from environment variable
  */
-function getIsolationMode(): SandboxMode {
+function getIsolationMode(): string {
   const envMode = process.env["CODEMODE_ISOLATION"];
-  if (envMode === "worker") return "worker";
-  if (envMode === "vm") return "vm";
+  if (envMode && envMode !== "isolate") {
+    logger.warning(`Unsupported CODEMODE_ISOLATION=${envMode}. Using default 'isolate' mode.`, { module: "CODEMODE" as const });
+  }
   return getDefaultSandboxMode();
 }
 
 /**
  * Initialize Code Mode infrastructure
  */
-function ensureInitialized(): {
+async function ensureInitialized(): Promise<{
   pool: ISandboxPool;
   security: CodeModeSecurityManager;
-} {
+}> {
   sandboxPool ??= createSandboxPool(getIsolationMode());
-  sandboxPool.initialize();
+  await sandboxPool.initialize();
   securityManager ??= new CodeModeSecurityManager();
   return { pool: sandboxPool, security: securityManager };
 }
@@ -152,10 +153,18 @@ return results;
       openWorldHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { code, readonly } = params as ExecuteCodeOptions;
+      const { code, readonly, timeout } = params as ExecuteCodeOptions & { timeout?: number };
+
+      if (!code) {
+        return {
+          success: false,
+          error: "Code parameter is required",
+          metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
+        };
+      }
 
       // Initialize infrastructure
-      const { pool, security } = ensureInitialized();
+      const { pool, security } = await ensureInitialized();
 
       // Validate code
       const validation = security.validateCode(code);
@@ -204,7 +213,7 @@ return results;
       const transactionsBefore = new Set(adapter.getActiveTransactionIds());
 
       // Execute in sandbox
-      const result = await pool.execute(code, bindings);
+      const result = await pool.execute(code, bindings, timeout);
 
       // Always cleanup orphaned transactions (uncommitted txns from any execution)
       const transactionsAfter = adapter.getActiveTransactionIds();

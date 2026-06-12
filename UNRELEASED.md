@@ -45,6 +45,8 @@
 - Updated `scripts` tests and `test-server` prompt readmes to remove legacy `instruction-level` references and validate the new Adaptive Instruction Architecture parameters.
 - Bumped GitHub Actions dependencies (`trufflesecurity/trufflehog` to v3.95.3, `docker/login-action` to v4.1.0, `actions/upload-artifact` to v7.0.1, `actions/github-script` to v9.0.0, and `github/codeql-action` to v4.35.5).
 
+- **Security:** Re-architected Code Mode sandbox by replacing the insecure `worker_threads` + `node:vm` engine with `isolated-vm` (C++ V8 bindings). This guarantees strict heap limits, eliminates prototype pollution vectors, prevents dynamic constructor chain escapes natively, and provides synchronous execution limits. Expanded static blocked patterns to 29 regex rules including Unicode escape detection, NFKC normalization, and comment stripping before pattern validation.
+
 ### Changed
 - **Audit:** Conducted comprehensive code quality audit. Cleaned up unused `devDependencies` (`rimraf`, `ts-morph`) and added missing `dotenv` dependency.
 - **Workflow:** Updated `audit-code-quality` workflow to explicitly exclude test files from the 500-line length limit.

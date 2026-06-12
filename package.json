@@ -54,7 +54,9 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "acorn": "^8.16.0",
     "better-sqlite3": "^12.10.0",
+    "isolated-vm": "7.0.0",
     "jose": "^6.2.3",
     "mysql2": "^3.22.2",
     "yaml": "^2.9.0",
@@ -79,5 +81,11 @@
     "@modelcontextprotocol/sdk": {
       "ajv": "8.18.0"
     }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "isolated-vm"
+    ]
   }
 }

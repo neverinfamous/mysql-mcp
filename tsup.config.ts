@@ -3,8 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: {
     index: "src/index.ts",
-    cli: "src/cli.ts",
-    "worker-script": "src/codemode/worker-script.ts"
+    cli: "src/cli.ts"
   },
   format: ["esm"],
   dts: false,
@@ -19,7 +18,9 @@ export default defineConfig({
     "mysql2",
     "@modelcontextprotocol/sdk",
     "zod",
-    "jose"
+    "jose",
+    "isolated-vm",
+    "acorn"
   ],
   tsconfig: "tsconfig.build.json",
 });

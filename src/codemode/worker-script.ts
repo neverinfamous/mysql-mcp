@@ -14,6 +14,10 @@ import {
   workerData,
   type MessagePort,
 } from "node:worker_threads";
+/**
+ * @deprecated The worker-based sandbox is deprecated in favor of the 'isolate' mode using isolated-vm.
+ * It will be removed in a future release.
+ */
 import vm from "node:vm";
 import { transformAutoReturn } from "./auto-return.js";
 

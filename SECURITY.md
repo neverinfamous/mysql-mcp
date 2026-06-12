@@ -60,29 +60,29 @@ All file I/O operations exposed by the server (such as MySQL Shell dump, load, i
 
 ## 🧪 **Code Mode Sandbox Security**
 
-Code Mode executes user-provided JavaScript in a hardened `worker_threads` + `vm.createContext` sandbox with multiple layers of defense-in-depth:
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8) sandbox with multiple layers of defense-in-depth:
 
 ### **Engine-Level Restrictions**
 
-- ✅ **V8 code generation disabled** — `codeGeneration: { strings: false, wasm: false }` prevents `eval()` and `Function()` construction from strings at the V8 engine level
-- ✅ **Separate V8 isolate** — each worker thread runs in its own V8 instance with enforced heap limits (`maxOldGenerationSizeMb`, `maxYoungGenerationSizeMb`)
-- ✅ **Frozen prototypes** — all built-in prototypes (Object, Function, Array, Error, Map, Set, Promise, etc.) frozen inside the vm context to prevent dynamic constructor chain escapes like `Error()['constructor']['constructor']('return process')()`
-- ✅ **Proxy constructor nullified** — `Proxy: undefined` in the sandbox context prevents meta-object protocol abuse
+- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate via `isolated-vm` instead of `node:vm`, ensuring native objects and prototypes cannot cross the execution boundary.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level (e.g., synchronous timeout enforcement and strict memory heap limits).
+- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
 
 ### **Static Code Validation**
 
-- ✅ **18 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `__proto__`, `constructor.constructor`, `['constructor']`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network/child_process references
-- ✅ **50KB code input limit** — prevents payload-based resource exhaustion
+- ✅ **29 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `__proto__`, `constructor.constructor`, filesystem/network access, and system commands.
+- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
 ### **Runtime Protection**
 
-- ✅ **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
-- ✅ **Execution timeout** — 30s hard limit (configurable) with forced worker termination
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` replacer aborts serialization mid-flight when exceeding `CODE_MODE_MAX_RESULT_SIZE` (default 100KB, cap 50MB), preventing OOM from oversized payloads
-- ✅ **Rate limiting** — 60 executions per minute per client
-- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and code preview (truncated to 200 chars)
-- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled
+- ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — 30s hard limit (configurable) enforced by the isolate engine.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
+- ✅ **Rate limiting** — 60 executions per minute per client.
+- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
+- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 
 ## 🌐 **HTTP Transport Security**
 
@@ -229,12 +229,11 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Identifier sanitization (table, column, schema, index names)
 - [x] Input validation via Zod schemas
 - [x] Filesystem boundary sandbox (`ALLOWED_IO_ROOTS`) for all file I/O operations
-- [x] Code Mode sandbox isolation (worker_threads V8 isolate + vm.createContext)
+- [x] Code Mode sandbox isolation (true separate V8 isolate via isolated-vm)
 - [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
-- [x] Code Mode frozen built-in prototypes (constructor chain escape prevention)
-- [x] Code Mode blocked patterns (18 static regex rules)
-- [x] Code Mode Proxy constructor nullified in sandbox context
-- [x] Code Mode RPC allowlist validation (host-side method authorization)
+- [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
+- [x] Code Mode blocked patterns (29 static regex rules + Unicode/NFKC validation)
+- [x] Code Mode RPC quotas (100 calls per execution)
 - [x] Code Mode streaming egress boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (30s hard limit)
 - [x] Code Mode rate limiting (60 executions/min)

@@ -135,12 +135,12 @@ describe("CodeModeSecurityManager", () => {
       expect(result.valid).toBe(false);
     });
 
-    it("should accumulate multiple blocked pattern errors", () => {
+    it("should exit on first blocked pattern", () => {
       const result = manager.validateCode(
         'require("fs"); process.exit(1); eval("x")',
       );
       expect(result.valid).toBe(false);
-      expect(result.errors.length).toBeGreaterThanOrEqual(3);
+      expect(result.errors.length).toBe(1);
     });
 
     it("should respect custom maxCodeLength", () => {
@@ -327,6 +327,15 @@ describe("CodeModeSecurityManager", () => {
 
       expect(record.codePreview.length).toBeLessThan(longCode.length);
       expect(record.codePreview).toContain("...");
+    });
+
+    it("should redact code with sensitive patterns", () => {
+      const result: SandboxResult = {
+        success: true,
+        metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
+      };
+      const record = manager.createExecutionRecord('const password = "mysecret"', result, false);
+      expect(record.codePreview).toContain("<REDACTED DUE TO SENSITIVE PATTERN MATCH>");
     });
 
     it("should handle undefined clientId", () => {

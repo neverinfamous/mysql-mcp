@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 /**
  * mysql-mcp - Code Mode Worker Sandbox
  *
@@ -32,6 +33,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKER_SCRIPT_PATH = join(__dirname, "worker-script.js");
 
 /**
+ * @deprecated The worker-based sandbox is deprecated in favor of the 'isolate' mode using isolated-vm.
+ * It will be removed in a future release.
+ *
  * A sandboxed execution context using worker_threads
  * Provides stronger isolation than vm module with separate V8 instance
  */
@@ -352,7 +356,9 @@ export class WorkerSandbox {
 /**
  * Pool of worker sandboxes
  * Unlike VM pool, worker sandboxes are created fresh for each execution
- * so this pool is simpler (mainly for statistics and control)
+ * so this pool is simpler
+ * @deprecated The worker-based sandbox is deprecated in favor of the 'isolate' mode using isolated-vm.
+ * It will be removed in a future release.
  */
 export class WorkerSandboxPool {
   private readonly options: Required<PoolOptions>;

@@ -80,6 +80,8 @@ export interface SandboxResult {
   error?: string | undefined;
   /** Stack trace (if failed) */
   stack?: string | undefined;
+  /** Captured console logs */
+  logs?: string[];
   /** Execution metrics */
   metrics: ExecutionMetrics;
 }
@@ -110,24 +112,34 @@ export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   maxExecutionsPerMinute: 60,
   maxResultSize: 100 * 1024, // 100KB (configurable via CODE_MODE_MAX_RESULT_SIZE)
   blockedPatterns: [
-    /\brequire\s*\(/, // No require()
-    /\bimport\s*\(/, // No dynamic import()
-    /\bprocess\./, // No process access
-    /\bglobal\./, // No global access
-    /\bglobalThis\./, // No globalThis access
-    /\beval\s*\(/, // No eval()
-    /\bFunction\s*\(/, // No Function constructor
-    /\b__proto__\b/, // No prototype pollution
-    /\bconstructor\.constructor/, // No constructor chaining
-    /\[['"]constructor['"]\]/i, // No bracket-notation constructor access
-    /\bReflect\s*\./i, // No Reflect API access (getPrototypeOf, ownKeys, construct, etc.)
-    /\bSymbol\s*\./i, // No Symbol access (hasInstance, toPrimitive, etc.)
-    /\bnew\s+Proxy\s*\(/i, // No Proxy construction
-    /\bchild_process/, // No child processes
-    /\bfs\./, // No filesystem
-    /\bnet\./, // No networking
-    /\bhttp\./, // No HTTP
-    /\bhttps\./, // No HTTPS
+    /\brequire\s*\(/,
+    /\bimport\s*\(/,
+    /\bprocess\./,
+    /\bglobal\./,
+    /\bglobalThis\./,
+    /\beval\s*\(/,
+    /\bFunction\s*\(/,
+    /\b__proto__\b/,
+    /\bconstructor\.constructor/,
+    /\[['"]constructor['"]\]/i,
+    /\[.*(?:constructor|proto).*\]/i,
+    /\bWebAssembly\b/,
+    /\bSharedArrayBuffer\b/,
+    /\bReflect\s*\./i,
+    /\bSymbol\b/i,
+    /\bnew\s+Proxy\s*\(/i,
+    /\bchild_process/,
+    /\bfs\./,
+    /\bnet\./,
+    /\bhttp\./,
+    /\bhttps\./,
+    /\bfetch\s*\(/,
+    /\bWebSocket\b/,
+    /\bObject\.getPrototypeOf/,
+    /\bObject\.setPrototypeOf/,
+    /\b__defineGetter__/,
+    /\bObject\.defineProperty/,
+    /\bObject\.defineProperties/,
   ],
 };
 
@@ -193,6 +205,8 @@ export interface ExecuteCodeResult {
   result?: unknown;
   /** Error message (if failed) */
   error?: string;
+  /** Captured console logs */
+  logs?: string[];
   /** Execution metrics */
   metrics: ExecutionMetrics;
 }

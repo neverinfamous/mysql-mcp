@@ -13,6 +13,9 @@ import {
   type SandboxResult,
 } from "./types.js";
 
+const SENSITIVE_KEY_PATTERN = /password|secret|token|key|auth|cred/i;
+const MAX_RATE_LIMIT_ENTRIES = 10000;
+
 /**
  * Security manager for Code Mode executions
  */
@@ -25,6 +28,7 @@ export class CodeModeSecurityManager {
 
   constructor(config?: Partial<SecurityConfig>) {
     this.config = { ...DEFAULT_SECURITY_CONFIG, ...config };
+    setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
   }
 
   /**
@@ -46,10 +50,24 @@ export class CodeModeSecurityManager {
       return { valid: false, errors };
     }
 
+    // Check for unicode escapes
+    const hasUnicodeEscapes = /\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]+\}|\\x[0-9a-fA-F]{2}/i.test(code);
+    if (hasUnicodeEscapes) {
+      errors.push("Unicode escape sequences in identifiers are not allowed");
+      return { valid: false, errors };
+    }
+
+    // Normalize and strip comments before pattern matching
+    const strippedCode = code
+      .normalize("NFKC")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")  // block comments
+      .replace(/\/\/[^\n]*/g, " ");       // line comments
+
     // Check for blocked patterns
     for (const pattern of this.config.blockedPatterns) {
-      if (pattern.test(code)) {
+      if (pattern.test(strippedCode)) {
         errors.push(`Blocked pattern detected: ${pattern.source}`);
+        break; // Early exit on first match
       }
     }
 
@@ -71,6 +89,10 @@ export class CodeModeSecurityManager {
 
     if (!existing || now >= existing.resetTime) {
       // Start new window
+      if (this.rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+        const firstKey = this.rateLimitMap.keys().next().value;
+        if (firstKey) this.rateLimitMap.delete(firstKey);
+      }
       this.rateLimitMap.set(clientId, {
         count: 1,
         resetTime: now + windowMs,
@@ -120,6 +142,13 @@ export class CodeModeSecurityManager {
     }
   }
 
+  private redactCode(code: string): string {
+    if (SENSITIVE_KEY_PATTERN.test(code)) {
+      return "<REDACTED DUE TO SENSITIVE PATTERN MATCH>";
+    }
+    return code;
+  }
+
   /**
    * Log execution for audit purposes
    */
@@ -137,9 +166,11 @@ export class CodeModeSecurityManager {
       memoryUsedMb: result.metrics.memoryUsedMb,
     };
 
+    const redactedPreview = this.redactCode(codePreview);
+
     if (result.success) {
       logger.info(
-        `Code execution completed: ${codePreview.substring(0, 50)}...`,
+        `Code execution completed: ${redactedPreview.substring(0, 50)}...`,
         logContext,
       );
     } else {
@@ -168,7 +199,7 @@ export class CodeModeSecurityManager {
       id: crypto.randomUUID(),
       clientId,
       timestamp: new Date(),
-      codePreview: code.length > 200 ? code.substring(0, 200) + "..." : code,
+      codePreview: this.redactCode(code.length > 200 ? code.substring(0, 200) + "..." : code),
       result,
       readonly,
     };
