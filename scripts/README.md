@@ -91,6 +91,14 @@ Validates that tools have correct `openWorldHint` annotations (e.g., `openWorldH
 node scripts/test-tool-annotations.mjs
 ```
 
+### `test-progress.mjs`
+
+Validates that tools with long-running operations or streaming capabilities correctly emit `notifications/progress` events back to the client. This includes `mysql_read_query` streaming, Code Mode (`mysql_execute_code`), table maintenance, and backups.
+
+```bash
+node scripts/test-progress.mjs
+```
+
 ## Refactoring & Maintenance Scripts
 
 ### `migrate-annotations.mjs`

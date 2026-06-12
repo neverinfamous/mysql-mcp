@@ -1,5 +1,5 @@
 import type { MySQLAdapter } from "../../../adapters/mysql/mysql-adapter/index.js";
-import type { ToolDefinition } from "../../../types/index.js";
+import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import type { AuditInterceptor } from "../../../audit/interceptor.js";
 import { toolNameToMethodName, createGroupApi } from "../generator.js";
 import { buildSandboxBindings } from "./bindings.js";
@@ -43,9 +43,11 @@ export class MysqlApi {
 
   private readonly toolsByGroup: Map<string, ToolDefinition[]>;
   private readonly isReadonly: boolean;
+  public readonly baseContext?: RequestContext;
 
-  constructor(adapter: MySQLAdapter, readonly?: boolean) {
+  constructor(adapter: MySQLAdapter, readonly?: boolean, context?: RequestContext) {
     this.isReadonly = readonly ?? false;
+    this.baseContext = context;
 
     // Get all tool definitions and group them
     const allTools = adapter.getToolDefinitions();
@@ -300,6 +302,7 @@ export class MysqlApi {
 export function createMysqlApi(
   adapter: MySQLAdapter,
   readonly?: boolean,
+  context?: RequestContext,
 ): MysqlApi {
-  return new MysqlApi(adapter, readonly);
+  return new MysqlApi(adapter, readonly, context);
 }

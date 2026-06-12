@@ -66,7 +66,7 @@ export function createIndexRecommendationTool(
 
         // Run Check 4: Query Analysis via EXPLAIN
         if (queries && queries.length > 0) {
-          findings.push(...(await analyzeQueriesWithExplain(adapter, queries)));
+          findings.push(...(await analyzeQueriesWithExplain(adapter, queries, _context.progressToken)));
         } else {
           // Fallback Check 5: Heuristic column names (only if no queries provided)
           findings.push(

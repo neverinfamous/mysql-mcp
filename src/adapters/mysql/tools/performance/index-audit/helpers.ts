@@ -1,4 +1,5 @@
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import { progressFactory, type ProgressToken } from "../../../../../progress/index.js";
 import { ValidationError } from "../../../../../types/modules/errors.js";
 import type { ExistingIndex, IndexFinding } from "./types.js";
 
@@ -222,18 +223,26 @@ export async function detectUnindexedTables(
   return findings;
 }
 
+
+
 /**
  * Check 4: EXPLAIN-based composite/covering index analysis
  */
 export async function analyzeQueriesWithExplain(
   adapter: MySQLAdapter,
   queries: string[],
+  progressToken?: ProgressToken,
 ): Promise<IndexFinding[]> {
   const findings: IndexFinding[] = [];
+  const reporter = progressFactory.create(progressToken);
 
-  for (const query of queries) {
+  for (let i = 0; i < queries.length; i++) {
+    const query = queries[i];
+    if (query) {
+      reporter?.progress(i, queries.length, `Analyzing query ${i + 1}/${queries.length}`);
+    }
     // Safety check: Only analyze SELECT queries
-    if (!/^\s*SELECT/i.test(query)) {
+    if (!query || !/^\s*SELECT/i.test(query)) {
       continue;
     }
 

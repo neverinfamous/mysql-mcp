@@ -14,7 +14,6 @@ import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
 import { ValidationError } from "../../../../types/index.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
-import { buildProgressContext } from "../../../../utils/progress-utils.js";
 import { streamResultRows } from "../../../../utils/stream-utils.js";
 
 export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
@@ -96,10 +95,9 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (stream && !_context.isCodeMode) {
-          const progressCtx = buildProgressContext(_context);
-          if (progressCtx) {
+          if (_context.progressToken) {
             const chunksEmitted = await streamResultRows(
-              progressCtx,
+              _context.progressToken,
               result.rows ?? [],
               chunkSize,
             );

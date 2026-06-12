@@ -189,7 +189,7 @@ return results;
       }
 
       // Create mysql API bindings (readonly filtering applied when readonly: true)
-      const mysqlApi = createMysqlApi(adapter, readonly);
+      const mysqlApi = createMysqlApi(adapter, readonly, _context);
       const bindings = mysqlApi.createSandboxBindings();
 
       // Validate bindings are populated

@@ -1,5 +1,4 @@
-import type { ProgressContext } from "./progress-utils.js";
-import { sendProgress } from "./progress-utils.js";
+import { progressFactory, type ProgressToken } from "../progress/index.js";
 
 /** Default number of rows per streaming chunk */
 export const STREAM_CHUNK_SIZE = 10;
@@ -8,13 +7,13 @@ export const STREAM_CHUNK_SIZE = 10;
  * Stream query result rows to the client via MCP progress notifications.
  * Each chunk contains a JSON-serialized array of rows.
  *
- * @param ctx The MCP progress context
+ * @param progressToken The MCP progress token
  * @param rows The full array of query result rows
  * @param chunkSize Optional custom chunk size (defaults to STREAM_CHUNK_SIZE)
  * @returns Number of chunks emitted
  */
 export async function streamResultRows(
-  ctx: ProgressContext,
+  progressToken: ProgressToken,
   rows: Record<string, unknown>[],
   chunkSize: number = STREAM_CHUNK_SIZE,
 ): Promise<number> {
@@ -24,6 +23,9 @@ export async function streamResultRows(
 
   const effectiveChunkSize = Math.max(1, chunkSize);
   const totalChunks = Math.ceil(rows.length / effectiveChunkSize);
+  
+  const reporter = progressFactory.create(progressToken);
+  if (!reporter) return 0;
 
   for (let i = 0; i < totalChunks; i++) {
     const start = i * effectiveChunkSize;
@@ -31,7 +33,7 @@ export async function streamResultRows(
     const chunk = rows.slice(start, end);
 
     // Send the chunk as the progress message payload
-    await sendProgress(ctx, i + 1, totalChunks, JSON.stringify(chunk));
+    reporter.report(i + 1, totalChunks, JSON.stringify(chunk));
   }
 
   return totalChunks;

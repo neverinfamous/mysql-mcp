@@ -45,6 +45,9 @@
 - Refactored server instructions to an Adaptive Instruction Architecture (matching `db-mcp`) with a static slim payload and on-demand `mysql://help/{group}` resources.
 - Removed legacy `--instruction-level` CLI flag, environment variables, and `InstructionLevel` configuration options to reduce complexity and improve token efficiency.
 - Updated `scripts` tests and `test-server` prompt readmes to remove legacy `instruction-level` references and validate the new Adaptive Instruction Architecture parameters.
+- **Code Mode:** Added support for emitting MCP progress notifications directly from the Code Mode sandbox via `await mysql.reportProgress(progress, total, message)`.
+- **Progress Tracking:** Implemented native progress notifications for `mysql_analyze_table`, `mysql_check_table`, and `mysql_index_recommendation` (query explain phase), providing real-time iterative feedback on long-running administrative array inputs.
+- **Validation:** Ported `test-progress.mjs` from `db-mcp` to systematically test and ensure all progress streaming and notification tools (including `mysql_execute_code` and `mysql_read_query` streaming) correctly emit standard MCP events.
 - Bumped GitHub Actions dependencies (`trufflesecurity/trufflehog` to v3.95.3, `docker/login-action` to v4.1.0, `actions/upload-artifact` to v7.0.1, `actions/github-script` to v9.0.0, and `github/codeql-action` to v4.35.5).
 
 - **Security:** Re-architected Code Mode sandbox by replacing the insecure `worker_threads` + `node:vm` engine with `isolated-vm` (C++ V8 bindings). This guarantees strict heap limits, eliminates prototype pollution vectors, prevents dynamic constructor chain escapes natively, and provides synchronous execution limits. Expanded static blocked patterns to 29 regex rules including Unicode escape detection, NFKC normalization, and comment stripping before pattern validation.
@@ -92,6 +95,7 @@
 - Fixed strict `OutputSchema` validation failures across the JSON, Spatial, and Stats tools (e.g. `mysql_stats_histogram`, `mysql_stats_correlation`, `mysql_spatial_geojson`, and `mysql_json_*`) by updating field schemas to properly handle `nullish()` and `optional()` values matching runtime returns.
 - Fixed an issue in `mysql_write_query` where executing a `SELECT` query gracefully resulted in a Zod validation error because `WriteQueryOutputSchema` strictly required a `rowsAffected` integer, which is now optional.
 - Ported `test-zod-errors.mjs` from db-mcp and applied the `McpServer` monkey-patch to ensure SDK-level Zod validation exceptions are gracefully intercepted and formatted as standard `VALIDATION_ERROR` payloads, rather than leaking raw `-32602` SDK errors.
+- Fixed a bug in `mysql_read_query` where query result streaming (`stream: true`) failed to emit MCP progress notifications due to a legacy db-mcp wrapper. It now natively integrates with `progressFactory`.
 
 ### Changed
 - **Type Safety (Thread 1):** Eliminated loose `any` and `as` type assertions across the core `adapters` and `auth` modules. Replaced unsafe property access with `unknown` and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.

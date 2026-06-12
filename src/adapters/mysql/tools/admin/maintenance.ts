@@ -106,9 +106,20 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = AnalyzeTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
-        const rows = result.rows ?? [];
+        const rows: Record<string, unknown>[] = [];
+        
+        const reporter = progressFactory.create(_context.progressToken);
+        for (let i = 0; i < tables.length; i++) {
+          const t = tables[i];
+          if (!t) continue;
+          reporter?.progress(i, tables.length, `Analyzing table: ${t}`);
+          const result = await adapter.rawQuery(`ANALYZE TABLE \`${t}\``);
+          if (result.rows) {
+            rows.push(...result.rows);
+          }
+        }
+        reporter?.complete();
+
         const errorRow = rows.find(
           (r: Record<string, unknown>) =>
             String(r["Msg_type"]).toLowerCase() === "error",
@@ -148,13 +159,22 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, option } = CheckTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const optionClause = option ? ` ${option}` : "";
-        // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
-        const result = await adapter.rawQuery(
-          `CHECK TABLE ${tableList}${optionClause}`,
-        );
-        const rows = result.rows ?? [];
+        const rows: Record<string, unknown>[] = [];
+
+        const reporter = progressFactory.create(_context.progressToken);
+        for (let i = 0; i < tables.length; i++) {
+          const t = tables[i];
+          if (!t) continue;
+          reporter?.progress(i, tables.length, `Checking table: ${t}`);
+          // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
+          const result = await adapter.rawQuery(`CHECK TABLE \`${t}\`${optionClause}`);
+          if (result.rows) {
+            rows.push(...result.rows);
+          }
+        }
+        reporter?.complete();
+
         const errorRow = rows.find(
           (r: Record<string, unknown>) =>
             String(r["Msg_type"]).toLowerCase() === "error",

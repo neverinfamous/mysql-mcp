@@ -164,6 +164,26 @@ export function buildSandboxBindings(
   // Add top-level help as directly callable mysql.help()
   bindings["help"] = () => api.help();
 
+  // Progress notification reporting
+  bindings["reportProgress"] = async (
+    progress: number,
+    total?: number,
+    message?: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (api.baseContext?.progressToken !== undefined) {
+      // Create reporter using dynamic import to avoid circular dependencies
+      try {
+        const { progressFactory } = await import("../../../progress/index.js");
+        const reporter = progressFactory.create(api.baseContext.progressToken);
+        reporter?.report(progress, total, message);
+        return { success: true };
+      } catch (err) {
+        return { success: false, error: String(err) };
+      }
+    }
+    return { success: false, error: "No progress token available in context" };
+  };
+
   // =========================================================================
   // Top-level convenience aliases
   // =========================================================================
