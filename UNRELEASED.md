@@ -73,6 +73,7 @@
 - Split Code Mode's `src/codemode/api/constants.ts` into a `src/codemode/api/constants/` module to organize aliasing, positional parameters, and examples.
 
 ### Fixed
+- **Modern Tool Registration**: Migrated from outdated tool registration API by safely wrapping tool handlers in `try/catch` blocks (ensuring thrown errors are gracefully formatted as standard MCP `isError: true` responses rather than raw JSON-RPC transport faults), and resolved `inputSchema` SDK validation crashes by intelligently omitting the property when undefined instead of defaulting to an empty object.
 - Standardized error handling across `shell`, `vector`, `performance/index-audit`, and `codemode` tool handlers by replacing raw `Error` throws with strongly typed Error subclasses (`TimeoutError`, `QueryError`, `ValidationError`, `PoolError`, `AuthorizationError`) to ensure proper structured formatting via the MCP `ErrorResponse` interceptors.
 - Fixed a `no-control-regex` ESLint suppression in `src/utils/logger.ts` by dynamically constructing the `CONTROL_CHAR_PATTERN` RegExp instead of bypassing the rule.
 - Fixed an `IoPathError` false positive during server initialization by exempting the internal `BackupManager` snapshot generation from the `ALLOWED_IO_ROOTS` tool sandbox validations.

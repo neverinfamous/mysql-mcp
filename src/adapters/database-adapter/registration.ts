@@ -48,82 +48,125 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
     toolOptions["annotations"] = tool.annotations;
   }
 
-  // Create the tool options object with input schema
+  if (tool.inputSchema !== undefined) {
+    toolOptions["inputSchema"] = tool.inputSchema;
+  }
+
+  if (tool.outputSchema !== undefined) {
+    toolOptions["outputSchema"] = tool.outputSchema;
+  }
+
+  const hasOutputSchema = Boolean(tool.outputSchema);
+
   // registerTool expects options as the second argument
   server.registerTool(
     tool.name,
-    {
-      ...toolOptions,
-      inputSchema: tool.inputSchema ?? {},
-      ...(tool.outputSchema !== undefined ? { outputSchema: tool.outputSchema } : {}),
-    },
+    toolOptions,
     async (params: unknown, extra?: unknown) => {
-      let progressToken: string | number | undefined;
-      if (typeof extra === "object" && extra !== null && "_meta" in extra) {
-        const meta = extra._meta;
-        if (typeof meta === "object" && meta !== null && "progressToken" in meta) {
-          const pt = meta.progressToken;
-          if (typeof pt === "string" || typeof pt === "number") {
-            progressToken = pt;
+      try {
+        let progressToken: string | number | undefined;
+        if (typeof extra === "object" && extra !== null && "_meta" in extra) {
+          const meta = extra._meta;
+          if (typeof meta === "object" && meta !== null && "progressToken" in meta) {
+            const pt = meta.progressToken;
+            if (typeof pt === "string" || typeof pt === "number") {
+              progressToken = pt;
+            }
           }
         }
-      }
-      const context = adapter.createContext(undefined, server, progressToken);
+        const context = adapter.createContext(undefined, server, progressToken);
 
-      const execFn = async (): Promise<CallToolResult> => {
-        const result = await tool.handler(params, context);
+        const execFn = async (): Promise<CallToolResult> => {
+          const result = await tool.handler(params, context);
 
-        // Inject _meta.tokenEstimate into object responses
-        if (typeof result === "object" && result !== null) {
-          const withMeta = JSON.stringify(
-            { ...result, _meta: { tokenEstimate: 0 } },
-            null,
-            2,
-          );
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(withMeta, "utf8") / 4,
-          );
-          const finalText = withMeta.replace(
-            '"tokenEstimate": 0',
-            `"tokenEstimate": ${String(tokenEstimate)}`,
-          );
-          
-          // If tool declares an outputSchema, return structuredContent
-          if (tool.outputSchema) {
+          // Inject _meta.tokenEstimate into object responses
+          if (typeof result === "object" && result !== null) {
+            const withMeta = JSON.stringify(
+              { ...result, _meta: { tokenEstimate: 0 } },
+              null,
+              2,
+            );
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(withMeta, "utf8") / 4,
+            );
+            const finalText = withMeta.replace(
+              '"tokenEstimate": 0',
+              `"tokenEstimate": ${String(tokenEstimate)}`,
+            );
+            
+            // If tool declares an outputSchema, return structuredContent
+            if (hasOutputSchema) {
+              return {
+                content: [{ type: "text", text: finalText }],
+                structuredContent: isRecord(result) ? result : undefined,
+              } satisfies CallToolResult;
+            }
+            
             return {
               content: [{ type: "text", text: finalText }],
-              structuredContent: isRecord(result) ? result : undefined,
             } satisfies CallToolResult;
           }
-          
+
+          return {
+            content: [
+              {
+                type: "text",
+                text:
+                  typeof result === "string"
+                    ? result
+                    : JSON.stringify(result, null, 2),
+              },
+            ],
+          } satisfies CallToolResult;
+        };
+
+        const auditInterceptor = adapter.getAuditInterceptor();
+        if (auditInterceptor) {
+          return await auditInterceptor.around(
+            tool.name,
+            params,
+            context.requestId,
+            execFn,
+          );
+        }
+        return await execFn();
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        if (hasOutputSchema) {
+          const errorResult = {
+            success: false,
+            error: errorMessage,
+            code: "INTERNAL_ERROR",
+            category: "internal",
+            recoverable: false,
+          };
+
+          const enriched = JSON.stringify({
+            ...errorResult,
+            _meta: { tokenEstimate: 0 },
+          });
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(enriched, "utf8") / 4,
+          );
+          const finalText = enriched.replace(
+            '"tokenEstimate":0',
+            `"tokenEstimate":${String(tokenEstimate)}`,
+          );
+
           return {
             content: [{ type: "text", text: finalText }],
+            structuredContent: errorResult,
+            isError: true,
           } satisfies CallToolResult;
         }
 
         return {
-          content: [
-            {
-              type: "text",
-              text:
-                typeof result === "string"
-                  ? result
-                  : JSON.stringify(result, null, 2),
-            },
-          ],
+          content: [{ type: "text", text: `Error: ${errorMessage}` }],
+          isError: true,
         } satisfies CallToolResult;
-      };
-
-      const auditInterceptor = adapter.getAuditInterceptor();
-      if (auditInterceptor) {
-        return await auditInterceptor.around(
-          tool.name,
-          params,
-          context.requestId,
-          execFn,
-        );
       }
-      return await execFn();
     },
   );
 }
