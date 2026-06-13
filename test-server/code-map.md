@@ -399,6 +399,8 @@ try {
 | `test-server/test-tool-groups/`             | Basic functionality tests for all 28 tool groups                     |
 | `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
+| `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
+| `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 84 test prompts using the standard template    |
 | `test-server/test-prompts.md`               | Prompt testing plan (13 prompts)                                     |
