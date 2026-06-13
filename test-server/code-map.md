@@ -395,17 +395,14 @@ try {
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
 | `scripts/reset-database.mjs`                | Reset script - drops + re-seeds `testdb`                             |
-| `test-server/Tool-Reference.md`             | Complete 241-tool inventory with descriptions                        |
-| `test-server/test-agent-experience.md`      | 35 open-ended scenarios — validates help resource sufficiency        |
-| `test-server/test-group-tools-core.md`      | Core/transactions/schema group checklists                            |
-| `test-server/test-group-tools-data.md`      | JSON/fulltext/docstore/text/stats checklists                         |
-| `test-server/test-group-tools-admin.md`     | Admin/monitoring/perf/security/roles/backup checklists               |
-| `test-server/test-group-tools-ext.md`       | Spatial/partitioning/events checklists                               |
-| `test-server/test-group-tools-ecosystem.md` | Cluster/ProxySQL/Router/Shell checklists                             |
-| `test-server/test-tools.md`                 | Entry-point protocol (schema ref, reporting format)                  |
+| `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |
+| `test-server/test-tool-groups/`             | Basic functionality tests for all 28 tool groups                     |
+| `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
+| `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
+| `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
+| `test-server/scripts/standardize-prompts.js`| Script to rebuild all 84 test prompts using the standard template    |
 | `test-server/test-prompts.md`               | Prompt testing plan (13 prompts)                                     |
 | `test-server/test-resources.md`             | Resource testing plan (19+ data resources)                           |
-| `test-server/advanced-test-tools.md`        | Stress tests (boundary, concurrency, cross-group)                    |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

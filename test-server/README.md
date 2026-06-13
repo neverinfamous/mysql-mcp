@@ -9,7 +9,7 @@
 | `test-tools.md`              | **Entry-point protocol** — connection details, testing rules, structured error patterns, Zod/P154/Split Schema verification, reporting format | Always read first                            |
 | `test-preflight.md`          | **Pre-flight check** — validates slim instructions, help resources, data resources, and tool-filter alignment in 5 steps                      | Before any test pass                         |
 | `test-tool-groups/`          | **Standard tests** — 26 self-contained per-group prompts for direct MCP tool call validation                                                  | When testing individual tool groups          |
-| `test-tool-groups-codemode/` | **Code Mode tests** — 26 per-group prompts for `mysql_execute_code` validation                                                                | When testing Code Mode parity                |
+| `test-codemode/` | **Code Mode tests** — 26 per-group prompts for `mysql_execute_code` validation                                                                | When testing Code Mode parity                |
 | `test-advanced/`             | **Advanced stress tests** — 26 files for boundary values, state pollution, and payload monitoring (Code Mode only)                            | After group checklists pass                  |
 | `Tool-Reference.md`          | Complete 192-tool reference mapped to 25 groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
@@ -66,7 +66,7 @@
 1. Read `mysql://help` resource (via MCP — critical gotchas, aliases, Code Mode API) and relevant group help (`mysql://help/{group}`).
 2. Read `test-tools.md` for the entry-point protocol: Split Schema, Zod validation, P154, and structured error patterns.
 3. **Standard tests**: Read the relevant `test-tool-groups/test-tool-group-{name}.md` for direct MCP tool call validation.
-4. **Code Mode tests**: Read the relevant `test-tool-groups-codemode/test-tool-group-codemode-{name}.md` for `mysql_execute_code` validation.
+4. **Code Mode tests**: Read the relevant `test-codemode/test-codemode-{name}.md` for `mysql_execute_code` validation.
 5. **Advanced tests**: After group checklists pass, read `test-advanced/test-tools-advanced-{name}.md` for stress testing.
 6. Execute the checklist items first (minimum bar), then freeform exploration.
 7. Clean up all `temp_*` / `stress_*` tables using `DROP TABLE IF EXISTS`.

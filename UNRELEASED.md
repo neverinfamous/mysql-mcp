@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Added
+- **Testing Infrastructure Standardization**: Harmonized the testing infrastructure with `db-mcp`, migrating all 84 test prompt files to a strict, template-driven standard (`test-server/scripts/prompt-template.md` and `standardize-prompts.js`). Renamed test files and directories to match the gold standard naming conventions (`test-codemode`, `test-{name}.md`).
 - **Validation**: Harmonized the tool annotations and test validation script (`scripts/test-tool-annotations.mjs`) with `db-mcp`, achieving 100% strict coverage for `openWorldHint`, `readOnlyHint`, `destructiveHint`, and `sensitiveHint` across all 241 tools.
 - **Documentation:** Added [Capacity-Planning](https://github.com/neverinfamous/mysql-mcp/wiki/Capacity-Planning) wiki guide covering connection pool sizing, vector storage capacity, schema cache footprint, InnoDB maintenance operations, buffer pool monitoring, and token budget planning.
 - **Documentation:** Added [Performance-Tuning](https://github.com/neverinfamous/mysql-mcp/wiki/Performance-Tuning) wiki guide covering schema caching, connection pool tuning, tool filtering strategies, Code Mode efficiency, query performance analysis workflow, InnoDB tuning, and benchmark highlights.
