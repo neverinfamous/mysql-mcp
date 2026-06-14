@@ -6,6 +6,7 @@
  */
 
 import { ZodError } from "zod";
+import { ValidationError, QueryError } from "../../../types/modules/errors.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -69,10 +70,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         } = EventCreateSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid event name",
-          });
+          return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
         const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
@@ -89,10 +87,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
             [name],
           );
           if (existsCheck.rows && existsCheck.rows.length > 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Event already exists",
-            });
+            return formatHandlerErrorResponse(new QueryError("Event already exists",));
           }
         }
 
@@ -116,10 +111,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("already exists")) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event already exists",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event already exists",));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -147,10 +139,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
           EventAlterSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid event name",
-          });
+          return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
         // Validate enum fields at handler level
@@ -177,10 +166,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (newName) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid new event name",
-            });
+            return formatHandlerErrorResponse(new ValidationError("Invalid new event name",));
           }
           clauses.push(`RENAME TO \`${newName}\``);
         }
@@ -198,10 +184,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (clauses.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "No modifications specified",
-          });
+          return formatHandlerErrorResponse(new ValidationError("No modifications specified",));
         }
 
         sql += "\n" + clauses.join("\n");
@@ -217,10 +200,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event does not exist",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist",));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -246,10 +226,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, ifExists } = EventDropSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid event name",
-          });
+          return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
         if (ifExists) {
@@ -258,10 +235,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
             [name],
           );
           if (!existsCheck.rows || existsCheck.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Event does not exist",
-            });
+            return formatHandlerErrorResponse(new QueryError("Event does not exist",));
           }
         }
 
@@ -275,10 +249,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event does not exist",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist",));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -311,10 +282,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Schema does not exist",
-            });
+            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
           }
         }
 
@@ -388,10 +356,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Schema does not exist",
-            });
+            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
           }
         }
 
@@ -425,10 +390,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event does not exist",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist",));
         }
 
         return withTokenEstimate({

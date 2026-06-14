@@ -112,7 +112,7 @@
 - Fixed a Split Schema pattern violation in `mysql_gr_members` where `MemberSchema` was used directly as the input schema instead of a base schema with `z.unknown()`, which would cause raw MCP `-32602` SDK validation errors on invalid types.
 - Fixed an issue in `mysql_cluster_router_status` where Zod validation errors were incorrectly swallowed and re-emitted as generic `UNKNOWN_ERROR` objects instead of standard `VALIDATION_ERROR` payloads.
 - Fixed a mismatch in `mysql_export_table` where the documentation incorrectly stated the default `limit` was 100 instead of the safer code default of 5, and increased the default `batch` size from 1 to 50 to significantly reduce payload token usage for SQL exports. Updated corresponding unit tests to validate the new batch parameters.
-
+- Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `events` tool group by replacing manual error returns with `formatHandlerErrorResponse` and typed `MySQLMcpError` exceptions.
 ### Changed
 - **Type Safety (Thread 1):** Eliminated loose `any` and `as` type assertions across the core `adapters` and `auth` modules. Replaced unsafe property access with `unknown` and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.
 - **Type Safety (Thread 2):** Eliminated `any` and `as` type assertions across the core tool handlers (`src/adapters/mysql/tools/`). Replaced unsafe dynamic property access with `unknown` types and strict validation, improved JSON parsing safety, and removed blind casts from all test mock implementations.
