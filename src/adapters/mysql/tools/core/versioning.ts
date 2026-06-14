@@ -1,5 +1,7 @@
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError, ConflictError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "./error-helpers.js";
 import {
@@ -66,10 +68,9 @@ export function createEnableVersioningTool(
         // Check if _version already exists
         const describeInfo = await adapter.describeTable(table);
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not exist`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
 
         const hasVersionColumn = describeInfo.columns.some(
@@ -153,10 +154,9 @@ export function createDisableVersioningTool(
               },
             });
           }
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not exist.`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist.`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
 
         const hasVersionColumn = describeInfo.columns.some(
@@ -211,20 +211,18 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
 
         const describeInfo = await adapter.describeTable(table);
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not exist.`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist.`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
 
         const sql = `SELECT * FROM ${safeTable} WHERE ${safeIdCol} = ? LIMIT 1`;
         const result = await adapter.executeReadQuery(sql, [rowId]);
 
         if (!result.rows || result.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Row not found in table '${table}' with ${safeIdCol} = ${String(rowId)}`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Row not found in table '${table}' with ${safeIdCol} = ${String(rowId)}`, "ROW_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
 
         const row = result.rows[0];
@@ -237,10 +235,9 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
             },
           });
         } else {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not appear to have versioning enabled (missing _version column).`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column).`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -273,25 +270,22 @@ export function createConditionalUpdateTool(
         const safeTable = escapeId(table);
         const columns = Object.keys(data);
         if (columns.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "Update data cannot be empty",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Update data cannot be empty", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
         }
 
         if (conditions.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "Conditions are required to identify the row",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Conditions are required to identify the row", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
         }
 
         const describeInfo = await adapter.describeTable(table);
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not exist.`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist.`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
 
         const queryParams: unknown[] = [];
@@ -318,31 +312,27 @@ export function createConditionalUpdateTool(
           );
 
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Row not found matching the provided conditions",
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("Row not found matching the provided conditions", "ROW_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           const currentVersionRaw = checkResult.rows[0]?.["_version"];
           if (currentVersionRaw === undefined || currentVersionRaw === null) {
-            return withTokenEstimate({
-              success: false,
-              error: `Table '${table}' does not appear to have versioning enabled (missing _version column).`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column).`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           const currentVersion = Number(currentVersionRaw);
-          return withTokenEstimate({
-            success: false,
-            error: `Version conflict: expected version ${String(expectedVersion)} but row has version ${currentVersion}. Re-read the row and retry.`,
-            errorDetails: {
+          return formatHandlerErrorResponse(
+            new ConflictError(`Version conflict: expected version ${String(expectedVersion)} but row has version ${currentVersion}. Re-read the row and retry.`, {
               conflictType: "version_mismatch",
               suggestion: "Re-read the row to get the current version, then retry the update.",
               expectedVersion,
               currentVersion,
-            }
-          });
+            })
+          );
         }
 
         return withTokenEstimate({

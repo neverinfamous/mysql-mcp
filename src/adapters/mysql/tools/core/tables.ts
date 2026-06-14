@@ -18,6 +18,8 @@ import {
 } from "./error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
 
 const VALID_ID_PATTERN = /^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/;
@@ -53,10 +55,9 @@ export function createListTablesTool(adapter: MySQLAdapter): ToolDefinition {
             [database],
           );
           if (!dbCheck.rows || dbCheck.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: `Database '${database}' does not exist`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Database '${database}' does not exist`, "DATABASE_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
         }
 
@@ -106,10 +107,9 @@ export function createDescribeTableTool(adapter: MySQLAdapter): ToolDefinition {
         const { table } = DescribeTableSchema.parse(params);
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not exist or has no columns`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist or has no columns`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
         const sanitizedColumns = tableInfo.columns?.map((c) => {
           const {
@@ -268,10 +268,9 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.includes("already exists")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Table '${name}' already exists`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Table '${name}' already exists`, "TABLE_EXISTS", ErrorCategory.RESOURCE)
+            );
           }
           return formatHandlerErrorResponse(err);
         }
@@ -300,10 +299,9 @@ export function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, ifExists } = DropTableSchema.parse(params);
 
         if (!isValidId(table)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid table name",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Invalid table name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
         }
 
         let tableAbsent = false;
@@ -324,10 +322,9 @@ export function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.includes("Unknown table")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Table '${table}' does not exist`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
           return formatHandlerErrorResponse(err);
         }

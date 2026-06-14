@@ -12,6 +12,8 @@ import {
 } from "./error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { isValidId, escapeId } from "./tables.js";
 
@@ -33,10 +35,9 @@ export function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
         const { table } = GetIndexesSchema.parse(params);
         const tableInfo = await adapter.describeTable(table);
         if (!tableInfo.columns || tableInfo.columns.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${table}' does not exist`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
         const indexes = await adapter.getTableIndexes(table);
         return withTokenEstimate({
@@ -67,16 +68,14 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
           CreateIndexSchema.parse(params);
 
         if (!name || !VALID_INDEX_NAME_PATTERN.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid index name",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Invalid index name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
         }
         if (!isValidId(table)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid table name",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Invalid table name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
         }
 
         const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
@@ -108,25 +107,23 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.includes("Duplicate key name")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Index '${name}' already exists on table '${table}'`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Index '${name}' already exists on table '${table}'`, "INDEX_EXISTS", ErrorCategory.RESOURCE)
+            );
           }
           if (message.includes("Key column")) {
             const colMatch = /Key column '([^']+)'/.exec(message);
-            return withTokenEstimate({
-              success: false,
-              error: colMatch
-                ? `Column '${colMatch[1]}' does not exist in table '${table}'`
-                : `Column does not exist in table '${table}'`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                colMatch ? `Column '${colMatch[1]}' does not exist in table '${table}'` : `Column does not exist in table '${table}'`,
+                "COLUMN_NOT_FOUND", ErrorCategory.RESOURCE
+              )
+            );
           }
           if (message.includes("doesn't exist")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Table '${table}' does not exist`,
-            });
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
           return formatHandlerErrorResponse(err);
         }
