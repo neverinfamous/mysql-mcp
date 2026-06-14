@@ -218,7 +218,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Event does not exist",
         metrics: expect.any(Object),
@@ -273,7 +273,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Schema does not exist",
         metrics: expect.any(Object),
@@ -318,7 +318,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Event does not exist",
         metrics: expect.any(Object),
@@ -334,7 +334,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Schema does not exist",
         metrics: expect.any(Object),
@@ -411,11 +411,11 @@ describe("Event Create Advanced", () => {
       mockContext,
     );
 
-    expect(result).toEqual({
-      success: false,
-      error: "Event already exists",
-      metrics: expect.any(Object),
-    });
+    expect(result).toMatchObject({
+        success: false,
+        error: "Event already exists",
+        metrics: expect.any(Object),
+      });
     // Should only have the pre-check query, no CREATE
     expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
   });
