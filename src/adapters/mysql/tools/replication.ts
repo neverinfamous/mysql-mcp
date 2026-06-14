@@ -192,14 +192,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
       } catch (e) {
-        if (e instanceof z.ZodError) {
-          return formatHandlerErrorResponse(
-            e.issues.map((i) => i.message).join("; "),
-          );
-        }
-        return formatHandlerErrorResponse(
-          `Failed to read binlog events: ${String(e)}`,
-        );
+        return formatHandlerErrorResponse(e);
       }
     },
   };
