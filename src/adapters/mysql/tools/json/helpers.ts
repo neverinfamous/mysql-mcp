@@ -55,7 +55,7 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
         const result = await adapter.executeReadQuery(sql, [path]);
 
         let response;
@@ -169,13 +169,14 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, searchValue, mode } =
+        const { table, column, searchValue, mode, limit } =
           JsonSearchSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
 
-        const sql = `SELECT id, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL`;
+        const limitClause = ` LIMIT ${limit ?? 50}`;
+        const sql = `SELECT id, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${limitClause}`;
 
         const result = await adapter.executeReadQuery(sql, [
           mode,

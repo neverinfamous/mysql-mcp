@@ -64,6 +64,7 @@ export const JsonSearchSchemaBase = z.object({
     .optional()
     .default("one")
     .describe("Search mode"),
+  limit: z.unknown().optional().describe("Maximum rows to return"),
 });
 
 export const JsonSearchSchema = z
@@ -77,6 +78,7 @@ export const JsonSearchSchema = z
       col: z.string().optional(),
       searchValue: z.unknown().optional(),
       mode: z.enum(["one", "all"]).optional().default("one"),
+      limit: z.number().optional(),
     }),
   )
   .transform((data) => ({
@@ -84,6 +86,7 @@ export const JsonSearchSchema = z
     column: data.column ?? data.col ?? "",
     searchValue: data.searchValue,
     mode: data.mode,
+    limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",

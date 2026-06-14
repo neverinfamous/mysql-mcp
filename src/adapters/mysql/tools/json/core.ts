@@ -102,9 +102,8 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
           sql += ` WHERE ${where}`;
         }
 
-        if (limit !== undefined && limit !== null) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const appliedLimit = limit ?? 50;
+        sql += ` LIMIT ${appliedLimit}`;
 
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
@@ -331,8 +330,7 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         const queryParams: unknown[] = [jsonValue];
 
         const whereClause = where ? ` AND ${where}` : "";
-        const limitClause =
-          limit !== undefined && limit !== null ? ` LIMIT ${limit}` : "";
+        const limitClause = ` LIMIT ${limit ?? 50}`;
 
         if (path) {
           sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
@@ -384,8 +382,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         const jsonPath = path ?? "$";
         const whereClause = where ? `WHERE ${where}` : "";
-        const limitClause =
-          limit !== undefined && limit !== null ? ` LIMIT ${limit}` : "";
+        const limitClause = ` LIMIT ${limit ?? 50}`;
 
         const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
 
