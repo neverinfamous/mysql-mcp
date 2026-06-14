@@ -60,6 +60,9 @@ export function createAuditListBackupsTool(
           return withTokenEstimate({
             success: false,
             error: "Backup Manager is not enabled or available",
+            code: "NOT_SUPPORTED",
+            category: "config",
+            recoverable: false,
           });
         }
 
@@ -119,6 +122,9 @@ export function createAuditRestoreBackupTool(
           return withTokenEstimate({
             success: false,
             error: "Backup Manager is not enabled or available",
+            code: "NOT_SUPPORTED",
+            category: "config",
+            recoverable: false,
           });
         }
 
@@ -127,6 +133,9 @@ export function createAuditRestoreBackupTool(
           return withTokenEstimate({
             success: false,
             error: `Snapshot not found or unreadable: ${filename}`,
+            code: "NOT_FOUND_ERROR",
+            category: "resource",
+            recoverable: false,
           });
         }
 
@@ -205,6 +214,9 @@ export function createAuditDiffBackupTool(
           return withTokenEstimate({
             success: false,
             error: "Backup Manager is not enabled or available",
+            code: "NOT_SUPPORTED",
+            category: "config",
+            recoverable: false,
           });
         }
 
@@ -213,6 +225,9 @@ export function createAuditDiffBackupTool(
           return withTokenEstimate({
             success: false,
             error: `Snapshot not found or unreadable: ${filename}`,
+            code: "NOT_FOUND_ERROR",
+            category: "resource",
+            recoverable: false,
           });
         }
 

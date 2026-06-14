@@ -134,6 +134,10 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             return withTokenEstimate({
               success: false,
               error: `Table '${table}' does not exist`,
+              code: "TABLE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Table does not exist. Run mysql_list_tables to see available tables.",
+              recoverable: false,
               details: { exists: false, table },
             });
           }
@@ -411,6 +415,10 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             return withTokenEstimate({
               success: false,
               error: `Database '${database}' does not exist.`,
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database does not exist.",
+              recoverable: false,
             });
           }
         } catch (dbErr) {
@@ -431,6 +439,10 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
                 return withTokenEstimate({
                   success: false,
                   error: `Table '${table}' does not exist in database '${database}'.`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "resource",
+                  suggestion: "Table does not exist.",
+                  recoverable: false,
                 });
               }
             } catch (tableErr) {
@@ -515,6 +527,10 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             return withTokenEstimate({
               success: false,
               error: `Database '${database}' does not exist.`,
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database does not exist.",
+              recoverable: false,
             });
           }
         } catch (dbErr) {

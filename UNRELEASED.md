@@ -103,6 +103,7 @@
 - Fixed an issue in `mysql_write_query` where executing a `SELECT` query gracefully resulted in a Zod validation error because `WriteQueryOutputSchema` strictly required a `rowsAffected` integer, which is now optional.
 - Ported `test-zod-errors.mjs` from db-mcp and applied the `McpServer` monkey-patch to ensure SDK-level Zod validation exceptions are gracefully intercepted and formatted as standard `VALIDATION_ERROR` payloads, rather than leaking raw `-32602` SDK errors.
 - Fixed a bug in `mysql_read_query` where query result streaming (`stream: true`) failed to emit MCP progress notifications due to a legacy db-mcp wrapper. It now natively integrates with `progressFactory`.
+- Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `backup` and `audit-backup` tool groups for domain-specific errors (e.g. `TABLE_NOT_FOUND`, `DATABASE_NOT_FOUND`).
 
 ### Changed
 - **Type Safety (Thread 1):** Eliminated loose `any` and `as` type assertions across the core `adapters` and `auth` modules. Replaced unsafe property access with `unknown` and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.
