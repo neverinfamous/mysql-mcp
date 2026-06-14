@@ -11,13 +11,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-85.04%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-85.02%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## The Most Comprehensive MySQL MCP Server Available
 
-**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants with **unparalleled database capabilities**. Features **Code Mode** for running tools in a single JavaScript sandbox, eliminating massive token overhead.
+**mysql-mcp**: The definitive MySQL MCP Server. 241 tools, Code Mode, and OAuth 2.1 integration.
 
 ### 🎯 Core Features
 
