@@ -115,12 +115,6 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -160,12 +154,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -228,12 +217,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -273,12 +257,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -316,12 +295,7 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -379,12 +353,7 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -432,12 +401,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -479,12 +443,7 @@ export function createJsonArrayAppendTool(
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },

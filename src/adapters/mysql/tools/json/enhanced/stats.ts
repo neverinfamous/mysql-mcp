@@ -101,12 +101,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          return formatHandlerErrorResponse(
-            new Error("Table or column does not exist"),
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },

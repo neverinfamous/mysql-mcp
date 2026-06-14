@@ -557,7 +557,7 @@ describe("JSON Enhanced Tools", () => {
         );
         expect(result).toMatchObject({
           success: false,
-          error: "Table or column does not exist",
+          error: "Table 'testdb.nonexistent' doesn't exist",
         });
       });
 
@@ -572,7 +572,7 @@ describe("JSON Enhanced Tools", () => {
         );
         expect(result).toMatchObject({
           success: false,
-          error: "Table or column does not exist",
+          error: "Table 'testdb.nonexistent' doesn't exist",
         });
       });
 
@@ -587,7 +587,7 @@ describe("JSON Enhanced Tools", () => {
         );
         expect(result).toMatchObject({
           success: false,
-          error: "Table or column does not exist",
+          error: "Table 'testdb.nonexistent' doesn't exist",
         });
       });
 

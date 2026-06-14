@@ -115,6 +115,7 @@
 - Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `events` tool group by replacing manual error returns with `formatHandlerErrorResponse` and typed `MySQLMcpError` exceptions.
 - Fixed a Split Schema pattern violation across the `events` tool group, ensuring proper parameter visibility and alias mapping.
 - Fixed non-compliant existence behaviors in the `events` tools (`mysql_event_create`, `mysql_event_drop`, `mysql_event_status`) by properly implementing the structured `{ skipped: true, reason: ... }` and `{ exists: false }` payloads.
+- Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `json` tool group by removing an invalid error message check that prevented database `ER_NO_SUCH_TABLE` errors from bubbling up to the `formatHandlerErrorResponse` formatter.
 ### Changed
 - **Type Safety (Thread 1):** Eliminated loose `any` and `as` type assertions across the core `adapters` and `auth` modules. Replaced unsafe property access with `unknown` and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.
 - **Type Safety (Thread 2):** Eliminated `any` and `as` type assertions across the core tool handlers (`src/adapters/mysql/tools/`). Replaced unsafe dynamic property access with `unknown` types and strict validation, improved JSON parsing safety, and removed blind casts from all test mock implementations.
