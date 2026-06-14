@@ -416,10 +416,7 @@ describe("McpServer", () => {
         const fs = await import("node:fs");
         const path = await import("node:path");
         const cwd = process.cwd();
-        fs.rmSync(path.join(cwd, "test-mcp-server/index.jsonl"), { force: true });
-        fs.rmSync(path.join(cwd, "test-mcp-server.sqlite"), { force: true });
-        fs.rmSync(path.join(cwd, "test-mcp-server.sqlite-shm"), { force: true });
-        fs.rmSync(path.join(cwd, "test-mcp-server.sqlite-wal"), { force: true });
+        fs.rmSync(path.join(cwd, "test-mcp-server"), { recursive: true, force: true });
       } catch {
         // Ignore cleanup errors
       }

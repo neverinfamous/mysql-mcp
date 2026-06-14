@@ -75,6 +75,7 @@
 - Split Code Mode's `src/codemode/api/constants.ts` into a `src/codemode/api/constants/` module to organize aliasing, positional parameters, and examples.
 
 ### Fixed
+- **Testing Infrastructure:** Fixed a bug in `src/server/__tests__/mcp-server.test.ts` where the audit logger integration test failed to clean up its `test-mcp-server` directory. The teardown logic was incorrectly targeting `test-mcp-server.sqlite` at the root directory level. Fixed to recursively remove the entire folder.
 - **Testing Infrastructure:** Fixed a critical index-boundary parsing bug in `standardize-prompts.js` that caused early-iteration test files (where `## Post-Test Procedures` appeared above the checklists) to be wiped completely, and implemented idempotency logic so the script safely preserves custom content during re-runs.
 - **Admin Tools:** Migrated `mysql_server_config` from manual MCP server registration to the standard `ToolDefinition` adapter architecture. This automatically injects it into Code Mode under `mysql.admin.serverConfig`, enforces rigorous Zod schema bounds, and eliminates inconsistent error payloads.
 - **Codemode Security Scanner:** Fixed a false-positive mitigation in the static security scanner where stripping all string literals inadvertently bypassed validation for bracket-notation AST escapes (like `x["constructor"]`). The scanner now correctly strips only template literals (`` ` ``) to safely allow Markdown prose while enforcing strict policies on single and double quotes.
