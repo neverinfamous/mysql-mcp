@@ -84,7 +84,7 @@ src/
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
-| `test-server/Tool-Reference.md` | Categorized tool inventory          |
+| `test-server/tool-reference.md` | Categorized tool inventory          |
 | `CONTRIBUTING.md`               | Development setup and PR guidelines |
 | `DOCKER_README.md`              | Docker Hub documentation            |
 | `CHANGELOG.md`                  | Version history                     |
@@ -98,6 +98,7 @@ When reviewing PRs, check for:
 - [ ] `eslint-disable` usage — always forbidden
 - [ ] `@ts-ignore` or `as any` — always forbidden
 - [ ] Raw exceptions from tool handlers — must use structured error responses
+- [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
 - [ ] Files approaching 500 lines — flag for splitting
 - [ ] New tools missing from tool filtering configuration
 - [ ] Missing Zod schemas on new tools
