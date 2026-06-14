@@ -64,6 +64,9 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -167,6 +170,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -194,6 +200,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Unsupported partition type: ${String(unexpectedType)}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -220,6 +229,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -230,6 +242,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Cannot add RANGE partition — existing MAXVALUE partition must be reorganized first using mysql_reorganize_partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -240,6 +255,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Partition value(s) already exist in another partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -250,6 +268,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: formatMysqlError(error),
+            code: "UNKNOWN_ERROR",
+            category: "internal",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -288,6 +309,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -320,6 +344,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -333,6 +360,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Partition '${partitionName}' does not exist on table '${table}'`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -343,6 +373,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: formatMysqlError(error),
+            code: "UNKNOWN_ERROR",
+            category: "internal",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -381,6 +414,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -426,6 +462,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -436,6 +475,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `One or more source partitions (${fromPartitions.join(", ")}) do not exist on table '${table}'`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -446,6 +488,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: formatMysqlError(error),
+            code: "UNKNOWN_ERROR",
+            category: "internal",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
