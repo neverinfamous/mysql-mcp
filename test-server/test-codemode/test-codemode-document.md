@@ -160,29 +160,29 @@ document Tool Group (9 tools +1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.document.help()` → verify method listing
-2. `mysql.document.listCollections()` → verify `test_documents` present
-3. `mysql.document.find({collection: "test_documents", limit: 3})` → 3 documents
-4. `mysql.document.collectionInfo({collection: "test_documents"})` → count of 10
+1. `mysql.docstore.help()` → verify method listing
+2. `mysql.docstore.listCollections()` → verify `test_documents` present
+3. `mysql.docstore.find({collection: "test_documents", limit: 3})` → 3 documents
+4. `mysql.docstore.collectionInfo({collection: "test_documents"})` → count of 10
 
 **Create → Use → Drop lifecycle:**
 
-5. `mysql.document.createCollection({name: "temp_cm_docs"})` → `success: true`
-6. `mysql.document.add({collection: "temp_cm_docs", documents: [{name: "Alice"}, {name: "Bob"}]})` → 2 added
-7. `mysql.document.find({collection: "temp_cm_docs"})` → 2 documents
-8. `mysql.document.modify({collection: "temp_cm_docs", criteria: {name: "Alice"}, update: {age: 30}})` → modified
-9. `mysql.document.remove({collection: "temp_cm_docs", criteria: {name: "Bob"}})` → removed
-10. `mysql.document.dropCollection({name: "temp_cm_docs"})` → `success: true`
+5. `mysql.docstore.createCollection({name: "temp_cm_docs"})` → `success: true`
+6. `mysql.docstore.add({collection: "temp_cm_docs", documents: [{name: "Alice"}, {name: "Bob"}]})` → 2 added
+7. `mysql.docstore.find({collection: "temp_cm_docs"})` → 2 documents
+8. `mysql.docstore.modify({collection: "temp_cm_docs", criteria: {name: "Alice"}, update: {age: 30}})` → modified
+9. `mysql.docstore.remove({collection: "temp_cm_docs", criteria: {name: "Bob"}})` → removed
+10. `mysql.docstore.dropCollection({name: "temp_cm_docs"})` → `success: true`
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.document.find({collection: "nonexistent_xyz"})` → `{success: false}`
-12. 🔴 `mysql.document.collectionInfo({collection: "nonexistent_xyz"})` → `{success: false}`
+11. 🔴 `mysql.docstore.find({collection: "nonexistent_xyz"})` → `{success: false}`
+12. 🔴 `mysql.docstore.collectionInfo({collection: "nonexistent_xyz"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-13. 🔴 `mysql.document.add({})` → `{success: false, error: "Validation error: ..."}`
-14. 🔴 `mysql.document.createCollection({})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.docstore.add({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.docstore.createCollection({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
