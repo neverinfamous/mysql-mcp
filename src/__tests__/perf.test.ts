@@ -198,7 +198,7 @@ describe("Performance Tests", () => {
 
         // First call builds the cache
         const firstCall = adapter.getToolDefinitions();
-        expect(firstCall).toHaveLength(240);
+        expect(firstCall).toHaveLength(241);
 
         // Subsequent calls should return same reference (cached)
         const secondCall = adapter.getToolDefinitions();
@@ -213,7 +213,7 @@ describe("Performance Tests", () => {
         expect(timing.avg).toBeLessThan(2.0);
       });
 
-      it("should return consistent tool count of 240 regardless of filter default", () => {
+      it("should return consistent tool count of 241 regardless of filter default", () => {
         const adapter = new MySQLAdapter();
 
         // getToolDefinitions returns ALL definitions available in the adapter,
@@ -221,7 +221,7 @@ describe("Performance Tests", () => {
         // Wait, MySQLAdapter.getToolDefinitions() returns all tools?
         // Yes, checking the implementation... it usually does.
         const tools = adapter.getToolDefinitions();
-        expect(tools).toHaveLength(240);
+        expect(tools).toHaveLength(241);
       });
     });
   });

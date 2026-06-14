@@ -44,6 +44,7 @@ import {
 import { createAuditSearchTool } from "./audit-search.js";
 
 import { createAppendInsightTool } from "./insights.js";
+import { createServerConfigTool } from "./server-config.js";
 
 /**
  * Get admin tools
@@ -57,6 +58,7 @@ export function getAdminTools(adapter: MySQLAdapter): ToolDefinition[] {
     createFlushTablesTool(adapter),
     createKillQueryTool(adapter),
     createAppendInsightTool(),
+    createServerConfigTool(),
     createAuditSearchTool(adapter),
   ];
 }

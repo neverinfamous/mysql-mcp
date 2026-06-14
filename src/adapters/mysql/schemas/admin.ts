@@ -261,6 +261,31 @@ export const ShowVariablesSchema = z
     { message: "limit must be a positive integer" },
   );
 
+// --- ServerConfig ---
+export const ServerConfigSchemaBase = z.object({
+  action: z
+    .enum(["get", "set"])
+    .describe("Whether to get or set the configuration value"),
+  setting: z
+    .enum(["logLevel"])
+    .optional()
+    .describe("The setting to modify"),
+  value: z
+    .string()
+    .optional()
+    .describe("The new value for the setting (e.g., 'debug', 'info', 'warning')"),
+});
+
+export const ServerConfigSchema = ServerConfigSchemaBase.refine(
+  (data) => {
+    if (data.action === "set") {
+      return data.setting !== undefined && data.value !== undefined;
+    }
+    return true;
+  },
+  { message: "setting and value are required for 'set' action" }
+);
+
 // =============================================================================
 // Output Schemas
 // =============================================================================
@@ -386,5 +411,13 @@ export const AppendInsightOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     insightCount: z.number(),
     message: z.string()
+  }).optional()
+});
+
+// --- server-config.ts ---
+export const ServerConfigOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    config: z.record(z.string(), z.unknown()).optional(),
+    message: z.string().optional()
   }).optional()
 });

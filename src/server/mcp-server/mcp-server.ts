@@ -13,14 +13,13 @@ import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SubscriptionManager } from "../subscription-manager.js";
 import type { McpServerConfig, TransportType, ToolFilterConfig } from "../../types/index.js";
-import { parseToolFilter, getFilterSummary, getEnabledGroups } from "../../filtering/tool-filter.js";
+import { parseToolFilter, getFilterSummary } from "../../filtering/tool-filter.js";
 import { logger } from "../../utils/logger.js";
 import { mcpLogger } from "../../logging/mcp-logging.js";
 import { progressFactory } from "../../progress/progress-reporter.js";
 import { AuditLogger } from "../../audit/logger.js";
 import { BackupManager } from "../../audit/backup-manager/index.js";
 import { createAuditInterceptor } from "../../audit/interceptor.js";
-import { registerAdminTools } from "../admin-tools.js";
 import { metrics } from "../../observability/metrics.js";
 import { SystemDb } from "../../observability/system-db.js";
 
@@ -127,12 +126,6 @@ export class McpServer {
       toolFilter: this.config.toolFilter ?? "none",
       capabilities: ["logging"],
     });
-
-    // Register admin tools
-    const enabledGroups = getEnabledGroups(this.toolFilter.enabledTools);
-    if (enabledGroups.has("admin")) {
-      registerAdminTools(this.server);
-    }
   }
 
   /**
