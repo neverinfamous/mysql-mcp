@@ -1,7 +1,5 @@
 import { z, ZodError } from "zod";
 import {
-  stripErrorPrefix,
-  formatZodError,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
@@ -79,7 +77,7 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(new Error(formatZodError(error)));
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Operation DROP ROLE failed")) {
@@ -98,20 +96,9 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
               ? params.role
               : undefined;
           const roleName = pName ?? pRole ?? "unknown";
-          const response = {
-            success: false,
-            error: `Role '${roleName}' does not exist`,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+          return formatHandlerErrorResponse(new Error(`Role '${roleName}' does not exist`));
         }
-        const response = { success: false, error: stripErrorPrefix(message) };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+        return formatHandlerErrorResponse(error);
       }
     },
   };

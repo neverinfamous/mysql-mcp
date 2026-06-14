@@ -480,7 +480,6 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          role: "test_role",
           error: "Table 'testdb.nonexistent' doesn't exist",
         }),
       );

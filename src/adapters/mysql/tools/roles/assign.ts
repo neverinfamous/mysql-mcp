@@ -1,7 +1,5 @@
 import { z, ZodError } from "zod";
 import {
-  stripErrorPrefix,
-  formatZodError,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
@@ -143,17 +141,13 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           if (error instanceof ZodError) {
-            return formatHandlerErrorResponse(new Error(formatZodError(error)));
+            return formatHandlerErrorResponse(error);
           }
           const message = error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
             return formatHandlerErrorResponse(new Error("User does not exist"));
           }
-          const response = { success: false, error: stripErrorPrefix(message) };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -259,32 +253,13 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
         } catch (error: unknown) {
           if (error instanceof ZodError) {
-            return formatHandlerErrorResponse(new Error(formatZodError(error)));
+            return formatHandlerErrorResponse(error);
           }
           const message = error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
             return formatHandlerErrorResponse(new Error("User does not exist"));
           }
-          const cleanMsg = stripErrorPrefix(message);
-          const pRole =
-            params !== null &&
-            typeof params === "object" &&
-            "role" in params &&
-            typeof params.role === "string"
-              ? params.role
-              : undefined;
-          if (pRole !== undefined) {
-            const response = { success: false, role: pRole, error: cleanMsg };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
-          }
-          const response = { success: false, error: cleanMsg };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+          return formatHandlerErrorResponse(error);
         }
       },
     },

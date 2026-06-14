@@ -1,7 +1,5 @@
 import { z, ZodError } from "zod";
 import {
-  stripErrorPrefix,
-  formatZodError,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
@@ -72,7 +70,7 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(new Error(formatZodError(error)));
+          return formatHandlerErrorResponse(error);
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Operation CREATE ROLE failed")) {
@@ -91,20 +89,9 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
               ? params.role
               : undefined;
           const roleName = pName ?? pRole ?? "unknown";
-          const response = {
-            success: false,
-            error: `Role '${roleName}' already exists`,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+          return formatHandlerErrorResponse(new Error(`Role '${roleName}' already exists`));
         }
-        const response = { success: false, error: stripErrorPrefix(message) };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+        return formatHandlerErrorResponse(error);
       }
     },
   };
