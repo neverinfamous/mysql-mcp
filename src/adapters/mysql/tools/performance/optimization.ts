@@ -437,31 +437,10 @@ export function createOptimizerTraceTool(
         await connection.query('SET optimizer_trace="enabled=on"');
         tracingEnabled = true;
 
-        // Execute the query (may fail for nonexistent tables, etc.)
         try {
           await connection.query(query);
         } catch (err: unknown) {
-          const errorMsg = formatMysqlError(err);
-          if (summary) {
-            const response = {
-              success: false,
-              error: errorMsg,
-              data: { query, decisions: [] },
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
-          }
-          const response = {
-            success: false,
-            error: errorMsg,
-            data: { query, trace: null },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(err);
         }
 
         // Get the trace
@@ -490,7 +469,7 @@ export function createOptimizerTraceTool(
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const response = { success: true, data: { trace: rows } };
+        const response = { success: true, data: { query, trace: rows } };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );

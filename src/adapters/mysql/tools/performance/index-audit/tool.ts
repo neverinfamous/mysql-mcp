@@ -79,14 +79,14 @@ export function createIndexRecommendationTool(
         }
 
         // Build flat existing indexes array
-        const existingIndexes = Array.from(indexesByTable.values())
+        const existingIndexes = table ? Array.from(indexesByTable.values())
           .flat()
           .map((i) => ({
             name: i.name,
             columns: i.columns,
             unique: i.unique,
             type: i.type,
-          }));
+          })) : [];
 
         // Build legacy recommendations array for backwards compatibility
         const legacyRecommendations: { column: string; reason: string }[] = [];
