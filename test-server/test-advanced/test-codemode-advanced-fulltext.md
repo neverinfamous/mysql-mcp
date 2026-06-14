@@ -150,7 +150,28 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Category 1: Search Pipeline
 
+1. Create `stress_fts` table with `title VARCHAR(255)`, `body TEXT`
+2. Insert 5 rows with searchable terms
+3. Create FULLTEXT index on (title, body)
+4. Natural language search — verify relevance ordering
+5. Boolean search with `+required -excluded` — verify filtering
+6. Query expansion search — verify expanded results
+7. Drop FULLTEXT index — verify clean removal
+
+## Category 2: Edge Cases
+
+8. Search for empty string `""` — verify structured response (not crash)
+9. Search for very long query string (1000+ chars) — verify handling
+10. Search with special characters `@!#$%` — verify no SQL injection
+11. Search on table without FULLTEXT index — verify structured error
+12. Search with `includeFacets: true` when pagination requires multiple pages — verify counts reflect total matches, not just the single page
+13. Search with `limit: 1` and paginate through all 5 rows using `cursor` — verify total rows retrieved exactly equals 5
+
+## Cleanup
+
+12. Drop `stress_fts` table
 
 ---
 

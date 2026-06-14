@@ -150,7 +150,34 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: optimization
 
+optimization Tool Group (4 tools +1 code mode):
+
+1. `mysql_index_recommendation` 2. `mysql_query_rewrite` 3. `mysql_force_index`
+2. `mysql_optimizer_trace`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.optimization.help()` → verify method listing
+2. `mysql.optimization.indexRecommendation({table: "test_orders"})` → findings with redundant/FK checks
+3. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"]})` → EXPLAIN recommendations
+4. `mysql.optimization.indexRecommendation({table: "test_orders", queries: ["SELECT * FROM test_orders WHERE status = 'completed' AND customer_name = 'Alice'"]})` → composite suggestion
+5. `mysql.optimization.indexRecommendation({})` → database-wide audit
+6. `mysql.optimization.queryRewrite({query: "SELECT * FROM test_products WHERE name = 'Laptop'"})` → hints
+7. `mysql.optimization.forceIndex({table: "test_orders", index: "idx_orders_status", query: "SELECT * FROM test_orders WHERE status = 'completed'"})` → FORCE INDEX hint
+8. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1"})` → trace
+9. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → summarized
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.optimization.indexRecommendation({table: "nonexistent_xyz"})` → `{success: false}`
+11. 🔴 `mysql.optimization.indexRecommendation({queries: ["INSERT INTO test_products VALUES (999, 'x', 1, 'cat', '{}')"]})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.optimization.indexRecommendation({queries: "SELECT 1"})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.optimization.optimizerTrace({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

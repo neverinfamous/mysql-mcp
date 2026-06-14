@@ -341,6 +341,7 @@ export const DropTableOutputSchema = BaseOutputSchema.extend({
 // Base schema for MCP visibility
 export const CreateIndexSchemaBase = z.object({
   name: z.string().optional().describe("Index name"),
+  indexName: z.string().optional().describe("Alias for name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   columns: z.array(z.string()).optional().describe("Column names to index"),
@@ -360,7 +361,7 @@ export const CreateIndexSchemaBase = z.object({
 export const CreateIndexSchema = z
   .preprocess(preprocessTableParams, CreateIndexSchemaBase)
   .transform((data) => ({
-    name: data.name,
+    name: data.name ?? data.indexName,
     table: data.table ?? data.tableName ?? "",
     columns: data.columns,
     unique: data.unique,
@@ -368,7 +369,7 @@ export const CreateIndexSchema = z
     ifNotExists: data.ifNotExists,
   }))
   .refine((data) => data.name !== undefined && data.name !== "", {
-    message: "name is required",
+    message: "name (or indexName alias) is required",
   })
   .refine((data) => data.table !== "", {
     message: "table (or tableName alias) is required",

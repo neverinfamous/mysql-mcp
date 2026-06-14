@@ -150,7 +150,42 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Category 1: Boundary Values
 
+1. Insert MAX INT, MIN INT, 0, NULL into a `stress_boundary` table
+2. Test VARCHAR with empty string `''`, max length string, and NULL
+3. Test DECIMAL with very large/small values
+4. Test DATE with `0000-00-00`, `9999-12-31`
+5. Query empty table (0 rows) — verify response shape is consistent
+
+## Category 2: State Pollution
+
+6. Create `stress_pollution` table, insert rows, verify count
+7. Drop and recreate same table — verify no row leakage
+8. Create table with same name as a dropped table — verify clean slate
+9. Insert duplicate primary key — verify structured error
+10. Insert NULL into NOT NULL column — verify structured error
+
+## Category 3: Idempotency
+
+11. Call `mysql_create_table` for existing table — verify structured error (not raw exception)
+12. Call `mysql_drop_table` for already-dropped table with `ifExists: true` — verify success
+13. Call `mysql_create_index` for existing index — verify structured error
+14. Multiple sequential `mysql_analyze_table` calls — verify no degradation
+
+## Category 4: Alias Combinations
+
+15. Call `mysql_read_query` with `sql` alias — verify identical results to `query`
+16. Call `mysql_describe_table` with `name` alias — verify identical to `table`
+17. Call `mysql_describe_table` with `tableName` alias — verify identical to `table`
+
+## Category 5: Subscriptions
+
+18. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle the `mysql://health` resource URI.
+
+## Cleanup
+
+19. Drop all `stress_*` tables
 
 ---
 

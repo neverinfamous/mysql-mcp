@@ -150,7 +150,53 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: core
 
+### core Group-Specific Testing
+
+core Tool Group (8 tools +1 code mode):
+
+1. 'mysql_read_query'
+2. 'mysql_write_query'
+3. 'mysql_list_tables'
+4. 'mysql_describe_table'
+5. 'mysql_create_table'
+6. 'mysql_drop_table'
+7. 'mysql_create_index'
+8. 'mysql_get_indexes'
+9. 'mysql_execute_code' (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below. Use the `mysql.*` namespace to call the corresponding methods with the exact inputs shown. Compare responses against the expected results within your script, and push any deviations or errors to a `failures` array. Return the `failures` array at the end of the script. Report any issues logged.
+
+1. `mysql.core.help()` → verify method listing includes `readQuery`, `writeQuery`, `listTables`, etc.
+2. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `n === 20`
+3. `mysql.core.readQuery({query: "SELECT id, name FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows
+4. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders", stream: true, chunkSize: 5})` → verify returns `{rowCount: 1, rows: [{n: 20}]}` and DOES NOT return `streamed: true` (degrades gracefully in Code Mode)
+5. `mysql.core.readQuery({query: "SELECT id FROM test_measurements"})` → verify `count` is 50, retrieve `nextCursor`
+6. `mysql.core.readQuery({query: "SELECT id FROM test_measurements", cursor: <nextCursor from previous call>})` → verify pagination works
+7. `mysql.core.listTables({database: "testdb", limit: 5})` → 5 tables returned
+8. `mysql.core.describeTable({table: "test_products"})` → columns include `id`, `name`, `price`
+9. `mysql.core.getIndexes({table: "test_orders"})` → verify `idx_orders_status` present
+
+**Create → Use → Drop lifecycle:**
+
+7. `mysql.core.createTable({table: "temp_cm_core", columns: [{name: "id", type: "INT", primaryKey: true}, {name: "val", type: "VARCHAR(50)"}]})` → `success: true`
+8. `mysql.core.writeQuery({query: "INSERT INTO temp_cm_core (id, val) VALUES (1, 'test')"})` → `rowsAffected: 1`
+9. `mysql.core.readQuery({query: "SELECT * FROM temp_cm_core"})` → 1 row
+10. `mysql.core.dropTable({table: "temp_cm_core"})` → `success: true`
+
+**Domain error paths (🔴):**
+
+11. 🔴 `mysql.core.readQuery({query: "SELECT * FROM nonexistent_table_xyz"})` → `{success: false, error: "..."}` — NOT raw exception
+12. 🔴 `mysql.core.describeTable({table: "nonexistent_xyz"})` → `{success: false, error: "..."}`
+13. 🔴 `mysql.core.readQuery({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
+14. 🔴 `mysql.core.getIndexes({table: "nonexistent_xyz"})` → `{success: false, error: "..."}`
+
+**Zod validation error paths (🔴):**
+
+15. 🔴 `mysql.core.createTable({})` → `{success: false, error: "Validation error: ..."}`
+16. 🔴 `mysql.core.describeTable({})` → `{success: false, error: "Validation error: ..."}`
+17. 🔴 `mysql.core.readQuery({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

@@ -150,7 +150,28 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: partitioning
 
+partitioning Tool Group (4 tools +1 code mode):
+
+1. `mysql_partition_info` 2. `mysql_add_partition` 3. `mysql_drop_partition`
+2. `mysql_reorganize_partition`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.partitioning.help()` → verify method listing
+2. `mysql.partitioning.partitionInfo({table: "test_partitioned"})` → partition names
+3. `mysql.partitioning.partitionInfo({table: "test_products"})` → non-partitioned response
+
+**Domain error paths (🔴):**
+
+4. 🔴 `mysql.partitioning.partitionInfo({table: "nonexistent_xyz"})` → `{success: false}` (P154)
+
+**Zod validation error paths (🔴):**
+
+5. 🔴 `mysql.partitioning.partitionInfo({})` → `{success: false, error: "Validation error: ..."}`
+6. 🔴 `mysql.partitioning.addPartition({})` → `{success: false, error: "Validation error: ..."}`
+7. 🔴 `mysql.partitioning.dropPartition({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

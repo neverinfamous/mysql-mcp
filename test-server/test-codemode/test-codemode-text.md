@@ -150,7 +150,32 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: text
 
+text Tool Group (6 tools +1 code mode):
+
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+2. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.text.help()` → verify method listing
+2. `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
+
+**Domain error paths (🔴):**
+
+7. 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+8. 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+9. 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

@@ -150,7 +150,26 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: cluster
 
+cluster Tool Group (10 tools +1 code mode):
+
+1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
+2. `mysql_gr_transactions` 5. `mysql_gr_flow_control` 6. `mysql_cluster_status`
+3. `mysql_cluster_instances` 8. `mysql_cluster_topology` 9. `mysql_cluster_router_status`
+4. `mysql_cluster_switchover`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.cluster.help()` → verify method listing
+2. `mysql.cluster.grStatus()` → GR status or structured error
+3. `mysql.cluster.grMembers()` → members or empty
+4. `mysql.cluster.status()` → cluster status or structured error
+5. `mysql.cluster.status({summary: true})` → summarized output
+6. `mysql.cluster.instances()` → instance details
+7. `mysql.cluster.topology()` → topology map
+8. `mysql.cluster.routerStatus()` → router status
+9. `mysql.cluster.routerStatus({summary: true})` → summarized
 
 ---
 

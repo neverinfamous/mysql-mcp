@@ -75,11 +75,13 @@ function processDirectory(dirName) {
     // Extract Schema Reference
     const schemaMatch = content.match(
       /## Test Database Schema([\s\S]*?)## (Testing Requirements|Structured Error|Reporting Format|Pre-requisites)/
+    ) || content.match(
+      /### Test Schema Reference([\s\S]*?)## (Testing Requirements|Structured Error|Reporting Format|Pre-requisites)/
     );
-    let schemaRef =
-      "> See `code-map.md` in the `test-server/` directory for the complete test database schema.";
-    if (schemaMatch) {
-      schemaRef = schemaMatch[1].trim();
+    let schemaRef = "> See `code-map.md` in the `test-server/` directory for the complete test database schema.\n";
+    
+    if (schemaMatch && schemaMatch[1]) {
+        schemaRef = schemaMatch[1].trim();
     }
 
     const lines = content.split("\n");
@@ -90,15 +92,39 @@ function processDirectory(dirName) {
         testStartIdx = lines.findIndex(l => l.startsWith("### " + groupName + " Group-Specific Testing") || l.startsWith("## Tests:"));
     }
 
+    let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && l.startsWith("## Post-Test"));
+    let contentEndIdx = lines.length;
+
+    // Handle already standardized files (content is between --- blocks before Post-Test)
+    if (testStartIdx === -1 && postTestIdx !== -1) {
+        let lastDashes = -1;
+        for (let i = postTestIdx - 1; i >= 0; i--) {
+            if (lines[i].trim() === "---") {
+                lastDashes = i;
+                break;
+            }
+        }
+        if (lastDashes !== -1) {
+            let firstDashes = -1;
+            for (let i = lastDashes - 1; i >= 0; i--) {
+                if (lines[i].trim() === "---") {
+                    firstDashes = i;
+                    break;
+                }
+            }
+            if (firstDashes !== -1) {
+                testStartIdx = firstDashes + 1;
+                contentEndIdx = lastDashes;
+            }
+        }
+    }
+
     if (testStartIdx === -1) {
       console.warn(`Could not find test content start boundary in ${file}`);
       continue;
     }
 
-    let postTestIdx = lines.findIndex(l => l.startsWith("## Post-Test"));
-    let contentEndIdx = lines.length;
-
-    if (postTestIdx !== -1) {
+    if (contentEndIdx === lines.length && postTestIdx !== -1) {
         // Find the `---` before postTestIdx
         for (let i = postTestIdx - 1; i > testStartIdx; i--) {
             if (lines[i].trim() === "---") {

@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [router]
+# mysql-mcp Code Mode Testing: [stats]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -146,38 +146,48 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-
+- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
 
 ---
 
-## Group Focus: router
+## Group Focus: stats
 
-router Tool Group (9 tools +1 code mode):
+stats Tool Group (20 tools +1 code mode):
 
-1. `mysql_router_status` 2. `mysql_router_routes` 3. `mysql_router_route_status`
-2. `mysql_router_route_health` 5. `mysql_router_route_connections`
-3. `mysql_router_route_destinations` 7. `mysql_router_route_blocked_hosts`
-4. `mysql_router_metadata_status` 9. `mysql_router_pool_status`
+1. `mysql_stats_descriptive` 2. `mysql_stats_percentiles` 3. `mysql_stats_correlation`
+2. `mysql_stats_distribution` 5. `mysql_stats_time_series` 6. `mysql_stats_regression`
+3. `mysql_stats_sampling` 8. `mysql_stats_histogram` 9. `mysql_stats_row_number`
+4. `mysql_stats_rank` 11. `mysql_stats_lag_lead` 12. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg` 14. `mysql_stats_ntile` 15. `mysql_stats_hypothesis`
+6. `mysql_stats_outliers` 17. `mysql_stats_top_n` 18. `mysql_stats_distinct`
+7. `mysql_stats_frequency` 20. `mysql_stats_summary`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-2. `mysql.router.status()` → Router version
-3. `mysql.router.routes()` → configured routes
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-9. `mysql.router.metadataStatus({metadataName: "bootstrap"})` → metadata cache
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+4. `mysql.stats.correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
+6. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10})` → histogram data
+7. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
+8. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
+9. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → row numbers
+10. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → moving average
+11. `mysql.stats.outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → outlier detection
+12. `mysql.stats.summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → multivariable summary
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+13. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+14. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+15. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
+16. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+17. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+18. 🔴 `mysql.stats.outliers({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
