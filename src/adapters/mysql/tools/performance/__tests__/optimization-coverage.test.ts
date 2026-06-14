@@ -246,10 +246,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: true },
         mockContext,
-      )) as { error?: string; data?: { decisions?: unknown[] } };
+      )) as { success: boolean; error: string };
 
+      expect(result.success).toBe(false);
       expect(result.error).toContain("doesn't exist");
-      expect(result.data.decisions).toEqual([]);
     });
 
     it("should handle query execution failure in non-summary mode", async () => {
@@ -264,10 +264,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
-      )) as { error?: string; data?: { trace?: unknown } };
+      )) as { success: boolean; error: string };
 
+      expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.data.trace).toBeNull();
     });
   });
 

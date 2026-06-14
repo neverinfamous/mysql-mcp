@@ -302,11 +302,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
-      )) as { data: { query: string; trace: null }; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.query).toBe("SELECT * FROM nonexistent");
-      expect(result.data.trace).toBeNull();
-      expect(result.error).toBe("Table 'testdb.nonexistent' doesn't exist");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
 
       // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -326,11 +325,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost", summary: true },
         mockContext,
-      )) as { data: { query: string; decisions: unknown[] }; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.query).toBe("SELECT * FROM ghost");
-      expect(result.data.decisions).toEqual([]);
-      expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
 
       // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -352,11 +350,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost", summary: false },
         mockContext,
-      )) as { data: { query: string; trace: null }; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.query).toBe("SELECT * FROM ghost");
-      expect(result.data.trace).toBeNull();
-      expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("doesn't exist");
     });
 
     it("should accept sql alias for query parameter", async () => {
