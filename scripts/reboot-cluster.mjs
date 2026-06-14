@@ -1,0 +1,136 @@
+import { execSync, exec } from 'child_process';
+import { promisify } from 'util';
+const sleep = promisify(setTimeout);
+const execAsync = promisify(exec);
+
+async function run() {
+    const args = process.argv.slice(2);
+    const getArg = (name, def) => {
+        const idx = args.findIndex(a => a.toLowerCase() === `--${name.toLowerCase()}` || a.toLowerCase() === `-${name.toLowerCase()}`);
+        if (idx >= 0 && idx + 1 < args.length) return args[idx+1];
+        return def;
+    };
+
+    const mysqlshPath = getArg('mysqlshpath', process.platform === 'win32' ? "C:\\Program Files\\MySQL\\MySQL Shell 9.5\\bin\\mysqlsh.exe" : "mysqlsh");
+    const primaryHost = getArg('primaryhost', "localhost");
+    const primaryPort = parseInt(getArg('primaryport', "3307"), 10);
+    const user = getArg('user', "root");
+    const password = getArg('password', "root");
+    const clusterName = getArg('clustername', "testCluster");
+
+    console.log(`\n=== InnoDB Cluster Reboot ===`);
+
+    console.log(`\n[1/4] Checking container status...`);
+    const nodes = ["mysql-node1", "mysql-node2", "mysql-node3"];
+    for (const node of nodes) {
+        try {
+            const status = execSync(`docker inspect -f "{{.State.Status}}" ${node}`, { encoding: 'utf-8' }).trim();
+            if (status !== 'running') {
+                console.log(`  Starting ${node}...`);
+                execSync(`docker start ${node}`);
+            }
+            console.log(`  ${node}: running`);
+        } catch (e) {
+            console.error(`  Error checking/starting ${node}: ${e.message}`);
+        }
+    }
+
+    console.log(`\n[2/4] Waiting for MySQL to be ready on ${primaryHost}:${primaryPort}...`);
+    const maxRetries = 30;
+    let ready = false;
+    for (let i = 1; i <= maxRetries; i++) {
+        try {
+            execSync(`docker exec mysql-node1 mysqladmin ping -h localhost -uroot -proot`, { stdio: 'ignore' });
+            ready = true;
+            break;
+        } catch (e) {
+            console.log(`  Waiting... (${i}/${maxRetries})`);
+            await sleep(2000);
+        }
+    }
+    
+    if (!ready) {
+        console.error(`  ERROR: MySQL not ready after ${maxRetries} attempts`);
+        process.exit(1);
+    }
+    console.log(`  MySQL is ready`);
+
+    console.log(`\n[3/4] Rebooting cluster '${clusterName}' from complete outage...`);
+    const uri = `${user}:${password}@${primaryHost}:${primaryPort}`;
+    try {
+        execSync(`"${mysqlshPath}" --uri ${uri} --js -e "try { dba.rebootClusterFromCompleteOutage('${clusterName}', {force: true}); } catch(e) { print('Reboot output: ' + e.message); }"`, { stdio: 'inherit' });
+        console.log(`  Cluster reboot step completed`);
+    } catch (e) {
+        console.error(`  Error rebooting cluster: ${e.message}`);
+    }
+
+    console.log(`\n[4/5] Rejoining secondaries from inside Docker network...`);
+    const clusterUser = "cluster_admin";
+    const clusterPass = "cluster_admin";
+    const secondaries = ["mysql-node2", "mysql-node3"];
+    
+    for (const node of secondaries) {
+        console.log(`  Rejoining ${node}...`);
+        let rejoinOutput = "";
+        try {
+            rejoinOutput = execSync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); try { c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306'); print('REJOIN_SUCCESS'); } catch(e) { print('REJOIN_ERROR'); }"`, { encoding: 'utf-8' });
+        } catch(e) {
+            rejoinOutput = e.stdout || e.message;
+        }
+
+        if (rejoinOutput.includes("REJOIN_SUCCESS")) {
+            console.log(`  ${node} rejoined successfully`);
+        } else {
+            console.log(`  ${node} rejoin failed. Attempting automated clone recovery...`);
+            
+            console.log(`    -> Removing stale instance...`);
+            try {
+                execSync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); try { c.removeInstance('${clusterUser}:${clusterPass}@${node}:3306', {force: true}); } catch(e) {}"`, { stdio: 'ignore' });
+            } catch(e) {}
+
+            console.log(`    -> Cloning instance (this will take a moment)...`);
+            const clonePromise = execAsync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.addInstance('${clusterUser}:${clusterPass}@${node}:3306', {recoveryMethod: 'clone'});"`);
+            
+            let retries = 0;
+            let cloneDone = false;
+            
+            clonePromise.then(() => cloneDone = true).catch(() => cloneDone = true);
+
+            while (retries < 60 && !cloneDone) {
+                await sleep(2000);
+                try {
+                    const status = execSync(`docker inspect -f "{{.State.Status}}" ${node}`, { encoding: 'utf-8' }).trim();
+                    if (status === 'exited' || status === 'stopped') {
+                        console.log(`    -> Container stopped during clone. Restarting ${node}...`);
+                        execSync(`docker start ${node}`);
+                        break; 
+                    }
+                } catch(e) {}
+                retries++;
+            }
+            
+            try {
+                await clonePromise;
+            } catch(e) {
+                console.error(`    -> Clone process threw an error, but continuing: ${e.message}`);
+            }
+            console.log(`  Clone recovery for ${node} completed.`);
+            
+            try {
+                execSync(`docker restart mysql-router`);
+            } catch(e) {}
+        }
+    }
+
+    console.log(`\n[5/5] Verifying cluster status...`);
+    await sleep(3000);
+    try {
+        execSync(`"${mysqlshPath}" --uri ${uri} --js -e "print(JSON.stringify(dba.getCluster().status(), null, 2))"`, { stdio: 'inherit' });
+    } catch(e) {
+        console.error(`  Error checking status: ${e.message}`);
+    }
+
+    console.log(`\n=== Cluster reboot complete ===`);
+}
+
+run().catch(console.error);

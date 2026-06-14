@@ -2,7 +2,7 @@
 
 ## Cluster Management
 
-### `reboot-cluster.ps1`
+### `reboot-cluster.mjs`
 
 Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simultaneously, typically after a machine reboot).
 
@@ -10,12 +10,12 @@ Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simu
 
 **When NOT needed:** Partial outages (single node restart, Docker upgrade) auto-recover via `group_replication_start_on_boot=ON`.
 
-```powershell
+```bash
 # Default: root:root@localhost:3307, cluster name testCluster
-.\scripts\reboot-cluster.ps1
+node scripts/reboot-cluster.mjs
 
 # Custom credentials
-.\scripts\reboot-cluster.ps1 -User cluster_admin -Password cluster_admin
+node scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
 ```
 
 **What it does (5 steps):**
@@ -35,7 +35,7 @@ Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simu
 
 | Symptom                            | Cause                            | Fix                                           |
 | ---------------------------------- | -------------------------------- | --------------------------------------------- |
-| `super_read_only` errors           | GR offline, no primary elected   | `.\scripts\reboot-cluster.ps1`                |
+| `super_read_only` errors           | GR offline, no primary elected   | `node scripts/reboot-cluster.mjs`             |
 | E2E tests skip 5 write tests       | Same as above                    | Same as above                                 |
 | All topology members OFFLINE       | Complete outage (machine reboot) | Same as above                                 |
 | Single node MISSING                | Node fell out of group           | Rejoin: `docker exec mysql-node1 mysqlsh ...` |

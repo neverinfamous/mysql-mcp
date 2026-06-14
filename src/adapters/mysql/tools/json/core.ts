@@ -387,12 +387,23 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
         const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
+        
+        let keys: string[] = [];
+        const rawKeys = result.rows?.[0]?.["json_keys"];
+        if (rawKeys !== undefined && rawKeys !== null) {
+          if (typeof rawKeys === "string") {
+            const parsed = JSON.parse(rawKeys) as unknown;
+            if (Array.isArray(parsed)) {
+              keys = parsed.map(String);
+            }
+          } else if (Array.isArray(rawKeys)) {
+            keys = rawKeys.map(String);
+          }
+        }
+        
         return withTokenEstimate({
           success: true,
-          data: {
-            rows: result.rows,
-            count: result.rows?.length ?? 0,
-          },
+          data: { keys },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {

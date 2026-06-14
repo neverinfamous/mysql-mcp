@@ -302,7 +302,7 @@ describe("JSON Core Tools", () => {
       expect(call).toContain("JSON_KEYS");
     });
 
-    it("should include count in response", async () => {
+    it("should parse keys into an array", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           { json_keys: '["a", "b"]' },
@@ -317,9 +317,9 @@ describe("JSON Core Tools", () => {
           column: "json_col",
         },
         mockContext,
-      )) as { data: { rows: unknown[]; count: number } };
+      )) as { data: { keys: string[] } };
 
-      expect(result.data.count).toBe(2);
+      expect(result.data.keys).toEqual(["a", "b"]);
     });
   });
 

@@ -43,12 +43,12 @@ describe("JSON Enhanced Tools", () => {
           mode: "patch",
         },
         mockContext,
-      )) as { data: { merged: any } };
+      )) as { data: { result: any } };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_MERGE_PATCH");
-      expect(result.data.merged).toEqual({ a: 1 });
+      expect(result.data.result).toEqual({ a: 1 });
     });
 
     it("should merge JSON using preserve mode", async () => {
@@ -84,9 +84,9 @@ describe("JSON Enhanced Tools", () => {
           mode: "patch",
         },
         mockContext,
-      )) as { data: { merged: any } };
+      )) as { data: { result: any } };
 
-      expect(result.data.merged).toEqual({ direct: "object" });
+      expect(result.data.result).toEqual({ direct: "object" });
     });
   });
 

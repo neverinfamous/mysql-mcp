@@ -47,8 +47,7 @@ export const JsonContainsOutputSchema = BaseOutputSchema.extend({
 
 export const JsonKeysOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    rows: z.array(z.record(z.string(), z.unknown())).optional(),
-    count: z.number().optional(),
+    keys: z.array(z.string()).optional(),
   }).optional(),
 });
 
@@ -133,13 +132,19 @@ export const JsonMergeOutputSchema = BaseOutputSchema.extend({
 
 export const JsonDiffOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    hasDifferences: z.boolean(),
+    identical: z.boolean(),
+    json1ContainsJson2: z.boolean().optional(),
+    json2ContainsJson1: z.boolean().optional(),
+    json1Length: z.number().optional(),
+    json2Length: z.number().optional(),
+    json1Keys: z.array(z.string()).optional(),
+    json2Keys: z.array(z.string()).optional(),
+    addedKeys: z.array(z.string()).optional(),
+    removedKeys: z.array(z.string()).optional(),
     differences: z.array(z.object({
       path: z.string(),
-      type: z.string(),
-      oldValue: z.unknown().optional(),
-      newValue: z.unknown().optional(),
+      value1: z.unknown().optional(),
+      value2: z.unknown().optional(),
     })).optional(),
-    patch: z.unknown().optional(),
   }).optional(),
 });

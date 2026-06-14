@@ -36,7 +36,7 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            merged:
+            result:
               typeof merged === "string"
                 ? (() => {
                     const parsed: unknown = JSON.parse(merged);
