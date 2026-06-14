@@ -56,10 +56,9 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication plugin is not active",
-          };
+          return formatHandlerErrorResponse(
+            new Error("Group Replication plugin is not active")
+          );
         }
 
         const statusResult = await adapter.executeQuery(`
@@ -147,10 +146,9 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication not active",
-          };
+          return formatHandlerErrorResponse(
+            new Error("Group Replication not active")
+          );
         }
 
         let query = `
@@ -260,10 +258,9 @@ export function createGRTransactionsTool(
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication not active",
-          };
+          return formatHandlerErrorResponse(
+            new Error("Group Replication not active")
+          );
         }
 
         // Get transaction statistics
@@ -326,10 +323,9 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication not active",
-          };
+          return formatHandlerErrorResponse(
+            new Error("Group Replication not active")
+          );
         }
 
         // Get flow control configuration

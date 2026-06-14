@@ -1,4 +1,4 @@
-import { ZodError } from "zod";
+
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
@@ -36,8 +36,14 @@ export function createClusterRouterStatusTool(
         return Date.now() - checkInTime > 3_600_000; // 1 hour
       };
 
+      let summary: boolean | undefined;
       try {
-        const { summary } = SummarySchema.parse(params);
+        ({ summary } = SummarySchema.parse(params));
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
+      }
+
+      try {
         // Summary mode: return only essential router info
         if (summary) {
           const result = await adapter.executeQuery(`
@@ -108,11 +114,9 @@ export function createClusterRouterStatusTool(
         return withTokenEstimate({ success: true, data });
       } catch (error) {
         const baseError =
-          error instanceof ZodError
-            ? error.issues.map((i) => i.message).join(", ")
-            : error instanceof Error
-              ? error.message
-              : String(error);
+          error instanceof Error
+            ? error.message
+            : String(error);
         return formatHandlerErrorResponse(
           new Error(
             `Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`,
