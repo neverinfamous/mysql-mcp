@@ -16,6 +16,7 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import {
+  MemberSchemaBase,
   MemberSchema,
   GRStatusOutputSchema,
   GRMembersOutputSchema,
@@ -133,7 +134,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all Group Replication members with detailed state information.",
     group: "cluster",
-    inputSchema: MemberSchema,
+    inputSchema: MemberSchemaBase,
     outputSchema: GRMembersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

@@ -9,6 +9,10 @@ import { BaseOutputSchema } from "./output-schemas.js";
 // Input Schemas
 // =============================================================================
 
+export const MemberSchemaBase = z.object({
+  memberId: z.unknown().optional().describe("Filter by specific member UUID"),
+});
+
 export const MemberSchema = z.object({
   memberId: z.string().optional().describe("Filter by specific member UUID"),
 });
