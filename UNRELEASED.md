@@ -104,6 +104,7 @@
 - Ported `test-zod-errors.mjs` from db-mcp and applied the `McpServer` monkey-patch to ensure SDK-level Zod validation exceptions are gracefully intercepted and formatted as standard `VALIDATION_ERROR` payloads, rather than leaking raw `-32602` SDK errors.
 - Fixed a bug in `mysql_read_query` where query result streaming (`stream: true`) failed to emit MCP progress notifications due to a legacy db-mcp wrapper. It now natively integrates with `progressFactory`.
 - Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `backup` and `audit-backup` tool groups for domain-specific errors (e.g. `TABLE_NOT_FOUND`, `DATABASE_NOT_FOUND`).
+- Fixed a mismatch in `mysql_export_table` where the documentation incorrectly stated the default `limit` was 100 instead of the safer code default of 5, and increased the default `batch` size from 1 to 50 to significantly reduce payload token usage for SQL exports. Updated corresponding unit tests to validate the new batch parameters.
 
 ### Changed
 - **Type Safety (Thread 1):** Eliminated loose `any` and `as` type assertions across the core `adapters` and `auth` modules. Replaced unsafe property access with `unknown` and strict type guards (e.g., isRecord), tightened Zod schema usage around McpServer payload validations, and fully migrated MockMySQLAdapter definitions to strongly-typed mock classes to preserve compiler integrity.

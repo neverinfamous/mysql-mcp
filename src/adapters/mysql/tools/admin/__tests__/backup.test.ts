@@ -361,7 +361,7 @@ describe("Admin Backup Tools", () => {
       );
     });
 
-    it("should default to batch: 1 producing individual INSERT statements", async () => {
+    it("should default to batch: 50 producing multi-row INSERT statements", async () => {
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
         .mockResolvedValueOnce(
@@ -381,9 +381,8 @@ describe("Admin Backup Tools", () => {
 
       expect(result.data.rowCount).toBe(2);
       const statements = result.data.sql.split("\n");
-      expect(statements).toHaveLength(2);
-      expect(statements[0]).toContain("VALUES (1, 'Alice');");
-      expect(statements[1]).toContain("VALUES (2, 'Bob');");
+      expect(statements).toHaveLength(1);
+      expect(statements[0]).toContain("VALUES (1, 'Alice'), (2, 'Bob');");
     });
   });
 

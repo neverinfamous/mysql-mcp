@@ -28,7 +28,7 @@ export const ExportTableSchemaBase = z.object({
     .unknown()
     .optional()
     .describe(
-      "Rows per INSERT statement (default: 1). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
+      "Rows per INSERT statement (default: 50). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
     ),
 });
 
@@ -55,7 +55,7 @@ export const ExportTableSchema = z
     format: data.format,
     where: data.where ?? data.filter,
     limit: data.limit !== undefined ? Number(data.limit) : 5,
-    batch: data.batch !== undefined ? Number(data.batch) : 1,
+    batch: data.batch !== undefined ? Number(data.batch) : 50,
   }))
   .refine(
     (data) =>

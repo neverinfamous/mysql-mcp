@@ -82,7 +82,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   ["backup", `# Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
-- **Default limit**: \`mysql_export_table\` returns at most 100 rows by default. Use \`limit\` parameter to override.
+- **Default limit**: \`mysql_export_table\` returns at most 5 rows by default. Use \`limit\` parameter to override.
 - **Batched INSERT**: Use \`batch\` parameter (default: 1) to group rows into multi-row INSERT statements for smaller payloads. Example: \`batch: 50\` produces \`INSERT INTO ... VALUES (...), (...), ...\` with up to 50 rows per statement.
 - **WHERE filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
 - **CSV and JSON columns**: CSV export escapes JSON columns with double-quote encoding—valid but complex. Consider SQL format for JSON-heavy tables.

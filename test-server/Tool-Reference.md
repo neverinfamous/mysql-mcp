@@ -281,7 +281,7 @@ Complete list of all **241 tools** across 28 categories.
 
 | Tool                         | Description                                                         |
 | ---------------------------- | ------------------------------------------------------------------- |
-| `mysql_export_table`         | Export table to SQL/CSV. **v2.2:** `limit` parameter (default: 100) |
+| `mysql_export_table`         | Export table to SQL/CSV. **v2.2:** `limit` parameter (default: 5) |
 | `mysql_import_data`          | LOAD DATA INFILE                                                    |
 | `mysql_create_dump`          | mysqldump command generation                                        |
 | `mysql_restore_dump`         | Restore from dump                                                   |
