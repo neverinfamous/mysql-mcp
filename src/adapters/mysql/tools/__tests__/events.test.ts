@@ -219,9 +219,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toMatchObject({
-        success: false,
-        error: "Event does not exist",
-        metrics: expect.any(Object),
+        success: true,
+        data: { skipped: true, reason: "Event did not exist" },
       });
       // Should only have the pre-check query, no DROP
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -319,9 +318,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toMatchObject({
-        success: false,
-        error: "Event does not exist",
-        metrics: expect.any(Object),
+        success: true,
+        data: { exists: false, name: "nonexistent_event" },
       });
     });
 
@@ -412,9 +410,8 @@ describe("Event Create Advanced", () => {
     );
 
     expect(result).toMatchObject({
-        success: false,
-        error: "Event already exists",
-        metrics: expect.any(Object),
+        success: true,
+        data: { skipped: true, reason: "Event already exists" },
       });
     // Should only have the pre-check query, no CREATE
     expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);

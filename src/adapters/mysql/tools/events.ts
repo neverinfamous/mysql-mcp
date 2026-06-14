@@ -12,12 +12,17 @@ import {
   withTokenEstimate,
 } from "./core/error-helpers.js";
 import {
+  EventCreateSchemaBase,
   EventCreateSchema,
+  EventAlterSchemaBase,
   EventAlterSchema,
+  EventDropSchemaBase,
   EventDropSchema,
+  EventListSchemaBase,
   EventListSchema,
+  EventStatusSchemaBase,
   EventStatusSchema,
-  SchedulerStatusSchema,
+  SchedulerStatusSchemaBase,
   EventCreateOutputSchema,
   EventAlterOutputSchema,
   EventDropOutputSchema,
@@ -53,7 +58,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create a scheduled event (one-time or recurring) to execute SQL at specified times.",
     group: "events",
-    inputSchema: EventCreateSchema,
+    inputSchema: EventCreateSchemaBase,
     outputSchema: EventCreateOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
@@ -87,7 +92,10 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
             [name],
           );
           if (existsCheck.rows && existsCheck.rows.length > 0) {
-            return formatHandlerErrorResponse(new QueryError("Event already exists",));
+            return withTokenEstimate({
+              success: true,
+              data: { eventName: name, skipped: true, reason: "Event already exists" }
+            });
           }
         }
 
@@ -129,7 +137,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Modify an existing scheduled event schedule, body, or status.",
     group: "events",
-    inputSchema: EventAlterSchema,
+    inputSchema: EventAlterSchemaBase,
     outputSchema: EventAlterOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
@@ -217,7 +225,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Drop Event",
     description: "Remove a scheduled event.",
     group: "events",
-    inputSchema: EventDropSchema,
+    inputSchema: EventDropSchemaBase,
     outputSchema: EventDropOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
@@ -235,7 +243,10 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
             [name],
           );
           if (!existsCheck.rows || existsCheck.rows.length === 0) {
-            return formatHandlerErrorResponse(new QueryError("Event does not exist",));
+            return withTokenEstimate({
+              success: true,
+              data: { eventName: name, skipped: true, reason: "Event did not exist" }
+            });
           }
         }
 
@@ -267,7 +278,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all scheduled events with status, schedule, and execution info.",
     group: "events",
-    inputSchema: EventListSchema,
+    inputSchema: EventListSchemaBase,
     outputSchema: EventListOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -341,7 +352,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed status and execution history for a specific event.",
     group: "events",
-    inputSchema: EventStatusSchema,
+    inputSchema: EventStatusSchemaBase,
     outputSchema: EventStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -390,12 +401,15 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return formatHandlerErrorResponse(new QueryError("Event does not exist",));
+          return withTokenEstimate({
+            success: true,
+            data: { name, exists: false },
+          });
         }
 
         return withTokenEstimate({
           success: true,
-          data: { event: result.rows[0] },
+          data: { name, exists: true, event: result.rows[0] },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -416,7 +430,7 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Scheduler Status",
     description: "Get the global Event Scheduler status and event statistics.",
     group: "events",
-    inputSchema: SchedulerStatusSchema,
+    inputSchema: SchedulerStatusSchemaBase,
     outputSchema: SchedulerStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
