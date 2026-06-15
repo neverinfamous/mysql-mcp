@@ -18,6 +18,7 @@ import { DetectConnectionSpikeOutputSchema } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ValidationError } from "../../../../types/index.js";
 
 // =============================================================================
 // Schemas
@@ -80,28 +81,13 @@ export function createDetectConnectionSpikeTool(
         const rawPercent =
           parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
         if (rawPercent < 0 || rawPercent > 100) {
-          const response = {
-            success: false,
-            error:
-              "warningPercent (or thresholdPercent) must be between 0 and 100",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          throw new ValidationError("warningPercent (or thresholdPercent) must be between 0 and 100");
         }
         const warningPercent = rawPercent;
         const windowMinutes = parsed.windowMinutes ?? 5;
 
         if (windowMinutes < 1 || windowMinutes > 1440) {
-          const response = {
-            success: false,
-            error: "windowMinutes must be between 1 and 1440",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          throw new ValidationError("windowMinutes must be between 1 and 1440");
         }
         const idleSeconds = windowMinutes * 60;
 

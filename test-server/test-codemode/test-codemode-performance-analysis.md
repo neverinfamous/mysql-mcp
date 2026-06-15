@@ -152,22 +152,26 @@ During testing, check for these inconsistencies:
 
 ## Group Focus: performance
 
-performance-analysis Tool Group (8 tools +1 code mode):
+performance-analysis Tool Group (11 tools +1 code mode):
 
 1. `mysql_explain` 2. `mysql_explain_analyze` 3. `mysql_slow_queries`
-2. `mysql_query_stats` 5. `mysql_index_usage` 6. `mysql_table_stats`
-3. `mysql_buffer_pool_stats` 8. `mysql_thread_stats`
+4. `mysql_query_stats` 5. `mysql_index_usage` 6. `mysql_table_stats`
+7. `mysql_buffer_pool_stats` 8. `mysql_thread_stats`
+9. `mysql_detect_query_anomalies` 10. `mysql_detect_bloat_risk` 11. `mysql_detect_connection_spike`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.performance.help()` → verify method listing
 2. `mysql.performance.explain({query: "SELECT * FROM test_products WHERE id = 1"})` → execution plan
 3. `mysql.performance.explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → JSON plan
-4. `mysql.performance.tableStats({table: "test_products"})` → rows, dataLength
+4. `mysql.performance.tableStats({table: "test_products"})` → estimated_rows, data_size_bytes
 5. `mysql.performance.indexUsage({table: "test_products"})` → index stats
 6. `mysql.performance.bufferPoolStats()` → buffer pool metrics
 7. `mysql.performance.threadStats()` → thread statistics
 8. `mysql.performance.queryStats({limit: 3})` → top queries
+9. `mysql.performance.detectQueryAnomalies()` → anomaly list
+10. `mysql.performance.detectBloatRisk()` → bloat risk
+11. `mysql.performance.detectConnectionSpike()` → connection warnings
 
 **Domain error paths (🔴):**
 

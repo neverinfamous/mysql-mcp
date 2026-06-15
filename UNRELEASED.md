@@ -170,4 +170,5 @@
 - Fixed a documentation omission in the `shell` tool group by properly documenting the `outputUrl` and `inputUrl` aliases for the dump/load tools.
 - Fixed severe payload bloat issues in the `admin` tool group by aggressively reducing the default `limit` parameter for `mysql_audit_search` from 50 to 10, saving over 3000 tokens per default request.
 - Fixed a Split Schema pattern violation in the `docstore` tool group where `mysql_doc_create_index` incorrectly missed alias preprocessing for `path` (as `field`) and `type` (as `INTEGER` -> `INT`).
+- Fixed unstructured error payloads in the `performance` tool group (`mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`) by replacing manual error objects with standard `ValidationError` and `ExtensionNotAvailableError` exceptions.
 

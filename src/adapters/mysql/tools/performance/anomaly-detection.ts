@@ -25,6 +25,7 @@ import {
 } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ValidationError, ExtensionNotAvailableError } from "../../../../types/index.js";
 
 // =============================================================================
 // Shared Helpers (exported for connection-analysis.ts)
@@ -129,24 +130,10 @@ export function createDetectQueryAnomaliesTool(
         const minCalls = parsed.minExecutions ?? parsed.minCalls ?? 50;
 
         if (threshold < 2 || threshold > 10000) {
-          const response = {
-            success: false,
-            error: "threshold (or stdDevThreshold) must be between 2 and 10000",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          throw new ValidationError("threshold (or stdDevThreshold) must be between 2 and 10000");
         }
         if (minCalls < 1 || minCalls > 100000) {
-          const response = {
-            success: false,
-            error: "minCalls (or minExecutions) must be between 1 and 100000",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          throw new ValidationError("minCalls (or minExecutions) must be between 1 and 100000");
         }
 
         // Check if performance_schema is available
@@ -155,14 +142,9 @@ export function createDetectQueryAnomaliesTool(
             `SELECT 1 FROM performance_schema.events_statements_summary_by_digest LIMIT 1`,
           );
         } catch {
-          const response = {
-            success: false,
-            error: "performance_schema is disabled or inaccessible.",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          throw new ExtensionNotAvailableError("performance_schema", {
+            message: "performance_schema is disabled or inaccessible.",
+          });
         }
 
         const countResult = await adapter.executeQuery(
@@ -267,11 +249,7 @@ export function createDetectBloatRiskTool(
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
-            const response = { success: false, error: "Invalid schema name" };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
+            throw new ValidationError("Invalid schema name");
           }
           schemaFilter = `TABLE_SCHEMA = '${schema}'`;
         }
