@@ -452,16 +452,19 @@ export const SpatialIntersectionOutputSchema = BaseOutputSchema.extend({
 
 export const SpatialBufferOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    wkt: z.string().optional(),
-    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
-    area: z.number().optional(),
+    bufferWkt: z.string().optional(),
+    bufferDistance: z.number().optional(),
+    segments: z.number().optional(),
+    segmentsApplied: z.boolean().optional(),
+    srid: z.number().optional(),
   }).loose().optional(),
 });
 
 export const SpatialTransformOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    wkt: z.string().optional(),
-    geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
+    originalWkt: z.string().optional(),
+    transformedWkt: z.string().optional(),
+    transformedGeoJson: z.record(z.string(), z.unknown()).nullable().optional(),
     fromSrid: z.number().optional(),
     toSrid: z.number().optional(),
   }).loose().optional(),
@@ -471,12 +474,18 @@ export const SpatialGeoJSONOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     wkt: z.string().optional(),
     geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
-    srid: z.number().optional(),
+    conversion: z.string().optional(),
   }).loose().optional(),
 });
 
 export const SpatialQueryResultOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     results: z.array(z.record(z.string(), z.unknown())),
+    count: z.number().optional(),
+    referencePoint: z.object({
+      longitude: z.number().optional(),
+      latitude: z.number().optional(),
+    }).loose().optional(),
+    unit: z.string().optional(),
   }).loose().optional(),
 });

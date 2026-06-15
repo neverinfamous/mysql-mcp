@@ -113,6 +113,11 @@ export function createSpatialCreateColumnTool(
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
         const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Invalid use of NULL value")) {
+          return withTokenEstimate({
+            success: false, error: "Cannot add a NOT NULL column to a table with existing rows without a default. Please set nullable: true or clear the table.", code: "QUERY_ERROR",
+          });
+        }
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
