@@ -155,7 +155,7 @@ During testing, check for these inconsistencies:
 text Tool Group (6 tools +1 code mode):
 
 1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
-2. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
