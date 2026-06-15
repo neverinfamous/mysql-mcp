@@ -149,6 +149,10 @@ export async function safeRouterFetch(path: string): Promise<SafeRouterResult<un
       const pool = matchPool?.[1];
       if (pool) msg = `Connection pool '${decodeURIComponent(pool)}' not found`;
 
+      const matchMetadata = /^\/metadata\/([^/]+)/.exec(path);
+      const metadata = matchMetadata?.[1];
+      if (metadata) msg = `Metadata cache '${decodeURIComponent(metadata)}' not found`;
+
       return {
         success: false,
         response: {

@@ -16,6 +16,7 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **Query/SQL**: `query` or `sql` — accepted by `mysql_read_query`, `mysql_write_query`, `mysql_explain`, `mysql_explain_analyze`, `mysql_query_rewrite`, and `mysql_optimizer_trace`. Also `queries` (array) accepted by `mysql_index_recommendation`.
 - **WHERE clause**: `where` or `filter` — accepted by `mysql_export_table` and Text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`).
 - **Column name**: `column` or `col` — accepted by Text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_collation_convert`).
+- **Router targets**: `routeName`, `metadataName`, `poolName`, or simply `name` — accepted by all Router REST API tools.
 - **Admin tables array**: Admin maintenance tools accept a singular `table` (or `tableName`/`name`) as an alias for the `tables` array parameter, automatically wrapping it in an array.
 
 ## Pagination & Limits

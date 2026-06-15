@@ -119,17 +119,21 @@ export const RouterBaseInputSchema = z.object({});
 
 export const RouteNameInputSchemaBase = z.object({
   routeName: z.string().optional().describe("Name of the route to query"),
+  name: z.string().optional().describe("Alias for routeName"),
 });
 
 export const RouteNameInputSchema = z
   .object({
     routeName: z.unknown().optional(),
+    name: z.unknown().optional(),
   })
   .transform((data) => ({
     routeName:
-      data.routeName === undefined
-        ? ""
-        : String(data.routeName as string | number | boolean),
+      data.routeName !== undefined
+        ? String(data.routeName as string | number | boolean)
+        : data.name !== undefined
+          ? String(data.name as string | number | boolean)
+          : "",
   }))
   .refine((data) => data.routeName !== "", {
     message: "routeName must not be empty",
@@ -140,17 +144,21 @@ export const MetadataNameInputSchemaBase = z.object({
     .string()
     .optional()
     .describe("Name of the metadata cache instance"),
+  name: z.string().optional().describe("Alias for metadataName"),
 });
 
 export const MetadataNameInputSchema = z
   .object({
     metadataName: z.unknown().optional(),
+    name: z.unknown().optional(),
   })
   .transform((data) => ({
     metadataName:
-      data.metadataName === undefined
-        ? ""
-        : String(data.metadataName as string | number | boolean),
+      data.metadataName !== undefined
+        ? String(data.metadataName as string | number | boolean)
+        : data.name !== undefined
+          ? String(data.name as string | number | boolean)
+          : "",
   }))
   .refine((data) => data.metadataName !== "", {
     message: "metadataName must not be empty",
@@ -158,17 +166,21 @@ export const MetadataNameInputSchema = z
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
   poolName: z.string().optional().describe("Name of the connection pool"),
+  name: z.string().optional().describe("Alias for poolName"),
 });
 
 export const ConnectionPoolNameInputSchema = z
   .object({
     poolName: z.unknown().optional(),
+    name: z.unknown().optional(),
   })
   .transform((data) => ({
     poolName:
-      data.poolName === undefined
-        ? ""
-        : String(data.poolName as string | number | boolean),
+      data.poolName !== undefined
+        ? String(data.poolName as string | number | boolean)
+        : data.name !== undefined
+          ? String(data.name as string | number | boolean)
+          : "",
   }))
   .refine((data) => data.poolName !== "", {
     message: "poolName must not be empty",
