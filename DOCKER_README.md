@@ -260,7 +260,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `base-nosql`      | 33     | Base NoSQL          | docstore, spatial, vector, codemode                              |
 | `ecosystem`       | 41     | External Tools      | cluster, proxysql, router, shell, codemode                       |
 
-### Tool Groups (27 Available)
+### Tool Groups (28 Available)
 
 > Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
@@ -293,6 +293,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `cluster`       | 10    | Group Replication, InnoDB Cluster                       |
 | `proxysql`      | 11    | ProxySQL management                                     |
 | `router`        | 9     | MySQL Router REST API                                   |
+| `vector`        | 11    | Vector embeddings, KNN search, hybrid search (MySQL 9.0+)|
 
 ---
 
@@ -325,6 +326,8 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
+| `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
+| `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |

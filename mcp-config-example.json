@@ -14,9 +14,12 @@
         "OAUTH_ENABLED": "false",
         "LOG_LEVEL": "info",
         "ALLOWED_IO_ROOTS": "C:/temp,/tmp",
+        "MCP_ENABLE_HSTS": "true",
+        "TRUST_PROXY": "true",
+        "MCP_METRICS_EXPORT": "true",
         "MYSQL_MCP_TOOL_FILTER": "starter",
         "METADATA_CACHE_TTL_MS": "30000",
-        "CODEMODE_ISOLATION": "worker",
+        "CODEMODE_ISOLATION": "isolate",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "PROJECT_REGISTRY": "github.com/your-org",
         "TEAM_DB_PATH": "/data/shared-dbs"
