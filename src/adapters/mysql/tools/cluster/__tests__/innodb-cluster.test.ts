@@ -72,33 +72,30 @@ describe("InnoDB Cluster Tools", () => {
       expect(result.data.routerCount).toBe(2);
     });
 
-    it("should fall back to GR status when InnoDB Cluster metadata not found", async () => {
+    it("should return error when InnoDB Cluster metadata not found", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([])) // Schema check - empty
-        .mockResolvedValueOnce(createMockQueryResult([{ memberCount: 3 }])); // GR member count
 
       const tool = createClusterStatusTool(
         mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result: any = await tool.handler({}, mockContext);
 
-      expect(result.data.isInnoDBCluster).toBe(false);
-      expect(result.data.message).toContain("Group Replication status");
-      expect(result.data.onlineMembers).toBe(3);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("InnoDB Cluster metadata not found");
     });
 
-    it("should fall back to GR status when schema check returns undefined rows", async () => {
+    it("should return error when schema check returns undefined rows", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce({ rows: undefined }) // Schema check - undefined rows
-        .mockResolvedValueOnce(createMockQueryResult([{ memberCount: 2 }])); // GR member count
 
       const tool = createClusterStatusTool(
         mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result: any = await tool.handler({}, mockContext);
 
-      expect(result.data.isInnoDBCluster).toBe(false);
-      expect(result.data.onlineMembers).toBe(2);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("InnoDB Cluster metadata not found");
     });
 
     it("should return error response when query fails", async () => {
@@ -387,7 +384,9 @@ describe("InnoDB Cluster Tools", () => {
 
   describe("createClusterSwitchoverTool", () => {
     it("should warn when no online secondaries exist", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -416,7 +415,9 @@ describe("InnoDB Cluster Tools", () => {
     });
 
     it("should return currentPrimary as null when no primary exists", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -440,7 +441,9 @@ describe("InnoDB Cluster Tools", () => {
     });
 
     it("should recommend good switchover candidate", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",

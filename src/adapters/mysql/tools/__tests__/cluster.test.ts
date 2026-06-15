@@ -353,7 +353,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_cluster_switchover", () => {
     it("should get switchover recommendation", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+        )
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -377,7 +381,11 @@ describe("Handler Execution", () => {
       // uuid1: 0 queue (GOOD)
       // uuid2: 50 queue (ACCEPTABLE)
       // uuid3: 200 queue (NOT_RECOMMENDED)
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+        )
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -436,7 +444,11 @@ describe("Handler Execution", () => {
     });
 
     it("should warn if all candidates are not recommended", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+        )
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
