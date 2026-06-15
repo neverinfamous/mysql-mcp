@@ -183,15 +183,12 @@ export const ConnectionPoolNameInputSchema = z
   })
   .transform((data) => {
     const raw = data.poolName !== undefined ? data.poolName : data.name;
-    let resolved =
+    const resolved =
       typeof raw === "string"
         ? raw
         : typeof raw === "number" || typeof raw === "boolean"
           ? raw.toString()
           : "";
-    if (!resolved) {
-      resolved = "main";
-    }
     return { poolName: resolved };
   })
   .refine((data) => data.poolName !== "", {

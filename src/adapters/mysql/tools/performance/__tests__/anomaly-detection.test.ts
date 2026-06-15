@@ -72,7 +72,7 @@ describe("Anomaly Detection Tools", () => {
         unknown
       >;
       expect(result.success).toBe(false);
-      expect(result.error).toContain("disabled or inaccessible");
+      expect(result.error).toContain("not installed or enabled");
     });
 
     it("should process anomalies correctly", async () => {
