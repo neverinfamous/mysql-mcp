@@ -169,7 +169,7 @@ stats Tool Group (20 tools +1 code mode):
 3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
 4. `mysql.stats.correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
 5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
-6. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10})` → histogram data
+6. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram data
 7. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
 8. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
 9. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → row numbers
