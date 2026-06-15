@@ -12,9 +12,12 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../types/index.js";
 import { assertSafeIoPath } from "../../../../utils/security-utils.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
@@ -67,10 +70,7 @@ export function createShellLoadDumpTool(
 
         const finalInputDir = inputDir ?? inputUrl;
         if (!finalInputDir) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: inputDir or inputUrl is required",
-          });
+          throw new ValidationError("inputDir or inputUrl is required");
         }
 
         assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
@@ -177,26 +177,26 @@ export function createShellLoadDumpTool(
                   errorMessage.includes("local_infile") ||
                   errorMessage.includes("Loading local data is disabled")
                 ) {
-                  return withTokenEstimate({
-                    success: false,
-                    error:
-                      "Load failed: local_infile is disabled on the server.",
-                    suggestion:
-                      "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-                  });
+                  throw new MySQLMcpError(
+                    "Load failed: local_infile is disabled on the server.",
+                    "CONFIGURATION_ERROR",
+                    ErrorCategory.CONFIGURATION,
+                    { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+                  );
                 }
                 if (errorMessage.includes("Duplicate objects")) {
-                  return withTokenEstimate({
-                    success: false,
-                    error: errorMessage,
-                    suggestion:
-                      "Use ignoreExistingObjects: true to skip existing objects",
-                  });
+                  throw new MySQLMcpError(
+                    errorMessage,
+                    "CONFLICT_ERROR",
+                    ErrorCategory.QUERY,
+                    { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
+                  );
                 }
-                return withTokenEstimate({
-                  success: false,
-                  error: errorMessage,
-                });
+                throw new MySQLMcpError(
+                  errorMessage,
+                  "QUERY_ERROR",
+                  ErrorCategory.QUERY
+                );
               }
               break;
             }
@@ -233,20 +233,24 @@ export function createShellLoadDumpTool(
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: "Load failed: local_infile is disabled on the server.",
-            suggestion:
-              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Load failed: local_infile is disabled on the server.",
+              "CONFIGURATION_ERROR",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+            )
+          );
         }
         if (errorMessage.includes("Duplicate objects")) {
-          return withTokenEstimate({
-            success: false,
-            error: errorMessage,
-            suggestion:
-              "Use ignoreExistingObjects: true to skip existing objects",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "CONFLICT_ERROR",
+              ErrorCategory.QUERY,
+              { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
+            )
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -328,18 +332,19 @@ export function createShellRunScriptTool(
         }
 
         if (result.exitCode !== 0) {
-          return withTokenEstimate({
-            success: false,
-            error: result.stderr
+          throw new MySQLMcpError(
+            result.stderr
               ? result.stderr.trim()
               : `Script failed with exit code ${result.exitCode}`,
-            details: {
-              language,
-              exitCode: result.exitCode,
-              stdout: result.stdout,
-              stderr: result.stderr,
-            },
-          });
+            "QUERY_ERROR",
+            ErrorCategory.QUERY,
+            { details: {
+                language,
+                exitCode: result.exitCode,
+                stdout: result.stdout,
+                stderr: result.stderr,
+            } }
+          );
         }
 
         return withTokenEstimate({

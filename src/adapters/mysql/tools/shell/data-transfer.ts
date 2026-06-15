@@ -10,9 +10,12 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../types/index.js";
 import { assertSafeIoPath } from "../../../../utils/security-utils.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
@@ -63,10 +66,7 @@ export function createShellExportTableTool(
         // Escape path for JavaScript
         const finalOutputPath = outputPath ?? outputUrl;
         if (!finalOutputPath) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: outputPath or outputUrl is required",
-          });
+          throw new ValidationError("outputPath or outputUrl is required");
         }
         
         assertSafeIoPath(finalOutputPath, adapter.getAllowedIoRoots());
@@ -110,11 +110,14 @@ export function createShellExportTableTool(
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: `Export failed due to insufficient privileges: ${errorMessage}.`,
-            suggestion: `Ensure the user has SELECT privilege on the target table.`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Export failed due to insufficient privileges: ${errorMessage}.`,
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              { suggestion: `Ensure the user has SELECT privilege on the target table.` }
+            )
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -160,10 +163,7 @@ export function createShellImportTableTool(
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: inputPath or inputUrl is required",
-          });
+          throw new ValidationError("inputPath or inputUrl is required");
         }
 
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots(), false);
@@ -226,12 +226,14 @@ export function createShellImportTableTool(
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: "Import failed: local_infile is disabled on the server.",
-            suggestion:
-              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Import failed: local_infile is disabled on the server.",
+              "CONFIGURATION_ERROR",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+            )
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -274,10 +276,7 @@ export function createShellImportJSONTool(
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: inputPath or inputUrl is required",
-          });
+          throw new ValidationError("inputPath or inputUrl is required");
         }
 
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots());
@@ -324,12 +323,15 @@ export function createShellImportJSONTool(
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
-          return withTokenEstimate({
-            success: false,
-            error: `X Protocol connection failed: ${errorMessage}.`,
-            suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
-            details: { protocol: "X Protocol" },
-          });
+          throw new MySQLMcpError(
+            `X Protocol connection failed: ${errorMessage}.`,
+            "CONNECTION_ERROR",
+            ErrorCategory.CONNECTION,
+            {
+              suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
+              details: { protocol: "X Protocol" },
+            }
+          );
         }
 
         // Check for X Protocol access denied errors in stderr
@@ -337,12 +339,15 @@ export function createShellImportJSONTool(
           result.stderr.includes("Access denied") ||
           result.stderr.includes("1045")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: `X Protocol authentication failed.`,
-            suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
-            details: { protocol: "X Protocol" },
-          });
+          throw new MySQLMcpError(
+            `X Protocol authentication failed.`,
+            "AUTHENTICATION_ERROR",
+            ErrorCategory.AUTHENTICATION,
+            {
+              suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
+              details: { protocol: "X Protocol" },
+            }
+          );
         }
 
         // Parse result
@@ -364,11 +369,12 @@ export function createShellImportJSONTool(
             }
 
             if (!parsed.success) {
-              return withTokenEstimate({
-                success: false,
-                error: parsed.error ?? "Unknown MySQL Shell error",
-                details: { protocol: "X Protocol" },
-              });
+              throw new MySQLMcpError(
+                parsed.error ?? "Unknown MySQL Shell error",
+                "QUERY_ERROR",
+                ErrorCategory.QUERY,
+                { details: { protocol: "X Protocol" } }
+              );
             }
             return withTokenEstimate({
               success: true,
@@ -384,12 +390,12 @@ export function createShellImportJSONTool(
         }
 
         if (result.exitCode !== 0) {
-          return withTokenEstimate({
-            success: false,
-            error:
+            throw new MySQLMcpError(
               result.stderr || result.stdout || "MySQL Shell import failed",
-            details: { protocol: "X Protocol" },
-          });
+              "QUERY_ERROR",
+              ErrorCategory.QUERY,
+              { details: { protocol: "X Protocol" } }
+            );
         }
 
         return withTokenEstimate({
