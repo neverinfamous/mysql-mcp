@@ -127,14 +127,17 @@ export const RouteNameInputSchema = z
     routeName: z.unknown().optional(),
     name: z.unknown().optional(),
   })
-  .transform((data) => ({
-    routeName:
-      data.routeName !== undefined
-        ? String(data.routeName as string | number | boolean)
-        : data.name !== undefined
-          ? String(data.name as string | number | boolean)
-          : "",
-  }))
+  .transform((data) => {
+    const raw = data.routeName !== undefined ? data.routeName : data.name;
+    return {
+      routeName:
+        typeof raw === "string"
+          ? raw
+          : typeof raw === "number" || typeof raw === "boolean"
+            ? raw.toString()
+            : "",
+    };
+  })
   .refine((data) => data.routeName !== "", {
     message: "routeName must not be empty",
   });
@@ -152,14 +155,18 @@ export const MetadataNameInputSchema = z
     metadataName: z.unknown().optional(),
     name: z.unknown().optional(),
   })
-  .transform((data) => ({
-    metadataName:
-      data.metadataName !== undefined
-        ? String(data.metadataName as string | number | boolean)
-        : data.name !== undefined
-          ? String(data.name as string | number | boolean)
-          : "",
-  }))
+  .transform((data) => {
+    const raw =
+      data.metadataName !== undefined ? data.metadataName : data.name;
+    return {
+      metadataName:
+        typeof raw === "string"
+          ? raw
+          : typeof raw === "number" || typeof raw === "boolean"
+            ? raw.toString()
+            : "",
+    };
+  })
   .refine((data) => data.metadataName !== "", {
     message: "metadataName must not be empty",
   });
@@ -174,14 +181,19 @@ export const ConnectionPoolNameInputSchema = z
     poolName: z.unknown().optional(),
     name: z.unknown().optional(),
   })
-  .transform((data) => ({
-    poolName:
-      data.poolName !== undefined
-        ? String(data.poolName as string | number | boolean)
-        : data.name !== undefined
-          ? String(data.name as string | number | boolean)
-          : "",
-  }))
+  .transform((data) => {
+    const raw = data.poolName !== undefined ? data.poolName : data.name;
+    let resolved =
+      typeof raw === "string"
+        ? raw
+        : typeof raw === "number" || typeof raw === "boolean"
+          ? raw.toString()
+          : "";
+    if (!resolved) {
+      resolved = "main";
+    }
+    return { poolName: resolved };
+  })
   .refine((data) => data.poolName !== "", {
     message: "poolName must not be empty",
   });
