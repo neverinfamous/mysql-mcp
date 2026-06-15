@@ -69,12 +69,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     slow: "slowQueries",
     trace: "optimizerTrace",
     bufferPool: "bufferPoolStats",
-    innodb: "innodbStatus",
     stats: "tableStats",
     threads: "threadStats",
-    health: "serverHealth",
-    processes: "showProcesslist",
-    processlist: "showProcesslist",
+    queries: "queryStats",
+    slowlog: "slowQueries",
   },
   // Optimization: shorter aliases
   optimization: {
@@ -92,7 +90,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     analyze: "analyzeTable",
     flush: "flushTables",
     kill: "killQuery",
-    pool: "poolStats",
     serverConfig: "serverConfig",
     config: "serverConfig",
   },
@@ -102,8 +99,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     variables: "showVariables",
     processes: "showProcesslist",
     processlist: "showProcesslist",
-    queries: "queryStats",
-    slowlog: "slowQueries",
+    innodb: "innodbStatus",
+    health: "serverHealth",
+    pool: "poolStats",
   },
   // Backup: shorter aliases
   backup: {

@@ -1,6 +1,4 @@
-import { ZodError } from "zod";
 import {
-  formatMysqlError,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../../core/error-helpers.js";
@@ -142,17 +140,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+        return formatHandlerErrorResponse(error);
       }
     },
   };

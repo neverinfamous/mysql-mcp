@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-85.02%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-85.55%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -321,8 +321,21 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
-| `--config`                | —                       | Configuration file path (.yaml or .json)            |
+| `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
+| `--dump-config`           | —                       | Print the resolved configuration and exit           |
+| `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
+| `--mysql`, `-m`           | `MYSQL_URL`             | MySQL connection string                             |
+| `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
+| `--mysql-port`            | `MYSQL_PORT`            | MySQL port                                          |
+| `--mysql-user`            | `MYSQL_USER`            | MySQL username                                      |
+| `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
+| `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
+| `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size                                |
+| `--pool-timeout`          | `MYSQL_POOL_TIMEOUT`    | Connection acquire timeout (ms)                     |
+| `--pool-queue-limit`      | `MYSQL_POOL_QUEUE_LIMIT`| Queue limit for waiting requests                    |
+| `--tool-filter`, `-f`     | `MYSQL_MCP_TOOL_FILTER` | Tool filter string                                  |
+| `--name`                  | `MCP_SERVER_NAME`       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
@@ -330,6 +343,13 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to JSONL audit log file                        |
+| `--audit-redact`          | `AUDIT_REDACT`          | Redact tool arguments from audit log                |
+| `--audit-reads`           | `AUDIT_READS`           | Log read operations                                 |
+| `--audit-log-max-size`    | `AUDIT_LOG_MAX_SIZE`    | Max audit log size in bytes before rotation         |
+| `--audit-backup`          | `AUDIT_BACKUP`          | Enable pre-mutation snapshots                       |
+| `--audit-backup-data`     | `AUDIT_BACKUP_DATA`     | Include sample data in pre-mutation snapshots       |
+| `--audit-backup-max-size` | `AUDIT_BACKUP_MAX_SIZE` | Max table size in bytes for data capture            |
 | `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |

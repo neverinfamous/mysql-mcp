@@ -164,7 +164,7 @@ describe("Window Function Tools", () => {
       );
       expect(Reflect.get(result || {}, "success")).toBe(false);
       expect(Reflect.get(result || {}, "error")).toContain(
-        "One or more referenced columns do not exist",
+        "Unknown column",
       );
     });
   });

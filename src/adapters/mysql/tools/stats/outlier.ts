@@ -5,7 +5,7 @@
  * 1 tool total.
  */
 
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
@@ -14,7 +14,6 @@ import type {
 import { OutliersOutputSchema } from "../../schemas/stats.js";
 import {
   formatHandlerErrorResponse,
-  formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
@@ -115,16 +114,8 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
             maxOutliers,
           ),
         );
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };

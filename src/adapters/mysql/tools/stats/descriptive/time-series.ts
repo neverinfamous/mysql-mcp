@@ -1,6 +1,4 @@
-import { ZodError } from "zod";
 import {
-  formatMysqlError,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../../core/error-helpers.js";
@@ -124,17 +122,7 @@ export function createTimeSeriesToolStats(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+        return formatHandlerErrorResponse(error);
       }
     },
   };

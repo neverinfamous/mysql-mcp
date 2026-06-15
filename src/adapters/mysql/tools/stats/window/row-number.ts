@@ -1,4 +1,3 @@
-import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
@@ -6,7 +5,6 @@ import type {
 } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
-  formatMysqlError,
   withTokenEstimate,
 } from "../../core/error-helpers.js";
 import { WindowFunctionOutputSchema } from "../../../schemas/stats.js";
@@ -64,22 +62,8 @@ export function createStatsRowNumberTool(
             rows,
           },
         });
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          });
-        }
-        if (msg.includes("Unknown column")) {
-          return withTokenEstimate({
-            success: false,
-            error: "One or more referenced columns do not exist on the table",
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };

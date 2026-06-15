@@ -5,7 +5,7 @@
  * 4 tools total.
  */
 
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
@@ -19,7 +19,6 @@ import {
 } from "../../schemas/stats.js";
 import {
   formatHandlerErrorResponse,
-  formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
@@ -231,16 +230,8 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         return withTokenEstimate({ success: true, data });
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -309,16 +300,8 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
             values,
           },
         });
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -396,16 +379,8 @@ export function createStatsFrequencyTool(
             distribution,
           },
         });
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -532,16 +507,8 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             summaries,
           },
         });
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${typeof params === "object" && params !== null && "table" in params ? String((params as Record<string, unknown>)["table"]) : "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };

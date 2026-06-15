@@ -4,7 +4,7 @@
  * Perform one-sample t-test or z-test against a hypothesized mean.
  */
 
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
@@ -12,7 +12,6 @@ import type {
 } from "../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
-  formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
@@ -286,16 +285,8 @@ export function createStatsHypothesisTool(
             results: testResults,
           },
         });
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };

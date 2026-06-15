@@ -82,5 +82,26 @@ Environment Variables:
   OAUTH_AUDIENCE              Expected token audience
   OAUTH_JWKS_URI              JWKS endpoint URL
   OAUTH_CLOCK_TOLERANCE       Clock tolerance in seconds
+  MYSQL_ROUTER_URL            MySQL Router URL
+  MYSQL_ROUTER_USER           MySQL Router user
+  MYSQL_ROUTER_PASSWORD       MySQL Router password
+  MYSQL_ROUTER_INSECURE       Bypass Router TLS verification (true/false)
+  PROXYSQL_HOST               ProxySQL host
+  PROXYSQL_PORT               ProxySQL port
+  PROXYSQL_USER               ProxySQL user
+  PROXYSQL_PASSWORD           ProxySQL password
+  MYSQLSH_PATH                Path to MySQL Shell executable
+  MYSQL_XPORT                 MySQL X Protocol port (default 33060)
+  CODEMODE_ISOLATION          Code mode isolation level
+  CODE_MODE_MAX_RESULT_SIZE   Max Code Mode result payload in bytes
+  METADATA_CACHE_TTL_MS       Cache TTL for schema metadata
+  AUDIT_LOG_PATH              Path to JSONL audit log
+  AUDIT_REDACT                Redact tool args from audit log
+  AUDIT_READS                 Log read operations
+  AUDIT_BACKUP                Enable pre-mutation DDL snapshots
+  AUDIT_BACKUP_DATA           Include sample data in pre-mutation snapshots
+  PROJECT_REGISTRY            Project registry namespace
+  TEAM_DB_PATH                Path to team database
+  MYSQLMCP_PORT               Port for mysql-mcp
 `);
 }

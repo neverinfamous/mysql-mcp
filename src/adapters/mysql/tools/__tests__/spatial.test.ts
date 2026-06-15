@@ -465,14 +465,13 @@ describe("Handler Execution", () => {
       expect(result).toBeDefined();
     });
 
-    it("should handle logic fallback (coverage)", async () => {
+    it("should catch empty string in Zod validation", async () => {
       const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
-      // geometry: "" passes Zod refine (string is defined) but is falsy,
-      // so handler falls through to the structured error return
+      // geometry: "" is now caught by Zod refine
       const result = await tool.handler({ geometry: "" }, mockContext);
       expect(result).toMatchObject({
         success: false,
-        error: "Either geometry or geoJson must be provided",
+        error: expect.stringContaining("Provided geometry or geoJson must not be an empty string"),
       });
     });
   });
