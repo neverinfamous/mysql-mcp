@@ -147,7 +147,7 @@
 - Fixed an issue in the `replication` tool group (`mysql_binlog_events`) where Zod validation errors were incorrectly swallowed and re-emitted as generic `UNKNOWN_ERROR` objects instead of standard `VALIDATION_ERROR` payloads.
 - Audited and synchronized configuration templates and documentation (`mcp-config-example.json`, `.env.example`, `DOCKER_README.md`, `README.md`) to correctly reflect `isolate` code mode defaults, the `vector` tool group, and HTTP transport variables (`MCP_ENABLE_HSTS`, `TRUST_PROXY`, `MCP_METRICS_EXPORT`).
 - Fixed missing structured error responses (`code`, `category`, `recoverable`) in `proxysql_global_variables` for invalid `like` pattern validation errors.
-- Fixed severe payload bloat issues across the `sysschema` tool group by aggressively reducing the default `limit` parameter values. Adjusted `mysql_sys_statement_summary`, `mysql_sys_memory_summary`, and `mysql_sys_schema_stats` to default to 5 (down from 10/20), and `mysql_sys_io_summary` to default to 10 (down from 20), saving over 3000 tokens per full run.
+- Fixed severe payload bloat issues across the `sysschema` tool group by aggressively reducing the default `limit` parameter for `mysql_sys_statement_summary`, `mysql_sys_memory_summary`, and `mysql_sys_schema_stats` to 5, and `mysql_sys_io_summary` to 10, saving over 3000 tokens per full run.
 - Fixed TypeScript compilation and type inference errors in `src/adapters/mysql/tools/sysschema/__tests__/resources.test.ts` where strict typings conflicted with `MockQueryResult` expectations for null/undefined rows.
 - Fixed missing structured error responses (`code`, `category`) across the `sysschema` tool group for domain-specific errors (e.g., invalid type, missing schema) to ensure compliance with ErrorResponse standards.
 - Fixed Split Schema pattern violations and missing parameter aliases (`tableName`, `name`, `filter`) across the `shell` tool group (`mysqlsh_dump_instance`, `mysqlsh_load_dump`, `mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`) to ensure rigorous Zod schema bounds and complete documentation parity.
@@ -167,3 +167,5 @@
 - Fixed testing omissions in the `replication` tool group by adding missing domain error paths (e.g., nonexistent log files) and updating Zod numeric coercion checklist items.
 - Fixed a documentation omission in the `shell` tool group by properly documenting the `outputUrl` and `inputUrl` aliases for the dump/load tools.
 - Fixed severe payload bloat issues in the `admin` tool group by aggressively reducing the default `limit` parameter for `mysql_audit_search` from 50 to 10, saving over 3000 tokens per default request.
+- Fixed a Split Schema pattern violation in the `docstore` tool group where `mysql_doc_create_index` incorrectly missed alias preprocessing for `path` (as `field`) and `type` (as `INTEGER` -> `INT`).
+

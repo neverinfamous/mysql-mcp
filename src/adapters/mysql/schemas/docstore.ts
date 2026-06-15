@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessDocFilterParams } from "./preprocess-utils.js";
+import { preprocessDocFilterParams, preprocessDocIndexParams } from "./preprocess-utils.js";
 
 export const ListCollectionsSchemaBase = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
@@ -180,7 +180,7 @@ export const CreateDocIndexSchemaBase = z.object({
   unique: z.boolean().optional(),
 });
 
-export const CreateDocIndexSchema = z.object({
+export const CreateDocIndexSchemaStrict = z.object({
   collection: z.string(),
   schema: z.string().optional(),
   name: z.string(),
@@ -195,6 +195,11 @@ export const CreateDocIndexSchema = z.object({
   ),
   unique: z.boolean().default(false),
 });
+
+export const CreateDocIndexSchema = z.preprocess(
+  preprocessDocIndexParams,
+  CreateDocIndexSchemaStrict,
+);
 
 export const CollectionInfoSchemaBase = z.object({
   collection: z.string().optional(),
