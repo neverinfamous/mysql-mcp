@@ -10,3 +10,8 @@
 - **Index creation**: `mysql_create_index` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use `ifNotExists: true` to skip if the index already exists. Returns `{ success: false, error }` when the index already exists (without `ifNotExists`), when a specified column does not exist on the table, or for any other error including when the target table itself does not exist. Note: InnoDB only supports BTREE indexes; HASH type is silently converted to BTREE (the response includes a `warning` field). HASH is only effective with the MEMORY engine.
 - **Table names**: All core tools support qualified names (`schema.table` format) for cross-database operations.
 - **Cursor pagination**: `mysql_read_query` injects a default `LIMIT 50` on SELECT/WITH queries that lack an explicit LIMIT clause. Use the `cursor` parameter (from a previous response's `nextCursor`) to paginate through large result sets. The cursor is an opaque base64 string — do not construct it manually. When the result has more pages, `nextCursor` is included in the response. If your query already includes a `LIMIT`, the safety limit is not injected and cursor pagination still works via OFFSET.
+- **Optimistic Concurrency Control (OCC)**:
+  - `mysql_enable_versioning`: Enables versioning on a table by adding a `_version` column and a trigger.
+  - `mysql_disable_versioning`: Disables versioning by dropping the trigger and column.
+  - `mysql_check_version`: Checks the current `_version` of a specific row.
+  - `mysql_conditional_update`: Updates a row conditionally. On conflict, returns a `CONFLICT_ERROR` ErrorResponse.

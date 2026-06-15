@@ -6,6 +6,7 @@
 | --------------- | ------------------------- |
 | Database schema | `mysql://schema` resource |
 | Server health   | `mysql://capabilities`    |
+| Live Metrics    | `mysql://metrics` resource|
 | Tool help       | `mysql://help` resource   |
 
 ## Help Resources

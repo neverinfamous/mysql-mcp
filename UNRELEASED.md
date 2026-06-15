@@ -165,3 +165,4 @@
 - Split monolithic testing prompt files for `stats`, `proxysql`, `cluster`, and `shell` tool groups across all three testing suites (`test-tool-groups`, `test-codemode`, `test-advanced`) into logical boundary files (e.g., `stats-descriptive`, `proxysql-status`) to adhere to the 10-tool strict testing limit.
 - Fixed testing omissions in the `replication` tool group by adding missing domain error paths (e.g., nonexistent log files) and updating Zod numeric coercion checklist items.
 - Fixed a documentation omission in the `shell` tool group by properly documenting the `outputUrl` and `inputUrl` aliases for the dump/load tools.
+- Fixed severe payload bloat issues in the `admin` tool group by aggressively reducing the default `limit` parameter for `mysql_audit_search` from 50 to 10, saving over 3000 tokens per default request.

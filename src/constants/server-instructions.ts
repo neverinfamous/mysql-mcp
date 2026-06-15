@@ -21,6 +21,7 @@ export const INSTRUCTIONS = `# mysql-mcp (MySQL MCP Server)
 | --------------- | ------------------------- |
 | Database schema | \`mysql://schema\` resource |
 | Server health   | \`mysql://capabilities\`    |
+| Live Metrics    | \`mysql://metrics\` resource|
 | Tool help       | \`mysql://help\` resource   |
 
 ## Help Resources
@@ -79,7 +80,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Server Config**: \`mysql_server_config\` allows getting and setting runtime configuration values for the server without a restart (e.g., dynamically changing \`logLevel\`).
 - **Error handling**: \`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, and \`mysql_repair_table\` return MySQL's native per-table \`results\` array. Nonexistent tables are automatically intercepted and return a structured error with \`code: "MAINTENANCE_ERROR"\`.
 - **Insight**: \`mysql_append_insight\` records a business insight to the in-memory insights memo. Insights are accessible via \`mysql://insights\` resource. Max 1000 chars per insight.
-- **Audit**: \`mysql_audit_search\` queries the system audit logs for events matching specific criteria (e.g., action, user, timeframe).`],
+- **Audit**: \`mysql_audit_search\` queries the system audit logs for events matching specific criteria (e.g., action, user, timeframe). Defaults to limit 10 to conserve token payload size.`],
   ["backup", `# Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
@@ -124,7 +125,12 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Create/Drop safety**: \`mysql_create_table\` returns \`{ success: false, error }\` when the table already exists (without \`ifNotExists\`). With \`ifNotExists: true\`, creating a table that already exists returns \`{ success: true, skipped: true, reason: "Table already exists" }\`. \`mysql_drop_table\` returns \`{ success: false, error }\` when the table does not exist (without \`ifExists\`). With \`ifExists: true\`, dropping a nonexistent table returns \`{ success: true, skipped: true, reason: "Table did not exist" }\`. All other errors (e.g., permissions) return \`{ success: false, error }\` instead of throwing raw exceptions.
 - **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use \`ifNotExists: true\` to skip if the index already exists. Returns \`{ success: false, error }\` when the index already exists (without \`ifNotExists\`), when a specified column does not exist on the table, or for any other error including when the target table itself does not exist. Note: InnoDB only supports BTREE indexes; HASH type is silently converted to BTREE (the response includes a \`warning\` field). HASH is only effective with the MEMORY engine.
 - **Table names**: All core tools support qualified names (\`schema.table\` format) for cross-database operations.
-- **Cursor pagination**: \`mysql_read_query\` injects a default \`LIMIT 50\` on SELECT/WITH queries that lack an explicit LIMIT clause. Use the \`cursor\` parameter (from a previous response's \`nextCursor\`) to paginate through large result sets. The cursor is an opaque base64 string — do not construct it manually. When the result has more pages, \`nextCursor\` is included in the response. If your query already includes a \`LIMIT\`, the safety limit is not injected and cursor pagination still works via OFFSET.`],
+- **Cursor pagination**: \`mysql_read_query\` injects a default \`LIMIT 50\` on SELECT/WITH queries that lack an explicit LIMIT clause. Use the \`cursor\` parameter (from a previous response's \`nextCursor\`) to paginate through large result sets. The cursor is an opaque base64 string — do not construct it manually. When the result has more pages, \`nextCursor\` is included in the response. If your query already includes a \`LIMIT\`, the safety limit is not injected and cursor pagination still works via OFFSET.
+- **Optimistic Concurrency Control (OCC)**:
+  - \`mysql_enable_versioning\`: Enables versioning on a table by adding a \`_version\` column and a trigger.
+  - \`mysql_disable_versioning\`: Disables versioning by dropping the trigger and column.
+  - \`mysql_check_version\`: Checks the current \`_version\` of a specific row.
+  - \`mysql_conditional_update\`: Updates a row conditionally. On conflict, returns a \`CONFLICT_ERROR\` ErrorResponse.`],
   ["docstore", `# Document Store (\`mysql_doc_*\`)
 
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
@@ -185,7 +191,10 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 
 ## Pagination & Limits
 
-- **Default LIMIT 50**: \`mysql_read_query\` injects a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use \`cursor\`/\`nextCursor\` to page through results. Add your own \`LIMIT\` clause to override this default.
+- **Default LIMIT 50**: \`mysql_read_query\`, \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_keys\`, and \`mysql_json_search\` inject a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use \`cursor\`/\`nextCursor\` to page through results. Add your own \`LIMIT\` clause to override this default.
+- **Default LIMIT 1**: \`mysql_json_get\` strictly enforces a \`LIMIT 1\`.
+- **Administrative Defaults**: \`mysql_export_table\` defaults to a \`limit\` of 5 and \`batch\` size of 50. The \`mysql_sys_\` schema tools default to \`limit\` values between 5 and 10. \`mysql_audit_search\` defaults to \`limit: 10\`.
+- **Faceted Search**: Fulltext tools accept \`includeFacets: true\` to return per-column hit distributions alongside results.
 
 ## Typed Error Codes
 
@@ -204,13 +213,14 @@ Recoverable errors can be retried. Check \`recoverable: true\` in the response.
 
 - **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the \`mysql.*\` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.
 - **When to use**: Prefer Code Mode when a task requires 3+ sequential tool calls, conditional branching based on query results, data transformation between steps, or aggregation across multiple tables.
-- **API namespace**: The \`mysql\` object exposes 26 groups matching the tool groups: \`mysql.core\`, \`mysql.json\`, \`mysql.transactions\`, \`mysql.text\`, \`mysql.fulltext\`, \`mysql.performance\`, \`mysql.optimization\`, \`mysql.admin\`, \`mysql.monitoring\`, \`mysql.backup\`, \`mysql.replication\`, \`mysql.partitioning\`, \`mysql.schema\`, \`mysql.introspection\`, \`mysql.migration\`, \`mysql.shell\`, \`mysql.events\`, \`mysql.sysschema\`, \`mysql.stats\`, \`mysql.spatial\`, \`mysql.security\`, \`mysql.roles\`, \`mysql.docstore\`, \`mysql.cluster\`, \`mysql.proxysql\`, \`mysql.router\`.
+- **API namespace**: The \`mysql\` object exposes 27 groups matching the tool groups (including \`vector\`): \`mysql.core\`, \`mysql.json\`, \`mysql.transactions\`, \`mysql.text\`, \`mysql.fulltext\`, \`mysql.performance\`, \`mysql.optimization\`, \`mysql.admin\`, \`mysql.monitoring\`, \`mysql.backup\`, \`mysql.replication\`, \`mysql.partitioning\`, \`mysql.schema\`, \`mysql.introspection\`, \`mysql.migration\`, \`mysql.shell\`, \`mysql.events\`, \`mysql.sysschema\`, \`mysql.stats\`, \`mysql.spatial\`, \`mysql.security\`, \`mysql.roles\`, \`mysql.docstore\`, \`mysql.cluster\`, \`mysql.proxysql\`, \`mysql.router\`, \`mysql.vector\`.
 - **Method naming**: Tool names map to methods by stripping the prefix: \`mysql_read_query\` → \`mysql.core.readQuery(sql)\`, \`mysql_json_extract\` → \`mysql.json.extract({...})\`, \`mysqlsh_version\` → \`mysql.shell.version()\`.
 - **Positional shorthand**: Common tools accept positional arguments: \`mysql.core.readQuery("SELECT 1")\` instead of \`mysql.core.readQuery({ query: "SELECT 1" })\`.
-- **Smart Proxies**: The API automatically unwraps common array operations (e.g., \`(await mysql.core.readQuery("...")).map(...)\` works directly) and throws actionable errors if you forget \`await\` or attempt to destructure failed results.
+- **Smart Proxies**: The API automatically unwraps common array operations (e.g., \`(await mysql.core.readQuery("...")).map(...)\` works directly) via the \`wrapPromise\` and \`wrapResult\` proxies, which safely intercept missing \`await\` errors and destructuring faults.
+- **Progress Notifications**: Call \`await mysql.reportProgress(progress, total, "message")\` to emit native MCP progress events from the sandbox.
 - **Help**: Call \`mysql.help()\` for a full API overview, or \`mysql.<group>.help()\` for group-specific methods and examples.
 - **Return value**: The last expression in the code block is returned as the result. Use \`return\` in async functions or let the final expression evaluate.
-- **Security**: Code runs in an isolated VM sandbox. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Rate-limited to prevent abuse.
+- **Security**: Code runs in a strict C++ V8 isolate engine (\`isolated-vm\`), not \`worker_threads\`. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Execution is synchronous with a hard timeout. Rate-limited to 60 executions/min (Redis-backed with in-memory fallback).
 - **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
 - **Scope**: Requires \`admin\` scope.`],
   ["introspection", `# Introspection Tools
@@ -242,7 +252,8 @@ The **Introspection** group provides advanced schema analysis capabilities, spec
 - **Error Handling**: All table-querying JSON tools return \`{ exists: false, table }\` for nonexistent tables and \`{ success: false, error }\` for other query errors, instead of throwing raw exceptions. \`mysql_json_merge\` and \`mysql_json_diff\` (literal JSON, no table) return \`{ success: false, error }\` for invalid input.
 - **\`json_get\` nonexistent row**: When the target row ID does not exist, returns \`{ value: null, rowFound: false }\`. When the row exists but the JSON path yields null, returns \`{ value: null }\` (no \`rowFound\` field). This distinguishes missing rows from null paths.
 - **Write operations require WHERE**: \`json_set\`, \`json_insert\`, \`json_replace\`, \`json_remove\`, and \`json_array_append\` all require a mandatory \`where\` parameter (or \`filter\` alias) to identify target rows.
-- **\`json_remove\` uses \`paths\` array**: Unlike other write tools that accept a single \`path\` string, \`json_remove\` accepts \`paths\` (an array of strings) to remove multiple paths in one operation.`],
+- **\`json_remove\` uses \`paths\` array**: Unlike other write tools that accept a single \`path\` string, \`json_remove\` accepts \`paths\` (an array of strings) to remove multiple paths in one operation.
+- **Cursor pagination**: \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_keys\`, and \`mysql_json_search\` inject a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use the \`cursor\` parameter to paginate through large result sets. \`mysql_json_get\` strictly enforces a \`LIMIT 1\`.`],
   ["migration", `# Migration Tools
 
 The **Migration** group provides an integrated, structured schema versioning and deployment system directly within the MCP server. It is designed to track schema changes, ensure idempotent deployments, and allow safe rollbacks.
@@ -446,41 +457,4 @@ The **Migration** group provides an integrated, structured schema versioning and
 - ✅ Always use \`mysql_vector_info\` to verify a table has VECTOR columns before attempting operations.
 - ✅ Use \`COSINE\` metric for normalized embeddings (most common for OpenAI, Cohere, etc.).
 - ✅ Use \`select\` on hybrid/KNN search to limit returned columns and reduce token consumption.`],
-  ["versioning", `# Versioning (Optimistic Concurrency Control)
-
-mysql-mcp provides tools to implement Optimistic Concurrency Control (OCC) for your applications. This ensures that when multiple actors try to update the same row simultaneously, lost updates are prevented.
-
-## OCC Workflow
-
-1. **Enable Versioning**: \`mysql_enable_versioning\` adds a \`_version\` column to your table and creates an auto-incrementing trigger.
-2. **Read the Row**: Use \`mysql_read_query\` or \`mysql_check_version\` to obtain the row's current \`_version\`.
-3. **Update Conditionally**: Use \`mysql_conditional_update\`, passing the \`_version\` you read as the \`expectedVersion\`.
-4. **Handle Conflicts**: If the row was modified since you read it, the update will fail with a \`Version conflict\`. Re-read the row and retry the update.
-
-## Versioning Tools
-
-- **\`mysql_enable_versioning\`**: Enables versioning on a table by adding a \`_version INT NOT NULL DEFAULT 1\` column and a \`BEFORE UPDATE\` trigger to auto-increment it.
-- **\`mysql_disable_versioning\`**: Disables versioning by dropping the trigger and the \`_version\` column.
-- **\`mysql_check_version\`**: Quickly checks the current \`_version\` of a specific row.
-- **\`mysql_conditional_update\`**: Updates a row only if its \`_version\` matches the provided \`expectedVersion\`.
-
-### Example
-
-\`\`\`typescript
-// 1. Enable versioning
-mysql_enable_versioning({ table: "users" });
-
-// 2. Read the current version
-const { version } = mysql_check_version({ table: "users", rowId: 1 });
-
-// 3. Attempt to update
-mysql_conditional_update({
-  table: "users",
-  data: { status: "active" },
-  conditions: [{ column: "id", value: 1 }],
-  expectedVersion: version
-});
-\`\`\`
-
-*Note: OCC tools require \`admin\` or \`write\` scopes depending on the operation.*`],
 ]);

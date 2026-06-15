@@ -10,3 +10,4 @@
 - **`json_get` nonexistent row**: When the target row ID does not exist, returns `{ value: null, rowFound: false }`. When the row exists but the JSON path yields null, returns `{ value: null }` (no `rowFound` field). This distinguishes missing rows from null paths.
 - **Write operations require WHERE**: `json_set`, `json_insert`, `json_replace`, `json_remove`, and `json_array_append` all require a mandatory `where` parameter (or `filter` alias) to identify target rows.
 - **`json_remove` uses `paths` array**: Unlike other write tools that accept a single `path` string, `json_remove` accepts `paths` (an array of strings) to remove multiple paths in one operation.
+- **Cursor pagination**: `mysql_json_extract`, `mysql_json_contains`, `mysql_json_keys`, and `mysql_json_search` inject a default `LIMIT 50` on queries without an explicit `LIMIT` clause. Use the `cursor` parameter to paginate through large result sets. `mysql_json_get` strictly enforces a `LIMIT 1`.

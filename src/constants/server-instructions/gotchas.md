@@ -21,7 +21,10 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 
 ## Pagination & Limits
 
-- **Default LIMIT 50**: `mysql_read_query` injects a default `LIMIT 50` on queries without an explicit `LIMIT` clause. Use `cursor`/`nextCursor` to page through results. Add your own `LIMIT` clause to override this default.
+- **Default LIMIT 50**: `mysql_read_query`, `mysql_json_extract`, `mysql_json_contains`, `mysql_json_keys`, and `mysql_json_search` inject a default `LIMIT 50` on queries without an explicit `LIMIT` clause. Use `cursor`/`nextCursor` to page through results. Add your own `LIMIT` clause to override this default.
+- **Default LIMIT 1**: `mysql_json_get` strictly enforces a `LIMIT 1`.
+- **Administrative Defaults**: `mysql_export_table` defaults to a `limit` of 5 and `batch` size of 50. The `mysql_sys_` schema tools default to `limit` values between 5 and 10. `mysql_audit_search` defaults to `limit: 10`.
+- **Faceted Search**: Fulltext tools accept `includeFacets: true` to return per-column hit distributions alongside results.
 
 ## Typed Error Codes
 
@@ -40,12 +43,13 @@ Recoverable errors can be retried. Check `recoverable: true` in the response.
 
 - **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the `mysql.*` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.
 - **When to use**: Prefer Code Mode when a task requires 3+ sequential tool calls, conditional branching based on query results, data transformation between steps, or aggregation across multiple tables.
-- **API namespace**: The `mysql` object exposes 26 groups matching the tool groups: `mysql.core`, `mysql.json`, `mysql.transactions`, `mysql.text`, `mysql.fulltext`, `mysql.performance`, `mysql.optimization`, `mysql.admin`, `mysql.monitoring`, `mysql.backup`, `mysql.replication`, `mysql.partitioning`, `mysql.schema`, `mysql.introspection`, `mysql.migration`, `mysql.shell`, `mysql.events`, `mysql.sysschema`, `mysql.stats`, `mysql.spatial`, `mysql.security`, `mysql.roles`, `mysql.docstore`, `mysql.cluster`, `mysql.proxysql`, `mysql.router`.
+- **API namespace**: The `mysql` object exposes 27 groups matching the tool groups (including `vector`): `mysql.core`, `mysql.json`, `mysql.transactions`, `mysql.text`, `mysql.fulltext`, `mysql.performance`, `mysql.optimization`, `mysql.admin`, `mysql.monitoring`, `mysql.backup`, `mysql.replication`, `mysql.partitioning`, `mysql.schema`, `mysql.introspection`, `mysql.migration`, `mysql.shell`, `mysql.events`, `mysql.sysschema`, `mysql.stats`, `mysql.spatial`, `mysql.security`, `mysql.roles`, `mysql.docstore`, `mysql.cluster`, `mysql.proxysql`, `mysql.router`, `mysql.vector`.
 - **Method naming**: Tool names map to methods by stripping the prefix: `mysql_read_query` → `mysql.core.readQuery(sql)`, `mysql_json_extract` → `mysql.json.extract({...})`, `mysqlsh_version` → `mysql.shell.version()`.
 - **Positional shorthand**: Common tools accept positional arguments: `mysql.core.readQuery("SELECT 1")` instead of `mysql.core.readQuery({ query: "SELECT 1" })`.
-- **Smart Proxies**: The API automatically unwraps common array operations (e.g., `(await mysql.core.readQuery("...")).map(...)` works directly) and throws actionable errors if you forget `await` or attempt to destructure failed results.
+- **Smart Proxies**: The API automatically unwraps common array operations (e.g., `(await mysql.core.readQuery("...")).map(...)` works directly) via the `wrapPromise` and `wrapResult` proxies, which safely intercept missing `await` errors and destructuring faults.
+- **Progress Notifications**: Call `await mysql.reportProgress(progress, total, "message")` to emit native MCP progress events from the sandbox.
 - **Help**: Call `mysql.help()` for a full API overview, or `mysql.<group>.help()` for group-specific methods and examples.
 - **Return value**: The last expression in the code block is returned as the result. Use `return` in async functions or let the final expression evaluate.
-- **Security**: Code runs in an isolated VM sandbox. Blocked patterns include `require`, `import`, `process`, `eval`, `Function`, filesystem/network access. Rate-limited to prevent abuse.
+- **Security**: Code runs in a strict C++ V8 isolate engine (`isolated-vm`), not `worker_threads`. Blocked patterns include `require`, `import`, `process`, `eval`, `Function`, filesystem/network access. Execution is synchronous with a hard timeout. Rate-limited to 60 executions/min (Redis-backed with in-memory fallback).
 - **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
 - **Scope**: Requires `admin` scope.

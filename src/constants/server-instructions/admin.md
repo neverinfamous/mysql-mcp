@@ -9,4 +9,4 @@
 - **Server Config**: `mysql_server_config` allows getting and setting runtime configuration values for the server without a restart (e.g., dynamically changing `logLevel`).
 - **Error handling**: `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, and `mysql_repair_table` return MySQL's native per-table `results` array. Nonexistent tables are automatically intercepted and return a structured error with `code: "MAINTENANCE_ERROR"`.
 - **Insight**: `mysql_append_insight` records a business insight to the in-memory insights memo. Insights are accessible via `mysql://insights` resource. Max 1000 chars per insight.
-- **Audit**: `mysql_audit_search` queries the system audit logs for events matching specific criteria (e.g., action, user, timeframe).
+- **Audit**: `mysql_audit_search` queries the system audit logs for events matching specific criteria (e.g., action, user, timeframe). Defaults to limit 10 to conserve token payload size.
