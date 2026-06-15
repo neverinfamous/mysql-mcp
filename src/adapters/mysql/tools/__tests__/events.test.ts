@@ -308,7 +308,7 @@ describe("Handler Execution", () => {
       expect(result).toHaveProperty("data.event");
     });
 
-    it("should return exists false when event is not found", async () => {
+    it("should return structured error when event is not found", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_status")!;
@@ -318,8 +318,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toMatchObject({
-        success: true,
-        data: { exists: false, name: "nonexistent_event" },
+        success: false,
+        error: "Event does not exist",
       });
     });
 
