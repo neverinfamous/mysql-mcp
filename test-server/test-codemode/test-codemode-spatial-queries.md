@@ -154,24 +154,24 @@ spatial-queries Tool Group (4 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_spatial_distance({...})` → happy path
-2. `mysql_spatial_distance_sphere({...})` → happy path
-3. `mysql_spatial_contains({...})` → happy path
-4. `mysql_spatial_within({...})` → happy path
+1. ✅ `mysql_spatial_distance({...})` → happy path
+2. ✅ `mysql_spatial_distance_sphere({...})` → happy path
+3. ✅ `mysql_spatial_contains({...})` → happy path
+4. ✅ `mysql_spatial_within({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_spatial_distance({...})` → domain error
-6. 🔴 `mysql_spatial_distance_sphere({...})` → domain error
-7. 🔴 `mysql_spatial_contains({...})` → domain error
-8. 🔴 `mysql_spatial_within({...})` → domain error
+5. ✅ `mysql_spatial_distance({...})` → domain error
+6. ✅ `mysql_spatial_distance_sphere({...})` → domain error
+7. ✅ `mysql_spatial_contains({...})` → domain error
+8. ✅ `mysql_spatial_within({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_spatial_distance({})` → validation error
-10. 🔴 `mysql_spatial_distance_sphere({})` → validation error
-11. 🔴 `mysql_spatial_contains({})` → validation error
-12. 🔴 `mysql_spatial_within({})` → validation error
+9. ✅ `mysql_spatial_distance({})` → validation error
+10. ✅ `mysql_spatial_distance_sphere({})` → validation error
+11. ✅ `mysql_spatial_contains({})` → validation error
+12. ✅ `mysql_spatial_within({})` → validation error
 
 ---
 
