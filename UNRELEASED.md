@@ -98,6 +98,8 @@
 - Fixed Playwright E2E tests failing with `--super-read-only` errors by correcting the default test database connection string to target port 3306 (`mysql-final`) instead of an InnoDB Cluster secondary node (port 3307).
 - Fixed missing `mysql://help/introspection` and `mysql://help/migration` resources from the active help registry.
 - Fixed E2E testing to correctly validate the `ALLOWED_IO_ROOTS` boundary via MySQL Shell tool tests, and removed incorrect testing prompts from non-filesystem backup tools.
+- Fixed factual errors and stale method names (`mysql_migration_init` to `mysql.migration.init()`) in the test prompt for the `migration` tool group.
+- Fixed ESLint `@typescript-eslint/no-base-to-string` errors in `src/adapters/mysql/schemas/shell/import.ts` by replacing unnecessary type assertions with strict `typeof` type guards to mirror `ShellImportTableInputSchema`.
 - Audited and updated all documentation (`SECURITY.md`, `DOCKER_README.md`, `.env.example`, `mcp-config-example.json`) to accurately reflect the `ALLOWED_IO_ROOTS` feature and platform limits.
 - Audited and synchronized documentation and constant mapping files (`README.md`, `DOCKER_README.md`, `code-map.md`, `tool-reference.md`, `tool-constants.ts`, `api/constants.ts`) to accurately reflect the addition of the `mysql_server_config` tool, updating the server total tool count from 224 to 225 and registering the Code Mode aliases.
 - Fixed an issue where manual DDL statements executed via `mysql_write_query` bypassed the schema cache eviction mechanism and failed to trigger MCP `mysql://schema` subscription notifications.
