@@ -634,7 +634,7 @@ This server includes **19 intelligent prompts** for guided workflows:
 
 ## 📊 Resources
 
-This server exposes **19 resources** for database observability:
+This server exposes **22 resource categories (50 total endpoints)** for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
@@ -657,6 +657,9 @@ This server exposes **19 resources** for database observability:
 | **`mysql://spatial`**   | Spatial columns and indexes                 |
 | **`mysql://docstore`**  | Document Store collections                  |
 | **`mysql://insights`**  | Business insights memo from tools           |
+| **`mysql://metrics`**   | In-memory streaming metrics (p50/p95/p99)   |
+| **`mysql://audit`**     | Forensic audit trail and snapshot stats     |
+| **`mysql://help/*`**    | API reference for 28 tool groups & gotchas  |
 
 ---
 

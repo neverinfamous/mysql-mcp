@@ -18,9 +18,9 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 
 **Step 1:** Read `C:\Users\chris\Desktop\mysql-mcp\test-server\test-resources.sql` to understand what resource seed data has been set up.
 
-**Step 2:** Test all 19 `mysql://` resources by reading each resource URI. For each resource, validate the output against the expected structure documented below.
+**Step 2:** Test all 22 resource categories (up to 50 endpoints) by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
 
-### All 19 Resources
+### Core Resources
 
 | #   | Resource URI           | Expected Output Shape                          | Pass Criteria                                                             |
 | --- | ---------------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
@@ -42,7 +42,10 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | 16  | `mysql://cluster`      | `{ groupReplicationEnabled, ... }`             | Returns `groupReplicationEnabled: false` on standalone; `true` on cluster |
 | 17  | `mysql://spatial`      | `{ spatialColumns, spatialIndexes, ... }`      | `spatialColumnCount >= 1` (test_locations.geom), `spatialIndexCount >= 1` |
 | 18  | `mysql://docstore`     | `{ collections, ... }`                         | `collectionCount >= 1` (test_documents detected)                          |
-| 19  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking tool/resource telemetry         |
+| 19  | `mysql://insights`     | String text                                    | Returns a memo string from insights logging                               |
+| 20  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking telemetry                       |
+| 21  | `mysql://audit`        | `{ entries: [...], ... }`                      | Returns forensic audit trail object                                       |
+| 22  | `mysql://help`         | Markdown text                                  | Returns API reference documentation                                       |
 
 ### How to Read Resources
 
