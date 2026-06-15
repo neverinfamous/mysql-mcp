@@ -224,6 +224,7 @@ export const ContainsSchema = z
     limit: data.limit !== undefined ? Number(data.limit) : 100,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+  .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
@@ -267,6 +268,7 @@ export const WithinSchema = z
     limit: data.limit !== undefined ? Number(data.limit) : 100,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+  .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
@@ -291,6 +293,7 @@ export const IntersectionSchema = z
     geometry2: data.geometry2,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+  .refine((data) => data.geometry1.trim() !== "" && data.geometry2.trim() !== "", { message: "both geometries must be non-empty strings" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });
@@ -322,6 +325,7 @@ export const BufferSchema = z
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
     segments: data.segments !== undefined ? Number(data.segments) : 8,
   }))
+  .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.distance), {
     message: "distance must be a valid number",
   })
@@ -351,6 +355,7 @@ export const TransformSchema = z
     fromSrid: Number(data.fromSrid),
     toSrid: Number(data.toSrid),
   }))
+  .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.fromSrid), {
     message: "fromSrid must be a valid number",
   })
@@ -386,7 +391,11 @@ export const GeoJSONSchemaStrict = z
 export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),
   "Either geometry or geoJson must be provided, but not both",
-);
+).refine((data) => {
+  if (data.geometry?.trim() === "") return false;
+  if (data.geoJson?.trim() === "") return false;
+  return true;
+}, { message: "Provided geometry or geoJson must not be an empty string" });
 
 // Output Schemas
 

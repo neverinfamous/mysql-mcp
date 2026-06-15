@@ -139,8 +139,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         // Handler-level validation for segments (replaces schema .min(1))
         if (segments < 1) {
           return withTokenEstimate({
-            success: false,
-            error: "segments must be >= 1",
+            success: false, error: "segments must be >= 1", code: "VALIDATION_ERROR",
           });
         }
 
@@ -282,8 +281,7 @@ export function createSpatialGeoJSONTool(
         }
 
         return withTokenEstimate({
-          success: false,
-          error: "Either geometry or geoJson must be provided",
+          success: false, error: "Either geometry or geoJson must be provided", code: "VALIDATION_ERROR",
         });
       } catch (error) {
         if (error instanceof ZodError) {

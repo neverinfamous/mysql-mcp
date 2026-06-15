@@ -164,7 +164,7 @@ spatial Tool Group (12 tools +1 code mode):
 1. `mysql.spatial.help()` → verify method listing
 2. `mysql.spatial.distanceSphere({table: "test_locations", geometryColumn: "geom", latitude: 40.7128, longitude: -74.0060, limit: 3})` → 3 nearest
 3. `mysql.spatial.contains({table: "test_locations", geometryColumn: "geom", wkt: "POLYGON((-180 -90, 180 -90, 180 90, -180 90, -180 -90))"})` → all contained
-4. `mysql.spatial.buffer({table: "test_locations", geometryColumn: "geom", distance: 1000, where: "id = 1"})` → buffer geometry
+4. `mysql.spatial.buffer({geometry: "POINT(0 0)", distance: 1000})` → buffer geometry
 
 **Domain error paths (🔴):**
 

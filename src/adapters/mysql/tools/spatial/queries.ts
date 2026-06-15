@@ -76,8 +76,7 @@ export function createSpatialDistanceTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
           });
         }
 
@@ -120,14 +119,13 @@ export function createSpatialDistanceTool(
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
             details: {
               exists: false,
               table: tbl,
@@ -165,8 +163,7 @@ export function createSpatialDistanceSphereTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
           });
         }
 
@@ -210,14 +207,13 @@ export function createSpatialDistanceSphereTool(
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
             details: {
               exists: false,
               table: tbl,
@@ -255,8 +251,7 @@ export function createSpatialContainsTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
           });
         }
 
@@ -287,14 +282,13 @@ export function createSpatialContainsTool(
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
             details: {
               exists: false,
               table: tbl,
@@ -329,8 +323,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
           });
         }
 
@@ -361,14 +354,13 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(error);
         }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
             details: {
               exists: false,
               table: tbl,
