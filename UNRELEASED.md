@@ -122,6 +122,7 @@
 - Fixed missing structured error responses (`code`, `category`) across the `spatial` tool group for domain-specific errors (e.g. `TABLE_NOT_FOUND`, `VALIDATION_ERROR`, `COLUMN_NOT_FOUND`) to ensure compliance with ErrorResponse standards.
 - Fixed schema validation loopholes in the `spatial` tool group where empty geometry/wkt strings bypassed Zod schema bounds and leaked raw MySQL exceptions.
 - Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `stats` tool group by replacing manual error returns with `formatHandlerErrorResponse` to ensure domain-specific and Zod validation errors are properly structured.
+- Fixed an issue where manual validation errors (e.g. invalid table name, non-numeric columns) in the `stats` tool group returned `{success: false}` without the mandatory `code` field, by injecting `VALIDATION_ERROR` codes.
 - Fixed a build-time syntax error in the `stats` tool group's `advanced.ts` handler file where automated catch block standardization stripped semicolons.
 - Fixed non-compliant existence behaviors in the `events` tools (`mysql_event_create`, `mysql_event_drop`, `mysql_event_status`) by properly implementing the structured `{ skipped: true, reason: ... }` and `{ exists: false }` payloads.
 - Fixed missing structured error responses (`code`, `category`, `recoverable`) across the `json` tool group by removing an invalid error message check that prevented database `ER_NO_SUCH_TABLE` errors from bubbling up to the `formatHandlerErrorResponse` formatter.

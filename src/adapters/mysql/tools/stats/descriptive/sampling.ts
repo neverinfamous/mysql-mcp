@@ -32,6 +32,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         if (sampleSize < 0) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "sampleSize must be >= 0",
           });
         }
@@ -40,6 +41,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
@@ -50,6 +52,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
             if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
               return withTokenEstimate({
                 success: false,
+                code: "VALIDATION_ERROR",
                 error: `Invalid column name: ${c}`,
               });
             }

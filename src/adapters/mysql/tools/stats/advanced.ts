@@ -159,6 +159,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
@@ -262,12 +263,14 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -333,12 +336,14 @@ export function createStatsFrequencyTool(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -411,6 +416,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
@@ -425,6 +431,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Table '${table}' doesn't exist`,
           });
         }

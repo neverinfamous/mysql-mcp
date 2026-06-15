@@ -43,6 +43,7 @@ export function createTimeSeriesToolStats(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
@@ -52,6 +53,7 @@ export function createTimeSeriesToolStats(
         ) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -60,6 +62,7 @@ export function createTimeSeriesToolStats(
         if (!validIntervals.includes(interval)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`,
           });
         }
@@ -67,6 +70,7 @@ export function createTimeSeriesToolStats(
         if (!validAggregations.includes(aggregation)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`,
           });
         }

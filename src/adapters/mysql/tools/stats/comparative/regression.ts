@@ -33,6 +33,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
@@ -42,6 +43,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         ) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -90,11 +92,13 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           if (notFoundReg.length > 0) {
             return withTokenEstimate({
               success: false,
+              code: "VALIDATION_ERROR",
               error: `Column(s) not found: ${notFoundReg.join(", ")}`,
             });
           }
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Both columns must be numeric types. Non-numeric: ${missingRegCols.join(", ")}`,
           });
         }
@@ -123,6 +127,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         if (!stats || n < 2) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Insufficient data points for regression (need at least 2)",
           });
         }

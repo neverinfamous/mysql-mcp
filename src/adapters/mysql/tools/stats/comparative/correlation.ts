@@ -33,6 +33,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
@@ -42,6 +43,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         ) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -88,11 +90,13 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           if (notFound.length > 0) {
             return withTokenEstimate({
               success: false,
+              code: "VALIDATION_ERROR",
               error: `Column(s) not found: ${notFound.join(", ")}`,
             });
           }
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Both columns must be numeric types. Non-numeric: ${missingCols.join(", ")}`,
           });
         }

@@ -36,12 +36,14 @@ export function createStatsMovingAvgTool(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }

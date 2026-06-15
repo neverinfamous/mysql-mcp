@@ -33,18 +33,21 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
         if (buckets < 1) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "buckets must be at least 1",
           });
         }

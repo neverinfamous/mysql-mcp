@@ -32,12 +32,14 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -56,6 +58,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         if (!colCheck.rows || colCheck.rows.length === 0) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Column '${column}' not found on table '${table}'`,
           });
         }
@@ -74,6 +77,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         ) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`,
           });
         }

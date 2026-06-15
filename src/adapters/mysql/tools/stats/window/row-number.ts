@@ -36,6 +36,7 @@ export function createStatsRowNumberTool(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }

@@ -83,18 +83,21 @@ export function createStatsHypothesisTool(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
         if (groupBy && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid groupBy column name",
           });
         }
@@ -259,7 +262,7 @@ export function createStatsHypothesisTool(
             }
           | undefined;
 
-        if (!row) return { success: false, error: "No data found" };
+        if (!row) return { success: false, code: "VALIDATION_ERROR", error: "No data found" };
 
         const n = Number(row.n);
         const sampleMean = Number(row.mean);
@@ -271,6 +274,7 @@ export function createStatsHypothesisTool(
         if ("error" in testResults) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: testResults.error,
           });
         }

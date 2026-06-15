@@ -32,12 +32,14 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Invalid column name",
           });
         }
@@ -52,6 +54,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Table '${table}' doesn't exist`,
           });
         }
@@ -66,6 +69,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         if (!columnCheck.rows || columnCheck.rows.length === 0) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: `Column '${column}' does not exist on table '${table}'`,
           });
         }
@@ -108,6 +112,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           if (update) {
             return withTokenEstimate({
               success: false,
+              code: "VALIDATION_ERROR",
               error: "Histogram created but not yet visible in metadata",
             });
           }
@@ -127,6 +132,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         if (!histogramRow) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
             error: "Histogram data is empty",
           });
         }
