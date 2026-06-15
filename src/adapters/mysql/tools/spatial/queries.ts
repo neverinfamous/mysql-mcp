@@ -132,6 +132,9 @@ export function createSpatialDistanceTool(
             },
           });
         }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+        }
         return formatHandlerErrorResponse(new Error(msg));
       }
     },
@@ -220,6 +223,9 @@ export function createSpatialDistanceSphereTool(
             },
           });
         }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+        }
         return formatHandlerErrorResponse(new Error(msg));
       }
     },
@@ -295,6 +301,9 @@ export function createSpatialContainsTool(
             },
           });
         }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+        }
         return formatHandlerErrorResponse(new Error(msg));
       }
     },
@@ -366,6 +375,9 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
               table: tbl,
             },
           });
+        }
+        if (msg.includes("Unknown column")) {
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
         }
         return formatHandlerErrorResponse(new Error(msg));
       }
