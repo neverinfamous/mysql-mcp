@@ -206,7 +206,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Prompts (`src/adapters/mysql/prompts/`)
 
-13 prompt definitions across specialized workflow files:
+19 prompt definitions across specialized workflow files:
 
 | File                   | Prompts                                             |
 | ---------------------- | --------------------------------------------------- |
