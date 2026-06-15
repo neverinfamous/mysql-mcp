@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Docs**: Rewrote CONTRIBUTING.md — was entirely postgres-mcp copy-paste (all references, connection strings, Docker commands, error class names, and URLs corrected to mysql-mcp)
 - **Docs**: Fixed tool group counts in README.md and DOCKER_README.md — `performance` (8→11), `admin` (6→7), `backup` (4→7), `stats` (8→20)
 - **Docs**: Added missing `introspection` (6 tools) and `migration` (6 tools) groups to tool group tables — header updated from "25 Available" to "27 Available"
-- **Docs**: Corrected shortcut counts in README.md and DOCKER_README.md — `dev-power` (47→63), `ai-spatial` (44→59), `dba-monitor` (36→39), `dba-manage` (34→38), `base-core` (49→50), `base-advanced` (41→53)
+- **Docs**: Standardized shortcut group counts across all configuration and documentation references
 - **Docs**: Fixed stale meta-group comment block in `tool-constants.ts` — all 12 shortcut totals now verified against actual group arrays
 - **Docs**: Updated `mcp-config-example.json` — added `METADATA_CACHE_TTL_MS`, `CODEMODE_ISOLATION`, and `CODE_MODE_MAX_RESULT_SIZE` env vars
 - **Docs**: Fixed a bug in `scripts/generate-server-instructions.ts` where `README.md` was accidentally compiled into the server's dynamic help payload.

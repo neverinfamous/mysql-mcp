@@ -656,7 +656,7 @@ This server exposes **19 resources** for database observability:
 | **`mysql://cluster`**   | Group Replication/InnoDB Cluster status     |
 | **`mysql://spatial`**   | Spatial columns and indexes                 |
 | **`mysql://docstore`**  | Document Store collections                  |
-| **`mysql://metrics`**   | Real-time observability metrics             |
+| **`mysql://insights`**  | Business insights memo from tools           |
 
 ---
 

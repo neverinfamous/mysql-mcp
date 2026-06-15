@@ -6,12 +6,16 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "./error-helpers.js";
 import {
   EnableVersioningSchema,
+  EnableVersioningSchemaBase,
   EnableVersioningOutputSchema,
   DisableVersioningSchema,
+  DisableVersioningSchemaBase,
   DisableVersioningOutputSchema,
   CheckVersionSchema,
+  CheckVersionSchemaBase,
   CheckVersionOutputSchema,
   ConditionalUpdateSchema,
+  ConditionalUpdateSchemaBase,
   ConditionalUpdateOutputSchema,
 } from "../../schemas/index.js";
 
@@ -52,7 +56,7 @@ export function createEnableVersioningTool(
     description:
       "Enable optimistic concurrency control (OCC) on a table. Adds a _version column and an auto-increment trigger.",
     group: "core",
-    inputSchema: EnableVersioningSchema,
+    inputSchema: EnableVersioningSchemaBase,
     outputSchema: EnableVersioningOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
@@ -133,7 +137,7 @@ export function createDisableVersioningTool(
     description:
       "Disable optimistic concurrency control (OCC) on a table. Drops the _version column and its trigger.",
     group: "core",
-    inputSchema: DisableVersioningSchema,
+    inputSchema: DisableVersioningSchemaBase,
     outputSchema: DisableVersioningOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
@@ -199,7 +203,7 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Read the current _version of a specific row for optimistic concurrency control.",
     group: "core",
-    inputSchema: CheckVersionSchema,
+    inputSchema: CheckVersionSchemaBase,
     outputSchema: CheckVersionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -258,7 +262,7 @@ export function createConditionalUpdateTool(
     description:
       "Update a row only if its _version matches expectedVersion. Prevents lost updates in multi-agent environments.",
     group: "core",
-    inputSchema: ConditionalUpdateSchema,
+    inputSchema: ConditionalUpdateSchemaBase,
     outputSchema: ConditionalUpdateOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,

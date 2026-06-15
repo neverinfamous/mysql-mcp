@@ -414,9 +414,20 @@ export const GetIndexesOutputSchema = BaseOutputSchema.extend({
 
 // --- Versioning (Optimistic Concurrency Control) ---
 
-export const EnableVersioningSchema = z.object({
-  table: z.string().min(1, "Table name is required").describe("Table to enable OCC on"),
+export const EnableVersioningSchemaBase = z.object({
+  table: z.string().optional().describe("Table to enable OCC on"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
 });
+
+export const EnableVersioningSchema = z
+  .preprocess(preprocessTableParams, EnableVersioningSchemaBase)
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
 
 export const EnableVersioningOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -425,10 +436,22 @@ export const EnableVersioningOutputSchema = BaseOutputSchema.extend({
   }).loose().optional(),
 });
 
-export const DisableVersioningSchema = z.object({
-  table: z.string().min(1, "Table name is required").describe("Table to disable OCC on"),
+export const DisableVersioningSchemaBase = z.object({
+  table: z.string().optional().describe("Table to disable OCC on"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   ifExists: z.boolean().optional().default(false).describe("If true, do not error if table does not exist"),
 });
+
+export const DisableVersioningSchema = z
+  .preprocess(preprocessTableParams, DisableVersioningSchemaBase)
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    ifExists: data.ifExists,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
 
 export const DisableVersioningOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -436,11 +459,24 @@ export const DisableVersioningOutputSchema = BaseOutputSchema.extend({
   }).loose().optional(),
 });
 
-export const CheckVersionSchema = z.object({
-  table: z.string().min(1, "Table name is required").describe("Table containing the row"),
+export const CheckVersionSchemaBase = z.object({
+  table: z.string().optional().describe("Table containing the row"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided."),
   rowId: z.unknown().describe("Primary key value of the row"),
 });
+
+export const CheckVersionSchema = z
+  .preprocess(preprocessTableParams, CheckVersionSchemaBase)
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    idColumn: data.idColumn,
+    rowId: data.rowId,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
 
 export const CheckVersionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -449,8 +485,10 @@ export const CheckVersionOutputSchema = BaseOutputSchema.extend({
   }).loose().optional(),
 });
 
-export const ConditionalUpdateSchema = z.object({
-  table: z.string().min(1, "Table name is required").describe("Table to update"),
+export const ConditionalUpdateSchemaBase = z.object({
+  table: z.string().optional().describe("Table to update"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   data: z.record(z.string(), z.unknown()).describe("Column-value pairs to update"),
   conditions: z.array(
     z.object({
@@ -461,6 +499,18 @@ export const ConditionalUpdateSchema = z.object({
   ).describe("Conditions identifying the row (e.g. primary key)"),
   expectedVersion: z.number().describe("The _version value currently expected. Update fails if this does not match."),
 });
+
+export const ConditionalUpdateSchema = z
+  .preprocess(preprocessTableParams, ConditionalUpdateSchemaBase)
+  .transform((data) => ({
+    table: data.table ?? data.tableName ?? data.name ?? "",
+    data: data.data,
+    conditions: data.conditions,
+    expectedVersion: data.expectedVersion,
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
 
 export const ConditionalUpdateOutputSchema = BaseOutputSchema.extend({
   data: z.object({

@@ -151,3 +151,4 @@
 - Fixed an `Incorrect arguments to mysqld_stmt_execute` error in `mysql_vector_hybrid_search`'s text-only fallback mode, caused by mixing `MATCH() AGAINST(?)` with prepared statement `LIMIT ?` parameters, by safely string-interpolating validated numeric limits.
 - Fixed a syntax error in `mysql_vector_create_index` where the unsupported `WITH (distance='...')` clause prevented HNSW index creation on standalone MySQL 9.1+ instances.
 - Fixed an assertion error in the `vector` Code Mode test script (`test-codemode-vector.md`) which incorrectly failed `mysql_vector_create_index` tests when run against MySQL 9.1+ CE instances due to native `VECTOR INDEX` syntax restrictions.
+- Fixed a Split Schema pattern violation across the `versioning` tool group (`mysql_enable_versioning`, `mysql_disable_versioning`, `mysql_check_version`, `mysql_conditional_update`), ensuring proper parameter visibility and alias mapping for table names to maintain full parity with Core tools.
