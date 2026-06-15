@@ -165,26 +165,32 @@ json Tool Group (17 tools +1 code mode):
 1. `mysql.json.help()` → verify method listing
 2. `mysql.json.extract({table: "test_json_docs", column: "doc", path: "$.author", where: "id = 1"})` → author name
 3. `mysql.json.keys({table: "test_json_docs", column: "doc", where: "id = 1"})` → keys include `type`, `title`
-4. `mysql.json.contains({table: "test_json_docs", column: "doc", contains: {type: "article"}, where: "id = 1"})` → true
+4. `mysql.json.contains({table: "test_json_docs", column: "doc", contains: '{"type": "article"}', where: "id = 1"})` → true
 5. `mysql.json.validate({value: '{"valid": true}'})` → `{valid: true}`
 6. `mysql.json.validate({value: "{invalid"})` → `{valid: false}`
 7. `mysql.json.stats({table: "test_json_docs", column: "doc"})` → verify `topKeys`
-8. `mysql.json.diff({doc1: {a: 1, b: 2}, doc2: {a: 1, c: 3}})` → differences detected
+8. `mysql.json.diff({doc1: '{"a": 1, "b": 2}', doc2: '{"a": 1, "c": 3}'})` → differences detected
 9. `mysql.json.indexSuggest({table: "test_json_docs", column: "doc"})` → suggestions
 10. `mysql.json.get({table: "test_json_docs", column: "doc", path: "$.title", where: "id = 1"})` → title value
 11. `mysql.json.search({table: "test_json_docs", column: "doc", searchValue: "article"})` → matches
-12. `mysql.json.merge({doc1: {a: 1}, doc2: {b: 2}})` → merged result
+12. `mysql.json.merge({doc1: '{"a": 1}', doc2: '{"b": 2}'})` → merged result
 13. `mysql.json.normalize({table: "test_json_docs", column: "doc"})` → normalized output
+14. `mysql.json.set({table: "test_json_docs", column: "doc", path: "$.test_set", value: '"set_val"', where: "id = 1"})` → rowsAffected 1
+15. `mysql.json.insert({table: "test_json_docs", column: "doc", path: "$.test_ins", value: '"ins_val"', where: "id = 1"})` → rowsAffected 1
+16. `mysql.json.replace({table: "test_json_docs", column: "doc", path: "$.test_set", value: '"rep_val"', where: "id = 1"})` → rowsAffected 1
+17. `mysql.json.remove({table: "test_json_docs", column: "doc", path: "$.test_set", where: "id = 1"})` → rowsAffected 1
+18. `mysql.json.arrayAppend({table: "test_json_docs", column: "doc", path: "$.arr", value: '"item"', where: "id = 1"})` → rowsAffected 1
+19. `mysql.json.update({table: "test_json_docs", column: "doc", path: "$.updated", value: '"true"', where: "id = 1"})` → rowsAffected 1
 
 **Domain error paths (🔴):**
 
-14. 🔴 `mysql.json.extract({table: "nonexistent_xyz", column: "doc", path: "$.x"})` → `{success: false}`
-15. 🔴 `mysql.json.extract({table: "test_json_docs", column: "nonexistent_col", path: "$.x"})` → `{success: false}`
+20. 🔴 `mysql.json.extract({table: "nonexistent_xyz", column: "doc", path: "$.x"})` → `{success: false}`
+21. 🔴 `mysql.json.extract({table: "test_json_docs", column: "nonexistent_col", path: "$.x"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-16. 🔴 `mysql.json.keys({})` → `{success: false, error: "Validation error: ..."}`
-17. 🔴 `mysql.json.extract({})` → `{success: false, error: "Validation error: ..."}`
+22. 🔴 `mysql.json.keys({})` → `{success: false, error: "Validation error: ..."}`
+23. 🔴 `mysql.json.extract({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
