@@ -26,6 +26,16 @@ export function createClusterSwitchoverTool(
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        // Check if GR is running
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
+        );
+        if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
+          return formatHandlerErrorResponse(
+            new Error("Group Replication not active. Cannot perform switchover analysis.")
+          );
+        }
+
         // Get current members status
         const membersResult = await adapter.executeQuery(`
                 SELECT 

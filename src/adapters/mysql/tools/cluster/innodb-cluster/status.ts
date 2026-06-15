@@ -36,20 +36,11 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
                 `);
 
         if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-          // Fall back to GR status
-          const grResult = await adapter.executeQuery(`
-                        SELECT COUNT(*) as memberCount
-                        FROM performance_schema.replication_group_members
-                        WHERE MEMBER_STATE = 'ONLINE'
-                    `);
-
-          const data = {
-            isInnoDBCluster: false,
-            message:
-              "InnoDB Cluster metadata not found. Using Group Replication status.",
-            onlineMembers: grResult.rows?.[0]?.["memberCount"] ?? 0,
-          };
-          return withTokenEstimate({ success: true, data });
+          return formatHandlerErrorResponse(
+            new Error(
+              "InnoDB Cluster metadata not found. No InnoDB Cluster configured.",
+            ),
+          );
         }
 
         // Get cluster info
