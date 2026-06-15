@@ -42,13 +42,13 @@
 
 ### Error Message Quality Rating
 
-| Level                                  | Verdict |
-| -------------------------------------- | ------- |
-| 5 - Excellent (name + code + context)  | ✅      |
-| 4 - Good (name)                        | ✅      |
-| 3 - Adequate (raw MySQL, informative)  | ⚠️      |
-| 2 - Poor (no object name)              | ⚠️      |
-| 1 - Useless (generic)                  | ❌      |
+| Level                                 | Verdict |
+| ------------------------------------- | ------- |
+| 5 - Excellent (name + code + context) | ✅      |
+| 4 - Good (name)                       | ✅      |
+| 3 - Adequate (raw MySQL, informative) | ⚠️      |
+| 2 - Poor (no object name)             | ⚠️      |
+| 1 - Useless (generic)                 | ❌      |
 
 ## Testing Requirements & Error Standards
 
@@ -85,8 +85,8 @@
    > **CRITICAL**: Architectural consistency is paramount. Do not introduce undocumented architectural deviations. If you implement a structural or architectural improvement in one tool, you must apply it symmetrically to other applicable tools in the group or project.
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
-8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+8. **Coverage Matrix**: Maintain a coverage matrix:
+   | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Structured Error Response Pattern
 
@@ -99,7 +99,7 @@ All tools should return errors as strongly-typed structured objects instead of t
   "code": "VALIDATION_ERROR",
   "category": "validation",
   "recoverable": false,
-  "details": { }
+  "details": {}
 }
 ```
 
@@ -146,7 +146,6 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-
 
 ---
 

@@ -29,7 +29,7 @@ export const SpatialColumnSchemaBase = z.object({
 
 export const SpatialColumnSchema = z
   .object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
     column: z.string(),
@@ -61,7 +61,7 @@ export const SpatialIndexSchemaBase = z.object({
 
 export const SpatialIndexSchema = z
   .object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
     column: z.string(),
@@ -144,10 +144,10 @@ export const DistanceSchemaBase = z.object({
 
 export const DistanceSchema = z
   .object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
-    spatialColumn: z.string().default(""),
+    spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
     point: z.object({
@@ -206,13 +206,13 @@ export const ContainsSchemaBase = z.object({
 
 export const ContainsSchema = z
   .object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
-    spatialColumn: z.string().default(""),
+    spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
-    polygon: z.string().default(""),
+    polygon: z.string().optional(),
     wkt: z.string().optional(),
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
@@ -249,13 +249,13 @@ export const WithinSchemaBase = z.object({
 
 export const WithinSchema = z
   .object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
-    spatialColumn: z.string().default(""),
+    spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
-    geometry: z.string().default(""),
+    geometry: z.string().optional(),
     wkt: z.string().optional(),
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
@@ -310,7 +310,7 @@ export const BufferSchemaBase = z.object({
 
 export const BufferSchema = z
   .object({
-    geometry: z.string().default(""),
+    geometry: z.string().optional(),
     wkt: z.string().optional(),
     distance: z.unknown().optional(),
     srid: z.unknown().optional(),
@@ -341,7 +341,7 @@ export const TransformSchemaBase = z.object({
 
 export const TransformSchema = z
   .object({
-    geometry: z.string().default(""),
+    geometry: z.string().optional(),
     wkt: z.string().optional(),
     fromSrid: z.unknown().optional(),
     toSrid: z.unknown().optional(),
@@ -375,7 +375,7 @@ export const GeoJSONSchemaStrict = z
     srid: z.unknown().optional(),
   })
   .transform((data) => ({
-    geometry: data.geometry ?? data.wkt ?? "",
+    geometry: data.geometry ?? data.wkt,
     geoJson: data.geoJson,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
@@ -413,7 +413,7 @@ export const SpatialPolygonOutputSchema = BaseOutputSchema.extend({
 
 export const SpatialCreateColumnOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
     column: z.string(),
@@ -425,7 +425,7 @@ export const SpatialCreateColumnOutputSchema = BaseOutputSchema.extend({
 
 export const SpatialCreateIndexOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    table: z.string().default(""),
+    table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
     column: z.string(),
