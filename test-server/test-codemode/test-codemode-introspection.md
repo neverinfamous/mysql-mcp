@@ -160,11 +160,11 @@ introspection Tool Group (6 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.introspection.help()` → verify method listing
-2. `mysql.introspection.dependencyGraph({schema: "test_db", maxDepth: 2})` → return graph nodes and edges
-3. `mysql.introspection.topologicalSort({schema: "test_db"})` → return ordered tables
+2. `mysql.introspection.dependencyGraph({schema: "testdb", maxDepth: 2})` → return graph nodes and edges
+3. `mysql.introspection.topologicalSort({schema: "testdb"})` → return ordered tables
 4. `mysql.introspection.cascadeSimulator({table: "test_products", operation: "DELETE"})` → simulate constraints
-5. `mysql.introspection.schemaSnapshot({schema: "test_db"})` → schema snapshot
-6. `mysql.introspection.constraintAnalysis({schema: "test_db"})` → analyze constraints
+5. `mysql.introspection.schemaSnapshot({schema: "testdb"})` → schema snapshot
+6. `mysql.introspection.constraintAnalysis({schema: "testdb"})` → analyze constraints
 7. `mysql.introspection.migrationRisks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → report risks
 
 **Domain error paths (🔴):**

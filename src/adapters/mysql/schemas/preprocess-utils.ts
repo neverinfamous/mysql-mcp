@@ -243,18 +243,18 @@ export function preprocessDocIndexParams(val: unknown): unknown {
   const v = val as Record<string, unknown>;
   const result = { ...v };
 
-  if (Array.isArray(result.fields)) {
-    result.fields = result.fields.map((f: unknown) => {
+  if (Array.isArray(result["fields"])) {
+    result["fields"] = result["fields"].map((f: unknown) => {
       if (typeof f !== "object" || f === null) return f;
       const fieldObj = { ...(f as Record<string, unknown>) };
-      if (fieldObj.path === undefined && fieldObj.field !== undefined) {
-        fieldObj.path = fieldObj.field;
-        delete fieldObj.field;
+      if (fieldObj["path"] === undefined && fieldObj["field"] !== undefined) {
+        fieldObj["path"] = fieldObj["field"];
+        delete fieldObj["field"];
       }
-      if (typeof fieldObj.type === "string") {
-        const upType = fieldObj.type.toUpperCase();
-        if (upType === "INTEGER") fieldObj.type = "INT";
-        else fieldObj.type = upType;
+      if (typeof fieldObj["type"] === "string") {
+        const upType = fieldObj["type"].toUpperCase();
+        if (upType === "INTEGER") fieldObj["type"] = "INT";
+        else fieldObj["type"] = upType;
       }
       return fieldObj;
     });
