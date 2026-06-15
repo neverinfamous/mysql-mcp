@@ -6,6 +6,10 @@
 
 ## Setup & Pre-requisites
 
+> [!IMPORTANT]
+> **TARGET MCP SERVER**: You MUST run all tests in this file against the `mysql-ecosystem` MCP server, NOT the generic `mysql` server. The `mysql-ecosystem` server is specifically configured with the correct ports and credentials for cluster, router, proxysql, and shell testing. If you execute code mode or call tools against the generic `mysql` server, your tests will fail or return invalid environment states because it connects to the wrong database port.
+
+
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
