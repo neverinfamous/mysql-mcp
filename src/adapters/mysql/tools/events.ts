@@ -401,15 +401,12 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return withTokenEstimate({
-            success: true,
-            data: { name, exists: false },
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist"));
         }
 
         return withTokenEstimate({
           success: true,
-          data: { name, exists: true, event: result.rows[0] },
+          data: { name, event: result.rows[0] },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {

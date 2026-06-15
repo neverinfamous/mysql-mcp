@@ -176,7 +176,6 @@ export const EventListOutputSchema = BaseOutputSchema.extend({
 export const EventStatusOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     name: z.string(),
-    exists: z.boolean(),
     event: z.record(z.string(), z.unknown()).optional(),
   }).optional()
 });
