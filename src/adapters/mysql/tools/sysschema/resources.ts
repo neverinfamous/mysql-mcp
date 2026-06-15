@@ -39,7 +39,7 @@ const LimitSchema = z
     limit: z.unknown().optional(),
   })
   .transform((data) => ({
-    limit: data.limit !== undefined ? Number(data.limit) : 10,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
   }))
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -60,7 +60,7 @@ const SchemaStatsSchema = z
   })
   .transform((data) => ({
     schema: data.schema,
-    limit: data.limit !== undefined ? Number(data.limit) : 10,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
   }))
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",

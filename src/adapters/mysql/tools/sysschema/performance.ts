@@ -50,7 +50,7 @@ const StatementSummarySchema = z
   })
   .transform((data) => ({
     orderBy: data.orderBy,
-    limit: data.limit !== undefined ? Number(data.limit) : 20,
+    limit: data.limit !== undefined ? Number(data.limit) : 5,
   }))
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -95,7 +95,7 @@ const IOSummarySchema = z
   })
   .transform((data) => ({
     type: data.type,
-    limit: data.limit !== undefined ? Number(data.limit) : 20,
+    limit: data.limit !== undefined ? Number(data.limit) : 10,
   }))
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
