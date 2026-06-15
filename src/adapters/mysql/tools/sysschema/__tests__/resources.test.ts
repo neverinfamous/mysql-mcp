@@ -53,11 +53,11 @@ describe("Sys Schema Resource Tools", () => {
           tableStatistics: unknown[];
           indexStatistics: unknown[];
           autoIncrementStatus: unknown[];
+          tableStatisticsCount: number;
+          indexStatisticsCount: number;
+          autoIncrementStatusCount: number;
+          schemaName: string;
         };
-        tableStatisticsCount: number;
-        indexStatisticsCount: number;
-        autoIncrementStatusCount: number;
-        schemaName: string;
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
@@ -70,7 +70,7 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.data?.schemaName).toBe("testdb");
     });
 
-    it("should use default limit of 2", async () => {
+    it("should use default limit of 10", async () => {
       // Mock SELECT DATABASE()
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ db: "testdb" }]),
@@ -84,7 +84,7 @@ describe("Sys Schema Resource Tools", () => {
 
       // First call is SELECT DATABASE(), second is table stats
       const call = mockAdapter.executeQuery.mock.calls[1][0];
-      expect(call).toContain("LIMIT 2");
+      expect(call).toContain("LIMIT 10");
     });
 
     it("should filter by schema with existence check", async () => {
@@ -110,13 +110,22 @@ describe("Sys Schema Resource Tools", () => {
     it("should handle null/undefined rows", async () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
-        rows: null,
+        rows: undefined,
       });
 
       const tool = createSysSchemaStatsTool(
         mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = (await tool.handler({}, mockContext)) as {
+        data: {
+          tableStatistics: unknown[];
+          indexStatistics: unknown[];
+          autoIncrementStatus: unknown[];
+          tableStatisticsCount: number;
+          indexStatisticsCount: number;
+          autoIncrementStatusCount: number;
+        };
+      };
 
       expect(result.data.tableStatistics).toEqual([]);
       expect(result.data.indexStatistics).toEqual([]);
@@ -159,10 +168,12 @@ describe("Sys Schema Resource Tools", () => {
         mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        schemaName: string;
-        tableStatisticsCount: number;
-        indexStatisticsCount: number;
-        autoIncrementStatusCount: number;
+        data: {
+          schemaName: string;
+          tableStatisticsCount: number;
+          indexStatisticsCount: number;
+          autoIncrementStatusCount: number;
+        };
       };
 
       expect(result.data?.schemaName).toBe("real_db_name");
@@ -197,7 +208,9 @@ describe("Sys Schema Resource Tools", () => {
         mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        hasContention: boolean;
+        data: {
+          hasContention: boolean;
+        };
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -213,7 +226,9 @@ describe("Sys Schema Resource Tools", () => {
         mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
-        hasContention: boolean;
+        data: {
+          hasContention: boolean;
+        };
       };
 
       expect(result.data?.hasContention).toBe(false);
@@ -222,15 +237,21 @@ describe("Sys Schema Resource Tools", () => {
     it("should handle null rows", async () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
-        rows: null,
+        rows: undefined,
       });
 
       const tool = createSysInnoDBLockWaitsTool(
         mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = (await tool.handler({}, mockContext)) as {
+        data: {
+          rows?: unknown[];
+          count?: number;
+          hasContention?: boolean;
+        };
+      };
 
-      expect(result.data?.rows).toBeNull(); // or null, queryResult.rows is returned directly
+      expect(result.data?.rows).toBeUndefined(); 
       expect(result.data?.count).toBe(0);
       expect(result.data?.hasContention).toBe(false);
     });
@@ -258,9 +279,9 @@ describe("Sys Schema Resource Tools", () => {
         data: {
           globalMemory: unknown[];
           memoryByUser: unknown[];
+          globalMemoryCount: number;
+          memoryByUserCount: number;
         };
-        globalMemoryCount: number;
-        memoryByUserCount: number;
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
@@ -273,13 +294,20 @@ describe("Sys Schema Resource Tools", () => {
     it("should handle null rows", async () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
-        rows: null,
+        rows: undefined,
       });
 
       const tool = createSysMemorySummaryTool(
         mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = (await tool.handler({}, mockContext)) as {
+        data: {
+          globalMemory: unknown[];
+          memoryByUser: unknown[];
+          globalMemoryCount: number;
+          memoryByUserCount: number;
+        };
+      };
 
       expect(result.data.globalMemory).toEqual([]);
       expect(result.data.memoryByUser).toEqual([]);
