@@ -124,13 +124,17 @@ export const ShellImportJSONInputSchema = z
     return {
       ...data,
       schema:
-        data.schema === undefined
-          ? ""
-          : String(data.schema as string | number | boolean),
+        typeof data.schema === "string"
+          ? data.schema
+          : typeof data.schema === "number" || typeof data.schema === "boolean"
+            ? data.schema.toString()
+            : "",
       collection:
-        rawCollection === undefined
-          ? ""
-          : String(rawCollection as string | number | boolean),
+        typeof rawCollection === "string"
+          ? rawCollection
+          : typeof rawCollection === "number" || typeof rawCollection === "boolean"
+            ? rawCollection.toString()
+            : "",
     };
   })
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })

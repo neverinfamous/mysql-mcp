@@ -160,22 +160,22 @@ migration Tool Group (6 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.migration.help()` → verify method listing
-2. `mysql.migration.migrationInit()` → initialize tables
-3. `mysql.migration.migrationRecord({version: "1.0.0", name: "initial", checksum: "123"})` → record
-4. `mysql.migration.migrationApply({version: "1.0.1", name: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT"})` → apply
-5. `mysql.migration.migrationStatus()` → check status
-6. `mysql.migration.migrationHistory({limit: 5})` → get history
-7. `mysql.migration.migrationRollback({version: "1.0.1"})` → rollback
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.1", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.1"})` → rollback
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql.migration.migrationRollback({version: "nonexistent_version"})` → `{success: false}`
-9. 🔴 `mysql.migration.migrationApply({version: "1.0.1", name: "duplicate", query: "..."})` → `{success: false}`
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.1", description: "duplicate", query: "..."})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql.migration.migrationRecord({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.migration.migrationApply({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
