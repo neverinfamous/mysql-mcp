@@ -162,13 +162,16 @@ security Tool Group (9 tools +1 code mode):
 
 1. `mysql.security.help()` → verify method listing
 2. `mysql.security.audit()` → audit results
-3. `mysql.security.sslStatus()` → SSL info
-4. `mysql.security.userPrivileges({user: "root"})` → privileges
-5. `mysql.security.userPrivileges({user: "root", summary: true})` → summarized
-6. `mysql.security.sensitiveTables({database: "testdb"})` → scan results
-7. `mysql.security.passwordValidate({password: "weak"})` → weak assessment
-8. `mysql.security.passwordValidate({password: "Str0ng!Pass#2026"})` → passes
-9. `mysql.security.encryptionStatus()` → encryption info
+3. `mysql.security.firewallStatus()` → firewall status
+4. `mysql.security.firewallRules()` → firewall rules
+5. `mysql.security.maskData({value: "test@example.com", type: "email"})` → masked data
+6. `mysql.security.sslStatus()` → SSL info
+7. `mysql.security.userPrivileges({user: "root"})` → privileges
+8. `mysql.security.userPrivileges({user: "root", summary: true})` → summarized
+9. `mysql.security.sensitiveTables({database: "testdb"})` → scan results
+10. `mysql.security.passwordValidate({password: "weak"})` → weak assessment
+11. `mysql.security.passwordValidate({password: "Str0ng!Pass#2026"})` → passes
+12. `mysql.security.encryptionStatus()` → encryption info
 
 **Domain error paths (🔴):**
 
