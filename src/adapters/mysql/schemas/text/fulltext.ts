@@ -2,24 +2,25 @@ import { z } from "zod";
 import {
   preprocessTableParams,
   preprocessQueryOnlyParams,
+  defaultToEmpty,
 } from "../preprocess-utils.js";
 
 // --- FulltextCreate ---
 export const FulltextCreateSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
   columns: z
     .array(z.string())
     .optional()
     .describe("Columns to include in index"),
   indexName: z.string().optional().describe("Optional index name"),
   index_name: z.string().optional().describe("Alias for indexName"),
+  name: z.string().optional().describe("Alias for indexName"),
 });
 
 export const FulltextCreateSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => defaultToEmpty(val),
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -30,12 +31,12 @@ export const FulltextCreateSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? "",
     columns: data.columns ?? [],
-    indexName: data.indexName ?? data.index_name,
+    indexName: data.indexName ?? data.index_name ?? data.name,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "table (or tableName alias) is required",
   })
   .refine((data) => data.columns.length > 0, {
     message: "columns is required",
@@ -130,17 +131,17 @@ export const FulltextSearchSchema = z
 export const FulltextDropSchemaBase = z.object({
   table: z.string().optional().describe("Table containing the index"),
   tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
   indexName: z
     .string()
     .optional()
     .describe("Name of the FULLTEXT index to drop"),
   index_name: z.string().optional().describe("Alias for indexName"),
+  name: z.string().optional().describe("Alias for indexName"),
 });
 
 export const FulltextDropSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => defaultToEmpty(val),
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -150,11 +151,11 @@ export const FulltextDropSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
-    indexName: data.indexName ?? data.index_name ?? "",
+    table: data.table ?? data.tableName ?? "",
+    indexName: data.indexName ?? data.index_name ?? data.name ?? "",
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "table (or tableName alias) is required",
   })
   .refine((data) => data.indexName !== "", {
     message: "indexName is required",
