@@ -5,7 +5,7 @@
  * 2 tools: column creation and index creation.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -106,9 +106,6 @@ export function createSpatialCreateColumnTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
@@ -135,7 +132,7 @@ export function createSpatialCreateColumnTool(
             success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR",
           });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -233,9 +230,6 @@ export function createSpatialCreateIndexTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
@@ -257,7 +251,7 @@ export function createSpatialCreateIndexTool(
           });
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
-          return formatHandlerErrorResponse(new Error(msg));
+          return formatHandlerErrorResponse(error);
         }
         const idxFromParams = paramStr(params, "indexName");
         const idx =
@@ -267,7 +261,7 @@ export function createSpatialCreateIndexTool(
             success: false, error: `Index '${idx}' already exists on table '${tbl}'`, code: "QUERY_ERROR",
           });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };

@@ -5,7 +5,7 @@
  * 4 tools: distance, distance_sphere, contains, within.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -115,9 +115,6 @@ export function createSpatialDistanceTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
@@ -135,7 +132,7 @@ export function createSpatialDistanceTool(
         if (msg.includes("Unknown column")) {
           return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -206,9 +203,6 @@ export function createSpatialDistanceSphereTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
@@ -226,7 +220,7 @@ export function createSpatialDistanceSphereTool(
         if (msg.includes("Unknown column")) {
           return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -284,9 +278,6 @@ export function createSpatialContainsTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
@@ -304,7 +295,7 @@ export function createSpatialContainsTool(
         if (msg.includes("Unknown column")) {
           return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -359,9 +350,6 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
@@ -379,7 +367,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         if (msg.includes("Unknown column")) {
           return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };

@@ -5,7 +5,7 @@
  * 2 tools: point and polygon creation.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -88,11 +88,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -146,11 +142,7 @@ export function createSpatialPolygonTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };

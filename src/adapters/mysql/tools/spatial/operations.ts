@@ -5,7 +5,7 @@
  * 4 tools: intersection, buffer, transform, geojson.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -108,11 +108,7 @@ export function createSpatialIntersectionTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -166,11 +162,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -217,11 +209,7 @@ export function createSpatialTransformTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -284,11 +272,7 @@ export function createSpatialGeoJSONTool(
           success: false, error: "Either geometry or geoJson must be provided", code: "VALIDATION_ERROR",
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
