@@ -158,17 +158,17 @@ sys Tool Group (8 tools +1 code mode):
 2. `mysql_sys_wait_summary` 5. `mysql_sys_innodb_lock_waits` 6. `mysql_sys_schema_stats`
 3. `mysql_sys_host_summary` 8. `mysql_sys_memory_summary`
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> **Instructions**: Use `mysql.sysschema.*` namespace, push deviations to `failures` array.
 
-1. `mysql.sys.help()` → verify method listing
-2. `mysql.sys.userSummary()` → user resource usage
-3. `mysql.sys.ioSummary()` → I/O metrics
-4. `mysql.sys.statementSummary()` → statement analysis
-5. `mysql.sys.waitSummary()` → wait events
-6. `mysql.sys.innodbLockWaits()` → lock info (may be empty)
-7. `mysql.sys.schemaStats()` → table/index sizes
-8. `mysql.sys.hostSummary()` → host metrics
-9. `mysql.sys.memorySummary()` → memory usage
+1. `mysql.sysschema.help()` → verify method listing
+2. `mysql.sysschema.userSummary()` → user resource usage
+3. `mysql.sysschema.ioSummary()` → I/O metrics
+4. `mysql.sysschema.statementSummary()` → statement analysis
+5. `mysql.sysschema.waitSummary()` → wait events
+6. `mysql.sysschema.innodbLockWaits()` → lock info (may be empty)
+7. `mysql.sysschema.schemaStats()` → table/index sizes
+8. `mysql.sysschema.hostSummary()` → host metrics
+9. `mysql.sysschema.memorySummary()` → memory usage
 
 ---
 
