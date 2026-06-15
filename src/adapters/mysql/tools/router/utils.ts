@@ -140,9 +140,26 @@ export async function safeRouterFetch(path: string): Promise<SafeRouterResult<un
         : undefined;
 
     if (statusCode === 404) {
+      let msg = "Resource not found";
+      const matchRoute = /^\/routes\/([^/]+)/.exec(path);
+      const route = matchRoute?.[1];
+      if (route) msg = `Route '${decodeURIComponent(route)}' not found`;
+      
+      const matchPool = /^\/connection_pool\/([^/]+)/.exec(path);
+      const pool = matchPool?.[1];
+      if (pool) msg = `Connection pool '${decodeURIComponent(pool)}' not found`;
+
       return {
         success: false,
-        response: formatHandlerErrorResponse(error),
+        response: {
+          success: false,
+          error: msg,
+          code: "NOT_FOUND_ERROR",
+          category: "domain" as ErrorResponse["category"],
+          suggestion: undefined,
+          details: undefined,
+          recoverable: false,
+        },
       };
     }
 

@@ -531,7 +531,7 @@ describe("Error Handling", () => {
     );
 
     expect(result).toHaveProperty("success", false);
-    expect(Reflect.get(result || {}, "error")).toContain("404 Not Found");
+    expect(Reflect.get(result || {}, "error")).toContain("Route 'nonexistent' not found");
   });
 
   it("should return unavailable response on network error", async () => {
