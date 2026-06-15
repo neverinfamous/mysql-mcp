@@ -21,6 +21,7 @@ import { assertSafeIoPath } from "../../../../utils/security-utils.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellDumpInstanceInputSchema,
+  ShellDumpInstanceInputSchemaBase,
   ShellDumpSchemasInputSchema,
   ShellDumpSchemasInputSchemaBase,
   ShellDumpTablesInputSchema,
@@ -43,7 +44,7 @@ export function createShellDumpInstanceTool(
     description:
       "Dump entire MySQL instance using util.dumpInstance(). Creates a compressed, parallel dump of all schemas (excluding system schemas). Ideal for full backups and migrations.",
     group: "shell",
-    inputSchema: ShellDumpInstanceInputSchema,
+    inputSchema: ShellDumpInstanceInputSchemaBase,
     outputSchema: ShellDumpInstanceOutputSchema,
     requiredScopes: ["admin"],
     annotations: {

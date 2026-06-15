@@ -60,7 +60,7 @@ All file I/O operations exposed by the server (such as MySQL Shell dump, load, i
 
 ## 🧪 **Code Mode Sandbox Security**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8) sandbox with multiple layers of defense-in-depth:
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8) sandbox with multiple layers of defense-in-depth and fleet-standard restrictions:
 
 ### **Engine-Level Restrictions**
 

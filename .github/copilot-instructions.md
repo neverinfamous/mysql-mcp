@@ -63,6 +63,7 @@ All tool handlers return structured error responses — never raw exceptions:
 src/
 ├── cli.ts                      # CLI entry point (Commander)
 ├── index.ts                    # Library entry point
+├── version.ts                  # Version export
 ├── adapters/                   # MySQL database adapters
 ├── audit/                      # Audit and token logging
 ├── auth/                       # OAuth 2.1 authentication
@@ -71,6 +72,7 @@ src/
 ├── constants/                  # Server instructions, config
 ├── filtering/                  # Tool filtering (groups, meta-groups)
 ├── logging/                    # Structured logging
+├── observability/              # Observability and metrics
 ├── pool/                       # Connection pool management
 ├── progress/                   # Progress notification helpers
 ├── server/                     # MCP server setup and registration

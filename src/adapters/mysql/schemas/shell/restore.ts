@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { booleanCoerce } from "./base.js";
 
-export const ShellLoadDumpInputSchema = z
+export const ShellLoadDumpInputSchemaBase = z
   .object({
     inputDir: z
       .string()
@@ -53,3 +53,19 @@ export const ShellLoadDumpInputSchema = z
       ),
   })
   .describe("Load dump to instance using util.loadDump()");
+
+export const ShellLoadDumpInputSchema = z
+  .object({
+    inputDir: z.string().optional(),
+    inputUrl: z.string().optional(),
+    threads: z.number().int().optional().default(4),
+    dryRun: booleanCoerce.optional().default(false),
+    includeSchemas: z.array(z.string()).optional(),
+    excludeSchemas: z.array(z.string()).optional(),
+    includeTables: z.array(z.string()).optional(),
+    excludeTables: z.array(z.string()).optional(),
+    ignoreExistingObjects: booleanCoerce.optional().default(false),
+    ignoreVersion: booleanCoerce.optional().default(false),
+    resetProgress: booleanCoerce.optional().default(false),
+    updateServerSettings: booleanCoerce.optional().default(false),
+  });

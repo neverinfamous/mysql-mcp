@@ -23,6 +23,7 @@ import { assertSafeIoPath } from "../../../../utils/security-utils.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellLoadDumpInputSchema,
+  ShellLoadDumpInputSchemaBase,
   ShellRunScriptInputSchema,
   ShellRunScriptInputSchemaBase,
   ShellLoadDumpOutputSchema,
@@ -42,7 +43,7 @@ export function createShellLoadDumpTool(
     description:
       "Load a MySQL Shell dump using util.loadDump(). Restores data from a dump created by dumpInstance, dumpSchemas, or dumpTables. Supports parallel loading.",
     group: "shell",
-    inputSchema: ShellLoadDumpInputSchema,
+    inputSchema: ShellLoadDumpInputSchemaBase,
     outputSchema: ShellLoadDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: {

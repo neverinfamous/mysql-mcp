@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { booleanCoerce } from "./base.js";
 
-export const ShellDumpInstanceInputSchema = z
+export const ShellDumpInstanceInputSchemaBase = z
   .object({
     outputDir: z
       .string()
@@ -43,6 +43,19 @@ export const ShellDumpInstanceInputSchema = z
       .describe("Include user accounts and grants"),
   })
   .describe("Dump entire MySQL instance using util.dumpInstance()");
+
+export const ShellDumpInstanceInputSchema = z
+  .object({
+    outputDir: z.string().optional(),
+    outputUrl: z.string().optional(),
+    threads: z.number().int().optional().default(4),
+    compression: z.enum(["none", "zstd", "gzip"]).optional().default("zstd"),
+    dryRun: booleanCoerce.optional().default(false),
+    includeSchemas: z.array(z.string()).optional(),
+    excludeSchemas: z.array(z.string()).optional(),
+    consistent: booleanCoerce.optional().default(true),
+    users: booleanCoerce.optional().default(true),
+  });
 
 export const ShellDumpSchemasInputSchemaBase = z
   .object({

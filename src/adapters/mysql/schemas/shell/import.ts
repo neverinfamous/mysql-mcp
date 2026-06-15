@@ -10,6 +10,8 @@ export const ShellImportTableInputSchemaBase = z
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
     table: z.string().optional().describe("Target table name"),
+    tableName: z.string().optional().describe("Alias for table"),
+    name: z.string().optional().describe("Alias for table"),
     threads: z
       .number()
       .int()
@@ -52,6 +54,8 @@ export const ShellImportTableInputSchema = z
     inputUrl: z.string().optional(),
     schema: z.unknown().optional(),
     table: z.unknown().optional(),
+    tableName: z.unknown().optional(),
+    name: z.unknown().optional(),
     threads: z.number().int().optional().default(4),
     skipRows: z.number().int().optional(),
     columns: z.array(z.string()).optional(),
@@ -59,17 +63,24 @@ export const ShellImportTableInputSchema = z
     linesTerminatedBy: z.string().optional(),
     updateServerSettings: booleanCoerce.optional().default(false),
   })
-  .transform((data) => ({
-    ...data,
-    schema:
-      data.schema === undefined
-        ? ""
-        : String(data.schema as string | number | boolean),
-    table:
-      data.table === undefined
-        ? ""
-        : String(data.table as string | number | boolean),
-  }))
+  .transform((data) => {
+    const rawTable = data.table ?? data.tableName ?? data.name;
+    return {
+      ...data,
+      schema:
+        typeof data.schema === "string"
+          ? data.schema
+          : typeof data.schema === "number" || typeof data.schema === "boolean"
+            ? data.schema.toString()
+            : "",
+      table:
+        typeof rawTable === "string"
+          ? rawTable
+          : typeof rawTable === "number" || typeof rawTable === "boolean"
+            ? rawTable.toString()
+            : "",
+    };
+  })
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.table !== "", { message: "table must not be empty" });
 
