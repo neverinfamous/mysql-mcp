@@ -103,8 +103,17 @@ export function createFulltextExpandTool(
 
           let facets: Record<string, number> | undefined;
           let warnings: string[] | undefined;
+          let totalCount = data.length;
           if (includeFacets && data.length > 0) {
             facets = {};
+            const countSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+            try {
+              const countResult = await adapter.executeReadQuery(countSql, queryArgs);
+              totalCount = Number(countResult.rows?.[0]?.["cnt"] ?? data.length);
+            } catch {
+              // Ignore and fallback to data.length
+            }
+
             for (const col of columns) {
               const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
               try {
@@ -128,7 +137,7 @@ export function createFulltextExpandTool(
             success: true,
             data: {
               rows: data,
-              count: data.length,
+              count: includeFacets ? totalCount : data.length,
               ...(nextCursor ? { nextCursor } : {}),
               ...(facets ? { facets } : {}),
               ...(warnings ? { warnings } : {}),
