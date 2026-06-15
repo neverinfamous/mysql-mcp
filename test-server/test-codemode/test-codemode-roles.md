@@ -155,8 +155,8 @@ During testing, check for these inconsistencies:
 roles Tool Group (8 tools +1 code mode):
 
 1. `mysql_role_list` 2. `mysql_role_create` 3. `mysql_role_drop`
-2. `mysql_role_grants` 5. `mysql_role_grant` 6. `mysql_role_assign`
-3. `mysql_role_revoke` 8. `mysql_user_roles`
+4. `mysql_role_grants` 5. `mysql_role_grant` 6. `mysql_role_assign`
+7. `mysql_role_revoke` 8. `mysql_user_roles`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
