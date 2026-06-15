@@ -168,9 +168,13 @@ replication Tool Group (5 tools +1 code mode):
 5. `mysql.replication.binlogEvents({limit: 5})` → binlog events
 6. `mysql.replication.replicationLag()` → response (0 lag or no-replica)
 
+**Domain error paths (🔴):**
+
+7. 🔴 `mysql.replication.binlogEvents({logFile: "nonexistent_binlog.123456"})` → verify structured `{success: false}`
+
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql.replication.binlogEvents({logFile: 123})` → must NOT return raw MCP error (wrong type)
+8. 🔴 `mysql.replication.binlogEvents({logFile: 123})` → must NOT return raw MCP error (wrong type)
 
 ---
 

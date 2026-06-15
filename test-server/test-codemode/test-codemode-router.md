@@ -6,10 +6,6 @@
 
 ## Setup & Pre-requisites
 
-> [!IMPORTANT]
-> **TARGET MCP SERVER**: You MUST run all tests in this file against the `mysql-ecosystem` MCP server, NOT the generic `mysql` server. The `mysql-ecosystem` server is specifically configured with the correct ports and credentials for cluster, router, proxysql, and shell testing. If you execute code mode or call tools against the generic `mysql` server, your tests will fail or return invalid environment states because it connects to the wrong database port.
-
-
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
@@ -180,8 +176,10 @@ router Tool Group (9 tools +1 code mode):
 10. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-
 11. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance paths (🟢):**
+12. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
 
 ---
 

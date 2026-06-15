@@ -142,7 +142,7 @@ During testing, check for these inconsistencies:
 
 ### admin Group-Specific Testing
 
-admin Tool Group (7 tools +1 for code mode):
+admin Tool Group (9 tools +1 for code mode):
 
 1. 'mysql_optimize_table'
 2. 'mysql_analyze_table'
@@ -164,27 +164,31 @@ admin Tool Group (7 tools +1 for code mode):
 5. `mysql_server_config({action: "get"})` → verify success and config object
 6. `mysql_server_config({action: "set", setting: "logLevel", value: "debug"})` → `{success: true, message: ...}`
 7. `mysql_server_config({action: "set", setting: "logLevel", value: "info"})` → `{success: true, message: ...}`
-8. `mysql_audit_search({})` → `{success: true, entries: [...]}`
-9. `mysql_audit_search({limit: 5, offset: 1})` → verify pagination
-10. `mysql_audit_search({tool: "mysql_write_query"})` → verify tool filtering
-11. `mysql_audit_search({success: false})` → verify outcome filtering
+8. `mysql_repair_table({table: "test_products"})` → verify InnoDB not supported message
+9. `mysql_flush_tables({tables: ["test_products"]})` → verify success
+10. `mysql_append_insight({insight: "Test insight"})` → verify success
+11. `mysql_audit_search({})` → `{success: true, entries: [...]}`
+12. `mysql_audit_search({limit: 5, offset: 1})` → verify pagination
+13. `mysql_audit_search({tool: "mysql_write_query"})` → verify tool filtering
+14. `mysql_audit_search({success: false})` → verify outcome filtering
 
 **Domain error paths (🔴):**
 
-12. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
-13. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
-14. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
+15. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
+16. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
+17. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
 
 **Zod validation error paths (🔴):**
 
-15. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
-16. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
-17. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
-18. 🔴 `mysql_audit_search({limit: "abc"})` → `{success: false, error: "..."}` (Zod validation, wrong type)
+18. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
+19. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
+20. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
+21. 🔴 `mysql_audit_search({limit: "abc"})` → `{success: false, error: "..."}` (Zod validation, wrong type)
+22. 🔴 `mysql_flush_tables({tables: "not_array"})` → `{success: false, error: "..."}` (Zod validation)
 
 **Wrong-type numeric param coercion (🔴):**
 
-19. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error (wrong-type numeric param)
+23. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error
 
 ---
 

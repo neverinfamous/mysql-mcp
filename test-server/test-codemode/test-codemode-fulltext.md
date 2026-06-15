@@ -169,6 +169,12 @@ fulltext Tool Group (5 tools +1 code mode):
 8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>"})` → verify pagination works
 9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify sanitization (no syntax error)
 
+**Create → Search → Drop lifecycle:**
+
+10. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
+11. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer"})` → results
+12. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+
 **Domain error paths (🔴):**
 
 10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`

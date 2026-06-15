@@ -9,3 +9,6 @@
 - **Buffer pool**: `mysql_buffer_pool_stats` shows InnoDB memory usage and hit rates.
 - **Thread stats**: `mysql_thread_stats` shows active threads with user, host, database, command, and connection type.
 - **Error handling**: `mysql_explain` and `mysql_explain_analyze` return `{ exists: false, error }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., syntax errors). No raw MySQL errors are thrown.
+- **Anomaly detection**: `mysql_detect_query_anomalies` identifies queries with unusual execution times using standard deviation thresholds.
+- **Bloat risk**: `mysql_detect_bloat_risk` identifies tables with significant data/index fragmentation.
+- **Connection spikes**: `mysql_detect_connection_spike` analyzes recent connection rates against a baseline to flag potential spikes or connection leaks.

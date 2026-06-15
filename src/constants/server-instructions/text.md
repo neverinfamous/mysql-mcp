@@ -1,4 +1,4 @@
-# Text Tools (`mysql_like_search`, `mysql_regexp_match`, etc.)
+# Text Tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`)
 
 - **LIKE patterns**: `%` matches any characters, `_` matches single character.
 - **Regex**: Uses MySQL regex syntax (not PCRE). Example: `^[A-Z].*@.*\.com$`

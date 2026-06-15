@@ -87,13 +87,6 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_event_create` | ✅ | ✅ |
-| `mysql_event_alter` | ✅ | ✅ |
-| `mysql_event_drop` | ✅ | ✅ |
-| `mysql_event_list` | ✅ | — |
-| `mysql_event_status` | ✅ | ✅ |
-| `mysql_scheduler_status` | ✅ | — |
 
 ### Structured Error Response Pattern
 

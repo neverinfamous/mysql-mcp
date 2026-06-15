@@ -161,13 +161,17 @@ replication Tool Group (5 tools +1 for code mode):
 4. `mysql_binlog_events({limit: 5})` → verify binlog events listed (may be empty)
 5. `mysql_replication_lag()` → verify response (0 lag or no-replica message)
 
+**Domain error paths (🔴):**
+
+6. 🔴 `mysql_binlog_events({logFile: "nonexistent_binlog.123456"})` → verify structured `{success: false, error: "..."}`
+
 **Zod validation error paths (🔴):**
 
-6. 🔴 `mysql_binlog_events({logFile: 123})` → must NOT return raw MCP error (wrong type — expected string)
+7. 🔴 `mysql_binlog_events({logFile: 123})` → must NOT return raw MCP error (wrong type — expected string)
 
 **Wrong-type numeric param coercion (🔴):**
 
-7. 🔴 `mysql_binlog_events({limit: "abc"})` → must NOT return raw MCP `-32602` error
+8. 🔴 `mysql_binlog_events({limit: "abc"})` → must NOT return raw MCP `-32602` error
 
 ---
 

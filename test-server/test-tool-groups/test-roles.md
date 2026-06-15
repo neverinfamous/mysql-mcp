@@ -138,43 +138,30 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: roles
+## Group Focus: roles\n\n### roles Group-Specific Testing\n\nroles Tool Group (8 tools +1 for code mode):\n\n1. 'mysql_role_list'\n2. 'mysql_role_create'\n3. 'mysql_role_drop'\n4. 'mysql_role_grants'\n5. 'mysql_role_grant'\n6. 'mysql_role_assign'\n7. 'mysql_role_revoke'\n8. 'mysql_user_roles'\n9. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.\n\n1. `mysql_role_list({...})` -> verify success\n2. `mysql_role_create({...})` -> verify success\n3. `mysql_role_drop({...})` -> verify success\n4. `mysql_role_grants({...})` -> verify success\n5. `mysql_role_grant({...})` -> verify success\n6. `mysql_role_assign({...})` -> verify success\n7. `mysql_role_revoke({...})` -> verify success\n8. `mysql_user_roles({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n9. 🔴 `mysql_role_list({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_role_create({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_role_drop({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_role_grants({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_role_grant({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_role_assign({...})` -> `{success: false, error: "..."}` handler error\n15. 🔴 `mysql_role_revoke({...})` -> `{success: false, error: "..."}` handler error\n16. 🔴 `mysql_user_roles({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n17. 🔴 `mysql_role_list({})` -> `{success: false, error: "..."}` (Zod validation)\n18. 🔴 `mysql_role_create({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🔴 `mysql_role_drop({})` -> `{success: false, error: "..."}` (Zod validation)\n20. 🔴 `mysql_role_grants({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_role_grant({})` -> `{success: false, error: "..."}` (Zod validation)\n22. 🔴 `mysql_role_assign({})` -> `{success: false, error: "..."}` (Zod validation)\n23. 🔴 `mysql_role_revoke({})` -> `{success: false, error: "..."}` (Zod validation)\n24. 🔴 `mysql_user_roles({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n25. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-### roles Group-Specific Testing
+### Reporting Rules
 
-roles Tool Group (8 tools +1 for code mode):
+- Use ✅ only in inline notes during testing; omit from Final Summary
+- Do not mention what already works well or issues already documented in help resources and runtime hints
 
-1. 'mysql_role_list'
-2. 'mysql_role_create'
-3. 'mysql_role_drop'
-4. 'mysql_role_grants'
-5. 'mysql_role_grant'
-6. 'mysql_role_assign'
-7. 'mysql_role_revoke'
-8. 'mysql_user_roles'
-9. 'mysql_execute_code' (codemode, auto-added)
+### After Testing
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
+3. **Scope of fixes** includes corrections to any of:
+   - Handler code
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - Test database (`scripts/test-seed.sql`)
+   - This prompt
 
-1. `mysql_role_list()` → verify response structure (may be empty)
+### After Implementation
 
-**Create → Use → Drop lifecycle:**
-
-2. `mysql_role_create({name: "temp_test_role"})` → `{success: true}`
-3. `mysql_role_grants({role: "temp_test_role"})` → verify grants (initially empty)
-4. `mysql_role_grant({role: "temp_test_role", privilege: "SELECT", on: "testdb.*"})` → `{success: true}`
-5. `mysql_role_grants({role: "temp_test_role"})` → verify SELECT privilege appears
-6. `mysql_role_drop({name: "temp_test_role"})` → `{success: true}`
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_role_grants({role: "nonexistent_role_xyz"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_role_drop({name: "nonexistent_role_xyz"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_role_create({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_role_grant({})` → `{success: false, error: "..."}` (missing required params)
+4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+5. **Commit**: Stage and commit all changes — do NOT push.
+6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
+8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
 

@@ -150,7 +150,7 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Category 1: Partition Lifecycle Stress
+## Comprehensive Tool Coverage (partitioning)\n\nEnsure EVERY tool in the partitioning group is comprehensively tested.\n\npartitioning Tool Group (4 tools +1 code mode):\n\n1. `mysql_partition_info`\n2. `mysql_add_partition`\n3. `mysql_drop_partition`\n4. `mysql_reorganize_partition`\n\n> **Instructions**: Use `mysql.partitioning.*` namespace.\n\n1. `mysql.partitioning.help()` -> verify method listing\n2. `mysql.partitioning.someMethod({...})` -> verify success\n3. `mysql.partitioning.someMethod({...})` -> verify success\n4. `mysql.partitioning.someMethod({...})` -> verify success\n5. `mysql.partitioning.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n6. 🔴 `mysql.partitioning.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n7. 🔴 `mysql.partitioning.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n8. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n## Category 1: Partition Lifecycle Stress
 
 1. Create `stress_part_range` table with RANGE partitioning on an INT column (p0: <100, p1: <200, p2: MAXVALUE)
 2. `mysql_partition_info({table: "stress_part_range"})` → verify 3 partitions listed

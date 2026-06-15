@@ -11,39 +11,52 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 
 ## Execution Parts
 
-The original monolithic advanced stress testing suite was split into 26 granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
+The original monolithic advanced stress testing suite was split into granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-| File                                   | Primary Focus       | Key Validations                                                                                     |
-| -------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------- |
-| `test-tools-advanced-core.md`          | Core                | Boundary values, empty states, single-row edge cases, NULL-heavy data, state pollution, idempotency |
-| `test-tools-advanced-transactions.md`  | Transactions        | Aborted transaction recovery, savepoint stress, mixed statement execution, failure rollback         |
-| `test-tools-advanced-schema.md`        | Schema              | DDL idempotency, cross-object dependencies, parameter alias parity, payload monitoring              |
-| `test-tools-advanced-json.md`          | JSON                | Deep mutation workflows, nested path operations, merge operations                                   |
-| `test-tools-advanced-vector.md`        | Vector              | Bounds, metric consistency, hybrid search edge cases                                                |
-| `test-tools-advanced-spatial.md`       | Spatial             | Boundary coordinates, out-of-bounds validation, exact boundary values                               |
-| `test-tools-advanced-document.md`      | Document Store      | Empty array edge cases, nonexistent field criteria, collection lifecycle                            |
-| `test-tools-advanced-fulltext.md`      | Fulltext/Search     | Search pipeline lifecycle, temp table FTS index creation and search                                 |
-| `test-tools-advanced-introspection.md` | Introspection       | Deep dependency graphs, circular foreign keys, cascade limit testing                                |
-| `test-tools-advanced-migration.md`     | Migration           | Corrupted checksums, out-of-order logs, idempotency, boundary rollbacks                             |
-| `test-tools-advanced-stats.md`         | Stats               | Null handling, zero-variance arrays, hypothesis boundaries, missing types                           |
-| `test-tools-advanced-text.md`          | Text                | Regex edge cases, unicode/encoding, boundary lengths, collation stress                              |
-| `test-tools-advanced-roles.md`         | Roles               | Lifecycle collisions, grant/revoke sequences, cascading verify, alias parity                        |
-| `test-tools-advanced-events.md`        | Events              | Lifecycle collisions, schedule boundary values, event body validation                               |
-| `test-tools-advanced-partitioning.md`  | Partitioning        | Partition lifecycle stress, non-partitioned table handling, reorganize edge cases                   |
-| `test-tools-advanced-optimization.md`  | Optimization        | Complex query rewrites, optimizer trace payloads, force index edge cases                            |
-| `test-tools-advanced-monitoring.md`    | Monitoring          | Payload efficiency, summary mode parity, filter edge cases, sequential stability                    |
-| `test-tools-advanced-security.md`      | Security            | Password validation boundaries, sensitive table detection, privilege enumeration edges              |
-| `test-tools-advanced-backup.md`        | Backup              | Export edge cases, format boundary values, dump parameter validation                                |
-| `test-tools-advanced-sys.md`           | Sys Schema          | Payload efficiency audit, empty state handling, sequential stability                                |
-| `test-tools-advanced-docstore.md`      | MySQL Document Store| NoSQL/CRUD operations, JSON collections, X Protocol patterns     |
-| `test-tools-advanced-cluster.md`       | InnoDB Cluster      | Group replication, clone plugin, router metadata                 |
-| `test-tools-advanced-proxysql.md`      | ProxySQL Admin      | Query rules, connection pooling, host groups                     |
-| `test-tools-advanced-router.md`        | MySQL Router        | Topology changes, metadata caching, route management             |
-| `test-tools-advanced-sessions.md`      | Session Lifecycle   | Idle timeout expiry, absolute TTL enforcement, in-flight protection, sweep behavior |
-| `test-tools-advanced-shell.md`         | Shell               | Graceful degradation, dry run boundaries, parameter validation, script execution safety             |
-| `test-tools-advanced-replication.md`   | Replication         | Single-server resilience, binlog boundary values, happy-path, payload monitoring                    |
-| `test-tools-advanced-admin.md`         | Admin/Error Quality | Cross-group error message quality, type mismatches, invalid parameter values, payload sizes         |
-| `test-tools-advanced-performance.md`   | Performance/Payload | Truncation indicators, summary mode, anomaly detection bounds                                       |
+- `test-codemode-advanced-admin.md`
+- `test-codemode-advanced-backup.md`
+- `test-codemode-advanced-cluster-group-replication.md`
+- `test-codemode-advanced-cluster-innodb.md`
+- `test-codemode-advanced-concurrency.md`
+- `test-codemode-advanced-core.md`
+- `test-codemode-advanced-docstore.md`
+- `test-codemode-advanced-events.md`
+- `test-codemode-advanced-fulltext.md`
+- `test-codemode-advanced-introspection.md`
+- `test-codemode-advanced-json-core.md`
+- `test-codemode-advanced-json-enhanced.md`
+- `test-codemode-advanced-json-helpers.md`
+- `test-codemode-advanced-migration.md`
+- `test-codemode-advanced-monitoring.md`
+- `test-codemode-advanced-optimization.md`
+- `test-codemode-advanced-partitioning.md`
+- `test-codemode-advanced-performance-analysis.md`
+- `test-codemode-advanced-performance-anomaly.md`
+- `test-codemode-advanced-proxysql-config.md`
+- `test-codemode-advanced-proxysql-status.md`
+- `test-codemode-advanced-replication.md`
+- `test-codemode-advanced-roles.md`
+- `test-codemode-advanced-router.md`
+- `test-codemode-advanced-schema-management.md`
+- `test-codemode-advanced-schema-routines.md`
+- `test-codemode-advanced-security.md`
+- `test-codemode-advanced-sessions.md`
+- `test-codemode-advanced-shell-data.md`
+- `test-codemode-advanced-shell-utils.md`
+- `test-codemode-advanced-spatial-geometry.md`
+- `test-codemode-advanced-spatial-operations.md`
+- `test-codemode-advanced-spatial-queries.md`
+- `test-codemode-advanced-spatial-setup.md`
+- `test-codemode-advanced-stats-advanced.md`
+- `test-codemode-advanced-stats-descriptive.md`
+- `test-codemode-advanced-stats-window.md`
+- `test-codemode-advanced-sys.md`
+- `test-codemode-advanced-text.md`
+- `test-codemode-advanced-transactions.md`
+- `test-codemode-advanced-vector-management.md`
+- `test-codemode-advanced-vector-search.md`
+- `test-codemode-advanced-vector-storage.md`
+- `test-codemode-advanced-versioning.md`
 
 ## Agent Execution Protocol
 

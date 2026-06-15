@@ -150,36 +150,30 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: security
+## Group Focus: security\n\nsecurity Tool Group (9 tools +1 code mode):\n\n1. `mysql_security_audit`\n2. `mysql_security_firewall_status`\n3. `mysql_security_firewall_rules`\n4. `mysql_security_mask_data`\n5. `mysql_security_password_validate`\n6. `mysql_security_ssl_status`\n7. `mysql_security_user_privileges`\n8. `mysql_security_sensitive_tables`\n9. `mysql_security_encryption_status`\n\n> **Instructions**: Use `mysql.security.*` namespace, push deviations to `failures` array.\n\n1. `mysql.security.help()` -> verify method listing\n2. `mysql.security.someMethod({...})` -> verify success\n3. `mysql.security.someMethod({...})` -> verify success\n4. `mysql.security.someMethod({...})` -> verify success\n5. `mysql.security.someMethod({...})` -> verify success\n6. `mysql.security.someMethod({...})` -> verify success\n7. `mysql.security.someMethod({...})` -> verify success\n8. `mysql.security.someMethod({...})` -> verify success\n9. `mysql.security.someMethod({...})` -> verify success\n10. `mysql.security.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n11. 🔴 `mysql.security.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n12. 🔴 `mysql.security.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n13. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-security Tool Group (9 tools +1 code mode):
+### Reporting Rules
 
-1. `mysql_security_audit` 2. `mysql_security_firewall_status` 3. `mysql_security_firewall_rules`
-2. `mysql_security_mask_data` 5. `mysql_security_password_validate` 6. `mysql_security_ssl_status`
-3. `mysql_security_user_privileges` 8. `mysql_security_sensitive_tables` 9. `mysql_security_encryption_status`
+- Use ✅ only in inline notes during testing; omit from Final Summary
+- Do not mention what already works well or issues already documented in help resources and runtime hints
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+### After Testing
 
-1. `mysql.security.help()` → verify method listing
-2. `mysql.security.audit()` → audit results
-3. `mysql.security.firewallStatus()` → firewall status
-4. `mysql.security.firewallRules()` → firewall rules
-5. `mysql.security.maskData({value: "test@example.com", type: "email"})` → masked data
-6. `mysql.security.sslStatus()` → SSL info
-7. `mysql.security.userPrivileges({user: "root"})` → privileges
-8. `mysql.security.userPrivileges({user: "root", summary: true})` → summarized
-9. `mysql.security.sensitiveTables({database: "testdb"})` → scan results
-10. `mysql.security.passwordValidate({password: "weak"})` → weak assessment
-11. `mysql.security.passwordValidate({password: "Str0ng!Pass#2026"})` → passes
-12. `mysql.security.encryptionStatus()` → encryption info
+1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
+3. **Scope of fixes** includes corrections to any of:
+   - Handler code
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - Test database (`scripts/test-seed.sql`)
+   - This prompt
 
-**Domain error paths (🔴):**
+### After Implementation
 
-10. 🔴 `mysql.security.userPrivileges({user: "nonexistent_xyz"})` → `{success: false}` or empty
-
-**Zod validation error paths (🔴):**
-
-11. 🔴 `mysql.security.passwordValidate({})` → `{success: false, error: "Validation error: ..."}`
+4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+5. **Commit**: Stage and commit all changes — do NOT push.
+6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
+8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
 

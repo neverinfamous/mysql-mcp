@@ -150,7 +150,7 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Category 1: Export Edge Cases
+## Comprehensive Tool Coverage (backup)\n\nEnsure EVERY tool in the backup group is comprehensively tested.\n\nbackup Tool Group (7 tools +1 code mode):\n\n1. `mysql_export_table`\n2. `mysql_import_data`\n3. `mysql_create_dump`\n4. `mysql_restore_dump`\n5. `mysql_audit_list_backups`\n6. `mysql_audit_restore_backup`\n7. `mysql_audit_diff_backup`\n\n> **Instructions**: Use `mysql.backup.*` namespace.\n\n1. `mysql.backup.help()` -> verify method listing\n2. `mysql.backup.someMethod({...})` -> verify success\n3. `mysql.backup.someMethod({...})` -> verify success\n4. `mysql.backup.someMethod({...})` -> verify success\n5. `mysql.backup.someMethod({...})` -> verify success\n6. `mysql.backup.someMethod({...})` -> verify success\n7. `mysql.backup.someMethod({...})` -> verify success\n8. `mysql.backup.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n9. 🔴 `mysql.backup.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n10. 🔴 `mysql.backup.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n11. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n## Category 1: Export Edge Cases
 
 1. Create `stress_empty_export` table with 0 rows
 2. `mysql_export_table({table: "stress_empty_export"})` → verify returns empty dataset (not crash)

@@ -36,34 +36,48 @@ Never proceed to the final step until every tool in a given group has both colum
 
 ## Tool Groups Available
 
-1. `admin` (6 tools)
-2. `backup` (4 tools)
-3. `cluster` (10 tools)
-4. `core` (8 tools)
-5. `document` (9 tools)
-6. `events` (6 tools)
-7. `fulltext` (5 tools)
-8. `introspection` (6 tools)
-9. `json` (17 tools)
-10. `migration` (6 tools)
-11. `monitoring` (7 tools)
-12. `optimization` (4 tools)
-13. `partitioning` (4 tools)
-14. `performance` (11 tools)
-15. `proxysql` (11 tools)
-16. `replication` (5 tools)
-17. `roles` (8 tools)
-18. `router` (9 tools)
-19. `schema` (11 tools)
-20. `security` (9 tools)
-21. `shell` (10 tools)
-22. `spatial` (12 tools)
-23. `stats` (20 tools)
-24. `sys` (8 tools)
-25. `text` (6 tools)
-26. `transactions` (7 tools)
-
-Execute these sequentially, updating the Changelog and resolving bugs systematically before moving to the next.
+1. `admin`
+2. `backup`
+3. `cluster-group-replication`
+4. `cluster-innodb`
+5. `core`
+6. `docstore`
+7. `events`
+8. `fulltext`
+9. `introspection`
+10. `json-core`
+11. `json-enhanced`
+12. `json-helpers`
+13. `migration`
+14. `monitoring`
+15. `optimization`
+16. `partitioning`
+17. `performance-analysis`
+18. `performance-anomaly`
+19. `proxysql-config`
+20. `proxysql-status`
+21. `replication`
+22. `roles`
+23. `router`
+24. `schema-management`
+25. `schema-routines`
+26. `security`
+27. `shell-data`
+28. `shell-utils`
+29. `spatial-geometry`
+30. `spatial-operations`
+31. `spatial-queries`
+32. `spatial-setup`
+33. `stats-advanced`
+34. `stats-descriptive`
+35. `stats-window`
+36. `sys`
+37. `text`
+38. `transactions`
+39. `vector-management`
+40. `vector-search`
+41. `vector-storage`
+42. `versioning`
 
 ## Test Results
 

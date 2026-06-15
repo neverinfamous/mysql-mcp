@@ -171,9 +171,16 @@ During testing, check for these inconsistencies:
 11. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through all 10 tables.
 12. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql_cascade_simulator` again — verify it correctly flags the operation as blocked at `t5`.
 
-## Category 4: Cleanup Verification
+## Category 4: Snapshot & Risk Analysis Stress
 
-13. Drop schemas `stress_hierarchies` and `stress_circular`. Verify clean removal.
+13. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
+14. Run `mysql_schema_snapshot` on `stress_snapshots`. Verify it returns a comprehensive metadata snapshot. Check payload size for bloat.
+15. Run `mysql_migration_risks` with `ddlQuery: "DROP DATABASE stress_snapshots"`. Verify it correctly identifies the high-risk operation and affected objects.
+16. Run `mysql_migration_risks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Verify it returns a structured error.
+
+## Category 5: Cleanup Verification
+
+17. Drop schemas `stress_hierarchies`, `stress_circular`, and `stress_snapshots`. Verify clean removal.
 
 ---
 

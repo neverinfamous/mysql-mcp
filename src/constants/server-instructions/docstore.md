@@ -2,7 +2,7 @@
 
 - **Collection creation**: `mysql_doc_create_collection` creates a JSON document collection. Use `ifNotExists: true` to avoid errors when the collection already exists. Returns `{ success: false, error }` if collection already exists (without `ifNotExists`). Accepts optional `schema` parameter to create in a specific database.
 - **Collection drop**: `mysql_doc_drop_collection` removes a collection. Returns `{ success: false, error }` if collection does not exist (without `ifExists`). With `ifExists: true` (default), returns `{ success: true, message: "Collection did not exist" }` when the collection was already absent. Accepts optional `schema` parameter to target a specific database.
-- **Collection detection**: Tools identify document collections as tables containing a `doc JSON` column with an `_id` field. Manually created JSON tables may appear in collection listings.
+- **Collection detection**: `mysql_doc_list_collections` identifies document collections as tables containing a `doc JSON` column with an `_id` field. Manually created JSON tables may appear in collection listings.
 - **Nonexistent collection handling**: `mysql_doc_collection_info`, `mysql_doc_add`, `mysql_doc_find`, `mysql_doc_modify`, `mysql_doc_remove`, and `mysql_doc_create_index` return `{ exists: false, collection }` when the target collection does not exist, and `{ exists: false, schema }` when a nonexistent schema is explicitly provided. All six tools accept an optional `schema` parameter for cross-database collection access.
 - **Index creation**: `mysql_doc_create_index` returns `{ success: false, error }` if the index or its generated columns already exist. Accepts optional `schema` parameter.
 - **Filter Syntax** (for `mysql_doc_modify`, `mysql_doc_remove`):

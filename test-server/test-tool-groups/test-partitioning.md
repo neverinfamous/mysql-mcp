@@ -138,32 +138,30 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: partitioning
+## Group Focus: partitioning\n\n### partitioning Group-Specific Testing\n\npartitioning Tool Group (4 tools +1 for code mode):\n\n1. 'mysql_partition_info'\n2. 'mysql_add_partition'\n3. 'mysql_drop_partition'\n4. 'mysql_reorganize_partition'\n5. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.\n\n1. `mysql_partition_info({...})` -> verify success\n2. `mysql_add_partition({...})` -> verify success\n3. `mysql_drop_partition({...})` -> verify success\n4. `mysql_reorganize_partition({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n5. 🔴 `mysql_partition_info({...})` -> `{success: false, error: "..."}` handler error\n6. 🔴 `mysql_add_partition({...})` -> `{success: false, error: "..."}` handler error\n7. 🔴 `mysql_drop_partition({...})` -> `{success: false, error: "..."}` handler error\n8. 🔴 `mysql_reorganize_partition({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n9. 🔴 `mysql_partition_info({})` -> `{success: false, error: "..."}` (Zod validation)\n10. 🔴 `mysql_add_partition({})` -> `{success: false, error: "..."}` (Zod validation)\n11. 🔴 `mysql_drop_partition({})` -> `{success: false, error: "..."}` (Zod validation)\n12. 🔴 `mysql_reorganize_partition({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n13. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-### partitioning Group-Specific Testing
+### Reporting Rules
 
-partitioning Tool Group (4 tools +1 for code mode):
+- Use ✅ only in inline notes during testing; omit from Final Summary
+- Do not mention what already works well or issues already documented in help resources and runtime hints
 
-1. 'mysql_partition_info'
-2. 'mysql_add_partition'
-3. 'mysql_drop_partition'
-4. 'mysql_reorganize_partition'
-5. 'mysql_execute_code' (codemode, auto-added)
+### After Testing
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
+3. **Scope of fixes** includes corrections to any of:
+   - Handler code
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - Test database (`scripts/test-seed.sql`)
+   - This prompt
 
-1. `mysql_partition_info({table: "test_partitioned"})` → verify partition information returned with partition names
-2. `mysql_partition_info({table: "test_products"})` → verify response for non-partitioned table (may return empty or informational)
+### After Implementation
 
-**Domain error paths (🔴):**
-
-3. 🔴 `mysql_partition_info({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error (P154)
-
-**Zod validation error paths (🔴):**
-
-4. 🔴 `mysql_partition_info({})` → `{success: false, error: "..."}` (Zod validation)
-5. 🔴 `mysql_add_partition({})` → `{success: false, error: "..."}` (missing required params)
-6. 🔴 `mysql_drop_partition({})` → `{success: false, error: "..."}` (missing required params)
+4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+5. **Commit**: Stage and commit all changes — do NOT push.
+6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
+8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
 

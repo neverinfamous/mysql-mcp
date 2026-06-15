@@ -138,41 +138,30 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: security
+## Group Focus: security\n\n### security Group-Specific Testing\n\nsecurity Tool Group (9 tools +1 for code mode):\n\n1. 'mysql_security_audit'\n2. 'mysql_security_firewall_status'\n3. 'mysql_security_firewall_rules'\n4. 'mysql_security_mask_data'\n5. 'mysql_security_password_validate'\n6. 'mysql_security_ssl_status'\n7. 'mysql_security_user_privileges'\n8. 'mysql_security_sensitive_tables'\n9. 'mysql_security_encryption_status'\n10. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.\n\n1. `mysql_security_audit({...})` -> verify success\n2. `mysql_security_firewall_status({...})` -> verify success\n3. `mysql_security_firewall_rules({...})` -> verify success\n4. `mysql_security_mask_data({...})` -> verify success\n5. `mysql_security_password_validate({...})` -> verify success\n6. `mysql_security_ssl_status({...})` -> verify success\n7. `mysql_security_user_privileges({...})` -> verify success\n8. `mysql_security_sensitive_tables({...})` -> verify success\n9. `mysql_security_encryption_status({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n10. 🔴 `mysql_security_audit({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_security_firewall_status({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_security_firewall_rules({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_security_mask_data({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_security_password_validate({...})` -> `{success: false, error: "..."}` handler error\n15. 🔴 `mysql_security_ssl_status({...})` -> `{success: false, error: "..."}` handler error\n16. 🔴 `mysql_security_user_privileges({...})` -> `{success: false, error: "..."}` handler error\n17. 🔴 `mysql_security_sensitive_tables({...})` -> `{success: false, error: "..."}` handler error\n18. 🔴 `mysql_security_encryption_status({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n19. 🔴 `mysql_security_audit({})` -> `{success: false, error: "..."}` (Zod validation)\n20. 🔴 `mysql_security_firewall_status({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_security_firewall_rules({})` -> `{success: false, error: "..."}` (Zod validation)\n22. 🔴 `mysql_security_mask_data({})` -> `{success: false, error: "..."}` (Zod validation)\n23. 🔴 `mysql_security_password_validate({})` -> `{success: false, error: "..."}` (Zod validation)\n24. 🔴 `mysql_security_ssl_status({})` -> `{success: false, error: "..."}` (Zod validation)\n25. 🔴 `mysql_security_user_privileges({})` -> `{success: false, error: "..."}` (Zod validation)\n26. 🔴 `mysql_security_sensitive_tables({})` -> `{success: false, error: "..."}` (Zod validation)\n27. 🔴 `mysql_security_encryption_status({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n28. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-### security Group-Specific Testing
+### Reporting Rules
 
-security Tool Group (9 tools +1 for code mode):
+- Use ✅ only in inline notes during testing; omit from Final Summary
+- Do not mention what already works well or issues already documented in help resources and runtime hints
 
-1. 'mysql_security_audit'
-2. 'mysql_security_firewall_status'
-3. 'mysql_security_firewall_rules'
-4. 'mysql_security_mask_data'
-5. 'mysql_security_password_validate'
-6. 'mysql_security_ssl_status'
-7. 'mysql_security_user_privileges'
-8. 'mysql_security_sensitive_tables'
-9. 'mysql_security_encryption_status'
-10. 'mysql_execute_code' (codemode, auto-added)
+### After Testing
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
+3. **Scope of fixes** includes corrections to any of:
+   - Handler code
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - Test database (`scripts/test-seed.sql`)
+   - This prompt
 
-1. `mysql_security_audit()` → verify audit results with privilege analysis
-2. `mysql_security_ssl_status()` → verify SSL/TLS status information
-3. `mysql_security_user_privileges({user: "root"})` → verify privileges listed
-4. `mysql_security_user_privileges({user: "root", summary: true})` → verify summarized output
-5. `mysql_security_sensitive_tables({database: "testdb"})` → verify scan results
-6. `mysql_security_password_validate({password: "weak"})` → verify strength assessment (should flag as weak)
-7. `mysql_security_password_validate({password: "Str0ng!Pass#2026"})` → verify passes validation
-8. `mysql_security_encryption_status()` → verify encryption status
+### After Implementation
 
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_security_user_privileges({user: "nonexistent_user_xyz"})` → `{success: false, error: "..."}` or empty results
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql_security_password_validate({})` → `{success: false, error: "..."}` (Zod validation)
+4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+5. **Commit**: Stage and commit all changes — do NOT push.
+6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
+8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
 

@@ -150,7 +150,7 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Category 1: Role Lifecycle Collisions
+## Comprehensive Tool Coverage (roles)\n\nEnsure EVERY tool in the roles group is comprehensively tested.\n\nroles Tool Group (8 tools +1 code mode):\n\n1. `mysql_role_list`\n2. `mysql_role_create`\n3. `mysql_role_drop`\n4. `mysql_role_grants`\n5. `mysql_role_grant`\n6. `mysql_role_assign`\n7. `mysql_role_revoke`\n8. `mysql_user_roles`\n\n> **Instructions**: Use `mysql.roles.*` namespace.\n\n1. `mysql.roles.help()` -> verify method listing\n2. `mysql.roles.someMethod({...})` -> verify success\n3. `mysql.roles.someMethod({...})` -> verify success\n4. `mysql.roles.someMethod({...})` -> verify success\n5. `mysql.roles.someMethod({...})` -> verify success\n6. `mysql.roles.someMethod({...})` -> verify success\n7. `mysql.roles.someMethod({...})` -> verify success\n8. `mysql.roles.someMethod({...})` -> verify success\n9. `mysql.roles.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n10. 🔴 `mysql.roles.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n11. 🔴 `mysql.roles.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n12. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n## Category 1: Role Lifecycle Collisions
 
 1. `mysql_role_create({name: "stress_role_a"})` → success
 2. `mysql_role_create({name: "stress_role_a"})` again → verify structured `{success: false}` (duplicate)

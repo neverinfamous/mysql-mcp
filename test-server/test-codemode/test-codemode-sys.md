@@ -150,25 +150,30 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: sys
+## Group Focus: sysschema\n\nsysschema Tool Group (8 tools +1 code mode):\n\n1. `mysql_sys_user_summary`\n2. `mysql_sys_io_summary`\n3. `mysql_sys_statement_summary`\n4. `mysql_sys_wait_summary`\n5. `mysql_sys_innodb_lock_waits`\n6. `mysql_sys_schema_stats`\n7. `mysql_sys_host_summary`\n8. `mysql_sys_memory_summary`\n\n> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.\n\n1. `mysql.sys.help()` -> verify method listing\n2. `mysql.sys.someMethod({...})` -> verify success\n3. `mysql.sys.someMethod({...})` -> verify success\n4. `mysql.sys.someMethod({...})` -> verify success\n5. `mysql.sys.someMethod({...})` -> verify success\n6. `mysql.sys.someMethod({...})` -> verify success\n7. `mysql.sys.someMethod({...})` -> verify success\n8. `mysql.sys.someMethod({...})` -> verify success\n9. `mysql.sys.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n10. 🔴 `mysql.sys.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n11. 🔴 `mysql.sys.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n12. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-sys Tool Group (8 tools +1 code mode):
+### Reporting Rules
 
-1. `mysql_sys_user_summary` 2. `mysql_sys_io_summary` 3. `mysql_sys_statement_summary`
-2. `mysql_sys_wait_summary` 5. `mysql_sys_innodb_lock_waits` 6. `mysql_sys_schema_stats`
-3. `mysql_sys_host_summary` 8. `mysql_sys_memory_summary`
+- Use ✅ only in inline notes during testing; omit from Final Summary
+- Do not mention what already works well or issues already documented in help resources and runtime hints
 
-> **Instructions**: Use `mysql.sysschema.*` namespace, push deviations to `failures` array.
+### After Testing
 
-1. `mysql.sysschema.help()` → verify method listing
-2. `mysql.sysschema.userSummary()` → user resource usage
-3. `mysql.sysschema.ioSummary()` → I/O metrics
-4. `mysql.sysschema.statementSummary()` → statement analysis
-5. `mysql.sysschema.waitSummary()` → wait events
-6. `mysql.sysschema.innodbLockWaits()` → lock info (may be empty)
-7. `mysql.sysschema.schemaStats()` → table/index sizes
-8. `mysql.sysschema.hostSummary()` → host metrics
-9. `mysql.sysschema.memorySummary()` → memory usage
+1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
+3. **Scope of fixes** includes corrections to any of:
+   - Handler code
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - Test database (`scripts/test-seed.sql`)
+   - This prompt
+
+### After Implementation
+
+4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+5. **Commit**: Stage and commit all changes — do NOT push.
+6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
+8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
 

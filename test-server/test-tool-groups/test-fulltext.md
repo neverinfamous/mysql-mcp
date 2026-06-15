@@ -169,6 +169,12 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 8. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor from previous call>"})` → verify pagination
 9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
 
+**Create → Search → Drop lifecycle:**
+
+10. `mysql_fulltext_create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
+11. `mysql_fulltext_search({table: "test_users", columns: ["bio"], query: "developer"})` → results
+12. `mysql_fulltext_drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+
 **Domain error paths (🔴):**
 
 6. 🔴 `mysql_fulltext_search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false, error: "..."}` handler error

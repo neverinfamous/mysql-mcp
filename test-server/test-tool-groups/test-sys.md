@@ -138,39 +138,30 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: sys
+## Group Focus: sysschema\n\n### sysschema Group-Specific Testing\n\nsysschema Tool Group (8 tools +1 for code mode):\n\n1. 'mysql_sys_user_summary'\n2. 'mysql_sys_io_summary'\n3. 'mysql_sys_statement_summary'\n4. 'mysql_sys_wait_summary'\n5. 'mysql_sys_innodb_lock_waits'\n6. 'mysql_sys_schema_stats'\n7. 'mysql_sys_host_summary'\n8. 'mysql_sys_memory_summary'\n9. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.\n\n1. `mysql_sys_user_summary({...})` -> verify success\n2. `mysql_sys_io_summary({...})` -> verify success\n3. `mysql_sys_statement_summary({...})` -> verify success\n4. `mysql_sys_wait_summary({...})` -> verify success\n5. `mysql_sys_innodb_lock_waits({...})` -> verify success\n6. `mysql_sys_schema_stats({...})` -> verify success\n7. `mysql_sys_host_summary({...})` -> verify success\n8. `mysql_sys_memory_summary({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n9. 🔴 `mysql_sys_user_summary({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_sys_io_summary({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_sys_statement_summary({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_sys_wait_summary({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_sys_innodb_lock_waits({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_sys_schema_stats({...})` -> `{success: false, error: "..."}` handler error\n15. 🔴 `mysql_sys_host_summary({...})` -> `{success: false, error: "..."}` handler error\n16. 🔴 `mysql_sys_memory_summary({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n17. 🔴 `mysql_sys_user_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n18. 🔴 `mysql_sys_io_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🔴 `mysql_sys_statement_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n20. 🔴 `mysql_sys_wait_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_sys_innodb_lock_waits({})` -> `{success: false, error: "..."}` (Zod validation)\n22. 🔴 `mysql_sys_schema_stats({})` -> `{success: false, error: "..."}` (Zod validation)\n23. 🔴 `mysql_sys_host_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n24. 🔴 `mysql_sys_memory_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n25. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-### sys Group-Specific Testing
+### Reporting Rules
 
-sys Tool Group (8 tools +1 for code mode):
+- Use ✅ only in inline notes during testing; omit from Final Summary
+- Do not mention what already works well or issues already documented in help resources and runtime hints
 
-1. 'mysql_sys_user_summary'
-2. 'mysql_sys_io_summary'
-3. 'mysql_sys_statement_summary'
-4. 'mysql_sys_wait_summary'
-5. 'mysql_sys_innodb_lock_waits'
-6. 'mysql_sys_schema_stats'
-7. 'mysql_sys_host_summary'
-8. 'mysql_sys_memory_summary'
-9. 'mysql_execute_code' (codemode, auto-added)
+### After Testing
 
-> **Note**: These tools query the `sys` schema. Results depend on server activity. Focus on verifying response structure and error handling.
+1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
+3. **Scope of fixes** includes corrections to any of:
+   - Handler code
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - Test database (`scripts/test-seed.sql`)
+   - This prompt
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+### After Implementation
 
-1. `mysql_sys_user_summary()` → verify user resource usage structure
-2. `mysql_sys_io_summary()` → verify I/O metrics structure
-3. `mysql_sys_statement_summary()` → verify statement analysis
-4. `mysql_sys_wait_summary()` → verify wait events analysis
-5. `mysql_sys_innodb_lock_waits()` → verify response (may be empty if no locks)
-6. `mysql_sys_schema_stats()` → verify table/index size information
-7. `mysql_sys_host_summary()` → verify host-based metrics
-8. `mysql_sys_memory_summary()` → verify memory usage breakdown
-
-**Wrong-type numeric param coercion (🔴):**
-
-9. 🔴 `mysql_sys_statement_summary({limit: "abc"})` → must NOT return raw MCP error
-10. 🔴 `mysql_sys_schema_stats({limit: "abc"})` → must NOT return raw MCP error
+4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+5. **Commit**: Stage and commit all changes — do NOT push.
+6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
+8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
 

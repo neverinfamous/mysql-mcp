@@ -162,14 +162,15 @@ monitoring Tool Group (7 tools +1 for code mode):
 5. `mysql_innodb_status({summary: true})` → verify summarized output (smaller payload)
 6. `mysql_pool_stats()` → verify connection pool statistics
 7. `mysql_server_health()` → verify `{status: "..."}` with health assessment
+8. `mysql_replication_status()` → verify replica status or configured: false
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql_show_status({like: "nonexistent_var_xyz"})` → empty results or structured error — not raw MCP error
+9. 🔴 `mysql_show_status({like: "nonexistent_var_xyz"})` → empty results or structured error — not raw MCP error
 
 **Wrong-type numeric param coercion (🔴):**
 
-9. 🔴 `mysql_show_variables({limit: "abc"})` → must NOT return raw MCP error (wrong-type numeric param)
+10. 🔴 `mysql_show_variables({limit: "abc"})` → must NOT return raw MCP error
 
 ---
 

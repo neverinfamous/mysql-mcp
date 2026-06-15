@@ -163,6 +163,7 @@ text Tool Group (6 tools +1 for code mode):
 3. `mysql_soundex({table: "test_users", column: "username", value: "john"})` → verify phonetic matches
 4. `mysql_substring({table: "test_users", column: "email", start: 1, length: 5})` → first 5 chars of each email
 5. `mysql_concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated values
+6. `mysql_collation_convert({table: "test_users", column: "email", charset: "utf8mb4", collation: "utf8mb4_bin"})` → preview conversion
 
 **Domain error paths (🔴):**
 

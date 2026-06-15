@@ -78,7 +78,8 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Kill**: \`mysql_kill_query\` terminates queries by process ID. Use \`connection: true\` to kill the entire connection. Returns \`{ success: false, error }\` for invalid process IDs.
 - **Server Config**: \`mysql_server_config\` allows getting and setting runtime configuration values for the server without a restart (e.g., dynamically changing \`logLevel\`).
 - **Error handling**: \`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, and \`mysql_repair_table\` return MySQL's native per-table \`results\` array. Nonexistent tables are automatically intercepted and return a structured error with \`code: "MAINTENANCE_ERROR"\`.
-- **Insight**: \`mysql_append_insight\` records a business insight to the in-memory insights memo. Insights are accessible via \`mysql://insights\` resource. Max 1000 chars per insight.`],
+- **Insight**: \`mysql_append_insight\` records a business insight to the in-memory insights memo. Insights are accessible via \`mysql://insights\` resource. Max 1000 chars per insight.
+- **Audit**: \`mysql_audit_search\` queries the system audit logs for events matching specific criteria (e.g., action, user, timeframe).`],
   ["backup", `# Backup Tools (\`mysql_export_table\`, \`mysql_import_data\`, etc.)
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats.
@@ -89,7 +90,14 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Export error handling**: \`mysql_export_table\` returns a structured error with \`code: "TABLE_NOT_FOUND"\` for nonexistent tables and standard handler errors for other query issues (e.g., invalid WHERE clause, unknown column). No raw exceptions are thrown.
 - **Import prerequisite**: \`mysql_import_data\` requires the target table to already exist. Returns a structured error with \`code: "TABLE_NOT_FOUND"\` gracefully if the table does not exist.
 - **Import error handling**: \`mysql_import_data\` returns structured errors (e.g., \`VALIDATION_ERROR\`, \`TABLE_NOT_FOUND\`) for all insertion failures instead of throwing, reporting how many rows were successfully inserted before the error via \`details.rowsInserted\`.
-- **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.`],
+- **Dump commands**: \`mysql_create_dump\` and \`mysql_restore_dump\` generate CLI commands—they do not execute directly.
+
+## Audit Backups (\`mysql_audit_list_backups\`, \`mysql_audit_restore_backup\`, \`mysql_audit_diff_backup\`)
+
+- **Audit Backup availability**: These tools interact with the Audit Backup Manager, which creates data snapshots before destructive operations when \`--audit-backup\` is enabled. If disabled, these tools return a structured \`CONFIGURATION_ERROR\` error indicating the feature is not enabled.
+- **List backups**: \`mysql_audit_list_backups\` lists available backups. Use \`limit\` parameter to restrict the output (default: 10). Use \`table\` parameter to filter snapshots by table name.
+- **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential between the current table state and the snapshot state. Requires a valid \`backupId\`. Returns \`{ success: false, error }\` if the backup ID does not exist.
+- **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table to its snapshot state. Requires \`backupId\`. Set \`dryRun: true\` (default) to preview the restore actions (INSERTs, UPDATEs, DELETEs) without executing them. Set \`dryRun: false\` to actually apply the changes. Returns \`{ success: false, error }\` if the backup ID does not exist.`],
   ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
 
 ## Group Replication (\`mysql_gr_*\`)
@@ -121,7 +129,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
 - **Collection drop**: \`mysql_doc_drop_collection\` removes a collection. Returns \`{ success: false, error }\` if collection does not exist (without \`ifExists\`). With \`ifExists: true\` (default), returns \`{ success: true, message: "Collection did not exist" }\` when the collection was already absent. Accepts optional \`schema\` parameter to target a specific database.
-- **Collection detection**: Tools identify document collections as tables containing a \`doc JSON\` column with an \`_id\` field. Manually created JSON tables may appear in collection listings.
+- **Collection detection**: \`mysql_doc_list_collections\` identifies document collections as tables containing a \`doc JSON\` column with an \`_id\` field. Manually created JSON tables may appear in collection listings.
 - **Nonexistent collection handling**: \`mysql_doc_collection_info\`, \`mysql_doc_add\`, \`mysql_doc_find\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, and \`mysql_doc_create_index\` return \`{ exists: false, collection }\` when the target collection does not exist, and \`{ exists: false, schema }\` when a nonexistent schema is explicitly provided. All six tools accept an optional \`schema\` parameter for cross-database collection access.
 - **Index creation**: \`mysql_doc_create_index\` returns \`{ success: false, error }\` if the index or its generated columns already exist. Accepts optional \`schema\` parameter.
 - **Filter Syntax** (for \`mysql_doc_modify\`, \`mysql_doc_remove\`):
@@ -137,11 +145,11 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Scheduler status**: \`mysql_scheduler_status\` shows global scheduler state (ON/OFF), event counts, and recently executed events.
 - **Event types**: \`mysql_event_create\` supports ONE TIME (specify \`executeAt\`) and RECURRING (specify \`interval\`, \`intervalUnit\`, optional \`starts\`/\`ends\`). Use \`ifNotExists: true\` to skip creation if the event already exists.
 - **Graceful error handling**: \`mysql_event_create\` returns \`{ success: false, error }\` when the event already exists (without \`ifNotExists\`). \`mysql_event_alter\` and \`mysql_event_drop\` (without \`ifExists\`) return \`{ success: false, error }\` when the event does not exist. \`mysql_event_drop\` with \`ifExists: true\` returns \`{ success: true, skipped: true, reason: "Event did not exist" }\` when the event was already absent.
-- **Event status**: \`mysql_event_status\` returns \`{ exists: false, name }\` gracefully when the event is not found, instead of throwing an error.
+- **Event status**: \`mysql_event_status\` returns a structured error \`{ success: false, error: ... }\` gracefully when the event is not found, instead of throwing an error.
 - **Event lifecycle**: Use \`enabled: false\` when creating/testing events. \`onCompletion: "PRESERVE"\` keeps events after expiry.
 - **Alter operations**: \`mysql_event_alter\` can enable/disable, change schedule/body, change \`onCompletion\` (PRESERVE/NOT PRESERVE), update comment, or rename (via \`newName\`).
 - **Listing events**: \`mysql_event_list\` accepts \`includeDisabled\` (default: true) to filter out disabled events.
-- **Cross-schema**: Both \`mysql_event_list\` and \`mysql_event_status\` accept \`schema\` parameter to query other databases. Both return \`{ exists: false, schema }\` when the specified schema does not exist.`],
+- **Cross-schema**: Both \`mysql_event_list\` and \`mysql_event_status\` accept \`schema\` parameter to query other databases. Both return a structured error \`{ success: false, error: ... }\` when the specified schema does not exist.`],
   ["fulltext", `# Fulltext Search (\`mysql_fulltext_*\`)
 
 - **Index management**: \`mysql_fulltext_create\` creates a FULLTEXT index (returns \`{ success: false, error }\` if index already exists), \`mysql_fulltext_drop\` removes it (returns \`{ success: false, error }\` if index does not exist).
@@ -292,7 +300,10 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Server-level tools**: \`mysql_slow_queries\`, \`mysql_query_stats\`, \`mysql_buffer_pool_stats\`, and \`mysql_thread_stats\` query server-level \`performance_schema\` metadata. They do not take a table parameter and return empty results when no data is available. No table existence checks apply.
 - **Buffer pool**: \`mysql_buffer_pool_stats\` shows InnoDB memory usage and hit rates.
 - **Thread stats**: \`mysql_thread_stats\` shows active threads with user, host, database, command, and connection type.
-- **Error handling**: \`mysql_explain\` and \`mysql_explain_analyze\` return \`{ exists: false, error }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., syntax errors). No raw MySQL errors are thrown.`],
+- **Error handling**: \`mysql_explain\` and \`mysql_explain_analyze\` return \`{ exists: false, error }\` for nonexistent tables and \`{ success: false, error }\` for other query errors (e.g., syntax errors). No raw MySQL errors are thrown.
+- **Anomaly detection**: \`mysql_detect_query_anomalies\` identifies queries with unusual execution times using standard deviation thresholds.
+- **Bloat risk**: \`mysql_detect_bloat_risk\` identifies tables with significant data/index fragmentation.
+- **Connection spikes**: \`mysql_detect_connection_spike\` analyzes recent connection rates against a baseline to flag potential spikes or connection leaks.`],
   ["proxysql", `# ProxySQL Tools (\`mysql_proxysql_*\`)
 
 - **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032). Connection is configured via \`PROXYSQL_HOST\`, \`PROXYSQL_PORT\`, \`PROXYSQL_USER\`, \`PROXYSQL_PASSWORD\` environment variables (defaults: \`localhost\`, \`6032\`, \`admin\`, \`admin\`). The Docker test environment uses \`radmin\`/\`radmin\`.
@@ -329,6 +340,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Self-signed certificates**: Set \`MYSQL_ROUTER_INSECURE=true\` to bypass TLS certificate verification for development/testing environments.
 - **Route names**: Use \`mysql_router_routes\` to list available routes (e.g., \`bootstrap_rw\`, \`bootstrap_ro\`).
 - **Metadata cache**: The \`metadataName\` parameter is typically \`bootstrap\` for bootstrapped routers.
+- **Aliases**: \`routeName\`, \`metadataName\`, and \`poolName\` parameters all support \`name\` as an alias.
 - **Connection pools**: \`mysql_router_pool_status\` requires the \`[rest_connection_pool]\` REST plugin AND \`connection_sharing=1\` on routes. Without these, the endpoint returns 404. When enabled, pool name is \`main\`.
 - **Unavailability handling**: When Router REST API is unreachable, tools return \`{ available: false, error: "..." }\` with descriptive error message instead of throwing. When a specific route, metadata cache, or connection pool name does not exist (404), tools return \`{ success: false, error: "..." }\` matching the standard error convention.`],
   ["schema", `# Schema Tools (\`mysql_list_schemas\`, \`mysql_create_view\`, etc.)
@@ -336,8 +348,8 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Schema management**: \`mysql_list_schemas\` lists databases with charset/collation. Use \`pattern\` for LIKE filtering (e.g., \`pattern: "app_%"\`). \`mysql_create_schema\` and \`mysql_drop_schema\` manage databases.
 - **Graceful schema errors**: \`mysql_create_schema\` returns \`{ success: false, error }\` when the schema already exists (with \`ifNotExists: false\`). With \`ifNotExists: true\` (default), returns \`{ success: true, skipped: true, reason: "Schema already exists" }\` for existing schemas. \`mysql_drop_schema\` returns \`{ success: false, error }\` when the schema does not exist (with \`ifExists: false\`). With \`ifExists: true\` (default), returns \`{ success: true, skipped: true, reason: "Schema did not exist" }\` for nonexistent schemas.
 - **Views**: \`mysql_create_view\` supports \`orReplace\` (default: false), \`algorithm\` (UNDEFINED/MERGE/TEMPTABLE), and \`checkOption\` (NONE/CASCADED/LOCAL). Returns \`{ success: false, error }\` when the view already exists without \`orReplace\` or when the SQL definition is invalid (e.g., referencing nonexistent tables). \`mysql_list_views\` shows definitions, security type, check option, and updatability (algorithm is not included in the listing output).
-- **Constraints**: \`mysql_list_constraints\` returns primary keys, foreign keys, unique, and check constraints. Use \`type\` parameter to filter (e.g., \`type: "FOREIGN KEY"\`). Returns \`{ exists: false, table }\` when the table does not exist.
-- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects. All accept optional \`schema\` parameter for cross-database inspection. \`mysql_list_triggers\` also accepts optional \`table\` parameter to filter by table name. Returns \`{ exists: false, table }\` when the specified table does not exist. \`mysql_list_events\` also accepts \`status\` filter (\`ENABLED\`, \`DISABLED\`, \`SLAVESIDE_DISABLED\`). Returns \`{ exists: false, schema }\` when the specified schema does not exist.
+- **Constraints**: \`mysql_list_constraints\` returns primary keys, foreign keys, unique, and check constraints. Use \`type\` parameter to filter (e.g., \`type: "FOREIGN KEY"\`). Returns a structured error \`{ success: false, error: ... }\` when the table does not exist.
+- **Introspection**: \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_list_events\` enumerate database objects. All accept optional \`schema\` parameter for cross-database inspection. \`mysql_list_triggers\` also accepts optional \`table\` parameter to filter by table name. Returns a structured error \`{ success: false, error: ... }\` when the specified table does not exist. \`mysql_list_events\` also accepts \`status\` filter (\`ENABLED\`, \`DISABLED\`, \`SLAVESIDE_DISABLED\`). Returns a structured error \`{ success: false, error: ... }\` when the specified schema does not exist.
 - **Live Notifications**: MCP clients can subscribe to \`mysql://schema\`, \`mysql://tables\`, or specific tables (\`mysql://table/{name}\`) to receive event-driven notifications when DDL changes occur (e.g., creating/dropping tables or views).`],
   ["security", `# Security Tools (\`mysql_security_*\`)
 
@@ -360,7 +372,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **JSON import**: \`mysqlsh_import_json\` uses \`util.importJson()\` for document import. Supports both NDJSON (one JSON object per line) and multi-line JSON objects. **Does NOT support JSON arrays.** **Requires X Protocol (port 33060)**.
 - **Dump utilities**: \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\` create compressed parallel dumps. Use \`dryRun: true\` to preview. All dump tools return structured error messages for privilege issues with actionable guidance.
 - **Load utility**: \`mysqlsh_load_dump\` restores dumps. Requires \`local_infile\` enabled or \`updateServerSettings: true\`. Use \`dryRun: true\` to preview what would be loaded without applying changes. Returns \`{ success: false, error, hint }\` for duplicate object conflicts.
-- **Filesystem Sandbox**: Any tools interacting with the filesystem (\`mysqlsh_export_table\`, dump/load) strictly enforce absolute paths that must resolve within the configured \`ALLOWED_IO_ROOTS\`.
+- **Filesystem Sandbox**: Any tools interacting with the filesystem (\`mysqlsh_export_table\`, dump/load) strictly enforce absolute paths that must resolve within the configured \`ALLOWED_IO_ROOTS\`. You may use \`outputUrl\` instead of \`outputPath\` and \`inputUrl\` instead of \`inputDir\` or \`inputPath\`.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use \`ddlOnly: true\` (schemas) or \`all: false\` (tables) to skip restricted metadata.
 - **Error handling**: All shell tools return \`{ success: false, error }\` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a \`hint\` field with actionable remediation guidance.`],
   ["spatial", `# Spatial Tools (\`mysql_spatial_*\`)
@@ -376,15 +388,11 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Error Handling (P154)**: Table-querying tools (\`distance\`, \`distance_sphere\`, \`contains\`, \`within\`, \`create_column\`, \`create_index\`) return \`{ exists: false, table }\` for nonexistent tables. \`create_column\` returns \`{ success: false, error }\` for duplicate columns. All tools return \`{ success: false, error }\` for invalid WKT, coordinates, SRIDs, or other MySQL errors instead of raw exceptions.`],
   ["stats", `# Stats Tools (\`mysql_stats_*\`)
 
-- **Descriptive statistics**: \`mysql_stats_descriptive\` returns mean, median, stddev, min, max, count for numeric columns. Supports \`where\` filtering.
-- **Percentiles**: \`mysql_stats_percentiles\` calculates custom percentile values (default: p25, p50, p75, p90, p95, p99).
-- **Correlation**: \`mysql_stats_correlation\` calculates Pearson correlation between two numeric columns with interpretation.
-- **Distribution**: \`mysql_stats_distribution\` analyzes value distribution with configurable histogram buckets.
-- **Time series**: \`mysql_stats_time_series\` aggregates data by time intervals (minute/hour/day/week/month) with sum/avg/count/min/max.
-- **Regression**: \`mysql_stats_regression\` performs simple linear regression (y = mx + b) with R² fit analysis.
-- **Sampling**: \`mysql_stats_sampling\` returns random rows. Use \`seed\` for reproducibility, \`columns\` to limit output.
-- **Histogram**: \`mysql_stats_histogram\` views MySQL 8.0+ optimizer histogram statistics. Use \`update: true\` to create/refresh. Returns \`{ exists: false, table }\` when the table does not exist, and \`{ exists: false, column, table, message }\` when the column does not exist on the table.
-- **Error handling**: All stats tools return \`{ exists: false, table }\` gracefully when the table does not exist, and \`{ success: false, error }\` for other query errors (e.g., unknown column). No raw MySQL errors are thrown.`],
+- **Descriptive**: \`mysql_stats_descriptive\` (mean, median, stddev, min, max, count), \`mysql_stats_percentiles\` (custom percentiles), \`mysql_stats_distribution\` (histogram buckets), \`mysql_stats_time_series\` (aggregates by time interval), \`mysql_stats_sampling\` (random rows).
+- **Comparative**: \`mysql_stats_correlation\` (Pearson correlation), \`mysql_stats_regression\` (simple linear regression), \`mysql_stats_histogram\` (MySQL 8.0+ optimizer histograms, use \`update: true\` to refresh).
+- **Advanced**: \`mysql_stats_hypothesis\` (t-tests between groups), \`mysql_stats_outliers\` (z-score/iqr outlier detection), \`mysql_stats_top_n\` (top N rows excluding long content), \`mysql_stats_distinct\` (distinct counts and values), \`mysql_stats_frequency\` (value frequency distribution), \`mysql_stats_summary\` (summary of multiple numeric columns).
+- **Window**: \`mysql_stats_row_number\`, \`mysql_stats_rank\`, \`mysql_stats_lag_lead\`, \`mysql_stats_running_total\`, \`mysql_stats_moving_avg\`, \`mysql_stats_ntile\`.
+- **Error handling**: All stats tools return \`{ success: false, error: "...", code: "..." }\` when a table or column does not exist, or for Zod validation errors. No raw MySQL errors are thrown.`],
   ["sysschema", `# Sys Schema Tools (\`mysql_sys_*\`)
 
 - **User/Host activity**: \`mysql_sys_user_summary\` and \`mysql_sys_host_summary\` show connection counts, statement latency, and I/O metrics. Filter with \`user\` or \`host\` parameters.
@@ -394,7 +402,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Lock contention**: \`mysql_sys_innodb_lock_waits\` shows active lock waits. Returns \`hasContention: false\` when none.
 - **Memory usage**: \`mysql_sys_memory_summary\` returns \`globalMemory\` (by event type) and \`memoryByUser\` arrays with corresponding \`globalMemoryCount\` and \`memoryByUserCount\` fields. The \`limit\` parameter (default 10) applies to both arrays.
 - **Schema stats**: \`mysql_sys_schema_stats\` returns 3 arrays: \`tableStatistics\` (DML and I/O per table), \`indexStatistics\` (per-index usage), and \`autoIncrementStatus\` (usage ratios), each with a corresponding count field (\`tableStatisticsCount\`, \`indexStatisticsCount\`, \`autoIncrementStatusCount\`). Filter by \`schema\` (defaults to current database). Returns \`{ success: false, error }\` when the specified schema does not exist. The \`limit\` parameter (default 10) applies per array.`],
-  ["text", `# Text Tools (\`mysql_like_search\`, \`mysql_regexp_match\`, etc.)
+  ["text", `# Text Tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`)
 
 - **LIKE patterns**: \`%\` matches any characters, \`_\` matches single character.
 - **Regex**: Uses MySQL regex syntax (not PCRE). Example: \`^[A-Z].*@.*\\.com$\`
