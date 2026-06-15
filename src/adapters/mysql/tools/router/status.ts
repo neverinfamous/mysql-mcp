@@ -1,5 +1,5 @@
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
-import { withTokenEstimate } from "../core/error-helpers.js";
+import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import {
   RouterBaseInputSchema,
   RouterStatusOutputSchema,
@@ -25,14 +25,19 @@ export function createRouterStatusTool(): ToolDefinition {
       sensitiveHint: false,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await safeRouterFetch("/router/status");
-      if (!result.success) {
-        return result.response;
+      try {
+        RouterBaseInputSchema.parse(_params);
+        const result = await safeRouterFetch("/router/status");
+        if (!result.success) {
+          return result.response;
+        }
+        return withTokenEstimate({
+          success: true,
+          data: result.data,
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-      return withTokenEstimate({
-        success: true,
-        data: result.data,
-      });
     },
   };
 }
@@ -55,14 +60,19 @@ export function createRouterRoutesTool(): ToolDefinition {
       sensitiveHint: false,
     },
     handler: async (_params: unknown, _context: RequestContext) => {
-      const result = await safeRouterFetch("/routes");
-      if (!result.success) {
-        return result.response;
+      try {
+        RouterBaseInputSchema.parse(_params);
+        const result = await safeRouterFetch("/routes");
+        if (!result.success) {
+          return result.response;
+        }
+        return withTokenEstimate({
+          success: true,
+          data: result.data,
+        });
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-      return withTokenEstimate({
-        success: true,
-        data: result.data,
-      });
     },
   };
 }
