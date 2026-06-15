@@ -99,6 +99,7 @@
 - Removed the `if` constraint from the Docker Hub description update workflow step, enabling automated description updates upon every successful Docker image deployment.
 - Cleansed `SECURITY.md` of copy-paste legacy artifacts from `postgres-mcp`, accurately replacing them with MySQL-specific bounds (e.g., 64-character constraints, MySQL parameters, and `writenotenow/mysql-mcp` references).
 - Re-nested `constants.ts` and distinctly grouped `monitoring` and `backup` handler files within the agent-facing `test-server/code-map.md` architecture map.
+- Fixed a structural parity discrepancy in `test-server/code-map.md` where `admin/audit-backup.ts` was visually mapped under the `admin` tool group instead of the `backup` group, accurately realigning it with the internal `tool-constants.ts` configuration.
 - Fixed an issue in `scripts/reboot-cluster.ps1` where standard warnings written to `STDERR` (e.g., `LC_ALL` locale warnings, insecure password warnings) were incorrectly caught as terminating errors by PowerShell due to strict `$ErrorActionPreference = "Stop"` settings.
 - Fixed an issue in the `audit-backup` E2E test suite where validation assertions failed because the test was not unwrapping the `.data` property from the tool responses.
 - Fixed strict `OutputSchema` validation failures across the JSON, Spatial, and Stats tools (e.g. `mysql_stats_histogram`, `mysql_stats_correlation`, `mysql_spatial_geojson`, and `mysql_json_*`) by updating field schemas to properly handle `nullish()` and `optional()` values matching runtime returns.
