@@ -85,6 +85,9 @@ export function createProxySQLGlobalVariablesTool(): ToolDefinition {
             return {
               success: false,
               error: `Invalid like pattern: '${like}' — only alphanumeric, underscore, dash, dot, percent (%), and space characters are allowed`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
           }
           const sanitizedLike = like.replace(/'/g, "''");
