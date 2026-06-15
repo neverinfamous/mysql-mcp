@@ -173,4 +173,4 @@
 - Fixed unstructured error payloads in the `performance` tool group (`mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`) by replacing manual error objects with standard `ValidationError` and `ExtensionNotAvailableError` exceptions.
 - Fixed a Split Schema pattern violation in `mysql_router_pool_status` where `poolName` incorrectly defaulted to `main` instead of rejecting empty input, preventing expected Zod validation errors on empty parameters.
 - Fixed an outdated error assertion in `anomaly-detection.test.ts` to match the newly updated error message format for missing extensions.
-
+- Fixed inaccurate parameter documentation in `mysql_stats_hypothesis` where the `group1` and `group2` aliases were incorrectly advertised for a one-sample test, updating them to accurately reflect `groupColumn` and `valueColumn`. Updated corresponding code mode test prompts to use the correct inputs.
