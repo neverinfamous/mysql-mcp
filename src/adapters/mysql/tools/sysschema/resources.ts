@@ -96,6 +96,8 @@ export function createSysSchemaStatsTool(
             return withTokenEstimate({
               success: false,
               error: `Schema '${schema}' does not exist`,
+              code: "NOT_FOUND_ERROR",
+              category: "not_found",
             });
           }
         }

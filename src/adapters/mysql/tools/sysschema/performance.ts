@@ -127,6 +127,8 @@ export function createSysStatementSummaryTool(
           return withTokenEstimate({
             success: false,
             error: `Invalid orderBy: '${orderBy}' — expected one of: ${VALID_ORDER_BY.join(", ")}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
           });
         }
 
@@ -194,6 +196,8 @@ export function createSysWaitSummaryTool(
           return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_WAIT_TYPES.join(", ")}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
           });
         }
 
@@ -297,6 +301,8 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_IO_TYPES.join(", ")}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
           });
         }
 
