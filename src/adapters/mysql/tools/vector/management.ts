@@ -104,13 +104,11 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
         const column = sanitizeIdentifier(validated.column);
         
         const indexName = `idx_${table}_${column}_vec`;
-        const metricLiteral = validated.metric === "DOT" ? "DOT" : validated.metric === "EUCLIDEAN" ? "EUCLIDEAN" : "COSINE";
 
-        // Syntax: ALTER TABLE t1 ADD VECTOR INDEX idx_t1_c1_vec (c1) WITH (distance='COSINE');
+        // Syntax: ALTER TABLE t1 ADD VECTOR INDEX idx_t1_c1_vec (c1)
         const query = `
           ALTER TABLE \`${table}\` 
-          ADD VECTOR INDEX \`${indexName}\` (\`${column}\`) 
-          WITH (distance='${metricLiteral}')
+          ADD VECTOR INDEX \`${indexName}\` (\`${column}\`)
         `;
 
         await adapter.executeQuery(query);

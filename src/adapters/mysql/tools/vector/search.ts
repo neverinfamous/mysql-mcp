@@ -60,10 +60,10 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
           FROM \`${table}\`
           ${whereClause}
           ORDER BY distance ASC
-          LIMIT ?
+          LIMIT ${validated.k}
         `;
 
-        const result = await adapter.executeQuery(query, [vectorStr, validated.k]);
+        const result = await adapter.executeQuery(query, [vectorStr]);
 
         // Transform results to parse the vector strings
         const transformedRows = (result.rows ?? []).map(row => {
@@ -83,8 +83,31 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
             count: transformedRows.length
           }
         });
-      } catch (e) {
-        return formatHandlerErrorResponse(e);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        console.error("DEBUG CATCH BLOCK:", msg);
+        if (msg.includes("FUNCTION") && msg.includes("DISTANCE") && msg.includes("does not exist")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Vector distance functions require MySQL HeatWave or a specific vector plugin.",
+              "EXTENSION_MISSING",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Vector similarity search is only available in MySQL HeatWave or with compatible plugins." }
+            )
+          );
+        }
+        if (msg.includes("doesn't exist")) {
+          const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Table '${String(tableName)}' does not exist`,
+              "TABLE_NOT_FOUND",
+              ErrorCategory.QUERY,
+              { suggestion: "Use mysql_list_tables to find available tables" }
+            )
+          );
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -125,10 +148,10 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
           ${whereClause}
           HAVING distance <= ?
           ORDER BY distance ASC
-          LIMIT ?
+          LIMIT ${validated.limit}
         `;
 
-        const result = await adapter.executeQuery(query, [vectorStr, validated.maxDistance, validated.limit]);
+        const result = await adapter.executeQuery(query, [vectorStr, validated.maxDistance]);
 
         const transformedRows = (result.rows ?? []).map(row => {
           const { vector_str, ...rest } = row;
@@ -148,8 +171,30 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
             count: transformedRows.length
           }
         });
-      } catch (e) {
-        return formatHandlerErrorResponse(e);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("FUNCTION") && msg.includes("DISTANCE") && msg.includes("does not exist")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Vector distance functions require MySQL HeatWave or a specific vector plugin.",
+              "EXTENSION_MISSING",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Vector similarity search is only available in MySQL HeatWave or with compatible plugins." }
+            )
+          );
+        }
+        if (msg.includes("doesn't exist")) {
+          const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Table '${String(tableName)}' does not exist`,
+              "TABLE_NOT_FOUND",
+              ErrorCategory.QUERY,
+              { suggestion: "Use mysql_list_tables to find available tables" }
+            )
+          );
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -228,7 +273,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
                 SELECT \`${pkCol}\`, DISTANCE(\`${vCol}\`, STRING_TO_VECTOR(?), '${metricLiteral}') as distance
                 FROM \`${table}\`
                 ${whereClause}
-                ORDER BY distance ASC LIMIT ?
+                ORDER BY distance ASC LIMIT ${limit}
               ) ranked_v
             ),
             text_results AS (
@@ -238,7 +283,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
                 SELECT \`${pkCol}\`, MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) as text_score
                 FROM \`${table}\`
                 WHERE MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) ${filterAnd}
-                ORDER BY text_score DESC LIMIT ?
+                ORDER BY text_score DESC LIMIT ${limit}
               ) ranked_t
             )
             SELECT t.${selectCols === '*' ? '*' : selectCols}, 
@@ -255,9 +300,9 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
             LEFT JOIN text_results tx ON t.\`${pkCol}\` = tx.\`${pkCol}\`
             WHERE v.\`${pkCol}\` IS NOT NULL OR tx.\`${pkCol}\` IS NOT NULL
             ORDER BY combined_score DESC
-            LIMIT ?
+            LIMIT ${limit}
           `;
-          queryParams.push(vectorStr, limit, queryText, queryText, limit, limit);
+          queryParams.push(vectorStr, queryText, queryText);
         } 
         else if (hasVector) {
           // Vector-only fallback
@@ -270,10 +315,10 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
               SELECT *, DISTANCE(\`${vCol}\`, STRING_TO_VECTOR(?), '${metricLiteral}') as distance
               FROM \`${table}\`
               ${whereClause}
-              ORDER BY distance ASC LIMIT ?
+              ORDER BY distance ASC LIMIT ${limit}
             ) ranked
           `;
-          queryParams.push(vectorStr, limit);
+          queryParams.push(vectorStr);
         } 
         else {
           // Text-only fallback
@@ -284,10 +329,10 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
               SELECT *, MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) as text_score
               FROM \`${table}\`
               WHERE MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) ${filterAnd}
-              ORDER BY text_score DESC LIMIT ?
+              ORDER BY text_score DESC LIMIT ${limit}
             ) ranked
           `;
-          queryParams.push(queryText, queryText, limit);
+          queryParams.push(queryText, queryText);
         }
 
         const result = await adapter.executeQuery(query, queryParams);
@@ -317,6 +362,16 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
         });
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("FUNCTION") && msg.includes("DISTANCE") && msg.includes("does not exist")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Vector distance functions require MySQL HeatWave or a specific vector plugin.",
+              "EXTENSION_MISSING",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Vector similarity search is only available in MySQL HeatWave or with compatible plugins." }
+            )
+          );
+        }
         if (msg.includes("doesn't exist")) {
           const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
           return formatHandlerErrorResponse(

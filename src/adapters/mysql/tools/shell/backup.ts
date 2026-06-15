@@ -72,7 +72,9 @@ export function createShellDumpInstanceTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        if (!dryRun) {
+          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        }
 
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -199,7 +201,9 @@ export function createShellDumpSchemasTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        if (!dryRun) {
+          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        }
 
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
@@ -314,7 +318,9 @@ export function createShellDumpTablesTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        if (!dryRun) {
+          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        }
 
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
