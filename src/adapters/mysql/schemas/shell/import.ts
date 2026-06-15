@@ -93,6 +93,9 @@ export const ShellImportJSONInputSchemaBase = z
       .string()
       .optional()
       .describe("Target collection or table name"),
+    table: z.string().optional().describe("Alias for collection"),
+    tableName: z.string().optional().describe("Alias for collection"),
+    name: z.string().optional().describe("Alias for collection"),
     tableColumn: z
       .string()
       .optional()
@@ -110,20 +113,26 @@ export const ShellImportJSONInputSchema = z
     inputUrl: z.string().optional(),
     schema: z.unknown().optional(),
     collection: z.unknown().optional(),
+    table: z.unknown().optional(),
+    tableName: z.unknown().optional(),
+    name: z.unknown().optional(),
     tableColumn: z.string().optional(),
     convertBsonTypes: booleanCoerce.optional().default(false),
   })
-  .transform((data) => ({
-    ...data,
-    schema:
-      data.schema === undefined
-        ? ""
-        : String(data.schema as string | number | boolean),
-    collection:
-      data.collection === undefined
-        ? ""
-        : String(data.collection as string | number | boolean),
-  }))
+  .transform((data) => {
+    const rawCollection = data.collection ?? data.table ?? data.tableName ?? data.name;
+    return {
+      ...data,
+      schema:
+        data.schema === undefined
+          ? ""
+          : String(data.schema as string | number | boolean),
+      collection:
+        rawCollection === undefined
+          ? ""
+          : String(rawCollection as string | number | boolean),
+    };
+  })
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.collection !== "", {
     message: "collection must not be empty",
