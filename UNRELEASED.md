@@ -83,6 +83,7 @@
 - **Safeguard:** Implemented an active context bloat warning in `mcp-server.ts` that alerts developers and suggests `--tool-filter codemode` or `starter` when registering more than 50 tools without a filter.
 
 ### Fixed
+- Fixed missing alias documentation in `gotchas.md` for `mysql_repair_table` and `mysql_kill_query`'s `processId` parameter to match their implemented Code Mode definitions.
 - Fixed `mysql_router_status` and `mysql_router_routes` handlers silently swallowing Zod validation errors and bypassing structured error formatting due to missing `try/catch` and parameter parsing logic.
 - **Testing Infrastructure:** Fixed a bug in `src/server/__tests__/mcp-server.test.ts` where the audit logger integration test failed to clean up its `test-mcp-server` directory. The teardown logic was incorrectly targeting `test-mcp-server.sqlite` at the root directory level. Fixed to recursively remove the entire folder.
 - **Testing Infrastructure:** Fixed a critical index-boundary parsing bug in `standardize-prompts.js` that caused early-iteration test files (where `## Post-Test Procedures` appeared above the checklists) to be wiped completely, and implemented idempotency logic so the script safely preserves custom content during re-runs.

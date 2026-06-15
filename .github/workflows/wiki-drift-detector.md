@@ -33,7 +33,7 @@ concurrency: wiki-drift-detector
 
 # Wiki Documentation Drift Detector
 
-You are auditing the GitHub Wiki documentation for the **mysql-mcp** project — a TypeScript MCP server for MySQL database integration with 224 tools, Code Mode, HTTP/SSE, OAuth 2.1, Tool Filtering, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell. Your job is to check if the wiki documentation is accurate and consistent with recent code changes.
+You are auditing the GitHub Wiki documentation for the **mysql-mcp** project — a TypeScript MCP server for MySQL database integration with 241 tools, Code Mode, HTTP/SSE, OAuth 2.1, Tool Filtering, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell. Your job is to check if the wiki documentation is accurate and consistent with recent code changes.
 
 ## Important Rules
 
