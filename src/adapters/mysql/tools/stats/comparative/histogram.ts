@@ -140,6 +140,8 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           success: true,
           data: {
             exists: true,
+            table,
+            column,
             ...histogramRow,
             updated: update,
             ...(warning && { warning }),

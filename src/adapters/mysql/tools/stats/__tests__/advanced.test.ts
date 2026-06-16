@@ -104,7 +104,7 @@ describe("Advanced Stats Tools", () => {
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
       const data = Reflect.get(result || {}, "data");
-      expect(data.distinctCount).toBe(3);
+      expect(data.count).toBe(3);
       expect(data.values).toEqual(["A", "B", "C"]);
     });
   });

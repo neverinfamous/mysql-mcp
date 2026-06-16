@@ -123,7 +123,7 @@ describe("Outliers Tool", () => {
       );
 
       expect(Reflect.get(result || {}, "success")).toBe(true);
-      expect(Reflect.get(result || {}, "data").totalRows).toBe(0);
+      expect(Reflect.get(result || {}, "data").totalCount).toBe(0);
       expect(Reflect.get(result || {}, "data").outlierCount).toBe(0);
     });
   });
