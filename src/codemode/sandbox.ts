@@ -211,7 +211,7 @@ export class CodeModeSandbox {
                     return new Proxy(result, {
                         get(target, prop) {
                             if (prop in target) return target[prop];
-                            if (typeof prop === 'string' && !['then', 'catch', 'finally', 'constructor', 'prototype', 'toJSON'].includes(prop)) {
+                            if (typeof prop === 'string' && !['then', 'catch', 'finally', 'constructor', 'prototype', 'toJSON', 'isError'].includes(prop)) {
                                 const errVal = target.error;
                                 const errorMsg = typeof errVal === 'string' ? errVal : 'Unknown error';
                                 throw new Error("Attempted to access missing property '" + prop + "' on a failed operation. API Error: " + errorMsg);
