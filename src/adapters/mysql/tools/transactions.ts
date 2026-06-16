@@ -368,6 +368,9 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: false,
           error: `Transaction failed and was rolled back: ${msg}`,
+          code: "EXECUTION_ERROR",
+          category: "execution",
+          recoverable: false,
           rolledBack: true,
         });
       }

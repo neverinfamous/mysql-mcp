@@ -84,7 +84,7 @@ describe("Sys Schema Resource Tools", () => {
 
       // First call is SELECT DATABASE(), second is table stats
       const call = mockAdapter.executeQuery.mock.calls[1][0];
-      expect(call).toContain("LIMIT 5");
+      expect(call).toContain("LIMIT 3");
     });
 
     it("should filter by schema with existence check", async () => {

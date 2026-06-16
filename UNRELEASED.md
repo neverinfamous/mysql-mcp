@@ -91,6 +91,7 @@
 - **Safeguard:** Implemented an active context bloat warning in `mcp-server.ts` that alerts developers and suggests `--tool-filter codemode` or `starter` when registering more than 50 tools without a filter.
 
 ### Fixed
+- **Validation**: Executed Advanced Code Mode Stress Testing for the transactions tool group, uncovering and fixing missing structured error fields (`code`, `category`, `recoverable`) in `mysql_transaction_execute` rollbacks and `mysql_event_*` `onCompletion` validations to align with strict error consistency standards.
 - Fixed missing structured error payloads across the `spatial` tool group where caught exceptions were incorrectly stripped of their underlying `code` and `category` fields due to an anti-pattern `new Error(msg)` fallback in the catch blocks, resolving raw error leaks in Code Mode.
 - Fixed a factual error in the `test-codemode-introspection.md` test prompt where the schema was incorrectly referenced as `test_db` instead of `testdb`.
 - **Codemode Split Schema**: Fixed an alias mapping bug in `mysql_fulltext_create` and `mysql_fulltext_drop` where the `name` parameter was incorrectly mapping to `table` instead of `indexName`, which caused index creation to fall back to auto-generated names and index drops to fail Zod validation.

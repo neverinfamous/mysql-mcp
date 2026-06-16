@@ -80,10 +80,9 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
 
         const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
         if (!validOnCompletion.includes(onCompletion)) {
-          return withTokenEstimate({
-            success: false,
-            error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
-          });
+          return formatHandlerErrorResponse(
+            new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
+          );
         }
 
         if (ifNotExists) {
@@ -154,10 +153,9 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         if (onCompletion !== undefined) {
           const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
           if (!validOnCompletion.includes(onCompletion)) {
-            return withTokenEstimate({
-              success: false,
-              error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
+            );
           }
         }
 
