@@ -88,6 +88,8 @@ export function stripErrorPrefix(msg: string): string {
  * }
  * ```
  */
+import { findSuggestion } from "../../../../utils/error-suggestions.js";
+
 const isZodError = (err: unknown): err is ZodError => {
   return err instanceof ZodError || (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError");
 };
@@ -112,12 +114,15 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     };
   } else {
     // Raw MySQL / unknown error
+    const formattedError = formatMysqlError(err);
+    const match = findSuggestion(formattedError);
+    
     response = {
       success: false,
-      error: formatMysqlError(err),
-      code: "UNKNOWN_ERROR",
-      category: ErrorCategory.INTERNAL,
-      suggestion: undefined,
+      error: formattedError,
+      code: match?.code ?? "UNKNOWN_ERROR",
+      category: match?.category ?? ErrorCategory.INTERNAL,
+      suggestion: match?.suggestion,
       recoverable: false,
       details: undefined,
     };

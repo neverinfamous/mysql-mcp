@@ -185,3 +185,4 @@
 - Fixed missing structured error formatting in the `monitoring` tool group (`mysql_show_status`, `mysql_show_variables`) where manual `limit` parameter validation returned a non-standard error object, bypassing Zod structured `ErrorResponse` validation.
 - Fixed a payload bloat issue in the `monitoring` tool group by decreasing the default `limit` parameter for `mysql_show_processlist` from 50 to 10.
 - Fixed outdated method names and invalid schema properties in the `test-codemode-advanced-partitioning.md` test prompt, ensuring alignment with the actual Code Mode implementations.
+- Fixed a structural error reporting bug in `mysql_optimizer_trace` and raw adapter execution where MySQL exceptions (like `ER_NO_SUCH_TABLE`) were incorrectly categorized as `UNKNOWN_ERROR` instead of `TABLE_NOT_FOUND` because they bypassed the `findSuggestion` auto-refinement logic in `formatHandlerErrorResponse`.
