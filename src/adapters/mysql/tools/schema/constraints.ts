@@ -25,7 +25,7 @@ const ListConstraintsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj.schema ?? obj.database,
+        schema: obj['schema'] ?? obj['database'],
       };
     }
     return val;

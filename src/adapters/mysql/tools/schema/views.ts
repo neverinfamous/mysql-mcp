@@ -30,7 +30,7 @@ const ListViewsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj.schema ?? obj.database,
+        schema: obj['schema'] ?? obj['database'],
       };
     }
     return val;
@@ -65,7 +65,7 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        definition: obj.definition ?? obj.query,
+        definition: obj['definition'] ?? obj['query'],
       };
     }
     return val;
