@@ -12,13 +12,29 @@ import type {
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-const ListObjectsSchema = z.object({
+const ListObjectsSchemaBase = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
 });
+
+const ListObjectsSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj.schema ?? obj.database,
+      };
+    }
+    return val;
+  },
+  z.object({
+    schema: z.string().optional(),
+  })
+);
 
 const ListStoredProceduresOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -45,14 +61,14 @@ export function createListStoredProceduresTool(
     title: "MySQL List Stored Procedures",
     description: "List all stored procedures with parameters and metadata.",
     group: "schema",
-    inputSchema: ListObjectsSchema,
+    inputSchema: ListObjectsSchemaBase,
     outputSchema: ListStoredProceduresOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListObjectsSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
@@ -121,14 +137,14 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all user-defined functions with return types and metadata.",
     group: "schema",
-    inputSchema: ListObjectsSchema,
+    inputSchema: ListObjectsSchemaBase,
     outputSchema: ListFunctionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListObjectsSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {

@@ -14,16 +14,31 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListConstraintsSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   type: z.string().optional().describe("Filter by constraint type"),
 });
 
-const ListConstraintsSchema = z.object({
-  table: z.string().describe("Table name"),
-  type: z
-    .enum(["PRIMARY KEY", "FOREIGN KEY", "UNIQUE", "CHECK"])
-    .optional()
-    .describe("Filter by constraint type"),
-});
+const ListConstraintsSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj.schema ?? obj.database,
+      };
+    }
+    return val;
+  },
+  z.object({
+    table: z.string().describe("Table name"),
+    schema: z.string().optional(),
+    type: z
+      .enum(["PRIMARY KEY", "FOREIGN KEY", "UNIQUE", "CHECK"])
+      .optional()
+      .describe("Filter by constraint type"),
+  })
+);
 
 const ListConstraintsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -50,10 +65,10 @@ export function createListConstraintsTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, type } = ListConstraintsSchema.parse(params);
+        const { table, schema, type } = ListConstraintsSchema.parse(params);
 
         const parts = table.split(".");
-        let schemaName: string | null = null;
+        let schemaName: string | null = schema ?? null;
         let tableName = table;
 
         if (parts.length === 2 && parts[0] && parts[1]) {

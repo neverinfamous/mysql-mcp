@@ -12,7 +12,7 @@ import type {
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-const ListTriggersSchema = z.object({
+const ListTriggersSchemaBase = z.object({
   table: z.string().optional().describe("Filter by table name"),
   schema: z
     .string()
@@ -20,6 +20,23 @@ const ListTriggersSchema = z.object({
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
 });
+
+const ListTriggersSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj.schema ?? obj.database,
+      };
+    }
+    return val;
+  },
+  z.object({
+    table: z.string().optional(),
+    schema: z.string().optional(),
+  })
+);
 
 const ListTriggersOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -37,14 +54,14 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL List Triggers",
     description: "List all triggers with event timing, action, and definition.",
     group: "schema",
-    inputSchema: ListTriggersSchema,
+    inputSchema: ListTriggersSchemaBase,
     outputSchema: ListTriggersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListTriggersSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
         const table = parsedParams.table;
 
         // P154: Schema existence check when explicitly provided

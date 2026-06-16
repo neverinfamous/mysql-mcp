@@ -16,13 +16,29 @@ import {
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
-const ListViewsSchema = z.object({
+const ListViewsSchemaBase = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
 });
+
+const ListViewsSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj.schema ?? obj.database,
+      };
+    }
+    return val;
+  },
+  z.object({
+    schema: z.string().optional(),
+  })
+);
 
 const ListViewsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -43,23 +59,34 @@ const CreateViewSchemaBase = z.object({
   checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
 });
 
-const CreateViewSchema = z.object({
-  name: z.string().describe("View name"),
-  definition: z
-    .string()
-    .optional()
-    .describe("SELECT statement defining the view"),
-  query: z.string().optional().describe("Alias for definition"),
-  orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
-  algorithm: z
-    .enum(["UNDEFINED", "MERGE", "TEMPTABLE"])
-    .default("UNDEFINED")
-    .describe("View algorithm"),
-  checkOption: z
-    .enum(["NONE", "CASCADED", "LOCAL"])
-    .default("NONE")
-    .describe("WITH CHECK OPTION"),
-});
+const CreateViewSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        definition: obj.definition ?? obj.query,
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().default("").describe("View name"),
+    definition: z
+      .string()
+      .default("")
+      .describe("SELECT statement defining the view"),
+    orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
+    algorithm: z
+      .enum(["UNDEFINED", "MERGE", "TEMPTABLE"])
+      .default("UNDEFINED")
+      .describe("View algorithm"),
+    checkOption: z
+      .enum(["NONE", "CASCADED", "LOCAL"])
+      .default("NONE")
+      .describe("WITH CHECK OPTION"),
+  })
+);
 
 const CreateViewOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -73,7 +100,7 @@ const DropViewSchemaBase = z.object({
 });
 
 const DropViewSchema = z.object({
-  name: z.string().describe("View name"),
+  name: z.string().default("").describe("View name"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
 });
 
@@ -93,14 +120,14 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all views with their definitions, security type, and check option.",
     group: "schema",
-    inputSchema: ListViewsSchema,
+    inputSchema: ListViewsSchemaBase,
     outputSchema: ListViewsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListViewsSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
@@ -164,13 +191,17 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const parsedParams = CreateViewSchema.parse(params);
         const name = parsedParams.name;
         const definition = parsedParams.definition;
-        const query = parsedParams.query;
         const orReplace = parsedParams.orReplace;
         const algorithm = parsedParams.algorithm;
         const checkOption = parsedParams.checkOption;
 
-        const finalDefinition = definition ?? query;
-        if (finalDefinition === undefined || finalDefinition === "") {
+        if (name === "") {
+          return formatHandlerErrorResponse(
+            new Error("Validation error: name: Invalid input: expected string, received undefined"),
+          );
+        }
+
+        if (definition === "") {
           return formatHandlerErrorResponse(
             new Error("Validation error: definition or query must be provided"),
           );
@@ -185,7 +216,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const fullViewName = escapeQualifiedTable(name);
 
         const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
-        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${finalDefinition}`;
+        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${definition}`;
 
         if (checkOption !== "NONE") {
           sql += ` WITH ${checkOption} CHECK OPTION`;
@@ -230,6 +261,11 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = DropViewSchema.parse(params);
+        if (parsedParams.name === "") {
+          return formatHandlerErrorResponse(
+            new Error("Validation error: name: Invalid input: expected string, received undefined"),
+          );
+        }
         try {
           validateQualifiedIdentifier(parsedParams.name, "view");
         } catch (err: unknown) {

@@ -21,17 +21,25 @@ const ListEventsSchemaBase = z.object({
   status: z.string().optional().describe("Filter by status"),
 });
 
-const ListEventsSchema = z.object({
-  schema: z
-    .string()
-    .optional()
-    .describe("Schema name (defaults to current database)"),
-  database: z.string().optional().describe("Alias for schema"),
-  status: z
-    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
-    .optional()
-    .describe("Filter by status"),
-});
+const ListEventsSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj.schema ?? obj.database,
+      };
+    }
+    return val;
+  },
+  z.object({
+    schema: z.string().optional(),
+    status: z
+      .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
+      .optional()
+      .describe("Filter by status"),
+  })
+);
 
 const ListEventsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -57,7 +65,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListEventsSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
         const status = parsedParams.status;
 
         // P154: Schema existence check when explicitly provided
