@@ -30,8 +30,8 @@ export const LikeSearchOutputSchema = BaseOutputSchema.extend({
 
 export const FulltextCreateOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    success: z.boolean(),
     indexName: z.string(),
+    columns: z.array(z.string()).optional(),
     message: z.string().optional(),
   }).optional(),
 });
@@ -48,8 +48,8 @@ export const FulltextSearchOutputSchema = BaseOutputSchema.extend({
 
 export const FulltextDropOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    success: z.boolean(),
     indexName: z.string(),
+    table: z.string().optional(),
     message: z.string().optional(),
   }).optional(),
 });

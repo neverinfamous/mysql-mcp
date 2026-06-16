@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed an output schema validation bug in `mysql_fulltext_create` and `mysql_fulltext_drop` where `FulltextCreateOutputSchema` and `FulltextDropOutputSchema` incorrectly required a `success: boolean` property inside the `data` wrapper instead of at the root level, resulting in raw `-32602` MCP validation errors on success.
 - Fixed a bug where view management tools (`mysql_create_view`, `mysql_drop_view`) bypassed structured Zod validation errors on empty required inputs by manually throwing exceptions, and fixed error suggestion patterns to correctly map "does not exist" messages to structured `DATABASE_NOT_FOUND` / `TABLE_NOT_FOUND` payloads instead of generic `UNKNOWN_ERROR` objects. (`d379034`)
 - Fixed a factual error in the `test-transactions.md` test prompt where `mysql_transaction_execute` was incorrectly asserting an array of objects (`[{sql: "..."}]`) instead of an array of strings, aligning the prompt with strict Zod schema requirements.
 - Fixed a streaming payload bloat mitigation bug in `mysql_read_query` where `stream: true` requests were improperly restricted by the `LIMIT 50` default injection, preventing full dataset iteration. (`b74238e`, `8477943`, `9d2cb7a`)
