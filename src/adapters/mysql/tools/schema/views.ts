@@ -71,10 +71,9 @@ const CreateViewSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().default("").describe("View name"),
+    name: z.string().describe("View name"),
     definition: z
       .string()
-      .default("")
       .describe("SELECT statement defining the view"),
     orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
     algorithm: z
@@ -100,7 +99,7 @@ const DropViewSchemaBase = z.object({
 });
 
 const DropViewSchema = z.object({
-  name: z.string().default("").describe("View name"),
+  name: z.string().describe("View name"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
 });
 
@@ -195,18 +194,6 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const algorithm = parsedParams.algorithm;
         const checkOption = parsedParams.checkOption;
 
-        if (name === "") {
-          throw new z.ZodError([
-            { code: "custom", path: ["name"], message: "Invalid input: expected string, received undefined" }
-          ]);
-        }
-
-        if (definition === "") {
-          throw new z.ZodError([
-            { code: "custom", path: ["definition"], message: "Invalid input: expected string, received undefined" }
-          ]);
-        }
-
         try {
           validateQualifiedIdentifier(name, "view");
         } catch (err: unknown) {
@@ -261,11 +248,6 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = DropViewSchema.parse(params);
-        if (parsedParams.name === "") {
-          throw new z.ZodError([
-            { code: "custom", path: ["name"], message: "Invalid input: expected string, received undefined" }
-          ]);
-        }
         try {
           validateQualifiedIdentifier(parsedParams.name, "view");
         } catch (err: unknown) {

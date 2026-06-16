@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a bug where view management tools (`mysql_create_view`, `mysql_drop_view`) bypassed structured Zod validation errors on empty required inputs by manually throwing exceptions, and fixed error suggestion patterns to correctly map "does not exist" messages to structured `DATABASE_NOT_FOUND` / `TABLE_NOT_FOUND` payloads instead of generic `UNKNOWN_ERROR` objects. (`d379034`)
 - Fixed a factual error in the `test-transactions.md` test prompt where `mysql_transaction_execute` was incorrectly asserting an array of objects (`[{sql: "..."}]`) instead of an array of strings, aligning the prompt with strict Zod schema requirements.
 - Fixed a streaming payload bloat mitigation bug in `mysql_read_query` where `stream: true` requests were improperly restricted by the `LIMIT 50` default injection, preventing full dataset iteration. (`b74238e`, `8477943`, `9d2cb7a`)
 - Fixed a flaky `stateless.spec.ts` E2E test failure where an orphaned stateful process on port 3102 from earlier suite runs hijacked the `fetch` assertions, by migrating the test server boundary to port 3103.

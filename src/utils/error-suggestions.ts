@@ -26,7 +26,7 @@ const ERROR_SUGGESTIONS: {
   // Resource errors — table/column/schema/index not found
   // =========================================================================
   {
-    pattern: /Table '.*' doesn't exist/i,
+    pattern: /Table '.*' (?:doesn't|does not) exist/i,
     suggestion:
       "Table does not exist. Run mysql_list_tables to see available tables.",
     category: ErrorCategory.RESOURCE,
@@ -47,7 +47,7 @@ const ERROR_SUGGESTIONS: {
     code: "COLUMN_NOT_FOUND",
   },
   {
-    pattern: /Unknown database ['"].*['"]/i,
+    pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist|Schema (?:'.*?' )?(?:doesn't|does not) exist)/i,
     suggestion:
       "Database not found. Use mysql_list_schemas to see available databases.",
     category: ErrorCategory.RESOURCE,
