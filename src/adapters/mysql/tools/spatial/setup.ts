@@ -116,7 +116,7 @@ export function createSpatialCreateColumnTool(
           });
         }
         if (msg.includes("doesn't exist")) {
-          const tbl = paramStr(params, "table");
+          const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
             details: {
@@ -127,7 +127,7 @@ export function createSpatialCreateColumnTool(
         }
         if (msg.includes("Duplicate column name")) {
           const col = paramStr(params, "column");
-          const tbl = paramStr(params, "table");
+          const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
             success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR",
           });
@@ -234,7 +234,7 @@ export function createSpatialCreateIndexTool(
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        const tbl = paramStr(params, "table");
+        const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
         if (msg.includes("Table") && msg.includes("doesn't exist")) {
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
