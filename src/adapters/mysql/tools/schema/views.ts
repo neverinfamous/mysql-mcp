@@ -196,15 +196,15 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const checkOption = parsedParams.checkOption;
 
         if (name === "") {
-          return formatHandlerErrorResponse(
-            new Error("Validation error: name: Invalid input: expected string, received undefined"),
-          );
+          throw new z.ZodError([
+            { code: "custom", path: ["name"], message: "Invalid input: expected string, received undefined" }
+          ]);
         }
 
         if (definition === "") {
-          return formatHandlerErrorResponse(
-            new Error("Validation error: definition or query must be provided"),
-          );
+          throw new z.ZodError([
+            { code: "custom", path: ["definition"], message: "Invalid input: expected string, received undefined" }
+          ]);
         }
 
         try {
@@ -262,9 +262,9 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsedParams = DropViewSchema.parse(params);
         if (parsedParams.name === "") {
-          return formatHandlerErrorResponse(
-            new Error("Validation error: name: Invalid input: expected string, received undefined"),
-          );
+          throw new z.ZodError([
+            { code: "custom", path: ["name"], message: "Invalid input: expected string, received undefined" }
+          ]);
         }
         try {
           validateQualifiedIdentifier(parsedParams.name, "view");
