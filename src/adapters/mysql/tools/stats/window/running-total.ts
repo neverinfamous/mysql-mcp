@@ -49,13 +49,13 @@ export function createStatsRunningTotalTool(
         }
 
         const partition = partitionClause(parsed.partitionBy);
-        const windowExpr = `SUM(\`${parsed.column}\`) OVER(${partition} ORDER BY \`${parsed.orderBy}\` ROWS UNBOUNDED PRECEDING)`;
+        const windowExpr = `SUM(\`${parsed.column}\`) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS UNBOUNDED PRECEDING)`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, "running_total")}
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
-          ORDER BY \`${parsed.orderBy}\`
+          ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 

@@ -43,13 +43,13 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const partition = partitionClause(parsed.partitionBy);
         const fnName = rankType.toUpperCase();
 
-        const windowExpr = `${fnName}() OVER(${partition} ORDER BY \`${parsed.orderBy}\`)`;
+        const windowExpr = `${fnName}() OVER(${partition} ORDER BY ${parsed.orderBy})`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, rankType)}
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
-          ORDER BY \`${parsed.orderBy}\`
+          ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 

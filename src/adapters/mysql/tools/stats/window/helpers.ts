@@ -12,7 +12,7 @@ export function selectList(
 
 export function partitionClause(partitionBy?: string): string {
   if (!partitionBy) return "";
-  return `PARTITION BY \`${partitionBy}\``;
+  return `PARTITION BY ${partitionBy}`;
 }
 
 export function whereClause(where?: string): string {

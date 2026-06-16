@@ -51,13 +51,13 @@ export function createStatsMovingAvgTool(
         const windowSize = parsed.windowSize;
         const partition = partitionClause(parsed.partitionBy);
         const preceding = windowSize - 1;
-        const windowExpr = `AVG(\`${parsed.column}\`) OVER(${partition} ORDER BY \`${parsed.orderBy}\` ROWS BETWEEN ${String(preceding)} PRECEDING AND CURRENT ROW)`;
+        const windowExpr = `AVG(\`${parsed.column}\`) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS BETWEEN ${String(preceding)} PRECEDING AND CURRENT ROW)`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, "moving_avg")}
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
-          ORDER BY \`${parsed.orderBy}\`
+          ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 

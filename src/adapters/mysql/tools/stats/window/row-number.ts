@@ -43,13 +43,13 @@ export function createStatsRowNumberTool(
 
         const partition = partitionClause(parsed.partitionBy);
         // MySQL 8.0+ syntax
-        const windowExpr = `ROW_NUMBER() OVER(${partition} ORDER BY \`${parsed.orderBy}\`)`;
+        const windowExpr = `ROW_NUMBER() OVER(${partition} ORDER BY ${parsed.orderBy})`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, "row_number")}
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
-          ORDER BY \`${parsed.orderBy}\`
+          ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 

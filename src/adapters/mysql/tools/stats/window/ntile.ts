@@ -41,13 +41,13 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
 
         const buckets = parsed.buckets;
         const partition = partitionClause(parsed.partitionBy);
-        const windowExpr = `NTILE(${String(buckets)}) OVER(${partition} ORDER BY \`${parsed.orderBy}\`)`;
+        const windowExpr = `NTILE(${String(buckets)}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, "ntile")}
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
-          ORDER BY \`${parsed.orderBy}\`
+          ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.offset)}
         `;
 

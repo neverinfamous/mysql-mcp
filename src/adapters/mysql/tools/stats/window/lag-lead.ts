@@ -53,14 +53,14 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             ? `, '${parsed.defaultValue.replace(/'/g, "''")}'`
             : "";
 
-        const windowExpr = `${fnName}(\`${parsed.column}\`, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY \`${parsed.orderBy}\`)`;
+        const windowExpr = `${fnName}(\`${parsed.column}\`, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
         const alias = `${parsed.direction}_value`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, alias)}
           FROM \`${parsed.table}\`
           ${whereClause(parsed.where)}
-          ORDER BY \`${parsed.orderBy}\`
+          ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.paginationOffset)}
         `;
 
