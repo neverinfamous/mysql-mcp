@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed an SQL injection risk and multi-column parsing bug in the `stats` tool group's window functions (`mysql_stats_row_number`, `mysql_stats_rank`, `mysql_stats_lag_lead`, `mysql_stats_running_total`, `mysql_stats_moving_avg`, `mysql_stats_ntile`) where `orderBy` and `partitionBy` clauses were improperly wrapped in literal identifier backticks, preventing the use of standard comma-separated multi-column sort strategies and breaking sort directions (`ASC`/`DESC`) with a `1054 Unknown column` crash. (`b99dad6`)
 - Fixed an output schema validation bug in `mysql_fulltext_create` and `mysql_fulltext_drop` where `FulltextCreateOutputSchema` and `FulltextDropOutputSchema` incorrectly required a `success: boolean` property inside the `data` wrapper instead of at the root level, resulting in raw `-32602` MCP validation errors on success.
 - Fixed a bug where view management tools (`mysql_create_view`, `mysql_drop_view`) bypassed structured Zod validation errors on empty required inputs by manually throwing exceptions, and fixed error suggestion patterns to correctly map "does not exist" messages to structured `DATABASE_NOT_FOUND` / `TABLE_NOT_FOUND` payloads instead of generic `UNKNOWN_ERROR` objects. (`d379034`)
 - Fixed a factual error in the `test-transactions.md` test prompt where `mysql_transaction_execute` was incorrectly asserting an array of objects (`[{sql: "..."}]`) instead of an array of strings, aligning the prompt with strict Zod schema requirements.
