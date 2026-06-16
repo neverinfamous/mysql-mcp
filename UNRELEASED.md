@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- **Validation**: Executed Advanced Code Mode Stress Testing for the sessions tool group, uncovering and fixing a factual error in the test prompt (`test-codemode-advanced-sessions.md`) where testing of HTTP transport endpoints (`/health` and `/mcp`) was incorrectly requested via `mysql_execute_code`, which strictly blocks network access for security.
 - **Validation**: Executed Advanced Code Mode Stress Testing for the schema tool group, uncovering and fixing a P154 bug in `mysql_list_constraints` where the tool failed to explicitly check if the provided target schema existed, leading to misleading internal fallback errors.
 
 ### Added

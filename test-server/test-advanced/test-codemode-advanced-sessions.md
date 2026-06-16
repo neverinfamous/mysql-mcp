@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Code Mode explicitly blocks network access (like `fetch`) for security. Therefore, tests for HTTP endpoints (like `/health` and `/mcp` sessions) CANNOT be executed via Code Mode. You must use standard HTTP clients (e.g., `curl` via terminal or an external test script) to test these endpoints. Return an aggregated `failures` array.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -163,7 +163,7 @@ The JSON body must include `"activeSessions": 1` (or incremented by 1 from the b
 
 ### Step 4: Validate Ongoing Communication
 
-Use the established session to execute a simple tool (e.g., `mysql_server_health`).
+Use the established session to execute a simple tool (e.g., `mysql_core_read_query` or `mysql_monitoring_show_status`).
 
 **Expected Result**:
 The tool executes successfully, proving the session is active and functional. The `SessionManager.touch()` method is implicitly called during this request.
