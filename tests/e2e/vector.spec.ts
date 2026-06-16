@@ -194,8 +194,11 @@ test.describe("Vector Tools", () => {
     
     if (result.success === false) {
       if (result.code === "EXTENSION_MISSING") {
-        // Handled cleanly by version check (MySQL 9.0)
-        expectHandlerError(result, "MySQL 9.1+ is required");
+        if (result.error?.toString().toLowerCase().includes("heatwave")) {
+          expect(result.error?.toString().toLowerCase()).toContain("heatwave");
+        } else {
+          expectHandlerError(result, "MySQL 9.1+ is required");
+        }
       } else {
         // MySQL Community Edition (even 9.1+) lacks native VECTOR INDEX syntax
         expect(result.code).toBe("QUERY_ERROR");

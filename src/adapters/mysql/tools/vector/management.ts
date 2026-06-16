@@ -4,6 +4,7 @@ import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import { READ_ONLY, WRITE, ADMIN } from "../../../../utils/annotations.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import {
   VectorInfoSchemaBase,
   VectorInfoSchema,
@@ -131,6 +132,17 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
           }
         });
       } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (msg.includes("syntax") || msg.includes("parse")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Vector indexes require MySQL HeatWave or a specific vector plugin.",
+              "EXTENSION_MISSING",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Vector index creation is only available in MySQL HeatWave or with compatible plugins." }
+            )
+          );
+        }
         return formatHandlerErrorResponse(e);
       }
     },
