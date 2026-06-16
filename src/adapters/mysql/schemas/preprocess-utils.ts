@@ -15,6 +15,19 @@ export function defaultToEmpty(input: unknown): unknown {
 }
 
 /**
+ * Preprocess document collection params:
+ * - Alias: collection -> name
+ */
+export function preprocessDocCollectionParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input;
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["name"] === undefined && result["collection"] !== undefined) {
+    result["name"] = result["collection"];
+  }
+  return result;
+}
+
+/**
  * Preprocess table parameters:
  * - Alias: tableName/name → table
  */

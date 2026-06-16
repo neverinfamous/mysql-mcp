@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessDocFilterParams, preprocessDocIndexParams } from "./preprocess-utils.js";
+import { preprocessDocFilterParams, preprocessDocIndexParams, preprocessDocCollectionParams } from "./preprocess-utils.js";
 
 export const ListCollectionsSchemaBase = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
@@ -25,7 +25,7 @@ export const CreateCollectionSchemaBase = z.object({
     .describe("Validation config"),
 });
 
-export const CreateCollectionSchema = z.object({
+export const CreateCollectionSchemaStrict = z.object({
   name: z.string().describe("Collection name"),
   schema: z.string().optional(),
   ifNotExists: z.boolean().default(false).describe("Add IF NOT EXISTS clause"),
@@ -44,17 +44,27 @@ export const CreateCollectionSchema = z.object({
     .describe("Validation config"),
 });
 
+export const CreateCollectionSchema = z.preprocess(
+  preprocessDocCollectionParams,
+  CreateCollectionSchemaStrict
+);
+
 export const DropCollectionSchemaBase = z.object({
   name: z.string().optional(),
   schema: z.string().optional(),
   ifExists: z.boolean().optional(),
 });
 
-export const DropCollectionSchema = z.object({
+export const DropCollectionSchemaStrict = z.object({
   name: z.string(),
   schema: z.string().optional(),
   ifExists: z.boolean().default(true),
 });
+
+export const DropCollectionSchema = z.preprocess(
+  preprocessDocCollectionParams,
+  DropCollectionSchemaStrict
+);
 
 export const FindSchemaBase = z.object({
   collection: z.string().optional(),
