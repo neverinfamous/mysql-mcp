@@ -8,6 +8,7 @@
 - Fixed a factual error in the test prompt (`test-codemode-advanced-sessions.md`) where testing of HTTP transport endpoints (`/health` and `/mcp`) was incorrectly requested via `mysql_execute_code`, which strictly blocks network access for security.
 - Fixed a P154 bug in `mysql_list_constraints` where the tool failed to explicitly check if the provided target schema existed, leading to misleading internal fallback errors. (`97c17e6`, `411aeb5`, `b83cbcd`)
 - Fixed a bug in `mysql_concat` where empty column inputs passed schema validation and caused invalid SQL syntax crashes by enforcing a strict `.min(1)` bounds check on the columns array. (`bd6695a`, `c469d36`)
+- Fixed view management tools returning UNKNOWN_ERROR instead of VALIDATION_ERROR on empty inputs. (`3009d12`)
 ### Added
 - Harmonized the testing infrastructure with `db-mcp`, migrating all 84 test prompt files to a strict, template-driven standard (`test-server/scripts/prompt-template.md` and `standardize-prompts.js`). Renamed test files and directories to match the gold standard naming conventions (`test-codemode`, `test-{name}.md`). (`b63faff`)
 - Expanded the `test-advanced` suite by adding `test-codemode-sandbox.md` (to test `isolated-vm` security boundaries) and `test-codemode-advanced-concurrency.md` (to test connection pool saturation and `Promise.all()` queueing limits). Integrated rigorous Wrong-Type Coercion and Zod validation attack rules into all test templates globally.
