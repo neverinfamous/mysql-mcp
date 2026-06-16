@@ -1212,8 +1212,8 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
       expect(result).toHaveProperty("data.collection", "users");
-      expect(result).toHaveProperty("data.stats");
-      expect(result).toHaveProperty("data.indexes");
+      expect(result).toHaveProperty("data.info");
+      expect(result).toHaveProperty("data.info.indexes");
     });
 
     it("should reject invalid collection names", async () => {

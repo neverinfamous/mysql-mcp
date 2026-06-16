@@ -56,7 +56,7 @@ describe("Window Function Tools", () => {
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
-      expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY `score DESC`)");
+      expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY score DESC)");
     });
 
     it("should return error on invalid table name", async () => {
@@ -106,7 +106,7 @@ describe("Window Function Tools", () => {
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
-      expect(sql).toContain("DENSE_RANK() OVER( ORDER BY `score DESC`)");
+      expect(sql).toContain("DENSE_RANK() OVER( ORDER BY score DESC)");
     });
   });
 
@@ -132,7 +132,7 @@ describe("Window Function Tools", () => {
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
-      expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY `date`)");
+      expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY date)");
     });
 
     it("should return error on invalid column name", async () => {
@@ -188,7 +188,7 @@ describe("Window Function Tools", () => {
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain(
-        "SUM(`amount`) OVER( ORDER BY `date` ROWS UNBOUNDED PRECEDING)",
+        "SUM(`amount`) OVER( ORDER BY date ROWS UNBOUNDED PRECEDING)",
       );
     });
   });
@@ -210,7 +210,7 @@ describe("Window Function Tools", () => {
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain(
-        "AVG(`amount`) OVER( ORDER BY `date` ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)",
+        "AVG(`amount`) OVER( ORDER BY date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)",
       );
     });
   });
@@ -231,7 +231,7 @@ describe("Window Function Tools", () => {
       expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
-      expect(sql).toContain("NTILE(4) OVER( ORDER BY `score DESC`)");
+      expect(sql).toContain("NTILE(4) OVER( ORDER BY score DESC)");
     });
   });
 });

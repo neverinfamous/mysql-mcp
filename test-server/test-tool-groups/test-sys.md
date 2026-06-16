@@ -138,7 +138,57 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: sysschema\n\n### sysschema Group-Specific Testing\n\nsysschema Tool Group (8 tools +1 for code mode):\n\n1. 'mysql_sys_user_summary'\n2. 'mysql_sys_io_summary'\n3. 'mysql_sys_statement_summary'\n4. 'mysql_sys_wait_summary'\n5. 'mysql_sys_innodb_lock_waits'\n6. 'mysql_sys_schema_stats'\n7. 'mysql_sys_host_summary'\n8. 'mysql_sys_memory_summary'\n9. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.\n\n1. `mysql_sys_user_summary({...})` -> verify success\n2. `mysql_sys_io_summary({...})` -> verify success\n3. `mysql_sys_statement_summary({...})` -> verify success\n4. `mysql_sys_wait_summary({...})` -> verify success\n5. `mysql_sys_innodb_lock_waits({...})` -> verify success\n6. `mysql_sys_schema_stats({...})` -> verify success\n7. `mysql_sys_host_summary({...})` -> verify success\n8. `mysql_sys_memory_summary({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n9. 🔴 `mysql_sys_user_summary({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_sys_io_summary({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_sys_statement_summary({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_sys_wait_summary({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_sys_innodb_lock_waits({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_sys_schema_stats({...})` -> `{success: false, error: "..."}` handler error\n15. 🔴 `mysql_sys_host_summary({...})` -> `{success: false, error: "..."}` handler error\n16. 🔴 `mysql_sys_memory_summary({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n17. 🔴 `mysql_sys_user_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n18. 🔴 `mysql_sys_io_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🔴 `mysql_sys_statement_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n20. 🔴 `mysql_sys_wait_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_sys_innodb_lock_waits({})` -> `{success: false, error: "..."}` (Zod validation)\n22. 🔴 `mysql_sys_schema_stats({})` -> `{success: false, error: "..."}` (Zod validation)\n23. 🔴 `mysql_sys_host_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n24. 🔴 `mysql_sys_memory_summary({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n25. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: sysschema
+
+### sysschema Group-Specific Testing
+
+sysschema Tool Group (8 tools +1 for code mode):
+
+1. 'mysql_sys_user_summary'
+2. 'mysql_sys_io_summary'
+3. 'mysql_sys_statement_summary'
+4. 'mysql_sys_wait_summary'
+5. 'mysql_sys_innodb_lock_waits'
+6. 'mysql_sys_schema_stats'
+7. 'mysql_sys_host_summary'
+8. 'mysql_sys_memory_summary'
+9. 'mysql_execute_code' (codemode, auto-added)
+
+> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+
+**Happy paths (🟢):**
+*(Note: All sys tools have optional parameters. Calling with `{}` is a valid happy path.)*
+
+1. 🟢 `mysql_sys_user_summary({})` -> verify success
+2. 🟢 `mysql_sys_io_summary({})` -> verify success
+3. 🟢 `mysql_sys_statement_summary({})` -> verify success
+4. 🟢 `mysql_sys_wait_summary({})` -> verify success
+5. 🟢 `mysql_sys_innodb_lock_waits({})` -> verify success
+6. 🟢 `mysql_sys_schema_stats({})` -> verify success
+7. 🟢 `mysql_sys_host_summary({})` -> verify success
+8. 🟢 `mysql_sys_memory_summary({})` -> verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql_sys_statement_summary({ orderBy: "invalid_col" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+10. 🔴 `mysql_sys_wait_summary({ type: "invalid_type" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+11. 🔴 `mysql_sys_io_summary({ type: "invalid_type" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+12. 🔴 `mysql_sys_schema_stats({ schema: "nonexistent_db_xyz" })` -> `{success: false, error: "...", code: "NOT_FOUND_ERROR"}` (P154)
+
+**Zod validation error paths via coercion (🔴):**
+
+13. 🔴 `mysql_sys_user_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+14. 🔴 `mysql_sys_host_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+15. 🔴 `mysql_sys_innodb_lock_waits({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+16. 🔴 `mysql_sys_memory_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
+
+**Alias acceptance (🟢):**
+
+17. 🟢 (No parameter aliases are documented for sys tools)
+
+---
+
+## Post-Test Procedures
 
 ### Reporting Rules
 
