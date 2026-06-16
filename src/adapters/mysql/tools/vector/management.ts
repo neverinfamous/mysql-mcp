@@ -3,6 +3,7 @@ import type { RequestContext } from "../../../../types/index.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
 import { READ_ONLY, WRITE, ADMIN } from "../../../../utils/annotations.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import {
   VectorInfoSchemaBase,
   VectorInfoSchema,
@@ -33,6 +34,9 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
         await ensureVectorSupport(adapter);
+
+        // Pre-check table existence to satisfy P154
+        await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(validated.table)}\` LIMIT 0`);
 
         const tableParam = validated.table; // Parameterized
         const columnFilters: unknown[] = [tableParam];
@@ -103,6 +107,9 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
         const table = sanitizeIdentifier(validated.table);
         const column = sanitizeIdentifier(validated.column);
         
+        // Pre-check table existence to satisfy P154
+        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        
         const indexName = `idx_${table}_${column}_vec`;
 
         // Syntax: ALTER TABLE t1 ADD VECTOR INDEX idx_t1_c1_vec (c1)
@@ -148,14 +155,31 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
         const table = sanitizeIdentifier(validated.table);
         
         const query = `ANALYZE TABLE \`${table}\``;
-        const result = await adapter.executeQuery(query);
+        const result = await adapter.rawQuery(query);
+
+        const rows = result.rows ?? [];
+        const errorRow = rows.find(
+          (r: Record<string, unknown>) =>
+            String(r["Msg_type"]).toLowerCase() === "error",
+        );
+        if (errorRow) {
+          return withTokenEstimate({
+            success: false,
+            error: String(errorRow["Msg_text"]),
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { results: rows },
+          });
+        }
 
         return withTokenEstimate({
           success: true,
           data: {
             optimized: true,
             table: validated.table,
-            result: result.rows
+            result: rows
           }
         });
       } catch (e) {
