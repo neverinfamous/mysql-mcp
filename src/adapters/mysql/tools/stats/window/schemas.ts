@@ -99,7 +99,7 @@ export const StatsLagLeadSchema = z.object({
   table: z.string().min(1, "table is required"),
   column: z.string().min(1, "column is required"),
   orderBy: z.string().min(1, "orderBy is required"),
-  direction: z.enum(["lag", "lead"]),
+  direction: z.enum(["lag", "lead"]).default("lag"),
   offset: z.number().min(1).default(1),
   defaultValue: z.string().optional(),
   partitionBy: z.string().optional(),
