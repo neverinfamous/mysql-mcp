@@ -95,6 +95,7 @@
 
 ### Fixed
 - Fixed an output schema mismatch in the `stats` tool group where `mysql_stats_hypothesis`, `mysql_stats_frequency`, and `mysql_stats_summary` returned inconsistent payload structures and incorrect schema typing, and fixed a TypeScript parsing bug in `mysql_stats_hypothesis` where two-sample tests failed due to property index signature enforcement and overly restrictive input validation. (`125ab47`)
+- Fixed an output schema mismatch in the `stats` tool group where `mysql_stats_histogram` omitted the `table` and `column` fields, and fixed outdated test assertions for `mysql_stats_distinct` and `mysql_stats_outliers` expecting incorrect field names (`distinctCount` -> `count` and `totalRows` -> `totalCount`). (`8374e44`)
 - Fixed missing structured error fields (`code`, `category`, `recoverable`) in `mysql_transaction_execute` rollbacks and `mysql_event_*` `onCompletion` validations to align with strict error consistency standards. (`851946b`, `4c43c9f`, `5843c3d`)
 - Fixed missing structured error payloads across the `spatial` tool group where caught exceptions were incorrectly stripped of their underlying `code` and `category` fields due to an anti-pattern `new Error(msg)` fallback in the catch blocks, resolving raw error leaks in Code Mode. (`94642f9`)
 - Fixed a factual error in the `test-codemode-introspection.md` test prompt where the schema was incorrectly referenced as `test_db` instead of `testdb`.
