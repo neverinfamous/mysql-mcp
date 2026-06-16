@@ -28,7 +28,7 @@ export const DependencyGraphSchemaBase = z.object({
 });
 
 export const DependencyGraphSchema = z.object({
-  schema: z.string(),
+  schema: z.string().optional(),
   includeRowCounts: z.boolean().optional(),
   compact: z.boolean().optional(),
   limit: z.preprocess((val) => {
@@ -72,7 +72,6 @@ export const TopologicalSortSchema = z
 export const CascadeSimulatorSchemaBase = z.object({
   table: z
     .string()
-    .optional()
     .describe("Table name to simulate deletion from (supports schema.table)"),
   schema: z.string().optional().describe("Schema name (default: public)"),
   operation: z

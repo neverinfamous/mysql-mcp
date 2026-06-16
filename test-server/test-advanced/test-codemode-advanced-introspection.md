@@ -118,7 +118,7 @@ All tools use the Split Schema pattern: a plain `z.object()` Base schema for MCP
 
 ## P154 Object Existence Verification
 
-All tools that accept a table name should return structured error responses for nonexistent tables and databases. For each, verify:
+All tools that accept a table name should return structured error responses for nonexistent tables and databases. *(Note: `mysql_dependency_graph`, `mysql_topological_sort`, `mysql_schema_snapshot`, and `mysql_migration_risks` do not accept a `table` parameter, so this requirement only applies to tools that do, like `mysql_cascade_simulator` and `mysql_constraint_analysis`)*. For each, verify:
 
 1. **Nonexistent table**: Calling with `table: "nonexistent_table_xyz"` returns a structured error — not a raw MySQL exception
 2. **Nonexistent database/schema**: Where applicable, calling with a nonexistent database produces a similarly clear structured error
@@ -176,7 +176,7 @@ During testing, check for these inconsistencies:
 13. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
 14. Run `mysql_schema_snapshot` on `stress_snapshots`. Verify it returns a comprehensive metadata snapshot. Check payload size for bloat.
 15. Run `mysql_migration_risks` with `ddlQuery: "DROP DATABASE stress_snapshots"`. Verify it correctly identifies the high-risk operation and affected objects.
-16. Run `mysql_migration_risks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Verify it returns a structured error.
+16. Run `mysql_migration_risks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Note that since this tool is regex-based, it will likely return 0 risks instead of a syntax error. Verify that it processes the query without throwing a raw MCP exception.
 
 ## Category 5: Cleanup Verification
 
