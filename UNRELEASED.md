@@ -175,3 +175,4 @@
 - Fixed a Split Schema pattern violation in `mysql_router_pool_status` where `poolName` incorrectly defaulted to `main` instead of rejecting empty input, preventing expected Zod validation errors on empty parameters.
 - Fixed an outdated error assertion in `anomaly-detection.test.ts` to match the newly updated error message format for missing extensions.
 - Fixed inaccurate parameter documentation in `mysql_stats_hypothesis` where the `group1` and `group2` aliases were incorrectly advertised for a one-sample test, updating them to accurately reflect `groupColumn` and `valueColumn`. Updated corresponding code mode test prompts to use the correct inputs.
+- Fixed a Split Schema pattern violation in the `text` tool group where `SubstringSchemaBase` was missing the `col` alias and `CollationConvertSchema` failed to handle the `targetCharset` alias due to a non-optional base property, resolving Zod validation failures.

@@ -8,7 +8,7 @@ export const CollationConvertSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name"),
   col: z.string().optional().describe("Alias for column"),
-  charset: z.string().describe("Target character set (e.g., utf8mb4)"),
+  charset: z.string().optional().describe("Target character set (e.g., utf8mb4)"),
   targetCharset: z.string().optional().describe("Alias for charset"),
   collation: z.string().optional().describe("Target collation"),
   where: z
@@ -42,7 +42,7 @@ export const CollationConvertSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      charset: z.string(),
+      charset: z.string().optional(),
       collation: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
@@ -52,7 +52,7 @@ export const CollationConvertSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    charset: data.charset,
+    charset: data.charset ?? "",
     collation: data.collation,
     where: data.where ?? data.filter,
     limit: data.limit,
@@ -62,6 +62,9 @@ export const CollationConvertSchema = z
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
+  })
+  .refine((data) => data.charset !== "", {
+    message: "charset (or targetCharset alias) is required",
   })
   .refine(
     (data) =>

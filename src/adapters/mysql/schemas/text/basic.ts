@@ -156,7 +156,8 @@ export const SubstringSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("Column name"),
+  column: z.string().optional().describe("Column name"),
+  col: z.string().optional().describe("Alias for column"),
   start: z.unknown().describe("Starting position (1-indexed)"),
   length: z.unknown().optional().describe("Number of characters"),
   where: z
@@ -174,7 +175,8 @@ export const SubstringSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      column: z.string(),
+      column: z.string().optional(),
+      col: z.string().optional(),
       start: z.coerce.number(),
       length: z.coerce.number().optional(),
       where: z.string().optional(),
@@ -184,7 +186,7 @@ export const SubstringSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column,
+    column: data.column ?? data.col ?? "",
     start: data.start,
     length: data.length,
     where: data.where ?? data.filter,
@@ -192,6 +194,9 @@ export const SubstringSchema = z
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.column !== "", {
+    message: "column (or col alias) is required",
   })
   .refine(
     (data) =>
