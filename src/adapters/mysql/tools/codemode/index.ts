@@ -161,6 +161,9 @@ return results;
         return {
           success: false,
           error: "Code parameter is required",
+          code: "VALIDATION_ERROR",
+          category: "validation",
+          recoverable: false,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
@@ -174,6 +177,9 @@ return results;
         return {
           success: false,
           error: `Code validation failed: ${validation.errors.join("; ")}`,
+          code: "VALIDATION_ERROR",
+          category: "validation",
+          recoverable: false,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
@@ -184,6 +190,9 @@ return results;
         return {
           success: false,
           error: "Rate limit exceeded. Please wait before executing more code.",
+          code: "RATE_LIMIT_ERROR",
+          category: "rate_limit",
+          recoverable: true,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
@@ -207,6 +216,9 @@ return results;
           success: false,
           error:
             "mysql.* API not available: no tool bindings were created. Ensure adapter.getToolDefinitions() returns valid tools.",
+          code: "INTERNAL_ERROR",
+          category: "internal",
+          recoverable: false,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }

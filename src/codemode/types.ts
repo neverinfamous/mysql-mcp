@@ -78,6 +78,12 @@ export interface SandboxResult {
   result?: unknown;
   /** Error message (if failed) */
   error?: string | undefined;
+  /** Error code */
+  code?: string | undefined;
+  /** Error category */
+  category?: string | undefined;
+  /** Whether the error is recoverable */
+  recoverable?: boolean | undefined;
   /** Stack trace (if failed) */
   stack?: string | undefined;
   /** Captured console logs */
@@ -205,6 +211,12 @@ export interface ExecuteCodeResult {
   result?: unknown;
   /** Error message (if failed) */
   error?: string;
+  /** Error code */
+  code?: string;
+  /** Error category */
+  category?: string;
+  /** Whether the error is recoverable */
+  recoverable?: boolean;
   /** Captured console logs */
   logs?: string[];
   /** Execution metrics */

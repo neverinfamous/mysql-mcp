@@ -60,6 +60,9 @@ export class CodeModeSandbox {
       return {
         success: false,
         error: "Sandbox has been disposed",
+        code: "INTERNAL_ERROR",
+        category: "internal",
+        recoverable: false,
         metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
       };
     }
@@ -75,6 +78,9 @@ export class CodeModeSandbox {
         return {
           success: false,
           error: `Security Error: Invalid tool group name '${groupName}'`,
+          code: "VALIDATION_ERROR",
+          category: "validation",
+          recoverable: false,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
@@ -131,6 +137,9 @@ export class CodeModeSandbox {
         error:
           "Code validation failed: " +
           (e instanceof Error ? e.message : String(e)),
+        code: "VALIDATION_ERROR",
+        category: "validation",
+        recoverable: false,
         metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
       };
     }
@@ -148,6 +157,9 @@ export class CodeModeSandbox {
       return {
         success: false,
         error: "Security Error: isolated-vm native bindings failed to load. Code Mode strict isolation is enabled and node:vm fallback is prohibited.",
+        code: "INTERNAL_ERROR",
+        category: "internal",
+        recoverable: false,
         metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
       };
 
@@ -412,7 +424,12 @@ export class CodeModeSandbox {
 
     return {
       success,
-      ...(success ? { result } : { error: errorMsg }),
+      ...(success ? { result } : { 
+        error: errorMsg,
+        code: "EXECUTION_ERROR",
+        category: "execution",
+        recoverable: false
+      }),
       logs,
       metrics: {
         wallTimeMs: Math.round(endTime - startTime),
