@@ -75,6 +75,7 @@ export const FindSchemaBase = z.object({
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
     ),
+  criteria: z.unknown().optional(),
   fields: z.array(z.string()).optional(),
   limit: z.unknown().optional(),
   offset: z.unknown().optional(),
@@ -125,7 +126,9 @@ export const ModifyDocSchemaBase = z.object({
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
     ),
+  criteria: z.unknown().optional(),
   set: z.record(z.string(), z.unknown()).optional().describe("Fields to set"),
+  update: z.record(z.string(), z.unknown()).optional(),
   unset: z.array(z.string()).optional(),
 });
 
@@ -155,6 +158,7 @@ export const RemoveDocSchemaBase = z.object({
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
     ),
+  criteria: z.unknown().optional(),
 });
 
 export const RemoveDocSchemaStrict = z.object({
@@ -180,9 +184,8 @@ export const CreateDocIndexSchemaBase = z.object({
     .array(
       z.object({
         path: z.string().optional(),
-        type: z
-          .enum(["TEXT", "INT", "DOUBLE", "DATE", "DATETIME", "GEOJSON"])
-          .optional(),
+        field: z.string().optional(),
+        type: z.string().optional(),
         required: z.boolean().optional(),
       }),
     )

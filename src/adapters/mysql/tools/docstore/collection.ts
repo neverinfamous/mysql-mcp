@@ -357,8 +357,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             success: true,
             data: {
               collection,
-              stats: { rowCount, ...stats },
-              indexes: indexInfo.rows ?? [],
+              info: {
+                rowCount,
+                ...stats,
+                indexes: indexInfo.rows ?? [],
+              },
             },
           });
         } catch (error: unknown) {
