@@ -77,7 +77,7 @@ test.describe("Stateless HTTP Mode", () => {
   test("GET /mcp should return 405 (SSE not available in stateless)", async () => {
     const response = await fetch(`${STATELESS_BASE}/mcp`);
 
-    expect(response.status).toBe(405);
+    console.log("STATUS:", response.status, "BODY:", await response.text()); expect(response.status).toBe(405);
     const body = (await response.json()) as Record<string, unknown>;
     expect(body).toHaveProperty("error");
   });

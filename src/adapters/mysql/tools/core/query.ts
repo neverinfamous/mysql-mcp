@@ -69,7 +69,7 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         const limit = 50;
         const hasLimit = /\bLIMIT\b/i.test(finalQuery);
         
-        if (isLimitable && !hasLimit) {
+        if (isLimitable && !hasLimit && !stream) {
           finalQuery = `${finalQuery} LIMIT ${limit}`;
           if (offset > 0) {
             finalQuery = `${finalQuery} OFFSET ${offset}`;

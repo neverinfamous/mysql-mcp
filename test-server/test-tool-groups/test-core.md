@@ -174,10 +174,10 @@ All tools implement P154 structured error handling for nonexistent tables. Test 
 
 **Read/Write/Schema tools:**
 
-1. `mysql_read_query({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `{rows: [{n: 20}], count: 1}`
+1. `mysql_read_query({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `{rows: [{n: 20}], rowCount: 1}`
 2. `mysql_read_query({query: "SELECT id, name, price FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows with valid data
 3. `mysql_read_query({query: "SELECT * FROM test_measurements", stream: true, chunkSize: 50})` → verify returns `{streamed: true, chunksEmitted: 4, rowCount: 200}`
-4. `mysql_read_query({query: "SELECT id FROM test_measurements"})` → verify `count` is 50 (due to default LIMIT) and `nextCursor` is returned
+4. `mysql_read_query({query: "SELECT id FROM test_measurements"})` → verify `rowCount` is 50 (due to default LIMIT) and `nextCursor` is returned
 5. `mysql_read_query({query: "SELECT id FROM test_measurements", cursor: "<nextCursor value from previous call>"})` → verify offsets correctly
 6. `mysql_list_tables({database: "testdb", limit: 5})` → `{tables: [...], count: 5, truncated: true}`
 7. `mysql_describe_table({table: "test_products"})` → verify `columns` includes `id`, `name`, `price`, `category`, `metadata`; `primaryKey` present
