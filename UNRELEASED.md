@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a Split Schema pattern violation in the `spatial` tool group where `GeoJSONSchemaBase` lacked the `wkt` parameter alias definition, ensuring proper parameter visibility in MCP clients.
 - Fixed a bug in the `vector` tool group where `mysql_vector_create_index` failed with a raw `QUERY_ERROR` and SQL syntax error on standard MySQL 9.x instances due to unsupported `VECTOR INDEX` syntax. It now properly catches the syntax error and returns a structured `EXTENSION_MISSING` payload. (`c75d020`)
 - Fixed an SQL injection risk and multi-column parsing bug in the `stats` tool group's window functions (`mysql_stats_row_number`, `mysql_stats_rank`, `mysql_stats_lag_lead`, `mysql_stats_running_total`, `mysql_stats_moving_avg`, `mysql_stats_ntile`) where `orderBy` and `partitionBy` clauses were improperly wrapped in literal identifier backticks, preventing the use of standard comma-separated multi-column sort strategies and breaking sort directions (`ASC`/`DESC`) with a `1054 Unknown column` crash. (`b99dad6`)
 - Fixed an output schema validation bug in `mysql_fulltext_create` and `mysql_fulltext_drop` where `FulltextCreateOutputSchema` and `FulltextDropOutputSchema` incorrectly required a `success: boolean` property inside the `data` wrapper instead of at the root level, resulting in raw `-32602` MCP validation errors on success.

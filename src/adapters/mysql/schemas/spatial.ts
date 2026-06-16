@@ -368,6 +368,7 @@ export const GeoJSONSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("WKT geometry to convert to GeoJSON"),
+  wkt: z.unknown().optional(),
   geoJson: z.unknown().optional().describe("GeoJSON to convert to WKT"),
   srid: z.unknown().optional().describe("SRID for conversion (default: 4326)"),
 });
