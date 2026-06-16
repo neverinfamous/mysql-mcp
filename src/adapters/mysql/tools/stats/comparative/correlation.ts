@@ -50,6 +50,9 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
 
         const whereClause = where ? `WHERE ${where}` : "";
 
+        // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
+        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 1`);
+
         // Verify columns are numeric (P154)
         const colCheck = await adapter.executeQuery(
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 

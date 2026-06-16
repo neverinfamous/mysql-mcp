@@ -46,6 +46,9 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
 
         const whereClause = where ? `WHERE ${where}` : "";
 
+        // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
+        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 1`);
+
         // Check if column is numeric
         const colCheck = await adapter.executeQuery(
           `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
