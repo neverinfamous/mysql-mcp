@@ -299,7 +299,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
           success: true,
           data: {
             column,
-            distinctCount,
+            count: distinctCount,
             values,
           },
         });

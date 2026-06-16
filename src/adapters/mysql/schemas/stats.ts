@@ -112,13 +112,16 @@ export const WindowFunctionOutputSchema = BaseOutputSchema.extend({
 export const TTestOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
-    groupColumn: z.string(),
-    group1: z.union([z.string(), z.number()]),
-    group2: z.union([z.string(), z.number()]),
+    testType: z.string().optional(),
+    hypothesizedMean: z.number().optional(),
+    groupColumn: z.string().optional(),
+    group1: z.union([z.string(), z.number()]).optional(),
+    group2: z.union([z.string(), z.number()]).optional(),
     tStat: z.number().nullish(),
     degreesOfFreedom: z.number().nullish(),
     pValue: z.number().nullish(),
-    isSignificant: z.boolean(),
+    isSignificant: z.boolean().optional(),
+    results: z.record(z.string(), z.unknown()).optional(),
   }).loose().optional(),
 });
 
@@ -159,10 +162,10 @@ export const DistinctOutputSchema = BaseOutputSchema.extend({
 export const FrequencyOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
-    frequencies: z.array(
+    distribution: z.array(
       z.object({
         value: z.unknown(),
-        count: z.number(),
+        frequency: z.number(),
         percentage: z.number(),
       })
     ),
@@ -172,6 +175,6 @@ export const FrequencyOutputSchema = BaseOutputSchema.extend({
 export const SummaryOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     table: z.string(),
-    summary: z.record(z.string(), z.unknown()),
+    summaries: z.array(z.record(z.string(), z.unknown())),
   }).loose().optional(),
 });

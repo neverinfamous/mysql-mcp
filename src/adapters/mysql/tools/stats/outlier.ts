@@ -161,8 +161,9 @@ async function detectZScoreOutliers(
       success: true,
       data: {
         method: "zscore",
+        column,
         outlierCount: 0,
-        totalRows: 0,
+        totalCount: 0,
         stats: { mean: 0, stdDev: 0, lowerBound: 0, upperBound: 0 },
       },
     };
@@ -177,9 +178,10 @@ async function detectZScoreOutliers(
       success: true,
       data: {
         method: "zscore",
+        column,
         stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
         outlierCount: 0,
-        totalRows,
+        totalCount: totalRows,
       },
     };
   }
@@ -207,9 +209,10 @@ async function detectZScoreOutliers(
 
   const data: Record<string, unknown> = {
     method: "zscore",
+    column,
     stats: { mean, stdDev, lowerBound, upperBound },
     outlierCount: outliers.length,
-    totalRows,
+    totalCount: totalRows,
     outliers,
   };
 
@@ -252,8 +255,9 @@ async function detectIqrOutliers(
       success: true,
       data: {
         method: "iqr",
+        column,
         outlierCount: 0,
-        totalRows: 0,
+        totalCount: 0,
         stats: { q1: 0, q3: 0, iqr: 0, lowerBound: 0, upperBound: 0 },
       },
     };
@@ -300,9 +304,10 @@ async function detectIqrOutliers(
 
   const data: Record<string, unknown> = {
     method: "iqr",
+    column,
     stats: { q1, q3, iqr, lowerBound, upperBound },
     outlierCount: outliers.length,
-    totalRows,
+    totalCount: totalRows,
     outliers,
   };
 
