@@ -96,14 +96,18 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
             
             // If tool declares an outputSchema, return structuredContent
             if (hasOutputSchema) {
+              const isError = isRecord(result) && result["success"] === false;
               return {
                 content: [{ type: "text", text: finalText }],
                 structuredContent: isRecord(result) ? result : undefined,
+                ...(isError ? { isError: true } : {}),
               } satisfies CallToolResult;
             }
             
+            const isError = isRecord(result) && result["success"] === false;
             return {
               content: [{ type: "text", text: finalText }],
+              ...(isError ? { isError: true } : {}),
             } satisfies CallToolResult;
           }
 
