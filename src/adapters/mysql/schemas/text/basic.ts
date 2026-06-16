@@ -209,7 +209,7 @@ export const ConcatSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).describe("Columns to concatenate"),
+  columns: z.array(z.string()).min(1, "At least one column is required").describe("Columns to concatenate"),
   separator: z
     .string()
     .optional()
@@ -242,7 +242,7 @@ export const ConcatSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      columns: z.array(z.string()),
+      columns: z.array(z.string()).min(1, "At least one column is required"),
       separator: z.string().optional().default(" "),
       alias: z.string().optional().default("concatenated"),
       where: z.string().optional(),
