@@ -148,7 +148,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication not active")
+            new Error("Group Replication plugin is not active")
           );
         }
 
@@ -204,6 +204,16 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        // Check if GR is running
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
+        );
+        if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
+          return formatHandlerErrorResponse(
+            new Error("Group Replication plugin is not active")
+          );
+        }
+
         const result = await adapter.executeQuery(`
                 SELECT 
                     MEMBER_ID as memberId,
@@ -260,7 +270,7 @@ export function createGRTransactionsTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication not active")
+            new Error("Group Replication plugin is not active")
           );
         }
 
@@ -325,7 +335,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication not active")
+            new Error("Group Replication plugin is not active")
           );
         }
 

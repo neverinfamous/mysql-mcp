@@ -13,20 +13,17 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 2. **Subagent Delegation**: 
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
-3. **Validation and Server Restart Coordination**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run check; pnpm run build; pnpm run test; pnpm run test:e2e`. They must ensure these pass completely cleanly BEFORE requesting a server refresh.
-   - After passing local CI, the subagent is instructed to pause and message you: *"Please manually refresh the `mysql-mcp` server, then say 'ready' so I can verify the fix."*
-   - When you receive this message, DO NOT proceed. Surface the message to the user and wait for them to manually refresh the server.
-   - Once the user confirms the server is ready, use the `send_message` tool to pass the "ready" signal to the waiting subagent.
+3. **Validation and Immediate Continuation**:
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run check; pnpm run build; pnpm run test; pnpm run test:e2e`. They must ensure these pass completely cleanly.
+   - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
 4. **Finalization and Commit**:
-   - The subagent MUST explicitly verify the fixes work properly after the server is restarted.
-   - Once confirmed, the subagent MUST update `UNRELEASED.md` with all changes.
+   - Once local CI passes (or if no fixes were needed), the subagent MUST update `UNRELEASED.md` with all changes.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
    - The subagent MUST commit all changes locally (`git commit -m "..."`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt.
-   - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and move to the next test in the queue.
-5. **Code Mode Constraints (P401)**:
+   - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and immediately move to the next test in the queue.
+   - If the subagent applied any fixes, they MUST explicitly note this in their final message to you so you can track that a final live verification sweep will be needed at the very end of the suite.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
 
 ## Test Sequence Queue (Dependency DAG)
@@ -79,3 +76,7 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 
 ## Telemetry Collection
 When the suite finishes, compile the **Total Token Estimate** and resource metrics (e.g., `memory://metrics/summary`) from all subagents into a final report for the user.
+
+## Post-Suite Validation
+At the absolute end of the testing suite, check your records. If ANY subagent applied fixes during the run:
+1. Message the main agent: "The test suite is complete. Fixes were applied during the run. Please ask the user to restart the server ONCE, and then we will run a final validation sweep."

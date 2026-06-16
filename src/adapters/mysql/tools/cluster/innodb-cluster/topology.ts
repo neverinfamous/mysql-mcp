@@ -39,6 +39,11 @@ export function createClusterTopologyTool(
             `);
 
         const members = membersResult.rows ?? [];
+        if (members.length === 0) {
+          return formatHandlerErrorResponse(
+            new Error("InnoDB Cluster metadata not found. No InnoDB Cluster configured.")
+          );
+        }
         const grMemberIds = new Set(
           members.map((m) => (typeof m["id"] === "string" ? m["id"] : "")).filter(Boolean),
         );

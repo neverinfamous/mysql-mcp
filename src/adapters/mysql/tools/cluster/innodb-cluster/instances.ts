@@ -72,6 +72,12 @@ export function createClusterInstancesTool(
             [],
           );
 
+          if ((grResult.rows?.length ?? 0) === 0) {
+            return formatHandlerErrorResponse(
+              new Error("InnoDB Cluster metadata not found. No InnoDB Cluster configured.")
+            );
+          }
+
           const data = {
             source: "group_replication",
             instances: grResult.rows ?? [],
