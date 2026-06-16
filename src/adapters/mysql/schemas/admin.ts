@@ -182,7 +182,7 @@ export const ShowProcesslistSchemaBase = z.object({
     .unknown()
     .optional()
     .describe(
-      "Maximum number of processes to return (default: 50). Set higher to see all.",
+      "Maximum number of processes to return (default: 10). Set higher to see all.",
     ),
 });
 
@@ -193,7 +193,7 @@ export const ShowProcesslistSchema = z
   })
   .transform((data) => ({
     full: data.full,
-    limit: data.limit !== undefined ? Number(data.limit) : 50,
+    limit: data.limit !== undefined ? Number(data.limit) : 10,
   }))
   .refine(
     (data) =>

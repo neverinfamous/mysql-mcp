@@ -181,3 +181,5 @@
 - Fixed a Split Schema pattern violation in the `docstore` tool group where `mysql_doc_create_collection` and `mysql_doc_drop_collection` failed to accept the `collection` parameter alias.
 - Fixed a Split Schema pattern violation in the `introspection` tool group where `DependencyGraphSchema` strictly required the `schema` parameter internally despite it being advertised as optional, and `CascadeSimulatorSchema` made the `table` parameter optional externally despite it being required internally.
 - Fixed factual errors in the `test-codemode-advanced-introspection.md` test prompt regarding nonexistent table handling for `mysql_dependency_graph` and syntax error handling for the regex-based `mysql_migration_risks` tool.
+- Fixed missing structured error formatting in the `monitoring` tool group (`mysql_show_status`, `mysql_show_variables`) where manual `limit` parameter validation returned a non-standard error object, bypassing Zod structured `ErrorResponse` validation.
+- Fixed a payload bloat issue in the `monitoring` tool group by decreasing the default `limit` parameter for `mysql_show_processlist` from 50 to 10.

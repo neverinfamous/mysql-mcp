@@ -24,13 +24,6 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
-        if (limit !== undefined && limit < 1) {
-          const error = "limit must be a positive integer";
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify({ success: false, error }), "utf8") / 4,
-          );
-          return { success: false, error, metrics: { tokenEstimate } };
-        }
         const effectiveLimit = limit ?? 30;
 
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
