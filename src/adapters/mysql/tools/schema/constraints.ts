@@ -76,6 +76,19 @@ export function createListConstraintsTool(
           tableName = parts[1];
         }
 
+        // P154: Schema existence check when explicitly provided
+        if (schemaName !== null && schemaName !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [schemaName],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${schemaName}' does not exist`),
+            );
+          }
+        }
+
         // P154: Check table existence first
         const existsResult = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,

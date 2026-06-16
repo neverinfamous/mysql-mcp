@@ -1,5 +1,8 @@
 # Unreleased
 
+### Fixed
+- **Validation**: Executed Advanced Code Mode Stress Testing for the schema tool group, uncovering and fixing a P154 bug in `mysql_list_constraints` where the tool failed to explicitly check if the provided target schema existed, leading to misleading internal fallback errors.
+
 ### Added
 - **Testing Infrastructure Standardization**: Harmonized the testing infrastructure with `db-mcp`, migrating all 84 test prompt files to a strict, template-driven standard (`test-server/scripts/prompt-template.md` and `standardize-prompts.js`). Renamed test files and directories to match the gold standard naming conventions (`test-codemode`, `test-{name}.md`).
 - **Test Coverage Expansion**: Expanded the `test-advanced` suite by adding `test-codemode-sandbox.md` (to test `isolated-vm` security boundaries) and `test-codemode-advanced-concurrency.md` (to test connection pool saturation and `Promise.all()` queueing limits). Integrated rigorous Wrong-Type Coercion and Zod validation attack rules into all test templates globally.
