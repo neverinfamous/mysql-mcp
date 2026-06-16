@@ -184,3 +184,4 @@
 - Fixed factual errors in the `test-codemode-advanced-introspection.md` test prompt regarding nonexistent table handling for `mysql_dependency_graph` and syntax error handling for the regex-based `mysql_migration_risks` tool.
 - Fixed missing structured error formatting in the `monitoring` tool group (`mysql_show_status`, `mysql_show_variables`) where manual `limit` parameter validation returned a non-standard error object, bypassing Zod structured `ErrorResponse` validation.
 - Fixed a payload bloat issue in the `monitoring` tool group by decreasing the default `limit` parameter for `mysql_show_processlist` from 50 to 10.
+- Fixed outdated method names and invalid schema properties in the `test-codemode-advanced-partitioning.md` test prompt, ensuring alignment with the actual Code Mode implementations.
