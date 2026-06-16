@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a factual error in the `test-transactions.md` test prompt where `mysql_transaction_execute` was incorrectly asserting an array of objects (`[{sql: "..."}]`) instead of an array of strings, aligning the prompt with strict Zod schema requirements.
 - Fixed a streaming payload bloat mitigation bug in `mysql_read_query` where `stream: true` requests were improperly restricted by the `LIMIT 50` default injection, preventing full dataset iteration. (`b74238e`, `8477943`, `9d2cb7a`)
 - Fixed a flaky `stateless.spec.ts` E2E test failure where an orphaned stateful process on port 3102 from earlier suite runs hijacked the `fetch` assertions, by migrating the test server boundary to port 3103.
 - Fixed a Proxy interception bug in `sandbox.ts` where the `wrapResult` wrapper incorrectly blocked access to the `isError` property on failed tool operations, causing raw exceptions that masked the underlying structured domain errors. (`2958c57`)

@@ -161,7 +161,7 @@ transactions Tool Group (7 tools +1 for code mode):
 4. `mysql_transaction_rollback_to({transactionId: <id>, name: "checklist_sp1"})` → `{success: true}`
 5. `mysql_transaction_release({transactionId: <id>, name: "checklist_sp1"})` → note behavior
 6. `mysql_transaction_commit({transactionId: <id>})` → `{success: true}`
-7. `mysql_transaction_execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `{success: true, statementsExecuted: 2}`
+7. `mysql_transaction_execute({statements: ["SELECT 1 AS a", "SELECT 2 AS b"]})` → `{success: true, statementsExecuted: 2}`
 
 **Domain error paths (🔴):**
 
