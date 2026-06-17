@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed missing structured error responses (`code`, `category`) across the `roles` tool group (`mysql_role_drop`, `mysql_role_create`, `mysql_role_grant`, `mysql_role_assign`, `mysql_user_roles`, `mysql_role_grants`, `mysql_role_revoke`) for domain-specific errors (e.g., `OBJECT_NOT_FOUND`, `OBJECT_ALREADY_EXISTS`) to ensure compliance with ErrorResponse standards. (`cf835e3`)
 - Fixed a bug in the `performance` tool group where `IndexRecommendationSchema` lacked schema validation coverage for the `.refine()` logic, meaning empty payloads with no `table` or `queries` successfully bypassed validation and returned raw MCP errors instead of structured `VALIDATION_ERROR` payloads. (`9ef3fab`)
 - Fixed a Zod validation schema bug in the `fulltext` tool group (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) where the `query` field strictly required a non-empty string, bypassing the intended sanitization logic that should gracefully return `{ rows: [], count: 0 }` for empty queries. (`9b1d2ac`)
 - Fixed severe payload bloat issues in the `backup` tool group by reducing the default `limit` parameter for `mysql_audit_list_backups` from 50 to 10, saving over 3000 tokens per default request. (`716d0d5`)
