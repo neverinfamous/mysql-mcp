@@ -4,6 +4,7 @@
 - Standardized Playwright and Vitest test configurations to enforce strict timeouts, isolation, and consistent artifact paths for ecosystem parity. (`f89797a`)
 
 ### Fixed
+- Fixed a critical `Maximum call stack size exceeded` bug in the HTTP `SessionManager` where cyclical `.close()` calls between the transport and the session map caused infinite recursion during timeout cleanup. (`bbcee30`)
 - Fixed missing structured error payload mappings in `src/utils/error-suggestions.ts` for the `Unknown table` exception, enabling schema routine tools to catch and format missing object errors as standard `TABLE_NOT_FOUND` `{ success: false }` payloads instead of leaking raw exceptions. (`62e5d19`)
 - Fixed outdated expected error message assertions in `src/adapters/mysql/tools/__tests__/roles.test.ts` for `mysql_user_roles` and `mysql_role_revoke` to match the newly implemented formatted user existence messages. (`62e5d19`)
 - Fixed missing structured error responses (`code`, `category`) across the `roles` tool group (`mysql_role_drop`, `mysql_role_create`, `mysql_role_grant`, `mysql_role_assign`, `mysql_user_roles`, `mysql_role_grants`, `mysql_role_revoke`) for domain-specific errors (e.g., `OBJECT_NOT_FOUND`, `OBJECT_ALREADY_EXISTS`) to ensure compliance with ErrorResponse standards. (`cf835e3`)
