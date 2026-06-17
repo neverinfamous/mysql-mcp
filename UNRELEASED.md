@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed 4 failing Vitest tests in the `roles` and `security` tool groups (`mysql_role_list`, `mysql_security_user_privileges`) by updating assertions to expect parameterized queries and adjusting test inputs to pass `summary: false` to accommodate the new condensed payload defaults. (`ca4bd48`)
 - Fixed a Split Schema pattern violation in the `migration` tool group where `mysql_migration_record` and `mysql_migration_apply` did not correctly map the `name` parameter alias to `description` in their validation schemas. (`ab9f7fb`)
 - Fixed a Split Schema pattern violation in the `introspection` tool group where `DependencyGraphSchemaBase` allowed the `schema` parameter to be optional despite strict requirement testing, properly enforcing Zod validation on empty objects without breaking the `limit` / `maxDepth` defaults. (`d072de6`)
 - Fixed a factual error in the `test-introspection.md` test prompt where circular dependencies in the `testdb` test schema prevented the `mysql_topological_sort` happy path assertion from succeeding, by pointing the assertion to `testdb2`. (`d072de6`)
