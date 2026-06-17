@@ -165,7 +165,7 @@ shell Tool Group (10 tools +1 for code mode):
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test"})` → `{success: false, error: "..."}` handler error
+5. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test_dump"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
