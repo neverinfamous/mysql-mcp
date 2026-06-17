@@ -1,8 +1,8 @@
 # Unreleased
 
 ### Fixed
-- Fixed missing structured error payload mappings in `src/utils/error-suggestions.ts` for the `Unknown table` exception, enabling schema routine tools to catch and format missing object errors as standard `TABLE_NOT_FOUND` `{ success: false }` payloads instead of leaking raw exceptions.
-- Fixed outdated expected error message assertions in `src/adapters/mysql/tools/__tests__/roles.test.ts` for `mysql_user_roles` and `mysql_role_revoke` to match the newly implemented formatted user existence messages.
+- Fixed missing structured error payload mappings in `src/utils/error-suggestions.ts` for the `Unknown table` exception, enabling schema routine tools to catch and format missing object errors as standard `TABLE_NOT_FOUND` `{ success: false }` payloads instead of leaking raw exceptions. (`62e5d19`)
+- Fixed outdated expected error message assertions in `src/adapters/mysql/tools/__tests__/roles.test.ts` for `mysql_user_roles` and `mysql_role_revoke` to match the newly implemented formatted user existence messages. (`62e5d19`)
 - Fixed missing structured error responses (`code`, `category`) across the `roles` tool group (`mysql_role_drop`, `mysql_role_create`, `mysql_role_grant`, `mysql_role_assign`, `mysql_user_roles`, `mysql_role_grants`, `mysql_role_revoke`) for domain-specific errors (e.g., `OBJECT_NOT_FOUND`, `OBJECT_ALREADY_EXISTS`) to ensure compliance with ErrorResponse standards. (`cf835e3`)
 - Fixed a bug in the `performance` tool group where `IndexRecommendationSchema` lacked schema validation coverage for the `.refine()` logic, meaning empty payloads with no `table` or `queries` successfully bypassed validation and returned raw MCP errors instead of structured `VALIDATION_ERROR` payloads. (`9ef3fab`)
 - Fixed a Zod validation schema bug in the `fulltext` tool group (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) where the `query` field strictly required a non-empty string, bypassing the intended sanitization logic that should gracefully return `{ rows: [], count: 0 }` for empty queries. (`9b1d2ac`)
