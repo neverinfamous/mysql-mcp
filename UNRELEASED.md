@@ -113,6 +113,7 @@
 - Implemented an active context bloat warning in `mcp-server.ts` that alerts developers and suggests `--tool-filter codemode` or `starter` when registering more than 50 tools without a filter.
 
 ### Fixed
+- Fixed missing structured error responses (`code`, `category`) across the `stats` tool group's descriptive and comparative tools by replacing manual error returns with `ValidationError` throws, preventing raw exceptions from leaking in Code Mode. (`4580411`)
 - Fixed an output schema mismatch in the `stats` tool group where `mysql_stats_hypothesis`, `mysql_stats_frequency`, and `mysql_stats_summary` returned inconsistent payload structures and incorrect schema typing, and fixed a TypeScript parsing bug in `mysql_stats_hypothesis` where two-sample tests failed due to property index signature enforcement and overly restrictive input validation. (`125ab47`)
 - Fixed an output schema mismatch in the `stats` tool group where `mysql_stats_histogram` omitted the `table` and `column` fields, and fixed outdated test assertions for `mysql_stats_distinct` and `mysql_stats_outliers` expecting incorrect field names (`distinctCount` -> `count` and `totalRows` -> `totalCount`). (`8374e44`)
 - Fixed missing structured error fields (`code`, `category`, `recoverable`) in `mysql_transaction_execute` rollbacks and `mysql_event_*` `onCompletion` validations to align with strict error consistency standards. (`851946b`, `4c43c9f`, `5843c3d`)

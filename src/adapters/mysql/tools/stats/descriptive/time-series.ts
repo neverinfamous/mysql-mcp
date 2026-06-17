@@ -7,6 +7,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import { TimeSeriesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { TimeSeriesSchemaBase, TimeSeriesSchema } from "./schemas.js";
@@ -41,38 +42,22 @@ export function createTimeSeriesToolStats(
 
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
-          });
+          throw new ValidationError("Invalid table name");
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
         ) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid column name",
-          });
+          throw new ValidationError("Invalid column name");
         }
 
         const validIntervals = ["minute", "hour", "day", "week", "month"];
         if (!validIntervals.includes(interval)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`,
-          });
+          throw new ValidationError(`Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`);
         }
         const validAggregations = ["avg", "sum", "count", "min", "max"];
         if (!validAggregations.includes(aggregation)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`,
-          });
+          throw new ValidationError(`Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`);
         }
 
         let dateFormat: string;

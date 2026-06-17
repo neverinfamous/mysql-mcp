@@ -7,6 +7,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import { HistogramOutputSchema } from "../../../schemas/stats.js";
 import { WRITE } from "../../../../../utils/annotations.js";
 import { HistogramSchemaBase, HistogramSchema } from "./schemas.js";
@@ -30,18 +31,10 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           HistogramSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
-          });
+          throw new ValidationError("Invalid table name");
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid column name",
-          });
+          throw new ValidationError("Invalid column name");
         }
 
         // Check if table exists (P154)
@@ -52,11 +45,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Table '${table}' doesn't exist`,
-          });
+          throw new ValidationError(`Table '${table}' doesn't exist`);
         }
 
         // Check if column exists on the table
@@ -67,11 +56,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         );
 
         if (!columnCheck.rows || columnCheck.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Column '${column}' does not exist on table '${table}'`,
-          });
+          throw new ValidationError(`Column '${column}' does not exist on table '${table}'`);
         }
 
         let warning: string | undefined;
@@ -110,11 +95,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!result.rows || result.rows.length === 0) {
           if (update) {
-            return withTokenEstimate({
-              success: false,
-              code: "VALIDATION_ERROR",
-              error: "Histogram created but not yet visible in metadata",
-            });
+            throw new ValidationError("Histogram created but not yet visible in metadata");
           }
           return withTokenEstimate({
             success: true,
@@ -130,11 +111,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
 
         const histogramRow = result.rows[0];
         if (!histogramRow) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Histogram data is empty",
-          });
+          throw new ValidationError("Histogram data is empty");
         }
         return withTokenEstimate({
           success: true,

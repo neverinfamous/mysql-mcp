@@ -7,6 +7,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import { RegressionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { RegressionSchemaBase, RegressionSchema } from "./schemas.js";
@@ -31,21 +32,13 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           RegressionSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
-          });
+          throw new ValidationError("Invalid table name");
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
         ) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid column name",
-          });
+          throw new ValidationError("Invalid column name");
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -90,17 +83,9 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
             (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
           );
           if (notFoundReg.length > 0) {
-            return withTokenEstimate({
-              success: false,
-              code: "VALIDATION_ERROR",
-              error: `Column(s) not found: ${notFoundReg.join(", ")}`,
-            });
+            throw new ValidationError(`Column(s) not found: ${notFoundReg.join(", ")}`);
           }
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Both columns must be numeric types. Non-numeric: ${missingRegCols.join(", ")}`,
-          });
+          throw new ValidationError(`Both columns must be numeric types. Non-numeric: ${missingRegCols.join(", ")}`);
         }
 
         // Simpler approach for MySQL
@@ -125,11 +110,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const n = typeof nVal === "number" ? nVal : Number(nVal) || 0;
         
         if (!stats || n < 2) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Insufficient data points for regression (need at least 2)",
-          });
+          throw new ValidationError("Insufficient data points for regression (need at least 2)");
         }
 
         const sumX = Number(stats["sum_x"]);

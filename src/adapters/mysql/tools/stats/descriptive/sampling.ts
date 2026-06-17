@@ -7,6 +7,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import { SampleOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { SamplingSchemaBase, SamplingSchema } from "./schemas.js";
@@ -30,31 +31,19 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
           SamplingSchema.parse(params);
 
         if (sampleSize < 0) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "sampleSize must be >= 0",
-          });
+          throw new ValidationError("sampleSize must be >= 0");
         }
 
         // Validate table name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
-          });
+          throw new ValidationError("Invalid table name");
         }
 
         // Validate column names if provided
         if (columns) {
           for (const c of columns) {
             if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
-              return withTokenEstimate({
-                success: false,
-                code: "VALIDATION_ERROR",
-                error: `Invalid column name: ${c}`,
-              });
+              throw new ValidationError(`Invalid column name: ${c}`);
             }
           }
         }

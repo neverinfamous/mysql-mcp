@@ -7,6 +7,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import { CorrelationOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { CorrelationSchemaBase, CorrelationSchema } from "./schemas.js";
@@ -31,21 +32,13 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           CorrelationSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
-          });
+          throw new ValidationError("Invalid table name");
         }
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
         ) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid column name",
-          });
+          throw new ValidationError("Invalid column name");
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -91,17 +84,9 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
             (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
           );
           if (notFound.length > 0) {
-            return withTokenEstimate({
-              success: false,
-              code: "VALIDATION_ERROR",
-              error: `Column(s) not found: ${notFound.join(", ")}`,
-            });
+            throw new ValidationError(`Column(s) not found: ${notFound.join(", ")}`);
           }
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Both columns must be numeric types. Non-numeric: ${missingCols.join(", ")}`,
-          });
+          throw new ValidationError(`Both columns must be numeric types. Non-numeric: ${missingCols.join(", ")}`);
         }
 
         // Calculate Pearson correlation coefficient

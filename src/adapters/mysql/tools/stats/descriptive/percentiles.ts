@@ -7,6 +7,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import { PercentilesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { PercentilesSchemaBase, PercentilesSchema } from "./schemas.js";
@@ -30,18 +31,10 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           PercentilesSchema.parse(params);
         // Validate identifiers
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
-          });
+          throw new ValidationError("Invalid table name");
         }
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid column name",
-          });
+          throw new ValidationError("Invalid column name");
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -59,11 +52,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
         // Empty result means column doesn't exist; non-empty result with non-numeric type means wrong type
         if (!colCheck.rows || colCheck.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Column '${column}' not found on table '${table}'`,
-          });
+          throw new ValidationError(`Column '${column}' not found on table '${table}'`);
         }
         if (
           ![
@@ -78,11 +67,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
             "double",
           ].includes(dataType)
         ) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`,
-          });
+          throw new ValidationError(`Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`);
         }
 
         // Get total count
