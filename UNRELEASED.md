@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed severe payload bloat issues in the `backup` tool group by reducing the default `limit` parameter for `mysql_audit_list_backups` from 50 to 10, saving over 3000 tokens per default request. (`716d0d5`)
 - Fixed a Zod validation leak in the `vector` tool group where base schemas (e.g., `VectorSearchSchemaBase`) incorrectly used strict `z.unknown()` instead of `z.unknown().optional()` for required parameters. This caused raw MCP `-32602` SDK errors to bypass the handler's structured error wrapper when tools were called with missing arguments. (`5049f8d`)
 - Fixed a bug in the `vector` tool group where `mysql_vector_get` fell back to the `"id"` column when no `VECTOR` column was found, causing a raw `QUERY_ERROR` instead of returning a structured `ValidationError`. (`8c2f9fb`)
 - Fixed a bug in the `security` tool group where `mysql_security_firewall_rules` failed with an `UNKNOWN_ERROR` domain exception when the firewall plugin was not installed, updating it to gracefully return an empty result set and `installed: false` to match the rest of the security tools. (`a71d141`)
