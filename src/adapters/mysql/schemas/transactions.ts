@@ -123,6 +123,10 @@ export const TransactionExecuteSchema = z
     statements: data.statements ?? data.queries ?? [],
     isolationLevel: data.isolationLevel,
   }))
+  .refine((data) => data.statements.length > 0, {
+    message:
+      "No statements provided. Pass at least one SQL statement in statements (or queries alias).",
+  })
   .refine(
     (data) => {
       if (!data.isolationLevel) return true;
