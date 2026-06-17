@@ -125,71 +125,39 @@ src/
 
 241 tools across 28 groups. Each handler file registers tools with `group` labels.
 
-### Tool Handlers (`src/adapters/mysql/tools/`)
+<!-- BEGIN: TOOL_MAPPING -->
+| Group | Tools |
+| ----- | ----- |
+| **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_server_config` |
+| **backup** | `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
+| **cluster** | `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_instances`, `mysql_cluster_router_status`, `mysql_cluster_status`, `mysql_cluster_switchover`, `mysql_cluster_topology` |
+| **codemode** | `mysql_execute_code` |
+| **core** | `mysql_read_query`, `mysql_write_query`, `mysql_get_indexes`, `mysql_create_index`, `mysql_list_tables`, `mysql_describe_table`, `mysql_create_table`, `mysql_drop_table`, `mysql_enable_versioning`, `mysql_disable_versioning`, `mysql_check_version`, `mysql_conditional_update` |
+| **docstore** | `mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, `mysql_doc_collection_info`, `mysql_doc_find`, `mysql_doc_modify`, `mysql_doc_remove`, `mysql_doc_create_index` |
+| **events** | `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status` |
+| **fulltext** | `mysql_fulltext_boolean`, `mysql_fulltext_create`, `mysql_fulltext_drop`, `mysql_fulltext_expand`, `mysql_fulltext_search` |
+| **introspection** | `mysql_constraint_analysis`, `mysql_migration_risks`, `mysql_cascade_simulator`, `mysql_dependency_graph`, `mysql_topological_sort`, `mysql_schema_snapshot` |
+| **json** | `mysql_json_extract`, `mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_remove`, `mysql_json_contains`, `mysql_json_keys`, `mysql_json_array_append`, `mysql_json_diff`, `mysql_json_index_suggest`, `mysql_json_merge`, `mysql_json_normalize`, `mysql_json_stats` |
+| **migration** | `mysql_migration_rollback`, `mysql_migration_history`, `mysql_migration_status`, `mysql_migration_init`, `mysql_migration_record`, `mysql_migration_apply` |
+| **monitoring** | `mysql_server_health`, `mysql_innodb_status`, `mysql_pool_stats`, `mysql_show_processlist`, `mysql_replication_status`, `mysql_show_status`, `mysql_show_variables` |
+| **optimization** | `mysql_index_recommendation`, `mysql_query_rewrite`, `mysql_force_index`, `mysql_optimizer_trace` |
+| **partitioning** | `mysql_partition_info`, `mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition` |
+| **performance** | `mysql_buffer_pool_stats`, `mysql_explain_analyze`, `mysql_explain`, `mysql_index_usage`, `mysql_query_stats`, `mysql_slow_queries`, `mysql_table_stats`, `mysql_thread_stats`, `mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike` |
+| **proxysql** | `proxysql_users`, `proxysql_global_variables`, `proxysql_process_list`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_commands`, `proxysql_servers`, `proxysql_connection_pool`, `proxysql_status`, `proxysql_runtime_status`, `proxysql_memory_stats` |
+| **replication** | `mysql_master_status`, `mysql_slave_status`, `mysql_binlog_events`, `mysql_gtid_status`, `mysql_replication_lag` |
+| **roles** | `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`, `mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_list` |
+| **router** | `mysql_router_metadata_status`, `mysql_router_pool_status`, `mysql_router_route_status`, `mysql_router_route_health`, `mysql_router_route_connections`, `mysql_router_route_destinations`, `mysql_router_route_blocked_hosts`, `mysql_router_status`, `mysql_router_routes` |
+| **schema** | `mysql_list_constraints`, `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_events`, `mysql_list_triggers`, `mysql_list_views`, `mysql_create_view`, `mysql_drop_view` |
+| **security** | `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security_firewall_rules`, `mysql_security_mask_data`, `mysql_security_user_privileges`, `mysql_security_sensitive_tables`, `mysql_security_ssl_status`, `mysql_security_encryption_status`, `mysql_security_password_validate` |
+| **shell** | `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_version`, `mysqlsh_load_dump`, `mysqlsh_run_script`, `mysqlsh_check_upgrade` |
+| **spatial** | `mysql_spatial_point`, `mysql_spatial_polygon`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, `mysql_spatial_geojson`, `mysql_spatial_distance`, `mysql_spatial_distance_sphere`, `mysql_spatial_contains`, `mysql_spatial_within`, `mysql_spatial_create_column`, `mysql_spatial_create_index` |
+| **stats** | `mysql_stats_top_n`, `mysql_stats_distinct`, `mysql_stats_frequency`, `mysql_stats_summary`, `mysql_stats_correlation`, `mysql_stats_histogram`, `mysql_stats_regression`, `mysql_stats_descriptive`, `mysql_stats_distribution`, `mysql_stats_percentiles`, `mysql_stats_sampling`, `mysql_stats_time_series`, `mysql_stats_hypothesis`, `mysql_stats_outliers`, `mysql_stats_lag_lead`, `mysql_stats_moving_avg`, `mysql_stats_ntile`, `mysql_stats_rank`, `mysql_stats_row_number`, `mysql_stats_running_total` |
+| **sysschema** | `mysql_sys_user_summary`, `mysql_sys_host_summary`, `mysql_sys_statement_summary`, `mysql_sys_wait_summary`, `mysql_sys_io_summary`, `mysql_sys_schema_stats`, `mysql_sys_innodb_lock_waits`, `mysql_sys_memory_summary` |
+| **text** | `mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert` |
+| **transactions** | `mysql_transaction_begin`, `mysql_transaction_commit`, `mysql_transaction_rollback`, `mysql_transaction_savepoint`, `mysql_transaction_release`, `mysql_transaction_rollback_to`, `mysql_transaction_execute` |
+| **vector** | `mysql_vector_info`, `mysql_vector_create_index`, `mysql_vector_optimize`, `mysql_vector_stats`, `mysql_vector_search`, `mysql_vector_range_search`, `mysql_vector_hybrid_search`, `mysql_vector_store`, `mysql_vector_batch_store`, `mysql_vector_delete`, `mysql_vector_get` |
 
-| Group             | Handler File(s)                      | Tools | Description                                                                                                                                                          |
-| ----------------- | ------------------------------------ | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **codemode**      | `codemode/index.ts`                  | 1     | `mysql_execute_code`                                                                                                                                                 |
-| **core**          | `core/index.ts`                      | 8     | `read_query`, `write_query`, `list_tables`, `describe_table`, `create_table`, `drop_table`, `create_index`, `get_indexes`                                            |
-|                   | `core/versioning.ts`                 | 4     | `enable_versioning`, `disable_versioning`, `check_version`, `conditional_update`                                                                                     |
-|                   | `core/error-helpers.ts`              | —     | Shared `formatHandlerError()` orchestrator (handles ZodError, MySQLMcpError, generic Error)                                                                          |
-| **schema**        | `schema/management.ts`               | 3     | `list_schemas`, `create_schema`, `drop_schema`                                                                                                                       |
-|                   | `schema/views.ts`                    | 3     | `list_views`, `create_view`, `drop_view`                                                                                                                             |
-|                   | `schema/routines.ts`                 | 2     | `list_stored_procedures`, `list_functions`                                                                                                                           |
-|                   | `schema/triggers.ts`                 | 1     | `list_triggers`                                                                                                                                                      |
-|                   | `schema/constraints.ts`              | 1     | `list_constraints`                                                                                                                                                   |
-|                   | `schema/scheduled_events.ts`         | 1     | `list_events`                                                                                                                                                        |
-| **transactions**  | `transactions.ts`                    | 7     | `transaction_begin/commit/rollback/savepoint/release/rollback_to/execute`                                                                                            |
-| **introspection** | `introspection/graph/index.ts`             | 3     | `dependency_graph`, `topological_sort`, `cascade_simulator`                                                                                                          |
-|                   | `introspection/analysis.ts`          | 2     | `constraint_analysis`, `migration_risks`                                                                                                                             |
-|                   | `introspection/snapshot.ts`          | 1     | `schema_snapshot`                                                                                                                                                    |
-| **migration**     | `migration/migration.ts`             | 3     | `migration_init`, `migration_record`, `migration_apply`                                                                                                              |
-|                   | `migration/migration-query.ts`       | 3     | `migration_rollback`, `migration_history`, `migration_status`                                                                                                        |
-| **json**          | `json/core.ts`                       | 8     | `json_extract`, `json_set`, `json_insert`, `json_replace`, `json_remove`, `json_contains`, `json_keys`, `json_array_append`                                          |
-|                   | `json/helpers.ts`                    | 4     | `json_get`, `json_update`, `json_search`, `json_validate`                                                                                                            |
-|                   | `json/enhanced/index.ts`                   | 5     | `json_merge`, `json_diff`, `json_normalize`, `json_stats`, `json_index_suggest`                                                                                      |
-| **docstore**      | `docstore.ts`                        | 9     | `doc_list_collections`, `doc_create_collection`, `doc_drop_collection`, `doc_find`, `doc_add`, `doc_modify`, `doc_remove`, `doc_create_index`, `doc_collection_info` |
-| **text**          | `text/processing.ts`                 | 6     | `regexp_match`, `like_search`, `soundex`, `substring`, `concat`, `collation_convert`                                                                                 |
-| **fulltext**      | `text/fulltext/index.ts`             | 5     | `fulltext_create`, `fulltext_drop`, `fulltext_search`, `fulltext_boolean`, `fulltext_expand`                                                                         |
-| **stats**         | `stats/descriptive/index.ts`         | 5     | `stats_descriptive`, `stats_percentiles`, `stats_distribution`, `stats_time_series`, `stats_sampling`                                                                |
-|                   | `stats/comparative/index.ts`         | 3     | `stats_correlation`, `stats_regression`, `stats_histogram`                                                                                                           |
-|                   | `stats/advanced.ts`                  | 4     | `stats_top_n`, `stats_distinct`, `stats_frequency`, `stats_summary`                                                                                                  |
-|                   | `stats/hypothesis.ts`                | 1     | `stats_hypothesis`                                                                                                                                                   |
-|                   | `stats/outlier.ts`                   | 1     | `stats_outliers`                                                                                                                                                     |
-|                   | `stats/window/index.ts`              | 6     | `stats_row_number`, `stats_rank`, `stats_lag_lead`, `stats_running_total`, `stats_moving_avg`, `stats_ntile`                                                         |
-| **performance**   | `performance/analysis/index.ts`            | 8     | `explain`, `explain_analyze`, `slow_queries`, `query_stats`, `index_usage`, `table_stats`, `buffer_pool_stats`, `thread_stats`                                       |
-|                   | `performance/anomaly-detection.ts`   | 2     | `detect_query_anomalies`, `detect_bloat_risk`                                                                                                                        |
-|                   | `performance/connection-analysis.ts` | 1     | `detect_connection_spike`                                                                                                                                            |
-| **optimization**  | `performance/optimization.ts`<br>`performance/index-audit/index.ts` | 4     | `index_recommendation` (Redundant/FK checks, unindexed tables, EXPLAIN composite heuristics), `query_rewrite`, `force_index`, `optimizer_trace` |
-| **admin**         | `admin/maintenance.ts`<br>`admin/server-config.ts` | 9     | `optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`, `append_insight`, `server_config`, `audit_search` |
-| **monitoring**    | `admin/monitoring/index.ts`                | 7     | `show_processlist`, `show_status`, `show_variables`, `innodb_status`, `replication_status`, `pool_stats`, `server_health`                                            |
-| **backup**        | `admin/backup.ts`                    | 4     | `export_table`, `import_data`, `create_dump`, `restore_dump`                                                                                                         |
-|                   | `admin/audit-backup.ts`              | 3     | `audit_list_backups`, `audit_diff_backup`, `audit_restore_backup` (require `--audit-backup` flag)                                                                    |
-| **security**      | `security/audit.ts`                  | 3     | `security_audit`, `security_firewall_status`, `security_firewall_rules`                                                                                              |
-|                   | `security/data-protection.ts`        | 3     | `security_mask_data`, `security_user_privileges`, `security_sensitive_tables`                                                                                        |
-|                   | `security/encryption.ts`             | 3     | `security_ssl_status`, `security_encryption_status`, `security_password_validate`                                                                                    |
-| **roles**         | `roles/index.ts`                     | 8     | `role_list/create/drop/grants/grant/assign/revoke`, `user_roles`                                                                                                     |
-| **spatial**       | `spatial/setup.ts`                   | 2     | `spatial_create_column`, `spatial_create_index`                                                                                                                      |
-|                   | `spatial/geometry.ts`                | 2     | `spatial_point`, `spatial_polygon`                                                                                                                                   |
-|                   | `spatial/queries.ts`                 | 4     | `spatial_distance`, `spatial_distance_sphere`, `spatial_contains`, `spatial_within`                                                                                  |
-|                   | `spatial/operations.ts`              | 4     | `spatial_intersection`, `spatial_buffer`, `spatial_transform`, `spatial_geojson`                                                                                     |
-| **replication**   | `replication.ts`                     | 5     | `master_status`, `slave_status`, `binlog_events`, `gtid_status`, `replication_lag`                                                                                   |
-| **partitioning**  | `partitioning.ts`                    | 4     | `partition_info`, `add_partition`, `drop_partition`, `reorganize_partition`                                                                                          |
-| **events**        | `events.ts`                          | 6     | `event_create/alter/drop/list/status`, `scheduler_status`                                                                                                            |
-| **cluster**       | ✅ `cluster/group-replication.ts`     | 5     | ✅ `gr_status`, `gr_members`, `gr_primary`, `gr_transactions`, `gr_flow_control`                                                                                        |
-|                   | ✅ `cluster/innodb-cluster/index.ts`        | 5     | ✅ `cluster_status`, `cluster_instances`, `cluster_topology`, `cluster_router_status`, `cluster_switchover`                                                             |
-| **router**        | `router/index.ts`                    | 9     | `router_status/routes/route_status/route_health/route_connections/route_destinations/route_blocked_hosts/metadata_status/pool_status`                                |
-| **proxysql**      | `proxysql/index.ts`                  | 11    | `proxysql_status/servers/query_rules/query_digest/connection_pool/users/global_variables/runtime_status/memory_stats/commands/process_list`                          |
-| **vector**        | `vector/storage.ts`<br>`vector/management.ts`<br>`vector/search.ts` | 11    | `mysql_vector_store`, `batch_store`, `delete`, `get`, `search`, `range_search`, `hybrid_search`, `info`, `create_index`, `optimize`, `stats` |
-| **shell**         | `shell/common.ts`                    | —     | Shared MySQL Shell execution helpers                                                                                                                                 |
-|                   | `shell/info.ts`                      | 1     | `mysqlsh_version`                                                                                                                                                    |
-|                   | `shell/backup.ts`                    | 3     | `mysqlsh_dump_instance/dump_schemas/dump_tables`                                                                                                                     |
-|                   | `shell/restore.ts`                   | 1     | `mysqlsh_load_dump`                                                                                                                                                  |
-|                   | `shell/data-transfer.ts`             | 3     | `mysqlsh_export_table/import_table/import_json`                                                                                                                      |
-|                   | `shell/utilities.ts`                 | 2     | `mysqlsh_check_upgrade`, `mysqlsh_run_script`                                                                                                                        |
-| **sysschema**     | `sysschema/resources.ts`             | 3     | `sys_schema_stats`, `sys_innodb_lock_waits`, `sys_memory_summary`                                                                                                    |
-|                   | `sysschema/performance.ts`           | 3     | `sys_statement_summary`, `sys_wait_summary`, `sys_io_summary`                                                                                                        |
-|                   | `sysschema/activity.ts`              | 2     | `sys_user_summary`, `sys_host_summary`                                                                                                                               |
+<!-- END: TOOL_MAPPING -->
 
 ---
 
@@ -208,20 +176,23 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 19 prompt definitions across specialized workflow files:
 
-| File                   | Prompts                                             |
-| ---------------------- | --------------------------------------------------- |
-| `index.ts`             | Barrel + `mysql_optimization`, `mysql_health_check` |
-| `backup-strategy.ts`   | `mysql_backup_strategy`                             |
-| `cluster-setup.ts`     | `mysql_cluster_setup`                               |
-| `docstore-setup.ts`    | `mysql_docstore_setup`                              |
-| `event-scheduler.ts`   | `mysql_event_scheduler`                             |
-| `index-tuning.ts`      | `mysql_index_tuning`                                |
-| `mysqlsh-setup.ts`     | `mysql_mysqlsh_setup`                               |
-| `proxysql-setup.ts`    | `mysql_proxysql_setup`                              |
-| `replication-setup.ts` | `mysql_replication_setup`                           |
-| `router-setup.ts`      | `mysql_router_setup`                                |
-| `spatial-setup.ts`     | `mysql_spatial_setup`                               |
-| `sys-schema.ts`        | `mysql_sys_schema`                                  |
+<!-- BEGIN: PROMPTS -->
+| Prompt | Description |
+| ------ | ----------- |
+| `mysql_backup_strategy` | Design enterprise backup strategy with RTO/RPO planning |
+| `mysql_setup_cluster` | Complete MySQL InnoDB Cluster and Group Replication setup guide |
+| `mysql_setup_docstore` | Complete MySQL Document Store and X DevAPI setup guide |
+| `mysql_setup_events` | Complete MySQL Event Scheduler setup and configuration guide |
+| `mysql_database_health_check` | Comprehensive database health assessment workflow |
+| `mysql_index_tuning` | Analyze and optimize database indexes |
+| `mysql_setup_shell` | MySQL Shell setup and usage guide |
+| `mysql_setup_proxysql` | Complete ProxySQL setup and configuration guide |
+| `mysql_setup_replication` | MySQL replication setup and configuration guide |
+| `mysql_setup_router` | Complete MySQL Router setup and configuration guide |
+| `mysql_setup_spatial` | Complete MySQL Spatial/GIS setup and usage guide |
+| `mysql_sys_schema_guide` | Complete MySQL sys schema usage guide for diagnostics and troubleshooting |
+
+<!-- END: PROMPTS -->
 
 ---
 
@@ -231,27 +202,30 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ### Data Resources
 
-| File              | Resources                              |
-| ----------------- | -------------------------------------- |
-| `schema.ts`       | `mysql://schema`                       |
-| `tables.ts`       | `mysql://tables`                       |
-| `indexes.ts`      | `mysql://indexes`                      |
-| `variables.ts`    | `mysql://variables`                    |
-| `status.ts`       | `mysql://status`                       |
-| `processlist.ts`  | `mysql://processlist`                  |
-| `health.ts`       | `mysql://health`                       |
-| `pool.ts`         | `mysql://pool`                         |
-| `capabilities.ts` | `mysql://capabilities`                 |
-| `performance.ts`  | `mysql://performance/{view}` (4 views) |
-| `innodb.ts`       | `mysql://innodb/{metric}` (4 metrics)  |
-| `replication.ts`  | `mysql://replication/{view}` (4 views) |
-| `locks.ts`        | `mysql://locks`                        |
-| `events.ts`       | `mysql://events`                       |
-| `cluster.ts`      | `mysql://cluster/{view}`               |
-| `docstore.ts`     | `mysql://docstore/{collection}`        |
-| `spatial.ts`      | `mysql://spatial/{table}`              |
-| `sysschema.ts`    | `mysql://sys/{view}`                   |
-| `metrics.ts`      | `mysql://metrics`                      |
+<!-- BEGIN: RESOURCES -->
+| URI | Name |
+| --- | ---- |
+| `mysql://capabilities` | Server Capabilities |
+| `mysql://cluster` | Cluster Status |
+| `mysql://docstore` | Document Store Collections |
+| `mysql://events` | Scheduled Events |
+| `mysql://health` | Database Health |
+| `mysql://indexes` | Index Statistics |
+| `mysql://innodb` | InnoDB Status |
+| `mysql://insights` | Business Insights Memo |
+| `mysql://locks` | Lock Contention |
+| `mysql://performance` | Performance Metrics |
+| `mysql://pool` | Connection Pool |
+| `mysql://processlist` | Active Processes |
+| `mysql://replication` | Replication Status |
+| `mysql://schema` | Database Schema |
+| `mysql://spatial` | Spatial Columns |
+| `mysql://status` | Server Status |
+| `mysql://sysschema` | sys Schema Diagnostics |
+| `mysql://tables` | Table List |
+| `mysql://variables` | Server Variables |
+
+<!-- END: RESOURCES -->
 
 ### Audit Resource (registered dynamically by McpServer when `--audit-log` is set)
 
