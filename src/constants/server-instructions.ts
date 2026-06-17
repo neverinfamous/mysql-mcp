@@ -93,7 +93,7 @@ This document outlines important operational characteristics and rules for using
 ## 2. Parameter Idiosyncrasies
 - **\`mysql_import_data\`**: Requires an array of row objects. It validates column identifiers upfront to prevent SQL injection and processes rows in batches. It also automatically formats ISO 8601 date strings by stripping the \`T\` and \`Z\` characters to maintain compatibility with standard MySQL datetime columns.
 - **\`mysql_export_table\`**: When returning SQL format, it structures the output as bulk \`INSERT INTO\` statements. When using CSV format, it strips nulls and escapes double quotes appropriately.
-- **\`mysql_audit_list_backups\`**: Has no required parameters. Calling it with \`{}\` or no arguments legitimately returns up to 50 of the latest backups.
+- **\`mysql_audit_list_backups\`**: Has no required parameters. Calling it with \`{}\` or no arguments legitimately returns up to 10 of the latest backups.
 
 ## 3. Audit Backups
 - The \`audit-backup\` tools interact with the Audit Subsystem's pre-mutation snapshots.

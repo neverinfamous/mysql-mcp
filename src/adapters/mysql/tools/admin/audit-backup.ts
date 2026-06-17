@@ -33,7 +33,7 @@ export function createAuditListBackupsTool(
       .int()
       .min(1)
       .max(100)
-      .default(50)
+      .default(10)
       .describe("Max backups to return"),
     target: z
       .string()
