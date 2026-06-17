@@ -96,6 +96,16 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
             )
           );
         }
+        if (msg.includes("from_vector") || msg.includes("VECTOR_TO_STRING")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Column is not a valid VECTOR type.",
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Ensure the specified column is a VECTOR data type." }
+            )
+          );
+        }
         if (msg.includes("doesn't exist")) {
           const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
           return formatHandlerErrorResponse(
@@ -180,6 +190,16 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
               "EXTENSION_MISSING",
               ErrorCategory.CONFIGURATION,
               { suggestion: "Vector similarity search is only available in MySQL HeatWave or with compatible plugins." }
+            )
+          );
+        }
+        if (msg.includes("from_vector") || msg.includes("VECTOR_TO_STRING")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Column is not a valid VECTOR type.",
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Ensure the specified column is a VECTOR data type." }
             )
           );
         }
@@ -369,6 +389,16 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
               "EXTENSION_MISSING",
               ErrorCategory.CONFIGURATION,
               { suggestion: "Vector similarity search is only available in MySQL HeatWave or with compatible plugins." }
+            )
+          );
+        }
+        if (msg.includes("from_vector") || msg.includes("VECTOR_TO_STRING")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Column is not a valid VECTOR type.",
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Ensure the specified column is a VECTOR data type." }
             )
           );
         }
