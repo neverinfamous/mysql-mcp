@@ -5,9 +5,9 @@ import { BaseOutputSchema } from "./output-schemas.js";
  * Common schema fragments
  */
 
-const tableParamBase = z.unknown().describe("Target table name");
-const columnParamBase = z.unknown().describe("Vector column name");
-const idParamBase = z.unknown().describe("Row identifier (primary key value)");
+const tableParamBase = z.unknown().optional().describe("Target table name");
+const columnParamBase = z.unknown().optional().describe("Vector column name");
+const idParamBase = z.unknown().optional().describe("Row identifier (primary key value)");
 const idColumnParamBase = z.unknown().optional().describe("Primary key column name (default: 'id')");
 const metricParamBase = z
   .unknown()
@@ -45,7 +45,7 @@ export const VectorStoreSchemaBase = z.object({
   table: tableParamBase,
   column: columnParamBase,
   id: idParamBase,
-  vector: z.unknown().describe("Vector embedding as an array of numbers"),
+  vector: z.unknown().optional().describe("Vector embedding as an array of numbers"),
   idColumn: idColumnParamBase,
 });
 
@@ -60,7 +60,7 @@ export const VectorStoreSchema = z.object({
 export const VectorBatchStoreSchemaBase = z.object({
   table: tableParamBase,
   column: columnParamBase,
-  items: z.unknown().describe("Array of objects with 'id' and 'vector' fields"),
+  items: z.unknown().optional().describe("Array of objects with 'id' and 'vector' fields"),
   idColumn: idColumnParamBase,
 });
 
@@ -107,7 +107,7 @@ export const VectorGetSchema = z.object({
 export const VectorSearchSchemaBase = z.object({
   table: tableParamBase,
   column: columnParamBase,
-  queryVector: z.unknown().describe("Query vector as an array of numbers"),
+  queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
   k: z.unknown().optional().describe("Number of nearest neighbors to return (default: 10)"),
   metric: metricParamBase,
   filter: filterParamBase,
@@ -127,8 +127,8 @@ export const VectorSearchSchema = z.object({
 export const VectorRangeSearchSchemaBase = z.object({
   table: tableParamBase,
   column: columnParamBase,
-  queryVector: z.unknown().describe("Query vector as an array of numbers"),
-  maxDistance: z.unknown().describe("Maximum distance threshold"),
+  queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
+  maxDistance: z.unknown().optional().describe("Maximum distance threshold"),
   metric: metricParamBase,
   limit: z.unknown().optional().describe("Maximum number of results to return (default: 50)"),
   filter: filterParamBase,
@@ -146,8 +146,8 @@ export const VectorRangeSearchSchema = z.object({
 
 export const VectorHybridSearchSchemaBase = z.object({
   table: tableParamBase,
-  vectorColumn: z.unknown().describe("Name of the vector column"),
-  textColumn: z.unknown().describe("Name of the fulltext-indexed column"),
+  vectorColumn: z.unknown().optional().describe("Name of the vector column"),
+  textColumn: z.unknown().optional().describe("Name of the fulltext-indexed column"),
   queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
   queryText: z.unknown().optional().describe("Natural language search query"),
   k: z.unknown().optional().describe("Number of fused results to return (default: 10)"),
