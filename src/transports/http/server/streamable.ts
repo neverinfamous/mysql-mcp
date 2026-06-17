@@ -129,7 +129,7 @@ export async function handleStreamableRequest(
 
     newTransport.onclose = () => {
       const sid = newTransport.sessionId;
-      if (sid) {
+      if (sid && sessionManager.get(sid)) {
         void sessionManager.close(sid);
       }
     };

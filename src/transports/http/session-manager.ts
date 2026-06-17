@@ -94,6 +94,7 @@ export class SessionManager {
   async close(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
     if (session) {
+      this.sessions.delete(sessionId);
       try {
         await session.transport.close();
       } catch (error: unknown) {
@@ -102,7 +103,6 @@ export class SessionManager {
           error: String(error) 
         });
       }
-      this.sessions.delete(sessionId);
       logger.debug("HTTP session closed", { sessionId });
     }
   }
