@@ -43,7 +43,7 @@ const UserPrivilegesSchema = z.object({
   includeRoles: z.boolean().default(true).describe("Include role grants"),
   summary: z
     .boolean()
-    .default(false)
+    .default(true)
     .describe(
       "Return condensed summary (privilege counts) instead of raw GRANT strings",
     ),
