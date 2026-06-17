@@ -1,29 +1,30 @@
-# mysql-mcp Usability & Hallucination Test: Code Mode Mechanics
+# mysql-mcp Usability & Hallucination Test: Codemode
 
 > **This test is optimized for an autonomous agent.**
 
-This prompt instructs you to organically test the core sandboxing and execution mechanics of Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover generic LLM hallucinations and hardening the codebase against them.
+This prompt instructs you to organically test the `codemode` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
 
 ## 1. Fuzz Phase
 
-Focus purely on the mechanics of Code Mode itself, ignoring specific tool data. Try to:
+Use the `mysql_execute_code` tool to interact with tools in the `codemode` group.
 
-- Access `Promise` objects synchronously (forgetting `await`).
-- Try to access missing properties on a failed result object (e.g. `const { data } = await mysql.core.readQuery("BAD SQL")`).
-- Test standard Javascript array methods like `.map()` or `.filter()` on what you intuitively assume is an array.
-- Call `mysql.help()`.
-- Test intuitive array destructuring `const [row1, row2] = await ...` on returned objects.
-- Attempt to use `console.log()` to check if it correctly feeds into the `logs` output array instead of crashing or leaking to stdout.
-- Note any raw exceptions, V8 engine crashes, or confusing proxy behaviors.
+**Instructions:**
+
+- Do not perfectly structure your initial calls. Act intuitively as an agent.
+- Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Test positional params: Try `mysql.codemode.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.codemode.get()`).
+- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
 
-If you encounter confusing V8 errors, unhandled edge cases, or raw exceptions instead of actionable domain errors:
+If you encounter any failures, errors, or hallucinations:
 
-1. STOP. Do not just work around the issue.
+1. STOP. Do not just work around the issue in your script.
 2. Read the hardening guidelines in `skills/mysql-mcp-heal/SKILL.md`.
-3. Modify the proxy interceptors in `src/codemode/sandbox.ts` or the main dispatcher.
-4. Apply the permanent fix (e.g. throwing custom errors with actionable feedback).
+3. Locate the appropriate file in the codebase (e.g., schemas, positional params, or aliases).
+4. Apply the permanent fix.
 
 ## 3. Local Verification
 
@@ -33,7 +34,7 @@ If you encounter confusing V8 errors, unhandled edge cases, or raw exceptions in
 
 ## 4. Commit
 
-1. If local verification passes, run `git add .` and `git commit -m "Optimize codemode mechanics"`.
+1. If local verification passes, run `git add .` and `git commit -m "Optimize codemode tool usage"`.
 2. Report your findings to the Coordinator.
 
 ## 5. Continuous Improvement

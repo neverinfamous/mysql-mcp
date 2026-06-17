@@ -6,17 +6,15 @@ This prompt instructs you to organically test the `schema` tool group using Code
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with the following tools in the `schema` group:
-`list_schemas`, `create_schema`, `drop_schema`, `list_views`, `create_view`, `drop_view`, `list_stored_procedures`, `list_functions`, `list_triggers`, `list_constraints`, `list_events`
+Use the `mysql_execute_code` tool to interact with tools in the `schema` group.
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
-- Guess property names: Pass `tableName` instead of `table`, `db` instead of `database`.
-- Test positional params: Try `mysql.schema.listViews("testdb")` or `mysql.schema.dropSchema("temp_schema")`.
-- Test intuitive method naming: Try calling `mysql.schema.views()` or `mysql.schema.triggers()` or `mysql.schema.createDb()`. If they fail, add them as aliases.
+- Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Test positional params: Try `mysql.schema.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.schema.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
-- Test P154 (Object Existence): Query a nonexistent database or view. Verify it returns a clean domain error, not a raw MySQL wire protocol exception.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
@@ -25,7 +23,8 @@ If you encounter any failures, errors, or hallucinations:
 
 1. STOP. Do not just work around the issue in your script.
 2. Read the hardening guidelines in `skills/mysql-mcp-heal/SKILL.md`.
-3. Apply the permanent fix to schemas, parameter mapping, or aliases.
+3. Locate the appropriate file in the codebase (e.g., schemas, positional params, or aliases).
+4. Apply the permanent fix.
 
 ## 3. Local Verification
 

@@ -1,4 +1,4 @@
-# mysql-mcp Usability & Hallucination Test: JSON
+# mysql-mcp Usability & Hallucination Test: Json
 
 > **This test is optimized for an autonomous agent.**
 
@@ -6,16 +6,15 @@ This prompt instructs you to organically test the `json` tool group using Code M
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with the following tools in the `json` group:
-`json_extract`, `json_set`, `json_insert`, `json_replace`, `json_remove`, `json_contains`, `json_keys`, `json_array_append`, `json_get`, `json_update`, `json_search`, `json_validate`, `json_merge`, `json_diff`, `json_normalize`, `json_stats`, `json_index_suggest`
+Use the `mysql_execute_code` tool to interact with tools in the `json` group.
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
-- Test method naming: The tools have `json_` prefixes (e.g. `mysql_json_extract`). In Code Mode, are they mapped to `mysql.json.extract` or `mysql.json.jsonExtract`? Try the intuitive ones. If you guess wrong, add an alias.
-- Guess property names: Pass `tableName` instead of `table`, `filter` instead of `where`.
-- Test type coercion: Pass `value: { foo: "bar" }` to `json_set` directly without `JSON.stringify()`. Does the tool properly handle object payloads or does it reject them via Zod? If it rejects, use a `z.preprocess()` wrapper to auto-stringify it.
-- Test array methods: Test `mysql.json.extract().map(...)` — verify the proxy correctly targets the inner array instead of throwing.
+- Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Test positional params: Try `mysql.json.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.json.get()`).
+- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
@@ -24,12 +23,14 @@ If you encounter any failures, errors, or hallucinations:
 
 1. STOP. Do not just work around the issue in your script.
 2. Read the hardening guidelines in `skills/mysql-mcp-heal/SKILL.md`.
-3. Apply the permanent fix to schemas, aliases, or positional params.
+3. Locate the appropriate file in the codebase (e.g., schemas, positional params, or aliases).
+4. Apply the permanent fix.
 
 ## 3. Local Verification
 
 1. Run `pnpm run check`, `pnpm run build`, `pnpm run test` and `pnpm run test:e2e` locally.
-2. **DO NOT PROCEED** until all tests pass cleanly.
+2. **DO NOT PROCEED** until all tests and types pass locally.
+3. You do NOT need to wait for a live server restart.
 
 ## 4. Commit
 

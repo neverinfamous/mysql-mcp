@@ -21,19 +21,31 @@ Because testing and healing all tools at once exhausts an agent's context window
 
 ## Test Modules
 
-1. `test-usability-codemode.md` - Core sandbox and proxy mechanics.
-2. `test-usability-core.md` - Core DML, DDL, and versioning tools.
-3. `test-usability-schema.md` - Schemas, views, routines, triggers, constraints, events.
-4. `test-usability-json.md` - Core JSON, helpers, enhanced JSON operations.
-5. `test-usability-text-fulltext.md` - Text processing and fulltext search.
-6. `test-usability-transactions.md` - Transaction management.
-7. `test-usability-stats.md` - Descriptive, comparative, advanced, hypothesis, outlier, and window stats.
-8. `test-usability-performance-optimization.md` - Performance analysis, anomaly detection, optimization.
-9. `test-usability-admin-monitoring.md` - Admin maintenance, server config, and monitoring.
-10. `test-usability-backup.md` - DDL/DML export/import and audit backups.
-11. `test-usability-security-roles.md` - Security audit, data protection, encryption, and roles.
-12. `test-usability-spatial.md` - Spatial setup, geometry, queries, and operations.
-13. `test-usability-docstore.md` - Document store management.
-14. `test-usability-introspection-migration.md` - Introspection, graph dependencies, and migration tools.
-15. `test-usability-replication-partitioning-events.md` - Replication, partitioning, and events.
-16. `test-usability-ecosystem.md` - Cluster, router, proxysql, shell, sysschema, vector.
+1. `test-usability-codemode.md`
+2. `test-usability-core.md`
+3. `test-usability-transactions.md`
+4. `test-usability-json.md`
+5. `test-usability-text.md`
+6. `test-usability-fulltext.md`
+7. `test-usability-performance.md`
+8. `test-usability-optimization.md`
+9. `test-usability-admin.md`
+10. `test-usability-monitoring.md`
+11. `test-usability-backup.md`
+12. `test-usability-replication.md`
+13. `test-usability-partitioning.md`
+14. `test-usability-router.md`
+15. `test-usability-proxysql.md`
+16. `test-usability-schema.md`
+17. `test-usability-events.md`
+18. `test-usability-sysschema.md`
+19. `test-usability-stats.md`
+20. `test-usability-spatial.md`
+21. `test-usability-security.md`
+22. `test-usability-cluster.md`
+23. `test-usability-roles.md`
+24. `test-usability-docstore.md`
+25. `test-usability-introspection.md`
+26. `test-usability-migration.md`
+27. `test-usability-vector.md`
+28. `test-usability-shell.md`

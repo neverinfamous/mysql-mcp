@@ -1,4 +1,4 @@
-# mysql-mcp Usability & Hallucination Test: DocStore
+# mysql-mcp Usability & Hallucination Test: Docstore
 
 > **This test is optimized for an autonomous agent.**
 
@@ -6,14 +6,14 @@ This prompt instructs you to organically test the `docstore` tool group using Co
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with the following tools in the `docstore` group:
-`doc_list_collections`, `doc_create_collection`, `doc_drop_collection`, `doc_find`, `doc_add`, `doc_modify`, `doc_remove`, `doc_create_index`, `doc_collection_info`
+Use the `mysql_execute_code` tool to interact with tools in the `docstore` group.
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
-- Guess property names: Pass `tableName` instead of `collection`.
-- Test method naming aliases: See if `mysql.docstore.add()` or `mysql.docstore.listCollections()` work.
+- Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Test positional params: Try `mysql.docstore.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.docstore.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
@@ -23,12 +23,14 @@ If you encounter any failures, errors, or hallucinations:
 
 1. STOP. Do not just work around the issue in your script.
 2. Read the hardening guidelines in `skills/mysql-mcp-heal/SKILL.md`.
-3. Apply the permanent fix to schemas, parameter mapping, or aliases.
+3. Locate the appropriate file in the codebase (e.g., schemas, positional params, or aliases).
+4. Apply the permanent fix.
 
 ## 3. Local Verification
 
 1. Run `pnpm run check`, `pnpm run build`, `pnpm run test` and `pnpm run test:e2e` locally.
-2. **DO NOT PROCEED** until all tests pass cleanly.
+2. **DO NOT PROCEED** until all tests and types pass locally.
+3. You do NOT need to wait for a live server restart.
 
 ## 4. Commit
 

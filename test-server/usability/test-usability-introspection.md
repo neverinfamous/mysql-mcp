@@ -1,19 +1,19 @@
-# mysql-mcp Usability & Hallucination Test: Transactions
+# mysql-mcp Usability & Hallucination Test: Introspection
 
 > **This test is optimized for an autonomous agent.**
 
-This prompt instructs you to organically test the `transactions` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
+This prompt instructs you to organically test the `introspection` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `transactions` group.
+Use the `mysql_execute_code` tool to interact with tools in the `introspection` group.
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
-- Test positional params: Try `mysql.transactions.<method>("value")` if applicable.
-- Test aliases: See if intuitively named methods work (e.g. `mysql.transactions.get()`).
+- Test positional params: Try `mysql.introspection.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.introspection.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
@@ -34,7 +34,7 @@ If you encounter any failures, errors, or hallucinations:
 
 ## 4. Commit
 
-1. If local verification passes, run `git add .` and `git commit -m "Optimize transactions tool usage"`.
+1. If local verification passes, run `git add .` and `git commit -m "Optimize introspection tool usage"`.
 2. Report your findings to the Coordinator.
 
 ## 5. Continuous Improvement

@@ -6,17 +6,15 @@ This prompt instructs you to organically test the `core` tool group using Code M
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with the following tools in the `core` group:
-`read_query`, `write_query`, `list_tables`, `describe_table`, `create_table`, `drop_table`, `create_index`, `get_indexes`, `enable_versioning`, `disable_versioning`, `check_version`, `conditional_update`
+Use the `mysql_execute_code` tool to interact with tools in the `core` group.
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
-- Test positional params: Try `mysql.core.readQuery("SELECT 1")` or `mysql.core.describeTable("test_products")`.
-- Test aliases: See if `mysql.core.readQuery()` works when you try to call it intuitively.
-- Test missing properties: Try passing `{}` to `read_query` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
-- Test P154 (Object Existence): Query or describe a nonexistent table `nonexistent_table_xyz`. Verify it returns a clean `{ success: false, error: "..." }` domain error, not a raw MySQL wire protocol exception.
+- Test positional params: Try `mysql.core.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.core.get()`).
+- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
@@ -25,7 +23,7 @@ If you encounter any failures, errors, or hallucinations:
 
 1. STOP. Do not just work around the issue in your script.
 2. Read the hardening guidelines in `skills/mysql-mcp-heal/SKILL.md`.
-3. Locate the appropriate file in the codebase (e.g., schemas in `src/adapters/mysql/schemas/core.ts`, positional params in `src/codemode/api/constants/positional.ts`, or aliases in `src/codemode/api/constants/aliases.ts`).
+3. Locate the appropriate file in the codebase (e.g., schemas, positional params, or aliases).
 4. Apply the permanent fix.
 
 ## 3. Local Verification
