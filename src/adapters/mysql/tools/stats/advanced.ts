@@ -71,14 +71,25 @@ export const StatsTopNSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
 });
 
-export const StatsTopNSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  n: z.number().min(1).max(100).default(10),
-  direction: z.enum(["asc", "desc"]).default("desc"),
-  selectColumns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-});
+export const StatsTopNSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    n: z.number().min(1).max(100).default(10),
+    direction: z.enum(["asc", "desc"]).default("desc"),
+    selectColumns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+  })
+);
 
 export const StatsDistinctSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -90,12 +101,23 @@ export const StatsDistinctSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
 });
 
-export const StatsDistinctSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  limit: z.number().min(1).max(1000).default(100),
-  where: z.string().optional(),
-});
+export const StatsDistinctSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    limit: z.number().min(1).max(1000).default(100),
+    where: z.string().optional(),
+  })
+);
 
 export const StatsFrequencySchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -110,12 +132,23 @@ export const StatsFrequencySchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
 });
 
-export const StatsFrequencySchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  limit: z.number().min(1).max(1000).default(20),
-  where: z.string().optional(),
-});
+export const StatsFrequencySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    limit: z.number().min(1).max(1000).default(20),
+    where: z.string().optional(),
+  })
+);
 
 export const StatsSummarySchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -128,11 +161,21 @@ export const StatsSummarySchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
 });
 
-export const StatsSummarySchema = z.object({
-  table: z.string().min(1, "table is required"),
-  columns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-});
+export const StatsSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    columns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+  })
+);
 
 // =============================================================================
 // TOP N

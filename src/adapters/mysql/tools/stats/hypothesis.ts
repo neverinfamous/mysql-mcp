@@ -35,18 +35,29 @@ export const StatsHypothesisSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
 });
 
-export const StatsHypothesisSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  testType: z.enum(["t_test", "z_test"]).default("t_test"),
-  hypothesizedMean: z.number().default(0),
-  populationStdDev: z.number().optional(),
-  groupBy: z.string().optional(),
-  groupColumn: z.string().optional(),
-  group1: z.union([z.string(), z.number()]).optional(),
-  group2: z.union([z.string(), z.number()]).optional(),
-  where: z.string().optional(),
-});
+export const StatsHypothesisSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    testType: z.enum(["t_test", "z_test"]).default("t_test"),
+    hypothesizedMean: z.number().default(0),
+    populationStdDev: z.number().optional(),
+    groupBy: z.string().optional(),
+    groupColumn: z.string().optional(),
+    group1: z.union([z.string(), z.number()]).optional(),
+    group2: z.union([z.string(), z.number()]).optional(),
+    where: z.string().optional(),
+  })
+);
 
 // =============================================================================
 // Tool Definition

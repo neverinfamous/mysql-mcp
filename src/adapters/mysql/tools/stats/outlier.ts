@@ -44,15 +44,26 @@ export const StatsOutliersSchemaBase = z.object({
     .describe("Maximum number of outliers to return (default: 50)"),
 });
 
-export const StatsOutliersSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  method: z.enum(["iqr", "zscore"]).default("iqr"),
-  threshold: z.number().optional(),
-  where: z.string().optional(),
-  limit: z.number().max(100000).default(10000),
-  maxOutliers: z.number().max(1000).default(50),
-});
+export const StatsOutliersSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    method: z.enum(["iqr", "zscore"]).default("iqr"),
+    threshold: z.number().optional(),
+    where: z.string().optional(),
+    limit: z.number().max(100000).default(10000),
+    maxOutliers: z.number().max(1000).default(50),
+  })
+);
 
 // =============================================================================
 // Tool Definition
