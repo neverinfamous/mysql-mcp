@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a Split Schema pattern violation in the `migration` tool group where `mysql_migration_record` and `mysql_migration_apply` did not correctly map the `name` parameter alias to `description` in their validation schemas. (`ab9f7fb`)
 - Fixed a Split Schema pattern violation in the `introspection` tool group where `DependencyGraphSchemaBase` allowed the `schema` parameter to be optional despite strict requirement testing, properly enforcing Zod validation on empty objects without breaking the `limit` / `maxDepth` defaults. (`d072de6`)
 - Fixed a factual error in the `test-introspection.md` test prompt where circular dependencies in the `testdb` test schema prevented the `mysql_topological_sort` happy path assertion from succeeding, by pointing the assertion to `testdb2`. (`d072de6`)
 - Fixed a factual error in the `test-introspection.md` test prompt where `test_db` was used instead of `testdb` for schema names across multiple test checklist items. (`d072de6`)
