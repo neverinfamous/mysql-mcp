@@ -277,6 +277,10 @@ describe("Security Audit Tools", () => {
 
   describe("createSecurityFirewallRulesTool", () => {
     it("should list firewall rules", async () => {
+      // Mock plugin check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+      );
       // Mock users query
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ USERHOST: "user@%", MODE: "PROTECTING" }]),
@@ -297,7 +301,7 @@ describe("Security Audit Tools", () => {
         mockContext,
       )) as { data: { users: any[]; rules: any[] } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result.data.users).toHaveLength(1);
       expect(result.data.rules).toHaveLength(1);
     });

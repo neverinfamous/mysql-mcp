@@ -231,10 +231,11 @@ describe("Anomaly Detection Tools", () => {
     });
 
     it("should handle schema filter", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce({ rows: [{ SCHEMA_NAME: "mydb" }] });
       mockAdapter.executeQuery.mockResolvedValueOnce({ rows: [] });
       const tool = createDetectBloatRiskTool(mockAdapter);
       await tool.handler({ schema: "mydb" }, mockContext);
-      const sql = mockAdapter.executeQuery.mock.calls[0][0];
+      const sql = mockAdapter.executeQuery.mock.calls[1][0];
       expect(sql).toContain("TABLE_SCHEMA = 'mydb'");
     });
 

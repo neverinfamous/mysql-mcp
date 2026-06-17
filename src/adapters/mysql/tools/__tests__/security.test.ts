@@ -119,6 +119,9 @@ describe("Security Tools", () => {
   describe("mysql_security_firewall_rules", () => {
     it("should list firewall rules", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           { USERHOST: "root@localhost", MODE: "RECORDING" },
         ]),
@@ -143,6 +146,9 @@ describe("Security Tools", () => {
     });
 
     it("should filter by mode", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+      );
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -151,7 +157,7 @@ describe("Security Tools", () => {
       );
       await tool?.handler({ mode: "PROTECTING" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("MODE = ?");
     });
 

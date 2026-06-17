@@ -1,11 +1,8 @@
 name: Build and Push Docker Images
 
 on:
-  # Only run after lint-and-test completes successfully
-  workflow_run:
-    workflows: ["Lint and Test"]
-    types: [completed]
-    branches: [main]
+  workflow_call:
+  workflow_dispatch:
 
 env:
   REGISTRY: docker.io
@@ -23,7 +20,6 @@ jobs:
   # Security scan BEFORE any images are pushed
   # This ensures no vulnerable images reach Docker Hub
   security-scan:
-    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -330,8 +326,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ github.event.workflow_run.head_branch == 'main' }}
-            type=raw,value=latest,enable=${{ github.event.workflow_run.head_branch == 'main' }}
+            type=raw,value=v${{ steps.version.outputs.version }},enable=true
+            type=raw,value=latest,enable=true
             type=sha,prefix=sha-,format=short
 
       - name: Create and push manifest

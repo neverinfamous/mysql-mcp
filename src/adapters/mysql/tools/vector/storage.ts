@@ -183,10 +183,11 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
             throw new ValidationError(`No VECTOR column found in table '${validated.table}'. Please specify the 'column' parameter.`);
           }
           const firstRow = pkResult.rows[0];
-          if (!firstRow || !firstRow['COLUMN_NAME']) {
+          const columnName = firstRow?.['COLUMN_NAME'];
+          if (typeof columnName !== 'string') {
             throw new ValidationError(`No VECTOR column found in table '${validated.table}'. Please specify the 'column' parameter.`);
           }
-          targetColumn = String(firstRow['COLUMN_NAME']);
+          targetColumn = columnName;
         }
         
         const col = sanitizeIdentifier(targetColumn);

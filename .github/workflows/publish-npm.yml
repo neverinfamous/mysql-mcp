@@ -1,8 +1,7 @@
 name: Publish to NPM
 
 on:
-  release:
-    types: [published]
+  workflow_call:
   workflow_dispatch:
     inputs:
       version:
@@ -53,19 +52,17 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 
-      - name: Verify version matches release tag
-        if: github.event_name == 'release'
+      - name: Verify version parameter
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          RELEASE_VERSION="${GITHUB_REF#refs/tags/}"
-          RELEASE_VERSION="${RELEASE_VERSION#v}"
-          PKG_VERSION="${{ steps.version.outputs.version }}"
-          echo "Package version: $PKG_VERSION"
-          echo "Release version: $RELEASE_VERSION"
-          if [ "$PKG_VERSION" != "$RELEASE_VERSION" ]; then
-            echo "Error: Version mismatch!"
-            echo "Expected: $PKG_VERSION"
-            echo "Got: $RELEASE_VERSION"
-            exit 1
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            PKG_VERSION="${{ steps.version.outputs.version }}"
+            if [ "$PKG_VERSION" != "${{ github.event.inputs.version }}" ]; then
+              echo "Error: Version mismatch!"
+              echo "Expected: ${{ github.event.inputs.version }}"
+              echo "Got: $PKG_VERSION"
+              exit 1
+            fi
           fi
 
       - name: Build package

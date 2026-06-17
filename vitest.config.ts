@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     globals: true,
-    globalTeardown: "./scripts/teardown.ts",
+    globalSetup: ["./scripts/teardown.ts"],
     include: ["src/**/*.test.ts"],
     exclude: ["node_modules", "dist"],
     reporters: ["default"],
@@ -20,9 +20,9 @@ export default defineConfig({
       ],
       include: ["src/**/*.ts"],
     },
-    // Pool configuration for single-worker execution (Vitest 4 format)
     pool: "forks",
-    maxWorkers: 4,
+    maxWorkers: 2,
+    fileParallelism: true,
     isolate: true,
   },
 });
