@@ -37,17 +37,17 @@ export const DetectConnectionSpikeSchemaBase = z.object({
 });
 
 export const DetectConnectionSpikeSchema = z.object({
-  warningPercent: z
+  warningPercent: z.coerce
     .number()
     .optional()
     .describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z
+  windowMinutes: z.coerce
     .number()
     .int()
     .min(1)
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
-  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
+  thresholdPercent: z.coerce.number().optional().describe("Alias for warningPercent"),
 });
 
 // =============================================================================

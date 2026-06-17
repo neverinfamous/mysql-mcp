@@ -251,6 +251,14 @@ export function createDetectBloatRiskTool(
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
             throw new ValidationError("Invalid schema name");
           }
+          
+          const schemaExists = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${schema}'`
+          );
+          if (!schemaExists.rows || schemaExists.rows.length === 0) {
+            throw new ValidationError(`Database '${schema}' does not exist`);
+          }
+          
           schemaFilter = `TABLE_SCHEMA = '${schema}'`;
         }
 
