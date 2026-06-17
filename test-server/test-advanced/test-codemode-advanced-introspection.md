@@ -168,7 +168,7 @@ During testing, check for these inconsistencies:
 
 9. In `stress_hierarchies`, add a `ON DELETE CASCADE` rule from `t1` all the way down to `t10`.
 10. Insert 1 row into `t1`, cascading 1 row into each subsequent table.
-11. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through all 10 tables.
+11. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through the 9 subsequent tables.
 12. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql_cascade_simulator` again — verify it correctly flags the operation as blocked at `t5`.
 
 ## Category 4: Snapshot & Risk Analysis Stress
