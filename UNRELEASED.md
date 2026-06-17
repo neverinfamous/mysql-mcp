@@ -212,3 +212,5 @@
 - Fixed an issue where the `test-sys.md` test prompt for the `sysschema` tool group incorrectly specified testing empty parameters `{}` as an expected validation failure, resolving a mismatch since the tools automatically inject default schemas and gracefully execute without inputs. (`d892b06`)
 - Fixed unit test failures in the `stats` tool group (`window.test.ts`) caused by a previous fix that removed literal backticks from `orderBy` clauses, realigning the assertions with the updated SQL generation. (`d892b06`)
 - Fixed unit test failures in the `docstore` tool group (`docstore.test.ts`) caused by a previous output schema compliance fix, realigning assertions to expect the `stats` and `indexes` properties strictly nested within the `data.info` wrapper. (`d892b06`)
+- Fixed a Split Schema pattern violation in the `admin` tool group (`mysql_audit_search` and `mysql_append_insight`), ensuring proper schema metadata mapping and parameter visibility. (`a5c7c00`)
+- Fixed a bug in the `audit` subsystem where the interceptor incorrectly recorded `success: true` for tools returning structured domain errors instead of throwing exceptions. (`a5c7c00`)
