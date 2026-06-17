@@ -28,6 +28,7 @@ export const MigrationRecordSchemaBase = z.object({
     .string()
     .optional()
     .describe("Human-readable description of the migration"),
+  name: z.string().optional().describe("Alias for description"),
   migrationSql: z
     .string()
     .optional()
@@ -73,6 +74,9 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
       if (obj["sql"] !== undefined) return { ...obj, migrationSql: obj["sql"] };
       if (obj["query"] !== undefined)
         return { ...obj, migrationSql: obj["query"] };
+    }
+    if (obj["description"] === undefined && obj["name"] !== undefined) {
+      return { ...obj, description: obj["name"] };
     }
   }
   return input;

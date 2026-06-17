@@ -155,8 +155,8 @@ migration Tool Group (6 tools +1 for code mode):
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
 1. `mysql_migration_init()` → verify table initialization
-2. `mysql_migration_record({version: "1.0.0", name: "initial", checksum: "123"})` → verify migration recording
-3. `mysql_migration_apply({version: "1.0.1", name: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT"})` → verify application
+2. `mysql_migration_record({version: "1.0.0", name: "initial", query: "CREATE TABLE test_migration (id INT)"})` → verify migration recording
+3. `mysql_migration_apply({version: "1.0.1", name: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → verify application
 4. `mysql_migration_status()` → verify migration status
 5. `mysql_migration_history({limit: 5})` → verify historical migrations
 6. `mysql_migration_rollback({version: "1.0.1"})` → verify rollback functionality
