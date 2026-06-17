@@ -1,5 +1,10 @@
 # Unreleased
 
+> **Agent Context**: This file tracks unreleased changes. For historical release context, read [`CHANGELOG.md`](CHANGELOG.md).
+> - **Search**: Entries are prefixed with exact file paths to enable rapid `grep` correlation.
+> - **Tags**: `[BREAKING]`, `[MIGRATION]`, `[SECURITY]`, `[PERFORMANCE]`, `[FEATURE]`, `[BUGFIX]`
+
+
 ### Changed
 
 ### Fixed
