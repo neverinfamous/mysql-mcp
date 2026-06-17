@@ -13,6 +13,8 @@
 - Fixed a streaming payload bloat mitigation bug in `mysql_read_query` where `stream: true` requests were improperly restricted by the `LIMIT 50` default injection, preventing full dataset iteration. (`b74238e`, `8477943`, `9d2cb7a`)
 - Fixed a flaky `stateless.spec.ts` E2E test failure where an orphaned stateful process on port 3102 from earlier suite runs hijacked the `fetch` assertions, by migrating the test server boundary to port 3103.
 - Fixed a Proxy interception bug in `sandbox.ts` where the `wrapResult` wrapper incorrectly blocked access to the `isError` property on failed tool operations, causing raw exceptions that masked the underlying structured domain errors. (`2958c57`)
+- Fixed a factual error in the test prompt (`test-roles.md`) where `mysql_role_list({})` was incorrectly asserted to fail Zod validation, despite having no required parameters. (`9e19a45`)
+- Fixed a SQL injection vulnerability in `mysql_role_list` where the `pattern` parameter was insecurely interpolated into the query string, by refactoring it to use a safe parameterized query (`?`). (`9e19a45`)
 - Fixed a factual error in the test prompt (`test-codemode-advanced-sessions.md`) where testing of HTTP transport endpoints (`/health` and `/mcp`) was incorrectly requested via `mysql_execute_code`, which strictly blocks network access for security.
 - Fixed a P154 bug in `mysql_list_constraints` where the tool failed to explicitly check if the provided target schema existed, leading to misleading internal fallback errors. (`97c17e6`, `411aeb5`, `b83cbcd`)
 - Fixed a bug in `mysql_concat` where empty column inputs passed schema validation and caused invalid SQL syntax crashes by enforcing a strict `.min(1)` bounds check on the columns array. (`bd6695a`, `c469d36`)
