@@ -136,10 +136,14 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
         const query = `DELETE FROM \`${table}\` WHERE \`${idCol}\` = ?`;
         const result = await adapter.executeQuery(query, [validated.id]);
 
+        if ((result.rowsAffected ?? 0) === 0) {
+          throw new ValidationError(`Row with id '${validated.id}' not found in table '${validated.table}'`);
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
-            deleted: (result.rowsAffected ?? 0) > 0,
+            deleted: true,
             table: validated.table,
             id: validated.id,
           }
