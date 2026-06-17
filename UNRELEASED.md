@@ -25,6 +25,7 @@
 - Fixed a bug in `mysql_concat` where empty column inputs passed schema validation and caused invalid SQL syntax crashes by enforcing a strict `.min(1)` bounds check on the columns array. (`bd6695a`, `c469d36`)
 - Fixed view management tools returning UNKNOWN_ERROR instead of VALIDATION_ERROR on empty inputs. (`3009d12`)
 ### Added
+- Created the full agent usability testing suite (`test-server/usability`) and anti-hallucination workflow orchestration, modeling the 16 test prompts and the 4-layer healing skill (`skills/mysql-mcp-heal/SKILL.md`) off the `memory-journal-mcp` standards. (`0fef0e3`)
 - Added `src/constants/server-instructions/backup-tools.md` to document operational idiosyncrasies for backup, dump, and audit restore commands. (`1589424`)
 - Harmonized the testing infrastructure with `db-mcp`, migrating all 84 test prompt files to a strict, template-driven standard (`test-server/scripts/prompt-template.md` and `standardize-prompts.js`). Renamed test files and directories to match the gold standard naming conventions (`test-codemode`, `test-{name}.md`). (`b63faff`)
 - Expanded the `test-advanced` suite by adding `test-codemode-sandbox.md` (to test `isolated-vm` security boundaries) and `test-codemode-advanced-concurrency.md` (to test connection pool saturation and `Promise.all()` queueing limits). Integrated rigorous Wrong-Type Coercion and Zod validation attack rules into all test templates globally.
