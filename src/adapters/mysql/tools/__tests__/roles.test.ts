@@ -360,7 +360,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User does not exist",
+          error: "User 'nonexistent' does not exist",
         }),
       );
     });
@@ -450,7 +450,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User does not exist",
+          error: "User 'baduser' does not exist",
         }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();

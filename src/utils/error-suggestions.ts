@@ -33,6 +33,13 @@ const ERROR_SUGGESTIONS: {
     code: "TABLE_NOT_FOUND",
   },
   {
+    pattern: /Unknown table ['"].*['"]/i,
+    suggestion:
+      "Table or view does not exist. Run mysql_list_tables or mysql_list_views to see available objects.",
+    category: ErrorCategory.RESOURCE,
+    code: "TABLE_NOT_FOUND",
+  },
+  {
     pattern: /table (?:or view )?['"].*['"] not found/i,
     suggestion:
       "Table or view does not exist. Run mysql_list_tables to see available tables.",

@@ -169,15 +169,13 @@ During testing, check for these inconsistencies:
 
 13. `proxysql_status()` → verify version and uptime fields
 14. `proxysql_servers()` → verify backend server listing with hostgroup info
-15. `proxysql_connection_pool()` → verify pool statistics structure
-16. `proxysql_query_digest({limit: 5})` → verify top query digests with timing info
-17. `proxysql_runtime_status()` → verify runtime config snapshot
+
 
 ## Category 3: Payload Monitoring & Filter Boundaries
 
-18. `proxysql_global_variables()` with no limit → log token estimate, flag > 500 tokens as 📦
-19. `proxysql_global_variables({limit: 5})` → log token estimate, verify significant reduction
-20. `proxysql_query_digest()` with no limit → log token estimate
+18. `proxysql_global_variables()` with no limit -> log token estimate (note: it defaults to a limit of 10, so it will not exceed 500 tokens).
+19. `proxysql_global_variables({limit: 5})` -> log token estimate, verify reduction
+20. `proxysql_query_digest()` with no limit -> log token estimate
 21. `proxysql_query_digest({limit: 1})` → log token estimate
 22. `proxysql_process_list()` → log token estimate
 23. `proxysql_status({summary: true})` → log token estimate, verify reduction vs. full
