@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a factual error in the backup test prompt where `mysql_audit_list_backups` was incorrectly asserted to fail Zod validation on empty objects, despite legally defaulting parameters. (`1589424`)
 - Fixed a bug in `mysql_optimizer_trace` where `extractTraceSummary` failed to capture primary key `const` lookup decisions, and fixed a structural parsing bug in `mysql_index_recommendation` where MySQL 8 schema 2.0 `query_plan` changes broke composite index suggestions. (`909e108`)
 - Fixed a bug in the `spatial` tool group's error handlers where the `table` parameter was not properly resolved from aliases (`tableName`, `name`) in the `paramStr` helper, preventing `TABLE_NOT_FOUND` errors from formatting correctly and leaking raw exceptions. (`203f013`)
 - Fixed a Split Schema pattern violation in the `spatial` tool group where `GeoJSONSchemaBase` lacked the `wkt` parameter alias definition, ensuring proper parameter visibility in MCP clients.
@@ -17,6 +18,7 @@
 - Fixed a bug in `mysql_concat` where empty column inputs passed schema validation and caused invalid SQL syntax crashes by enforcing a strict `.min(1)` bounds check on the columns array. (`bd6695a`, `c469d36`)
 - Fixed view management tools returning UNKNOWN_ERROR instead of VALIDATION_ERROR on empty inputs. (`3009d12`)
 ### Added
+- Added `src/constants/server-instructions/backup-tools.md` to document operational idiosyncrasies for backup, dump, and audit restore commands. (`1589424`)
 - Harmonized the testing infrastructure with `db-mcp`, migrating all 84 test prompt files to a strict, template-driven standard (`test-server/scripts/prompt-template.md` and `standardize-prompts.js`). Renamed test files and directories to match the gold standard naming conventions (`test-codemode`, `test-{name}.md`). (`b63faff`)
 - Expanded the `test-advanced` suite by adding `test-codemode-sandbox.md` (to test `isolated-vm` security boundaries) and `test-codemode-advanced-concurrency.md` (to test connection pool saturation and `Promise.all()` queueing limits). Integrated rigorous Wrong-Type Coercion and Zod validation attack rules into all test templates globally.
 - Harmonized the tool annotations and test validation script (`scripts/test-tool-annotations.mjs`) with `db-mcp`, achieving 100% strict coverage for `openWorldHint`, `readOnlyHint`, `destructiveHint`, and `sensitiveHint` across all 241 tools. (`25e32b5`, `fe39f29`)
@@ -71,6 +73,7 @@
 - Re-architected Code Mode sandbox by replacing the insecure `worker_threads` + `node:vm` engine with `isolated-vm` (C++ V8 bindings). This guarantees strict heap limits, eliminates prototype pollution vectors, prevents dynamic constructor chain escapes natively, and provides synchronous execution limits. Expanded static blocked patterns to 29 regex rules including Unicode escape detection, NFKC normalization, and comment stripping before pattern validation. (`b83cbcd`)
 - Added `wrapResult` and `wrapPromise` smart proxies to the Code Mode sandbox to intercept missing `await` errors and safely auto-resolve array methods and property destructuring against nested `data.rows` tool payloads, achieving parity with `memory-journal-mcp` and eliminating common agent syntax errors.
 ### Changed
+- Changed the default behavior of `summary` to `true` in the `mysql_security_user_privileges` tool to reduce payload token footprint when returning user privileges. (`9aaf14d`)
 - Refactored `dev-power`, `ai-data`, `ai-spatial`, and `base-*` meta-groups to logically split oversized bundles (getting all shortcuts under the ideal 50-tool limit). Added `dev-analytics`, `ai-data-nosql`, `ai-search`, `base-relational`, `base-analytics`, and `base-nosql`.
 - Converted the PowerShell database reset script (`reset-database.ps1`) and cluster reboot script (`reboot-cluster.ps1`) to cross-platform Node.js scripts (`scripts/reset-database.mjs` and `scripts/reboot-cluster.mjs`), updating all internal testing references and documentation. (`c57852b`)
 - Conducted comprehensive code quality audit. Cleaned up unused `devDependencies` (`rimraf`, `ts-morph`) and added missing `dotenv` dependency.
