@@ -382,14 +382,11 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
   const schema = schemaBase
     .transform((data) => ({
-      database: data.database ?? "",
+      database: data.database,
       tables: data.tables,
       noData: data.noData,
       singleTransaction: data.singleTransaction,
-    }))
-    .refine((data) => data.database !== "", {
-      message: "database is required",
-    });
+    }));
 
   return {
     name: "mysql_create_dump",
@@ -402,8 +399,23 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { database, tables, noData, singleTransaction } =
-          schema.parse(params);
+        let { database } = schema.parse(params);
+        const { tables, noData, singleTransaction } = schema.parse(params);
+
+        if (!database) {
+          const dbRow = (await _adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+          database = (dbRow?.["db"] as string) || "";
+        }
+
+        if (!database) {
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: No database specified and no active database selected.",
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
 
         // Verify database exists
         try {
@@ -497,12 +509,9 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
   const schema = schemaBase
     .transform((data) => ({
-      database: data.database ?? "",
+      database: data.database,
       filename: data.filename,
-    }))
-    .refine((data) => data.database !== "", {
-      message: "database is required",
-    });
+    }));
 
   return {
     name: "mysql_restore_dump",
@@ -515,7 +524,23 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { database, filename } = schema.parse(params);
+        let { database } = schema.parse(params);
+        const { filename } = schema.parse(params);
+
+        if (!database) {
+          const dbRow = (await _adapter.executeReadQuery("SELECT DATABASE() as db")).rows?.[0];
+          database = (dbRow?.["db"] as string) || "";
+        }
+
+        if (!database) {
+          return withTokenEstimate({
+            success: false,
+            error: "Validation error: No database specified and no active database selected.",
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
 
         // Verify database exists
         try {
