@@ -262,77 +262,101 @@ export async function analyzeQueriesWithExplain(
       const isRecord = (val: unknown): val is Record<string, unknown> => typeof val === "object" && val !== null && !Array.isArray(val);
 
       const analyzeNodeInternal = (node: unknown): void => {
-        if (!isRecord(node)) return;
+        const tableAccesses: { table: string; access: string; keys: string[] }[] = [];
+        const filterColumns: { table: string; col: string }[] = [];
 
-        const obj = node;
+        const walk = (n: unknown): void => {
+          if (!isRecord(n)) return;
 
-        // Check for full table scan
-        if (obj["access_type"] === "ALL" && typeof obj["table_name"] === "string") {
-          // Extract filter conditions if available
-          const condition =
-            typeof obj["attached_condition"] === "string"
-              ? obj["attached_condition"]
-              : typeof obj["attached_pushed_condition"] === "string"
-                ? obj["attached_pushed_condition"]
-                : undefined;
-          
-          let columns: string[] = [];
-
-          if (condition) {
-            // Very simplistic regex to pull column names out of conditions like "`table`.`col` = 5"
-            const matches = condition.matchAll(/`([^`]+)`/g);
-            const cols = new Set<string>();
-            for (const match of matches) {
-              const colName = match[1];
-              if (colName && colName !== obj["table_name"]) {
-                cols.add(colName);
-              }
-            }
-            columns = Array.from(cols);
+          if (typeof n["table_name"] === "string") {
+             const keys: string[] = [];
+             if (Array.isArray(n["key_columns"])) {
+               for (const k of n["key_columns"]) {
+                 if (typeof k === "string") keys.push(k);
+               }
+             }
+             tableAccesses.push({
+               table: n["table_name"],
+               access: typeof n["access_type"] === "string" ? n["access_type"] : "ALL",
+               keys
+             });
           }
 
-          if (columns.length > 0) {
-            const idxName = `idx_${obj["table_name"]}_${columns.join("_")}`;
-            findings.push({
-              type: "composite",
-              severity: "warning",
-              table: obj["table_name"],
-              columns,
-              rationale: `Query caused a full table scan on \`${obj["table_name"]}\`. Filters found on columns: ${columns.join(", ")}.`,
-              suggestion: "Consider creating a composite index on the filtered columns to avoid full table scans.",
-              createStatement: `CREATE INDEX \`${idxName}\` ON \`${obj["table_name"]}\`(${columns.map((c: string) => `\`${c}\``).join(", ")});`,
-            });
-          } else {
+          if (Array.isArray(n["filter_columns"])) {
+            for (const f of n["filter_columns"]) {
+               if (typeof f === "string") {
+                 const parts = f.split('.');
+                 const colPart = parts[parts.length - 1];
+                 const tablePart = parts.length > 1 ? parts[parts.length - 2] : "";
+                 const col = colPart?.replace(/`/g, "") ?? "";
+                 const tbl = tablePart?.replace(/`/g, "") ?? "";
+                 if (col) {
+                   filterColumns.push({ table: tbl, col });
+                 }
+               }
+            }
+          }
+
+          const cond = typeof n["attached_condition"] === "string" ? n["attached_condition"] :
+                       typeof n["attached_pushed_condition"] === "string" ? n["attached_pushed_condition"] : undefined;
+          if (cond && typeof n["table_name"] === "string") {
+            const matches = cond.matchAll(/`([^`]+)`/g);
+            for (const m of matches) {
+              if (m[1] && m[1] !== n["table_name"]) {
+                filterColumns.push({ table: n["table_name"], col: m[1] });
+              }
+            }
+          }
+
+          for (const key in n) {
+            if (Array.isArray(n[key])) {
+              for (const item of n[key] as unknown[]) walk(item);
+            } else if (isRecord(n[key])) {
+              walk(n[key]);
+            }
+          }
+        };
+
+        walk(node);
+
+        for (const access of tableAccesses) {
+          const tableFilters = filterColumns.filter(f => !f.table || f.table === access.table).map(f => f.col);
+          const uniqueFilters = Array.from(new Set(tableFilters));
+          const missingFilters = uniqueFilters.filter(c => !access.keys.includes(c));
+          
+          if (missingFilters.length > 0) {
+            if (access.access === "table" || access.access === "ALL") {
+              const idxName = `idx_${access.table}_${missingFilters.join("_")}`;
+              findings.push({
+                type: "composite",
+                severity: "warning",
+                table: access.table,
+                columns: missingFilters,
+                rationale: `Query caused a full table scan on \`${access.table}\`. Filters found on columns: ${missingFilters.join(", ")}.`,
+                suggestion: "Consider creating a composite index on the filtered columns to avoid full table scans.",
+                createStatement: `CREATE INDEX \`${idxName}\` ON \`${access.table}\`(${missingFilters.map(c => `\`${c}\``).join(", ")});`
+              });
+            } else if (access.keys.length > 0) {
+              const compositeCols = [...access.keys, ...missingFilters];
+              const idxName = `idx_${access.table}_${compositeCols.join("_")}`;
+              findings.push({
+                type: "composite",
+                severity: "info",
+                table: access.table,
+                columns: compositeCols,
+                rationale: `Query uses index on \`${access.table}\` (${access.keys.join(", ")}) but applies additional filters on: ${missingFilters.join(", ")}.`,
+                suggestion: "Consider creating a composite index to cover all filtered columns and improve performance.",
+                createStatement: `CREATE INDEX \`${idxName}\` ON \`${access.table}\`(${compositeCols.map(c => `\`${c}\``).join(", ")});`
+              });
+            }
+          } else if (access.access === "table" || access.access === "ALL") {
             findings.push({
               type: "composite",
               severity: "info",
-              table: obj["table_name"],
-              rationale: `Query caused a full table scan on \`${obj["table_name"]}\` but no explicit filter columns were extracted.`,
-              suggestion: "Review the query's WHERE/JOIN clauses on this table and consider indexing those columns.",
+              table: access.table,
+              rationale: `Query caused a full table scan on \`${access.table}\` but no explicit filter columns were extracted.`,
+              suggestion: "Review the query's WHERE/JOIN clauses on this table and consider indexing those columns."
             });
-          }
-        }
-
-        // Recursive tree walk
-        if (Array.isArray(obj["nested_loop"])) {
-          for (const nl of obj["nested_loop"]) {
-            if (isRecord(nl) && "table" in nl) {
-              analyzeNodeInternal(nl["table"]);
-            }
-          }
-        }
-        
-        if (isRecord(obj["query_block"])) {
-          const qb = obj["query_block"];
-          if ("table" in qb && qb["table"] != null) {
-            analyzeNodeInternal(qb["table"]);
-          }
-          if (Array.isArray(qb["nested_loop"])) {
-            for (const nl of qb["nested_loop"]) {
-              if (isRecord(nl) && "table" in nl) {
-                analyzeNodeInternal(nl["table"]);
-              }
-            }
           }
         }
       };

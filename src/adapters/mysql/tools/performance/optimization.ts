@@ -89,6 +89,9 @@ function extractTraceSummary(
           steps?: {
             rows_estimation?: {
               table?: string;
+              rows?: number;
+              cost?: number;
+              table_type?: string;
               range_analysis?: {
                 table_scan?: { rows: number; cost: number };
                 chosen_range_access_summary?: {
@@ -133,6 +136,15 @@ function extractTraceSummary(
           // Extract rows estimation decisions
           if (optStep.rows_estimation) {
             for (const est of optStep.rows_estimation) {
+              if (est.table_type === "const") {
+                decisions.push({
+                  type: "const_lookup",
+                  table: est.table,
+                  estimatedRows: est.rows,
+                  estimatedCost: est.cost,
+                });
+              }
+
               const rangeAnalysis = est.range_analysis;
               if (rangeAnalysis?.chosen_range_access_summary?.chosen) {
                 const plan = rangeAnalysis.chosen_range_access_summary;
@@ -405,7 +417,7 @@ export function createOptimizerTraceTool(
     )
     .transform((data) => ({
       query: data.query ?? data.sql ?? "",
-      summary: data.summary ?? true,
+      summary: data.summary ?? false,
     }))
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
