@@ -7,6 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { TransactionError } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -164,7 +165,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new Error(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`),
           );
         }
 
@@ -209,7 +210,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new Error(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`),
           );
         }
 
@@ -259,7 +260,7 @@ function createTransactionRollbackToTool(
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new Error(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`),
           );
         }
 
@@ -315,7 +316,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
 
       if (!connection) {
         return formatHandlerErrorResponse(
-          new Error("Failed to get transaction connection"),
+          new TransactionError("Failed to get transaction connection"),
         );
       }
 
