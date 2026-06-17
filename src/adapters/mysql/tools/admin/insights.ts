@@ -5,7 +5,7 @@
  * 1 tool total.
  */
 
-import { z } from "zod";
+
 import type {
   ToolDefinition,
   RequestContext,
@@ -16,19 +16,11 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/index.js";
-import { AppendInsightOutputSchema } from "../../schemas/index.js";
-
-// =============================================================================
-// Schemas
-// =============================================================================
-
-const AppendInsightSchema = z.object({
-  insight: z
-    .string()
-    .describe(
-      "Business insight text to record (e.g., 'Sales table has 40% NULL values in email column').",
-    ),
-});
+import {
+  AppendInsightOutputSchema,
+  AppendInsightSchema,
+  AppendInsightSchemaBase,
+} from "../../schemas/index.js";
 
 // =============================================================================
 // Tool
@@ -41,7 +33,7 @@ export function createAppendInsightTool(): ToolDefinition {
     description:
       "Append a business insight to the in-memory insights memo. Insights are accessible via the mysql://insights resource. Use to record key findings during database analysis.",
     group: "admin",
-    inputSchema: AppendInsightSchema,
+    inputSchema: AppendInsightSchemaBase,
     outputSchema: AppendInsightOutputSchema,
     annotations: {
       readOnlyHint: false,

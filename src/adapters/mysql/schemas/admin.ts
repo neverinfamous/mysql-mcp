@@ -286,6 +286,31 @@ export const ServerConfigSchema = ServerConfigSchemaBase.refine(
   { message: "setting and value are required for 'set' action" }
 );
 
+// --- AuditSearch ---
+export const AuditSearchSchemaBase = z.object({
+  tool: z.string().optional().describe("Filter by exact tool name"),
+  category: z.string().optional().describe("Filter by category (e.g. read, write, admin)"),
+  success: z.boolean().optional().describe("Filter by success status"),
+  requestId: z.string().optional().describe("Filter by exact request ID"),
+  fromTimestamp: z.string().optional().describe("Filter by start timestamp (ISO 8601)"),
+  toTimestamp: z.string().optional().describe("Filter by end timestamp (ISO 8601)"),
+  limit: z.number().int().min(1).max(100).default(10).describe("Max results to return"),
+  offset: z.number().int().min(0).default(0).describe("Pagination offset"),
+});
+
+export const AuditSearchSchema = AuditSearchSchemaBase;
+
+// --- AppendInsight ---
+export const AppendInsightSchemaBase = z.object({
+  insight: z
+    .string()
+    .describe(
+      "Business insight text to record (e.g., 'Sales table has 40% NULL values in email column').",
+    ),
+});
+
+export const AppendInsightSchema = AppendInsightSchemaBase;
+
 // =============================================================================
 // Output Schemas
 // =============================================================================

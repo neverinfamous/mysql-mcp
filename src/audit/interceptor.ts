@@ -121,6 +121,19 @@ export function createAuditInterceptor(
       try {
         const result = await fn();
 
+        // Extract success/error from structured handler responses
+        if (
+          typeof result === "object" &&
+          result !== null &&
+          "success" in result &&
+          result.success === false
+        ) {
+          success = false;
+          if ("error" in result) {
+            error = typeof result.error === "string" ? result.error : String(result.error);
+          }
+        }
+
         // Compute token estimate from result
         if (typeof result === "object" && result !== null) {
           try {
