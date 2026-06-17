@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated `mcp-config-example.json` — added `METADATA_CACHE_TTL_MS`, `CODEMODE_ISOLATION`, and `CODE_MODE_MAX_RESULT_SIZE` env vars
+- Updated `mcp-config-example.json` — added `METADATA_CACHE_TTL_MS`, `CODEMODE_ISOLATION`, and `CODE_MODE_MAX_RESULT_SIZE` env vars (`2d57ef5`, `ce1c5af`)
 - Fixed a bug in `scripts/generate-server-instructions.ts` where `README.md` was accidentally compiled into the server's dynamic help payload. (`0073e8b`, `826120a`)
 
 ### Fixed
@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - Resolved XSS vulnerability in `ip-address` and `express-rate-limit` via npm update
-- Bumped `tar` (bundled in npm) to `7.5.15` in Dockerfile to address CVE-2026-26960
+- Bumped `tar` (bundled in npm) to `7.5.15` in Dockerfile to address CVE-2026-26960 (`c154cf4`, `8a193d1`)
 
 ### Fixed
 
@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Tools for dependency mapping, topological sort, schema snapshots, and risk assessment. (`87534d6`)
-- Tools for tracking, applying, and rolling back schema versions.
+- Tools for tracking, applying, and rolling back schema versions. (`ab9f7fb`, `051e71e`, `2f76fd8`)
 - `mysql_append_insight` tool and `mysql://insights` resource for session-based business insights.
 - `_meta.tokenEstimate` heuristic (4 bytes/token) in all tool responses and Code Mode metrics.
 - Activated logging via CLI flags, exposed `getAuditInterceptor()` on `DatabaseAdapter`, wired interceptor through sandbox operations, and ported 51-test audit suite.
@@ -98,9 +98,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Decentralized monolithic `types.ts` into modular, group-specific schemas for better maintainability.
 - Hardened `MysqlApi` bindings in Code Mode to stub write-methods in `readonly` mode and auto-return the last expression.
 - Replaced monolithic 53KB server instructions with a ~634 char summary + on-demand MCP resources.
-- Simplified schema definitions to accept standard MySQL syntax strings.
+- Simplified schema definitions to accept standard MySQL syntax strings. (`df14165`, `dce2f84`)
 - Updated core dependencies, including bumping `eslint` to 10.3.0, `globals` to 17.6.0, `zod` to 4.4.3, and `typescript-eslint` to 8.59.2.
-- Reduced default limits across various tools (`mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, `mysql_export_table`, `mysql_binlog_events`, `mysql_thread_stats`) and defaulted large schemas to prevent payload bloat.
+- Reduced default limits across various tools (`mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, `mysql_export_table`, `mysql_binlog_events`, `mysql_thread_stats`) and defaulted large schemas to prevent payload bloat. (`dce2f84`)
 ${deps_lines}
 ${improved_lines}
 
@@ -128,30 +128,30 @@ ${improved_lines}
 
 ### Fixed
 
-- Nested all successful tool responses within a `data` wrapper to strictly adhere to the mandatory `{ success: boolean, data: object }` contract.
+- Nested all successful tool responses within a `data` wrapper to strictly adhere to the mandatory `{ success: boolean, data: object }` contract. (`2f76fd8`)
 - Standardized error responses to use `formatHandlerErrorResponse()` across all tool groups. Eliminated property leakages, standardized Zod validation formats, and applied Split Schema patterns for improved coercion. (`9cf5853`)
 - Remediated missing `metrics.tokenEstimate` payloads in success and domain error paths across all tool groups. (`9cf5853`)
-- Switched DDL operations to `rawQuery` to prevent array response corruption. Correctly wrapped MySQL maintenance query errors into structured responses.
+- Switched DDL operations to `rawQuery` to prevent array response corruption. Correctly wrapped MySQL maintenance query errors into structured responses. (`3588fc9`, `2f76fd8`)
 - Fixed `DATETIME` ISO 8601 string parsing, added constraints to table arrays, optimized imports with batched bulk inserts, and added existence verification to restore and table exports (P154 pattern).
 - Fixed auto-recovery by persisting `group_replication_start_on_boot=ON` across restarts.
 - Replaced `_meta.tokenEstimate` with `metrics.tokenEstimate` in help responses and fixed validation regression on empty execution payloads. (`a804766`)
-- Fixed duplicate prefixes in Zod error messages for schema refinement rules.
+- Fixed duplicate prefixes in Zod error messages for schema refinement rules. (`9ef3fab`)
 - Migrated to `parseDocFilter` for query parity, automatically merged missing `_id` fields, and fixed criteria/update aliases. (`3928a2b`, `5b10bf8`)
-- Corrected admin documentation regarding structured error formats for nonexistent tables.
+- Corrected admin documentation regarding structured error formats for nonexistent tables. (`dce2f84`)
 - Fixed missing `status` and `event` fields in response payloads. (`dc1c28e`)
 - Removed hardcoded `id` column requirement, fixed limit parameterization bug, and mapped raw MySQL exceptions to validation errors.
 - Fixed circular dependency detection, implemented `maxDepth` traversal filtering, and fixed Zod schema regressions for limits. (`418221b`, `65880af`, `b83cbcd`)
 - Fixed parameter visibility in `json_validate`, implemented missing `where` and `limit` clauses, and corrected alias parameters.
 - Fixed read-only mode false positives, prepared statement constraint errors, and enforced strict schema hash validation. (`b83cbcd`)
-- Fixed payload bloat in `innodbStatus`, renamed specific response properties for consistency, and resolved raw `TypeError` issues by switching to `executeQuery`.
+- Fixed payload bloat in `innodbStatus`, renamed specific response properties for consistency, and resolved raw `TypeError` issues by switching to `executeQuery`. (`2f76fd8`)
 - Fixed domain error reporting, surfaced `rewrittenQuery`, optimized EXPLAIN payloads, and fixed connection pooling for optimizer traces.
 - Fixed integer overflow in anomaly detection, added strict limits for `sys` schema tools, and optimized JSON EXPLAIN payloads. (`b83cbcd`)
 - Added missing `version` and `uptime` properties to status response.
-- Fixed parameter visibility regressions and supported privilege revokes.
+- Fixed parameter visibility regressions and supported privilege revokes. (`2f76fd8`)
 - Fixed health checks for offline routes and utilized standardized error responses for connectivity issues.
 - Fixed DDL operations to correctly return skipped status, implemented missing `mysql_drop_view`, fixed Zod validation on missing parameters, and fixed `mysql://schema` resource handler to include full column metadata for tables and views. (`1b9898d`)
 - Enforced minimum constraints on passwords and reduced default limits in audit tools. (`b74238e`, `b83cbcd`, `9d2cb7a`)
-- Extended language validation to JS/Python, fixed Windows path resolution, and fixed dump dry run configuration.
+- Extended language validation to JS/Python, fixed Windows path resolution, and fixed dump dry run configuration. (`dce2f84`)
 - Fixed index creation errors on missing columns, fixed WKT round-tripping for SRID 4326, optimized buffer payloads by removing massive GeoJSON generation, and added P154 existence verification pattern to table `doesn't exist` errors.
 - Enforced numeric type checking, implemented server-side pagination for window functions, fixed string-to-number casting, sanitized window function column errors, and added an actionable generation hint to empty histogram responses.
 - Registered `mysql.sys` as a direct API alias for intuitive Code Mode calls.
@@ -171,9 +171,9 @@ ${improved_lines}
 
 ### Security
 
-- Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement.
+- Fixed a vulnerability where HTTP transports validated tokens but bypassed tool-specific scope enforcement. (`f9075f2`)
 - Updated `hono` to `4.12.9` to patch SSE control field, cookie attribute injection, and prototype pollution. Updated `flatted`, `path-to-regexp`, `picomatch`, `express-rate-limit`, `@hono/node-server`, `tar`, and `minimatch` to patch various vulnerabilities. (`1a93a4a`)
-- Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes.
+- Pinned all GitHub Actions by SHA, added TruffleHog + Gitleaks secret scanning, and integrated SLSA Build L3 attestation via `--provenance`. Repositioned Trivy vulnerability scanning to run before image pushes. (`f9075f2`)
 
 ### Dependencies
 
@@ -185,7 +185,7 @@ ${improved_lines}
 - `typescript-eslint`: 8.56.1 → 8.59.2
 - `zod`: 4.3.6 → 4.4.3
 - `express-rate-limit`: 8.2.1 → 8.3.1 (transitive)
-- `hono`: 4.12.2 → 4.12.7 (transitive)
+- `hono`: 4.12.2 → 4.12.7 (transitive) (`4ce1588`)
 - `@hono/node-server`: 1.19.9 → 1.19.11 (transitive)
 
 ### CI
@@ -219,7 +219,7 @@ ${improved_lines}
 
 ### Fixed
 
-- Removed unused `ValidationError` import in `security_integration.test.ts`
+- Removed unused `ValidationError` import in `security_integration.test.ts` (`eb2ccd2`)
 - Removed unused `beforeEach` import in `sandbox-factory.test.ts`
 
 ## [3.0.0] - 2026-02-26
@@ -230,7 +230,7 @@ ${improved_lines}
 
 ### Improved
 
-- Reduced default `limit` from 100 to 20 (matching `mysql_binlog_events`), preventing ~18KB payloads of repetitive `performance_schema` events on default calls
+- Reduced default `limit` from 100 to 20 (matching `mysql_binlog_events`), preventing ~18KB payloads of repetitive `performance_schema` events on default calls (`dce2f84`)
 - Updated parameter description from misleading `"CONNECT"`, `"QUERY"` examples to accurate `performance_schema` event names (`"Execute"`, `"Ping"`, `"begin"`), and documented LIKE matching behavior
 - Split the security enterprise features bullet to separately document `mysql_security_audit` fallback behavior: `performance_schema` fallback mode, `startTime` filter limitations, `eventType` LIKE matching, and default limit (`5fb0715`)
 
@@ -239,7 +239,7 @@ ${improved_lines}
 - Replaced inline `error.issues.map(i => i.message).join("; ")` in all 11 ProxySQL handler catch blocks with centralized `formatZodError()` helper, matching the pattern used across all other tool groups (`9cf5853`)
 - Documented `like` pattern safe character set validation, `hostgroup_id` non-negative integer constraint, and `limit` non-negative integer constraint for query analysis tools (`2abad5f`)
 
-- Updated backend servers documentation to reflect removal of `proxysql_hostgroups` and document that `hostgroup_id` must be a non-negative integer
+- Updated backend servers documentation to reflect removal of `proxysql_hostgroups` and document that `hostgroup_id` must be a non-negative integer (`f97926a`)
 
 - `ProxySQLLimitInputSchema` and `ProxySQLVariableFilterSchema` used `z.number().optional()` without `.int()` or `.min(0)`, allowing float values (e.g., `1.5`) and negative limits (e.g., `-5`) to pass validation and be interpolated into SQL. Added `.int().min(0)` to both schemas so non-integer and negative limits are rejected at the Zod validation level with structured error responses (`851946b`, `d7c2c29`, `6f33708`)
 - `ProxySQLHostgroupInputSchema` used `z.number().optional()` without `.int()`, allowing float values like `1.5` to be interpolated into SQL `WHERE hostgroup_id = 1.5`. Added `.int()` so non-integer hostgroup IDs are rejected at validation (`f97926a`)
@@ -254,7 +254,7 @@ ${improved_lines}
 - `mysql_doc_add`, `mysql_doc_find`, `mysql_doc_modify`, `mysql_doc_remove`, and `mysql_doc_create_index` now accept an optional `schema` parameter for cross-database collection access. Previously these 5 tools hardcoded `DATABASE()` for collection existence checks and query execution, making collections created in non-default databases invisible. All 5 tools now pass `schema` to `checkCollectionExists()` and use `escapeTableRef()` for qualified table references (`` `schema`.`collection` ``) (`2362c92`)
 - Updated docstore section to document the new `schema` parameter on all 5 tools, added `mysql_doc_collection_info` to the schema existence check documentation, and documented `mysql_doc_find` JSON path validation behavior (`d4a6914`)
 
-- Updated `mysql_cluster_instances` documentation to clarify `limit` must be a non-negative integer (not just `min: 0`). Updated `mysql_cluster_switchover` to document that `currentPrimary` is `null` (not absent) when no primary exists
+- Updated `mysql_cluster_instances` documentation to clarify `limit` must be a non-negative integer (not just `min: 0`). Updated `mysql_cluster_switchover` to document that `currentPrimary` is `null` (not absent) when no primary exists (`dce2f84`)
 
 - `eventType` and `startTime` parameters were silently ignored in the `performance_schema` fallback branch (when `mysql.audit_log` table is unavailable). `eventType` now generates an `EVENT_NAME LIKE ?` condition. `startTime` is documented as inapplicable (performance_schema uses picosecond counters, not ISO timestamps) and a `filtersIgnored`/`note` field is included in the response when it cannot be applied (`d6b555a`, `a671322`, `46bb18d`)
 - Catch block returned `{available: false, message: "Audit logging is not enabled..."}` for all exceptions, including non-audit failures (connection loss, permission denied, etc.). Now inspects the error message: audit-related errors (table doesn't exist, access denied) still return the `{available: false}` response, while all other errors return `{success: false, error}` matching the structured error convention used across all other tools (`4712978`, `1b9898d`)
@@ -297,7 +297,7 @@ ${improved_lines}
 
 - All 6 schema handler files (`constraints.ts`, `scheduled_events.ts`, `views.ts`, `management.ts`, `routines.ts`, `triggers.ts`) called `Schema.parse(params)` outside any `try/catch` block, causing raw Zod validation errors to propagate as MCP exceptions. Additionally, `list_constraints` (`type`), `list_events` (`status`), and `create_view` (`algorithm`, `checkOption`) used `z.enum()` directly on their `inputSchema`, causing the MCP framework to reject invalid values with raw `-32602` errors before handlers could intercept. Applied Split Schema pattern: created permissive `*Base` schemas with `z.string()` for `inputSchema` visibility, kept strict `z.enum()` schemas for handler-level parsing inside `try/catch` with `ZodError` detection and `formatZodError()` formatting, matching the Dual-Schema pattern used by admin, backup, and other tool groups (`547f54b`, `bd73fa1`)
 - Migrated both tools to the true Dual-Schema pattern in `types.ts`. Tool now properly distinguishes between the permissive base schema (`CreateSchemaBase` / `DropSchemaBase`) for MCP client visibility and strict internal validation, ensuring parameter type coercions and default values (like `ifExists: false`) are correctly applied inside the handler. (`d4a6914`)
-- Fixed query arbitrarily excluding `information_schema`, `mysql`, `performance_schema`, and `sys` databases. Now correctly returns all system and user schemas for complete system-level introspection parity.
+- Fixed query arbitrarily excluding `information_schema`, `mysql`, `performance_schema`, and `sys` databases. Now correctly returns all system and user schemas for complete system-level introspection parity. (`615686c`)
 - The `option` parameter used `z.enum()` on `CheckTableSchemaBase`, causing invalid option values (e.g., `"INVALID_OPTION"`) to be rejected at the MCP framework level with a raw `-32602` Zod validation error before the handler's `try/catch` could intercept. Widened to `z.string()` on the Base schema while keeping `z.enum()` on the handler-parsed `CheckTableSchema`, so invalid values are caught inside `try/catch` and returned as `{ success: false, error }` (`d4a6914`)
 - `BinlogEventsSchema` used `z.number().optional()` without `.nonnegative()`, allowing negative `limit` values (e.g., `-1`) to pass Zod validation and be string-interpolated into SQL via `LIMIT ${limit}`, producing a raw MySQL syntax error. Added `.nonnegative()` so negative values are rejected at the Zod validation level with structured `{ success: false, error }` responses (`fec6ac3`)
 - `BinlogEventsSchema.parse(params)` was called outside the handler's `try/catch` block, and the same strict schema was used as `inputSchema`, causing Zod validation errors to propagate as raw MCP `-32602` exceptions. Applied Split Schema pattern: created permissive `BinlogEventsSchemaBase` for `inputSchema` visibility, kept strict `BinlogEventsSchema` (with `.nonnegative()`) for handler parsing inside a new outer `try/catch` with `ZodError` detection and human-readable error formatting (`b83cbcd`)
@@ -352,7 +352,7 @@ ${improved_lines}
 - Both tools lacked `try/catch` around their main query execution, causing raw MySQL errors to propagate as MCP exceptions when `performance_schema` or `information_schema` queries failed. Both now return `{ success: false, error }` matching the structured error pattern used by the other 6 performance tools (`94642f9`)
 - The `minTime` parameter (documented as seconds) used a multiplier of 10⁹ (nanoseconds) when comparing against `AVG_TIMER_WAIT`, which is measured in picoseconds (10⁻¹²). This made the filter 1000× too lenient: `minTime: 100` filtered at 100 milliseconds instead of 100 seconds. Corrected multiplier to 10¹²
 - `mysql_slow_queries`, `mysql_query_stats`, `mysql_buffer_pool_stats`, and `mysql_thread_stats` called `executeReadQuery()` without `try/catch`, causing raw MySQL errors to propagate as MCP exceptions when `performance_schema` was unavailable or queries failed. All 4 tools now return `{ success: false, error }` matching the structured error pattern used by `mysql_explain` and `mysql_explain_analyze` (`94642f9`)
-- Moved inline Zod schema from `analysis.ts` to `QueryStatsSchema` in `types.ts` for consistency with other performance tool schemas (`SlowQuerySchema`, `IndexUsageSchema`, `TableStatsSchema`)
+- Moved inline Zod schema from `analysis.ts` to `QueryStatsSchema` in `types.ts` for consistency with other performance tool schemas (`SlowQuerySchema`, `IndexUsageSchema`, `TableStatsSchema`) (`347c994`)
 
 - Both tools returned `{ success: false, reason }` for duplicate index and nonexistent index errors, violating the convention where `reason` is reserved for informational `{ success: true, skipped: true }` contexts. Changed to `{ success: false, error }` for consistency with all other tools (`b060754`, `a804766`)
 - Tool returned `{ exists: false, table }` for nonexistent columns, incorrectly indicating the table didn't exist. Now distinguishes `ER_KEY_COLUMN_DOES_NOT_EXITS` (errno 1072, "Key column 'X' doesn't exist") from generic "doesn't exist" errors, returning `{ success: false, error }` for invalid columns while preserving `{ exists: false, table }` only for genuinely missing tables
@@ -365,7 +365,7 @@ ${improved_lines}
 
 - Migrated `mysql_repair_table` from an inline Zod schema to the Dual-Schema pattern in `types.ts` (`RepairTableSchemaBase`/`RepairTableSchema`). Tool now supports parameter aliases (`table`/`tableName`/`name` for `tables`), matching the pattern used by `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, and `mysql_flush_tables` (`b334082`, `036a513`)
 - `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, and `mysql_repair_table` lacked `try/catch` around schema parsing and query execution, causing raw Zod validation errors and MySQL exceptions to propagate as MCP errors. All 4 tools now return `{ success: false, error }` matching the structured error pattern used by the other admin tools (`97c17e6`, `411aeb5`, `b83cbcd`)
-- Handler lacked a `try/catch` block entirely, causing Zod validation errors and adapter failures to propagate as raw MCP exceptions. Now wrapped in `try/catch` matching the pattern used by the other 5 admin tools, returning `{ success: false, error }` for all failures
+- Handler lacked a `try/catch` block entirely, causing Zod validation errors and adapter failures to propagate as raw MCP exceptions. Now wrapped in `try/catch` matching the pattern used by the other 5 admin tools, returning `{ success: false, error }` for all failures (`df14165`)
 - `KillQuerySchema.parse(params)` was executed before the `try/catch` block, causing Zod validation errors (e.g., missing `processId`) to throw as raw MCP exceptions instead of returning `{ success: false, error }`. Moved parse inside `try/catch`
 - All 6 admin tools (`optimize_table`, `analyze_table`, `check_table`, `repair_table`, `flush_tables`, `kill_query`) returned raw Zod JSON array strings (e.g., `[{"code":"custom","path":[],...}]`) in the `error` field when validation failed. Now extracts human-readable `.message` from each Zod issue using `ZodError` instance detection (e.g., `"tables (or table/tableName/name alias) is required"`)
 - `mysql_show_processlist`, `mysql_show_status`, `mysql_show_variables`, `mysql_innodb_status`, `mysql_pool_stats`, and `mysql_server_health` lacked `try/catch` around handler logic, causing raw Zod validation errors and MySQL exceptions to propagate as MCP errors. All 6 tools now return `{ success: false, error }` matching the structured error pattern used by the other monitoring tool (`mysql_replication_status`) and all admin tools (`4712978`, `1b9898d`)
@@ -432,10 +432,10 @@ ${improved_lines}
 - `WorkerSandbox` now passes `resourceLimits` (`maxOldGenerationSizeMb`, `maxYoungGenerationSizeMb`) to the `Worker` constructor, enforcing V8 heap limits. Previously, `memoryLimitMb` in sandbox options was accepted but ignored (`715f283`)
 - Fixed `core` tool group OAuth scope from `READ` → `WRITE`. The `core` group contains `writeQuery`, `dropTable`, `createTable`, and `createIndex`, which are write/DDL operations. A `READ`-scoped OAuth client could previously execute arbitrary write operations through `core` tools
 - Added `Strict-Transport-Security` (2-year max-age), `Referrer-Policy` (no-referrer), and `Permissions-Policy` (camera/microphone/geolocation denied) to all HTTP transport responses, complementing existing CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, and Cache-Control headers
-- Added detection for bracket-notation constructor access (`['constructor']`) and `Reflect.construct` bypass vectors, closing two confirmed regex blocklist gaps in Code Mode security validation
+- Added detection for bracket-notation constructor access (`['constructor']`) and `Reflect.construct` bypass vectors, closing two confirmed regex blocklist gaps in Code Mode security validation (`2d57ef5`, `1675395`)
 
-- Added `Math.max(0, Math.floor())` defense-in-depth for all 5 SQL-interpolated numeric parameters (`hostgroup_id`, `limit`) across `proxysql_servers`, `proxysql_connection_pool`, `proxysql_query_rules`, `proxysql_query_digest`, and `proxysql_global_variables`. Zod validates first, but coercion prevents any bypass from reaching SQL
-- `proxysql_global_variables` `like` parameter previously only applied single-quote escaping, leaving a potential SQL injection surface. Added `LIKE_SAFE_RE` regex validation that rejects patterns containing characters outside `[a-zA-Z0-9_%\-. *]` with a structured error before any SQL interpolation
+- Added `Math.max(0, Math.floor())` defense-in-depth for all 5 SQL-interpolated numeric parameters (`hostgroup_id`, `limit`) across `proxysql_servers`, `proxysql_connection_pool`, `proxysql_query_rules`, `proxysql_query_digest`, and `proxysql_global_variables`. Zod validates first, but coercion prevents any bypass from reaching SQL (`18cea2d`)
+- `proxysql_global_variables` `like` parameter previously only applied single-quote escaping, leaving a potential SQL injection surface. Added `LIKE_SAFE_RE` regex validation that rejects patterns containing characters outside `[a-zA-Z0-9_%\-. *]` with a structured error before any SQL interpolation (`18cea2d`, `dce2f84`)
 
 - The `filter` parameter was interpolated directly into the SQL query (`WHERE JSON_EXTRACT(doc, '${filter}') IS NOT NULL`), allowing arbitrary SQL injection via crafted filter values (e.g., `$') IS NOT NULL OR 1=1 -- `). Added `JSON_PATH_RE` validation regex that rejects any filter containing characters outside the valid JSON path set (`$`, `.`, `[`, `]`, `*`, alphanumeric, underscore). Invalid paths now return `{ success: false, error: "Invalid JSON path filter: ..." }` instead of executing
 - Added explicit `IDENTIFIER_RE` validation for field names extracted from `field=value` filter patterns as defense-in-depth. While the existing regex already limited field names to identifier characters, the explicit check ensures future regex changes cannot introduce injection surfaces (`d7c2c29`, `a804766`)
@@ -459,7 +459,7 @@ ${improved_lines}
 ### Performance
 
 - Added `clearSchemaCache()` call to 14 DDL tool handlers across 7 files (`core.ts`, `docstore.ts`, `schema/views.ts`, `spatial/setup.ts`, `text/fulltext.ts`, `partitioning.ts`) to prevent stale metadata from being served during the cache TTL window after CREATE/DROP/ALTER operations. Previously, DDL operations would succeed but `describeTable`/`listTables`/`getSchema` could return outdated metadata for up to 30 seconds (`e918253`)
-- The two independent `information_schema` queries (COLUMNS + TABLES) in `describeTable()` are now executed concurrently via `Promise.all()` instead of sequentially, reducing latency on cache misses
+- The two independent `information_schema` queries (COLUMNS + TABLES) in `describeTable()` are now executed concurrently via `Promise.all()` instead of sequentially, reducing latency on cache misses (`63317f4`, `615686c`)
 - Parallelized independent queries in 8 resource handlers using `Promise.all()`: `innodb.ts` (3 queries), `sysschema.ts` (3 queries), `spatial.ts` (2 queries), `locks.ts` (2 queries), `events.ts` (2 queries), `docstore.ts` (2 queries), `indexes.ts` (3 queries), `performance.ts` (2 queries). Previously all queries were executed sequentially (`7f7eb5a`)
 - Increased `vitest.config.ts` `maxWorkers` from 1 to 4, reducing total test suite duration from ~66s to ~37s (44% faster). Import time (previously 39% of total) now benefits from parallel module loading
 
@@ -491,7 +491,7 @@ ${improved_lines}
 - Corrected multiple stale numerical claims across both READMEs: meta-group/shortcut count (7→11), ecosystem Option 3 tool count (41→42), cluster Option 2 tool count (10→11, reflects codemode auto-injection), test badge (1794→1833), coverage badge (94%→86%), test runtime (~62s→~80s), and branch coverage (~81%→~72%). Also fixed stale JSDoc comments in `prompts/index.ts` (14→19 total) and `resources/index.ts` (12→18 total) to match actual function return counts. (`c06633e`)
 
 - When `util.exportTable()` or other dump utilities fail with "Fatal error during dump", the error message now extracts specific MySQL `ERROR:` lines from stderr (e.g., `"Unknown column 'x' in 'where clause'"`) instead of returning the generic privilege-hint message. The generic message is retained as a fallback only when no specific `ERROR:` lines are found in stderr.
-- `mysql.backup.help()` examples contained two inaccuracies: `importData` used `filePath` (a string path) instead of `data` (an array of row objects), and `restoreDump` used `filePath` instead of `filename`. Also fixed `POSITIONAL_PARAM_MAP` entry for `restoreDump` (`filePath` → `filename`).
+- `mysql.backup.help()` examples contained two inaccuracies: `importData` used `filePath` (a string path) instead of `data` (an array of row objects), and `restoreDump` used `filePath` instead of `filename`. Also fixed `POSITIONAL_PARAM_MAP` entry for `restoreDump` (`filePath` → `filename`). (`df14165`)
 - `mysql.security.passwordValidate("weak")` failed with a ZodError because `passwordValidate` was missing from `POSITIONAL_PARAM_MAP`. The string argument fell through to the generic fallback (`{ sql, query, table, name }`), leaving `password` undefined. Added `passwordValidate: "password"` entry so single-string positional calls work correctly. (`bd73fa1`)
 - `mysql.optimization.help()` examples contained three inaccuracies: `indexRecommendation` used `sql` instead of `table`, `indexUsage` was listed (belongs to performance group, not optimization), and `forceIndex` used `sql`/`index` instead of `query`/`indexName`. Also removed broken `usage: "indexUsage"` alias from `METHOD_ALIASES.optimization` — `indexUsage` is a performance method, so this alias could not resolve.
 - `mysql.security.help()` listed `audit` and `firewallRules` as aliases-only instead of primary methods (7 methods + 9 aliases instead of 9 + 7). Caused by self-referential entries in `METHOD_ALIASES.security` (`audit: "audit"`, `firewallRules: "firewallRules"`) — `createSandboxBindings` excludes alias keys from the canonical methods list, so matching names were filtered out. Fix: removed both self-referential entries. (`cc2762a`)
@@ -506,18 +506,18 @@ ${improved_lines}
 - `mysql.spatial.help()` examples used incorrect parameter names: `distance`/`distanceSphere` used `column` instead of `spatialColumn` and `{ x, y }` / `{ lat, lng }` instead of `{ longitude, latitude }` for the `point` object; `point` used `{ x, y }` instead of `{ longitude, latitude }`; `buffer` used `{ table, column }` instead of `{ geometry, distance }`. Also fixed `POSITIONAL_PARAM_MAP` entries for `distance`/`distanceSphere` (`column` → `spatialColumn`) and `point` (`x`/`y` → `longitude`/`latitude`). (`6e8546e`, `2ee3b42`)
 - All 12 spatial tools (`createColumn`, `createIndex`, `distance`, `distanceSphere`, `point`, `polygon`, `contains`, `within`, `intersection`, `buffer`, `transform`, `geojson`) were inaccessible in code mode, returning `TypeError: ... is not a function`. Root cause: `spatial` was in the `keepPrefix` set in `toolNameToMethodName`, so `mysql_spatial_distance` → `spatialDistance`. But `METHOD_ALIASES.spatial`, `GROUP_EXAMPLES.spatial`, and `POSITIONAL_PARAM_MAP` all used stripped names (`distance`, `point`, etc.), causing all alias registrations and method lookups to fail. Fix: removed `spatial` from `keepPrefix` so tools resolve directly to short names. Also removed the redundant `geojson` → `geojson` self-alias. (`1754a75`)
 - Tool returned `{ success: false, error: "Query failed: Execute failed: Duplicate key name '...'" }` for duplicate indexes — a raw MySQL error in the generic `error` field. Now returns `{ success: false, reason: "Index '...' already exists on table '...'" }` with a user-friendly message, consistent with `mysql_spatial_create_column` (duplicate column) and `mysql_fulltext_create` (duplicate index) error handling. (`95526a7`)
-- `mysql.json.help()` examples contained inaccuracies: `contains` example used `candidate` instead of `value`, and `merge` example used `base`/`overlay` with raw objects instead of `json1`/`json2` with JSON strings. Also fixed `POSITIONAL_PARAM_MAP` entries: `contains` (`candidate` → `value`), `merge` (`base`/`overlay` → `json1`/`json2`), and `diff` (`doc1`/`doc2` → `json1`/`json2`).
+- `mysql.json.help()` examples contained inaccuracies: `contains` example used `candidate` instead of `value`, and `merge` example used `base`/`overlay` with raw objects instead of `json1`/`json2` with JSON strings. Also fixed `POSITIONAL_PARAM_MAP` entries: `contains` (`candidate` → `value`), `merge` (`base`/`overlay` → `json1`/`json2`), and `diff` (`doc1`/`doc2` → `json1`/`json2`). (`df14165`)
 - Tool allowed creating a second spatial index on a column that already had one (e.g., creating `idx_spatial_test_locations_geom` alongside the seeded `idx_locations_geom` on the same `geom` column). Now pre-checks `information_schema.STATISTICS` for existing `SPATIAL` indexes on the target column before attempting creation. Returns `{ success: false, reason: "Spatial index '...' already exists on column '...' of table '...'" }` when a duplicate is found.
 - Buffering with SRID 4326 produced coordinates with 14+ decimal places (e.g., `-122.41939999999998`), causing unnecessarily large GeoJSON payloads. Added `precision` parameter (default: 6, ~0.11m accuracy) that controls `ST_AsGeoJSON` decimal digit truncation. Lower values (e.g., 2) significantly reduce payload size for geographic buffers where the `segments` parameter is ineffective.
 
 - `mysql.sysschema.help()` listed `sysSchemaStats({ table: 'users' })` as an example, but the tool accepts `schema`, not `table`. Updated to `sysSchemaStats({ schema: 'testdb' })`. (`776c634`)
 - Tool response lacked count fields, unlike other sysschema tools (e.g., `mysql_sys_innodb_lock_waits` which includes `count`). Added `globalMemoryCount` and `memoryByUserCount` to the response for response shape consistency across the sysschema group. (`9d5b941`)
-- Tool response lacked per-array count fields, unlike `mysql_sys_memory_summary` (which includes `globalMemoryCount` and `memoryByUserCount`). Added `tableStatisticsCount`, `indexStatisticsCount`, and `autoIncrementStatusCount` to the response. Also updated `ServerInstructions.ts` to document the count fields for both `mysql_sys_schema_stats` and `mysql_sys_memory_summary`.
+- Tool response lacked per-array count fields, unlike `mysql_sys_memory_summary` (which includes `globalMemoryCount` and `memoryByUserCount`). Added `tableStatisticsCount`, `indexStatisticsCount`, and `autoIncrementStatusCount` to the response. Also updated `ServerInstructions.ts` to document the count fields for both `mysql_sys_schema_stats` and `mysql_sys_memory_summary`. (`65880af`)
 
 - Tool generated invalid SQL when combining `newName` with other clauses (`comment`, `enabled`, `body`). The handler emitted clauses as `ENABLE/DISABLE → COMMENT → RENAME TO → DO`, but MySQL's `ALTER EVENT` syntax requires `RENAME TO → ENABLE/DISABLE → COMMENT → DO`. Reordered all clause generation to match the MySQL-required syntax order: `ON SCHEDULE → ON COMPLETION → RENAME TO → ENABLE/DISABLE → COMMENT → DO`.
 - When `ifNotExists: true` (default), the tool now pre-checks event existence and returns `{ success: true, skipped: true, reason: "Event already exists", eventName }` when the event was already present, instead of a plain `{ success: true, eventName }` indistinguishable from an actual creation. Matches the informative messaging pattern established by `mysql_event_drop`, `mysql_drop_table`, and `mysql_create_schema`.
 - Shell tool methods in code mode used unprefixed-stripping names (e.g., `mysql.shell.mysqlshVersion()`, `mysql.shell.mysqlshRunScript()`) instead of following the prefix-stripping convention used by all other groups. Added `shell: "mysqlsh_"` to `groupPrefixMap` in `api.ts`, so `mysqlsh_version` → `mysql.shell.version()`, `mysqlsh_run_script` → `mysql.shell.runScript()`, etc. Also added shell `METHOD_ALIASES`, `GROUP_EXAMPLES`, and `POSITIONAL_PARAM_MAP` entries.
-- Documentation incorrectly stated the tool fails only when `targetVersion` is lower than the server version. Clarified that it also fails when MySQL Shell's version is lower than the server version (Shell cannot analyze a server newer than itself).
+- Documentation incorrectly stated the tool fails only when `targetVersion` is lower than the server version. Clarified that it also fails when MySQL Shell's version is lower than the server version (Shell cannot analyze a server newer than itself). (`dce2f84`)
 - `dryRun: true` previously returned only an opaque `result` field. Now uses `execMySQLShell` directly to capture stderr containing the dry run summary, returning it as a `dryRunOutput` field so the caller can see what schemas/tables would be loaded.
 - `mysql_add_partition`, `mysql_drop_partition`, and `mysql_reorganize_partition` returned raw MySQL errors for nonexistent tables instead of the `{ exists: false, table }` pattern used by `mysql_partition_info` and all other tools. All three write tools now perform an `information_schema.TABLES` pre-check before executing ALTER TABLE. (`a44e2b7`)
 
@@ -528,17 +528,17 @@ ${improved_lines}
 
 - Both tools did not accept the `sql` parameter alias for `query`, despite being documented in ServerInstructions. Replaced inline Zod schemas with proper Dual-Schema pattern (`schemaBase` + `schema`) using `preprocessQueryOnlyParams`, matching the pattern used by `mysql_explain` and `mysql_explain_analyze`. (`5b10bf8`)
 - Both tools returned absurdly large `avg_time_ms` / `total_time_ms` / `max_time_ms` values (e.g., ~213 days) for certain queries due to MySQL's `performance_schema` unsigned 64-bit picosecond counter wrapping. Timer values exceeding 24 hours are now clamped to `-1` with `overflow: true` on the row, signaling that the original value was a counter overflow artifact.
-- Both tools returned non-overflowed timer values (`avg_time_ms`, `total_time_ms`, `max_time_ms`) as strings when MySQL's `performance_schema` returned DECIMAL-typed values, while overflow-clamped values were numbers (`-1`). All timer values are now consistently returned as numbers.
+- Both tools returned non-overflowed timer values (`avg_time_ms`, `total_time_ms`, `max_time_ms`) as strings when MySQL's `performance_schema` returned DECIMAL-typed values, while overflow-clamped values were numbers (`-1`). All timer values are now consistently returned as numbers. (`df14165`)
 - Tool returned TREE format output when TRADITIONAL was requested. The handler used bare `EXPLAIN ${query}` for the TRADITIONAL case, which MySQL 8.0+ defaults to TREE format. Now explicitly uses `EXPLAIN FORMAT=TRADITIONAL ${query}` for all three formats. (`a301db2`)
 - Tool did not accept the `sql` parameter alias for `query`, despite being documented in ServerInstructions. Replaced inline Zod schema with proper Dual-Schema pattern (`ExplainAnalyzeSchemaBase` + `ExplainAnalyzeSchema`) using `preprocessQueryOnlyParams`, matching the pattern used by `mysql_explain`. (`5b10bf8`)
 - Tool returned all 32 columns from `INNODB_BUFFER_POOL_STATS` via `SELECT *`, including many zero-count rate fields. Now returns a curated subset of 23 operationally meaningful columns (pool size, free buffers, database pages, modified pages, hit rate, I/O rates, page activity).
-- Removed `mysql_explain` and `mysql_explain_analyze` from the table name alias list (they accept `query`/`sql`, not `table`/`tableName`/`name`).
+- Removed `mysql_explain` and `mysql_explain_analyze` from the table name alias list (they accept `query`/`sql`, not `table`/`tableName`/`name`). (`df14165`)
 
 - Tool returned bare `{ success: false }` without context when the target row ID did not exist. Now returns `{ success: false, reason: "No row found with <idColumn> = <id>" }` matching the descriptive error pattern used by other write tools.
-- Tool previously auto-converted all input (including malformed JSON) to bare JSON strings before calling `JSON_VALID()`, making it impossible to return `valid: false`. Removed auto-conversion — the tool now validates input as-is, correctly returning `valid: false` for malformed JSON and bare strings. Auto-conversion remains in JSON write tools (`json_set`, `json_update`, etc.) where it serves a purpose.
+- Tool previously auto-converted all input (including malformed JSON) to bare JSON strings before calling `JSON_VALID()`, making it impossible to return `valid: false`. Removed auto-conversion — the tool now validates input as-is, correctly returning `valid: false` for malformed JSON and bare strings. Auto-conversion remains in JSON write tools (`json_set`, `json_update`, etc.) where it serves a purpose. (`df14165`)
 - Both query tools now return `{ success: false, error }` for all query errors (nonexistent table, syntax errors, permission failures, etc.), instead of propagating raw MCP exceptions. Matches the structured error pattern used by all other core tools. (`94642f9`)
 - `mysql_execute_code` is now automatically included when using raw group filters (e.g., `--tool-filter core`). Previously, only meta-group filters (e.g., `starter`, `essential`) included Code Mode, leaving it inaccessible when a raw group name was used. The auto-injection only applies in whitelist mode (filters not starting with `-`) and respects explicit exclusion via `-codemode` or `-mysql_execute_code`.
-- Fixed `mysql_execute_code` returning negative `memoryUsedMb` values (e.g., `-1.09`) in execution metrics when garbage collection reclaims heap between measurement snapshots. Now clamped to `Math.max(0, ...)` in both `CodeModeSandbox` and `WorkerSandbox`.
+- Fixed `mysql_execute_code` returning negative `memoryUsedMb` values (e.g., `-1.09`) in execution metrics when garbage collection reclaims heap between measurement snapshots. Now clamped to `Math.max(0, ...)` in both `CodeModeSandbox` and `WorkerSandbox`. (`051e71e`, `2f76fd8`, `df14165`)
 - Fixed `mysql_execute_code` not rolling back uncommitted transactions when user code succeeds but leaves transactions open. The orphaned transaction cleanup previously only ran on execution failure (`!result.success`), causing dangling InnoDB transactions and table locks. Cleanup now runs unconditionally after every execution. (`2958c57`)
 - Fixed `mysql_transaction_execute` throwing a raw Zod validation error when called with an empty `statements` array. Now returns `{ success: false, reason: "No statements provided..." }` matching the structured error pattern used by all other transaction tools. Validation moved from Zod `.refine()` to handler-level guard to prevent unnecessary transaction creation. (`6933ef0`)
 - `mysql.cluster.help()` examples only showed parameterless calls (`clusterStatus()`, `clusterInstances()`, `grStatus()`). Updated to show the most useful patterns: `clusterStatus({ summary: true })`, `clusterRouterStatus({ summary: true })`, and `clusterSwitchover()`.
@@ -559,11 +559,11 @@ ${improved_lines}
 
 ### Dependencies
 
-- Bumped `@eslint/js` from `^9.39.2` to `^10.0.1`
+- Bumped `@eslint/js` from `^9.39.2` to `^10.0.1` (`df14165`)
 - Bumped `@types/node` from `^25.2.2` to `^25.2.3`
 - Bumped `eslint` from `^9.39.2` to `^10.0.0`
 - Bumped `mysql2` from `^3.16.3` to `^3.17.2`
-- Bumped `typescript-eslint` from `^8.54.0` to `^8.56.0`
+- Bumped `typescript-eslint` from `^8.54.0` to `^8.56.0` (`dce2f84`)
 
 ## [2.2.0] - 2026-02-08
 
@@ -575,7 +575,7 @@ ${improved_lines}
 - When `ifNotExists: true` (default), `mysql_create_schema` now pre-checks schema existence and returns `{ success: true, skipped: true, reason: "Schema already exists", schemaName }` when the schema was already present. Similarly, `mysql_drop_schema` with `ifExists: true` (default) returns `{ success: true, skipped: true, reason: "Schema did not exist", schemaName }` when the schema was already absent. Previously both returned a plain `{ success: true }` indistinguishable from an actual create/drop. Matches the informative messaging pattern established by `mysql_drop_table`. (`e918253`, `5130eb5`)
 - Updated `ServerInstructions.ts` schema introspection section to mention the `status` filter parameter (`ENABLED`, `DISABLED`, `SLAVESIDE_DISABLED`) accepted by `mysql_list_events`, which was previously only documented in the Events Tools section.
 - `mysql_list_views`, `mysql_list_triggers`, `mysql_list_events`, `mysql_list_stored_procedures`, and `mysql_list_functions` now pre-check schema existence via `information_schema.SCHEMATA` when the optional `schema` parameter is explicitly provided, returning `{ exists: false, schema }` for nonexistent schemas instead of silently returning empty arrays indistinguishable from schemas with no objects. (`593eee4`, `e5f1c74`)
-- Tool now returns `{ success: false, error }` for query errors (e.g., invalid WHERE clause, unknown column in WHERE) instead of propagating raw MySQL exceptions. Nonexistent table handling (`{ exists: false, table }`) was already correct; this fix covers all other query error paths.
+- Tool now returns `{ success: false, error }` for query errors (e.g., invalid WHERE clause, unknown column in WHERE) instead of propagating raw MySQL exceptions. Nonexistent table handling (`{ exists: false, table }`) was already correct; this fix covers all other query error paths. (`dce2f84`)
 - When specific tables are provided, tool now pre-checks existence via `information_schema.TABLES` and returns `{ success: false, notFound: [...] }` for any nonexistent tables instead of silently succeeding. Global flush (no tables specified) is unaffected.
 - When a mix of valid and nonexistent tables is provided, valid tables are now flushed before reporting the error. The response returns `{ success: false, notFound: [...], flushed: [...] }` listing both missing and successfully flushed tables, instead of skipping the flush entirely.
 - `mysql_optimize_table`, `mysql_analyze_table`, and `mysql_repair_table` now include `rowCount` in their responses, matching the existing behavior of `mysql_check_table`.
@@ -587,15 +587,15 @@ ${improved_lines}
 - All 5 fulltext tools now handle errors gracefully. `mysql_fulltext_create` and `mysql_fulltext_drop` return `{ exists: false, table }` for nonexistent tables (in addition to existing duplicate/missing index handling). `mysql_fulltext_search`, `mysql_fulltext_boolean`, and `mysql_fulltext_expand` return `{ exists: false, table }` for nonexistent tables and `{ success: false, error }` for other query errors (e.g., column mismatch). Previously all 5 tools propagated raw MySQL errors for these cases. (`a023b1a`, `5c80b80`)
 - All 15 table-querying JSON tools now return `{ exists: false, table }` for nonexistent tables and `{ success: false, error }` for other query errors. `mysql_json_merge` and `mysql_json_diff` (literal JSON, no table) return `{ success: false, error }` for invalid input. `mysql_json_validate` already had its own error handling. Previously all 17 propagated raw MySQL errors. (`4712978`, `1b9898d`)
 - Tool now returns `{ success: false, reason: "No statements provided..." }` when called with an empty `statements` array, instead of silently succeeding with `{ success: true, statementsExecuted: 0 }`. Prevents unnecessary transaction creation for no-op calls. (`0f270d6`)
-- Strips entire `Configuration` blob from `router_options` JSON in full (non-summary) mode, matching the approach used by `mysql_cluster_router_status`. The Router endpoint schemas and per-version configs accounted for ~10KB of the response without providing dynamic cluster state information.
+- Strips entire `Configuration` blob from `router_options` JSON in full (non-summary) mode, matching the approach used by `mysql_cluster_router_status`. The Router endpoint schemas and per-version configs accounted for ~10KB of the response without providing dynamic cluster state information. (`dce2f84`)
 - Strips the `Configuration` blob from router `attributes` JSON in full (non-summary) mode. The per-endpoint SSL/connection configs were repeated ~5× with largely identical values, accounting for ~12KB per router.
 - Instances registered in cluster metadata but not active in the Group Replication group now report `memberState: 'OFFLINE'` and `memberRole: 'NONE'` instead of `null`, making offline nodes immediately identifiable. (`677ffcc`)
 - Topology visualization now cross-references `mysql_innodb_cluster_metadata.instances` against active GR members to detect nodes that are registered in metadata but offline. These appear in the `offline` array and ASCII visualization with `source: 'metadata'`. (`677ffcc`, `9213142`, `ad2d5bd`)
 - When no online secondaries exist, the warning now reads `"No online secondaries available for switchover."` instead of the misleading `"All secondaries have significant replication lag."` which implied secondaries existed but were lagging.
 - Variables whose names contain `password` or `credentials` (e.g., `admin-admin_credentials`, `mysql-monitor_password`, `admin-cluster_password`) now have their values replaced with `********` instead of exposing plaintext credentials.
-- Admin variables containing `password` or `credentials` are now automatically redacted, matching the pattern applied to `proxysql_global_variables`.
+- Admin variables containing `password` or `credentials` are now automatically redacted, matching the pattern applied to `proxysql_global_variables`. (`18cea2d`, `dce2f84`)
 - Removed hardcoded `LIMIT 20` truncation that hid admin variables beyond the first 20. Now returns all admin variables with sensitive values redacted. (`b8e32ba`, `84e1aa8`)
-- Added missing `count` field to response for parity with `proxysql_connection_pool`, which already included it.
+- Added missing `count` field to response for parity with `proxysql_connection_pool`, which already included it. (`18cea2d`)
 - Added missing `count` field to response for parity with all other list-returning ProxySQL tools (`proxysql_servers`, `proxysql_users`, `proxysql_process_list`, etc.). (`b8e32ba`, `3726781`)
 - Fixed tool description claiming response includes "reused connections" when the actual Router REST API returns `idleServerConnections` and `stashedServerConnections`. Updated description and test mock data to match real API response fields.
 - When `ifExists: true` (default), the tool now pre-checks collection existence and returns `{ success: true, collection, message: "Collection did not exist" }` when the collection was already absent, instead of a plain `{ success: true }` that was indistinguishable from an actual drop. Matches the informative messaging pattern used by other tool groups. (`e5f1c74`)
@@ -612,7 +612,7 @@ ${improved_lines}
 - Tool now returns `{ success: false, reason }` with an actionable ALTER TABLE suggestion when the target column is nullable, instead of throwing a raw error. Consistent with P154 graceful error handling across all spatial tools. (`9cf5853`)
 - Tool now performs explicit table existence check via `information_schema.TABLES` before querying histogram metadata or executing `ANALYZE TABLE`, correctly distinguishing between a nonexistent table and a table without a histogram. (`a023b1a`)
 - Tool now validates that the column exists on the table via `information_schema.COLUMNS` before querying histogram metadata. Returns `{ exists: false, column, table, message }` for nonexistent columns, distinguishing them from valid columns with no histogram. (`bd6695a`, `c469d36`)
-- Returns `{ exists: false, table }` when the table does not exist, instead of the generic `{ partitioned: false }` response previously returned for both nonexistent and non-partitioned tables.
+- Returns `{ exists: false, table }` when the table does not exist, instead of the generic `{ partitioned: false }` response previously returned for both nonexistent and non-partitioned tables. (`dce2f84`)
 - `mysql_add_partition`, `mysql_drop_partition`, and `mysql_reorganize_partition` now return structured `{ success: false, error }` responses for common failures (non-partitioned table, nonexistent partition, MAXVALUE conflicts, duplicate values) instead of propagating raw MySQL errors. (`acd8b10`)
 - Tool now returns `{ success: false, logFile, error }` when the specified binlog file does not exist, instead of propagating a raw MySQL error. Also handles generic binlog query failures gracefully with `{ success: false, error }`. (`0c04317`, `fec6ac3`, `510b63b`)
 - All shell tools (`mysqlsh_check_upgrade`, `mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_load_dump`) now return `{ success: false, error }` for all operational failures (connection errors, timeouts, nonexistent objects, privilege errors, local_infile errors, X Protocol errors) instead of re-throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a `hint` field with actionable remediation guidance. `mysqlsh_load_dump` additionally returns `{ hint }` for duplicate object conflicts suggesting `ignoreExistingObjects: true`. (`4712978`, `1b9898d`)
@@ -625,7 +625,7 @@ ${improved_lines}
 - The `by_instance` type no longer returns the `instance` field (which contained raw `performance_schema` memory addresses like `132304667205248` that provided zero actionable information). The response now contains only `event`, `total`, `total_latency`, and `avg_latency` columns, consistent with the other wait summary types.
 - Fixed `interval: "week"` producing ambiguous period format (`2026-06`) indistinguishable from month format (`2026-02`). Changed `DATE_FORMAT` from `%Y-%u` to `%x-W%v`, producing unambiguous ISO week format (e.g., `2026-W06`).
 - Fixed requesting N buckets but receiving N+1 entries when the maximum value falls exactly on a bucket boundary. Added `LEAST()` clamp to ensure the max value is included in the last bucket instead of creating an extra one.
-- Summary mode (`summary: true`) silently capped `globalPrivileges` to 10 entries with no way for consumers to detect truncation. Now includes `totalGlobalPrivileges` field showing the full deduplicated count alongside the truncated array.
+- Summary mode (`summary: true`) silently capped `globalPrivileges` to 10 entries with no way for consumers to detect truncation. Now includes `totalGlobalPrivileges` field showing the full deduplicated count alongside the truncated array. (`dce2f84`)
 - Tool now returns `explainPlan: null` with `explainError` field when EXPLAIN fails (e.g., nonexistent table), instead of silently omitting the explain plan.
 - Tool now validates index existence and returns a `warning` field when the specified index is not found on the table, instead of silently generating an invalid query.
 - Tool now returns `{ exists: false, table }` when the table does not exist, instead of generating a rewritten query with a generic warning. Follows the P154 pattern used by `mysql_index_recommendation`, `mysql_describe_table`, and other core tools.
@@ -652,8 +652,8 @@ ${improved_lines}
 - Tool now returns `{ success: false, reason: "Index 'name' does not exist on table 'table'" }` instead of propagating raw MySQL error 1091 (ER_CANT_DROP_FIELD_OR_KEY) when dropping a non-existent index.
 - Added optional `ifNotExists: boolean` parameter (default: false) to use `CREATE TABLE IF NOT EXISTS` syntax, preventing errors when the collection already exists. (`2362c92`)
 - Expanded documentation covering `ifNotExists` parameter, collection detection heuristic (tables with `doc JSON` + `_id` fields), and `mysql_doc_find` graceful `exists: false` response for nonexistent collections. (`2362c92`)
-- Added `MYSQL_XPORT` environment variable to ecosystem configuration examples in `.env.example`, `README.md`, and `DOCKER_README.md`. Required for `mysqlsh_import_json` which uses X Protocol (default: 33060, use 6448 with MySQL Router).
-- Tool now returns `{ exists: false, table }` gracefully when the target table does not exist, instead of throwing a raw error. Follows the same pattern used by `mysql_export_table` and `mysql_describe_table`.
+- Added `MYSQL_XPORT` environment variable to ecosystem configuration examples in `.env.example`, `README.md`, and `DOCKER_README.md`. Required for `mysqlsh_import_json` which uses X Protocol (default: 33060, use 6448 with MySQL Router). (`dce2f84`)
+- Tool now returns `{ exists: false, table }` gracefully when the target table does not exist, instead of throwing a raw error. Follows the same pattern used by `mysql_export_table` and `mysql_describe_table`. (`dce2f84`)
 - Tool now returns `{ success: false, error, rowsInserted }` for duplicate key violations, reporting how many rows were successfully inserted before the conflict. Previously propagated a raw MySQL error.
 - Tool now returns `{ exists: false, table: "..." }` gracefully when the table does not exist, instead of propagating a raw MySQL error. Follows the same pattern used by `mysql_table_stats` and `mysql_index_recommendation`.
 - Improved error handling to identify specific missing privileges (EVENT, TRIGGER) and provide actionable guidance. Now matches the clarity of `mysqlsh_dump_schemas` error messages, detecting "Writing schema metadata" errors and suggesting `all: false` as a workaround. (`97c17e6`, `411aeb5`, `b83cbcd`)
@@ -667,7 +667,7 @@ ${improved_lines}
 - Fixed tool throwing raw SQL error for nonexistent roles. Now performs role existence check first and returns `{ role, grants: [], exists: false }` instead of a cryptic "No such grant defined" error. (`a023b1a`)
 - Fixed all three tools throwing raw SQL errors for nonexistent roles. Now performs role existence check first and returns `{ success: false, exists: false, error: "Role does not exist" }` for graceful error handling, matching the pattern used by `mysql_role_grants`. (`a023b1a`)
 - Fixed `mysql_spatial_geojson`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, and `mysql_spatial_polygon` returning null GeoJSON output. MySQL 8.0+ SRID 4326 uses latitude-longitude axis order internally, conflicting with the GeoJSON standard (longitude-latitude). Added `axis-order=long-lat` option to all `ST_GeomFromText` calls to ensure correct coordinate conversion. (`553aa99`)
-- Fixed `mysql_spatial_buffer` and `mysql_spatial_intersection` returning GeoJSON coordinates in wrong order (`[lat, lon]` instead of `[lon, lat]`). The `fixGeoJsonAxisOrder()` helper was incorrectly swapping coordinates that MySQL's `ST_AsGeoJSON()` already outputs in GeoJSON-compliant lon-lat order. Removed the incorrect swap to restore proper coordinate output.
+- Fixed `mysql_spatial_buffer` and `mysql_spatial_intersection` returning GeoJSON coordinates in wrong order (`[lat, lon]` instead of `[lon, lat]`). The `fixGeoJsonAxisOrder()` helper was incorrectly swapping coordinates that MySQL's `ST_AsGeoJSON()` already outputs in GeoJSON-compliant lon-lat order. Removed the incorrect swap to restore proper coordinate output. (`dce2f84`)
 - Tool now validates that the target column is NOT NULL before attempting to create a SPATIAL index. Previously failed with a cryptic MySQL error. Now provides a clear error message with an ALTER TABLE suggestion.
 - JSON tools (`mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_contains`, `mysql_json_array_append`, `mysql_json_update`) now automatically wrap bare strings as valid JSON. Previously, passing `value: "green"` would fail with "Invalid JSON value" requiring escaped quotes like `value: "\"green\""`. Now bare strings are auto-converted, making the MCP interface more user-friendly.
 - Fixed tool throwing errors on invalid JSON input instead of returning a structured response. Now gracefully returns `{ valid: false, error: "..." }` for malformed input. (`b8e32ba`)
@@ -678,7 +678,7 @@ ${improved_lines}
 - Improved error message when importing to a non-existent table. Now returns descriptive guidance: `"Import failed: Table 'X' does not exist. Create the table first before importing data."` instead of a raw MySQL error.
 - Fixed tool failing with "Unknown column 'total_write'" error when using `type: file`. The `sys.io_global_by_file_by_bytes` view column is `total_written`, not `total_write`. (`e79f128`)
 - Fixed malformed `rangeStart`/`rangeEnd` values in histogram buckets (e.g., `"20.001.73"` instead of `21.73`). MySQL returns DECIMAL columns and FLOOR() results as strings, causing string concatenation instead of arithmetic. Now explicitly converts min, max, and bucket numbers to numbers.
-- Fixed both tools returning empty results when geometries should match. The tools were not applying `axis-order=long-lat` option to `ST_GeomFromText` calls, causing coordinate mismatch with SRID 4326 geometry columns. Also updated `test-seed.sql` to use `axis-order=long-lat` for proper test data storage.
+- Fixed both tools returning empty results when geometries should match. The tools were not applying `axis-order=long-lat` option to `ST_GeomFromText` calls, causing coordinate mismatch with SRID 4326 geometry columns. Also updated `test-seed.sql` to use `axis-order=long-lat` for proper test data storage. (`dce2f84`)
 - All 9 `mysql_router_*` tools now return `{ available: false, reason: "..." }` with descriptive error messages when the Router REST API is unreachable, instead of throwing raw errors. Improved error messages for common issues: connection refused, timeout, TLS certificate errors. (`e918253`)
 - Removed misleading `json` format option from the export_table tool schema. MySQL Shell's `util.exportTable()` only supports delimited formats (CSV and TSV), not JSON output. The format parameter now correctly accepts only `csv` or `tsv`. (`5a83381`)
 - Fixed SQL scripts with comments (e.g., `-- comment`) or multi-statement syntax failing with "option -e requires an argument" error. SQL scripts are now written to a temp file and executed via `--file` flag instead of `-e`, properly supporting all SQL syntax including comments.
@@ -697,39 +697,39 @@ ${improved_lines}
 - Default response now returns at most 100 rows (was unbounded). Response includes all matching rows up to the limit. Use `limit` parameter to override for larger exports.
 - Reduced default `limit` from 100 to 20. DDL events contain multi-line SQL in the `Info` field, causing 100-event responses to exceed ~22KB. The new default keeps payloads manageable while still providing useful coverage. Use `limit` parameter to override.
 - Default response now returns at most 100 status variables (was unbounded ~517 rows, ~19.7KB). RSA public key values (`Caching_sha2_password_rsa_public_key`, `Rsa_public_key`) are automatically redacted to `[REDACTED]`. Response includes `totalAvailable` count and `limited: true` when truncated. Use `limit` parameter to override or `like` filter for targeted queries.
-- Default response now returns at most 100 variables (was unbounded ~600 rows, ~26KB). Response includes `totalAvailable` count and `limited: true` when truncated. Use `limit` parameter to override or `like` filter for targeted queries.
+- Default response now returns at most 100 variables (was unbounded ~600 rows, ~26KB). Response includes `totalAvailable` count and `limited: true` when truncated. Use `limit` parameter to override or `like` filter for targeted queries. (`dce2f84`)
 - Reduced default `limit` from 20 to 10. Since the limit applies per array (×3 arrays: tableStatistics, indexStatistics, autoIncrementStatus), effective row count drops from 60 to 30, reducing default payload by ~50%. Use `limit` parameter to override. (`b74238e`, `8477943`, `9d2cb7a`)
 - Reduced default `limit` from 20 to 10. Memory summary at default 20 produced ~140 lines of JSON across `globalMemory` (20 items × 7 fields). Lock waits rarely exceed 10 entries in practice. Use `limit` parameter to override.
 - Reduced default `limit` from 200 to 50. Most queries use `prefix` or `like` filters, making the high default unnecessary. Reduces worst-case default payload from ~20KB to ~5KB. Use `limit` parameter to override. (`b74238e`, `8477943`, `9d2cb7a`)
-- Response now includes `totalVarsAvailable` count showing the total number of matching variables (before LIMIT truncation), matching the pattern used by `proxysql_status` (`totalVarsAvailable`) and `proxysql_runtime_status` (`totalAdminVarsAvailable`). Previously consumers had no way to detect if the `limit` parameter was truncating results.
+- Response now includes `totalVarsAvailable` count showing the total number of matching variables (before LIMIT truncation), matching the pattern used by `proxysql_status` (`totalVarsAvailable`) and `proxysql_runtime_status` (`totalAdminVarsAvailable`). Previously consumers had no way to detect if the `limit` parameter was truncating results. (`dce2f84`)
 - Moved the `cluster` tool group (10 InnoDB Cluster/Group Replication tools) from `dba-secure` to `ecosystem`. The `cluster` tools require an InnoDB Cluster connection (typically via MySQL Router on port 3307), which aligns with the `ecosystem` shortcut's purpose of grouping external/infrastructure tools. Updated `dba-secure` (42 → 32 tools) and `ecosystem` (31 → 41 tools) counts, `canSkipMySQLConnection` logic (ecosystem no longer skips MySQL connection), and all documentation. (`6296bcd`, `4d9dd65`)
 - Updated documentation to describe P154 existence check behavior, structured error handling for write tools, and MAXVALUE conflict guidance. (`04a73c4`)
 - Added optional `segments` parameter (default: 8, MySQL default: 32) controlling the number of segments per quarter-circle in the buffer polygon approximation. Uses MySQL's `ST_Buffer_Strategy('point_circle', N)` for Cartesian geometries (SRID 0). Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm which does not support custom segment counts; the `segments` parameter is ignored for geographic SRIDs. Response now includes `segmentsApplied: true/false` to indicate whether the parameter was effective.
 - Updated `mysql_binlog_events` documentation to note that it defaults to the oldest available binlog file when `logFile` is omitted, and that it returns `{ success: false, error }` for nonexistent binlog files. (`0c04317`, `fec6ac3`, `510b63b`)
-- Corrected `mysqlsh_import_json` documentation (supports multi-line JSON objects, not just NDJSON). Added `mysqlsh_check_upgrade` error behavior documentation. Added error handling notes for export and dump tools.
-- Corrected `mysqlsh_check_upgrade` documentation from "Throws an error" to "Returns `{ success: false, error }`" for downgrade target version attempts, aligning with P154 structured error response pattern used across all shell tools.
+- Corrected `mysqlsh_import_json` documentation (supports multi-line JSON objects, not just NDJSON). Added `mysqlsh_check_upgrade` error behavior documentation. Added error handling notes for export and dump tools. (`dce2f84`)
+- Corrected `mysqlsh_check_upgrade` documentation from "Throws an error" to "Returns `{ success: false, error }`" for downgrade target version attempts, aligning with P154 structured error response pattern used across all shell tools. (`dce2f84`)
 - Corrected description to accurately state support for both NDJSON and multi-line JSON objects (not JSON arrays).
-- Documented `MYSQL_XPORT` environment variable in README env var example and ecosystem prerequisites. Added X Protocol requirements to test database plan for shell and docstore tool groups.
+- Documented `MYSQL_XPORT` environment variable in README env var example and ecosystem prerequisites. Added X Protocol requirements to test database plan for shell and docstore tool groups. (`dce2f84`)
 - Expanded documentation to describe `mysql_create_schema`/`mysql_drop_schema`/`mysql_create_view` graceful error responses, `mysql_list_constraints` P154 behavior with `type` filter parameter, `mysql_create_view` parameters (`orReplace`, `algorithm`, `checkOption`), and `schema` parameter on all introspection tools. (`a21e8e5`)
-- Expanded documentation to describe graceful error handling, `ifNotExists` support for `mysql_event_create`, P154 behavior for `mysql_event_status`, and `onCompletion` alter capability for `mysql_event_alter`.
+- Expanded documentation to describe graceful error handling, `ifNotExists` support for `mysql_event_create`, P154 behavior for `mysql_event_status`, and `onCompletion` alter capability for `mysql_event_alter`. (`df14165`)
 - Reduced default `limit` from 50 to 20. The previous default produced ~34KB payloads (50 rows × 3 arrays). The new default keeps responses manageable while still providing useful coverage.
 - Expanded documentation with default `limit` values, `mysql_sys_schema_stats` 3-array output description (`tableStatistics`, `indexStatistics`, `autoIncrementStatus`), `schema` filter parameter, `mysql_sys_memory_summary` dual-array structure, and `by_instance` per-instance granularity note. (`1754a75`, `6da83f1`)
-- Full (non-summary) response now includes `summary: false` and `totalVarsAvailable` fields, matching the summary response structure for consistent consumption.
-- Updated `mysql_cluster_topology` description to accurately reflect that it returns both a structured `topology` JSON object (with `primary`, `secondaries`, `recovering`, `offline` arrays) and a `visualization` string, not just an ASCII visualization.
+- Full (non-summary) response now includes `summary: false` and `totalVarsAvailable` fields, matching the summary response structure for consistent consumption. (`dce2f84`)
+- Updated `mysql_cluster_topology` description to accurately reflect that it returns both a structured `topology` JSON object (with `primary`, `secondaries`, `recovering`, `offline` arrays) and a `visualization` string, not just an ASCII visualization. (`dce2f84`)
 - Updated documentation to describe `proxysql_status` response parity, `proxysql_global_variables` `limit` parameter, `proxysql_runtime_status` `summary` mode and full admin variable listing, `proxysql_servers`/`proxysql_connection_pool` empty-array behavior for nonexistent `hostgroup_id`, and explicit `PROXYSQL_*` env var configuration. (`a60b447`, `f9a6a04`)
 - Updated `mysqlsh_export_table` documentation to correctly list only CSV and TSV formats. Added Group Replication note for `mysqlsh_import_table`: target tables must have a PRIMARY KEY when importing to InnoDB Cluster environments. (`74558ad`)
-- Improved `columns` parameter description to clarify positional mapping behavior (Nth field → Nth column). Updated `fieldsTerminatedBy` description to emphasize CSV files require explicit delimiter setting (auto-detect not supported).
-- Updated tool description and server instructions to clarify file must be NDJSON format (one JSON object per line), not JSON array format.
+- Improved `columns` parameter description to clarify positional mapping behavior (Nth field → Nth column). Updated `fieldsTerminatedBy` description to emphasize CSV files require explicit delimiter setting (auto-detect not supported). (`dce2f84`)
+- Updated tool description and server instructions to clarify file must be NDJSON format (one JSON object per line), not JSON array format. (`dce2f84`)
 - Added `-Cluster` switch to `reset-database.ps1` to support seeding both standalone MySQL (`mysql-final`) and InnoDB Cluster (`mysql-node1`) environments. Documentation examples now consistently use `testdb` database. (`1b9898d`, `74558ad`)
 - All 4 fulltext search tools (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) now return only `id`, searched column(s), and `relevance` instead of all columns. This significantly reduces response payload size. (`8477943`, `e7fe714`)
-- Added comprehensive fulltext section documenting index management, search modes, boolean operators, query expansion, and minimal output format.
+- Added comprehensive fulltext section documenting index management, search modes, boolean operators, query expansion, and minimal output format. (`dce2f84`)
 - All 6 text tools (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`) now return only `id`, target column(s), and computed result instead of all columns. This significantly reduces response payload size. (`4712978`, `e79f128`)
 - Added error handling documentation describing `{ exists: false, table }` for nonexistent tables and `{ success: false, error }` for other query errors across all 6 text tools. (`a44e2b7`)
-- Added Text Tools section documenting LIKE patterns, regex syntax, SOUNDEX usage, WHERE clause support, and minimal output format.
+- Added Text Tools section documenting LIKE patterns, regex syntax, SOUNDEX usage, WHERE clause support, and minimal output format. (`dce2f84`)
 - Added Performance section documenting EXPLAIN formats, EXPLAIN ANALYZE usage, performance_schema requirements, index_usage filtering, and buffer pool diagnostics.
 - Added Optimization section documenting index recommendations, query rewriting, FORCE INDEX hints, and optimizer trace (including the new `summary` mode).
 - Added optional `summary: boolean` parameter to return only key optimization decisions (index selections, access paths, estimated costs) instead of the full verbose trace. Reduces payload from ~10KB to ~500B for typical queries.
-- Added Admin Tools section documenting optimize, analyze, check, repair, flush, and kill operations.
+- Added Admin Tools section documenting optimize, analyze, check, repair, flush, and kill operations. (`dce2f84`)
 - Tool now filters to current database by default, preventing massive payloads (~45KB → ~1KB) from including all MySQL internal indexes with zero counts.
 - Reduced default `limit` from 50 to 20. The previous default produced ~13KB payloads (46 index entries) in a modest test database. The new default keeps responses manageable while covering the most-active indexes.
 - Both tools now truncate `DIGEST_TEXT` to 200 characters via `LEFT(DIGEST_TEXT, 200)`, preventing multi-KB normalized DDL/DML statements from inflating payloads. Full digest text is available in `performance_schema` directly if needed.
@@ -746,27 +746,27 @@ ${improved_lines}
 - Tool now returns `{ exists: false, table: "...", message: "..." }` gracefully when the table does not exist, instead of returning an empty columns array. Simplifies error handling for agents.
 - Tool now returns `{ exists: false, table: "...", indexes: [], message: "..." }` gracefully when the table does not exist, matching the pattern used by `mysql_describe_table`.
 - Tool now auto-converts boolean `default: true` to `1` and `default: false` to `0` for MySQL compatibility. Previously, boolean defaults caused "Invalid default value" errors.
-- Tool now returns `{ exists: false, table }` gracefully when the table does not exist, instead of returning empty arrays. Follows the same pattern used by `mysql_describe_table` and `mysql_get_indexes`.
+- Tool now returns `{ exists: false, table }` gracefully when the table does not exist, instead of returning empty arrays. Follows the same pattern used by `mysql_describe_table` and `mysql_get_indexes`. (`dce2f84`)
 
 ### Added
 
 - New optional `limit` parameter to control the number of rows exported, preventing oversized payloads for large tables.
-- New tool for dropping FULLTEXT indexes, providing symmetry with `mysql_fulltext_create`.
+- New tool for dropping FULLTEXT indexes, providing symmetry with `mysql_fulltext_create`. (`dce2f84`)
 - Added optional `limit` parameter (default: 200) to cap the number of returned variables, preventing oversized payloads when querying all ProxySQL global variables without prefix or like filters.
 - Added optional `summary: boolean` parameter to return only key metrics (uptime, queries, connections, buffer sizes) instead of all 77 status variables. Reduces payload from ~4KB to ~500B. (`4712978`, `e79f128`)
 - Added optional `like: string` parameter for LIKE pattern matching on variable names (e.g., `like: "%connection%"`). Can be combined with the existing `prefix` filter for targeted queries.
-- Added comprehensive Shell Tools section documenting prerequisites, version checking, upgrade compatibility analysis, script execution (JS/Python/SQL), export/import utilities, dump/load operations, and privilege requirements.
+- Added comprehensive Shell Tools section documenting prerequisites, version checking, upgrade compatibility analysis, script execution (JS/Python/SQL), export/import utilities, dump/load operations, and privilege requirements. (`dce2f84`)
 - Added optional `summary: boolean` parameter to return only essential cluster metadata (cluster name, ID, type, instance/router counts) instead of full Router configuration schemas. Reduces payload from ~21KB to ~500B. (`4712978`, `e79f128`)
 - Added optional `summary: boolean` parameter to return only essential router info (ID, name, address, version, last check-in, ports, local cluster) instead of full configuration blobs. Reduces payload from ~12KB to ~300B per router. (`d93044a`)
 - Added optional `summary: boolean` parameter to return only key admin variables (version, read_only, cluster, interfaces, restapi, web) instead of all ~30 admin variables. Both modes now include `totalAdminVarsAvailable` count for response clarity.
 - Added comprehensive InnoDB Cluster section documenting prerequisites, cluster status, instance listing, topology visualization, router status from metadata, and switchover analysis. (`72c974b`)
-- Added Core Tools section documenting prepared statement syntax (`mysql_read_query`, `mysql_write_query`), DDL support via text protocol, boolean default conversion, graceful `exists: false` pattern, index creation options, and qualified table name support.
+- Added Core Tools section documenting prepared statement syntax (`mysql_read_query`, `mysql_write_query`), DDL support via text protocol, boolean default conversion, graceful `exists: false` pattern, index creation options, and qualified table name support. (`df14165`)
 - Expanded transaction documentation from 4 generic lines to comprehensive section covering interactive transaction workflow (`transactionId` in `mysql_read_query`/`mysql_write_query`), atomic execution via `mysql_transaction_execute`, savepoint tools, and isolation level options. (`ce1c5af`)
 - Enhanced tool to compute value-level differences for shared keys, returning `addedKeys`, `removedKeys`, and `differences` arrays with `{ path, value1, value2 }` entries. Previously only reported key-level metadata (identical, contains, length).
 - Tool now returns `{ changed: true/false }` to indicate whether the value was actually inserted. When the path already exists, returns `changed: false` with an explanatory note instead of a misleading `rowsAffected: 1`.
 - Added optional `where` parameter to `mysql_regexp_match`, `mysql_like_search`, and `mysql_soundex` for additional row filtering. The `where` clause is combined with the pattern match using AND. All 6 text tools now consistently support `where` filtering.
 - Added `count` field to `mysql_substring`, `mysql_concat`, and `mysql_collation_convert` responses for consistency. All 6 text tools now return `{ rows, count }`. (`2ac4cc5`)
-- Added optional `includeSourceColumns` parameter (default: `true`). Set to `false` for minimal payload containing only `id` and the concatenated result, omitting individual source columns.
+- Added optional `includeSourceColumns` parameter (default: `true`). Set to `false` for minimal payload containing only `id` and the concatenated result, omitting individual source columns. (`dce2f84`)
 - Added optional `maxLength` parameter to `mysql_fulltext_search`, `mysql_fulltext_boolean`, and `mysql_fulltext_expand`. Truncates TEXT column values exceeding `maxLength` characters with `...` appended, reducing payload size for tables with large text content. (`8477943`)
 - Updated documentation with column-matching requirement (MATCH columns must exactly match FULLTEXT index), `maxLength` parameter usage, and graceful error handling for create/drop operations. (`87534d6`)
 - Added optional `limit` parameter (default: 20) to cap the number of returned index usage rows, preventing excessively large payloads in databases with many indexes. (`b74238e`, `9d2cb7a`)
@@ -801,34 +801,34 @@ ${improved_lines}
 - Direct 32-char hex string (e.g., `bbc83181703d43e68ffad119c4bbbfde`)
 - Simple equality (e.g., `name=Alice`, `age=30`)
 - Path starting with `$` (e.g., `$.address`)
-- Now uses parameterized queries for SQL injection protection.
+- Now uses parameterized queries for SQL injection protection. (`25d6ba0`)
 - Fixed `mysql_gr_members` and `mysql_gr_transactions` failing with "Unknown column" errors on MySQL 8.0.44. Removed non-existent columns `COUNT_TRANSACTIONS_VALIDATING` and `COUNT_TRANSACTIONS_CERTIFIED` from queries. These columns don't exist in MySQL 8.0's `performance_schema.replication_group_member_stats` table. Tools now use only the available columns documented in MySQL 8.0 (kept `COUNT_TRANSACTIONS_ROWS_VALIDATING` which does exist). (`bd6695a`, `c469d36`)
 - Fixed `mysql_cluster_status` failing with "Unable to query cluster metadata" due to hardcoded column names (`default_replicaset`) that don't exist in all InnoDB Cluster metadata schema versions. Changed to `SELECT *` for compatibility across MySQL versions. Also added error details to response for easier debugging. (`677ffcc`, `9213142`, `ad2d5bd`)
 - Fixed `mysql_spatial_point`, `mysql_spatial_distance`, and `mysql_spatial_distance_sphere` to correctly accept longitude-latitude parameter order by using MySQL's `axis-order=long-lat` option. Previous fix in v2.0.0 swapped the coordinates internally but this was confusing since parameter names didn't match their usage. Now tools accept natural `{ longitude: -122.4194, latitude: 37.7749 }` order and MySQL handles the EPSG 4326 axis order conversion automatically. This resolves the long-standing coordinate confusion issue.
 - Fixed `mysql_router_*` tools failing with "fetch failed" when `MYSQL_ROUTER_INSECURE=true`. Node.js native `fetch()` uses undici which doesn't support `https.Agent` for TLS options. Replaced with native `https.request()` module for proper self-signed certificate handling.
 - Fixed `mysql_reorganize_partition` to support both RANGE and LIST partition types (previously hardcoded to RANGE only). Added required `partitionType` parameter to schema. (`72c974b`)
 - Improved error detection in `execShellJS()` to properly catch errors from stderr (e.g., `local_infile disabled`, privilege errors, fatal dump errors) instead of silently returning raw output.
-- Removed unsupported `columns` option from `mysqlsh_export_table` (not supported by `util.exportTable()` in MySQL Shell 9.x).
+- Removed unsupported `columns` option from `mysqlsh_export_table` (not supported by `util.exportTable()` in MySQL Shell 9.x). (`dce2f84`)
 
 - Removed unused imports and variables from 9 test files to improve code quality (CodeQL alerts #8-18) (`ea1e305`, `d4ffc20`)
 - Fixed `proxysql_runtime_status` failing with SQL syntax error "near 'version': syntax error". The tool was using `@@admin-version` syntax which is not supported by ProxySQL's SQLite-based admin interface. Now correctly queries `global_variables` table. (`aa1082f`)
 - Removed debug `console.error` in `MySQLAdapter.executeOnConnection()` that was writing to stderr and corrupting the MCP stdio JSON-RPC message stream, causing the server to crash when any tool was called. This was introduced during the DDL support improvements.
-- Fixed `mysql_write_query` failing on DDL statements (like `CREATE TABLE`, `CREATE USER`) by implementing automatic fallback to the text protocol when the specific "not supported in prepared statement protocol" error is encountered.
+- Fixed `mysql_write_query` failing on DDL statements (like `CREATE TABLE`, `CREATE USER`) by implementing automatic fallback to the text protocol when the specific "not supported in prepared statement protocol" error is encountered. (`df14165`)
 - Enforced strict JSON validation for `mysql_json_*` tools. String values must now be properly quoted (e.g., `'"value"'`) to be stored as strings. Unquoted strings that are invalid JSON will now throw a descriptive error instead of being accepted and potentially mishandled.
 - Fixed all 17 JSON tools and 6 text processing tools to correctly handle schema-qualified table names (e.g., `schema.table`). Previously these tools would reject qualified names with "Invalid table name" errors. Now uses `validateQualifiedIdentifier()` and `escapeQualifiedTable()` for proper handling. (`a8422ae`)
 - Fixed potential issue in `indexes` resource where undefined query results could lead to undefined properties instead of empty arrays. (`beb7d05`, `4d945a8`)
 - Fixed SQL syntax errors in `mysql_stats_descriptive` tool: escaped `range` reserved keyword and fixed invalid LIMIT/OFFSET syntax in median calculation.
 - Fixed `mysql_json_index_suggest` compatibility with `ONLY_FULL_GROUP_BY` and corrected sampling logic.
-- Fixed `mysql_spatial_polygon` schema validation error by replacing `z.tuple` with `z.array` to generate compatible JSON schema.
+- Fixed `mysql_spatial_polygon` schema validation error by replacing `z.tuple` with `z.array` to generate compatible JSON schema. (`dce2f84`)
 - Fixed `mysql_spatial_contains` and `mysql_spatial_within` failing on columns with SRID 4326 due to SRID mismatch. Both tools now accept an optional `srid` parameter (default: 4326) and wrap input geometries with `ST_SRID()` to match the column's SRID.
 - Fixed `mysql_spatial_point`, `mysql_spatial_distance`, and `mysql_spatial_distance_sphere` creating POINT geometries with incorrect coordinate order for SRID 4326. MySQL 8.0+ follows the EPSG standard axis order (latitude, longitude) for SRID 4326, but the tools were generating `POINT(longitude latitude)`. Now correctly generates `POINT(latitude longitude)`. Updated `mysql_setup_spatial` prompt documentation accordingly. (`3569a58`)
-- Improved branch coverage across multiple modules.
+- Improved branch coverage across multiple modules. (`dce2f84`, `ad4c636`)
 - Fixed `mysql_sys_io_summary` failing on MySQL 9.4 due to schema changes in `sys.io_global_by_wait_by_latency` (replaced `wait_class` with `event_name`).
 - Fixed `mysql_create_table`, `mysql_drop_table`, `mysql_create_index`, `mysql_describe_table`, and `mysql_get_indexes` to correctly handle fully qualified table names (e.g., `schema.table`). Added intelligent parsing and proper backtick escaping for schema prefixes. (`5b10bf8`)
-- Fixed `mysql_role_grant` to correctly handle schema-qualified table names (e.g., `schema.table`) in the `table` parameter, preventing syntax errors when specifying target tables.
+- Fixed `mysql_role_grant` to correctly handle schema-qualified table names (e.g., `schema.table`) in the `table` parameter, preventing syntax errors when specifying target tables. (`9f8484c`, `dce2f84`)
 - Fixed `mysql_role_grant` tool logic to correctly handle wildcard privileges (`*`) versus specific table grants, resolving syntax errors when granting privileges to specific tables. (`a44e2b7`)
 - Fixed `mysql_create_table` failing with "No database selected" when using schema-qualified names (e.g., `testdb.table`). Now automatically issues `USE schema` before CREATE TABLE when a qualified name is detected.
-- Fixed `mysql_create_view` to correctly handle schema-qualified view names (e.g. `schema.view`) and improved validation error messages.
+- Fixed `mysql_create_view` to correctly handle schema-qualified view names (e.g. `schema.view`) and improved validation error messages. (`5130eb5`, `6f33708`, `dce2f84`)
 - Fixed `mysql_router_*` tools failing with "fetch failed" when connecting to Router REST API using HTTPS with self-signed certificates. The `MYSQL_ROUTER_INSECURE=true` environment variable now properly bypasses certificate verification using a targeted HTTPS agent with `rejectUnauthorized: false`.
 
 ### Removed
@@ -839,43 +839,43 @@ ${improved_lines}
 
 - Added document store filter syntax documentation with examples for `mysql_doc_modify` and `mysql_doc_remove`. Added spatial tools section documenting coordinate order behavior and MySQL 8.0+ EPSG standard handling with `axis-order=long-lat` option. (`f9a6a04`)
 
-- Improved `value` parameter descriptions in `AddPartitionSchema` and `ReorganizePartitionSchema` to clarify that only boundary values should be provided (e.g., `"2024"`), not full SQL clauses (e.g., `"LESS THAN (2024)"`).
+- Improved `value` parameter descriptions in `AddPartitionSchema` and `ReorganizePartitionSchema` to clarify that only boundary values should be provided (e.g., `"2024"`), not full SQL clauses (e.g., `"LESS THAN (2024)"`). (`df14165`)
 - Added partitioning tools section with usage guidance and examples to prevent common parameter format errors. (`6e8546e`)
 
 - Updated logger tests to match RFC 5424 severity levels:
-- `warn` → `warning` level naming
+- `warn` → `warning` level naming (`df14165`)
 - Updated format assertions to match `[LEVEL]` structured format (e.g., `[WARNING]`, `[DEBUG]`) (`06f9be6`)
 
 ### Added
 
 - New boolean option to automatically enable `local_infile` on the server before import/load operations. Requires SUPER or SYSTEM_VARIABLES_ADMIN privilege.
 - New boolean option to dump only DDL (schema structure) without events, triggers, or routines. Useful when the user lacks EVENT or TRIGGER privileges. (`5a83381`)
-- New boolean option (default: false) to control whether triggers are included in the dump. Set to `false` to skip triggers when lacking TRIGGER privilege.
+- New boolean option (default: false) to control whether triggers are included in the dump. Set to `false` to skip triggers when lacking TRIGGER privilege. (`9aaf14d`, `dce2f84`)
 
 - Usage instructions are now automatically provided to AI agents via the MCP protocol's `instructions` capability during server initialization. See [`src/constants/ServerInstructions.ts`](src/constants/ServerInstructions.ts). (`593eee4`, `2aef4c0`, `f0a4db8`)
 
 - Added tests for cache TTL expiration, cache invalidation, and schema-qualified table name handling in `getTableIndexes()`
-- Added 30+ tests covering:
+- Added 30+ tests covering: (`dce2f84`)
 - `setLoggerName()`, `getLoggerName()`, `setDefaultModule()` configuration methods
 - `notice()`, `critical()`, `alert()`, `emergency()` log levels
 - `forModule()` module-scoped logger with all severity levels
-- Code formatting in log output
+- Code formatting in log output (`dce2f84`)
 - Added `quality-gate` job to `docker-publish.yml` workflow that runs lint, typecheck, and all 1478 unit tests before allowing Docker image builds. Deployments now require all tests to pass.
 - Added comprehensive test coverage for `MySQLAdapter`, `TokenValidator`, and `comparative` stats tools.
-- Added unit tests for security audit tool fallbacks and filtering logic.
+- Added unit tests for security audit tool fallbacks and filtering logic. (`5a83381`, `df14165`)
 - Added meaningful tests for `locks` resource to handle undefined/partial query results.
 - Added test coverage for `indexes` resource edge cases (undefined rows).
-- Added test coverage for `events` resource edge cases.
+- Added test coverage for `events` resource edge cases. (`fbd417b`, `2f76fd8`, `df14165`)
 - Added meaningful test coverage for `constraints.ts` (schema-qualified table parsing), `router.ts` (auth headers, TLS handling), and `utilities.ts` (option handling branches).
 - Added comprehensive tests for `security` tool edge cases (encryption status, SSL status). (`c316217`)
 - Added tests for `views` schema tool validation and check options.
-- Added optional `transactionId` parameter to `mysql_read_query` and `mysql_write_query` tools, enabling interactive queries within active transactions.
+- Added optional `transactionId` parameter to `mysql_read_query` and `mysql_write_query` tools, enabling interactive queries within active transactions. (`df14165`)
 - Full MCP protocol-compliant structured logging
 - RFC 5424 severity levels: debug, info, notice, warning, error, critical, alert, emergency
 - Module-prefixed error codes (e.g., `DB_CONNECT_FAILED`, `AUTH_TOKEN_INVALID`)
 - Structured log format: `[timestamp] [LEVEL] [MODULE] [CODE] message {context}`
 - Module-scoped loggers via `logger.forModule()` and `logger.child()`
-- Sensitive data redaction for OAuth 2.1 configuration fields
+- Sensitive data redaction for OAuth 2.1 configuration fields (`dce2f84`)
 - Stack trace inclusion for error-level logs with sanitization
 - Log injection prevention via control character sanitization
 - Comprehensive testing completed including InnoDB Cluster (3-node Group Replication), MySQL Router REST API, ProxySQL admin interface, and MySQL Shell utilities. (`f13bf0f`)
@@ -885,12 +885,12 @@ ${improved_lines}
 - Added 112 new tests targeting uncovered branches across multiple modules:
 - Tests for `canSkipMySQLConnection()` covering router-only, proxysql-only, shell-only, ecosystem shortcut, shortcuts requiring MySQL, exclusion-only filters, and placeholder adapter registration
 - 100% branch coverage for `booleanCoerce` preprocessor across all shell input schemas
-- Tests for `updateServerSettings`, `local_infile` error handling, X Protocol access denied, and JSON parsing edge cases
-- Tests for `ddlOnly` mode, privilege errors (EVENT, TRIGGER), and Fatal dump error handling
-- Tests for `updateServerSettings` and `local_infile` error branches
+- Tests for `updateServerSettings`, `local_infile` error handling, X Protocol access denied, and JSON parsing edge cases (`ad4c636`)
+- Tests for `ddlOnly` mode, privilege errors (EVENT, TRIGGER), and Fatal dump error handling (`dce2f84`)
+- Tests for `updateServerSettings` and `local_infile` error branches (`ad4c636`)
 - Tests for merge with object results, diff key parsing, where clauses, type mappings (DOUBLE, BOOLEAN, UNKNOWN), and cardinality filtering
 - New test file covering fallback to GR status, error handling, and router metadata failures (`72c974b`)
-- Branch coverage improved from ~83% to ~86%, with 1590 tests passing across 101 test files
+- Branch coverage improved from ~83% to ~86%, with 1590 tests passing across 101 test files (`dce2f84`)
 
 ### Performance
 
@@ -898,13 +898,13 @@ ${improved_lines}
 - Health resource now executes status and max_connections queries concurrently using `Promise.all()`
 - `SchemaManager.getSchema()` now fetches all indexes in a single query
 - Eliminates N+1 query pattern (e.g., 101 queries → 1 query for 100 tables)
-- Added configurable TTL-based cache to `SchemaManager` for expensive metadata queries
-- Default 30s TTL, configurable via `METADATA_CACHE_TTL_MS` environment variable
+- Added configurable TTL-based cache to `SchemaManager` for expensive metadata queries (`23f1e89`)
+- Default 30s TTL, configurable via `METADATA_CACHE_TTL_MS` environment variable (`2d57ef5`, `ce1c5af`)
 - `clearCache()` method for invalidation after schema changes
 - Added `src/__tests__/performance.test.ts` with 8 tests covering:
-- Tool definition caching validation
+- Tool definition caching validation (`dce2f84`)
 - Metadata cache TTL expiration behavior
-- Parallel vs sequential execution patterns
+- Parallel vs sequential execution patterns (`fbd417b`, `9cfad25`)
 - N+1 to batch query improvement verification
 - Extended TTL caching to `listTables()` and `describeTable()` in `SchemaManager`. Previously only `getAllIndexes()` used the cache, causing redundant `information_schema` round-trips on every `mysql_list_tables`, `mysql_describe_table`, and `getSchema()` call.
 - Replaced O(n×m) sensitive key detection (`[...Set].some(k => key.includes(k))`) with a pre-compiled composite regex, eliminating array spread and linear scan on every log context key.
@@ -917,15 +917,15 @@ ${improved_lines}
 ### Security
 
 - Fixed 4 security vulnerabilities identified by CodeQL analysis:
-- Removed sensitive OAuth configuration logging (issuer/audience) from startup output
-- Added explicit warning when Router API TLS certificate validation is bypassed
+- Removed sensitive OAuth configuration logging (issuer/audience) from startup output (`dce2f84`)
+- Added explicit warning when Router API TLS certificate validation is bypassed (`dce2f84`)
 - Fixed incomplete string escaping in quick query prompt (now escapes backslashes before quotes)
 - Replaced global `NODE_TLS_REJECT_UNAUTHORIZED` environment variable manipulation with a targeted HTTPS `Agent` for insecure mode. This eliminates the CodeQL "disabling certificate validation" alert while still supporting self-signed certificates for development/testing via the `MYSQL_ROUTER_INSECURE=true` option. (`6555085`)
 
 ### Coverage
 
-- Branch coverage: ~83.87%
-- Statement coverage: ~97.34%
+- Branch coverage: ~83.87% (`2f76fd8`, `df14165`, `ad4c636`)
+- Statement coverage: ~97.34% (`65880af`, `dce2f84`)
 
 ## [2.0.0] - 2025-12-16
 
@@ -938,11 +938,11 @@ ${improved_lines}
 - Significantly improved code quality and test modularity:
 - Extracted argument parsing to `src/cli/args.ts` and achieved 91% coverage for `src/cli.ts` (main entry point) including signal handling and error scenarios.
 - Refactored monolithic tool files into clean, maintainable directories for `security` and `cluster` tools.
-- Added comprehensive tests for:
-- Service availability: `security` (SSL/TLS status, password validation, encryption status)
+- Added comprehensive tests for: (`2d57ef5`, `ce1c5af`, `dce2f84`)
+- Service availability: `security` (SSL/TLS status, password validation, encryption status) (`b0ebae8`)
 - Cluster management: `group-replication` (status, flow control, members)
-- Text processing: `mysql_substring`, `mysql_concat` (WHERE clause validation)
-- CLI operations: Graceful shutdown, OAuth logging, connection error handling
+- Text processing: `mysql_substring`, `mysql_concat` (WHERE clause validation) (`df14165`)
+- CLI operations: Graceful shutdown, OAuth logging, connection error handling (`3588fc9`, `2f76fd8`)
 - 
 - Fixed `mysql_list_tables` failing to filter by database name; it now correctly passes the `database` parameter to the schema manager. (`c5a74f5`, `79b37b8`)
 - Fixed `ExitError` handling in CLI tests and improved mock resilience.
@@ -963,8 +963,8 @@ ${improved_lines}
 - Added input validation to tool handlers: (`3216f88`, `a8422ae`)
 - `backup.ts` - Table name and WHERE clause validation in export/import tools
 - `json/core.ts` - Table, column, and WHERE validation in all 8 JSON tools
-- Added comprehensive security tests:
-- `security_injection.test.ts` - 14 tests for SQL injection prevention
+- Added comprehensive security tests: (`2d57ef5`, `dce2f84`)
+- `security_injection.test.ts` - 14 tests for SQL injection prevention (`eb2ccd2`)
 - `security_integration.test.ts` - 11 tests for validation flow and error security (`d64aaca`, `21c0c56`)
 - `TokenValidator.test.ts` - 5 new OAuth edge case tests (signature, nbf, expiry)
 - `http.test.ts` - 6 tests for security header verification (`715f283`)
@@ -972,7 +972,6 @@ ${improved_lines}
 ### Changed
 
 - Removed deprecated `SSEServerTransport` usage in favor of `StreamableHTTPServerTransport` from `@modelcontextprotocol/sdk`.
-- Removed all `eslint-disable` directives across the codebase, ensuring strict type safety and linting compliance.
 - Improved coverage for `http.ts`, `logger.ts`, and `validators.ts` with meaningful test cases.
 
 - Improved code maintainability by refactoring large monolithic tool files (500+ lines) into focused, modular directory structures:
@@ -985,7 +984,7 @@ ${improved_lines}
 - `tools/text/` - Split 315-line file into 2 modules: `processing.ts`, `fulltext.ts`
 - Separated `replication.ts` and `partitioning.ts` into distinct files (were mixed in one 353-line file)
 - All modules export through central `index.ts` for backward compatibility
-- Zero breaking changes - all tool functionality preserved and verified via test suite (1175 tests passing)
+- Zero breaking changes - all tool functionality preserved and verified via test suite (1175 tests passing) (`051e71e`, `fbd417b`, `a869f57`)
 - Removed all eslint-disable directives and fixed type safety issues
 - 
 - Extracted CLI argument parsing logic to `src/cli/args.ts`
@@ -996,14 +995,14 @@ ${improved_lines}
 - Split `json.test.ts` (729 lines) and `json_handler.test.ts` (141 lines) into `json_core.test.ts` (8 core tools), `json_helpers.test.ts` (4 helper tools), and `json_enhanced.test.ts` (5 enhanced tools).
 - Verified all 1489 tests pass with strict type safety enabled.
 
-- Implemented caching and algorithmic improvements for faster server startup and tool lookups:
+- Implemented caching and algorithmic improvements for faster server startup and tool lookups: (`e7fe714`, `dce2f84`)
 - `MySQLAdapter.getToolDefinitions()` now caches all 191 tool definitions after first call, eliminating 20+ factory function calls on subsequent `tools/list` requests
 - `getToolGroup()` now uses O(1) Map lookup instead of O(n×m) linear search through 24 groups
 - `getAllToolNames()` caches the 191-tool array after first computation
 - Added `clearToolFilterCaches()` export for testing purposes
 
 - Tool groups increased from 15 to 24 (9 new groups) (`5acf0bb`, `f97926a`, `9cf5853`)
-- JSON tools increased from 12 to 17
+- JSON tools increased from 12 to 17 (`fbd417b`, `4f6b023`)
 - Updated meta-groups: `starter` (~45), `dev` (~65), `base` (~160)
 - README updated with new tool groups and meta-groups (`922cf77`, `2910fd5`)
 
@@ -1016,21 +1015,21 @@ ${improved_lines}
 - Tool definition caching validation for `MySQLAdapter.getToolDefinitions()`
 - O(1) lookup verification for `getToolGroup()` (Map vs linear search)
 - Caching validation for `getAllToolNames()` and `parseToolFilter()`
-- Filter performance tests for complex filter chains (-base,-ecosystem,+starter)
+- Filter performance tests for complex filter chains (-base,-ecosystem,+starter) (`dce2f84`)
 
-- For comprehensive MySQL 8.0 coverage (106 → 191 tools total):
+- For comprehensive MySQL 8.0 coverage (106 → 191 tools total): (`2d57ef5`, `dce2f84`)
 
   **Schema Management (10 tools)** - `schema` group:
-- `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_views`, `mysql_create_view`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_triggers`, `mysql_list_constraints`, `mysql_list_events`
+- `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_views`, `mysql_create_view`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_triggers`, `mysql_list_constraints`, `mysql_list_events` (`6f33708`)
 
   **Event Scheduler (6 tools)** - `events` group:
 - `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status`
 
   **sys Schema Diagnostics (8 tools)** - `sysschema` group:
-- `mysql_sys_user_summary`, `mysql_sys_io_summary`, `mysql_sys_statement_summary`, `mysql_sys_wait_summary`, `mysql_sys_innodb_lock_waits`, `mysql_sys_schema_stats`, `mysql_sys_host_summary`, `mysql_sys_memory_summary`
+- `mysql_sys_user_summary`, `mysql_sys_io_summary`, `mysql_sys_statement_summary`, `mysql_sys_wait_summary`, `mysql_sys_innodb_lock_waits`, `mysql_sys_schema_stats`, `mysql_sys_host_summary`, `mysql_sys_memory_summary` (`65880af`)
 
   **Statistical Analysis (8 tools)** - `stats` group:
-- `mysql_stats_descriptive`, `mysql_stats_percentiles`, `mysql_stats_correlation`, `mysql_stats_distribution`, `mysql_stats_time_series`, `mysql_stats_regression`, `mysql_stats_sampling`, `mysql_stats_histogram`
+- `mysql_stats_descriptive`, `mysql_stats_percentiles`, `mysql_stats_correlation`, `mysql_stats_distribution`, `mysql_stats_time_series`, `mysql_stats_regression`, `mysql_stats_sampling`, `mysql_stats_histogram` (`dce2f84`)
 
   **Spatial/GIS (12 tools)** - `spatial` group:
 - `mysql_spatial_create_column`, `mysql_spatial_create_index`, `mysql_spatial_point`, `mysql_spatial_polygon`, `mysql_spatial_distance`, `mysql_spatial_distance_sphere`, `mysql_spatial_contains`, `mysql_spatial_within`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, `mysql_spatial_geojson`
@@ -1039,7 +1038,7 @@ ${improved_lines}
 - `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security_firewall_rules`, `mysql_security_mask_data`, `mysql_security_password_validate`, `mysql_security_ssl_status`, `mysql_security_user_privileges`, `mysql_security_sensitive_tables`, `mysql_security_encryption_status`
 
   **Group Replication & InnoDB Cluster (10 tools)** - `cluster` group:
-- `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_status`, `mysql_cluster_instances`, `mysql_cluster_topology`, `mysql_cluster_router_status`, `mysql_cluster_switchover`
+- `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_status`, `mysql_cluster_instances`, `mysql_cluster_topology`, `mysql_cluster_router_status`, `mysql_cluster_switchover` (`dce2f84`)
 
   **Role Management (8 tools)** - `roles` group:
 - `mysql_role_list`, `mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles` (`9f8484c`)
@@ -1050,7 +1049,7 @@ ${improved_lines}
   **Enhanced JSON (5 tools)** - added to `json` group (12 → 17):
 - `mysql_json_merge`, `mysql_json_diff`, `mysql_json_normalize`, `mysql_json_stats`, `mysql_json_index_suggest`
 
-- For monitoring (12 → 18 resources):
+- For monitoring (12 → 18 resources): (`fbd417b`, `2f76fd8`, `4c788d4`)
 - `mysql://events` - Event Scheduler status and scheduled events (`2ff8b1f`, `510b63b`)
 - `mysql://sysschema` - sys schema diagnostics summary
 - `mysql://locks` - InnoDB lock contention detection
@@ -1065,28 +1064,28 @@ ${improved_lines}
 - `mysql_setup_cluster` - InnoDB Cluster/Group Replication guide (`cc2762a`)
 - `mysql_setup_docstore` - Document Store / X DevAPI guide
 
-- For tool filtering:
+- For tool filtering: (`789faba`, `3588fc9`, `dce2f84`)
 - `dba` (~70 tools) - DBA tasks (admin, monitoring, security, sysschema, roles)
-- `ai` (~85 tools) - AI/ML features (docstore, spatial, JSON, stats)
+- `ai` (~85 tools) - AI/ML features (docstore, spatial, JSON, stats) (`ad4c636`)
 
 - Added documentation in README and Wiki for using MCP Inspector to visually test and debug mysql-mcp servers ([Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/MCP-Inspector)) (`1627569`, `23f1e89`)
 
-- 1168 tests across 54 test files (>95% global statement coverage)
-- [x] Fix remaining test failures
+- 1168 tests across 54 test files (>95% global statement coverage) (`65880af`, `dce2f84`)
+- [x] Fix remaining test failures (`dce2f84`)
 - [x] Achieve 90% test coverage with meaningful tests
-- [ ] Add remaining tool definitions
-- [ ] Implement remaining handlers
+- [ ] Add remaining tool definitions (`dce2f84`)
+- [ ] Implement remaining handlers (`dce2f84`)
 - Replaced coverage booster tests with meaningful assertions:
 - `prompts.test.ts`: 15 content verification assertions (e.g., checking for "migration", "CREATE TABLE")
 - `resources.test.ts`: 5 handler execution smoke tests with adapter method verification
 - `sysschema.test.ts`: Comprehensive structure assertions and default parameter handling (`4c43c9f`)
 - Core modules: ToolFilter (42), ConnectionPool (30), McpServer (26)
 - Tool groups: All 24 groups tested with handler execution tests (`5acf0bb`, `f97926a`, `9cf5853`)
-- Resources: All 18 resources tested with handler execution tests
-- Prompts: All 19 prompts tested for names, arguments, handlers
-- Adapters: DatabaseAdapter (45), MySQLAdapter (25)
+- Resources: All 18 resources tested with handler execution tests (`df14165`)
+- Prompts: All 19 prompts tested for names, arguments, handlers (`beb7d05`, `5a83381`, `4da990a`)
+- Adapters: DatabaseAdapter (45), MySQLAdapter (25) (`5a83381`, `4da990a`)
 - OAuth: Scopes (30), OAuthResourceServer (21), Errors (21+), AuthorizationServerDiscovery (20+), TokenValidator (17), Middleware (32)
-- Infrastructure: McpLogging (22), ProgressReporter (21), HTTP Transport (20)
+- Infrastructure: McpLogging (22), ProgressReporter (21), HTTP Transport (20) (`2d57ef5`, `055d485`)
 - (7 added):
 - `src/auth/__tests__/errors.test.ts` - All OAuth error classes tested (`240dfcd`)
 - `src/auth/__tests__/AuthorizationServerDiscovery.test.ts` - RFC 8414 metadata discovery, caching, error handling
@@ -1112,21 +1111,21 @@ ${improved_lines}
 - `createMockMySQLAdapterWithError()` - Adapter that throws on queries
 - `createMockMySQLAdapterWithTransaction()` - Transaction-enabled mock
 - `createMockRequestContext()` - Mock RequestContext for handler tests
-- Core and transaction tools include handler behavior tests
+- Core and transaction tools include handler behavior tests (`dce2f84`)
 - 
 - `npm test` - Run all tests
 - `npm run test:coverage` - Run with coverage report (v8 provider)
 - `npm run test:watch` - Watch mode for development
-- Tests run without database connection (fully mocked)
+- Tests run without database connection (fully mocked) (`27f90ac`)
 - ~10 second total test runtime
 - 
 - `src/adapters/mysql/__tests__/MySQLAdapter.integration.test.ts` - Non-mocked tests against real MySQL Docker container
-- Verifies connection, CRUD operations, and transaction commit/rollback
+- Verifies connection, CRUD operations, and transaction commit/rollback (`2f76fd8`)
 - 
-- Global statement coverage: **>95%**
-- Branch coverage: **~79%**
+- Global statement coverage: **>95%** (`dce2f84`)
+- Branch coverage: **~79%** (`2f76fd8`, `df14165`, `ad4c636`)
 - Achieved >95% global statement coverage and ~79% branch coverage across the codebase.
-- Added comprehensive unit tests for `src/cli.ts` (91% coverage) including flag parsing, help output, and environment fallbacks.
+- Added comprehensive unit tests for `src/cli.ts` (91% coverage) including flag parsing, help output, and environment fallbacks. (`dce2f84`)
 - Significantly improved tool handler coverage for `cluster`, `shell`, `sysschema`, `security`, and `text` modules. (`6932cae`, `bd73fa1`)
 - Added tests for `health` resource and `indexTuning` prompt.
 - Added meaningful edge-case tests for `cluster`, `shell`, `sysschema`, `security`, and `text` tools (verification of queries, fallbacks, and error handling)
@@ -1137,7 +1136,7 @@ ${improved_lines}
 - `roles` tools (high coverage)
 - `text` tools (full coverage including optional parameters)
 - `docstore` tools (full coverage including result parsing and complex updates)
-- `admin` tools (comprehensive coverage for maintenance, monitoring, and backup)
+- `admin` tools (comprehensive coverage for maintenance, monitoring, and backup) (`2d57ef5`, `ce1c5af`, `dce2f84`)
 - `performance` tools (coverage for analysis and optimization) (`19f5df7`)
 - Resources: `docstore`, `events`, `status`, `variables`, `indexes`, `locks` (now comprehensively tested) (`2ff8b1f`, `510b63b`)
 
@@ -1146,18 +1145,18 @@ ${improved_lines}
 - Resolved false coverage reports by refactoring `spatial` tests to target actual modular files (`tools/spatial/index.ts`) instead of legacy code.
 - Added missing test coverage for `McpServer` HTTP/SSE transport startup, OAuth configuration, and error handling.
 - Removed unused legacy `spatial.ts` file.
-- Fixed an injection vulnerability in `mysqlsh_import_table` where `linesTerminatedBy` and `fieldsTerminatedBy` were not properly escaped.
+- Fixed an injection vulnerability in `mysqlsh_import_table` where `linesTerminatedBy` and `fieldsTerminatedBy` were not properly escaped. (`dce2f84`)
 - 
 - Improved test coverage and modularity
 - Removed redundant monolithic tool files (`performance.ts`, `text.ts`)
-- Enhanced `cli.ts` tests for argument parsing and pool configuration
-- Improved `MySQLAdapter` transaction error handling tests
+- Enhanced `cli.ts` tests for argument parsing and pool configuration (`dce2f84`)
+- Improved `MySQLAdapter` transaction error handling tests (`dce2f84`)
 - Added resilience tests for `innodb` resource
 - Refactored `ToolFilter` into `ToolConstants`
 - Refactored `shell.test.ts` into 5 modular files and improved coverage for shell, spatial, and sysschema tools with meaningful assertions.
 - Split monolithic `handlers.test.ts` and `diagnostics.test.ts` into 10 modular test files (`spatial`, `status`, `sysschema`, `pool`, `processlist`, `capabilities`, `tables`, `innodb`, `performance`, `schema`) to improve maintainability. (`9d5b941`)
 - Achieved >80% branch coverage by adding meaningful edge-case tests for resources (handling null results, empty sets) and tool filters.
-- Added comprehensive tests for:
+- Added comprehensive tests for: (`2d57ef5`, `ce1c5af`, `dce2f84`)
 - CLI argument parsing (`args.test.ts`)
 - Document Store validation (`docstore.test.ts`) (`9142f85`)
 - Performance resource error handling (`performance.test.ts`) (`35195bb`)
@@ -1175,7 +1174,7 @@ ${improved_lines}
 
 ### Added
 
-- 9 new tools for monitoring MySQL Router via REST API
+- 9 new tools for monitoring MySQL Router via REST API (`fbd417b`, `2f76fd8`, `dce2f84`)
 - `mysql_router_status` - Get Router process status and version (`72c974b`)
 - `mysql_router_routes` - List all configured routes
 - `mysql_router_route_status` - Get status of a specific route
@@ -1185,46 +1184,46 @@ ${improved_lines}
 - `mysql_router_route_blocked_hosts` - List blocked IP addresses for a route
 - `mysql_router_metadata_status` - InnoDB Cluster metadata cache status _(requires InnoDB Cluster)_ (`677ffcc`)
 - `mysql_router_pool_status` - Connection pool statistics _(requires InnoDB Cluster)_ (`677ffcc`)
-- New `router` tool group for filtering Router tools
-- Router REST API configuration via environment variables
+- New `router` tool group for filtering Router tools (`dce2f84`)
+- Router REST API configuration via environment variables (`dce2f84`)
 - Comprehensive Router setup documentation in README (`ce1c5af`)
-- 12 new tools for monitoring ProxySQL proxy
-- `proxysql_status` - Get ProxySQL version, uptime, and runtime stats
-- `proxysql_servers` - List configured backend MySQL servers
-- `proxysql_hostgroups` - List hostgroup configurations and connection stats
-- `proxysql_query_rules` - List query routing rules
-- `proxysql_query_digest` - Get query digest statistics (top queries)
-- `proxysql_connection_pool` - Get connection pool statistics per server
+- 12 new tools for monitoring ProxySQL proxy (`fbd417b`, `2f76fd8`, `dce2f84`)
+- `proxysql_status` - Get ProxySQL version, uptime, and runtime stats (`dce2f84`)
+- `proxysql_servers` - List configured backend MySQL servers (`18cea2d`)
+- `proxysql_hostgroups` - List hostgroup configurations and connection stats (`f97926a`)
+- `proxysql_query_rules` - List query routing rules (`18cea2d`)
+- `proxysql_query_digest` - Get query digest statistics (top queries) (`18cea2d`)
+- `proxysql_connection_pool` - Get connection pool statistics per server (`18cea2d`)
 - `proxysql_users` - List configured MySQL users
-- `proxysql_global_variables` - Get global variables (mysql-_ and admin-_)
-- `proxysql_runtime_status` - Get runtime configuration status
-- `proxysql_memory_stats` - Get memory usage metrics
+- `proxysql_global_variables` - Get global variables (mysql-_ and admin-_) (`18cea2d`, `dce2f84`)
+- `proxysql_runtime_status` - Get runtime configuration status (`dce2f84`)
+- `proxysql_memory_stats` - Get memory usage metrics (`dce2f84`)
 - `proxysql_commands` - Execute LOAD/SAVE admin commands
 - `proxysql_process_list` - Get active sessions like SHOW PROCESSLIST
-- New `proxysql` tool group for filtering ProxySQL tools
+- New `proxysql` tool group for filtering ProxySQL tools (`dce2f84`)
 - ProxySQL admin interface configuration via environment variables (`b8e32ba`)
 - Comprehensive ProxySQL setup documentation in README (`ce1c5af`)
 - 10 new tools for MySQL Shell 8.0 integration
 - `mysqlsh_version` - Get MySQL Shell version and installation status
 - `mysqlsh_check_upgrade` - Check server upgrade compatibility (`593eee4`)
-- `mysqlsh_export_table` - Export table to file (CSV, TSV)
-- `mysqlsh_import_table` - Parallel table import from file
-- `mysqlsh_import_json` - Import JSON documents to collection or table
-- `mysqlsh_dump_instance` - Dump entire MySQL instance
+- `mysqlsh_export_table` - Export table to file (CSV, TSV) (`dce2f84`)
+- `mysqlsh_import_table` - Parallel table import from file (`dce2f84`)
+- `mysqlsh_import_json` - Import JSON documents to collection or table (`dce2f84`)
+- `mysqlsh_dump_instance` - Dump entire MySQL instance (`dce2f84`)
 - `mysqlsh_dump_schemas` - Dump selected schemas
-- `mysqlsh_dump_tables` - Dump specific tables
+- `mysqlsh_dump_tables` - Dump specific tables (`dce2f84`)
 - `mysqlsh_load_dump` - Load MySQL Shell dump
 - `mysqlsh_run_script` - Execute JS/Python/SQL script via MySQL Shell
-- New `shell` tool group for filtering MySQL Shell tools
+- New `shell` tool group for filtering MySQL Shell tools (`dce2f84`)
 - MySQL Shell configuration via environment variables (MYSQLSH_PATH, MYSQLSH_TIMEOUT, MYSQLSH_WORK_DIR)
 - Comprehensive MySQL Shell setup documentation in README (`ce1c5af`)
 
 ### Changed
 
-- Total tools increased from 75 to 106
-- Tool groups increased from 12 to 15
+- Total tools increased from 75 to 106 (`fbd417b`, `4f6b023`)
+- Tool groups increased from 12 to 15 (`fbd417b`, `4f6b023`)
 - Updated `.env.example` with Router and ProxySQL configuration templates (`7838638`)
-- Updated minimal preset to exclude Router, ProxySQL, and Shell tools by default
+- Updated minimal preset to exclude Router, ProxySQL, and Shell tools by default (`dce2f84`)
 
 ### Fixed
 
@@ -1237,31 +1236,31 @@ ${improved_lines}
 - Across 13 categories
 - For guided MySQL workflows:
 - `mysql_query_builder` - Help construct SQL queries with security best practices
-- `mysql_schema_design` - Design table schemas with indexes and relationships
+- `mysql_schema_design` - Design table schemas with indexes and relationships (`6be75fe`)
 - `mysql_performance_analysis` - Analyze slow queries with optimization recommendations
 - `mysql_migration` - Generate migration scripts with rollback and online migration options
 - Core database operations (CRUD, schema, tables) (`b334082`, `036a513`)
-- JSON operations (MySQL 5.7+)
-- Text processing (REGEXP, LIKE, SOUNDEX)
-- FULLTEXT search support
-- Performance tools (EXPLAIN, query analysis)
+- JSON operations (MySQL 5.7+) (`3588fc9`, `2f76fd8`)
+- Text processing (REGEXP, LIKE, SOUNDEX) (`dce2f84`)
+- FULLTEXT search support (`2f76fd8`, `dce2f84`)
+- Performance tools (EXPLAIN, query analysis) (`2f76fd8`)
 - Optimization tools (index hints, recommendations)
-- Admin tools (OPTIMIZE, ANALYZE, FLUSH)
+- Admin tools (OPTIMIZE, ANALYZE, FLUSH) (`df14165`, `dce2f84`)
 - Monitoring tools (PROCESSLIST, status variables) (`84e1aa8`)
 - Backup tools (export, import, mysqldump format) (`0f270d6`, `036a513`)
 - Replication tools (master/slave, binlog, GTID) (`510b63b`)
-- Partitioning tools (partition management)
-- Transaction tools (BEGIN, COMMIT, ROLLBACK, savepoints)
+- Partitioning tools (partition management) (`fbd417b`)
+- Transaction tools (BEGIN, COMMIT, ROLLBACK, savepoints) (`dce2f84`)
 - MySQL Router tools (status, routes, health monitoring) (`72c974b`)
-- Filter by group or individual tools
+- Filter by group or individual tools (`d3fb20a`)
 - Keycloak integration for enterprise auth
-- Configurable mysql2 pool
+- Configurable mysql2 pool (`ad4c636`)
 - Stdio, HTTP, SSE
 - MCP SDK integration
 - Comprehensive documentation and examples (`ce1c5af`)
 
 ### Security
 
-- SQL injection prevention via parameterized queries
+- SQL injection prevention via parameterized queries (`25d6ba0`)
 - OAuth 2.0 scope-based access control
-- Environment variable configuration for sensitive data
+- Environment variable configuration for sensitive data (`dce2f84`)
