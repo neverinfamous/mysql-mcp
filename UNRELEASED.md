@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a Zod validation schema bug in the `fulltext` tool group (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`) where the `query` field strictly required a non-empty string, bypassing the intended sanitization logic that should gracefully return `{ rows: [], count: 0 }` for empty queries. (`9b1d2ac`)
 - Fixed severe payload bloat issues in the `backup` tool group by reducing the default `limit` parameter for `mysql_audit_list_backups` from 50 to 10, saving over 3000 tokens per default request. (`716d0d5`)
 - Fixed a Zod validation leak in the `vector` tool group where base schemas (e.g., `VectorSearchSchemaBase`) incorrectly used strict `z.unknown()` instead of `z.unknown().optional()` for required parameters. This caused raw MCP `-32602` SDK errors to bypass the handler's structured error wrapper when tools were called with missing arguments. (`5049f8d`)
 - Fixed a bug in the `vector` tool group where `mysql_vector_get` fell back to the `"id"` column when no `VECTOR` column was found, causing a raw `QUERY_ERROR` instead of returning a structured `ValidationError`. (`8c2f9fb`)
