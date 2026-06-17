@@ -8,6 +8,7 @@
 ### Changed
 
 ### Fixed
+- Fixed a payload bloat issue in `mysql_sys_schema_stats` by reducing the default `limit` parameter from 3 to 1 to reduce token footprint. (`e7a85ee`)
 - Fixed a critical `Maximum call stack size exceeded` bug in the HTTP `SessionManager` where cyclical `.close()` calls between the transport and the session map caused infinite recursion during timeout cleanup. (`bbcee30`)
 - Fixed missing structured error payload mappings in `src/utils/error-suggestions.ts` for the `Unknown table` exception, enabling schema routine tools to catch and format missing object errors as standard `TABLE_NOT_FOUND` `{ success: false }` payloads instead of leaking raw exceptions. (`62e5d19`)
 - Fixed outdated expected error message assertions in `src/adapters/mysql/tools/__tests__/roles.test.ts` for `mysql_user_roles` and `mysql_role_revoke` to match the newly implemented formatted user existence messages. (`62e5d19`)
