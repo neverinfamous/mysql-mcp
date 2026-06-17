@@ -224,3 +224,4 @@
 - Fixed unit test failures in the `docstore` tool group (`docstore.test.ts`) caused by a previous output schema compliance fix, realigning assertions to expect the `stats` and `indexes` properties strictly nested within the `data.info` wrapper. (`d892b06`)
 - Fixed a Split Schema pattern violation in the `admin` tool group (`mysql_audit_search` and `mysql_append_insight`), ensuring proper schema metadata mapping and parameter visibility. (`a5c7c00`)
 - Fixed a bug in the `audit` subsystem where the interceptor incorrectly recorded `success: true` for tools returning structured domain errors instead of throwing exceptions. (`a5c7c00`)
+- Fixed a bug in `mysql_create_dump` and `mysql_restore_dump` where omitting the `database` parameter caused raw handler crashes instead of defaulting to the active connection's database or returning a standard `VALIDATION_ERROR`. (`27f90ac`)
