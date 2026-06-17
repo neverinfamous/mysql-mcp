@@ -6,6 +6,8 @@ import {
 import { RoleDropOutputSchema } from "../../schemas/roles.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { DESTRUCTIVE } from "../../../../utils/annotations.js";
 
 export const RoleDropSchemaBase = z.object({
@@ -96,7 +98,9 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
               ? params.role
               : undefined;
           const roleName = pName ?? pRole ?? "unknown";
-          return formatHandlerErrorResponse(new Error(`Role '${roleName}' does not exist`));
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Role '${roleName}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
         }
         return formatHandlerErrorResponse(error);
       }

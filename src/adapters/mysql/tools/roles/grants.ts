@@ -9,6 +9,8 @@ import {
 } from "../../schemas/roles.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import {
   validateIdentifier,
   validateMySQLPrivilege,
@@ -89,7 +91,9 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return formatHandlerErrorResponse(new Error("Role does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
@@ -131,7 +135,9 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return formatHandlerErrorResponse(new Error("Role does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           let targetDb = database;

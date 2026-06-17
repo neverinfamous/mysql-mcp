@@ -6,6 +6,8 @@ import {
 import { RoleCreateOutputSchema } from "../../schemas/roles.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { WRITE } from "../../../../utils/annotations.js";
 
 export const RoleCreateSchemaBase = z.object({
@@ -89,7 +91,9 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
               ? params.role
               : undefined;
           const roleName = pName ?? pRole ?? "unknown";
-          return formatHandlerErrorResponse(new Error(`Role '${roleName}' already exists`));
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Role '${roleName}' already exists`, "OBJECT_ALREADY_EXISTS", ErrorCategory.RESOURCE)
+          );
         }
         return formatHandlerErrorResponse(error);
       }

@@ -10,6 +10,8 @@ import {
 } from "../../schemas/roles.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import {
   validateIdentifier,
   validateMySQLPrivilege,
@@ -124,7 +126,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return formatHandlerErrorResponse(new Error("Role does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           let sql = `GRANT '${role}' TO '${user}'@'${host}'`;
@@ -145,7 +149,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           const message = error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
-            return formatHandlerErrorResponse(new Error("User does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("User does not exist", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
           return formatHandlerErrorResponse(error);
         }
@@ -170,7 +176,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            return formatHandlerErrorResponse(new Error("Role does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           if (user) {
@@ -180,7 +188,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
             if (!userCheck.rows || userCheck.rows.length === 0) {
               return formatHandlerErrorResponse(
-                new Error("User does not exist"),
+                new MySQLMcpError(`User '${user}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
               );
             }
 
@@ -190,9 +198,11 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
             if (!assignCheck.rows || assignCheck.rows.length === 0) {
               return formatHandlerErrorResponse(
-                new Error(
+                new MySQLMcpError(
                   `Role '${role}' is not assigned to user '${user}'@'${host}'`,
-                ),
+                  "OBJECT_NOT_FOUND",
+                  ErrorCategory.RESOURCE
+                )
               );
             }
 
@@ -257,7 +267,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           const message = error instanceof Error ? error.message : String(error);
           if (message.includes("Unknown authorization ID")) {
-            return formatHandlerErrorResponse(new Error("User does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("User does not exist", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
           return formatHandlerErrorResponse(error);
         }
@@ -281,7 +293,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
-            return formatHandlerErrorResponse(new Error("User does not exist"));
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`User '${user}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
           }
 
           const result = await adapter.executeQuery(
