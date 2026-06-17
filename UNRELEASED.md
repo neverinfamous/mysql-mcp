@@ -1,6 +1,8 @@
 # Unreleased
 
 ### Fixed
+- Fixed a P154 existence violation in the `performance` tool group where `mysql_detect_bloat_risk` failed to explicitly check if the provided schema existed before analysis, which has been corrected to throw a structured ValidationError. (`3e1659e`)
+- Fixed a wrong-type coercion bug in the `performance` tool group where `mysql_detect_connection_spike` used strict `z.number()` instead of `z.coerce.number()` for its `windowMinutes` and `warningPercent` schemas, bringing it into parity with the rest of the project and preventing silent SDK validation crashes. (`3e1659e`)
 - Fixed 4 failing Vitest tests in the `roles` and `security` tool groups (`mysql_role_list`, `mysql_security_user_privileges`) by updating assertions to expect parameterized queries and adjusting test inputs to pass `summary: false` to accommodate the new condensed payload defaults. (`ca4bd48`)
 - Fixed a Split Schema pattern violation in the `migration` tool group where `mysql_migration_record` and `mysql_migration_apply` did not correctly map the `name` parameter alias to `description` in their validation schemas. (`ab9f7fb`)
 - Fixed a Split Schema pattern violation in the `introspection` tool group where `DependencyGraphSchemaBase` allowed the `schema` parameter to be optional despite strict requirement testing, properly enforcing Zod validation on empty objects without breaking the `limit` / `maxDepth` defaults. (`d072de6`)
