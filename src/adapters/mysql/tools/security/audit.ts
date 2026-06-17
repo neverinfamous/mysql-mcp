@@ -304,6 +304,27 @@ export function createSecurityFirewallRulesTool(
             ),
           );
         }
+
+        // Check if firewall plugin is installed
+        const pluginResult = await adapter.executeQuery(`
+                    SELECT PLUGIN_NAME, PLUGIN_STATUS
+                    FROM information_schema.PLUGINS
+                    WHERE PLUGIN_NAME LIKE '%firewall%'
+                `);
+
+        if (!pluginResult.rows || pluginResult.rows.length === 0) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              users: [],
+              rules: [],
+              userCount: 0,
+              ruleCount: 0,
+              message: "MySQL Enterprise Firewall is not installed",
+            },
+          });
+        }
+
         // Get firewall users
         let usersQuery = `
                     SELECT USERHOST, MODE
