@@ -154,11 +154,11 @@ introspection Tool Group (6 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
-1. `mysql_dependency_graph({schema: "test_db", maxDepth: 2})` → verify graph nodes and edges
-2. `mysql_topological_sort({schema: "test_db"})` → verify ordered tables
+1. `mysql_dependency_graph({schema: "testdb", maxDepth: 2})` → verify graph nodes and edges
+2. `mysql_topological_sort({schema: "testdb2"})` → verify ordered tables
 3. `mysql_cascade_simulator({table: "test_products", operation: "DELETE"})` → verify cascading constraints output
-4. `mysql_schema_snapshot({schema: "test_db"})` → verify schema snapshot state
-5. `mysql_constraint_analysis({schema: "test_db"})` → verify constraint analysis
+4. `mysql_schema_snapshot({schema: "testdb"})` → verify schema snapshot state
+5. `mysql_constraint_analysis({schema: "testdb"})` → verify constraint analysis
 6. `mysql_migration_risks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → verify migration risks reported
 
 **Domain error paths (🔴):**

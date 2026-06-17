@@ -8,7 +8,7 @@ import { BaseOutputSchema } from "../output-schemas.js";
  * mysql_dependency_graph input
  */
 export const DependencyGraphSchemaBase = z.object({
-  schema: z.string().optional().describe("Schema to analyze"),
+  schema: z.string().describe("Schema to analyze"),
   includeRowCounts: z
     .boolean()
     .optional()
@@ -28,7 +28,7 @@ export const DependencyGraphSchemaBase = z.object({
 });
 
 export const DependencyGraphSchema = z.object({
-  schema: z.string().optional(),
+  schema: z.string(),
   includeRowCounts: z.boolean().optional(),
   compact: z.boolean().optional(),
   limit: z.preprocess((val) => {

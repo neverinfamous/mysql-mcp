@@ -1,6 +1,9 @@
 # Unreleased
 
 ### Fixed
+- Fixed a Split Schema pattern violation in the `introspection` tool group where `DependencyGraphSchemaBase` allowed the `schema` parameter to be optional despite strict requirement testing, properly enforcing Zod validation on empty objects without breaking the `limit` / `maxDepth` defaults. (`d072de6`)
+- Fixed a factual error in the `test-introspection.md` test prompt where circular dependencies in the `testdb` test schema prevented the `mysql_topological_sort` happy path assertion from succeeding, by pointing the assertion to `testdb2`. (`d072de6`)
+- Fixed a factual error in the `test-introspection.md` test prompt where `test_db` was used instead of `testdb` for schema names across multiple test checklist items. (`d072de6`)
 - Fixed a factual error in the backup test prompt where `mysql_audit_list_backups` was incorrectly asserted to fail Zod validation on empty objects, despite legally defaulting parameters. (`1589424`)
 - Fixed a bug in `mysql_optimizer_trace` where `extractTraceSummary` failed to capture primary key `const` lookup decisions, and fixed a structural parsing bug in `mysql_index_recommendation` where MySQL 8 schema 2.0 `query_plan` changes broke composite index suggestions. (`909e108`)
 - Fixed a bug in the `spatial` tool group's error handlers where the `table` parameter was not properly resolved from aliases (`tableName`, `name`) in the `paramStr` helper, preventing `TABLE_NOT_FOUND` errors from formatting correctly and leaking raw exceptions. (`203f013`)
