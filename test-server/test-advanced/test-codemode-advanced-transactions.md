@@ -158,7 +158,7 @@ During testing, check for these inconsistencies:
 
 ## Category 2: Abandoned Transactions
 
-4. Begin transaction — do NOT commit or rollback. Begin a new transaction — verify the first is auto-cleaned or returns structured error.
+4. Begin transaction, check state, and IMMEDIATELY ROLLBACK. (Warning: Deliberately abandoning transactions via Code Mode will exhaust the MCP connection pool and deadlock the testing server; avoid intentional leaks).
 5. Begin transaction with explicit isolation level (READ COMMITTED) — verify it takes effect
 
 ## Category 3: Rapid State Transitions
