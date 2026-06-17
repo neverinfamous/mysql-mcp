@@ -154,10 +154,15 @@ During testing, check for these inconsistencies:
 
 router Tool Group (9 tools +1 code mode):
 
-1. `mysql_router_status` 2. `mysql_router_routes` 3. `mysql_router_route_status`
-2. `mysql_router_route_health` 5. `mysql_router_route_connections`
-3. `mysql_router_route_destinations` 7. `mysql_router_route_blocked_hosts`
-4. `mysql_router_metadata_status` 9. `mysql_router_pool_status`
+1. `mysql_router_status`
+2. `mysql_router_routes`
+3. `mysql_router_route_status`
+4. `mysql_router_route_health`
+5. `mysql_router_route_connections`
+6. `mysql_router_route_destinations`
+7. `mysql_router_route_blocked_hosts`
+8. `mysql_router_metadata_status`
+9. `mysql_router_pool_status`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
@@ -170,16 +175,18 @@ router Tool Group (9 tools +1 code mode):
 7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
 8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
 9. `mysql.router.metadataStatus({metadataName: "bootstrap"})` → metadata cache
+10. `mysql.router.poolStatus({poolName: "bootstrap_rw"})` → pool status or structured error
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+12. 🔴 `mysql.router.poolStatus({poolName: "nonexistent_xyz"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-11. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance paths (🟢):**
-12. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
 
 ---
 
