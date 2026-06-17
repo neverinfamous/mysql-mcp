@@ -4,6 +4,7 @@
 - Standardized Playwright and Vitest test configurations to enforce strict timeouts, isolation, and consistent artifact paths for ecosystem parity. (`f89797a`)
 
 ### Fixed
+- Fixed a Split Schema pattern violation in the `stats` tool group where `mysql_stats_advanced`, `mysql_stats_hypothesis`, and `mysql_stats_outliers` lacked proper `z.preprocess` alias mappings for `table` and `column` parameters, preventing valid Code Mode aliases from passing Zod validation and causing TS index signature errors. (`15bf9d5`)
 - Fixed factual errors in the `test-codemode-advanced-shell-utils.md` test prompt where `/tmp` paths were incorrectly asserted to succeed despite escaping the strict `ALLOWED_IO_ROOTS` sandbox boundary, correctly updating it to assert a structured `SECURITY_ERROR`. (`054eb9c`)
 - Fixed a critical `Maximum call stack size exceeded` bug in the HTTP `SessionManager` where cyclical `.close()` calls between the transport and the session map caused infinite recursion during timeout cleanup. (`bbcee30`)
 - Fixed missing structured error payload mappings in `src/utils/error-suggestions.ts` for the `Unknown table` exception, enabling schema routine tools to catch and format missing object errors as standard `TABLE_NOT_FOUND` `{ success: false }` payloads instead of leaking raw exceptions. (`62e5d19`)
