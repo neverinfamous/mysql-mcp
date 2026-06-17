@@ -11,45 +11,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added Docker smoke test job to `docker-publish.yml` that verifies binary loading and HTTP transport starts successfully before images are pushed to the registry
-- Added Docker smoke test job to `lint-and-test.yml` for PR-level validation, catching dependency resolution failures before merge
+- **.github/workflows/docker-publish.yml**: Added Docker smoke test job for pre-publish validation.
+- **.github/workflows/lint-and-test.yml**: Added PR-level Docker smoke test job.
 
 ### Changed
 
-- Fixed an issue where the MCP Server would hang indefinitely on startup when installed globally via npm (e.g., using `@modelcontextprotocol/inspector mysql-mcp`). The `isMainModule` check incorrectly evaluated to false on symlinked global binaries, causing the Node process to exit cleanly without starting the transport or logging errors.
-- Standardized README.md layout, badges, and headers to match the fleet
-- Rewrote CONTRIBUTING.md — was entirely postgres-mcp copy-paste (all references, connection strings, Docker commands, error class names, and URLs corrected to mysql-mcp)
-- Fixed tool group counts in README.md and DOCKER_README.md — `performance` (8→11), `admin` (6→7), `backup` (4→7), `stats` (8→20) (`4d9dd65`)
-- Added missing `introspection` (6 tools) and `migration` (6 tools) groups to tool group tables — header updated from "25 Available" to "27 Available" (`b060754`, `0065887`)
-- Standardized shortcut group counts across all configuration and documentation references (`a60b447`, `f9a6a04`)
-- Fixed stale meta-group comment block in `tool-constants.ts` — all 12 shortcut totals now verified against actual group arrays
 - Updated `mcp-config-example.json` — added `METADATA_CACHE_TTL_MS`, `CODEMODE_ISOLATION`, and `CODE_MODE_MAX_RESULT_SIZE` env vars
 - Fixed a bug in `scripts/generate-server-instructions.ts` where `README.md` was accidentally compiled into the server's dynamic help payload. (`0073e8b`, `826120a`)
 
 ### Fixed
 
+- Fixed an issue where the MCP Server would hang indefinitely on startup when installed globally via npm (e.g., using `@modelcontextprotocol/inspector mysql-mcp`). The `isMainModule` check incorrectly evaluated to false on symlinked global binaries, causing the Node process to exit cleanly without starting the transport or logging errors.
 - Resolved TypeScript typing and ESLint errors in the backup and maintenance tools by ensuring `RequestContext` is properly typed with `progressToken` and `server`. Added backwards-compatible `start()` and `progress()` aliases to `ProgressReporter` for seamless integration. (`3e257e8`)
 
 ### Security
 
-- Added V8 `codeGeneration` restrictions (`{ strings: false, wasm: false }`) to `vm.createContext` — disables `eval()` and `Function()` at the engine level
-- Added frozen built-in prototypes inside the vm sandbox context — prevents dynamic constructor chain escapes (e.g., `Error().constructor.constructor('return process')()`)
+- Added V8 `codeGeneration` restrictions (`{ strings: false, wasm: false }`) to `vm.createContext` — disables `eval()` and `Function()` at the engine level (`1675395`)
+- Added frozen built-in prototypes inside the vm sandbox context — prevents dynamic constructor chain escapes (e.g., `Error().constructor.constructor('return process')()`) (`1675395`)
 - Nullified `Proxy` constructor in sandbox globals (`Proxy: undefined`) — prevents meta-object protocol abuse (`4d945a8`)
 - Upgraded `Reflect.construct` blocked pattern to `Reflect.*` — covers `getPrototypeOf`, `ownKeys`, `construct`, etc. (`715f283`)
 - Added `Symbol.*` blocked pattern — prevents `hasInstance`, `toPrimitive`, and other well-known symbol overrides (`715f283`)
 - Added `new Proxy(` blocked pattern — defense-in-depth alongside Proxy nullification (`715f283`)
-- Added RPC allowlist validation — host-side verification prevents workers from invoking unauthorized API methods
-- Added streaming egress boundary enforcement — `JSON.stringify` replacer aborts mid-flight when result exceeds `CODE_MODE_MAX_RESULT_SIZE` (default 100KB), preventing OOM
-- Added `CODE_MODE_MAX_RESULT_SIZE` environment variable (default 100KB, cap 50MB)
-- Reduced default `maxResultSize` from 10MB to 100KB (fleet standard)
-- Aligned `maxYoungGenerationSizeMb` formula to `max(8, floor(memoryLimitMb/8))` (fleet standard)
+- Added RPC allowlist validation — host-side verification prevents workers from invoking unauthorized API methods (`1a93a4a`)
+- Added streaming egress boundary enforcement — `JSON.stringify` replacer aborts mid-flight when result exceeds `CODE_MODE_MAX_RESULT_SIZE` (default 100KB), preventing OOM (`1675395`)
+- Added `CODE_MODE_MAX_RESULT_SIZE` environment variable (default 100KB, cap 50MB) (`1675395`)
+- Reduced default `maxResultSize` from 10MB to 100KB (fleet standard) (`1675395`)
+- Aligned `maxYoungGenerationSizeMb` formula to `max(8, floor(memoryLimitMb/8))` (fleet standard) (`1675395`)
 - Fixed SECURITY.md copy-paste errors referencing "postgres-mcp" instead of "mysql-mcp"
 
 ## [3.2.1](https://github.com/neverinfamous/mysql-mcp/releases/tag/v3.2.1) - 2026-05-16
-
-### Fixed
-
-- Removed unused MCP SDK imports in E2E tests to resolve CodeQL `js/unused-local-variable` alerts (`ea1e305`, `d4ffc20`)
 
 ## [3.2.0](https://github.com/neverinfamous/mysql-mcp/releases/tag/v3.2.0) - 2026-05-16
 
@@ -57,20 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolved XSS vulnerability in `ip-address` and `express-rate-limit` via npm update
 - Bumped `tar` (bundled in npm) to `7.5.15` in Dockerfile to address CVE-2026-26960
-
-### Dependencies
-
-- Bumped `@playwright/test` from `1.59.1` to `1.60.0`
-- Bumped `@types/node` from `25.6.0` to `25.8.0`
-- Bumped `@vitest/coverage-v8` from `4.1.5` to `4.1.6`
-- Bumped `eslint` from `10.3.0` to `10.4.0`
-- Bumped `typescript-eslint` from `8.59.2` to `8.59.3`
-- Bumped `vitest` from `4.1.5` to `4.1.6`
-- Bumped `actions/download-artifact` to `v8.0.1`
-- Bumped `aquasecurity/trivy-action` to `v0.36.0`
-- Bumped `actions/setup-node` to `v6.4.0`
-- Bumped `docker/build-push-action` to `v7.1.0`
-- Bumped `github/codeql-action` to `v4.35.4`
 
 ### Fixed
 
@@ -125,6 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified schema definitions to accept standard MySQL syntax strings.
 - Updated core dependencies, including bumping `eslint` to 10.3.0, `globals` to 17.6.0, `zod` to 4.4.3, and `typescript-eslint` to 8.59.2.
 - Reduced default limits across various tools (`mysql_query_stats`, `mysql_slow_queries`, `mysql_index_usage`, `mysql_export_table`, `mysql_binlog_events`, `mysql_thread_stats`) and defaulted large schemas to prevent payload bloat.
+${deps_lines}
+${improved_lines}
 
 ### Improved
 
