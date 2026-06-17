@@ -566,7 +566,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      const result = (await tool?.handler({}, mockContext));
+      const result = (await tool?.handler({ summary: false }, mockContext));
 
       expect(result.data.count).toBe(1);
       expect(result.data.users[0].user).toBe("root");
@@ -592,7 +592,7 @@ describe("Security Tools", () => {
         (t) => t.name === "mysql_security_user_privileges",
       );
       const result = (await tool?.handler(
-        { user: "root", includeRoles: true },
+        { user: "root", includeRoles: true, summary: false },
         mockContext,
       ));
 

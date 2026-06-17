@@ -117,6 +117,8 @@ describe("Security Data Protection Tools", () => {
       const result = (await tool.handler(
         {
           user: "john",
+          includeRoles: true,
+          summary: false,
         },
         mockContext,
       )) as { data: { users: any[] } };

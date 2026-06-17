@@ -77,7 +77,9 @@ describe("Handler Execution", () => {
       await tool.handler({ pattern: "admin%" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("LIKE 'admin%'");
+      const params = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(call).toContain("LIKE ?");
+      expect(params).toEqual(["admin%"]);
     });
   });
 
