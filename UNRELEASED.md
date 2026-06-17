@@ -1,6 +1,7 @@
 # Unreleased
 
 ### Fixed
+- Fixed a bug in `mysql_optimizer_trace` where `extractTraceSummary` failed to capture primary key `const` lookup decisions, and fixed a structural parsing bug in `mysql_index_recommendation` where MySQL 8 schema 2.0 `query_plan` changes broke composite index suggestions. (`909e108`)
 - Fixed a bug in the `spatial` tool group's error handlers where the `table` parameter was not properly resolved from aliases (`tableName`, `name`) in the `paramStr` helper, preventing `TABLE_NOT_FOUND` errors from formatting correctly and leaking raw exceptions. (`203f013`)
 - Fixed a Split Schema pattern violation in the `spatial` tool group where `GeoJSONSchemaBase` lacked the `wkt` parameter alias definition, ensuring proper parameter visibility in MCP clients.
 - Fixed a bug in the `vector` tool group where `mysql_vector_create_index` failed with a raw `QUERY_ERROR` and SQL syntax error on standard MySQL 9.x instances due to unsupported `VECTOR INDEX` syntax. It now properly catches the syntax error and returns a structured `EXTENSION_MISSING` payload. (`c75d020`)
