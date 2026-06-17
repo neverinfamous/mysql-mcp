@@ -1,6 +1,7 @@
 import type { ToolDefinition } from "../../../../types/index.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 import { WRITE, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
 import {
   VectorStoreSchemaBase,
@@ -178,14 +179,14 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
             LIMIT 1
           `;
           const pkResult = await adapter.executeQuery(infoQuery, [validated.table]);
-          let pkCol = "id";
-          if (pkResult.rows && pkResult.rows.length > 0) {
-            const firstRow = pkResult.rows[0];
-            if (firstRow) {
-              pkCol = String((firstRow)['COLUMN_NAME']);
-            }
+          if (!pkResult.rows || pkResult.rows.length === 0) {
+            throw new ValidationError(`No VECTOR column found in table '${validated.table}'. Please specify the 'column' parameter.`);
           }
-          targetColumn = pkCol;
+          const firstRow = pkResult.rows[0];
+          if (!firstRow || !firstRow['COLUMN_NAME']) {
+            throw new ValidationError(`No VECTOR column found in table '${validated.table}'. Please specify the 'column' parameter.`);
+          }
+          targetColumn = String(firstRow['COLUMN_NAME']);
         }
         
         const col = sanitizeIdentifier(targetColumn);
