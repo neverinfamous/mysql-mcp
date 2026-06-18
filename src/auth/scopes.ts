@@ -99,6 +99,22 @@ export const TOOL_GROUP_SCOPES: Record<ToolGroup, StandardScope> = {
   vector: SCOPES.WRITE,
 };
 
+/**
+ * Per-tool scope overrides.
+ * Some tools in a group may require different scopes than the group default.
+ */
+export const TOOL_SCOPE_OVERRIDES: Record<string, StandardScope> = {
+  // Read-only tools in the core group
+  mysql_read_query: SCOPES.READ,
+  mysql_list_tables: SCOPES.READ,
+  mysql_describe_table: SCOPES.READ,
+  mysql_get_indexes: SCOPES.READ,
+  mysql_check_version: SCOPES.READ,
+
+  // Destructive tools in the core group
+  mysql_drop_table: SCOPES.ADMIN,
+};
+
 // =============================================================================
 // Scope Utilities
 // =============================================================================
