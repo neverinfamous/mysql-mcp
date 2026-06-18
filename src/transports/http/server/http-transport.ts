@@ -121,7 +121,7 @@ export class HttpTransport {
 
       this.server.listen(this.config.port, this.config.host, () => {
         logger.info(
-          `HTTP transport listening on ${this.config.host ?? "localhost"}:${String(this.config.port)}`,
+          `HTTP transport listening on ${this.config.host ?? "localhost"}:${String(this.config.port)} (stateless: ${String(this.config.stateless)})`,
         );
         if (!this.config.stateless) {
           this.sessionManager.startSweep();
@@ -292,29 +292,8 @@ export class HttpTransport {
       return;
     }
 
-    // Streaming body size enforcement
-    let receivedBytes = 0;
-    let bodyLimitExceeded = false;
-    if (typeof req.on === "function") {
-      req.on("data", (chunk: Buffer) => {
-        receivedBytes += chunk.length;
-        if (receivedBytes > maxBodySize && !bodyLimitExceeded) {
-          bodyLimitExceeded = true;
-          req.destroy();
-          if (!res.headersSent) {
-            res.writeHead(413, { "Content-Type": "application/json" });
-            res.end(
-              JSON.stringify({
-                error: "payload_too_large",
-                error_description: `Request body exceeds maximum size of ${String(maxBodySize)} bytes.`,
-              }),
-            );
-          }
-        }
-      });
-    }
-
-    if (bodyLimitExceeded) return;
+    // Streaming body size enforcement removed because it causes premature consumption of the stream 
+    // before the async validateAuth completes, causing stateless mode to hang.
 
     // Authenticate if OAuth is configured and path is not public
     let authContext: AuthenticatedContext | undefined;

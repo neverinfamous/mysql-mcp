@@ -106,3 +106,6 @@ test.sqlite
 # Playwright
 playwright-results.json
 .playwright-results.json
+
+# Test output directory
+.test-output/

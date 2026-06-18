@@ -16,8 +16,8 @@ function getBadgeColor(percentage: number): string {
 }
 
 function updateBadges() {
-  const summaryPath = path.join(ROOT_DIR, "coverage/coverage-summary.json");
-  const playwrightPath = path.join(ROOT_DIR, ".playwright-results.json");
+  const summaryPath = path.join(ROOT_DIR, ".test-output/coverage/coverage-summary.json");
+  const playwrightPath = path.join(ROOT_DIR, ".test-output/playwright-results.json");
 
   let linesPct = 0;
   let coverageColor = "red";
