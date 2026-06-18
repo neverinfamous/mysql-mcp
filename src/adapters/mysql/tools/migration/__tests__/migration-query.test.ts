@@ -195,7 +195,7 @@ describe("Migration Query Tools", () => {
           return createMockQueryResult([{ table_exists: 1 }]);
         if (query.includes("COUNT(*)"))
           return createMockQueryResult([{ total: 10, applied: 8, failed: 2 }]);
-        if (query.includes("ORDER BY applied_at DESC LIMIT 1"))
+        if (query.includes("ORDER BY applied_at DESC, id DESC LIMIT 1"))
           return createMockQueryResult([
             { version: "2.0", applied_at: new Date() },
           ]);

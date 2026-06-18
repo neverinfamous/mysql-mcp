@@ -15,7 +15,7 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
 3. **Validation and Immediate Continuation**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run check; pnpm run build; pnpm run test; pnpm run test:e2e`. They must ensure these pass completely cleanly.
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run check; pnpm run build; pnpm run test; pnpm run test:e2e`. They must ensure these pass completely cleanly. This explicitly means ensuring that **lint, typecheck, vitest, and playwright** are all tested and any resulting errors are fixed.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
 4. **Finalization and Commit**:
    - Once local CI passes (or if no fixes were needed), the subagent MUST update `UNRELEASED.md` with all changes.
@@ -29,7 +29,7 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason (e.g., the `ecosystem` group tools which use a different port and MCP configuration), the subagent MUST immediately warn the user. We want to actively test the tools, not just their graceful degradation.
 5. **Coordinator Progress Reporting**:
    - The Coordinator MUST provide the user with clear, frequent progress reports. After each subagent finishes, emit a message like: "Test pass 4 out of X completed."
-   - The Coordinator MUST keep a running tally of how many total issues were fixed by the subagents.
+   - The Coordinator MUST keep a running tally of how many total issues were fixed by the subagents. This tally MUST explicitly distinguish between mere documentation/prompt changes and actual code changes (e.g., "10 fixes applied: 8 code, 2 documentation"). Subagents must specify the type of fix in their final message.
 
 ## Test Sequence Queue (Dependency DAG)
 
