@@ -21,37 +21,40 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
 export const RoleAssignSchemaBase = z.object({
   role: z.string().optional(),
+  name: z.string().optional(),
   user: z.string().optional(),
   toUser: z.string().optional(),
   host: z.string().default("%"),
   withAdminOption: z.boolean().default(false),
 });
 
-export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role, {
+export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role || val.name, {
   message: "Must provide 'role'",
 })
   .refine((val) => val.user || val.toUser, {
     message: "Must provide 'user' or 'toUser'",
   })
   .transform((val) => {
-    const role = val.role || "";
+    const role = val.role || val.name || "";
     const user = val.user || val.toUser || "";
     return { ...val, role, user };
   });
 
 export const RoleRevokeSchemaBase = z.object({
   role: z.string().optional(),
+  name: z.string().optional(),
   user: z.string().optional(),
   fromUser: z.string().optional(),
   host: z.string().default("%"),
   privileges: z.union([z.string(), z.array(z.string())]).optional(),
   privilege: z.string().optional(),
   database: z.string().default("*"),
+  db: z.string().optional(),
   table: z.string().default("*"),
   on: z.string().optional(),
 });
 
-export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role, {
+export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role || val.name, {
   message: "Must provide 'role'",
 })
   .refine(
@@ -65,11 +68,11 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role, {
     },
   )
   .transform((val) => {
-    const role = val.role || "";
+    const role = val.role || val.name || "";
     const user = val.user || val.fromUser || "";
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
-    let database = val.database;
+    let database = val.db ?? val.database;
     let table = val.table;
 
     if (val.on) {
