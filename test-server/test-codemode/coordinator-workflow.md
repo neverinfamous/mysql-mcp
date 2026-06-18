@@ -25,6 +25,7 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and immediately move to the next test in the queue.
    - If the subagent applied any fixes, they MUST explicitly note this in their final message to you so you can track that a final live verification sweep will be needed at the very end of the suite.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
+   - **Tool Availability Warning**: If any tools are unavailable during testing for any reason (e.g., the `ecosystem` group tools which use a different port and MCP configuration), the subagent MUST immediately warn the user. We want to actively test the tools, not just their graceful degradation.
 5. **Coordinator Progress Reporting**:
    - The Coordinator MUST provide the user with clear, frequent progress reports. After each subagent finishes, emit a message like: "Test pass 4 out of 42 completed."
    - The Coordinator MUST keep a running tally of how many total issues were fixed by the subagents.
