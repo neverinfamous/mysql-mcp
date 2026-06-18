@@ -43,13 +43,13 @@ const MaskDataSchema = z.preprocess(
     if (typeof val !== "object" || val === null) return val;
     const obj = val as Record<string, unknown>;
     if (!("value" in obj) && "data" in obj) {
-      return { ...obj, value: obj.data };
+      return { ...obj, value: obj["data"] };
     }
     return val;
   },
   z.object({
-    value: z.string({ required_error: "Invalid input: expected string, received undefined" }),
-    type: z.string({ required_error: "Invalid input: expected string, received undefined" }),
+    value: z.string(),
+    type: z.string(),
     keepFirst: z.coerce.number().default(0),
     keepLast: z.coerce.number().default(0),
     maskChar: z.string().default("*"),
