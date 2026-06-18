@@ -417,7 +417,7 @@ export function createOptimizerTraceTool(
     )
     .transform((data) => ({
       query: data.query ?? data.sql ?? "",
-      summary: data.summary ?? false,
+      summary: data.summary ?? true,
     }))
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
