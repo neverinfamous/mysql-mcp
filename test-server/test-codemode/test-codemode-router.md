@@ -175,7 +175,7 @@ router Tool Group (9 tools +1 code mode):
 7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
 8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
 9. `mysql.router.metadataStatus({metadataName: "bootstrap"})` → metadata cache
-10. `mysql.router.poolStatus({poolName: "bootstrap_rw"})` → pool status or structured error
+10. `mysql.router.poolStatus({poolName: "main"})` → pool status or structured error
 
 **Domain error paths (🔴):**
 
