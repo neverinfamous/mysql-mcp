@@ -6,6 +6,7 @@ import type {
 } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
+  formatMysqlError,
   withTokenEstimate,
 } from "../../core/error-helpers.js";
 import {
@@ -113,10 +114,7 @@ export function createClusterRouterStatusTool(
         };
         return withTokenEstimate({ success: true, data });
       } catch (error) {
-        const baseError =
-          error instanceof Error
-            ? error.message
-            : String(error);
+        const baseError = formatMysqlError(error);
         return formatHandlerErrorResponse(
           new Error(
             `Router metadata not available (${baseError}). Use mysql_router_status tool if connecting directly to Router REST API.`,
