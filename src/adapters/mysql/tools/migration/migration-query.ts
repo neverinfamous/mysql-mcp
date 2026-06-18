@@ -393,7 +393,7 @@ export function createMigrationStatusTool(
         const latestResult = await adapter.executeReadQuery(
           `SELECT version, applied_at FROM ${qualifiedTable}
          WHERE status = 'applied'
-         ORDER BY applied_at DESC LIMIT 1`,
+         ORDER BY applied_at DESC, id DESC LIMIT 1`,
         );
         const latestRow = (latestResult.rows ?? [])[0];
 
