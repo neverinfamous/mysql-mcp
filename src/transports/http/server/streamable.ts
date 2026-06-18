@@ -224,6 +224,11 @@ export async function handleStatelessRequest(
     await onConnect(transport);
   }
 
-  await transport.handleRequest(req, res, body);
+  try {
+    await transport.handleRequest(req, res, body);
+  } catch {
+    // Ignore transport closure errors
+  }
+  
   await transport.close();
 }
