@@ -309,7 +309,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Optimizer trace**: \`mysql_optimizer_trace\` returns detailed MySQL optimizer decisions. Use \`summary: true\` for compact output with only key decisions (recommended for most cases). Returns \`{ query, trace: null, error }\` (or \`{ query, decisions: [], error }\` in summary mode) when the query fails (e.g., nonexistent table, syntax error).`],
   ["partitioning", `# Partitioning Tools (\`mysql_partition_*\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`)
 
-- **Existence Check**: \`mysql_partition_info\` returns \`{ exists: false, table }\` when the table does not exist. Returns \`{ partitioned: false }\` for existing non-partitioned tables.
+- **Existence Check**: \`mysql_partition_info\` returns a structured error when the table does not exist. Returns \`{ partitioned: false }\` for existing non-partitioned tables.
 - **Value Parameter**: The \`value\` parameter expects only the boundary value, NOT the full SQL clause.
   - ❌ Incorrect: \`value: "LESS THAN (2024)"\` (SQL syntax error - duplicates keywords)
   - ✅ Correct: \`value: "2024"\` for RANGE partitions
