@@ -38,9 +38,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError(
-              "InnoDB Cluster metadata not found. No InnoDB Cluster configured.",
-            ),
+            new ExtensionNotAvailableError("InnoDB Cluster"),
           );
         }
 

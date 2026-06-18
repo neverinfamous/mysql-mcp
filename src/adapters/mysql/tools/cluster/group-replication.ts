@@ -59,7 +59,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication")
           );
         }
 
@@ -149,7 +149,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication")
           );
         }
 
@@ -211,7 +211,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication")
           );
         }
 
@@ -271,7 +271,7 @@ export function createGRTransactionsTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication")
           );
         }
 
@@ -336,7 +336,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication")
           );
         }
 

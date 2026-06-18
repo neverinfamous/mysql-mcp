@@ -95,7 +95,7 @@ describe("Group Replication Tools", () => {
 
       const result = await tool.handler({}, {});
 
-      expect(result.error).toContain("not active");
+      expect(result.error).toContain("Group Replication");
     });
 
     it("should handle partial status where config is missing but members exist", async () => {

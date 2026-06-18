@@ -82,7 +82,7 @@ describe("InnoDB Cluster Tools", () => {
       const result: any = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("InnoDB Cluster metadata not found");
+      expect(result.error).toContain("InnoDB Cluster");
     });
 
     it("should return error when schema check returns undefined rows", async () => {
@@ -95,7 +95,7 @@ describe("InnoDB Cluster Tools", () => {
       const result: any = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("InnoDB Cluster metadata not found");
+      expect(result.error).toContain("InnoDB Cluster");
     });
 
     it("should return error response when query fails", async () => {

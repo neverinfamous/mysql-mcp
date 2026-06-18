@@ -33,7 +33,7 @@ export function createClusterSwitchoverTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("Group Replication not active. Cannot perform switchover analysis.")
+            new ExtensionNotAvailableError("Group Replication")
           );
         }
 
