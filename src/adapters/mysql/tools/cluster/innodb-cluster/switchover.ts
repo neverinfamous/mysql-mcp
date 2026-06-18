@@ -4,6 +4,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ExtensionNotAvailableError } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -32,7 +33,7 @@ export function createClusterSwitchoverTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication not active. Cannot perform switchover analysis.")
+            new ExtensionNotAvailableError("Group Replication not active. Cannot perform switchover analysis.")
           );
         }
 

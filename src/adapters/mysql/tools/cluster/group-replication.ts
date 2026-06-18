@@ -11,6 +11,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ExtensionNotAvailableError } from "../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -58,7 +59,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication plugin is not active")
           );
         }
 
@@ -148,7 +149,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication plugin is not active")
           );
         }
 
@@ -210,7 +211,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication plugin is not active")
           );
         }
 
@@ -270,7 +271,7 @@ export function createGRTransactionsTool(
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication plugin is not active")
           );
         }
 
@@ -335,7 +336,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
-            new Error("Group Replication plugin is not active")
+            new ExtensionNotAvailableError("Group Replication plugin is not active")
           );
         }
 

@@ -3,6 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ExtensionNotAvailableError } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -37,7 +38,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
           return formatHandlerErrorResponse(
-            new Error(
+            new ExtensionNotAvailableError(
               "InnoDB Cluster metadata not found. No InnoDB Cluster configured.",
             ),
           );
