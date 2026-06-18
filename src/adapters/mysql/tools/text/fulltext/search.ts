@@ -48,10 +48,11 @@ export function createFulltextSearchTool(
 
         const sanitizedQuery = sanitizeFulltextQuery(query);
         if (!sanitizedQuery) {
-          return withTokenEstimate({
-            success: true,
-            data: { rows: [], count: 0 },
-          });
+          return formatHandlerErrorResponse(
+            new ValidationError("Search query cannot be empty", {
+              suggestion: "Provide at least one search term.",
+            }),
+          );
         }
 
         let offset = 0;
