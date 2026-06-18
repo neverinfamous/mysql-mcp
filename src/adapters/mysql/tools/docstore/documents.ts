@@ -53,11 +53,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           // Check if collection exists (with schema detection)
@@ -90,6 +94,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 return withTokenEstimate({
                   success: false,
                   error: `Invalid field name: "${f}". Field names must be valid identifiers (letters, digits, underscores).`,
+                  code: "VALIDATION_ERROR",
+                  category: "validation",
                 });
               }
             }
@@ -163,11 +169,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const addCheck = await checkCollectionExists(
@@ -227,11 +237,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const modCheck = await checkCollectionExists(
@@ -264,6 +278,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 return withTokenEstimate({
                   success: false,
                   error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  code: "VALIDATION_ERROR",
+                  category: "validation",
                 });
               }
               updates.push(`doc = JSON_SET(doc, ?, CAST(? AS JSON))`);
@@ -277,6 +293,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 return withTokenEstimate({
                   success: false,
                   error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  code: "VALIDATION_ERROR",
+                  category: "validation",
                 });
               }
               updates.push(`doc = JSON_REMOVE(doc, ?)`);
@@ -288,6 +306,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "No modifications specified",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const { where, params: whereParams } = parseDocFilter(filter);
@@ -325,11 +345,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const rmCheck = await checkCollectionExists(

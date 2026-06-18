@@ -115,11 +115,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const tableRef = escapeTableRef(name, schema);
@@ -195,7 +199,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               category: "domain",
             });
           }
-          return withTokenEstimate({ success: false, error: message });
+          return withTokenEstimate({
+              success: false,
+              error: message,
+              code: "EXECUTION_ERROR",
+              category: "execution",
+            });
         }
       },
     },
@@ -220,11 +229,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const tableRef = escapeTableRef(name, schema);
@@ -281,7 +294,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               category: "domain",
             });
           }
-          return withTokenEstimate({ success: false, error: message });
+          return withTokenEstimate({
+              success: false,
+              error: message,
+              code: "EXECUTION_ERROR",
+              category: "execution",
+            });
         }
       },
     },
@@ -301,6 +319,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           // Check collection existence (with schema detection)

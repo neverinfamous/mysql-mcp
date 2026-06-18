@@ -43,16 +43,22 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (!IDENTIFIER_RE.test(name))
             return withTokenEstimate({
               success: false,
               error: "Invalid index name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const idxCheck = await checkCollectionExists(
@@ -113,7 +119,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               category: "domain",
             });
           }
-          return withTokenEstimate({ success: false, error: message });
+          return withTokenEstimate({
+              success: false,
+              error: message,
+              code: "EXECUTION_ERROR",
+              category: "execution",
+            });
         }
       },
     },
