@@ -153,21 +153,21 @@ vector-search Tool Group (3 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_vector_search({...})` → happy path
-2. `mysql_vector_range_search({...})` → happy path
-3. `mysql_vector_hybrid_search({...})` → happy path
+1. ✅ `mysql_vector_search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+2. ✅ `mysql_vector_range_search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql_vector_hybrid_search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
 
 **Domain error paths (🔴):**
 
-4. 🔴 `mysql_vector_search({...})` → domain error
-5. 🔴 `mysql_vector_range_search({...})` → domain error
-6. 🔴 `mysql_vector_hybrid_search({...})` → domain error
+4. ✅ `mysql_vector_search({...})` → domain error (TABLE_NOT_FOUND)
+5. ✅ `mysql_vector_range_search({...})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql_vector_hybrid_search({...})` → domain error (TABLE_NOT_FOUND)
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql_vector_search({})` → validation error
-8. 🔴 `mysql_vector_range_search({})` → validation error
-9. 🔴 `mysql_vector_hybrid_search({})` → validation error
+7. ✅ `mysql_vector_search({})` → validation error
+8. ✅ `mysql_vector_range_search({})` → validation error
+9. ✅ `mysql_vector_hybrid_search({})` → validation error
 
 ---
 
