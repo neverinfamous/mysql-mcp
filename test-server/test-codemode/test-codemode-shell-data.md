@@ -161,6 +161,7 @@ shell Tool Group (10 tools +1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
+
 1. `mysql.shell.help()` → verify method listing
 2. `mysql.shell.version()` → MySQL Shell version
 3. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "/tmp/cm_dump", dryRun: true})` → dump command
@@ -169,7 +170,7 @@ shell Tool Group (10 tools +1 code mode):
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.shell.dumpSchemas({schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test"})` → `{success: false}`
+6. 🔴 `mysql.shell.dumpSchemas({schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
