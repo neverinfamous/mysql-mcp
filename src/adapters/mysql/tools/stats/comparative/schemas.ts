@@ -7,12 +7,22 @@ export const CorrelationSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
-export const CorrelationSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column1: z.string().min(1, "column1 is required"),
-  column2: z.string().min(1, "column2 is required"),
-  where: z.string().optional(),
-});
+export const CorrelationSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column1: z.string().min(1, "column1 is required"),
+    column2: z.string().min(1, "column2 is required"),
+    where: z.string().optional(),
+  })
+);
 
 export const RegressionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -21,12 +31,22 @@ export const RegressionSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
-export const RegressionSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  xColumn: z.string().min(1, "xColumn is required"),
-  yColumn: z.string().min(1, "yColumn is required"),
-  where: z.string().optional(),
-});
+export const RegressionSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    xColumn: z.string().min(1, "xColumn is required"),
+    yColumn: z.string().min(1, "yColumn is required"),
+    where: z.string().optional(),
+  })
+);
 
 export const HistogramSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -41,9 +61,20 @@ export const HistogramSchemaBase = z.object({
     .describe("Whether to create/update the histogram"),
 });
 
-export const HistogramSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  buckets: z.number().min(1).default(16),
-  update: z.boolean().default(false),
-});
+export const HistogramSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    buckets: z.number().min(1).default(16),
+    update: z.boolean().default(false),
+  })
+);

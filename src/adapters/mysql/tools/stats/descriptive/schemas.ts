@@ -6,11 +6,22 @@ export const DescriptiveStatsSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
-export const DescriptiveStatsSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  where: z.string().optional(),
-});
+export const DescriptiveStatsSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    where: z.string().optional(),
+  })
+);
 
 export const PercentilesSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -19,14 +30,25 @@ export const PercentilesSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
-export const PercentilesSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  percentiles: z
-    .array(z.number().min(0).max(100))
-    .default([25, 50, 75, 90, 95, 99]),
-  where: z.string().optional(),
-});
+export const PercentilesSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    percentiles: z
+      .array(z.number().min(0).max(100))
+      .default([25, 50, 75, 90, 95, 99]),
+    where: z.string().optional(),
+  })
+);
 
 export const DistributionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -35,12 +57,23 @@ export const DistributionSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
-export const DistributionSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  buckets: z.number().max(100).default(10),
-  where: z.string().optional(),
-});
+export const DistributionSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column: obj["column"] ?? obj["col"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    buckets: z.number().max(100).default(10),
+    where: z.string().optional(),
+  })
+);
 
 export const TimeSeriesSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -52,15 +85,25 @@ export const TimeSeriesSchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum number of data points"),
 });
 
-export const TimeSeriesSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  valueColumn: z.string().min(1, "valueColumn is required"),
-  timeColumn: z.string().min(1, "timeColumn is required"),
-  interval: z.string().default("day"),
-  aggregation: z.string().default("avg"),
-  where: z.string().optional(),
-  limit: z.number().default(100),
-});
+export const TimeSeriesSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    valueColumn: z.string().min(1, "valueColumn is required"),
+    timeColumn: z.string().min(1, "timeColumn is required"),
+    interval: z.string().default("day"),
+    aggregation: z.string().default("avg"),
+    where: z.string().optional(),
+    limit: z.number().default(100),
+  })
+);
 
 export const SamplingSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -73,10 +116,20 @@ export const SamplingSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
-export const SamplingSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  sampleSize: z.number().default(10),
-  columns: z.array(z.string()).optional(),
-  seed: z.number().optional(),
-  where: z.string().optional(),
-});
+export const SamplingSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+    };
+  },
+  z.object({
+    table: z.string().min(1, "table is required"),
+    sampleSize: z.number().default(10),
+    columns: z.array(z.string()).optional(),
+    seed: z.number().optional(),
+    where: z.string().optional(),
+  })
+);
