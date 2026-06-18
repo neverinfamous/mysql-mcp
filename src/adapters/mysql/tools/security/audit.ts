@@ -30,8 +30,8 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Zod Schemas
 // ============================================================================
 
-const AuditLogSchema = z.object({
-  limit: z.number().default(10).describe("Maximum number of records"),
+const AuditLogSchemaBase = z.object({
+  limit: z.number().optional().describe("Maximum number of records"),
   user: z.string().optional().describe("Filter by username"),
   eventType: z
     .string()
@@ -42,10 +42,28 @@ const AuditLogSchema = z.object({
   startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
 });
 
-const FirewallRulesSchema = z.object({
+const AuditLogSchema = z.preprocess(
+  (val: unknown) => val,
+  z.object({
+    limit: z.number().default(10),
+    user: z.string().optional(),
+    eventType: z.string().optional(),
+    startTime: z.string().optional(),
+  })
+);
+
+const FirewallRulesSchemaBase = z.object({
   user: z.string().optional().describe("Filter by username"),
   mode: z.string().optional().describe("Filter by mode"),
 });
+
+const FirewallRulesSchema = z.preprocess(
+  (val: unknown) => val,
+  z.object({
+    user: z.string().optional(),
+    mode: z.string().optional(),
+  })
+);
 
 // =============================================================================
 // Tool Creation Functions
@@ -61,7 +79,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Query the MySQL audit log (requires Enterprise Audit or compatible plugin).",
     group: "security",
-    inputSchema: AuditLogSchema,
+    inputSchema: AuditLogSchemaBase,
     outputSchema: SecurityAuditOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
@@ -282,7 +300,7 @@ export function createSecurityFirewallRulesTool(
     title: "MySQL Firewall Rules",
     description: "List MySQL Enterprise Firewall allowlist rules.",
     group: "security",
-    inputSchema: FirewallRulesSchema,
+    inputSchema: FirewallRulesSchemaBase,
     outputSchema: SecurityFirewallRulesOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,

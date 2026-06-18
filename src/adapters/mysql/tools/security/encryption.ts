@@ -33,9 +33,12 @@ const PasswordValidateSchemaBase = z.object({
   password: z.string().optional().describe("Password to validate"),
 });
 
-const PasswordValidateSchema = z.object({
-  password: z.string().min(1, "Password cannot be empty"),
-});
+const PasswordValidateSchema = z.preprocess(
+  (val: unknown) => val,
+  z.object({
+    password: z.string({ required_error: "Password cannot be empty" }).min(1, "Password cannot be empty"),
+  })
+);
 
 // =============================================================================
 // Tool Creation Functions

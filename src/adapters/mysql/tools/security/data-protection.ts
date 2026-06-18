@@ -29,25 +29,54 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Zod Schemas
 // =============================================================================
 
-const MaskDataSchema = z.object({
-  value: z.string().describe("Value to mask"),
-  type: z.string().describe("Masking type"),
-  keepFirst: z.number().default(0).describe("Characters to keep from start"),
-  keepLast: z.number().default(0).describe("Characters to keep from end"),
-  maskChar: z.string().default("*").describe("Character to use for masking"),
+const MaskDataSchemaBase = z.object({
+  value: z.string().optional().describe("Value to mask"),
+  data: z.string().optional().describe("Alias for value"),
+  type: z.string().optional().describe("Masking type"),
+  keepFirst: z.number().optional().describe("Characters to keep from start"),
+  keepLast: z.number().optional().describe("Characters to keep from end"),
+  maskChar: z.string().optional().describe("Character to use for masking"),
 });
 
-const UserPrivilegesSchema = z.object({
+const MaskDataSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const obj = val as Record<string, unknown>;
+    if (!("value" in obj) && "data" in obj) {
+      return { ...obj, value: obj.data };
+    }
+    return val;
+  },
+  z.object({
+    value: z.string({ required_error: "Invalid input: expected string, received undefined" }),
+    type: z.string({ required_error: "Invalid input: expected string, received undefined" }),
+    keepFirst: z.coerce.number().default(0),
+    keepLast: z.coerce.number().default(0),
+    maskChar: z.string().default("*"),
+  })
+);
+
+const UserPrivilegesSchemaBase = z.object({
   user: z.string().optional().describe("Filter by username"),
-  host: z.string().default("%").describe("Host pattern"),
-  includeRoles: z.boolean().default(true).describe("Include role grants"),
+  host: z.string().optional().describe("Host pattern"),
+  includeRoles: z.boolean().optional().describe("Include role grants"),
   summary: z
     .boolean()
-    .default(true)
+    .optional()
     .describe(
       "Return condensed summary (privilege counts) instead of raw GRANT strings",
     ),
 });
+
+const UserPrivilegesSchema = z.preprocess(
+  (val: unknown) => val,
+  z.object({
+    user: z.string().optional(),
+    host: z.string().default("%"),
+    includeRoles: z.boolean().default(true),
+    summary: z.boolean().default(false),
+  })
+);
 
 const SensitiveTablesSchemaBase = z.object({
   schema: z
@@ -121,7 +150,7 @@ export function createSecurityMaskDataTool(
     description:
       "Apply data masking to sensitive values (implementation for Community Edition).",
     group: "security",
-    inputSchema: MaskDataSchema,
+    inputSchema: MaskDataSchemaBase,
     outputSchema: SecurityMaskDataOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -263,7 +292,7 @@ export function createSecurityUserPrivilegesTool(
     title: "MySQL User Privileges",
     description: "Get comprehensive privilege report for users.",
     group: "security",
-    inputSchema: UserPrivilegesSchema,
+    inputSchema: UserPrivilegesSchemaBase,
     outputSchema: SecurityUserPrivilegesOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
