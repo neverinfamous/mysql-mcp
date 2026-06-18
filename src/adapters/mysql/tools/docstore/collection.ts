@@ -191,6 +191,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: `Collection '${name ?? "unknown"}' already exists`,
+              code: "CONFLICT_ERROR",
+              category: "domain",
             });
           }
           return withTokenEstimate({ success: false, error: message });
@@ -275,6 +277,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: `Collection '${name ?? "unknown"}' does not exist`,
+              code: "TABLE_NOT_FOUND",
+              category: "domain",
             });
           }
           return withTokenEstimate({ success: false, error: message });

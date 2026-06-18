@@ -109,6 +109,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: `Index '${name ?? "unknown"}' or its generated columns already exist on '${collection ?? "unknown"}'`,
+              code: "CONFLICT_ERROR",
+              category: "domain",
             });
           }
           return withTokenEstimate({ success: false, error: message });
