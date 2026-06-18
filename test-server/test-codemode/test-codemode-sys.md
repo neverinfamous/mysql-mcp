@@ -150,7 +150,44 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: sysschema\n\nsysschema Tool Group (8 tools +1 code mode):\n\n1. `mysql_sys_user_summary`\n2. `mysql_sys_io_summary`\n3. `mysql_sys_statement_summary`\n4. `mysql_sys_wait_summary`\n5. `mysql_sys_innodb_lock_waits`\n6. `mysql_sys_schema_stats`\n7. `mysql_sys_host_summary`\n8. `mysql_sys_memory_summary`\n\n> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.\n\n1. `mysql.sys.help()` -> verify method listing\n2. `mysql.sys.someMethod({...})` -> verify success\n3. `mysql.sys.someMethod({...})` -> verify success\n4. `mysql.sys.someMethod({...})` -> verify success\n5. `mysql.sys.someMethod({...})` -> verify success\n6. `mysql.sys.someMethod({...})` -> verify success\n7. `mysql.sys.someMethod({...})` -> verify success\n8. `mysql.sys.someMethod({...})` -> verify success\n9. `mysql.sys.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n10. 🔴 `mysql.sys.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n11. 🔴 `mysql.sys.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n12. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: sysschema
+
+sysschema Tool Group (8 tools +1 code mode):
+
+1. `mysql_sys_user_summary`
+2. `mysql_sys_io_summary`
+3. `mysql_sys_statement_summary`
+4. `mysql_sys_wait_summary`
+5. `mysql_sys_innodb_lock_waits`
+6. `mysql_sys_schema_stats`
+7. `mysql_sys_host_summary`
+8. `mysql_sys_memory_summary`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
+3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
+4. `mysql.sys.sysStatementSummary({ orderBy: "total_latency" })` -> verify success
+5. `mysql.sys.sysWaitSummary({ type: "global" })` -> verify success
+6. `mysql.sys.sysInnodbLockWaits({ limit: 5 })` -> verify success
+7. `mysql.sys.sysSchemaStats({ schema: "testdb" })` -> verify success
+8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
+9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---\n\n## Post-Test Procedures
 
 ### Reporting Rules
 
