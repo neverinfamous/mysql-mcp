@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { getRequiredScope, getToolScopeMap } from "../scope-map.js";
 import { TOOL_GROUPS } from "../../filtering/tool-constants.js";
-import { TOOL_GROUP_SCOPES, SCOPES } from "../scopes.js";
+import { TOOL_GROUP_SCOPES, SCOPES, TOOL_SCOPE_OVERRIDES } from "../scopes.js";
 
 describe("scope-map", () => {
   describe("getRequiredScope", () => {
@@ -29,12 +29,13 @@ describe("scope-map", () => {
       expect(map.size).toBe(totalTools);
     });
 
-    it("should map tools to the scope defined in TOOL_GROUP_SCOPES", () => {
+    it("should map tools to the scope defined in TOOL_GROUP_SCOPES (or overrides)", () => {
       const map = getToolScopeMap();
       for (const [group, tools] of Object.entries(TOOL_GROUPS)) {
-        const expectedScope =
+        const defaultScope =
           TOOL_GROUP_SCOPES[group as keyof typeof TOOL_GROUP_SCOPES];
         for (const tool of tools) {
+          const expectedScope = TOOL_SCOPE_OVERRIDES[tool as keyof typeof TOOL_SCOPE_OVERRIDES] ?? defaultScope;
           expect(map.get(tool)).toBe(expectedScope);
         }
       }
@@ -43,7 +44,7 @@ describe("scope-map", () => {
     it("should be read-only", () => {
       const map = getToolScopeMap();
       expect(typeof map.get).toBe("function");
-      expect(typeof (map ).set).toBe("function"); // ReadonlyMap still has set on Map
+      expect(typeof (map as unknown as Map<string, unknown>).set).toBe("function"); // ReadonlyMap still has set on Map
     });
   });
 });

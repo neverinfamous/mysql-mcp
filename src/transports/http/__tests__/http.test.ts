@@ -868,7 +868,7 @@ describe("handleRequest()", () => {
       const mockTokenValidator = {
         validate: vi.fn().mockResolvedValue({
           valid: true,
-          claims: { scopes: ["write"] }, // mysql_read_query requires 'write'
+          claims: { scopes: ["write"] }, // mysql_write_query requires 'write'
         }),
       };
       const mockResourceServer = {
@@ -902,7 +902,7 @@ describe("handleRequest()", () => {
           jsonrpc: "2.0",
           id: 1,
           method: "tools/call",
-          params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
+          params: { name: "mysql_write_query", arguments: { sql: "SELECT 1" } },
         }),
       );
       mockReqStream.end();
@@ -953,7 +953,7 @@ describe("handleRequest()", () => {
           jsonrpc: "2.0",
           id: 2,
           method: "tools/call",
-          params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
+          params: { name: "mysql_write_query", arguments: { sql: "SELECT 1" } },
         }),
       );
       mockReqStream.end();
@@ -975,7 +975,7 @@ describe("handleRequest()", () => {
       expect(responseBody).toHaveProperty("error", "insufficient_scope");
       expect(responseBody).toHaveProperty("error_description");
       expect(responseBody.error_description).toContain("Insufficient scope");
-      expect(responseBody).toHaveProperty("tool", "mysql_read_query");
+      expect(responseBody).toHaveProperty("tool", "mysql_write_query");
       expect(mockTransport.handlePostMessage).not.toHaveBeenCalled();
     });
   });
