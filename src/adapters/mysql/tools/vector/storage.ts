@@ -176,6 +176,9 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
         let targetColumn = validated.column;
         
         if (!targetColumn) {
+          // Pre-check table existence to satisfy P154
+          await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+
           const infoQuery = `
             SELECT COLUMN_NAME 
             FROM INFORMATION_SCHEMA.COLUMNS 
