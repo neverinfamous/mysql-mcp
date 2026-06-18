@@ -149,7 +149,7 @@ export function createStatsHypothesisTool(
           const mean2 = Number(group2Row['mean'] ?? 0);
           const stddev2 = Number(group2Row['stddev'] ?? 0);
 
-          if (n1 < 2 || n2 < 2 || isNaN(stddev1) || isNaN(stddev2)) {
+          if (n1 < 2 || n2 < 2 || isNaN(stddev1) || isNaN(stddev2) || (stddev1 === 0 && stddev2 === 0)) {
             return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Insufficient data or zero variance in groups" });
           }
 

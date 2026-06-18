@@ -145,14 +145,14 @@ During testing, check for these inconsistencies:
 
 ## Category 2: Hypothesis Testing Edge Cases
 
-3. Create `stress_arrays` table with columns `group_a INT`, `group_b INT`.
-4. Run `mysql.stats.hypothesis` (t-test) where `group_a` has 0 rows and `group_b` has 10 rows. Verify structured `{success: false, error: "..."}` regarding insufficient sample size.
-5. Run `mysql.stats.hypothesis` where all values in `group_a` and `group_b` are exactly 0. Verify test logic handles zero variance gracefully.
+3. Create `stress_arrays` table with columns `group_label VARCHAR(10)`, `val INT`. Insert 10 rows for group 'B' and 0 rows for group 'A'.
+4. Run `mysql.stats.hypothesis` (t-test) with `column: 'val'`, `groupColumn: 'group_label'`, `group1: 'A'`, `group2: 'B'`. Verify structured `{success: false, error: "..."}` regarding insufficient sample size.
+5. Run `mysql.stats.hypothesis` where all values in group 'A' and group 'B' are exactly 0 (e.g. create a `stress_zeros` table). Verify test logic handles zero variance gracefully.
 6. Run `mysql.stats.outliers` on a column with only 2 rows. Verify gracefully handling minimum threshold limits.
 
 ## Category 3: Cleanup Verification
 
-7. Drop table `stress_arrays`. Verify clean removal.
+7. Drop tables `stress_arrays`, `stress_zeros`, etc. Verify clean removal.
 
 ---
 
