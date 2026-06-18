@@ -1,16 +1,17 @@
-# Advanced Code Mode Testing Coordinator Workflow
+# mysql-mcp Advanced Code Mode Testing Coordinator Workflow
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advanced Code Mode test suite using subagents.
 
 ## Goal
+
 Systematically execute all Advanced Code Mode tests in `test-server/test-advanced/` to verify sandbox isolation, workflow orchestration, payload optimization, and error handling for complex, multi-step agentic sequences. You will delegate testing to subagents, ensuring high-fidelity results and structured error handling, while compiling telemetry.
 
 ## Workflow Rules
 
 1. **Sequential Execution**: Tests MUST be executed sequentially (one subagent at a time) according to the Dependency DAG below. Parallel execution may cause conflicts or server instability.
-2. **Subagent Delegation**: 
+2. **Subagent Delegation**:
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
 3. **Validation and Immediate Continuation**:
@@ -79,8 +80,11 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 45. `test-codemode-sandbox.md`
 
 ## Telemetry Collection
+
 When the suite finishes, compile the **Total Token Estimate** and resource metrics (e.g., `memory://metrics/summary`) from all subagents into a final report for the user. Also, report the **Total Number of Issues Fixed** during the entire suite.
 
 ## Post-Suite Validation
+
 At the absolute end of the testing suite, check your records. If ANY subagent applied fixes during the run:
+
 1. Message the main agent: "The test suite is complete. Fixes were applied during the run. Please ask the user to restart the server ONCE, and then we will run a final validation sweep."
