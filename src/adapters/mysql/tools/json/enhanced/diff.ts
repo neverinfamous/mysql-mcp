@@ -7,10 +7,10 @@ import type {
 import {
   JsonDiffSchemaBase,
   JsonDiffOutputSchema,
+  JsonDiffSchema,
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { JsonDiffSchema } from "./schemas.js";
 
 export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
   return {

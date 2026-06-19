@@ -1,4 +1,4 @@
-export * from "./schemas.js";
+
 export * from "./merge.js";
 export * from "./diff.js";
 export * from "./normalize.js";

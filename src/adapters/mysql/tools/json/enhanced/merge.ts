@@ -7,10 +7,10 @@ import type {
 import {
   JsonMergeSchemaBase,
   JsonMergeOutputSchema,
+  JsonMergeSchema,
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { JsonMergeSchema } from "./schemas.js";
 
 export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
   return {
