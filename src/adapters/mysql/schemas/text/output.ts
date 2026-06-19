@@ -40,7 +40,7 @@ export const FulltextSearchOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rows: z.array(z.record(z.string(), z.unknown())).optional(),
     count: z.number().optional(),
-    facets: z.record(z.string(), z.record(z.string(), z.number())).optional(),
+    facets: z.record(z.string(), z.number()).optional(),
     nextCursor: z.string().optional(),
     hasMore: z.boolean().optional(),
   }).optional(),
@@ -58,7 +58,7 @@ export const FulltextBooleanOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rows: z.array(z.record(z.string(), z.unknown())).optional(),
     count: z.number().optional(),
-    facets: z.record(z.string(), z.record(z.string(), z.number())).optional(),
+    facets: z.record(z.string(), z.number()).optional(),
     nextCursor: z.string().optional(),
     hasMore: z.boolean().optional(),
   }).optional(),
@@ -68,7 +68,7 @@ export const FulltextExpandOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rows: z.array(z.record(z.string(), z.unknown())).optional(),
     count: z.number().optional(),
-    facets: z.record(z.string(), z.record(z.string(), z.number())).optional(),
+    facets: z.record(z.string(), z.number()).optional(),
     nextCursor: z.string().optional(),
     hasMore: z.boolean().optional(),
   }).optional(),
