@@ -484,10 +484,10 @@ export function createOptimizerTraceTool(
         if (Array.isArray(rows)) {
           const parsedTraceRows = rows.map((r) => {
             if (typeof r === "object" && r !== null && "TRACE" in r) {
-              const rawTrace = (r as Record<string, unknown>).TRACE;
+              const rawTrace = (r as Record<string, unknown>)["TRACE"];
               if (typeof rawTrace === "string") {
                 try {
-                  return { ...r, TRACE: JSON.parse(rawTrace) };
+                  return { ...r, TRACE: JSON.parse(rawTrace) as unknown };
                 } catch {
                   return r;
                 }

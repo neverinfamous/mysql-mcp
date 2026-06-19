@@ -148,35 +148,39 @@ During testing, check for these inconsistencies:
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
 
 
+
 ---
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
 
 1. `mysqlsh_version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
-2. `mysqlsh_dump_instance({outputUrl: "/tmp/stress_dump"})` → verify structured error
-3. `mysqlsh_load_dump({inputUrl: "/tmp/nonexistent_dump"})` → verify structured error
+2. `mysqlsh_dump_instance({outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_dump"})` → verify structured error
+3. `mysqlsh_load_dump({inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_dump"})` → verify structured error
 4. `mysqlsh_run_script({script: "print('test')"})` → verify structured error
 5. All errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Dry Run Boundaries (When Shell IS Available)
 
-6. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/stress_schema_dump", dryRun: true})` → verify dry run output
-7. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/stress_table_dump", dryRun: true})` → verify dry run
-8. `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/stress_bad_dump", dryRun: true})` → verify structured error for nonexistent schema
-9. `mysqlsh_dump_tables({schema: "testdb", tables: ["nonexistent_table_xyz"], outputUrl: "/tmp/stress_bad_table", dryRun: true})` → verify structured error
+6. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_schema_dump", dryRun: true})` → verify dry run output
+7. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_table_dump", dryRun: true})` → verify dry run
+8. `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_bad_dump", dryRun: true})` → verify structured error for nonexistent schema
+9. `mysqlsh_dump_tables({schema: "testdb", tables: ["nonexistent_table_xyz"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_bad_table", dryRun: true})` → verify structured error
 
 ## Category 3: Parameter Validation
 
-10. `mysqlsh_dump_schemas({schemas: [], outputUrl: "/tmp/test"})` → verify behavior with empty schemas array
-11. `mysqlsh_dump_tables({schema: "testdb", tables: [], outputUrl: "/tmp/test"})` → verify behavior with empty tables array
-12. `mysqlsh_export_table({schema: "testdb", table: "test_products", outputUrl: "/tmp/stress_export"})` → verify success
-13. `mysqlsh_import_table({schema: "testdb", table: "nonexistent_xyz", inputUrl: "/tmp/nonexistent_file"})` → verify structured error
+10. `mysqlsh_dump_schemas({schemas: [], outputUrl: "C:/Users/chris/AppData/Local/Temp/test"})` → verify behavior with empty schemas array
+11. `mysqlsh_dump_tables({schema: "testdb", tables: [], outputUrl: "C:/Users/chris/AppData/Local/Temp/test"})` → verify behavior with empty tables array
+12. `mysqlsh_export_table({schema: "testdb", table: "test_products", outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_export.csv"})` → verify success
+13. `mysqlsh_import_table({schema: "testdb", table: "nonexistent_xyz", inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_file.csv"})` → verify structured error
 
 ## Category 4: Script Execution Safety
 
 14. `mysqlsh_run_script({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
 15. `mysqlsh_run_script({script: "print('hello world')", language: "javascript"})` → verify success
 16. `mysqlsh_run_script({script: ""})` → verify behavior with empty script
+
+---
+
 
 ## Category 5: Security Sandbox Violations
 
