@@ -481,6 +481,28 @@ export function createOptimizerTraceTool(
           return { ...response, metrics: { tokenEstimate } };
         }
 
+        if (Array.isArray(rows)) {
+          const parsedTraceRows = rows.map((r) => {
+            if (typeof r === "object" && r !== null && "TRACE" in r) {
+              const rawTrace = (r as Record<string, unknown>).TRACE;
+              if (typeof rawTrace === "string") {
+                try {
+                  return { ...r, TRACE: JSON.parse(rawTrace) };
+                } catch {
+                  return r;
+                }
+              }
+            }
+            return r;
+          });
+
+          const response = { success: true, data: { query, trace: parsedTraceRows } };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
+          return { ...response, metrics: { tokenEstimate } };
+        }
+
         const response = { success: true, data: { query, trace: rows } };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
