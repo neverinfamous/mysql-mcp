@@ -161,7 +161,7 @@ During testing, check for these inconsistencies:
 7. `mysql_cluster_instances()` → verify structured response
 8. `mysql_cluster_topology()` → verify structured response
 9. `mysql_cluster_router_status()` → verify structured response
-10. `mysql_cluster_switchover()` → verify structured `{success: false}` (dangerous operation with no cluster)
+10. `mysql_cluster_switchover()` → verify structured `{success: false}` (analysis fails gracefully when no cluster)
 11. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
