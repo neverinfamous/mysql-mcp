@@ -39,7 +39,7 @@ const LimitSchema = z
     limit: z.unknown().optional(),
   })
   .transform((data) => ({
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
+    limit: data.limit !== undefined ? Number(data.limit) : 3,
   }))
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -125,13 +125,7 @@ export function createSysSchemaStatsTool(
                     rows_updated,
                     update_latency,
                     rows_deleted,
-                    delete_latency,
-                    io_read_requests,
-                    io_read,
-                    io_read_latency,
-                    io_write_requests,
-                    io_write,
-                    io_write_latency
+                    delete_latency
                 FROM sys.schema_table_statistics
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
@@ -179,11 +173,21 @@ export function createSysSchemaStatsTool(
           adapter.executeQuery(autoIncQuery, [schema ?? null]),
         ]);
 
+        const cleanRow = (row: Record<string, unknown>) => {
+          const cleaned = { ...row };
+          for (const key of Object.keys(cleaned)) {
+            if (cleaned[key] === 0 || cleaned[key] === "0" || cleaned[key] === "  0 ps" || cleaned[key] === "   0 bytes") {
+              delete cleaned[key];
+            }
+          }
+          return cleaned;
+        };
+
         return withTokenEstimate({
           success: true,
           data: {
-            tableStatistics: tableStats.rows ?? [],
-            indexStatistics: indexStats.rows ?? [],
+            tableStatistics: (tableStats.rows ?? []).map(cleanRow),
+            indexStatistics: (indexStats.rows ?? []).map(cleanRow),
             autoIncrementStatus: autoIncStats.rows ?? [],
             tableStatisticsCount: (tableStats.rows ?? []).length,
             indexStatisticsCount: (indexStats.rows ?? []).length,
