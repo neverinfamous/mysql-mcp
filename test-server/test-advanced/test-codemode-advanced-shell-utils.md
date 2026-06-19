@@ -154,10 +154,6 @@ During testing, check for these inconsistencies:
 
 1. `mysqlsh_version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
 2. `mysqlsh_dump_instance({outputUrl: "/tmp/stress_dump"})` → verify structured error
-## Category 1: Graceful Degradation (No MySQL Shell)
-
-1. `mysqlsh_version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
-2. `mysqlsh_dump_instance({outputUrl: "/tmp/stress_dump"})` → verify structured error
 3. `mysqlsh_load_dump({inputUrl: "/tmp/nonexistent_dump"})` → verify structured error
 4. `mysqlsh_run_script({script: "print('test')"})` → verify structured error
 5. All errors must use consistent `{success: false, error: "..."}` format
