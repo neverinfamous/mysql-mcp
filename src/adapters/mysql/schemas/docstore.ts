@@ -4,7 +4,13 @@ import { preprocessDocFilterParams, preprocessDocIndexParams, preprocessDocColle
 export const ListCollectionsSchemaBase = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
 });
-export const ListCollectionsSchema = ListCollectionsSchemaBase;
+export const ListCollectionsSchemaStrict = z.object({
+  schema: z.string().optional().describe("Schema name (defaults to current)"),
+});
+export const ListCollectionsSchema = z.preprocess(
+  preprocessDocCollectionParams,
+  ListCollectionsSchemaStrict
+);
 
 export const CreateCollectionSchemaBase = z.object({
   name: z.string().optional().describe("Collection name"),
@@ -109,13 +115,18 @@ export const AddDocSchemaBase = z.object({
     .describe("Documents to add"),
 });
 
-export const AddDocSchema = z.object({
+export const AddDocSchemaStrict = z.object({
   collection: z.string(),
   schema: z.string().optional(),
   documents: z
     .array(z.record(z.string(), z.unknown()))
     .describe("Documents to add"),
 });
+
+export const AddDocSchema = z.preprocess(
+  preprocessDocCollectionParams,
+  AddDocSchemaStrict
+);
 
 export const ModifyDocSchemaBase = z.object({
   collection: z.string().optional(),
@@ -219,10 +230,15 @@ export const CollectionInfoSchemaBase = z.object({
   schema: z.string().optional(),
 });
 
-export const CollectionInfoSchema = z.object({
+export const CollectionInfoSchemaStrict = z.object({
   collection: z.string(),
   schema: z.string().optional(),
 });
+
+export const CollectionInfoSchema = z.preprocess(
+  preprocessDocCollectionParams,
+  CollectionInfoSchemaStrict
+);
 
 // Output Schemas
 
