@@ -41,7 +41,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
           throw new ValidationError("Invalid column name");
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where}) AND \`${column1}\` IS NOT NULL AND \`${column2}\` IS NOT NULL` : `WHERE \`${column1}\` IS NOT NULL AND \`${column2}\` IS NOT NULL`;
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 1`);

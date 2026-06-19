@@ -37,27 +37,8 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           throw new ValidationError("Invalid column name");
         }
 
-        // Check if table exists (P154)
-        const tableCheck = await adapter.executeQuery(
-          `SELECT TABLE_NAME FROM information_schema.TABLES
-         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
-        );
-
-        if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          throw new ValidationError(`Table '${table}' doesn't exist`);
-        }
-
-        // Check if column exists on the table
-        const columnCheck = await adapter.executeQuery(
-          `SELECT COLUMN_NAME FROM information_schema.COLUMNS
-         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-          [table, column],
-        );
-
-        if (!columnCheck.rows || columnCheck.rows.length === 0) {
-          throw new ValidationError(`Column '${column}' does not exist on table '${table}'`);
-        }
+        // Ensure table and column exist to trigger ER_NO_SUCH_TABLE or ER_BAD_FIELD_ERROR for P154 compliance
+        await adapter.executeQuery(`SELECT \`${column}\` FROM \`${table}\` LIMIT 1`);
 
         let warning: string | undefined;
         if (update) {
