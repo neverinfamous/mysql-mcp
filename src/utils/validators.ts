@@ -102,7 +102,7 @@ export function validateIdentifier(
  * - Max length 255 characters (MySQL host limit)
  * - Blocks injection characters: quotes, semicolons, backticks, parentheses, spaces
  */
-const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.-]+$/;
+const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.\-@]+$/;
 
 /**
  * Validate a MySQL user or host value for safe interpolation
@@ -132,7 +132,7 @@ export function validateMySQLUserHost(
 
   if (!MYSQL_USER_HOST_PATTERN.test(value)) {
     throw new ValidationError(
-      `Invalid ${type}: contains disallowed characters. Only alphanumeric, underscore, percent, dot, and hyphen are allowed.`,
+      `Invalid ${type}: contains disallowed characters. Only alphanumeric, underscore, percent, dot, hyphen, and @ are allowed.`,
       type,
     );
   }
