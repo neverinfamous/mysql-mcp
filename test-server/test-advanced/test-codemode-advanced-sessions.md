@@ -190,10 +190,10 @@ The `activeSessions` count should return to `0` (or its baseline value).
 
 ## Success Criteria
 
-- [ ] `GET /health` successfully returns the `activeSessions` property.
-- [ ] Session initialization increments `activeSessions`.
-- [ ] Session termination decrements `activeSessions`.
-- [ ] Timeout parameters (30m idle, 24h TTL) are correctly documented in the final report.
+- [x] `GET /health` successfully returns the `activeSessions` property.
+- [x] Session initialization increments `activeSessions`.
+- [x] Session termination decrements `activeSessions`.
+- [x] Timeout parameters (30m idle, 24h TTL) are correctly documented in the final report.
 
 ---
 
