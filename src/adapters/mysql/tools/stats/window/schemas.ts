@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { preprocessJsonColumnParams } from "../../../schemas/preprocess-utils.js";
 
 export const StatsRowNumberSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -19,15 +20,18 @@ export const StatsRowNumberSchemaBase = z.object({
     .describe("Number of rows to skip (default: 0)"),
 });
 
-export const StatsRowNumberSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  orderBy: z.string().min(1, "orderBy is required"),
-  partitionBy: z.string().optional(),
-  selectColumns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-  limit: z.number().min(1).max(1000).default(10),
-  offset: z.number().min(0).default(0),
-});
+export const StatsRowNumberSchema = z.preprocess(
+  preprocessJsonColumnParams,
+  z.object({
+    table: z.string().min(1, "table is required"),
+    orderBy: z.string().min(1, "orderBy is required"),
+    partitionBy: z.string().optional(),
+    selectColumns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+    limit: z.number().min(1).max(1000).default(10),
+    offset: z.number().min(0).default(0),
+  })
+);
 
 export const StatsRankSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -52,16 +56,19 @@ export const StatsRankSchemaBase = z.object({
     .describe("Number of rows to skip (default: 0)"),
 });
 
-export const StatsRankSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  orderBy: z.string().min(1, "orderBy is required"),
-  partitionBy: z.string().optional(),
-  selectColumns: z.array(z.string()).optional(),
-  method: z.enum(["rank", "dense_rank", "percent_rank"]).default("rank"),
-  where: z.string().optional(),
-  limit: z.number().min(1).max(1000).default(10),
-  offset: z.number().min(0).default(0),
-});
+export const StatsRankSchema = z.preprocess(
+  preprocessJsonColumnParams,
+  z.object({
+    table: z.string().min(1, "table is required"),
+    orderBy: z.string().min(1, "orderBy is required"),
+    partitionBy: z.string().optional(),
+    selectColumns: z.array(z.string()).optional(),
+    method: z.enum(["rank", "dense_rank", "percent_rank"]).default("rank"),
+    where: z.string().optional(),
+    limit: z.number().min(1).max(1000).default(10),
+    offset: z.number().min(0).default(0),
+  })
+);
 
 export const StatsLagLeadSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -95,19 +102,22 @@ export const StatsLagLeadSchemaBase = z.object({
     .describe("Number of rows to skip (default: 0)"),
 });
 
-export const StatsLagLeadSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  orderBy: z.string().min(1, "orderBy is required"),
-  direction: z.enum(["lag", "lead"]).default("lag"),
-  offset: z.number().min(1).default(1),
-  defaultValue: z.string().optional(),
-  partitionBy: z.string().optional(),
-  selectColumns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-  limit: z.number().min(1).max(1000).default(10),
-  paginationOffset: z.number().min(0).default(0),
-});
+export const StatsLagLeadSchema = z.preprocess(
+  preprocessJsonColumnParams,
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    orderBy: z.string().min(1, "orderBy is required"),
+    direction: z.enum(["lag", "lead"]).default("lag"),
+    offset: z.number().min(1).default(1),
+    defaultValue: z.string().optional(),
+    partitionBy: z.string().optional(),
+    selectColumns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+    limit: z.number().min(1).max(1000).default(10),
+    paginationOffset: z.number().min(0).default(0),
+  })
+);
 
 export const StatsRunningTotalSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -132,16 +142,19 @@ export const StatsRunningTotalSchemaBase = z.object({
     .describe("Number of rows to skip (default: 0)"),
 });
 
-export const StatsRunningTotalSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  orderBy: z.string().min(1, "orderBy is required"),
-  partitionBy: z.string().optional(),
-  selectColumns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-  limit: z.number().min(1).max(1000).default(10),
-  offset: z.number().min(0).default(0),
-});
+export const StatsRunningTotalSchema = z.preprocess(
+  preprocessJsonColumnParams,
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    orderBy: z.string().min(1, "orderBy is required"),
+    partitionBy: z.string().optional(),
+    selectColumns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+    limit: z.number().min(1).max(1000).default(10),
+    offset: z.number().min(0).default(0),
+  })
+);
 
 export const StatsMovingAvgSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -167,17 +180,20 @@ export const StatsMovingAvgSchemaBase = z.object({
     .describe("Number of rows to skip (default: 0)"),
 });
 
-export const StatsMovingAvgSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  orderBy: z.string().min(1, "orderBy is required"),
-  windowSize: z.number().min(1).default(3),
-  partitionBy: z.string().optional(),
-  selectColumns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-  limit: z.number().min(1).max(1000).default(10),
-  offset: z.number().min(0).default(0),
-});
+export const StatsMovingAvgSchema = z.preprocess(
+  preprocessJsonColumnParams,
+  z.object({
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    orderBy: z.string().min(1, "orderBy is required"),
+    windowSize: z.number().min(1).default(3),
+    partitionBy: z.string().optional(),
+    selectColumns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+    limit: z.number().min(1).max(1000).default(10),
+    offset: z.number().min(0).default(0),
+  })
+);
 
 export const StatsNtileSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -202,13 +218,16 @@ export const StatsNtileSchemaBase = z.object({
     .describe("Number of rows to skip (default: 0)"),
 });
 
-export const StatsNtileSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  orderBy: z.string().min(1, "orderBy is required"),
-  buckets: z.number().min(1).default(4),
-  partitionBy: z.string().optional(),
-  selectColumns: z.array(z.string()).optional(),
-  where: z.string().optional(),
-  limit: z.number().min(1).max(1000).default(10),
-  offset: z.number().min(0).default(0),
-});
+export const StatsNtileSchema = z.preprocess(
+  preprocessJsonColumnParams,
+  z.object({
+    table: z.string().min(1, "table is required"),
+    orderBy: z.string().min(1, "orderBy is required"),
+    buckets: z.number().min(1).default(4),
+    partitionBy: z.string().optional(),
+    selectColumns: z.array(z.string()).optional(),
+    where: z.string().optional(),
+    limit: z.number().min(1).max(1000).default(10),
+    offset: z.number().min(0).default(0),
+  })
+);
