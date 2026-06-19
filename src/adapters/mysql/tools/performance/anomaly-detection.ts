@@ -88,6 +88,12 @@ export const DetectBloatRiskSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Filter to a specific database schema"),
+  table: z
+    .unknown()
+    .optional()
+    .describe("Filter to a specific table"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
   minSizeMb: z
     .unknown()
     .optional()
@@ -99,6 +105,12 @@ export const DetectBloatRiskSchema = z.object({
     .string()
     .optional()
     .describe("Filter to a specific database schema"),
+  table: z
+    .string()
+    .optional()
+    .describe("Filter to a specific table"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   minSizeMb: z.coerce
     .number()
     .optional()
@@ -245,6 +257,7 @@ export function createDetectBloatRiskTool(
 
         const minSizeMb = parsed.minSizeMb ?? 10;
         const schema = parsed.schema;
+        const table = parsed.table ?? parsed.tableName ?? parsed.name;
 
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
@@ -260,6 +273,21 @@ export function createDetectBloatRiskTool(
           }
           
           schemaFilter = `TABLE_SCHEMA = '${schema}'`;
+        }
+
+        let tableFilter = "1=1";
+        if (table) {
+          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+            throw new ValidationError("Invalid table name");
+          }
+          const schemaCondition = schema ? `TABLE_SCHEMA = '${schema}'` : schemaFilter;
+          const tableExists = await adapter.executeQuery(
+            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = '${table}' AND ${schemaCondition}`
+          );
+          if (!tableExists.rows || tableExists.rows.length === 0) {
+            throw new ValidationError(`Table '${table}' does not exist`);
+          }
+          tableFilter = `TABLE_NAME = '${table}'`;
         }
 
         const minBytes = minSizeMb * 1024 * 1024;
@@ -280,8 +308,9 @@ export function createDetectBloatRiskTool(
             END AS fragmentation_pct
           FROM information_schema.TABLES
           WHERE TABLE_TYPE = 'BASE TABLE'
-            AND (DATA_LENGTH + INDEX_LENGTH) >= ${String(minBytes)}
+            AND (DATA_LENGTH + INDEX_LENGTH) >= ${table ? 0 : String(minBytes)}
             AND ${schemaFilter}
+            AND ${tableFilter}
           ORDER BY DATA_FREE DESC
           LIMIT 50
         `);
