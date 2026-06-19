@@ -21,6 +21,26 @@ export async function handleStreamableRequest(
 ): Promise<void> {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
+  if (req.method === "DELETE") {
+    if (sessionId) {
+      if (sessionManager.get(sessionId)) {
+        void sessionManager.close(sessionId);
+      }
+      res.writeHead(204);
+      res.end();
+    } else {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: { code: -32000, message: "Bad Request: No valid session ID provided" },
+          id: null,
+        }),
+      );
+    }
+    return;
+  }
+
   if (req.method !== "POST") {
     if (sessionId) {
       const session = sessionManager.get(sessionId);
