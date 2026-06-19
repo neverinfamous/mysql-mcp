@@ -311,13 +311,20 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
 
       const { statements, isolationLevel } = parsedParams;
 
-      const transactionId = await adapter.beginTransaction(isolationLevel);
-      const connection = adapter.getTransactionConnection(transactionId);
+      let transactionId: string;
+      let connection;
+      
+      try {
+        transactionId = await adapter.beginTransaction(isolationLevel);
+        connection = adapter.getTransactionConnection(transactionId);
 
-      if (!connection) {
-        return formatHandlerErrorResponse(
-          new TransactionError("Failed to get transaction connection"),
-        );
+        if (!connection) {
+          return formatHandlerErrorResponse(
+            new TransactionError("Failed to get transaction connection"),
+          );
+        }
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
 
       const results: {
