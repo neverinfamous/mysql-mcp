@@ -24,7 +24,7 @@
 | `test_products`     | 16   | id, name, price, category                         | metadata            |
 | `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
 | `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
-| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_articles`     | 10   | id, title, body (FULLTEXT), author                | —                   |
 | `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
 | `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
 | `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |

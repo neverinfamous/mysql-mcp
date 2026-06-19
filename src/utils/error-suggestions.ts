@@ -68,6 +68,20 @@ const ERROR_SUGGESTIONS: {
     code: "INDEX_NOT_FOUND",
   },
   {
+    pattern: /No FULLTEXT index found for the specified columns/i,
+    suggestion:
+      "A FULLTEXT index is required for this operation. Create one using mysql_fulltext_create.",
+    category: ErrorCategory.RESOURCE,
+    code: "INDEX_NOT_FOUND",
+  },
+  {
+    pattern: /Can't find FULLTEXT index matching the column list/i,
+    suggestion:
+      "A FULLTEXT index is required for this operation. Create one using mysql_fulltext_create.",
+    category: ErrorCategory.RESOURCE,
+    code: "INDEX_NOT_FOUND",
+  },
+  {
     pattern: /object ['"].*['"] not found/i,
     suggestion:
       "Object not found. Use mysql_list_tables or mysql_list_schemas to discover database objects.",
