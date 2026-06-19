@@ -66,12 +66,14 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
 
   test("begin → execute INSERT → rollback → verify row not inserted", async () => {
     // Create a temp table for isolation (force InnoDB for transaction support)
-    await callToolAndParse(client, "mysql_write_query", {
+    const dropRes = await callToolAndParse(client, "mysql_write_query", {
       sql: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
     });
-    await callToolAndParse(client, "mysql_write_query", {
+    expectSuccess(dropRes);
+    const createRes = await callToolAndParse(client, "mysql_write_query", {
       sql: "CREATE TABLE _e2e_txn_rollback_test (id INT AUTO_INCREMENT PRIMARY KEY, value TEXT) ENGINE=InnoDB",
     });
+    expectSuccess(createRes);
 
     try {
       // Begin

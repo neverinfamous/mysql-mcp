@@ -502,8 +502,6 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     database: z.string().optional().describe("Target database"),
     filename: z
       .string()
-      .optional()
-      .default("backup.sql")
       .describe("Dump file to restore"),
   });
 
