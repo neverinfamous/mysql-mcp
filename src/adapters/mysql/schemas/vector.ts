@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BaseOutputSchema } from "./output-schemas.js";
+import { preprocessTableParams } from "./preprocess-utils.js";
 
 /**
  * Common schema fragments
@@ -49,13 +50,17 @@ export const VectorStoreSchemaBase = z.object({
   idColumn: idColumnParamBase,
 });
 
-export const VectorStoreSchema = z.object({
+export const VectorStoreSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: columnParam,
   id: idParam,
   vector: z.array(z.number()).min(1, "Vector cannot be empty").describe("Vector embedding as an array of numbers"),
   idColumn: idColumnParam,
-});
+})
+  );
 
 export const VectorBatchStoreSchemaBase = z.object({
   table: tableParamBase,
@@ -64,7 +69,10 @@ export const VectorBatchStoreSchemaBase = z.object({
   idColumn: idColumnParamBase,
 });
 
-export const VectorBatchStoreSchema = z.object({
+export const VectorBatchStoreSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: columnParam,
   items: z.array(z.object({
@@ -72,7 +80,8 @@ export const VectorBatchStoreSchema = z.object({
     vector: z.array(z.number()).min(1, "Vector cannot be empty")
   })).min(1, "Items array cannot be empty").describe("Array of objects with 'id' and 'vector' fields"),
   idColumn: idColumnParam,
-});
+})
+  );
 
 export const VectorDeleteSchemaBase = z.object({
   table: tableParamBase,
@@ -80,11 +89,15 @@ export const VectorDeleteSchemaBase = z.object({
   idColumn: idColumnParamBase,
 });
 
-export const VectorDeleteSchema = z.object({
+export const VectorDeleteSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   id: idParam,
   idColumn: idColumnParam,
-});
+})
+  );
 
 export const VectorGetSchemaBase = z.object({
   table: tableParamBase,
@@ -93,12 +106,16 @@ export const VectorGetSchemaBase = z.object({
   idColumn: idColumnParamBase,
 });
 
-export const VectorGetSchema = z.object({
+export const VectorGetSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   id: idParam,
   column: z.string().min(1).optional().describe("Specific vector column to return"),
   idColumn: idColumnParam,
-});
+})
+  );
 
 /**
  * Search Tools
@@ -114,7 +131,10 @@ export const VectorSearchSchemaBase = z.object({
   select: z.unknown().optional().describe("Array of additional column names to return alongside the distance score"),
 });
 
-export const VectorSearchSchema = z.object({
+export const VectorSearchSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: columnParam,
   queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
@@ -122,7 +142,8 @@ export const VectorSearchSchema = z.object({
   metric: metricParam,
   filter: filterParam,
   select: z.array(z.string().min(1)).optional(),
-});
+})
+  );
 
 export const VectorRangeSearchSchemaBase = z.object({
   table: tableParamBase,
@@ -134,7 +155,10 @@ export const VectorRangeSearchSchemaBase = z.object({
   filter: filterParamBase,
 });
 
-export const VectorRangeSearchSchema = z.object({
+export const VectorRangeSearchSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: columnParam,
   queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
@@ -142,7 +166,8 @@ export const VectorRangeSearchSchema = z.object({
   metric: metricParam,
   limit: z.number().int().positive().max(1000).optional().default(50),
   filter: filterParam,
-});
+})
+  );
 
 export const VectorHybridSearchSchemaBase = z.object({
   table: tableParamBase,
@@ -159,7 +184,10 @@ export const VectorHybridSearchSchemaBase = z.object({
   filter: z.unknown().optional().describe("Optional SQL WHERE clause fragment to pre-filter results"),
 });
 
-export const VectorHybridSearchSchema = z.object({
+export const VectorHybridSearchSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   vectorColumn: z.string().min(1, "Vector column name cannot be empty"),
   textColumn: z.string().min(1, "Text column name cannot be empty"),
@@ -172,7 +200,9 @@ export const VectorHybridSearchSchema = z.object({
   textWeight: z.number().min(0).max(1).optional().default(0.5),
   select: z.array(z.string().min(1)).optional(),
   filter: filterParam,
-}).refine(data => data.queryVector !== undefined || data.queryText !== undefined, {
+})
+  )
+  .refine(data => data.queryVector !== undefined || data.queryText !== undefined, {
   message: "At least one of queryVector or queryText must be provided",
   path: ["queryVector"],
 });
@@ -186,10 +216,14 @@ export const VectorInfoSchemaBase = z.object({
   column: z.unknown().optional().describe("Specific vector column to check (if omitted, checks all VECTOR columns)"),
 });
 
-export const VectorInfoSchema = z.object({
+export const VectorInfoSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: z.string().min(1).optional(),
-});
+})
+  );
 
 export const VectorCreateIndexSchemaBase = z.object({
   table: tableParamBase,
@@ -198,20 +232,28 @@ export const VectorCreateIndexSchemaBase = z.object({
   type: z.unknown().optional().describe("Vector index type (default: 'HNSW')"),
 });
 
-export const VectorCreateIndexSchema = z.object({
+export const VectorCreateIndexSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: columnParam,
   metric: metricParam,
   type: z.enum(["HNSW"]).optional().default("HNSW"),
-});
+})
+  );
 
 export const VectorOptimizeSchemaBase = z.object({
   table: tableParamBase,
 });
 
-export const VectorOptimizeSchema = z.object({
+export const VectorOptimizeSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
-});
+})
+  );
 
 export const VectorStatsSchemaBase = z.object({
   table: tableParamBase,
@@ -219,11 +261,15 @@ export const VectorStatsSchemaBase = z.object({
   sampleSize: z.unknown().optional().describe("Number of random pairs to sample for distance distribution (default: 100)"),
 });
 
-export const VectorStatsSchema = z.object({
+export const VectorStatsSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
   table: tableParam,
   column: columnParam,
   sampleSize: z.number().int().positive().max(1000).optional().default(100),
-});
+})
+  );
 
 // =============================================================================
 // Output Schemas
