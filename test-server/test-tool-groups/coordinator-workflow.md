@@ -26,7 +26,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
    - The subagent MUST commit all changes locally (`git commit -m "..."`).
-   - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt.
+   - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and immediately move to the next test in the current Phase.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied`** (e.g., **`0 fixes applied`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite.
 6. **Structured Error Handling**:

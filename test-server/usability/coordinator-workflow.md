@@ -21,7 +21,7 @@ Execute all usability tests in `test-server/usability/` to fuzz the `mysql-mcp` 
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.
    - If a subagent edits any `server-instructions/*.md` files, they MUST run `npx tsx scripts/generate-server-instructions.ts` before building.
 4. **Commit**:
-   - Once all local tests pass, the subagent will commit the code (`git commit -m "Optimize [group] tool usage"`), summarize findings, and exit. If no modifications were needed, no commit is required.
+   - Once all local tests pass, the subagent will commit the code (`git commit -m "Optimize [group] tool usage"`), create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes, summarize findings, and exit. If no modifications were needed, no commit or journal entry is required.
    - Once the subagent completes, mark the task as done and move to the next test in the queue.
 5. **Code Mode Error Testing Protocol**:
    - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
