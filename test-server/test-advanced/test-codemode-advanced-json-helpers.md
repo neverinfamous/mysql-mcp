@@ -154,24 +154,24 @@ json-helpers Tool Group (4 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_json_get({...})` → happy path
-2. `mysql_json_update({...})` → happy path
-3. `mysql_json_search({...})` → happy path
-4. `mysql_json_validate({...})` → happy path
+1. `mysql_json_get({...})` → happy path ✅
+2. `mysql_json_update({...})` → happy path ✅
+3. `mysql_json_search({...})` → happy path ✅
+4. `mysql_json_validate({...})` → happy path ✅
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_json_get({...})` → domain error
-6. 🔴 `mysql_json_update({...})` → domain error
-7. 🔴 `mysql_json_search({...})` → domain error
-8. 🔴 `mysql_json_validate({...})` → domain error
+5. 🔴 `mysql_json_get({...})` → domain error ✅
+6. 🔴 `mysql_json_update({...})` → domain error ✅
+7. 🔴 `mysql_json_search({...})` → domain error ✅
+8. 🔴 `mysql_json_validate({...})` → domain error ✅
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_json_get({})` → validation error
-10. 🔴 `mysql_json_update({})` → validation error
-11. 🔴 `mysql_json_search({})` → validation error
-12. 🔴 `mysql_json_validate({})` → validation error
+9. 🔴 `mysql_json_get({})` → validation error ✅
+10. 🔴 `mysql_json_update({})` → validation error ✅
+11. 🔴 `mysql_json_search({})` → validation error ✅
+12. 🔴 `mysql_json_validate({})` → validation error ✅
 
 ---
 
