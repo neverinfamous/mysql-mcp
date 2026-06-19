@@ -87,6 +87,18 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+|---|---|---|
+| `proxysql_status` | Status, Uptime, Stats | ✅ Tested summary/full payload sizes |
+| `proxysql_servers` | Backend Servers | ✅ Tested validation with invalid numeric params |
+| `proxysql_query_rules` | Query Rules | ✅ Tested gracefully degraded empty results |
+| `proxysql_query_digest` | Query Digest | ✅ Tested gracefully degraded empty results |
+| `proxysql_connection_pool` | Connection Pool | ✅ Tested validation with invalid numeric params |
+| `proxysql_users` | Users | ✅ Tested gracefully degraded results |
+| `proxysql_global_variables` | Global Variables | ✅ Verified token limits (default 10) |
+| `proxysql_runtime_status` | Runtime Config | ✅ Tested validation |
+| `proxysql_memory_stats` | Memory Stats | ✅ Tested validation |
+| `proxysql_commands` | Commands | ✅ Verified missing parameter validation |
+| `proxysql_process_list` | Process List | ✅ Tested validation |
 
 ### Structured Error Response Pattern
 
