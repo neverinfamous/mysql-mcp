@@ -65,13 +65,16 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(query, [vectorStr]);
 
-        // Transform results to parse the vector strings
+        // Strip the raw vector from the output to save tokens, 
+        // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
           const { vector_str, ...rest } = row;
-          return {
-            ...rest,
-            vector: typeof vector_str === 'string' && vector_str ? parseVector(vector_str) : null
-          };
+          if (validated.select && validated.select.length > 0) {
+             return rest;
+          }
+          return Object.fromEntries(
+            Object.entries(rest).filter(([key]) => key !== validated.column)
+          );
         });
 
         return withTokenEstimate({
@@ -163,12 +166,13 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
 
         const result = await adapter.executeQuery(query, [vectorStr, validated.maxDistance]);
 
+        // Strip the raw vector from the output to save tokens,
+        // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
           const { vector_str, ...rest } = row;
-          return {
-            ...rest,
-            vector: typeof vector_str === 'string' && vector_str ? parseVector(vector_str) : null
-          };
+          return Object.fromEntries(
+            Object.entries(rest).filter(([key]) => key !== validated.column)
+          );
         });
 
         return withTokenEstimate({
