@@ -150,6 +150,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -323,6 +325,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -542,6 +546,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -638,6 +644,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -799,6 +807,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "No modifications specified",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -816,6 +826,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -925,6 +937,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1081,6 +1095,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1098,6 +1114,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid index name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1225,6 +1243,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
