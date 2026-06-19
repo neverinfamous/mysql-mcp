@@ -487,7 +487,30 @@ export function createOptimizerTraceTool(
               const rawTrace = (r as Record<string, unknown>)["TRACE"];
               if (typeof rawTrace === "string") {
                 try {
-                  return { ...r, TRACE: JSON.parse(rawTrace) as unknown };
+                  const parsed = JSON.parse(rawTrace) as unknown;
+                  // Optimize the payload by deep cleaning empty structures and redundant fields
+                  const deepClean = (obj: unknown): unknown => {
+                    if (Array.isArray(obj)) {
+                      const arr = obj.map(deepClean).filter((v) => v !== undefined);
+                      return arr.length > 0 ? arr : undefined;
+                    } else if (typeof obj === "object" && obj !== null) {
+                      const res: Record<string, unknown> = {};
+                      for (const [k, v] of Object.entries(obj)) {
+                        if (
+                          k === "MISSING_BYTES_BEYOND_MAX_MEM_SIZE" ||
+                          k === "INSUFFICIENT_PRIVILEGES" ||
+                          k === "expanded_query"
+                        ) {
+                          continue;
+                        }
+                        const cleaned = deepClean(v);
+                        if (cleaned !== undefined) res[k] = cleaned;
+                      }
+                      return Object.keys(res).length > 0 ? res : undefined;
+                    }
+                    return obj;
+                  };
+                  return { ...r, TRACE: deepClean(parsed) };
                 } catch {
                   return r;
                 }
