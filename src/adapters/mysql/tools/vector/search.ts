@@ -14,7 +14,7 @@ import {
   VectorRangeSearchOutputSchema,
   VectorHybridSearchOutputSchema,
 } from "../../schemas/vector.js";
-import { ensureVectorSupport, formatVector, parseVector, sanitizeIdentifier } from "./helpers.js";
+import { ensureVectorSupport, formatVector, sanitizeIdentifier } from "./helpers.js";
 import { sanitizeFulltextQuery } from "../text/fulltext-helpers.js";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
@@ -68,7 +68,8 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
         // Strip the raw vector from the output to save tokens, 
         // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
-          const { vector_str, ...rest } = row;
+          const rest = { ...row };
+          delete rest["vector_str"];
           if (validated.select && validated.select.length > 0) {
              return rest;
           }
@@ -169,7 +170,8 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         // Strip the raw vector from the output to save tokens,
         // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
-          const { vector_str, ...rest } = row;
+          const rest = { ...row };
+          delete rest["vector_str"];
           return Object.fromEntries(
             Object.entries(rest).filter(([key]) => key !== validated.column)
           );

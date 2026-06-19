@@ -173,11 +173,11 @@ export function createSysSchemaStatsTool(
           adapter.executeQuery(autoIncQuery, [schema ?? null]),
         ]);
 
-        const cleanRow = (row: Record<string, unknown>) => {
-          const cleaned = { ...row };
-          for (const key of Object.keys(cleaned)) {
-            if (cleaned[key] === 0 || cleaned[key] === "0" || cleaned[key] === "  0 ps" || cleaned[key] === "   0 bytes") {
-              delete cleaned[key];
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes") {
+              cleaned[key] = value;
             }
           }
           return cleaned;
