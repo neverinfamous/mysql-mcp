@@ -25,6 +25,8 @@ Execute all usability tests in `test-server/usability/` to fuzz the `mysql-mcp` 
    - Once the subagent completes, mark the task as done and move to the next test in the queue.
 5. **Code Mode Error Testing Protocol**:
    - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
+6. **Tool Availability Warning**:
+   - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user. NOTE: The ecosystem tools (cluster, proxysql, router, shell) are running on a different port/MCP config (`mysql-ecosystem`) than the standard tools/tool groups. Ecosystem should be enabled for them already, but if it isn't working, the subagent MUST let the user know immediately so they can enable it. We want to actively test ecosystem, not just test graceful degradation.
 
 ## Test Sequence Queue
 
