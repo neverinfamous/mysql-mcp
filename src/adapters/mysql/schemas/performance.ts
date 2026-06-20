@@ -196,10 +196,6 @@ export const IndexRecommendationSchema = z
   .refine(
     (data) => !data.queries || data.queries.length <= 20,
     { message: "Maximum of 20 queries can be analyzed at once" }
-  )
-  .refine(
-    (data) => data.table !== undefined || (data.queries !== undefined && data.queries.length > 0),
-    { message: "Either 'table' or 'queries' must be provided" }
   );
 
 // --- ForceIndex ---
