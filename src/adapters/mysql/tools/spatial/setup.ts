@@ -75,7 +75,7 @@ export function createSpatialCreateColumnTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
-            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -83,7 +83,7 @@ export function createSpatialCreateColumnTool(
         const upperType = type.toUpperCase();
         if (!VALID_GEOMETRY_TYPES.has(upperType)) {
           return withTokenEstimate({
-            success: false, error: `Invalid type: '${type}' — expected one of: ${[...VALID_GEOMETRY_TYPES].join(", ")}`, code: "VALIDATION_ERROR",
+            success: false, error: `Invalid type: '${type}' — expected one of: ${[...VALID_GEOMETRY_TYPES].join(", ")}`, code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -107,18 +107,18 @@ export function createSpatialCreateColumnTool(
         });
       } catch (error) {
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Invalid use of NULL value")) {
           return withTokenEstimate({
-            success: false, error: "Cannot add a NOT NULL column to a table with existing rows without a default. Please set nullable: true or clear the table.", code: "QUERY_ERROR",
+            success: false, error: "Cannot add a NOT NULL column to a table with existing rows without a default. Please set nullable: true or clear the table.", code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
-            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
             details: {
               exists: false,
               table: tbl,
@@ -129,7 +129,7 @@ export function createSpatialCreateColumnTool(
           const col = paramStr(params, "column");
           const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
-            success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR",
+            success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
         return formatHandlerErrorResponse(error);
@@ -162,7 +162,7 @@ export function createSpatialCreateIndexTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
-            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -176,7 +176,7 @@ export function createSpatialCreateIndexTool(
         const idxName = indexName ?? `idx_spatial_${bareTable}_${column}`;
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
           return withTokenEstimate({
-            success: false, error: "Invalid index name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid index name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -193,7 +193,7 @@ export function createSpatialCreateIndexTool(
           const dataType = String(colRow["DATA_TYPE"]).toUpperCase();
           if (isNullable) {
             return withTokenEstimate({
-              success: false, code: "QUERY_ERROR", error: `Cannot create SPATIAL index on nullable column '${column}'. ` +
+              success: false, code: "QUERY_ERROR", category: "query", recoverable: false, error: `Cannot create SPATIAL index on nullable column '${column}'. ` +
                 `Alter the column to NOT NULL first: ` +
                 `ALTER TABLE ${escapeQualifiedTable(table)} MODIFY \`${column}\` ${dataType} NOT NULL`,
             });
@@ -212,7 +212,7 @@ export function createSpatialCreateIndexTool(
         if (existingRow) {
           const existingName = String(existingRow["INDEX_NAME"]);
           return withTokenEstimate({
-            success: false, error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`, code: "QUERY_ERROR",
+            success: false, error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
 
@@ -231,13 +231,13 @@ export function createSpatialCreateIndexTool(
         });
       } catch (error) {
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
         const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
         if (msg.includes("Table") && msg.includes("doesn't exist")) {
           return withTokenEstimate({
-            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
             details: { exists: false, table: tbl },
           });
         }
@@ -247,7 +247,7 @@ export function createSpatialCreateIndexTool(
         ) {
           const col = paramStr(params, "column");
           return withTokenEstimate({
-            success: false, error: `Column '${col}' does not exist on table '${tbl}'`, code: "COLUMN_NOT_FOUND",
+            success: false, error: `Column '${col}' does not exist on table '${tbl}'`, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false,
           });
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
@@ -258,7 +258,7 @@ export function createSpatialCreateIndexTool(
           idxFromParams || `idx_spatial_${tbl}_${paramStr(params, "column")}`;
         if (msg.includes("Duplicate key name")) {
           return withTokenEstimate({
-            success: false, error: `Index '${idx}' already exists on table '${tbl}'`, code: "QUERY_ERROR",
+            success: false, error: `Index '${idx}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
         return formatHandlerErrorResponse(error);

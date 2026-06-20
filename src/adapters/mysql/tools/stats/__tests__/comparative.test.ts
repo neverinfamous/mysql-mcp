@@ -202,10 +202,9 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_histogram", () => {
     it("should handle update", async () => {
-      // First call: table existence check, second: column check, third: ANALYZE TABLE, fourth: histogram query
+      // First call: table/column check, second: ANALYZE TABLE, third: histogram query
       mockAdapter.executeQuery
-        .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
-        .mockResolvedValueOnce({ rows: [{ COLUMN_NAME: "age" }] }) // column check
+        .mockResolvedValueOnce({ rows: [] }) // table/column check
         .mockResolvedValueOnce({}) // analyze table
         .mockResolvedValueOnce({ rows: [{ histogramType: "SINGLETON" }] }); // select info
 
@@ -226,10 +225,9 @@ describe("Comparative Stats Tools", () => {
     });
 
     it("should handle non-existent histogram", async () => {
-      // First call: table exists, second: column exists, third: no histogram found
+      // First call: table/column check, second: no histogram found
       mockAdapter.executeQuery
-        .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
-        .mockResolvedValueOnce({ rows: [{ COLUMN_NAME: "age" }] }) // column check
+        .mockResolvedValueOnce({ rows: [] }) // table/column check
         .mockResolvedValueOnce({ rows: [] }); // histogram query
 
       const result = await histogramTool.handler(
@@ -245,10 +243,8 @@ describe("Comparative Stats Tools", () => {
     });
 
     it("should handle non-existent column", async () => {
-      // First call: table exists, second: column does not exist
       mockAdapter.executeQuery
-        .mockResolvedValueOnce({ rows: [{ TABLE_NAME: "users" }] }) // table check
-        .mockResolvedValueOnce({ rows: [] }); // column check - not found
+        .mockRejectedValueOnce(new Error("Unknown column 'nonexistent_col' in 'field list'"));
 
       const result = await histogramTool.handler(
         {
@@ -259,8 +255,7 @@ describe("Comparative Stats Tools", () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("does not exist on table");
-      expect(result.error).toContain("nonexistent_col");
+      expect(result.error).toContain("Unknown column 'nonexistent_col'");
     });
   });
 });

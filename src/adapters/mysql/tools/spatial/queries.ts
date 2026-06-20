@@ -76,7 +76,7 @@ export function createSpatialDistanceTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -116,13 +116,15 @@ export function createSpatialDistanceTool(
         });
       } catch (error) {
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
+            category: "resource",
+            recoverable: false,
             details: {
               exists: false,
               table: tbl,
@@ -130,7 +132,7 @@ export function createSpatialDistanceTool(
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -163,7 +165,7 @@ export function createSpatialDistanceSphereTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -204,13 +206,15 @@ export function createSpatialDistanceSphereTool(
         });
       } catch (error) {
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
+            category: "resource",
+            recoverable: false,
             details: {
               exists: false,
               table: tbl,
@@ -218,7 +222,7 @@ export function createSpatialDistanceSphereTool(
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -251,7 +255,7 @@ export function createSpatialContainsTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -279,13 +283,15 @@ export function createSpatialContainsTool(
         });
       } catch (error) {
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
+            category: "resource",
+            recoverable: false,
             details: {
               exists: false,
               table: tbl,
@@ -293,7 +299,7 @@ export function createSpatialContainsTool(
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -323,7 +329,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false, error: "Invalid column name", code: "VALIDATION_ERROR",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -351,13 +357,15 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error) {
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR"  });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
+            category: "resource",
+            recoverable: false,
             details: {
               exists: false,
               table: tbl,
@@ -365,7 +373,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND" });
+          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
         }
         return formatHandlerErrorResponse(error);
       }

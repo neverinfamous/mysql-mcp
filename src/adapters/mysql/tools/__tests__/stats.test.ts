@@ -944,7 +944,7 @@ describe("Stats Nonexistent Table Handling", () => {
   });
 
   it("mysql_stats_histogram returns success:false for nonexistent table", async () => {
-    mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+    mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
     const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
     const result = (await tool.handler(
