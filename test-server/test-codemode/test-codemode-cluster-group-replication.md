@@ -155,21 +155,25 @@ During testing, check for these inconsistencies:
 cluster Tool Group (10 tools +1 code mode):
 
 1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
-2. `mysql_gr_transactions` 5. `mysql_gr_flow_control` 6. `mysql_cluster_status`
-3. `mysql_cluster_instances` 8. `mysql_cluster_topology` 9. `mysql_cluster_router_status`
-4. `mysql_cluster_switchover`
+4. `mysql_gr_transactions` 5. `mysql_gr_flow_control` 6. `mysql_cluster_status`
+7. `mysql_cluster_instances` 8. `mysql_cluster_topology` 9. `mysql_cluster_router_status`
+10. `mysql_cluster_switchover`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.cluster.help()` → verify method listing
 2. `mysql.cluster.grStatus()` → GR status or structured error
 3. `mysql.cluster.grMembers()` → members or empty
-4. `mysql.cluster.status()` → cluster status or structured error
-5. `mysql.cluster.status({summary: true})` → summarized output
-6. `mysql.cluster.instances()` → instance details
-7. `mysql.cluster.topology()` → topology map
-8. `mysql.cluster.routerStatus()` → router status
-9. `mysql.cluster.routerStatus({summary: true})` → summarized
+4. `mysql.cluster.grPrimary()` → primary node details
+5. `mysql.cluster.grTransactions()` → transaction metrics
+6. `mysql.cluster.grFlowControl()` → flow control stats
+7. `mysql.cluster.status()` → cluster status or structured error
+8. `mysql.cluster.status({summary: true})` → summarized output
+9. `mysql.cluster.instances()` → instance details
+10. `mysql.cluster.topology()` → topology map
+11. `mysql.cluster.routerStatus()` → router status
+12. `mysql.cluster.routerStatus({summary: true})` → summarized
+13. `mysql.cluster.switchover()` → switchover recommendations
 
 ---
 
