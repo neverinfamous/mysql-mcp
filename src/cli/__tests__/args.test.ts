@@ -30,6 +30,10 @@ describe("CLI Args", () => {
     delete process.env["MYSQL_USER"];
     delete process.env["MYSQL_PASSWORD"];
     delete process.env["MYSQL_DATABASE"];
+    delete process.env["MYSQL_PORT"];
+    delete process.env["MYSQL_POOL_SIZE"];
+    delete process.env["MYSQL_POOL_TIMEOUT"];
+    delete process.env["MYSQL_POOL_QUEUE_LIMIT"];
     delete process.env["MYSQL_MCP_TOOL_FILTER"];
     delete process.env["OAUTH_ENABLED"];
   });

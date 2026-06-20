@@ -24,6 +24,12 @@ describe("Shell Configuration", () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...originalEnv };
+    delete process.env["MYSQLSH_PATH"];
+    delete process.env["MYSQL_HOST"];
+    delete process.env["MYSQL_PORT"];
+    delete process.env["MYSQL_USER"];
+    delete process.env["MYSQL_PASSWORD"];
+    delete process.env["MYSQLSH_TIMEOUT"];
   });
 
   afterEach(() => {
