@@ -109,3 +109,5 @@ playwright-results.json
 
 # Test output directory
 .test-output/
+
+.agents/
