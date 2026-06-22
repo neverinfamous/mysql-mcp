@@ -176,7 +176,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
 
         const limitClause = ` LIMIT ${limit ?? 50}`;
-        const sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${limitClause}`;
+        const sql = `SELECT id, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${limitClause}`;
 
         const result = await adapter.executeReadQuery(sql, [
           mode,
