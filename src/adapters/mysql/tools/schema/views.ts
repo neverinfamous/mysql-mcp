@@ -49,6 +49,7 @@ const ListViewsOutputSchema = BaseOutputSchema.extend({
 
 const CreateViewSchemaBase = z.object({
   name: z.string().optional().describe("View name"),
+  view: z.string().optional().describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   definition: z
@@ -67,6 +68,7 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
+        name: obj['name'] ?? obj['view'],
         schema: obj['schema'] ?? obj['database'],
         definition: obj['definition'] ?? obj['query'],
       };
@@ -99,6 +101,7 @@ const CreateViewOutputSchema = BaseOutputSchema.extend({
 
 const DropViewSchemaBase = z.object({
   name: z.string().optional().describe("View name"),
+  view: z.string().optional().describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().optional().describe("Use IF EXISTS"),
@@ -110,6 +113,7 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
+        name: obj['name'] ?? obj['view'],
         schema: obj['schema'] ?? obj['database'],
       };
     }
