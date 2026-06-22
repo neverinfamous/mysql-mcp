@@ -1,4 +1,5 @@
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 
 export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
@@ -68,7 +69,7 @@ export function parseDocFilter(filter: string): {
     const value = eqMatch[2] ?? "";
     // Defense-in-depth: validate field name against identifier regex
     if (!IDENTIFIER_RE.test(field)) {
-      throw new Error(
+      throw new ValidationError(
         `Invalid field name in filter: "${field}". Field names must be valid identifiers.`,
       );
     }
@@ -88,13 +89,13 @@ export function parseDocFilter(filter: string): {
 
   // Default: treat as JSON path existence check
   if (!filter.startsWith("$")) {
-    throw new Error(
+    throw new ValidationError(
       `Invalid filter: "${filter}". Use JSON path ($.field), _id value, or field=value format.`,
     );
   }
   // Validate JSON path against allowlist regex to prevent injection
   if (!JSON_PATH_RE.test(filter)) {
-    throw new Error(
+    throw new ValidationError(
       `Invalid JSON path: "${filter}". Only alphanumeric field names, array indices, and dot notation are allowed.`,
     );
   }
