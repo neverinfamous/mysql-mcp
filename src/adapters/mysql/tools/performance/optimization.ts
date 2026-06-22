@@ -491,7 +491,17 @@ export function createOptimizerTraceTool(
                   // Optimize the payload by deep cleaning empty structures and redundant fields
                   const deepClean = (obj: unknown): unknown => {
                     if (Array.isArray(obj)) {
-                      const arr = obj.map(deepClean).filter((v) => v !== undefined);
+                      const arr = obj
+                        .filter((item) => {
+                          if (typeof item === "object" && item !== null) {
+                            const i = item as Record<string, unknown>;
+                            if (i["usable"] === false && typeof i["cause"] === "string") return false;
+                            if (i["chosen"] === false && typeof i["cause"] === "string") return false;
+                          }
+                          return true;
+                        })
+                        .map(deepClean)
+                        .filter((v) => v !== undefined);
                       return arr.length > 0 ? arr : undefined;
                     } else if (typeof obj === "object" && obj !== null) {
                       const res: Record<string, unknown> = {};
@@ -510,7 +520,15 @@ export function createOptimizerTraceTool(
                           continue;
                         }
                         const cleaned = deepClean(v);
-                        if (cleaned !== undefined) res[k] = cleaned;
+                        if (cleaned !== undefined) {
+                          if (typeof cleaned === "object" && cleaned !== null && !Array.isArray(cleaned)) {
+                            const c = cleaned as Record<string, unknown>;
+                            // Prune sub-objects that are just rejections with causes
+                            if (c["usable"] === false && typeof c["cause"] === "string") continue;
+                            if (c["chosen"] === false && typeof c["cause"] === "string") continue;
+                          }
+                          res[k] = cleaned;
+                        }
                       }
                       return Object.keys(res).length > 0 ? res : undefined;
                     }
