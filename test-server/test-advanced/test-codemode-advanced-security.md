@@ -150,7 +150,48 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Comprehensive Tool Coverage (security)\n\nEnsure EVERY tool in the security group is comprehensively tested.\n\nsecurity Tool Group (9 tools +1 code mode):\n\n1. `mysql_security_audit`\n2. `mysql_security_firewall_status`\n3. `mysql_security_firewall_rules`\n4. `mysql_security_mask_data`\n5. `mysql_security_password_validate`\n6. `mysql_security_ssl_status`\n7. `mysql_security_user_privileges`\n8. `mysql_security_sensitive_tables`\n9. `mysql_security_encryption_status`\n\n> **Instructions**: Use `mysql.security.*` namespace.\n\n1. `mysql.security.help()` -> verify method listing\n2. `mysql.security.someMethod({...})` -> verify success\n3. `mysql.security.someMethod({...})` -> verify success\n4. `mysql.security.someMethod({...})` -> verify success\n5. `mysql.security.someMethod({...})` -> verify success\n6. `mysql.security.someMethod({...})` -> verify success\n7. `mysql.security.someMethod({...})` -> verify success\n8. `mysql.security.someMethod({...})` -> verify success\n9. `mysql.security.someMethod({...})` -> verify success\n10. `mysql.security.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n11. 🔴 `mysql.security.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n12. 🔴 `mysql.security.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n13. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n## Category 1: Password Validation Boundaries
+## Comprehensive Tool Coverage (security)
+
+Ensure EVERY tool in the security group is comprehensively tested.
+
+security Tool Group (9 tools +1 code mode):
+
+1. `mysql_security_audit`
+2. `mysql_security_firewall_status`
+3. `mysql_security_firewall_rules`
+4. `mysql_security_mask_data`
+5. `mysql_security_password_validate`
+6. `mysql_security_ssl_status`
+7. `mysql_security_user_privileges`
+8. `mysql_security_sensitive_tables`
+9. `mysql_security_encryption_status`
+
+> **Instructions**: Use `mysql.security.*` namespace.
+
+1. `mysql.security.help()` -> verify method listing
+2. `mysql.security.someMethod({...})` -> verify success
+3. `mysql.security.someMethod({...})` -> verify success
+4. `mysql.security.someMethod({...})` -> verify success
+5. `mysql.security.someMethod({...})` -> verify success
+6. `mysql.security.someMethod({...})` -> verify success
+7. `mysql.security.someMethod({...})` -> verify success
+8. `mysql.security.someMethod({...})` -> verify success
+9. `mysql.security.someMethod({...})` -> verify success
+10. `mysql.security.someMethod({...})` -> verify success
+
+**Domain error paths (🔴):**
+
+11. 🔴 `mysql.security.someMethod({invalid})` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.security.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+13. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+## Category 1: Password Validation Boundaries
 
 1. `mysql_security_password_validate({password: ""})` → verify structured response (empty password)
 2. `mysql_security_password_validate({password: "a"})` → verify weak assessment

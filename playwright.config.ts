@@ -24,7 +24,7 @@ export default defineConfig({
   webServer: {
     command: `node dist/cli.js --transport http --port 3000 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"}`,
     url: "http://localhost:3000/health",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 30000,
     stdout: "pipe",
     stderr: "pipe",
