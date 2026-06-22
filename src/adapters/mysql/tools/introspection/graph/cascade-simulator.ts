@@ -12,7 +12,7 @@ import {
   CascadeSimulatorSchema,
   CascadeSimulatorOutputSchema,
 } from "../../../schemas/index.js";
-import { MySQLMcpError } from "../../../../../types/modules/errors.js";
+import { MySQLMcpError, ValidationError } from "../../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../../types/modules/error-types.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import type { FkEdge } from "../helpers.js";
@@ -20,6 +20,7 @@ import {
   fetchForeignKeys,
   fetchTableNodes,
   qualifiedName,
+  checkTableExists,
 } from "../helpers.js";
 
 export function createCascadeSimulatorTool(
@@ -36,7 +37,16 @@ export function createCascadeSimulatorTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const parsed = CascadeSimulatorSchema.parse(params);
+        const parsed = CascadeSimulatorSchema.parse(params) as {
+          table: string;
+          schema?: string;
+          operation?: "DELETE" | "DROP" | "TRUNCATE";
+        };
+        
+        if (!parsed.table) {
+          throw new ValidationError("table parameter is required");
+        }
+        
         let schema = parsed.schema;
 
         if (!schema) {
@@ -45,6 +55,8 @@ export function createCascadeSimulatorTool(
           ).rows?.[0];
           schema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "mysql";
         }
+
+        await checkTableExists(adapter, parsed.table, schema);
 
         const operation = parsed.operation ?? "DELETE";
         const sourceQName = qualifiedName(schema, parsed.table);

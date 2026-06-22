@@ -10,6 +10,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ValidationError } from "../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -381,7 +382,14 @@ export function createMigrationRisksTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const parsed = MigrationRisksSchema.parse(params);
+        const parsed = MigrationRisksSchema.parse(params) as {
+          statements: string[];
+          schema?: string;
+        };
+
+        if (parsed.statements.length === 0) {
+          throw new ValidationError("statements parameter is required");
+        }
 
         if (parsed.schema) {
           await checkSchemaExists(adapter, parsed.schema);

@@ -251,6 +251,15 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   return result;
 }
 
+export function preprocessEventParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input ?? {};
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["name"] === undefined && result["eventName"] !== undefined) {
+    result["name"] = result["eventName"];
+  }
+  return result;
+}
+
 export function preprocessDocIndexParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;

@@ -3,6 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -38,7 +39,17 @@ export function createDependencyGraphTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const parsed = DependencyGraphSchema.parse(params);
+        const parsed = DependencyGraphSchema.parse(params) as {
+          schema: string;
+          compact?: boolean;
+          includeRowCounts?: boolean;
+          limit?: number;
+          maxDepth?: number;
+        };
+
+        if (!parsed.schema) {
+          throw new ValidationError("schema parameter is required");
+        }
 
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
