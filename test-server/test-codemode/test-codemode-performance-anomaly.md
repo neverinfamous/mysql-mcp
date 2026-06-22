@@ -168,7 +168,7 @@ performance-anomaly Tool Group (3 tools +1 code mode):
 
 **Zod validation error paths (🔴):**
 
-16. 🔴 `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+1. 🔴 `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
