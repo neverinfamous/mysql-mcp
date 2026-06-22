@@ -136,14 +136,15 @@ export class ConnectionPool {
       const connection = await this.pool.getConnection();
 
       // Run initialization SQL if configured and not already initialized
-      if (
-        this.config.initializationSql &&
-        this.config.initializationSql.length > 0 &&
-        !this.initializedConnections.has(connection)
-      ) {
+      if (!this.initializedConnections.has(connection)) {
         try {
-          for (const sql of this.config.initializationSql) {
-            await connection.query(sql);
+          // Always enforce strict mode
+          await connection.query("SET SESSION sql_mode = 'STRICT_ALL_TABLES,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
+
+          if (this.config.initializationSql && this.config.initializationSql.length > 0) {
+            for (const sql of this.config.initializationSql) {
+              await connection.query(sql);
+            }
           }
           this.initializedConnections.add(connection);
         } catch (error) {
