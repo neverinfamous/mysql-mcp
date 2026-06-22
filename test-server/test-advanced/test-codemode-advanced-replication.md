@@ -162,7 +162,7 @@ During testing, check for these inconsistencies:
 
 6. `mysql_binlog_events({limit: 0})` → verify behavior (empty result or error)
 7. `mysql_binlog_events({limit: 1})` → verify returns at most 1 event
-8. `mysql_binlog_events({limit: 100})` → log token estimate, verify reasonable payload
+8. `mysql_binlog_events({limit: 50})` → log token estimate, verify reasonable payload
 9. `mysql_binlog_events({logFile: "nonexistent_binlog.000999"})` → verify structured `{success: false}`
 10. `mysql_binlog_events({logFile: ""})` → verify structured error for empty filename
 
