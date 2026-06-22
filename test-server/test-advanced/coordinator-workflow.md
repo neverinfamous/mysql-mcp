@@ -1,5 +1,7 @@
 # mysql-mcp Advanced Code Mode Testing Coordinator Workflow
 
+We're working in the `mysql-mcp` project in this thread.
+
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advanced Code Mode test suite using subagents.

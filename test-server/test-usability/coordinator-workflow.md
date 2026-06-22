@@ -2,6 +2,8 @@
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
+We're working in the `mysql-mcp` project in this thread.
+
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` usability test suite using subagents.
 
 ## Goal
@@ -65,5 +67,6 @@ Execute all usability tests in `test-server/usability/` to fuzz the `mysql-mcp` 
 ## Finalization
 
 Once all subagents have completed their tests:
+
 1. Run `pnpm run check` to ensure no type errors or formatting issues were introduced by the optimization layers across subagent boundaries.
 2. Message the user: "The usability test suite is complete. Fixes were applied during the run. Please manually restart the server ONCE so we can perform a final live validation sweep."
