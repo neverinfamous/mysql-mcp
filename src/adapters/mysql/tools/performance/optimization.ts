@@ -495,8 +495,8 @@ export function createOptimizerTraceTool(
                         .filter((item) => {
                           if (typeof item === "object" && item !== null) {
                             const i = item as Record<string, unknown>;
-                            if (i["usable"] === false && typeof i["cause"] === "string") return false;
-                            if (i["chosen"] === false && typeof i["cause"] === "string") return false;
+                            if (i["usable"] === false) return false;
+                            if (i["chosen"] === false) return false;
                           }
                           return true;
                         })
@@ -515,7 +515,8 @@ export function createOptimizerTraceTool(
                           k === "attaching_conditions_to_tables" ||
                           k === "ref_optimizer_key_uses" ||
                           k === "table_dependencies" ||
-                          k === "finalizing_table_conditions"
+                          k === "finalizing_table_conditions" ||
+                          k === "considered_access_paths" && Array.isArray(v) && v.length === 0
                         ) {
                           continue;
                         }
@@ -523,9 +524,9 @@ export function createOptimizerTraceTool(
                         if (cleaned !== undefined) {
                           if (typeof cleaned === "object" && cleaned !== null && !Array.isArray(cleaned)) {
                             const c = cleaned as Record<string, unknown>;
-                            // Prune sub-objects that are just rejections with causes
-                            if (c["usable"] === false && typeof c["cause"] === "string") continue;
-                            if (c["chosen"] === false && typeof c["cause"] === "string") continue;
+                            // Prune sub-objects that are just rejections
+                            if (c["usable"] === false) continue;
+                            if (c["chosen"] === false) continue;
                           }
                           res[k] = cleaned;
                         }
@@ -534,7 +535,21 @@ export function createOptimizerTraceTool(
                     }
                     return obj;
                   };
-                  return { ...r, TRACE: deepClean(parsed) };
+
+                  const newRow: Record<string, unknown> = {};
+                  for (const [k, v] of Object.entries(r)) {
+                    if (k === "TRACE") {
+                      newRow[k] = deepClean(parsed);
+                    } else if (
+                      (k === "MISSING_BYTES_BEYOND_MAX_MEM_SIZE" || k === "INSUFFICIENT_PRIVILEGES") && 
+                      v === 0
+                    ) {
+                      continue;
+                    } else {
+                      newRow[k] = v;
+                    }
+                  }
+                  return newRow;
                 } catch {
                   return r;
                 }
