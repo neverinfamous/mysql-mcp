@@ -49,6 +49,8 @@ const ListViewsOutputSchema = BaseOutputSchema.extend({
 
 const CreateViewSchemaBase = z.object({
   name: z.string().optional().describe("View name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   definition: z
     .string()
     .optional()
@@ -65,6 +67,7 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
+        schema: obj['schema'] ?? obj['database'],
         definition: obj['definition'] ?? obj['query'],
       };
     }
@@ -72,6 +75,7 @@ const CreateViewSchema = z.preprocess(
   },
   z.object({
     name: z.string().describe("View name"),
+    schema: z.string().optional(),
     definition: z
       .string()
       .describe("SELECT statement defining the view"),
@@ -95,13 +99,28 @@ const CreateViewOutputSchema = BaseOutputSchema.extend({
 
 const DropViewSchemaBase = z.object({
   name: z.string().optional().describe("View name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().optional().describe("Use IF EXISTS"),
 });
 
-const DropViewSchema = z.object({
-  name: z.string().describe("View name"),
-  ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
-});
+const DropViewSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj['schema'] ?? obj['database'],
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().describe("View name"),
+    schema: z.string().optional(),
+    ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
+  })
+);
 
 const DropViewOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -188,11 +207,29 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = CreateViewSchema.parse(params);
-        const name = parsedParams.name;
+        let name = parsedParams.name;
+        const targetSchema = parsedParams.schema;
         const definition = parsedParams.definition;
         const orReplace = parsedParams.orReplace;
         const algorithm = parsedParams.algorithm;
         const checkOption = parsedParams.checkOption;
+
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`),
+            );
+          }
+          // If name is not qualified, qualify it with the schema
+          if (!name.includes('.')) {
+            name = `${targetSchema}.${name}`;
+          }
+        }
 
         try {
           validateQualifiedIdentifier(name, "view");
@@ -248,13 +285,33 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = DropViewSchema.parse(params);
+        let name = parsedParams.name;
+        const targetSchema = parsedParams.schema;
+
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`),
+            );
+          }
+          // If name is not qualified, qualify it with the schema
+          if (!name.includes('.')) {
+            name = `${targetSchema}.${name}`;
+          }
+        }
+
         try {
-          validateQualifiedIdentifier(parsedParams.name, "view");
+          validateQualifiedIdentifier(name, "view");
         } catch (err: unknown) {
           return formatHandlerErrorResponse(err);
         }
 
-        const fullViewName = escapeQualifiedTable(parsedParams.name);
+        const fullViewName = escapeQualifiedTable(name);
         const ifExistsClause = parsedParams.ifExists ? "IF EXISTS " : "";
         const sql = `DROP VIEW ${ifExistsClause}${fullViewName}`;
 
