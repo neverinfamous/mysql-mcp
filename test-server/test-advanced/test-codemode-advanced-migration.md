@@ -153,8 +153,8 @@ During testing, check for these inconsistencies:
 ## Category 1: Checksum & State Corruption Resilience
 
 1. Run `mysql_migration_init()` to prepare tracking tables.
-2. Record a migration `001_base` with `checksum: "ABC"`.
-3. Attempt to `mysql_migration_apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
+2. Record a migration `001_base` with `migrationSql: "SELECT 1"`.
+3. Attempt to `mysql_migration_apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum/hash). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
 4. Manually update the `_mcp_schema_versions` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql_migration_status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
 
 ## Category 2: Rollback Boundaries & Idempotency
