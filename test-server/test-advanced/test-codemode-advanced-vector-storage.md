@@ -150,7 +150,7 @@ vector-storage Tool Group (4 tools +1 for code mode):
 4. 'mysql_vector_get'
 5. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item with the exact inputs shown using ONLY code mode.
 
 **Checklist:**
 
