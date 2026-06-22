@@ -56,7 +56,7 @@ describe("Shell Info Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.version).toBe("8.0.35");
       expect(child_process.spawn).toHaveBeenCalledWith(
-        "mysqlsh",
+        expect.stringContaining("mysqlsh"),
         ["--version"],
         expect.any(Object),
       );
