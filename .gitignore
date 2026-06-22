@@ -111,3 +111,9 @@ playwright-results.json
 .test-output/
 
 .agents/
+
+# Adamic Workflows Copies
+.agents/workflows/git-audit-trust.md
+.agents/workflows/git-generate-changelog.md
+.agents/workflows/git-impact-search.md
+.agents/workflows/git-velocity-report.md
