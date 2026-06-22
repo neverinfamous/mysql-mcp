@@ -499,7 +499,13 @@ export function createOptimizerTraceTool(
                         if (
                           k === "MISSING_BYTES_BEYOND_MAX_MEM_SIZE" ||
                           k === "INSUFFICIENT_PRIVILEGES" ||
-                          k === "expanded_query"
+                          k === "expanded_query" ||
+                          k === "condition_processing" ||
+                          k === "transformations_to_nested_joins" ||
+                          k === "attaching_conditions_to_tables" ||
+                          k === "ref_optimizer_key_uses" ||
+                          k === "table_dependencies" ||
+                          k === "finalizing_table_conditions"
                         ) {
                           continue;
                         }
