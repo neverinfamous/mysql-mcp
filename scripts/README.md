@@ -115,6 +115,14 @@ Validates that tools with long-running operations or streaming capabilities corr
 node scripts/test-progress.mjs
 ```
 
+### `test-sessions.mjs`
+
+Starts the MCP server with the HTTP transport and establishes an SSE session via the SDK to validate session lifecycle management, idle timeouts, and the `activeSessions` metric accuracy on the `/health` endpoint.
+
+```bash
+node scripts/test-sessions.mjs
+```
+
 ### `test-subscriptions-raw.mjs`
 
 Tests the `resources/subscribe` feature using raw JSON-RPC messages over stdio.
@@ -148,6 +156,27 @@ npx tsx scripts/teardown.ts
 ```
 
 ## Refactoring & Maintenance Scripts
+
+### `run-checks.ts`
+
+A local CI script that runs `eslint` and `tsc --noEmit` sequentially. By default, it will also automatically execute `update-code-map.ts` if no arguments are provided. It writes the pass/fail state to `.test-output/health-status.json`.
+
+```bash
+# Run all checks
+npx tsx scripts/run-checks.ts
+
+# Run specific check
+npx tsx scripts/run-checks.ts lint
+npx tsx scripts/run-checks.ts typecheck
+```
+
+### `update-code-map.ts`
+
+Automatically scans `src/adapters/mysql/tools` and `src/adapters/mysql/resources` to generate an updated architectural markdown map (`test-server/code-map.md`). This keeps the repository's documentation synchronized with the actual codebase schema.
+
+```bash
+npx tsx scripts/update-code-map.ts
+```
 
 ### `generate-server-instructions.ts`
 
