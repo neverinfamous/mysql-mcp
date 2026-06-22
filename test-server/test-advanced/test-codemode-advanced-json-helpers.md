@@ -164,7 +164,7 @@ json-helpers Tool Group (4 tools +1 for code mode):
 5. 🔴 `mysql_json_get({...})` → domain error ✅
 6. 🔴 `mysql_json_update({...})` → domain error ✅
 7. 🔴 `mysql_json_search({...})` → domain error ✅
-8. 🔴 `mysql_json_validate({...})` → domain error ✅
+8. ➖ `mysql_json_validate({...})` → N/A (no table dependency) ✅
 
 **Zod validation error paths (🔴):**
 
