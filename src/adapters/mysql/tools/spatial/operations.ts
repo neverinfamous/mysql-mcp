@@ -58,6 +58,14 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
   return null;
 }
 
+/**
+ * Truncate coordinate precision in WKT strings to save tokens
+ */
+function truncateWktPrecision(wkt: unknown, decimals = 5): unknown {
+  if (typeof wkt !== "string") return wkt;
+  return wkt.replace(/\d+\.\d{6,}/g, (match) => parseFloat(match).toFixed(decimals));
+}
+
 // =============================================================================
 
 /**
@@ -92,7 +100,7 @@ export function createSpatialIntersectionTool(
                     ST_AsGeoJSON(ST_Intersection(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
-                    )) as intersection_geojson`,
+                    ), 5) as intersection_geojson`,
           [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
         );
 
@@ -101,7 +109,7 @@ export function createSpatialIntersectionTool(
           success: true,
           data: {
             intersects: Boolean(row?.["intersects"]),
-            intersectionWkt: row?.["intersection_wkt"],
+            intersectionWkt: truncateWktPrecision(row?.["intersection_wkt"]),
             intersectionGeoJson: parseGeoJsonResult(
               row?.["intersection_geojson"],
             ),
@@ -154,7 +162,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            bufferWkt: row?.["buffer_wkt"],
+            bufferWkt: truncateWktPrecision(row?.["buffer_wkt"]),
             bufferDistance: distance,
             segments,
             segmentsApplied: !isGeographic,
@@ -191,7 +199,7 @@ export function createSpatialTransformTool(
         const result = await adapter.executeQuery(
           `SELECT
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 'axis-order=long-lat') as transformed_wkt,
-                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_geojson`,
+                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 5) as transformed_geojson`,
           [geometry, geometry],
         );
 
@@ -199,8 +207,8 @@ export function createSpatialTransformTool(
         return withTokenEstimate({
           success: true,
           data: {
-            originalWkt: geometry,
-            transformedWkt: row?.["transformed_wkt"],
+            originalWkt: truncateWktPrecision(geometry),
+            transformedWkt: truncateWktPrecision(row?.["transformed_wkt"]),
             transformedGeoJson: parseGeoJsonResult(
               row?.["transformed_geojson"],
             ),
@@ -237,7 +245,7 @@ export function createSpatialGeoJSONTool(
         if (geometry) {
           // Convert WKT to GeoJSON
           const result = await adapter.executeQuery(
-            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson`,
+            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), 5) as geoJson`,
             [geometry],
           );
 
@@ -245,7 +253,7 @@ export function createSpatialGeoJSONTool(
           return withTokenEstimate({
             success: true,
             data: {
-              wkt: geometry,
+              wkt: truncateWktPrecision(geometry),
               geoJson: parseGeoJsonResult(row?.["geoJson"]),
               conversion: "WKT to GeoJSON",
             },
@@ -261,7 +269,7 @@ export function createSpatialGeoJSONTool(
           return withTokenEstimate({
             success: true,
             data: {
-              wkt: row?.["wkt"],
+              wkt: truncateWktPrecision(row?.["wkt"]),
               geoJson: typeof JSON.parse(geoJson) === "object" && JSON.parse(geoJson) !== null ? (JSON.parse(geoJson) as Record<string, unknown>) : {},
               conversion: "GeoJSON to WKT",
             },
