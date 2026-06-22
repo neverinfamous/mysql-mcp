@@ -137,6 +137,11 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: `No row found matching WHERE ${where}`,
+            code: "NOT_FOUND",
+            category: "resource" as const,
+            recoverable: false,
+            suggestion: undefined,
+            details: undefined
           };
           return withTokenEstimate(response);
         }
