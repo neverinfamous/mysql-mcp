@@ -150,30 +150,34 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: partitioning\n\npartitioning Tool Group (4 tools +1 code mode):\n\n1. `mysql_partition_info`\n2. `mysql_add_partition`\n3. `mysql_drop_partition`\n4. `mysql_reorganize_partition`\n\n> **Instructions**: Use `mysql.partitioning.*` namespace, push deviations to `failures` array.\n\n1. `mysql.partitioning.help()` -> verify method listing\n2. `mysql.partitioning.someMethod({...})` -> verify success\n3. `mysql.partitioning.someMethod({...})` -> verify success\n4. `mysql.partitioning.someMethod({...})` -> verify success\n5. `mysql.partitioning.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n6. 🔴 `mysql.partitioning.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n7. 🔴 `mysql.partitioning.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n8. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: partitioning
 
-### Reporting Rules
+partitioning Tool Group (4 tools +1 code mode):
 
-- Use ✅ only in inline notes during testing; omit from Final Summary
-- Do not mention what already works well or issues already documented in help resources and runtime hints
+1. `mysql_partition_info`
+2. `mysql_add_partition`
+3. `mysql_drop_partition`
+4. `mysql_reorganize_partition`
 
-### After Testing
+> **Instructions**: Use `mysql.partitioning.*` namespace, push deviations to `failures` array.
 
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
-2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
-3. **Scope of fixes** includes corrections to any of:
-   - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
-   - This prompt
+1. `mysql.partitioning.help()` -> verify method listing
+2. `mysql.partitioning.someMethod({...})` -> verify success
+3. `mysql.partitioning.someMethod({...})` -> verify success
+4. `mysql.partitioning.someMethod({...})` -> verify success
+5. `mysql.partitioning.someMethod({...})` -> verify success
 
-### After Implementation
+**Domain error paths (🔴):**
 
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+6. 🔴 `mysql.partitioning.someMethod({invalid})` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+7. 🔴 `mysql.partitioning.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+8. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
 
