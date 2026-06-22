@@ -24,10 +24,13 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 export const StatsOutliersSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
     .describe("Numeric column to check for outliers"),
+  col: z.string().optional().describe("Alias for column"),
   method: z.unknown().optional().describe("Detection method to use"),
   threshold: z
     .unknown()
@@ -101,6 +104,18 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
             success: false,
             code: "VALIDATION_ERROR",
             error: "Invalid column name",
+          });
+        }
+
+        // Validate minimum rows to perform outlier detection
+        const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM \`${table}\` ${where ? `WHERE ${where}` : ""}`;
+        const countRes = await adapter.executeQuery(countQuery);
+        const totalRows = Number(countRes.rows?.[0]?.["cnt"] ?? 0);
+        if (totalRows < 3) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR",
+            error: "Insufficient data to calculate outliers (minimum 3 rows required)",
           });
         }
 

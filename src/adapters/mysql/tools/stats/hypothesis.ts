@@ -24,7 +24,10 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 export const StatsHypothesisSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to test"),
+  col: z.string().optional().describe("Alias for column"),
   testType: z.unknown().optional().describe("Type of test to perform"),
   hypothesizedMean: z.unknown().optional().describe("Null hypothesis mean to test against"),
   populationStdDev: z.unknown().optional().describe("Known population standard deviation (for z-test)"),

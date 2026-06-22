@@ -58,7 +58,10 @@ const NUMERIC_TYPES = new Set([
 
 export const StatsTopNSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to sort by"),
+  col: z.string().optional().describe("Alias for column"),
   n: z
     .unknown()
     .optional()
@@ -93,7 +96,10 @@ export const StatsTopNSchema = z.preprocess(
 
 export const StatsDistinctSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to get distinct values for"),
+  col: z.string().optional().describe("Alias for column"),
   limit: z
     .unknown()
     .optional()
@@ -121,10 +127,13 @@ export const StatsDistinctSchema = z.preprocess(
 
 export const StatsFrequencySchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
     .describe("Column to get frequency distribution for"),
+  col: z.string().optional().describe("Alias for column"),
   limit: z
     .unknown()
     .optional()
@@ -152,6 +161,8 @@ export const StatsFrequencySchema = z.preprocess(
 
 export const StatsSummarySchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   columns: z
     .unknown()
     .optional()
