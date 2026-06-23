@@ -280,7 +280,6 @@ export function buildSandboxBindings(
       "explainAnalyze",
       "slowQueries",
       "bufferPoolStats",
-      "innodbStatus",
       "tableStats",
       "threadStats",
       "serverHealth",
@@ -315,7 +314,7 @@ export function buildSandboxBindings(
       "showStatus",
       "showVariables",
       "showProcesslist",
-      "queryStats",
+      "innodbStatus",
     ]) {
       if (monitoringApi[method] !== undefined) {
         bindings[method] = monitoringApi[method];

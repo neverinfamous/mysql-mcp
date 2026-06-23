@@ -37,7 +37,6 @@ export const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.performance.explain({ sql: 'SELECT * FROM orders WHERE status = ?', params: ['active'] })",
     "mysql.performance.slowQueries({ limit: 10 })",
     "mysql.performance.bufferPoolStats()",
-    "mysql.performance.innodbStatus()",
     "mysql.performance.tableStats({ table: 'orders' })",
   ],
   optimization: [
@@ -57,8 +56,7 @@ export const GROUP_EXAMPLES: Record<string, string[]> = {
     "mysql.monitoring.showStatus({ pattern: 'Threads%' })",
     "mysql.monitoring.showVariables({ pattern: 'max_connections' })",
     "mysql.monitoring.showProcesslist()",
-    "mysql.monitoring.queryStats()",
-    "mysql.monitoring.slowQueries()",
+    "mysql.monitoring.innodbStatus()",
   ],
   backup: [
     "mysql.backup.createDump({ tables: ['users', 'orders'] })",
