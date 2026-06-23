@@ -166,7 +166,7 @@ During testing, check for these inconsistencies:
 
 ## Category 3: Reorganize Edge Cases
 
-9. `mysql.partitioning.reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
+9. `mysql.partitioning.reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
 10. `mysql.partitioning.reorganizePartition` with empty `fromPartitions` array → verify structured error
 
 ## Category 4: Payload Monitoring
