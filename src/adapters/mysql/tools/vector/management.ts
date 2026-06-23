@@ -237,7 +237,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        const dataType = String(colCheck.rows[0]["DATA_TYPE"]).toLowerCase();
+        const dataType = String(colCheck.rows[0]!["DATA_TYPE"]).toLowerCase();
         if (dataType !== "vector") {
           return withTokenEstimate({
             success: false,
