@@ -10,6 +10,8 @@
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
 > [!WARNING]

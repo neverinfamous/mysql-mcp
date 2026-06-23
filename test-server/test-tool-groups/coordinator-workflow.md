@@ -1,5 +1,7 @@
 # mysql-mcp Tool Groups Testing Coordinator Workflow
 
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
 We're working in the `mysql-mcp` project in this thread.

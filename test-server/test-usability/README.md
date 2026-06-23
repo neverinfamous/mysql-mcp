@@ -1,5 +1,7 @@
 # Agent Usability & Hallucination Testing
 
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 > **This directory is optimized for AI agent consumption.**
 
 This directory contains organic testing prompts designed to "fuzz" the `mysql-mcp` tools and explicitly trigger agent hallucinations. The goal is not just to test if the tools work, but to test if the tools are intuitive and bulletproof for AI agents.

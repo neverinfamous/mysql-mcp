@@ -1,5 +1,7 @@
 # MySQL-MCP Advanced Stress Tests
 
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 
 This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` tool groups. These tests simulate complex, edge-case, and boundary interactions using exclusively **Code Mode** (`mysql_execute_code`).

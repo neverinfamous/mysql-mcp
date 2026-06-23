@@ -5,6 +5,8 @@
 > If there are no changes/fixes, do not update UNRELEASED.md or create a memory-journal-mcp entry.
 
 ## Setup & Pre-requisites
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 
 **Step 1:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 

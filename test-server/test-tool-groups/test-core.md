@@ -17,6 +17,9 @@
 
 > **Note**: If temp tables are present from a previous test pass, it's because the database is locked. Ignore them. Use existing `test_*` tables for read operations.
 
+
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 ### Test Schema Reference
 
 The test database (`testdb`) contains these tables:

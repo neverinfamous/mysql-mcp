@@ -1,5 +1,7 @@
 # MySQL-MCP Standard Testing Suite
 
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 **Directory Purpose**: This folder contains 28 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.
 
 ## Agent Instructions

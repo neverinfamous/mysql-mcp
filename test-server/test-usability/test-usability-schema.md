@@ -1,5 +1,7 @@
 # mysql-mcp Usability & Hallucination Test: Schema
 
+> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
+
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `schema` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
