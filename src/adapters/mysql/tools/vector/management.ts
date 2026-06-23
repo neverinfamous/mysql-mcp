@@ -219,6 +219,36 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const table = sanitizeIdentifier(validated.table);
         const column = sanitizeIdentifier(validated.column);
 
+        // Pre-check column type to avoid raw MySQL "Incorrect arguments to vector_dim" errors
+        const colCheck = await adapter.executeQuery(`
+          SELECT DATA_TYPE 
+          FROM INFORMATION_SCHEMA.COLUMNS 
+          WHERE TABLE_NAME = ? AND COLUMN_NAME = ?
+        `, [validated.table, validated.column]);
+
+        if (!colCheck.rows || colCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Column '${validated.column}' not found in table '${validated.table}'`,
+            code: "COLUMN_NOT_FOUND",
+            category: ErrorCategory.RESOURCE,
+            recoverable: false,
+            suggestion: "Verify the column name using mysql_describe_table."
+          });
+        }
+
+        const dataType = String(colCheck.rows[0]["DATA_TYPE"]).toLowerCase();
+        if (dataType !== "vector") {
+          return withTokenEstimate({
+            success: false,
+            error: `Column '${validated.column}' is of type '${dataType}', not 'vector'`,
+            code: "VALIDATION_ERROR",
+            category: ErrorCategory.VALIDATION,
+            recoverable: false,
+            suggestion: "Vector stats can only be calculated on vector columns. Use mysql_vector_info to list vector columns."
+          });
+        }
+
         const query = `
           SELECT 
             COUNT(*) as total_rows,
