@@ -177,9 +177,7 @@ During testing, check for these inconsistencies:
     - `queryStats()`, `slowQueries()`, `indexUsage()`, `bufferPoolStats()`, `threadStats()`
 14. Flag any default response > 500 tokens as 📦
 
-## Category 6: Cleanup
 
-20. Drop `stress_empty` table. Verify clean removal.
 
 ---
 
