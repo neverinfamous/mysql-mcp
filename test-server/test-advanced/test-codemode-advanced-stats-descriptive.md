@@ -142,13 +142,13 @@ During testing, check for these inconsistencies:
 
 1. Create a table `stress_stats_desc` with columns `id INT`, `val1 INT`, `val2 VARCHAR(50)`, `val3 INT`.
 2. Insert 10 rows: 5 rows with `val1 = NULL`, 5 rows with valid ints. Set `val2` to random text.
-3. Run `mysql.stats.correlation` on `val1` and `val3`. Verify it gracefully skips NULL rows and computes a valid correlation coefficient (or returns 0/null appropriately, rather than crashing).
+3. Run `mysql.stats.correlation` on `val1` (as `column1`) and `val3` (as `column2`). Verify it gracefully skips NULL rows and computes a valid correlation coefficient (or returns 0/null appropriately, rather than crashing).
 4. Attempt to run `mysql.stats.percentiles` on `val2` (VARCHAR). Verify it returns a structured `{success: false, error: "..."}` explicitly stating the column type mismatch.
 
 ## Category 2: Distribution & Histogram Edge Cases
 
 5. Run `mysql.stats.histogram` on `val3` with `buckets: 0`. Verify it returns a structured validation error.
-6. Run `mysql.stats.distribution` on `val3` with `buckets: 1000`. Verify performance boundaries; if payload is enormous, flag as 📦 Payload Issue.
+6. Run `mysql.stats.distribution` on `val3` with `buckets: 100` (max allowed). Verify it successfully executes and that the payload is reasonable since empty buckets are filtered out.
 
 ## Category 3: Cleanup Verification
 
