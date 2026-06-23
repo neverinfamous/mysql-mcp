@@ -152,37 +152,37 @@ During testing, check for these inconsistencies:
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
 
-1. `mysqlsh_version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
-2. `mysqlsh_dump_instance({outputUrl: "/tmp/stress_dump"})` → verify structured error
-3. `mysqlsh_load_dump({inputUrl: "/tmp/nonexistent_dump"})` → verify structured error
-4. `mysqlsh_run_script({script: "print('test')"})` → verify structured error
+1. `mysql.shell.version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
+2. `mysql.shell.dumpInstance({outputUrl: "/tmp/stress_dump"})` → verify structured error
+3. `mysql.shell.loadDump({inputUrl: "/tmp/nonexistent_dump"})` → verify structured error
+4. `mysql.shell.runScript({script: "print('test')"})` → verify structured error
 5. All errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Dry Run Boundaries (When Shell IS Available)
 
-6. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/stress_schema_dump", dryRun: true})` → verify dry run output
-7. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/stress_table_dump", dryRun: true})` → verify dry run
-8. `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/stress_bad_dump", dryRun: true})` → verify structured error for nonexistent schema
-9. `mysqlsh_dump_tables({schema: "testdb", tables: ["nonexistent_table_xyz"], outputUrl: "/tmp/stress_bad_table", dryRun: true})` → verify structured error
+6. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "/tmp/stress_schema_dump", dryRun: true})` → verify dry run output
+7. `mysql.shell.dumpTables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/stress_table_dump", dryRun: true})` → verify dry run
+8. `mysql.shell.dumpSchemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/stress_bad_dump", dryRun: true})` → verify structured error for nonexistent schema
+9. `mysql.shell.dumpTables({schema: "testdb", tables: ["nonexistent_table_xyz"], outputUrl: "/tmp/stress_bad_table", dryRun: true})` → verify structured error
 
 ## Category 3: Parameter Validation
 
-10. `mysqlsh_dump_schemas({schemas: [], outputUrl: "/tmp/test"})` → verify behavior with empty schemas array
-11. `mysqlsh_dump_tables({schema: "testdb", tables: [], outputUrl: "/tmp/test"})` → verify behavior with empty tables array
-12. `mysqlsh_export_table({schema: "testdb", table: "test_products", outputUrl: "/tmp/stress_export"})` → verify structured error for invalid IO root
-13. `mysqlsh_import_table({schema: "testdb", table: "nonexistent_xyz", inputUrl: "/tmp/nonexistent_file"})` → verify structured error for invalid IO root
+10. `mysql.shell.dumpSchemas({schemas: [], outputUrl: "/tmp/test"})` → verify behavior with empty schemas array
+11. `mysql.shell.dumpTables({schema: "testdb", tables: [], outputUrl: "/tmp/test"})` → verify behavior with empty tables array
+12. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputUrl: "/tmp/stress_export"})` → verify structured error for invalid IO root
+13. `mysql.shell.importTable({schema: "testdb", table: "nonexistent_xyz", inputUrl: "/tmp/nonexistent_file"})` → verify structured error for invalid IO root
 
 ## Category 4: Script Execution Safety
 
-14. `mysqlsh_run_script({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
-15. `mysqlsh_run_script({script: "print('hello world')", language: "javascript"})` → verify success
-16. `mysqlsh_run_script({script: ""})` → verify behavior with empty script
+14. `mysql.shell.runScript({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
+15. `mysql.shell.runScript({script: "print('hello world')", language: "javascript"})` → verify success
+16. `mysql.shell.runScript({script: ""})` → verify behavior with empty script
 
 ## Category 5: Security Sandbox Violations
 
-17. `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
-18. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
-19. `mysqlsh_load_dump({inputUrl: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`
+17. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
+18. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
+19. `mysql.shell.loadDump({inputUrl: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`
 
 ---
 
