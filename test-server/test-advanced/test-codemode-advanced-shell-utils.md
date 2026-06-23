@@ -169,8 +169,8 @@ During testing, check for these inconsistencies:
 
 10. `mysql.shell.dumpSchemas({schemas: [], outputUrl: "/tmp/test"})` → verify behavior with empty schemas array
 11. `mysql.shell.dumpTables({schema: "testdb", tables: [], outputUrl: "/tmp/test"})` → verify behavior with empty tables array
-12. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputUrl: "/tmp/stress_export"})` → verify structured error for invalid IO root
-13. `mysql.shell.importTable({schema: "testdb", table: "nonexistent_xyz", inputUrl: "/tmp/nonexistent_file"})` → verify structured error for invalid IO root
+12. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputUrl: "/tmp/stress_export.csv"})` → verify structured error for invalid IO root
+13. `mysql.shell.importTable({schema: "testdb", table: "nonexistent_xyz", inputUrl: "/tmp/nonexistent_file.csv"})` → verify structured error for invalid IO root
 
 ## Category 4: Script Execution Safety
 
