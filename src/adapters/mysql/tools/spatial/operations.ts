@@ -140,13 +140,6 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         const { geometry, distance, srid, segments } =
           BufferSchema.parse(params);
 
-        // Handler-level validation for segments (replaces schema .min(1))
-        if (segments < 1) {
-          return withTokenEstimate({
-            success: false, error: "segments must be >= 1", code: "VALIDATION_ERROR",
-          });
-        }
-
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
         // Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm.
         const isGeographic = srid !== 0;
@@ -275,10 +268,8 @@ export function createSpatialGeoJSONTool(
             },
           });
         }
-
-        return withTokenEstimate({
-          success: false, error: "Either geometry or geoJson must be provided", code: "VALIDATION_ERROR",
-        });
+        
+        throw new Error("Unreachable");
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
