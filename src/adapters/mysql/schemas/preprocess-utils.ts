@@ -265,6 +265,10 @@ export function preprocessDocIndexParams(val: unknown): unknown {
   const v = val as Record<string, unknown>;
   const result = { ...v };
 
+  if (result["name"] === undefined && result["indexName"] !== undefined) {
+    result["name"] = result["indexName"];
+  }
+
   if (Array.isArray(result["fields"])) {
     result["fields"] = result["fields"].map((f: unknown) => {
       if (typeof f !== "object" || f === null) return f;
