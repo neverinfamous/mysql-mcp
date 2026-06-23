@@ -153,9 +153,9 @@ vector-search Tool Group (3 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_vector_search({...})` → happy path
-2. `mysql_vector_range_search({...})` → happy path
-3. `mysql_vector_hybrid_search({...})` → happy path
+1. `mysql_vector_search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
+2. `mysql_vector_range_search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
+3. `mysql_vector_hybrid_search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
 
 **Domain error paths (🔴):**
 
