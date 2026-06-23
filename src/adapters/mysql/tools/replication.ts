@@ -175,18 +175,19 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         try {
           const result = await adapter.executeQuery(sql);
           
-          // Truncate long Info fields to save tokens and prevent payload bloat
-          const events = (result.rows ?? []).map((row: unknown) => {
+          // Strip repetitive columns to save tokens and prevent payload bloat
+          const events = (result.rows ?? []).map((row: Record<string, unknown>) => {
+            const optimized = { ...row };
+            delete optimized["Log_name"];
+            delete optimized["Server_id"];
+
             if (
-              row !== null &&
-              typeof row === "object" &&
-              "Info" in row &&
-              typeof row.Info === "string" &&
-              row.Info.length > 250
+              typeof optimized["Info"] === "string" &&
+              optimized["Info"].length > 150
             ) {
-              return { ...row, Info: row.Info.substring(0, 247) + "..." };
+              optimized["Info"] = optimized["Info"].substring(0, 147) + "...";
             }
-            return row;
+            return optimized;
           });
 
           const response = {
