@@ -150,7 +150,7 @@ spatial-queries Tool Group (4 tools +1 for code mode):
 4. 'mysql_spatial_within'
 5. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item with the exact inputs shown using CODE MODE (`mysql_execute_code`).
 
 **Checklist:**
 
