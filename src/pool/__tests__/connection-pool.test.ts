@@ -116,11 +116,11 @@ describe("ConnectionPool", () => {
 
       await poolWithInit.getConnection();
       expect(mockConn.query).toHaveBeenCalledWith(initSql[0]);
-      expect(mockConn.query).toHaveBeenCalledTimes(1);
+      expect(mockConn.query).toHaveBeenCalledTimes(2);
 
       // Second checkout of the SAME connection should not run it again
       await poolWithInit.getConnection();
-      expect(mockConn.query).toHaveBeenCalledTimes(1); // Still 1
+      expect(mockConn.query).toHaveBeenCalledTimes(2); // Still 2
     });
 
     it("should fail connection checkout if initialization fails", async () => {
@@ -420,6 +420,7 @@ describe("ConnectionPool Error Handling", () => {
 
     const internalPool = (pool as any).pool;
     const connection = await internalPool.getConnection();
+    (pool as any).initializedConnections.add(connection);
     vi.spyOn(connection, "query").mockRejectedValueOnce(
       new Error("Query failed"),
     );

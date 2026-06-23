@@ -73,7 +73,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeQuery(
           `SELECT ST_AsText(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)}), 'axis-order=long-lat') as wkt,
-                        ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)})) as geoJson`,
+                        ST_AsGeoJSON(ST_SRID(ST_GeomFromText('POINT(${String(longitude)} ${String(latitude)})', ${String(srid)}, 'axis-order=long-lat'), ${String(srid)}), 5) as geoJson`,
         );
 
         const row = result.rows?.[0];
@@ -126,7 +126,7 @@ export function createSpatialPolygonTool(
 
         const result = await adapter.executeQuery(
           `SELECT ST_AsText(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
-                        ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson,
+                        ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), 5) as geoJson,
                         ST_Area(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as area`,
           [wkt, wkt, wkt],
         );
