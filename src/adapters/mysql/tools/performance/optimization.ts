@@ -289,18 +289,13 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get EXPLAIN for the query
         let explainResult: unknown = null;
-        let explainError: string | undefined;
-        try {
-          const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
-          const result = await adapter.executeReadQuery(explainSql);
-          if (result.rows?.[0]) {
-            const explainStr = result.rows[0]["EXPLAIN"];
-            if (typeof explainStr === "string") {
-              explainResult = JSON.parse(explainStr);
-            }
+        const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
+        const result = await adapter.executeReadQuery(explainSql);
+        if (result.rows?.[0]) {
+          const explainStr = result.rows[0]["EXPLAIN"];
+          if (typeof explainStr === "string") {
+            explainResult = JSON.parse(explainStr);
           }
-        } catch (err: unknown) {
-          explainError = formatMysqlError(err);
         }
 
         const response: Record<string, unknown> = {
@@ -312,14 +307,6 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             explainPlan: explainResult,
           },
         };
-
-        if (explainError) {
-          response["success"] = false;
-          response["error"] = explainError;
-          if (typeof response["data"] === "object" && response["data"] !== null) {
-            Object.assign(response["data"], { explainError });
-          }
-        }
 
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
