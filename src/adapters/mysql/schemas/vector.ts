@@ -258,7 +258,6 @@ export const VectorOptimizeSchema = z
 export const VectorStatsSchemaBase = z.object({
   table: tableParamBase,
   column: columnParamBase,
-  sampleSize: z.unknown().optional().describe("Number of random pairs to sample for distance distribution (default: 100)"),
 });
 
 export const VectorStatsSchema = z
@@ -267,7 +266,6 @@ export const VectorStatsSchema = z
     z.object({
   table: tableParam,
   column: columnParam,
-  sampleSize: z.number().int().positive().max(1000).optional().default(100),
 })
   );
 

@@ -469,7 +469,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Info**: \`mysql_vector_info({ table })\` → lists all VECTOR columns with dimensions, row counts, index status. Use this first to check compatibility.
 - **Create index**: \`mysql_vector_create_index({ table, column })\` → creates HNSW vector index (MySQL 9.1+ only). Speeds up KNN search significantly on large tables.
 - **Optimize**: \`mysql_vector_optimize({ table })\` → runs \`ANALYZE TABLE\` to update vector index statistics.
-- **Stats**: \`mysql_vector_stats({ table, column })\` → dimension count, vector count, null count, sample distance distribution.
+- **Stats**: \`mysql_vector_stats({ table, column })\` → dimension count, vector count, null count.
 - ❌ Don't store raw text in VECTOR columns — convert embeddings to \`number[]\` first.
 - ❌ Don't mix dimensions within the same column — all vectors must have the same dimensionality.
 - ❌ Don't use \`mysql_vector_hybrid_search\` without a FULLTEXT index on \`textColumn\` — returns \`FULLTEXT_INDEX_MISSING\` error.
