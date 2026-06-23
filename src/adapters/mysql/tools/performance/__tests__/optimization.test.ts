@@ -99,7 +99,7 @@ describe("Performance Optimization Tools", () => {
       expect(result.data.explainPlan).toBeDefined();
     });
 
-    it("should handle explain failure gracefully with explainError", async () => {
+    it("should return structured error on explain failure", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Table 'testdb.nonexistent' doesn't exist"),
       );
@@ -110,10 +110,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
-      )) as { data: { explainPlan: unknown; explainError: string } };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.explainPlan).toBeNull();
-      expect(result.data.explainError).toBe(
+      expect(result.success).toBe(false);
+      expect(result.error).toContain(
         "Table 'testdb.nonexistent' doesn't exist",
       );
     });
@@ -480,7 +480,7 @@ describe("Performance Optimization Tools", () => {
       );
     });
 
-    it("mysql_query_rewrite should strip adapter prefix from explainError", async () => {
+    it("mysql_query_rewrite should strip adapter prefix from error", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
           "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
@@ -493,10 +493,10 @@ describe("Performance Optimization Tools", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost" },
         mockContext,
-      )) as { data: { explainPlan: unknown; explainError: string } };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.explainPlan).toBeNull();
-      expect(result.data.explainError).toBe(
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(
         "Table 'testdb.ghost' doesn't exist",
       );
     });

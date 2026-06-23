@@ -21,7 +21,6 @@ import {
 } from "../../schemas/index.js";
 import { z } from "zod";
 import {
-  formatMysqlError,
   formatHandlerErrorResponse,
 } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
@@ -289,18 +288,13 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get EXPLAIN for the query
         let explainResult: unknown = null;
-        let explainErrorStr: string | undefined = undefined;
         const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
-        try {
-          const result = await adapter.executeReadQuery(explainSql);
-          if (result.rows?.[0]) {
-            const explainStr = result.rows[0]["EXPLAIN"];
-            if (typeof explainStr === "string") {
-              explainResult = JSON.parse(explainStr);
-            }
+        const result = await adapter.executeReadQuery(explainSql);
+        if (result.rows?.[0]) {
+          const explainStr = result.rows[0]["EXPLAIN"];
+          if (typeof explainStr === "string") {
+            explainResult = JSON.parse(explainStr);
           }
-        } catch (err) {
-          explainErrorStr = formatMysqlError(err);
         }
 
         const response: Record<string, unknown> = {
@@ -310,7 +304,6 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             rewrittenQuery: query,
             suggestions,
             explainPlan: explainResult,
-            ...(explainErrorStr ? { explainError: explainErrorStr } : {}),
           },
         };
 
@@ -490,6 +483,7 @@ export function createOptimizerTraceTool(
                             const i = item as Record<string, unknown>;
                             if (i["usable"] === false) return false;
                             if (i["chosen"] === false) return false;
+                            if (i["pruned_by_cost"] === true) return false;
                           }
                           return true;
                         })
@@ -509,6 +503,7 @@ export function createOptimizerTraceTool(
                           k === "ref_optimizer_key_uses" ||
                           k === "table_dependencies" ||
                           k === "finalizing_table_conditions" ||
+                          k === "analyzing_range_alternatives" ||
                           k === "considered_access_paths" && Array.isArray(v) && v.length === 0
                         ) {
                           continue;
@@ -520,6 +515,7 @@ export function createOptimizerTraceTool(
                             // Prune sub-objects that are just rejections
                             if (c["usable"] === false) continue;
                             if (c["chosen"] === false) continue;
+                            if (c["pruned_by_cost"] === true) continue;
                           }
                           res[k] = cleaned;
                         }

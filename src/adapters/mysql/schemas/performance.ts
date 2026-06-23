@@ -354,8 +354,7 @@ export const QueryRewriteOutputSchema = BaseOutputSchema.extend({
     originalQuery: z.string(),
     rewrittenQuery: z.string(),
     suggestions: z.array(z.string()),
-    explainPlan: z.unknown(),
-    explainError: z.string().optional()
+    explainPlan: z.unknown()
   }).optional()
 });
 

@@ -374,10 +374,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent LIMIT 1" },
         mockContext,
-      )) as { data: { explainError: string; explainPlan: unknown } };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.explainError).toBeDefined();
-      expect(result.data.explainPlan).toBeNull();
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
 
     it("should use sql alias for query", async () => {
