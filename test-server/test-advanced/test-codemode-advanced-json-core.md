@@ -154,7 +154,7 @@ json-core Tool Group (8 tools +1 for code mode):
 8. 'mysql_json_array_append'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item with the exact inputs shown using CODE MODE (`mysql_execute_code`) ONLY.
 
 **Checklist:**
 
