@@ -64,7 +64,7 @@ export const DropCollectionSchemaBase = z.object({
 export const DropCollectionSchemaStrict = z.object({
   name: z.string(),
   schema: z.string().optional(),
-  ifExists: z.boolean().default(true),
+  ifExists: z.boolean().default(false),
 });
 
 export const DropCollectionSchema = z.preprocess(
