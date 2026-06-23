@@ -50,11 +50,22 @@ const SchemaStatsSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   limit: z.unknown().optional().describe("Maximum number of results"),
 });
 
-const SchemaStatsSchema = z
-  .object({
+const SchemaStatsSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: obj['schema'] ?? obj['database'],
+      };
+    }
+    return val;
+  },
+  z.object({
     schema: z.string().optional(),
     limit: z.unknown().optional(),
   })
@@ -64,7 +75,8 @@ const SchemaStatsSchema = z
   }))
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
-  });
+  })
+);
 
 /**
  * Get schema object statistics
