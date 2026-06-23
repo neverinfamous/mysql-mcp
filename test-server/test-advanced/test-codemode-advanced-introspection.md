@@ -76,7 +76,7 @@
 2. **Error Path Testing**: For **every** tool, test at least **two** invalid inputs:
    - (a) A domain error (e.g., non-existent table).
    - (b) An **empty parameters test** (call the tool with `{}`).
-     Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
+     Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame. *(Note: Tools that intentionally default to analyzing all schemas when called with `{}`—such as `mysql_topological_sort`, `mysql_schema_snapshot`, and `mysql_constraint_analysis`—are exempt from this rule as `{}` is a valid input for them).*
      > **Note on Aliases & Zod**: Tools that support legacy parameter aliases (e.g. `tableName` instead of `table`) often use `.default("")` in their Zod schema so the SDK validation lets the payload reach the handler's alias-resolution logic. For these tools, calling with `{}` will pass Zod validation and correctly trigger a handler-level domain error (e.g. `TABLE_NOT_FOUND`) instead of a strict Zod `invalid_type` error. **This is expected behavior.** Do NOT remove `.default("")` from schemas to force a Zod error, as this will break alias compatibility.
 3. **Output Schema Testing**: For **every** tool that has an `outputSchema`, confirm that at least one valid happy-path call returns a structured JSON response — NOT a raw MCP `-32602` "output schema" error. Output schema mismatches produce the same `-32602` code as input errors but are only caught with valid inputs.
 4. **Wrong-Type Coercion**: For every tool with optional numeric parameters (e.g., `limit`), call the tool with `param: "abc"` (string instead of number). The tool must NOT return a raw MCP `-32602` error.
