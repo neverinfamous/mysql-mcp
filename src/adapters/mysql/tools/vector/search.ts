@@ -37,10 +37,9 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const table = sanitizeIdentifier(validated.table);
         const column = sanitizeIdentifier(validated.column);
         
-        let selectCols = `*, VECTOR_TO_STRING(\`${column}\`) as vector_str`;
+        let selectCols = `*`;
         if (validated.select && validated.select.length > 0) {
-          const safeSelectCols = validated.select.map(c => `\`${sanitizeIdentifier(c)}\``).join(", ");
-          selectCols = `${safeSelectCols}, VECTOR_TO_STRING(\`${column}\`) as vector_str`;
+          selectCols = validated.select.map(c => `\`${sanitizeIdentifier(c)}\``).join(", ");
         }
 
         const vectorStr = formatVector(validated.queryVector);
@@ -68,13 +67,11 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
         // Strip the raw vector from the output to save tokens, 
         // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
-          const rest = { ...row };
-          delete rest["vector_str"];
           if (validated.select && validated.select.length > 0) {
-             return rest;
+             return row;
           }
           return Object.fromEntries(
-            Object.entries(rest).filter(([key]) => key !== validated.column)
+            Object.entries(row).filter(([key]) => key !== validated.column)
           );
         });
 
@@ -156,7 +153,6 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         
         const query = `
           SELECT *, 
-                 VECTOR_TO_STRING(\`${column}\`) as vector_str,
                  DISTANCE(\`${column}\`, STRING_TO_VECTOR(?), '${metricLiteral}') as distance
           FROM \`${table}\`
           ${whereClause}
@@ -170,10 +166,8 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         // Strip the raw vector from the output to save tokens,
         // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
-          const rest = { ...row };
-          delete rest["vector_str"];
           return Object.fromEntries(
-            Object.entries(rest).filter(([key]) => key !== validated.column)
+            Object.entries(row).filter(([key]) => key !== validated.column)
           );
         });
 
