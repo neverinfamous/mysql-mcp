@@ -154,7 +154,7 @@ During testing, check for these inconsistencies:
 
 1. `mysql_regexp_match` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`
 2. `mysql_regexp_match` with empty pattern `""` → verify behavior (empty match or error)
-3. `mysql_regexp_match` with MySQL-specific metacharacters (e.g., `"[[:<:]]"` word boundary) → verify results
+3. `mysql_regexp_match` with legacy MySQL metacharacters (e.g., `"[[:<:]]"`, which is invalid in MySQL 8+) → verify structured `{success: false}`
 
 ## Category 2: Unicode & Encoding
 
