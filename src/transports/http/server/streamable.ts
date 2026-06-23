@@ -160,6 +160,7 @@ export async function handleStreamableRequest(
 
     const sid = newTransport.sessionId;
     if (sid) {
+      res.setHeader("Mcp-Session-Id", sid);
       sessionManager.incrementInFlight(sid);
     }
     try {
