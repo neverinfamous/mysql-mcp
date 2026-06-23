@@ -95,27 +95,28 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const localUuidVal = localResult.rows?.[0]?.["serverUuid"];
         const localUuid = typeof localUuidVal === "string" ? localUuidVal : "";
         const members = memberResult.rows ?? [];
-        const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
+        const mappedMembers = members.map((m) => {
+          return {
+            id: m["MEMBER_ID"],
+            host: m["MEMBER_HOST"],
+            port: m["MEMBER_PORT"],
+            state: m["MEMBER_STATE"],
+            role: m["MEMBER_ROLE"],
+            version: m["MEMBER_VERSION"],
+            isLocal: m["MEMBER_ID"] === localUuid,
+          };
+        });
+
+        const localMemberMapped = mappedMembers.find((m) => m.isLocal) ?? null;
 
         const data = {
           enabled: members.length > 0,
           groupName: config?.["groupName"] ?? null,
           singlePrimaryMode: config?.["singlePrimaryMode"] === 1,
           localAddress: config?.["localAddress"] ?? null,
-          localMember: localMember ?? null,
-          memberCount: members.length,
-          members: members.map((m) => {
-            const member = m;
-            return {
-              id: member["MEMBER_ID"],
-              host: member["MEMBER_HOST"],
-              port: member["MEMBER_PORT"],
-              state: member["MEMBER_STATE"],
-              role: member["MEMBER_ROLE"],
-              version: member["MEMBER_VERSION"],
-              isLocal: member["MEMBER_ID"] === localUuid,
-            };
-          }),
+          localMember: localMemberMapped,
+          memberCount: mappedMembers.length,
+          members: mappedMembers,
         };
         return withTokenEstimate({ success: true, data });
       } catch (error) {
