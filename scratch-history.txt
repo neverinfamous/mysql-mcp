@@ -1,0 +1,2 @@
+Category: Changed
+Truncated long 'Info' fields in the binlog_events tool payload to a maximum of 250 characters. This prevents oversized token payloads when retrieving row-based replication events with large SQL queries.

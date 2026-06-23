@@ -174,9 +174,24 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
+          
+          // Truncate long Info fields to save tokens and prevent payload bloat
+          const events = (result.rows ?? []).map((row: unknown) => {
+            if (
+              row !== null &&
+              typeof row === "object" &&
+              "Info" in row &&
+              typeof row.Info === "string" &&
+              row.Info.length > 250
+            ) {
+              return { ...row, Info: row.Info.substring(0, 247) + "..." };
+            }
+            return row;
+          });
+
           const response = {
             success: true as const,
-            data: { events: result.rows },
+            data: { events },
           };
           return withTokenEstimate(response);
         } catch (e) {
