@@ -17,7 +17,6 @@ import {
 import { transformAutoReturn } from "./auto-return.js";
 import {
   ValidationError,
-  RateLimitError,
   PoolError,
 } from "../types/modules/errors.js";
 
@@ -285,7 +284,7 @@ export class CodeModeSandbox {
       let rpcCount = 0;
       // Security (CWE-400): Limit host tool calls per execution to prevent
       // malicious code from flooding the host via rapid RPC requests.
-      const MAX_RPC_CALLS = 100;
+      const MAX_RPC_CALLS = 1000;
 
       // Inject apiBindings
       let batchedScript = "";
@@ -295,54 +294,68 @@ export class CodeModeSandbox {
           for (const [methodName, methodFn] of Object.entries(groupValue)) {
             if (typeof methodFn === "function") {
               const fnRef = new ivmLib.Reference(async (...args: unknown[]) => {
-                if (++rpcCount > MAX_RPC_CALLS) {
-                  throw new RateLimitError(
-                    `QuotaExceededError: Maximum number of host tool calls (${MAX_RPC_CALLS}) exceeded (attempted call ${rpcCount}).`,
-                  );
-                }
                 try {
-                  return await (
+                  if (++rpcCount > MAX_RPC_CALLS) {
+                    return {
+                      __isHostError: true,
+                      message: `RateLimitError: QuotaExceededError: Maximum number of host tool calls (${MAX_RPC_CALLS}) exceeded (attempted call ${rpcCount}).`
+                    };
+                  }
+                  const res = await (
                     methodFn as (...args: unknown[]) => Promise<unknown>
                   )(...args);
+                  return res;
                 } catch (e) {
-                  throw new Error(
-                    e instanceof Error ? e.message : String(e),
-                    { cause: e }
-                  );
+                  return {
+                    __isHostError: true,
+                    message: e instanceof Error ? e.message : String(e)
+                  };
                 }
               });
               refCleanup.push(fnRef);
               const refName = `fnRef_${groupName}_${methodName}`;
               context.global.setSync(refName, fnRef);
               batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
-                  const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(globalThis.wrapResult);
+                  const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
+                      if (res && typeof res === 'object' && res.__isHostError) {
+                          throw new Error(res.message);
+                      }
+                      return globalThis.wrapResult(res);
+                  });
                   return globalThis.wrapPromise(promise, ${JSON.stringify(methodName)});
                 };\n`;
             }
           }
         } else if (typeof groupValue === "function") {
           const fnRef = new ivmLib.Reference(async (...args: unknown[]) => {
-            if (++rpcCount > MAX_RPC_CALLS) {
-              throw new RateLimitError(
-                `QuotaExceededError: Maximum number of host tool calls (${MAX_RPC_CALLS}) exceeded (attempted call ${rpcCount}).`,
-              );
-            }
             try {
-              return await (
+              if (++rpcCount > MAX_RPC_CALLS) {
+                return {
+                  __isHostError: true,
+                  message: `RateLimitError: QuotaExceededError: Maximum number of host tool calls (${MAX_RPC_CALLS}) exceeded (attempted call ${rpcCount}).`
+                };
+              }
+              const res = await (
                 groupValue as (...args: unknown[]) => Promise<unknown>
               )(...args);
+              return res;
             } catch (e) {
-              throw new Error(
-                e instanceof Error ? e.message : String(e),
-                { cause: e }
-              );
+              return {
+                __isHostError: true,
+                message: e instanceof Error ? e.message : String(e)
+              };
             }
           });
           refCleanup.push(fnRef);
           const refName = `fnRef_${groupName}`;
           context.global.setSync(refName, fnRef);
           batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = (...args) => {
-              const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(globalThis.wrapResult);
+              const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
+                  if (res && typeof res === 'object' && res.__isHostError) {
+                      throw new Error(res.message);
+                  }
+                  return globalThis.wrapResult(res);
+              });
               return globalThis.wrapPromise(promise, ${JSON.stringify(groupName)});
             };\n`;
         }
