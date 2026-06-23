@@ -138,11 +138,11 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: json-helpers
+## Group Focus: json (helpers)
 
-### json-helpers Group-Specific Testing
+### json (helpers) Group-Specific Testing
 
-json-helpers Tool Group (4 tools +1 for code mode):
+json (helpers) Tool Group (4 tools +1 for code mode):
 
 1. 'mysql_json_get'
 2. 'mysql_json_update'
@@ -150,7 +150,7 @@ json-helpers Tool Group (4 tools +1 for code mode):
 4. 'mysql_json_validate'
 5. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item with realistic inputs using Code Mode (`mysql_execute_code`) ONLY.
 
 **Checklist:**
 
