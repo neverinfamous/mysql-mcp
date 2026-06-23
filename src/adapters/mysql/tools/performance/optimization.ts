@@ -484,6 +484,7 @@ export function createOptimizerTraceTool(
                             if (i["usable"] === false) return false;
                             if (i["chosen"] === false) return false;
                             if (i["pruned_by_cost"] === true) return false;
+                            if (i["pruned_by_heuristic"] === true) return false;
                           }
                           return true;
                         })
@@ -504,7 +505,9 @@ export function createOptimizerTraceTool(
                           k === "table_dependencies" ||
                           k === "finalizing_table_conditions" ||
                           k === "analyzing_range_alternatives" ||
-                          k === "considered_access_paths" && Array.isArray(v) && v.length === 0
+                          k === "considered_access_paths" && Array.isArray(v) && v.length === 0 ||
+                          k === "chosen" && v === true ||
+                          k === "usable" && v === true
                         ) {
                           continue;
                         }
@@ -516,6 +519,7 @@ export function createOptimizerTraceTool(
                             if (c["usable"] === false) continue;
                             if (c["chosen"] === false) continue;
                             if (c["pruned_by_cost"] === true) continue;
+                            if (c["pruned_by_heuristic"] === true) continue;
                           }
                           res[k] = cleaned;
                         }
