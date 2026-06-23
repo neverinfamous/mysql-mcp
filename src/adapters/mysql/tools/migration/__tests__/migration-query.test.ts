@@ -28,6 +28,9 @@ describe("Migration Query Tools", () => {
       if (query.includes("information_schema.TABLES")) {
         return createMockQueryResult([{ table_exists: 1 }]);
       }
+      if (query.includes("information_schema.SCHEMATA")) {
+        return createMockQueryResult([{ schema_exists: 1 }]);
+      }
       return createMockQueryResult([]);
     });
   });
@@ -178,6 +181,8 @@ describe("Migration Query Tools", () => {
 
     it("should return initialized false if table is missing", async () => {
       mockAdapter.executeReadQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.SCHEMATA"))
+          return createMockQueryResult([{ schema_exists: 1 }]);
         if (query.includes("information_schema.TABLES"))
           return createMockQueryResult([{ table_exists: 0 }]);
         return createMockQueryResult([]);
@@ -191,6 +196,8 @@ describe("Migration Query Tools", () => {
 
     it("should return aggregated status when table exists", async () => {
       mockAdapter.executeReadQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.SCHEMATA"))
+          return createMockQueryResult([{ schema_exists: 1 }]);
         if (query.includes("information_schema.TABLES"))
           return createMockQueryResult([{ table_exists: 1 }]);
         if (query.includes("COUNT(*)"))
