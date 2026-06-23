@@ -152,31 +152,31 @@ During testing, check for these inconsistencies:
 
 ## Category 1: Single-Server Resilience
 
-1. `mysql_master_status()` → verify structured `{success: true}` with binlog position (works on single server)
-2. `mysql_slave_status()` → verify graceful response when no replication is configured (not crash)
-3. `mysql_gtid_status()` → verify structured response (may be empty GTID set)
-4. `mysql_replication_lag()` → verify structured response indicating no replica or 0 lag
+1. `mysql.replication.masterStatus()` → verify structured `{success: true}` with binlog position (works on single server)
+2. `mysql.replication.slaveStatus()` → verify graceful response when no replication is configured (not crash)
+3. `mysql.replication.gtidStatus()` → verify structured response (may be empty GTID set)
+4. `mysql.replication.replicationLag()` → verify structured response indicating no replica or 0 lag
 5. All responses must have consistent top-level shape (`success` field present)
 
 ## Category 2: Binlog Boundary Values
 
-6. `mysql_binlog_events({limit: 0})` → verify behavior (empty result or error)
-7. `mysql_binlog_events({limit: 1})` → verify returns at most 1 event
-8. `mysql_binlog_events({limit: 50})` → log token estimate, verify reasonable payload
-9. `mysql_binlog_events({logFile: "nonexistent_binlog.000999"})` → verify structured `{success: false}`
-10. `mysql_binlog_events({logFile: ""})` → verify structured error for empty filename
+6. `mysql.replication.binlogEvents({limit: 0})` → verify behavior (empty result or error)
+7. `mysql.replication.binlogEvents({limit: 1})` → verify returns at most 1 event
+8. `mysql.replication.binlogEvents({limit: 50})` → log token estimate, verify reasonable payload
+9. `mysql.replication.binlogEvents({logFile: "nonexistent_binlog.000999"})` → verify structured `{success: false}`
+10. `mysql.replication.binlogEvents({logFile: ""})` → verify structured error for empty filename
 
 ## Category 3: Happy-Path Stress (When Replication IS Available)
 
-11. `mysql_master_status()` → verify binlog file, position, and GTID fields
-12. `mysql_slave_status()` → verify replica state, IO/SQL thread status
-13. `mysql_replication_lag()` → verify lag value is numeric ≥ 0
-14. `mysql_gtid_status()` → verify GTID set format
+11. `mysql.replication.masterStatus()` → verify binlog file, position, and GTID fields
+12. `mysql.replication.slaveStatus()` → verify replica state, IO/SQL thread status
+13. `mysql.replication.replicationLag()` → verify lag value is numeric ≥ 0
+14. `mysql.replication.gtidStatus()` → verify GTID set format
 
 ## Category 4: Payload Monitoring
 
-15. `mysql_binlog_events()` default → log token estimate
-16. `mysql_master_status()` → log token estimate
+15. `mysql.replication.binlogEvents()` default → log token estimate
+16. `mysql.replication.masterStatus()` → log token estimate
 17. Flag any response > 500 tokens as 📦
 
 ---
