@@ -187,21 +187,22 @@ During testing, check for these inconsistencies:
 11. `mysql.shell.dumpTables({schema: "testdb", tables: [], outputUrl: "C:/Users/chris/AppData/Local/Temp/test"})` → verify behavior with empty tables array
 12. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_export.csv"})` → verify success
 13. `mysql.shell.importTable({schema: "testdb", table: "nonexistent_xyz", inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_file.csv"})` → verify structured error
+14. `mysql.shell.importJson({schema: "testdb", collection: "nonexistent_xyz", inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_file.json"})` → verify structured error
 
 ## Category 4: Script Execution Safety
 
-14. `mysql.shell.runScript({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
-15. `mysql.shell.runScript({script: "print('hello world')", language: "javascript"})` → verify success
-16. `mysql.shell.runScript({script: ""})` → verify behavior with empty script
+15. `mysql.shell.runScript({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
+16. `mysql.shell.runScript({script: "print('hello world')", language: "javascript"})` → verify success
+17. `mysql.shell.runScript({script: ""})` → verify behavior with empty script
 
 ---
 
 
 ## Category 5: Security Sandbox Violations
 
-17. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
-18. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
-19. `mysql.shell.loadDump({inputUrl: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`
+18. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
+19. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
+20. `mysql.shell.loadDump({inputUrl: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`
 
 ---
 
