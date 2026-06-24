@@ -166,14 +166,14 @@ partitioning Tool Group (4 tools +1 code mode):
 
 1. `mysql.partitioning.help()` → verify method listing
 2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
-3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "pNew", lessThan: "'2026-01-01'" })` → verify success
-4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", partitionNames: ["pNew"], newPartitions: [{name: "pNew1", lessThan: "'2025-06-01'"}, {name: "pNew2", lessThan: "'2026-01-01'"}] })` → verify success
-5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionNames: ["pNew1", "pNew2"] })` → verify success
+3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
+4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_west"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_west1", value: "'west'"}, {name: "p_west2", value: "'northwest'"}] })` → verify success
+5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
 
 **Domain error paths (🔴):**
 
 6. 🔴 `mysql.partitioning.partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
-7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionNames: ["nonexistent_p"] })` → `{success: false}`
+7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
