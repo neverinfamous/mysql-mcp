@@ -18,7 +18,10 @@ const ListEventsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
-  status: z.string().optional().describe("Filter by status"),
+  status: z
+    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
+    .optional()
+    .describe("Filter by status"),
 });
 
 const ListEventsSchema = z.preprocess(

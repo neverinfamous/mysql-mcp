@@ -19,3 +19,4 @@
 - Fixed `mysql_explain_analyze` to throw a structured `ValidationError` instead of returning a raw error object when `FORMAT=JSON` is requested.
 - Fixed `safeRouterFetch` in the `router` tools to use the standard `ErrorCategory.RESOURCE` instead of casting an invalid `"domain"` category for 404 responses.
 - Fixed Split Schema pattern for `mysql_list_schemas`, `mysql_create_schema`, and `mysql_drop_schema` to properly use `z.preprocess` and support schema/database aliases.
+- Fixed Split Schema pattern for `mysql_list_events` by exposing the `status` enum in the base input schema.
