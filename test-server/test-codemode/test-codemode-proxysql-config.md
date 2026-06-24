@@ -166,7 +166,7 @@ proxysql Tool Group (11 tools +1 code mode):
 2. `mysql.proxysql.queryRules()` → routing rules
 3. `mysql.proxysql.users()` → user listing
 4. `mysql.proxysql.globalVariables({limit: 10})` → first 10
-5. `mysql.proxysql.commands({command: "SHOW TABLES"})` → admin command execution
+5. `mysql.proxysql.commands({command: "LOAD MYSQL USERS TO RUNTIME"})` → admin command execution
 6. 🔴 `mysql.proxysql.commands({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
