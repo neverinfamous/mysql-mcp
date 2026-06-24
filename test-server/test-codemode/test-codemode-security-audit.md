@@ -156,17 +156,17 @@ During testing, check for these inconsistencies:
 ## Group Focus: security (Audit & Mask)
 
 1. `mysql.security.help()`
-2. `mysql.security.securityAudit({ scope: "users" })`
-3. `mysql.security.securityMaskData({ table: "test_users", column: "email", maskType: "email" })`
-4. `mysql.security.securityUserPrivileges({ userName: "root" })`
-5. `mysql.security.securitySensitiveTables({ database: "testdb" })`
+2. `mysql.security.audit({ scope: "users" })`
+3. `mysql.security.maskData({ value: "test@example.com", type: "email" })`
+4. `mysql.security.userPrivileges({ userName: "root" })`
+5. `mysql.security.sensitiveTables({ database: "testdb" })`
 
 **Domain error paths (🔴):**
-6. 🔴 `mysql.security.securityMaskData({ table: "nonexistent_table", column: "email", maskType: "email" })`
-7. 🔴 `mysql.security.securityUserPrivileges({ userName: "nonexistent_user" })`
+6. 🔴 `mysql.security.maskData({ value: "test@example.com", type: "invalid_type" })`
+7. 🔴 `mysql.security.userPrivileges({ userName: "nonexistent_user" })`
 
 **Zod validation error paths (🔴):**
-8. 🔴 `mysql.security.securityMaskData({})`
+8. 🔴 `mysql.security.maskData({})`
 
 ---
 

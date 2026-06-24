@@ -30,9 +30,9 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const MaskDataSchemaBase = z.object({
-  value: z.string().optional().describe("Value to mask"),
+  value: z.string().describe("Value to mask"),
   data: z.string().optional().describe("Alias for value"),
-  type: z.string().optional().describe("Masking type"),
+  type: z.string().describe("Masking type"),
   keepFirst: z.number().optional().describe("Characters to keep from start"),
   keepLast: z.number().optional().describe("Characters to keep from end"),
   maskChar: z.string().optional().describe("Character to use for masking"),
@@ -58,6 +58,7 @@ const MaskDataSchema = z.preprocess(
 
 const UserPrivilegesSchemaBase = z.object({
   user: z.string().optional().describe("Filter by username"),
+  userName: z.string().optional().describe("Alias for user"),
   host: z.string().optional().describe("Host pattern"),
   includeRoles: z.boolean().optional().describe("Include role grants"),
   summary: z
@@ -69,7 +70,14 @@ const UserPrivilegesSchemaBase = z.object({
 });
 
 const UserPrivilegesSchema = z.preprocess(
-  (val: unknown) => val,
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const obj = val as Record<string, unknown>;
+    if (!("user" in obj) && "userName" in obj) {
+      return { ...obj, user: obj["userName"] };
+    }
+    return val;
+  },
   z.object({
     user: z.string().optional(),
     host: z.string().default("%"),
