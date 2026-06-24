@@ -317,7 +317,7 @@ async function detectIqrOutliers(
   // Find outliers — values outside IQR fences
   const outlierSql = `
     SELECT \`${column}\` AS value
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause ? whereClause + " AND" : "WHERE"}
       (\`${column}\` < ${String(lowerBound)} OR \`${column}\` > ${String(upperBound)})
     ORDER BY ABS(\`${column}\` - ${String((q1 + q3) / 2)}) DESC
