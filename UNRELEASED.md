@@ -18,3 +18,4 @@
 - Fixed `mysql_doc_create_index` and `CreateDocIndexSchemaStrict` to accept strings matching `STRING(N)` syntax in the `type` parameter by mapping them to `VARCHAR` during schema generation.
 - Fixed `preprocessDocFilterParams` to correctly map the `condition` alias to `filter` for docstore tools.
 - Fixed `test_documents` schema in `test-seed.sql` to strictly align with standard X DevAPI collections by generating `_id` and setting a default for `collection_name`.
+- Fixed test prompt in `test-codemode-json-core-read.md` to use the correct parameter `value` instead of `candidate` for `mysql_json_contains`.

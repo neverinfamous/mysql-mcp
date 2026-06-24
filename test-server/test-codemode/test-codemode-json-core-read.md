@@ -151,7 +151,7 @@ json-core-read Tool Group:
 
 1. `mysql.json.help()` → verify method listing
 2. `mysql.json.extract({table: "test_json_docs", column: "doc", path: "$.name"})` → values
-3. `mysql.json.contains({table: "test_json_docs", column: "doc", candidate: '{"status":"active"}'})` → matches
+3. `mysql.json.contains({table: "test_json_docs", column: "doc", value: '{"status":"active"}'})` → matches
 4. `mysql.json.keys({table: "test_json_docs", column: "doc", path: "$"})` → keys
 
 **Domain error paths (🔴):**
