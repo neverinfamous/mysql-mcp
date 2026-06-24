@@ -154,7 +154,7 @@ fulltext Tool Group (5 tools +1 for code mode):
 5. 'mysql_fulltext_expand'
 6. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 **Test data:** Uses `test_articles` which has a FULLTEXT INDEX on `(title, body)`.
 

@@ -157,10 +157,7 @@ During testing, check for these inconsistencies:
 
 shell Tool Group (10 tools +1 code mode):
 
-1. `mysqlsh_version` 2. `mysqlsh_check_upgrade` 3. `mysqlsh_export_table`
-2. `mysqlsh_import_table` 5. `mysqlsh_import_json` 6. `mysqlsh_dump_instance`
-3. `mysqlsh_dump_schemas` 8. `mysqlsh_dump_tables` 9. `mysqlsh_load_dump`
-4. `mysqlsh_run_script`
+1. `mysqlsh_version` 2. `mysqlsh_check_upgrade` 3. `mysqlsh_run_script`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

@@ -153,7 +153,49 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Comprehensive Tool Coverage (partitioning)\n\nEnsure EVERY tool in the partitioning group is comprehensively tested.\n\npartitioning Tool Group (4 tools +1 code mode):\n\n1. `mysql_partition_info`\n2. `mysql_add_partition`\n3. `mysql_drop_partition`\n4. `mysql_reorganize_partition`\n\n> **Instructions**: Use `mysql.partitioning.*` namespace.\n\n1. `mysql.partitioning.help()` -> verify method listing\n2. `mysql.partitioning.someMethod({...})` -> verify success\n3. `mysql.partitioning.someMethod({...})` -> verify success\n4. `mysql.partitioning.someMethod({...})` -> verify success\n5. `mysql.partitioning.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n6. 🔴 `mysql.partitioning.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n7. 🔴 `mysql.partitioning.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n8. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n## Category 1: Partition Lifecycle Stress
+## Comprehensive Tool Coverage (partitioning)
+
+Ensure EVERY tool in the partitioning group is comprehensively tested.
+
+partitioning Tool Group (4 tools +1 code mode):
+
+1. `mysql_partition_info`
+2. `mysql_add_partition`
+3. `mysql_drop_partition`
+4. `mysql_reorganize_partition`
+
+> **Instructions**: Use `mysql.partitioning.*` namespace.
+
+1. `mysql.partitioning.help()` -> verify method listing
+2. `mysql.partitioning.someMethod({...})` -> verify success
+3. `mysql.partitioning.someMethod({...})` -> verify success
+4. `mysql.partitioning.someMethod({...})` -> verify success
+5. `mysql.partitioning.someMethod({...})` -> verify success
+
+**Domain error paths (🔴):**
+
+6. 🔴 `mysql.partitioning.someMethod({invalid})` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+7. 🔴 `mysql.partitioning.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+8. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_partition_info`
+- `mysql_add_partition`
+- `mysql_drop_partition`
+- `mysql_reorganize_partition`
+
+## Category 1: Partition Lifecycle Stress
 
 1. Create `stress_part_range` table with RANGE partitioning on an INT column (p0: <100, p1: <200, p2: MAXVALUE)
 2. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify 3 partitions listed

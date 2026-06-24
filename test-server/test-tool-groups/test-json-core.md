@@ -157,29 +157,29 @@ json-core Tool Group (8 tools +1 for code mode):
 8. 'mysql_json_array_append'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-**Checklist:**
+**Checklist (Happy paths):**
 
-1. `mysql_json_extract({...})` → happy path
-2. `mysql_json_set({...})` → happy path
-3. `mysql_json_insert({...})` → happy path
-4. `mysql_json_replace({...})` → happy path
-5. `mysql_json_remove({...})` → happy path
-6. `mysql_json_contains({...})` → happy path
-7. `mysql_json_keys({...})` → happy path
-8. `mysql_json_array_append({...})` → happy path
+1. `mysql_json_extract({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
+2. `mysql_json_set({table: "test_json_docs", column: "doc", path: "$.new_key", value: "new_value", idColumn: "id", rowId: 1})` → happy path
+3. `mysql_json_insert({table: "test_json_docs", column: "doc", path: "$.insert_key", value: "inserted", idColumn: "id", rowId: 1})` → happy path
+4. `mysql_json_replace({table: "test_json_docs", column: "doc", path: "$.key1", value: "replaced", idColumn: "id", rowId: 1})` → happy path
+5. `mysql_json_remove({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
+6. `mysql_json_contains({table: "test_json_docs", column: "doc", value: "value1", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
+7. `mysql_json_keys({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
+8. `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.array_key", value: "new_item", idColumn: "id", rowId: 1})` → happy path
 
 **Domain error paths (🔴):**
 
-9. 🔴 `mysql_json_extract({...})` → domain error
-10. 🔴 `mysql_json_set({...})` → domain error
-11. 🔴 `mysql_json_insert({...})` → domain error
-12. 🔴 `mysql_json_replace({...})` → domain error
-13. 🔴 `mysql_json_remove({...})` → domain error
-14. 🔴 `mysql_json_contains({...})` → domain error
-15. 🔴 `mysql_json_keys({...})` → domain error
-16. 🔴 `mysql_json_array_append({...})` → domain error
+9. 🔴 `mysql_json_extract({table: "nonexistent_table", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → domain error (table not found)
+10. 🔴 `mysql_json_set({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error (column not found)
+11. 🔴 `mysql_json_insert({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", idColumn: "id", rowId: 1})` → domain error (invalid path)
+12. 🔴 `mysql_json_replace({table: "test_json_docs", column: "doc", path: "$.key1", value: "v", idColumn: "id", rowId: 999})` → domain error (row not found)
+13. 🔴 `mysql_json_remove({table: "test_json_docs", column: "doc", path: "$.nonexistent", idColumn: "id", rowId: 1})` → domain error
+14. 🔴 `mysql_json_contains({table: "test_json_docs", column: "doc", value: "v", path: "invalid", idColumn: "id", rowId: 1})` → domain error
+15. 🔴 `mysql_json_keys({table: "nonexistent_table", column: "doc", idColumn: "id", rowId: 1})` → domain error
+16. 🔴 `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error (not an array)
 
 **Zod validation error paths (🔴):**
 

@@ -152,7 +152,7 @@ performance-anomaly Tool Group (3 tools +1 for code mode):
 3. 'mysql_detect_connection_spike'
 4. 'mysql_execute_code' (codemode, auto-added) (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_detect_query_anomalies()` → verify query anomalies detected
 2. `mysql_detect_bloat_risk()` → verify table bloat risks

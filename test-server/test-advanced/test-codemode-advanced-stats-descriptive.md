@@ -141,6 +141,17 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_stats_descriptive`
+- `mysql_stats_percentiles`
+- `mysql_stats_correlation`
+- `mysql_stats_distribution`
+
 ## Category 1: Null & String Handling Boundaries
 
 1. Create a table `stress_stats_desc` with columns `id INT`, `val1 INT`, `val2 VARCHAR(50)`, `val3 INT`.

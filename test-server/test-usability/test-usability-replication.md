@@ -8,7 +8,12 @@ This prompt instructs you to organically test the `replication` tool group using
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `replication` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `replication` group:
+- `mysql_master_status`
+- `mysql_slave_status`
+- `mysql_binlog_events`
+- `mysql_gtid_status`
+- `mysql_replication_lag`
 
 **Instructions:**
 

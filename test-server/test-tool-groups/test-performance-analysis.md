@@ -157,7 +157,7 @@ performance-analysis Tool Group (8 tools +1 for code mode):
 8. 'mysql_thread_stats'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1"})` → verify execution plan returned
 2. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → verify JSON-format plan

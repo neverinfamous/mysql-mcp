@@ -153,6 +153,22 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_doc_list_collections`
+- `mysql_doc_create_collection`
+- `mysql_doc_drop_collection`
+- `mysql_doc_find`
+- `mysql_doc_add`
+- `mysql_doc_modify`
+- `mysql_doc_remove`
+- `mysql_doc_create_index`
+- `mysql_doc_collection_info`
+
 ## Category 1: Collection Lifecycle
 
 1. Create collection `stress_docs`, add 5 documents, verify count

@@ -8,7 +8,13 @@ This prompt instructs you to organically test the `migration` tool group using C
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `migration` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `migration` group:
+- `mysql_migration_init`
+- `mysql_migration_record`
+- `mysql_migration_apply`
+- `mysql_migration_rollback`
+- `mysql_migration_history`
+- `mysql_migration_status`
 
 **Instructions:**
 

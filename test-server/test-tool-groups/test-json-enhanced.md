@@ -154,23 +154,23 @@ json-enhanced Tool Group (5 tools +1 for code mode):
 5. 'mysql_json_index_suggest'
 6. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-**Checklist:**
+**Checklist (Happy paths):**
 
-1. `mysql_json_merge({...})` → happy path
-2. `mysql_json_diff({...})` → happy path
-3. `mysql_json_normalize({...})` → happy path
-4. `mysql_json_stats({...})` → happy path
-5. `mysql_json_index_suggest({...})` → happy path
+1. `mysql_json_merge({table: "test_json_docs", column: "doc", idColumn: "id", rowId1: 1, rowId2: 2})` → happy path
+2. `mysql_json_diff({table: "test_json_docs", column: "doc", idColumn: "id", rowId1: 1, rowId2: 2})` → happy path
+3. `mysql_json_normalize({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
+4. `mysql_json_stats({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
+5. `mysql_json_index_suggest({table: "test_json_docs", column: "doc"})` → happy path
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql_json_merge({...})` → domain error
-7. 🔴 `mysql_json_diff({...})` → domain error
-8. 🔴 `mysql_json_normalize({...})` → domain error
-9. 🔴 `mysql_json_stats({...})` → domain error
-10. 🔴 `mysql_json_index_suggest({...})` → domain error
+6. 🔴 `mysql_json_merge({table: "nonexistent_table", column: "doc", idColumn: "id", rowId1: 1, rowId2: 2})` → domain error
+7. 🔴 `mysql_json_diff({table: "test_json_docs", column: "nonexistent_col", idColumn: "id", rowId1: 1, rowId2: 2})` → domain error
+8. 🔴 `mysql_json_normalize({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 999})` → domain error
+9. 🔴 `mysql_json_stats({table: "nonexistent_table", column: "doc", idColumn: "id", rowId: 1})` → domain error
+10. 🔴 `mysql_json_index_suggest({table: "test_json_docs", column: "nonexistent_col"})` → domain error
 
 **Zod validation error paths (🔴):**
 

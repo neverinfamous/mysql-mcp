@@ -192,6 +192,21 @@ sysschema Tool Group (8 tools +1 code mode):
 
 12. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_sys_user_summary`
+- `mysql_sys_io_summary`
+- `mysql_sys_statement_summary`
+- `mysql_sys_wait_summary`
+- `mysql_sys_innodb_lock_waits`
+- `mysql_sys_schema_stats`
+- `mysql_sys_host_summary`
+- `mysql_sys_memory_summary`
+
 ## Category 1: Payload Efficiency Audit
 
 1. `mysql_sys_user_summary()` → log token estimate

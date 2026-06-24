@@ -159,7 +159,7 @@ shell Tool Group (10 tools +1 for code mode):
 10. 'mysqlsh_run_script'
 11. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysqlsh_version()` → verify MySQL Shell version and installation status
 2. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated

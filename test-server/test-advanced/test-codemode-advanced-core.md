@@ -153,6 +153,22 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_read_query`
+- `mysql_write_query`
+- `mysql_list_tables`
+- `mysql_describe_table`
+- `mysql_create_table`
+- `mysql_drop_table`
+- `mysql_create_index`
+- `mysql_get_indexes`
+- `mysql_conditional_update`
+
 ## Category 1: Boundary Values
 
 1. Insert MAX INT, MIN INT, 0, NULL into a `stress_boundary` table

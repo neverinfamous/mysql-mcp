@@ -153,6 +153,19 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_regexp_match`
+- `mysql_like_search`
+- `mysql_soundex`
+- `mysql_substring`
+- `mysql_concat`
+- `mysql_collation_convert`
+
 ## Category 1: Regex Edge Cases
 
 1. `mysql_regexp_match` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`

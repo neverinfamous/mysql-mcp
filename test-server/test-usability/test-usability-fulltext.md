@@ -8,7 +8,12 @@ This prompt instructs you to organically test the `fulltext` tool group using Co
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `fulltext` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `fulltext` group:
+- `mysql_fulltext_create`
+- `mysql_fulltext_drop`
+- `mysql_fulltext_search`
+- `mysql_fulltext_boolean`
+- `mysql_fulltext_expand`
 
 **Instructions:**
 

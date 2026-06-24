@@ -156,7 +156,7 @@ transactions Tool Group (7 tools +1 for code mode):
 7. 'mysql_transaction_execute'
 8. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY. Compare responses against the expected results. Report any deviation.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
 
 1. `mysql_transaction_begin()` → capture `transactionId`
 2. `mysql_read_query({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`

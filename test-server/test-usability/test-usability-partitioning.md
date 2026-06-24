@@ -8,7 +8,11 @@ This prompt instructs you to organically test the `partitioning` tool group usin
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `partitioning` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `partitioning` group:
+- `mysql_partition_info`
+- `mysql_add_partition`
+- `mysql_drop_partition`
+- `mysql_reorganize_partition`
 
 **Instructions:**
 

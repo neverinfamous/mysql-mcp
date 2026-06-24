@@ -145,6 +145,16 @@ During testing, check for these inconsistencies:
 
 This document provides testing instructions to validate the OCC (Optimistic Concurrency Control) versioning tools under Code Mode execution.
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_enable_versioning`
+- `mysql_disable_versioning`
+- `mysql_check_version`
+
 ## Tasks
 
 ### 1. Enable/Disable Toggle Stress

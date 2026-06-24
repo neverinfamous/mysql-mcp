@@ -74,7 +74,8 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 34. `test-codemode-advanced-spatial-setup.md`
 35. `test-codemode-advanced-stats-advanced.md`
 36. `test-codemode-advanced-stats-descriptive.md`
-37. `test-codemode-advanced-stats-window.md`
+37. `test-codemode-advanced-stats-time-series.md`
+38. `test-codemode-advanced-stats-window.md`
 38. `test-codemode-advanced-sys.md`
 39. `test-codemode-advanced-text.md`
 40. `test-codemode-advanced-transactions.md`

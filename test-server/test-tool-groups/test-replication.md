@@ -156,7 +156,7 @@ replication Tool Group (5 tools +1 for code mode):
 
 > **Note**: These tools query replication state. In a single-server test environment, most will return empty or status-only results. The focus is on verifying structured error responses and no raw MCP leakage.
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_master_status()` → verify response structure (binlog file, position)
 2. `mysql_slave_status()` → verify response structure (may indicate no replication)

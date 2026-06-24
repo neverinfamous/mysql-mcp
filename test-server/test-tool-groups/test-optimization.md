@@ -153,7 +153,7 @@ optimization Tool Group (4 tools +1 for code mode):
 4. 'mysql_optimizer_trace'
 5. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_index_recommendation({table: "test_orders"})` → verify recommendations returned, including missing FK checks and duplicate index checks
 2. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"]})` → verify EXPLAIN-based composite recommendations

@@ -8,7 +8,13 @@ This prompt instructs you to organically test the `events` tool group using Code
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `events` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `events` group:
+- `mysql_event_create`
+- `mysql_event_alter`
+- `mysql_event_drop`
+- `mysql_event_list`
+- `mysql_event_status`
+- `mysql_scheduler_status`
 
 **Instructions:**
 

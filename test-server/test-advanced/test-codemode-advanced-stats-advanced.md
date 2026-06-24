@@ -141,6 +141,20 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_stats_ntile`
+- `mysql_stats_hypothesis`
+- `mysql_stats_outliers`
+- `mysql_stats_top_n`
+- `mysql_stats_distinct`
+- `mysql_stats_frequency`
+- `mysql_stats_summary`
+
 ## Category 1: Frequency & Distinct Boundaries
 
 1. Run `mysql.stats.frequency` on a column where every row is identical (`test_categories.level` where you might just insert some). Actually, just use `test_events.event_type` with a filter `where: "event_type = 'LOGIN'"`. Verify single-bucket output without division-by-zero crashes.

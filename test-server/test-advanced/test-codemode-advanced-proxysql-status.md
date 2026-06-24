@@ -165,6 +165,18 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `proxysql_servers`
+- `proxysql_query_digest`
+- `proxysql_users`
+- `proxysql_runtime_status`
+- `proxysql_commands`
+
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
 
 1. `proxysql_status()` → verify structured `{success: false}` (not raw connection error)

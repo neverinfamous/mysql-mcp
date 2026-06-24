@@ -8,7 +8,11 @@ This prompt instructs you to organically test the `optimization` tool group usin
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `optimization` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `optimization` group:
+- `mysql_index_recommendation`
+- `mysql_query_rewrite`
+- `mysql_force_index`
+- `mysql_optimizer_trace`
 
 **Instructions:**
 

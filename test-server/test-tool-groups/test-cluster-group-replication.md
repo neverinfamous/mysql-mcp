@@ -159,7 +159,7 @@ cluster Tool Group (10 tools +1 for code mode):
 10. 'mysql_cluster_switchover'
 11. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY. In a non-cluster environment, verify the tools return structured error or empty-state responses.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
 
 1. `mysql_gr_status()` → verify GR status or structured "not configured" message
 2. `mysql_gr_members()` → verify members list or structured empty response

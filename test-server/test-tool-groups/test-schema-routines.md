@@ -160,7 +160,7 @@ schema Tool Group (11 tools +1 for code mode):
 11. 'mysql_list_events'
 12. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY. Compare responses against the expected results. Report any deviation.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
 
 1. `mysql_list_schemas()` → verify `testdb`, `information_schema`, `mysql` in results
 2. `mysql_list_views({database: "testdb"})` → verify response structure (may be empty)

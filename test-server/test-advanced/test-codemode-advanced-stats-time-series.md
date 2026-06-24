@@ -10,6 +10,17 @@
 
 **Step 1:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_stats_time_series`
+- `mysql_stats_regression`
+- `mysql_stats_sampling`
+- `mysql_stats_histogram`
+
 ## Category 1: Time Series Edge Cases
 
 1. Create a table `stress_stats_time_series` with columns `id INT`, `val_col INT`, `time_col DATETIME`.

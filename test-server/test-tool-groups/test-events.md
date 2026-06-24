@@ -155,7 +155,7 @@ events Tool Group (6 tools +1 for code mode):
 6. 'mysql_scheduler_status'
 7. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_scheduler_status()` → verify scheduler ON/OFF status
 2. `mysql_event_list()` → verify event listing structure

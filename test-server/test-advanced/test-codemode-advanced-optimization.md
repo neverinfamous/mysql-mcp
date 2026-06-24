@@ -154,6 +154,17 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_index_recommendation`
+- `mysql_query_rewrite`
+- `mysql_force_index`
+- `mysql_optimizer_trace`
+
 ## Category 1: Complex Query Rewrites
 
 1. `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions

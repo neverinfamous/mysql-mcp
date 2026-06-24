@@ -153,6 +153,22 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_optimize_table`
+- `mysql_analyze_table`
+- `mysql_check_table`
+- `mysql_repair_table`
+- `mysql_flush_tables`
+- `mysql_kill_query`
+- `mysql_append_insight`
+- `mysql_server_config`
+- `mysql_audit_search`
+
 ## Category 1: Error Message Quality
 
 1. For each tool group, pass intentionally invalid parameters and capture the error message

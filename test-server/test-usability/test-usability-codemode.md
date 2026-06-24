@@ -8,7 +8,8 @@ This prompt instructs you to organically test the `codemode` tool group using Co
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `codemode` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `codemode` group:
+- `mysql_execute_code`
 
 **Instructions:**
 

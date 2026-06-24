@@ -153,6 +153,18 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_create_schema`
+- `mysql_list_views`
+- `mysql_drop_view`
+- `mysql_list_functions`
+- `mysql_list_constraints`
+
 ## Category 1: DDL Idempotency
 
 1. `mysql_create_schema({name: "stress_schema_dup"})` → success

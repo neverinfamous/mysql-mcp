@@ -153,6 +153,18 @@ During testing, check for these inconsistencies:
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysqlsh_check_upgrade`
+- `mysqlsh_import_table`
+- `mysqlsh_dump_instance`
+- `mysqlsh_dump_tables`
+- `mysqlsh_run_script`
+
 ## Category 1: Graceful Degradation (No MySQL Shell)
 
 1. `mysql.shell.version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)

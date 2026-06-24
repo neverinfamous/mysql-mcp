@@ -157,36 +157,18 @@ During testing, check for these inconsistencies:
 
 schema Tool Group (11 tools +1 code mode):
 
-1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema` 4. `mysql_list_views`
-2. `mysql_create_view` 6. `mysql_drop_view` 7. `mysql_list_stored_procedures` 8. `mysql_list_functions`
-3. `mysql_list_triggers` 10. `mysql_list_constraints` 11. `mysql_list_events`
+1. `mysql_list_stored_procedures` 2. `mysql_list_functions` 3. `mysql_list_triggers`
+4. `mysql_list_events`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.listSchemas()` → verify `testdb` present
-3. `mysql.schema.listViews({database: "testdb"})` → verify structure
-4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
-5. `mysql.schema.listTriggers({database: "testdb"})` → verify structure
-6. `mysql.schema.listStoredProcedures({database: "testdb"})` → verify structure
-7. `mysql.schema.listFunctions({database: "testdb"})` → verify structure
-8. `mysql.schema.listEvents({database: "testdb"})` → verify structure
-
-**Create → Drop lifecycle:**
-
-9. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
-10. `mysql.schema.listViews({database: "testdb"})` → verify `temp_cm_view` present
-11. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
-
-**Domain error paths (🔴):**
-
-12. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
-13. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
-
-**Zod validation error paths (🔴):**
-
-14. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
-15. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
+2. `mysql.schema.listTriggers({database: "testdb"})` → verify structure
+3. `mysql.schema.listStoredProcedures({database: "testdb"})` → verify structure
+4. `mysql.schema.listFunctions({database: "testdb"})` → verify structure
+5. `mysql.schema.listEvents({database: "testdb"})` → verify structure
+6. 🔴 `mysql.schema.listTriggers({database: "nonexistent_db_xyz"})` → `{success: false}`
+7. 🔴 `mysql.schema.listStoredProcedures({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

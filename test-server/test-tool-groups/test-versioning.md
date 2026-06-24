@@ -142,28 +142,55 @@ During testing, check for these inconsistencies:
 ---
 
 ## Group Focus: versioning
-You are managing an optimistic concurrency control system for the `testdb` database.
 
-## Tasks
+### versioning Group-Specific Testing
 
-### 1. Enable Versioning
-- Enable versioning on the `inventory` table using the `mysql_enable_versioning` tool.
-- Verify the `_version` column is added and the trigger is created.
+versioning Tool Group (4 tools +1 for code mode):
 
-### 2. Check Version
-- Check the current version of the item with `id = 1` in the `inventory` table using `mysql_check_version`.
+1. 'mysql_enable_versioning'
+2. 'mysql_disable_versioning'
+3. 'mysql_check_version'
+4. 'mysql_conditional_update'
+5. 'mysql_execute_code' (codemode, auto-added)
 
-### 3. Conditional Update (Success)
-- Perform a conditional update on the `inventory` table for `id = 1`, setting `quantity` to 500, passing the version retrieved in the previous step as `expectedVersion`.
-- Verify the operation succeeds and rows are affected.
+All tools should gracefully handle nonexistent tables and validation errors. Test with `test_products` and a temporary table `temp_versioning`.
 
-### 4. Conditional Update (Conflict)
-- Attempt to perform another conditional update on the `inventory` table for `id = 1`, using the OLD version you used in step 3.
-- Verify the operation fails with a `Version conflict` error.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation. These are the minimum-bar tests that must pass every run — freeform testing comes after.
 
-### 5. Disable Versioning
-- Disable versioning on the `inventory` table using `mysql_disable_versioning`.
-- Verify the `_version` column is dropped.
+**Setup / Happy Paths:**
+
+1. `mysql_create_table({table: "temp_versioning", columns: [{name: "id", type: "INT", primaryKey: true, autoIncrement: true}, {name: "quantity", type: "INT"}]})` → `{success: true}`
+2. `mysql_write_query({query: "INSERT INTO temp_versioning (quantity) VALUES (100)"})` → `{rowsAffected: 1}`
+3. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `message` indicates trigger added
+4. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `alreadyEnabled` is true
+5. `mysql_check_version({table: "temp_versioning", rowId: 1})` → `{success: true}` and `version: 1`
+6. `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: true, rowsAffected: 1}`
+
+**Domain error paths (🔴):**
+
+7. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 999}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning version conflict — NOT raw MCP error
+8. 🔴 `mysql_check_version({table: "nonexistent_table_xyz", rowId: 1})` → `{success: false, error: "..."}` mentioning table name
+9. 🔴 `mysql_check_version({table: "temp_versioning", rowId: 9999})` → `{success: false, error: "..."}` mentioning row not found
+10. 🔴 `mysql_enable_versioning({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` mentioning table name
+11. 🔴 `mysql_conditional_update({table: "nonexistent_table_xyz", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning table name
+
+**Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
+
+12. 🔴 `mysql_enable_versioning({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+13. 🔴 `mysql_check_version({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+14. 🔴 `mysql_conditional_update({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+15. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty data
+16. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty conditions
+
+**Wrong-type numeric param coercion (🔴):**
+
+17. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: "abc"})` → must NOT return raw MCP `-32602` error — should return structured handler error `Expected number, received string`
+
+**Teardown:**
+
+18. `mysql_disable_versioning({table: "temp_versioning"})` → `{success: true}`
+19. `mysql_disable_versioning({table: "nonexistent_table_xyz", ifExists: true})` → `{success: true}` (no error since ifExists is true)
+20. `mysql_drop_table({table: "temp_versioning", ifExists: true})` → `{success: true}`
 
 ---
 

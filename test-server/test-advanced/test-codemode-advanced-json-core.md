@@ -194,6 +194,19 @@ json-core Tool Group (8 tools +1 for code mode):
 
 ---
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_json_extract`
+- `mysql_json_replace`
+- `mysql_json_keys`
+- `mysql_json_update`
+- `mysql_json_merge`
+- `mysql_json_stats`
+
 ## Post-Test Procedures
 
 ### Reporting Rules

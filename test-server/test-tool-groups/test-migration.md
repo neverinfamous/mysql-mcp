@@ -155,7 +155,7 @@ migration Tool Group (6 tools +1 for code mode):
 6. 'mysql_migration_status'
 7. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_migration_init()` → verify table initialization
 2. `mysql_migration_record({version: "1.0.0", name: "initial", query: "CREATE TABLE test_migration (id INT)"})` → verify migration recording

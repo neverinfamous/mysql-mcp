@@ -153,21 +153,21 @@ json-helpers Tool Group (4 tools +1 for code mode):
 4. 'mysql_json_validate'
 5. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-**Checklist:**
+**Checklist (Happy paths):**
 
-1. `mysql_json_get({...})` → happy path
-2. `mysql_json_update({...})` → happy path
-3. `mysql_json_search({...})` → happy path
-4. `mysql_json_validate({...})` → happy path
+1. `mysql_json_get({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
+2. `mysql_json_update({table: "test_json_docs", column: "doc", path: "$.key1", value: "new_val", idColumn: "id", rowId: 1})` → happy path
+3. `mysql_json_search({table: "test_json_docs", column: "doc", searchString: "value1"})` → happy path
+4. `mysql_json_validate({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_json_get({...})` → domain error
-6. 🔴 `mysql_json_update({...})` → domain error
-7. 🔴 `mysql_json_search({...})` → domain error
-8. 🔴 `mysql_json_validate({...})` → domain error
+5. 🔴 `mysql_json_get({table: "nonexistent_table", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → domain error
+6. 🔴 `mysql_json_update({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error
+7. 🔴 `mysql_json_search({table: "nonexistent_table", column: "doc", searchString: "value1"})` → domain error
+8. 🔴 `mysql_json_validate({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 999})` → domain error
 
 **Zod validation error paths (🔴):**
 

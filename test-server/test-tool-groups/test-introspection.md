@@ -155,7 +155,7 @@ introspection Tool Group (6 tools +1 for code mode):
 6. 'mysql_migration_risks'
 7. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 1. `mysql_dependency_graph({schema: "testdb", maxDepth: 2})` → verify graph nodes and edges
 2. `mysql_topological_sort({schema: "testdb2"})` → verify ordered tables

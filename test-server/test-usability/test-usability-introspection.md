@@ -8,7 +8,13 @@ This prompt instructs you to organically test the `introspection` tool group usi
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with tools in the `introspection` group.
+Use the `mysql_execute_code` tool to interact with the following tools in the `introspection` group:
+- `mysql_dependency_graph`
+- `mysql_topological_sort`
+- `mysql_cascade_simulator`
+- `mysql_schema_snapshot`
+- `mysql_constraint_analysis`
+- `mysql_migration_risks`
 
 **Instructions:**
 

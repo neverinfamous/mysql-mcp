@@ -194,6 +194,22 @@ security Tool Group (9 tools +1 code mode):
 
 13. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_security_audit`
+- `mysql_security_firewall_status`
+- `mysql_security_firewall_rules`
+- `mysql_security_mask_data`
+- `mysql_security_password_validate`
+- `mysql_security_ssl_status`
+- `mysql_security_user_privileges`
+- `mysql_security_sensitive_tables`
+- `mysql_security_encryption_status`
+
 ## Category 1: Password Validation Boundaries
 
 1. `mysql_security_password_validate({password: ""})` → verify structured response (empty password)
