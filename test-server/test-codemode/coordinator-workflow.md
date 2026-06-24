@@ -35,8 +35,8 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues."
-   - Do NOT output any other text to the user during the test sequence.
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues." (e.g., "This is test 40 out of 46. Fixed 10 issues.")
+   - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 
 ## Test Sequence Queue (Dependency DAG)
 
