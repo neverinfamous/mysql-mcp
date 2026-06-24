@@ -151,8 +151,13 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
 
         const metricLiteral = validated.metric === "DOT" ? "DOT" : validated.metric === "EUCLIDEAN" ? "EUCLIDEAN" : "COSINE";
         
+        let selectCols = `*`;
+        if (validated.select && validated.select.length > 0) {
+          selectCols = validated.select.map(c => `\`${sanitizeIdentifier(c)}\``).join(", ");
+        }
+
         const query = `
-          SELECT *, 
+          SELECT ${selectCols}, 
                  DISTANCE(\`${column}\`, STRING_TO_VECTOR(?), '${metricLiteral}') as distance
           FROM \`${table}\`
           ${whereClause}
@@ -166,6 +171,9 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         // Strip the raw vector from the output to save tokens,
         // user only needs the distance scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
+          if (validated.select && validated.select.length > 0) {
+             return row;
+          }
           return Object.fromEntries(
             Object.entries(row).filter(([key]) => key !== validated.column)
           );

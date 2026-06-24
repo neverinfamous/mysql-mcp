@@ -153,6 +153,7 @@ export const VectorRangeSearchSchemaBase = z.object({
   metric: metricParamBase,
   limit: z.unknown().optional().describe("Maximum number of results to return (default: 50)"),
   filter: filterParamBase,
+  select: z.unknown().optional().describe("Array of additional column names to return alongside the distance score"),
 });
 
 export const VectorRangeSearchSchema = z
@@ -166,6 +167,7 @@ export const VectorRangeSearchSchema = z
   metric: metricParam,
   limit: z.number().int().positive().max(1000).optional().default(50),
   filter: filterParam,
+  select: z.array(z.string().min(1)).optional(),
 })
   );
 
