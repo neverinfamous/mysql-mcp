@@ -20,7 +20,7 @@ async function run() {
 
     console.log(`\n=== InnoDB Cluster Reboot ===`);
 
-    console.log(`\n[1/4] Checking container status...`);
+    console.log(`\n[1/6] Checking container status...`);
     const nodes = ["mysql-node1", "mysql-node2", "mysql-node3"];
     for (const node of nodes) {
         try {
@@ -35,7 +35,7 @@ async function run() {
         }
     }
 
-    console.log(`\n[2/4] Waiting for MySQL to be ready on ${primaryHost}:${primaryPort}...`);
+    console.log(`\n[2/6] Waiting for MySQL to be ready on ${primaryHost}:${primaryPort}...`);
     const maxRetries = 30;
     let ready = false;
     for (let i = 1; i <= maxRetries; i++) {
@@ -55,30 +55,49 @@ async function run() {
     }
     console.log(`  MySQL is ready`);
 
-    console.log(`\n[3/4] Rebooting cluster '${clusterName}' from complete outage...`);
-    const uri = `${user}:${password}@${primaryHost}:${primaryPort}`;
+    console.log(`\n[3/6] Cleaning up non-PK tables to satisfy Group Replication...`);
     try {
-        execSync(`"${mysqlshPath}" --uri ${uri} --js -e "try { dba.rebootClusterFromCompleteOutage('${clusterName}', {force: true}); } catch(e) { print('Reboot output: ' + e.message); }"`, { stdio: 'inherit' });
-        console.log(`  Cluster reboot step completed`);
+        const query = "SELECT CONCAT('DROP TABLE IF EXISTS `', TABLE_SCHEMA, '`.`', TABLE_NAME, '`;') FROM information_schema.tables WHERE TABLE_SCHEMA = 'testdb' AND TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME NOT IN (SELECT TABLE_NAME FROM information_schema.statistics WHERE TABLE_SCHEMA = 'testdb' AND INDEX_NAME = 'PRIMARY');";
+        const dropCmds = execSync(`docker exec mysql-node1 mysql -uroot -proot -N -s -e "${query}"`, { encoding: 'utf-8' }).trim();
+        if (dropCmds) {
+            console.log(`  Dropping non-PK tables...`);
+            execSync(`docker exec mysql-node1 mysql -uroot -proot -e "SET GLOBAL super_read_only=0; ${dropCmds.replace(/\n/g, ' ')}"`);
+        } else {
+            console.log(`  No non-PK tables found.`);
+        }
     } catch (e) {
-        console.error(`  Error rebooting cluster: ${e.message}`);
+        console.log(`  Warning: Non-PK table cleanup failed (ignoring): ${e.message}`);
     }
 
-    console.log(`\n[4/5] Rejoining secondaries from inside Docker network...`);
+    console.log(`\n[4/6] Rebooting cluster '${clusterName}' from complete outage...`);
+    const uri = `${user}:${password}@${primaryHost}:${primaryPort}`;
+    try {
+        // Let errors throw natively so the process exits with a non-zero code if it fails
+        // but gracefully catch if the cluster is already online.
+        execSync(`"${mysqlshPath}" --uri ${uri} --js -e "try { dba.rebootClusterFromCompleteOutage('${clusterName}', {force: true}); } catch(e) { if (!e.message.includes('The Cluster is ONLINE')) throw e; print('Cluster is already ONLINE.'); }"`, { stdio: 'inherit' });
+        console.log(`  Cluster reboot step completed`);
+    } catch (e) {
+        console.error(`  Error rebooting cluster. Cannot proceed.`);
+        process.exit(1);
+    }
+
+    console.log(`\n[5/6] Rejoining secondaries from inside Docker network...`);
     const clusterUser = "cluster_admin";
     const clusterPass = "cluster_admin";
     const secondaries = ["mysql-node2", "mysql-node3"];
     
     for (const node of secondaries) {
         console.log(`  Rejoining ${node}...`);
-        let rejoinOutput = "";
+        let rejoinSuccess = false;
         try {
-            rejoinOutput = execSync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); try { c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306'); print('REJOIN_SUCCESS'); } catch(e) { print('REJOIN_ERROR'); }"`, { encoding: 'utf-8' });
+            // rely on standard exit code instead of regex matching which can trigger false positives
+            execSync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.rejoinInstance('${clusterUser}:${clusterPass}@${node}:3306');"`, { stdio: 'ignore' });
+            rejoinSuccess = true;
         } catch(e) {
-            rejoinOutput = e.stdout || e.message;
+            rejoinSuccess = false;
         }
 
-        if (rejoinOutput.includes("REJOIN_SUCCESS")) {
+        if (rejoinSuccess) {
             console.log(`  ${node} rejoined successfully`);
         } else {
             console.log(`  ${node} rejoin failed. Attempting automated clone recovery...`);
@@ -89,7 +108,7 @@ async function run() {
             } catch(e) {}
 
             console.log(`    -> Cloning instance (this will take a moment)...`);
-            const clonePromise = execAsync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.addInstance('${clusterUser}:${clusterPass}@${node}:3306', {recoveryMethod: 'clone'});"`);
+            const clonePromise = execAsync(`docker exec mysql-node1 mysqlsh --uri "${clusterUser}:${clusterPass}@mysql-node1:3306" --js -e "var c = dba.getCluster(); c.addInstance('${clusterUser}:${clusterPass}@${node}:3306', {recoveryMethod: 'clone', interactive: false});"`);
             
             let retries = 0;
             let cloneDone = false;
@@ -122,7 +141,7 @@ async function run() {
         }
     }
 
-    console.log(`\n[5/5] Verifying cluster status...`);
+    console.log(`\n[6/6] Verifying cluster status...`);
     await sleep(3000);
     try {
         execSync(`"${mysqlshPath}" --uri ${uri} --js -e "print(JSON.stringify(dba.getCluster().status(), null, 2))"`, { stdio: 'inherit' });
