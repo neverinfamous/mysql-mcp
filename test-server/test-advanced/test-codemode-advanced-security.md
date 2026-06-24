@@ -204,9 +204,9 @@ security Tool Group (9 tools +1 code mode):
 
 ## Category 2: Sensitive Table Detection
 
-6. Create `stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
+6. Create `testdb.stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
 7. `mysql_security_sensitive_tables({database: "testdb"})` → verify `stress_sensitive` is flagged
-8. Create `stress_safe` table with columns: `id INT`, `name VARCHAR(100)`, `quantity INT`
+8. Create `testdb.stress_safe` table with columns: `id INT`, `name VARCHAR(100)`, `quantity INT`
 9. `mysql_security_sensitive_tables({database: "testdb"})` → verify `stress_safe` is NOT flagged
 
 ## Category 3: Privilege Enumeration Edge Cases
@@ -224,7 +224,7 @@ security Tool Group (9 tools +1 code mode):
 
 ## Cleanup
 
-17. Drop `stress_sensitive` and `stress_safe` tables
+17. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
 
 ---
 
