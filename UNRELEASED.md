@@ -10,3 +10,4 @@
 - Fixed a bug in `MigrationRecordSchema`'s `z.preprocess` logic where an early return on the `migrationSql` alias transformation prevented the `description` alias (`name`) from being properly mapped and recorded.
 - Fixed monitoring tools (mysql_server_health, mysql_pool_stats, mysql_innodb_status, mysql_replication_status) to strictly adhere to the Split Schema Pattern, creating *SchemaBase definitions so their optional parameters are properly visible in the MCP registry instead of being stripped out by local inline z.object() definitions.
 - Fixed Partitioning tools (`mysql_partition_info`, `mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition`) to support an optional `database` parameter and cross-database validation checks.
+- Fixed `ProxySQLCommandInputSchemaBase` to mark the `command` parameter as required in the MCP interface so it aligns with the stricter internal `ProxySQLCommandInputSchema` validation.

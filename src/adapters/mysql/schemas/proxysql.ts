@@ -247,7 +247,7 @@ export const ProxySQLVariableFilterSchema = z.object({
 });
 
 export const ProxySQLCommandInputSchemaBase = z.object({
-  command: z.unknown().optional().describe("ProxySQL admin command to execute"),
+  command: z.unknown().describe("ProxySQL admin command to execute"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({
