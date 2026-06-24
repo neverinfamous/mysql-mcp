@@ -12,3 +12,5 @@
 - Added parameter aliases `vector` (for `queryVector`), `distance` (for `maxDistance`), and `query` (for `queryText`) to vector search tools via `preprocessVectorParams` split schema wrapper.
 - Fixed factual errors in `test-codemode-json-core-read.md` test script regarding expected JSON path keys and values.
 - Fixed `mysql_json_merge` to properly parse and return array values when the database adapter returns stringified JSON.
+- Fixed `JsonGetOutputSchema` to match `mysql_json_get` output structure (`value` and `rowFound` instead of `rows` and `count`).
+- Fixed factual errors in `test-codemode-json-helpers.md` by removing a domain error test for `mysql_json_validate`, since `JSON_VALID` correctly evaluates strings instead of throwing.

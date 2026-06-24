@@ -66,8 +66,8 @@ export const JsonArrayAppendOutputSchema = BaseOutputSchema.extend({
 
 export const JsonGetOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    rows: z.array(z.record(z.string(), z.unknown())).optional(),
-    count: z.number().optional(),
+    value: z.unknown(),
+    rowFound: z.boolean().optional(),
   }).optional(),
 });
 
