@@ -101,6 +101,7 @@ export const EventListSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   includeDisabled: z
     .boolean()
     .optional()
@@ -110,9 +111,10 @@ export const EventListSchemaBase = z.object({
 
 export const EventListSchema = z.object({
   schema: z.string().optional(),
+  database: z.string().optional(),
   includeDisabled: z.boolean().default(true),
 }).transform(data => ({
-  schema: data.schema,
+  schema: data.schema ?? data.database,
   includeDisabled: data.includeDisabled,
 }));
 
@@ -124,15 +126,17 @@ export const EventStatusSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 export const EventStatusSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional(),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? "",
-  schema: data.schema,
+  schema: data.schema ?? data.database,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
 
