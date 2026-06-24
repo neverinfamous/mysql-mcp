@@ -174,7 +174,7 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     ...v,
     table: v["table"] ?? v["tableName"] ?? v["name"],
     column: v["column"] ?? v["col"],
-    where: v["where"] ?? v["filter"],
+    where: v["where"] ?? v["filter"] ?? v["condition"],
   };
 }
 
