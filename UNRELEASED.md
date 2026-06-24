@@ -11,3 +11,4 @@
 - Added `scriptPath` and `dryRun` parameters to `mysqlsh_run_script` with strict IO root path validation.
 - Added parameter aliases `vector` (for `queryVector`), `distance` (for `maxDistance`), and `query` (for `queryText`) to vector search tools via `preprocessVectorParams` split schema wrapper.
 - Fixed factual errors in `test-codemode-json-core-read.md` test script regarding expected JSON path keys and values.
+- Fixed `mysql_json_merge` to properly parse and return array values when the database adapter returns stringified JSON.
