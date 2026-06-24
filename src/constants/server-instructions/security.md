@@ -8,3 +8,11 @@
 - **Sensitive tables**: `mysql_security_sensitive_tables` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use `schema` parameter to limit scope. Returns `{ exists: false, schema }` for nonexistent schemas (P154).
 - **Enterprise features**: `mysql_security_firewall_status` and `mysql_security_firewall_rules` report availability and suggest installation for MySQL Enterprise Edition.
 - **Audit fallback**: `mysql_security_audit` falls back to `performance_schema.events_statements_history` when Enterprise Audit is unavailable. In fallback mode, `startTime` is ignored (picosecond counters incompatible with ISO timestamps — noted in `filtersIgnored`). `eventType` uses LIKE matching against `EVENT_NAME` (e.g., `"Execute"`, `"Ping"`). Default limit is 20.
+
+### Example: Data Masking
+```json
+{
+  "value": "123-45-6789",
+  "type": "ssn"
+}
+```

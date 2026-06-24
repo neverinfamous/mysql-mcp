@@ -1,4 +1,6 @@
-# Monitoring Tools (`mysql_show_processlist`, `mysql_server_health`, etc.)
+# Monitoring Tools
+
+Tools: `mysql_show_processlist`, `mysql_show_status`, `mysql_show_variables`, `mysql_innodb_status`, `mysql_replication_status`, `mysql_pool_stats`, `mysql_server_health`
 
 - **Process list**: `mysql_show_processlist` shows active queries. Use `full: true` for complete query text.
 - **Status/Variables**: `mysql_show_status` and `mysql_show_variables` accept `like` for filtering (e.g., `like: "%connections%"`) and `limit` to cap rows (default: 100). Response includes `totalAvailable` and `limited: true` when truncated. RSA public key values in status output are automatically redacted.

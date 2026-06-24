@@ -1,4 +1,6 @@
-# Transactions & Safety (`mysql_transaction_*`)
+# Transactions & Safety
+
+Tools: `mysql_transaction_begin`, `mysql_transaction_commit`, `mysql_transaction_rollback`, `mysql_transaction_savepoint`, `mysql_transaction_release`, `mysql_transaction_rollback_to`, `mysql_transaction_execute`
 
 - **Interactive transactions**: Use `mysql_transaction_begin` → get `transactionId` → pass it to `mysql_read_query` or `mysql_write_query` for queries within the transaction → `mysql_transaction_commit` or `mysql_transaction_rollback`.
 - **Atomic execution**: `mysql_transaction_execute` runs multiple SQL statements in a single atomic transaction. All succeed or all are rolled back. Returns `rows` and `rowCount` for SELECT statements, `rowsAffected` for write statements. Returns `{ success: false, error }` if the `statements` array is empty. Returns `{ success: false, error, rolledBack: true }` if any statement fails.

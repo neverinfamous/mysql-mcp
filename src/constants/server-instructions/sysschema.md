@@ -7,3 +7,11 @@
 - **Lock contention**: `mysql_sys_innodb_lock_waits` shows active lock waits. Returns `hasContention: false` when none.
 - **Memory usage**: `mysql_sys_memory_summary` returns `globalMemory` (by event type) and `memoryByUser` arrays with corresponding `globalMemoryCount` and `memoryByUserCount` fields. The `limit` parameter (default 3) applies to both arrays.
 - **Schema stats**: `mysql_sys_schema_stats` returns 3 arrays: `tableStatistics` (DML and I/O per table), `indexStatistics` (per-index usage), and `autoIncrementStatus` (usage ratios), each with a corresponding count field (`tableStatisticsCount`, `indexStatisticsCount`, `autoIncrementStatusCount`). Filter by `schema` (defaults to current database). Returns `{ success: false, error }` when the specified schema does not exist. The `limit` parameter (default 1) applies per array.
+
+### Example: Wait Summary
+```json
+{
+  "type": "by_instance",
+  "limit": 10
+}
+```

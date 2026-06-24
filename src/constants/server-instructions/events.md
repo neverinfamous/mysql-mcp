@@ -8,3 +8,17 @@
 - **Alter operations**: `mysql_event_alter` can enable/disable, change schedule/body, change `onCompletion` (PRESERVE/NOT PRESERVE), update comment, or rename (via `newName`).
 - **Listing events**: `mysql_event_list` accepts `includeDisabled` (default: true) to filter out disabled events.
 - **Cross-schema**: Both `mysql_event_list` and `mysql_event_status` accept `schema` parameter to query other databases. Both return a structured error `{ success: false, error: ... }` when the specified schema does not exist.
+
+### Example: Creating a Recurring Event
+```json
+{
+  "name": "daily_cleanup",
+  "scheduleType": "RECURRING",
+  "interval": 1,
+  "intervalUnit": "DAY",
+  "starts": "2024-01-01 00:00:00",
+  "sqlBody": "DELETE FROM sessions WHERE updated_at < NOW() - INTERVAL 1 DAY;",
+  "onCompletion": "PRESERVE",
+  "ifNotExists": true
+}
+```

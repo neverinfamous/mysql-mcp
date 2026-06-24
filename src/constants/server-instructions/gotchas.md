@@ -2,11 +2,12 @@
 
 ## Server Identity
 
-- **Server Name**: This server is identified as `user-mysql` in MCP client configurations.
-- **Tool Invocation**: When calling tools via MCP, they are prefixed with the server name (e.g., `user-mysql-mysql_json_extract`, `user-mysql-mysql_read_query`).
+- **Server Name**: This primary server is identified as `user-mysql` in MCP client configurations.
+- **Ecosystem Server**: Ecosystem tools (Cluster, ProxySQL, Router, Shell) require the `mysql-ecosystem` server connection. If you are targeting these specific tools, use `mysql-ecosystem` instead of `user-mysql`.
+- **Tool Invocation**: When calling tools via MCP, they are prefixed with the server name (e.g., `user-mysql-mysql_json_extract`, `mysql-ecosystem-mysqlsh_version`).
 - **Resources**:
   - Resources use the `mysql://` URI scheme (e.g., `mysql://capabilities`, `mysql://schema`).
-  - When listing or fetching resources, use server name `user-mysql` (e.g., `list_mcp_resources(server: "user-mysql")`, `fetch_mcp_resource(server: "user-mysql", uri: "mysql://schema")`).
+  - When listing or fetching resources, use the corresponding server name (e.g., `fetch_mcp_resource(server: "user-mysql", uri: "mysql://schema")`).
 
 ## Parameter Aliases
 

@@ -2,6 +2,7 @@
 
 ## Group Replication (`mysql_gr_*`)
 
+- **Tools available**: `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`.
 - Tools check for `group_replication` plugin status and return `{ enabled: false }` if the plugin is not active.
 - **Error handling**: All 5 GR tools return structured error responses (with `error` field) on query failure instead of throwing raw exceptions. `mysql_gr_members` with a nonexistent `memberId` filter returns `{ members: [], count: 0 }` (empty results, not an error).
 

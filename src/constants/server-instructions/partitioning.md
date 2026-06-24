@@ -1,4 +1,6 @@
-# Partitioning Tools (`mysql_partition_*`, `mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition`)
+# Partitioning Tools
+
+Tools: `mysql_partition_info`, `mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition`
 
 - **Existence Check**: `mysql_partition_info` returns a structured error when the table does not exist. Returns `{ partitioned: false }` for existing non-partitioned tables.
 - **Value Parameter**: The `value` parameter expects only the boundary value, NOT the full SQL clause.

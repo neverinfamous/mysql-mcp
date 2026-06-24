@@ -1,6 +1,24 @@
 # Optimization Tools (`mysql_index_recommendation`, `mysql_query_rewrite`, etc.)
 
-- **Index recommendations**: `mysql_index_recommendation` provides comprehensive index auditing. Pass `queries: ["SELECT ..."]` to run EXPLAIN-based analysis and get composite index recommendations. By default, it also scans for redundant/duplicate indexes, missing FK indexes, and unindexed large tables. Use `table` to focus on one table, or omit it for a database-wide audit. Returns `{ findings: [...], summary: { redundant, missingFk, ... } }`.
-- **Query optimization**: `mysql_query_rewrite` analyzes queries for common anti-patterns (SELECT \*, missing LIMIT, OR conditions, leading wildcards) and includes EXPLAIN output. Returns a standard structured error when EXPLAIN fails (e.g., nonexistent table or syntax error).
-- **Force index**: `mysql_force_index` generates a query with `FORCE INDEX` hint for testing index behavior. Validates both table and index existence, returning standard structured errors if either is not found.
-- **Optimizer trace**: `mysql_optimizer_trace` returns detailed MySQL optimizer decisions. Use `summary: true` for compact output with only key decisions (recommended for most cases). Returns a standard structured error when the query fails (e.g., nonexistent table, syntax error).
+**Encapsulated Tools**: `mysql_index_recommendation`, `mysql_query_rewrite`, `mysql_force_index`, `mysql_optimizer_trace`
+
+### Index Recommendations (`mysql_index_recommendation`)
+- Provides comprehensive index auditing.
+- Pass `queries` to run EXPLAIN-based analysis for composite indexes.
+  ```json
+  { "queries": ["SELECT * FROM users WHERE status = 'active'"] }
+  ```
+- Scans for redundant/duplicate indexes, missing FK indexes, and unindexed large tables by default.
+- Use `table` parameter to focus on one table, omit for database-wide audit.
+- Returns `{ findings: [...], summary: { redundant, missingFk, ... } }`.
+
+### Query Rewriting (`mysql_query_rewrite`)
+- Analyzes queries for anti-patterns (e.g., `SELECT *`, missing `LIMIT`, `OR` conditions, leading wildcards).
+- Includes EXPLAIN output and rewritten suggestions.
+- Returns standard structured error for EXPLAIN failures.
+
+### Force Index & Tracing (`mysql_force_index`, `mysql_optimizer_trace`)
+- **Force Index**: Generates queries with `FORCE INDEX` hint to test optimizer behavior. Validates table/index existence, returns structured errors if not found.
+- **Optimizer Trace**: Returns detailed MySQL optimizer decisions.
+  - Set `summary: true` for compact output (recommended) containing key decisions rather than raw trace output.
+  - Standard errors for nonexistent tables or syntax errors.

@@ -12,3 +12,12 @@
 - **Filesystem Sandbox**: Any tools interacting with the filesystem (`mysqlsh_export_table`, dump/load) strictly enforce absolute paths that must resolve within the configured `ALLOWED_IO_ROOTS`. You may use `outputUrl` instead of `outputPath` and `inputUrl` instead of `inputDir` or `inputPath`.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use `ddlOnly: true` (schemas) or `all: false` (tables) to skip restricted metadata.
 - **Error handling**: All shell tools return `{ success: false, error }` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a `hint` field with actionable remediation guidance.
+
+### Example: Import JSON
+```json
+{
+  "targetTable": "collection",
+  "inputUrl": "/path/to/data.json",
+  "documentEncoding": "utf8mb4"
+}
+```
