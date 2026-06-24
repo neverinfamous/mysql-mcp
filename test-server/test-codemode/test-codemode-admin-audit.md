@@ -163,11 +163,11 @@ admin Tool Group (3 tools +1 code mode):
 
 1. `mysql.admin.help()` → verify method listing
 2. `mysql.admin.appendInsight({insight: "Test insight"})` → `success: true`
-3. `mysql.admin.serverConfig({variableName: "max_connections"})` → returns current config
-4. `mysql.admin.auditSearch({query: "error"})` → searches error logs
+3. `mysql.admin.serverConfig({action: "get"})` → returns current config
+4. `mysql.admin.auditSearch({success: false})` → searches error logs
 
 **Domain error paths (🔴):**
-5. 🔴 `mysql.admin.serverConfig({variableName: "nonexistent_var_xyz"})` → `{success: false}`
+5. 🔴 `mysql.admin.serverConfig({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 6. 🔴 `mysql.admin.appendInsight({})` → `{success: false, error: "Validation error: ..."}`

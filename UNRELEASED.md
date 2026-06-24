@@ -14,3 +14,4 @@
 - Fixed `mysql_vector_range_search` to support the optional `select` parameter to maintain architectural consistency with `mysql_vector_search` and `mysql_vector_hybrid_search`.
 - Fixed `mysql_stats_summary` to use native MySQL queries for checking table existence instead of manual `information_schema` lookups, ensuring consistent `TABLE_NOT_FOUND` error handling with proper categories and details.
 - Fixed `mysql_vector_optimize` and `mysql_vector_stats` tools to properly check for table existence before proceeding, ensuring consistent `TABLE_NOT_FOUND` error handling.
+- Fixed factual errors in test script `test-codemode-admin-audit.md` to align with the actual `serverConfig` (`action`/`setting`/`value`) and `auditSearch` (`success`) schema parameters.
