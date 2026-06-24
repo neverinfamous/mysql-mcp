@@ -211,9 +211,7 @@ export const CreateDocIndexSchemaStrict = z.object({
   fields: z.array(
     z.object({
       path: z.string(),
-      type: z
-        .enum(["TEXT", "INT", "DOUBLE", "DATE", "DATETIME", "GEOJSON"])
-        .default("TEXT"),
+      type: z.string().default("TEXT"),
       required: z.boolean().default(false),
     }),
   ),

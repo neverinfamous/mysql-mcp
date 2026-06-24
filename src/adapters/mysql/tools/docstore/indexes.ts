@@ -85,7 +85,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tableRef = escapeTableRef(collection, schema);
           for (const field of fields) {
             const colName = `_idx_${field.path.replace(/\./g, "_")}`;
-            const cast = field.type === "TEXT" ? "CHAR(255)" : field.type;
+            const cast = field.type === "TEXT" ? "CHAR(255)" : field.type.toUpperCase().replace(/^STRING/, "VARCHAR");
             await adapter.executeQuery(
               `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast}
                            GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field.path}'))) STORED`,
