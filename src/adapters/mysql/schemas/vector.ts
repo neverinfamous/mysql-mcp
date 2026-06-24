@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseOutputSchema } from "./output-schemas.js";
-import { preprocessTableParams } from "./preprocess-utils.js";
+import { preprocessTableParams, preprocessVectorParams } from "./preprocess-utils.js";
 
 /**
  * Common schema fragments
@@ -133,7 +133,7 @@ export const VectorSearchSchemaBase = z.object({
 
 export const VectorSearchSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: columnParam,
@@ -158,7 +158,7 @@ export const VectorRangeSearchSchemaBase = z.object({
 
 export const VectorRangeSearchSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: columnParam,
@@ -188,7 +188,7 @@ export const VectorHybridSearchSchemaBase = z.object({
 
 export const VectorHybridSearchSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   vectorColumn: z.string().min(1, "Vector column name cannot be empty"),

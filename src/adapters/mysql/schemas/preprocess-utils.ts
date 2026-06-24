@@ -43,6 +43,29 @@ export function preprocessTableParams(input: unknown): unknown {
 }
 
 /**
+ * Preprocess vector parameters:
+ * - Alias: vector → queryVector
+ * - Alias: distance → maxDistance
+ * - Alias: query → queryText
+ */
+export function preprocessVectorParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+  
+  if (result["queryVector"] === undefined && result["vector"] !== undefined) {
+    result["queryVector"] = result["vector"];
+  }
+  if (result["maxDistance"] === undefined && result["distance"] !== undefined) {
+    result["maxDistance"] = result["distance"];
+  }
+  if (result["queryText"] === undefined && result["query"] !== undefined) {
+    result["queryText"] = result["query"];
+  }
+  
+  return result;
+}
+
+/**
  * Preprocess query parameters:
  * - Alias: sql → query
  * - Alias: tx/txId → transactionId

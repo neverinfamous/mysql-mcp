@@ -9,3 +9,4 @@
 - Added missing `limit` parameter handling in `mysql_security_firewall_rules` via split schema.
 - Added `help()` method to codemode API groups so `mysql.<group>.help()` works as documented.
 - Added `scriptPath` and `dryRun` parameters to `mysqlsh_run_script` with strict IO root path validation.
+- Added parameter aliases `vector` (for `queryVector`), `distance` (for `maxDistance`), and `query` (for `queryText`) to vector search tools via `preprocessVectorParams` split schema wrapper.
