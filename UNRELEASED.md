@@ -16,3 +16,5 @@
 - Fixed `mysql_vector_optimize` and `mysql_vector_stats` tools to properly check for table existence before proceeding, ensuring consistent `TABLE_NOT_FOUND` error handling.
 - Fixed factual errors in test script `test-codemode-admin-audit.md` to align with the actual `serverConfig` (`action`/`setting`/`value`) and `auditSearch` (`success`) schema parameters.
 - Fixed `mysql_doc_create_index` and `CreateDocIndexSchemaStrict` to accept strings matching `STRING(N)` syntax in the `type` parameter by mapping them to `VARCHAR` during schema generation.
+- Fixed `preprocessDocFilterParams` to correctly map the `condition` alias to `filter` for docstore tools.
+- Fixed `test_documents` schema in `test-seed.sql` to strictly align with standard X DevAPI collections by generating `_id` and setting a default for `collection_name`.

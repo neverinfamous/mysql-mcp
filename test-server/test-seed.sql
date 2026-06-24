@@ -359,26 +359,24 @@ FROM cnt;
 -- =============================================================================
 
 CREATE TABLE test_documents (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    collection_name VARCHAR(100) NOT NULL,
     doc JSON NOT NULL,
-    _id VARCHAR(36) NOT NULL,
+    _id VARCHAR(36) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
+    collection_name VARCHAR(100) DEFAULT 'default',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE INDEX idx_documents_collection_id (collection_name, _id),
     INDEX idx_documents_collection (collection_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO test_documents (collection_name, doc, _id) VALUES
-    ('users', '{"name": "Alice", "age": 28, "email": "alice@example.com", "active": true}', UUID()),
-    ('users', '{"name": "Bob", "age": 35, "email": "bob@example.com", "active": true}', UUID()),
-    ('users', '{"name": "Carol", "age": 42, "email": "carol@example.com", "active": false}', UUID()),
-    ('products', '{"sku": "PROD-001", "name": "Widget", "price": 29.99, "stock": 100}', UUID()),
-    ('products', '{"sku": "PROD-002", "name": "Gadget", "price": 49.99, "stock": 50}', UUID()),
-    ('products', '{"sku": "PROD-003", "name": "Gizmo", "price": 19.99, "stock": 200}', UUID()),
-    ('orders', '{"order_id": "ORD-001", "user": "Alice", "total": 79.98, "status": "shipped"}', UUID()),
-    ('orders', '{"order_id": "ORD-002", "user": "Bob", "total": 49.99, "status": "pending"}', UUID()),
-    ('logs', '{"level": "info", "message": "Server started", "timestamp": "2026-01-01T00:00:00Z"}', UUID()),
-    ('logs', '{"level": "error", "message": "Connection failed", "timestamp": "2026-01-01T01:30:00Z"}', UUID());
+INSERT INTO test_documents (collection_name, doc) VALUES
+    ('users', '{"_id": "1", "name": "Alice", "age": 28, "email": "alice@example.com", "active": true}'),
+    ('users', '{"_id": "2", "name": "Bob", "age": 35, "email": "bob@example.com", "active": true}'),
+    ('users', '{"_id": "3", "name": "Carol", "age": 42, "email": "carol@example.com", "active": false}'),
+    ('products', '{"_id": "4", "sku": "PROD-001", "name": "Widget", "price": 29.99, "stock": 100}'),
+    ('products', '{"_id": "5", "sku": "PROD-002", "name": "Gadget", "price": 49.99, "stock": 50}'),
+    ('products', '{"_id": "6", "sku": "PROD-003", "name": "Gizmo", "price": 19.99, "stock": 200}'),
+    ('orders', '{"_id": "7", "order_id": "ORD-001", "user": "Alice", "total": 79.98, "status": "shipped"}'),
+    ('orders', '{"_id": "8", "order_id": "ORD-002", "user": "Bob", "total": 49.99, "status": "pending"}'),
+    ('logs', '{"_id": "9", "level": "info", "message": "Server started", "timestamp": "2026-01-01T00:00:00Z"}'),
+    ('logs', '{"_id": "10", "level": "warn", "message": "High memory", "timestamp": "2026-01-01T01:00:00Z"}');
 
 -- =============================================================================
 -- PARTITIONING: Partitioned Table (partitioning tools - 4)

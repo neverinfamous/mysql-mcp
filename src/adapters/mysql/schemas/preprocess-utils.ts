@@ -218,12 +218,19 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   const result = { ...v };
 
   // Aliases
-  if (result["filter"] === undefined && result["criteria"] !== undefined) {
-    // Stringify if criteria is an object, because filter expects a string
-    result["filter"] =
-      typeof result["criteria"] === "object" && result["criteria"] !== null
-        ? JSON.stringify(result["criteria"])
-        : result["criteria"];
+  if (result["filter"] === undefined) {
+    if (result["criteria"] !== undefined) {
+      // Stringify if criteria is an object, because filter expects a string
+      result["filter"] =
+        typeof result["criteria"] === "object" && result["criteria"] !== null
+          ? JSON.stringify(result["criteria"])
+          : result["criteria"];
+    } else if (result["condition"] !== undefined) {
+      result["filter"] =
+        typeof result["condition"] === "object" && result["condition"] !== null
+          ? JSON.stringify(result["condition"])
+          : result["condition"];
+    }
   }
   if (result["set"] === undefined && result["update"] !== undefined) {
     result["set"] = result["update"];
@@ -246,6 +253,7 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   }
 
   delete result["criteria"];
+  delete result["condition"];
   delete result["update"];
 
   return result;
