@@ -173,7 +173,7 @@ migration Tool Group (6 tools +1 code mode):
 **Domain error paths (🔴):**
 
 8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
-9. 🔴 `mysql.migration.apply({version: "1.0.2", description: "duplicate", query: "..."})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
