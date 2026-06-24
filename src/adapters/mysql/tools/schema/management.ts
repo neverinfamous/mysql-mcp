@@ -16,12 +16,19 @@ import {
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
 
-const ListSchemasSchema = z.object({
+const ListSchemasSchemaBase = z.object({
   pattern: z
     .string()
     .optional()
     .describe('Filter pattern (LIKE syntax, e.g. "app_%")'),
 });
+
+const ListSchemasSchema = z.preprocess(
+  (val: unknown) => val,
+  z.object({
+    pattern: z.string().optional(),
+  })
+);
 
 const ListSchemasOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -32,25 +39,39 @@ const ListSchemasOutputSchema = BaseOutputSchema.extend({
 
 const CreateSchemaSchemaBase = z.object({
   name: z.string().optional().describe("Schema/database name"),
+  schema: z.string().optional().describe("Alias for name"),
+  database: z.string().optional().describe("Alias for name"),
   charset: z.string().optional().describe("Character set"),
   collation: z.string().optional().describe("Collation"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
 });
 
-const CreateSchemaSchema = z.object({
-  name: z.string().describe("Schema/database name"),
-  charset: z.string().optional().default("utf8mb4").describe("Character set"),
-  collation: z
-    .string()
-    .optional()
-    .default("utf8mb4_unicode_ci")
-    .describe("Collation"),
-  ifNotExists: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Add IF NOT EXISTS clause"),
-});
+const CreateSchemaSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        name: obj['name'] ?? obj['schema'] ?? obj['database'],
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().describe("Schema/database name"),
+    charset: z.string().optional().default("utf8mb4").describe("Character set"),
+    collation: z
+      .string()
+      .optional()
+      .default("utf8mb4_unicode_ci")
+      .describe("Collation"),
+    ifNotExists: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe("Add IF NOT EXISTS clause"),
+  })
+);
 
 const CreateSchemaOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -62,17 +83,31 @@ const CreateSchemaOutputSchema = BaseOutputSchema.extend({
 
 const DropSchemaSchemaBase = z.object({
   name: z.string().optional().describe("Schema/database name to drop"),
+  schema: z.string().optional().describe("Alias for name"),
+  database: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 
-const DropSchemaSchema = z.object({
-  name: z.string().describe("Schema/database name to drop"),
-  ifExists: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Add IF EXISTS clause"),
-});
+const DropSchemaSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        name: obj['name'] ?? obj['schema'] ?? obj['database'],
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().describe("Schema/database name to drop"),
+    ifExists: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe("Add IF EXISTS clause"),
+  })
+);
 
 const DropSchemaOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -92,7 +127,7 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all databases/schemas with metadata including charset and collation.",
     group: "schema",
-    inputSchema: ListSchemasSchema,
+    inputSchema: ListSchemasSchemaBase,
     outputSchema: ListSchemasOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
