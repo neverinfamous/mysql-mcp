@@ -70,14 +70,15 @@ const MigrationRecordParseSchema = z.object({
 export const MigrationRecordSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
-    if (obj["migrationSql"] === undefined) {
-      if (obj["sql"] !== undefined) return { ...obj, migrationSql: obj["sql"] };
-      if (obj["query"] !== undefined)
-        return { ...obj, migrationSql: obj["query"] };
+    const out = { ...obj };
+    if (out["migrationSql"] === undefined) {
+      if (out["sql"] !== undefined) out["migrationSql"] = out["sql"];
+      else if (out["query"] !== undefined) out["migrationSql"] = out["query"];
     }
-    if (obj["description"] === undefined && obj["name"] !== undefined) {
-      return { ...obj, description: obj["name"] };
+    if (out["description"] === undefined && out["name"] !== undefined) {
+      out["description"] = out["name"];
     }
+    return out;
   }
   return input;
 }, MigrationRecordParseSchema);

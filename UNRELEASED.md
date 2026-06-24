@@ -7,3 +7,4 @@
 - Fixed descriptive and comparative stats tools to support cross-database `database.table` naming conventions by properly validating table names via `validateQualifiedIdentifier`.
 - Fixed window function stats tools (`rowNumber`, `rank`, `lagLead`, `runningTotal`, `movingAvg`, `ntile`) to support an optional `database` parameter and cross-database `database.table` naming conventions.
 - Fixed introspection tools (`mysql_dependency_graph`, `mysql_topological_sort`, `mysql_cascade_simulator`, `mysql_schema_snapshot`, `mysql_constraint_analysis`, `mysql_migration_risks`) to expose parameter aliases (like `database`, `tableName`) on their `*SchemaBase` definitions, ensuring they are not stripped by Zod when called directly from MCP.
+- Fixed a bug in `MigrationRecordSchema`'s `z.preprocess` logic where an early return on the `migrationSql` alias transformation prevented the `description` alias (`name`) from being properly mapped and recorded.
