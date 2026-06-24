@@ -8,3 +8,4 @@
 - Fixed missing `limit` parameter handling in `mysql_role_list` via split schema.
 - Added missing `limit` parameter handling in `mysql_security_firewall_rules` via split schema.
 - Added `help()` method to codemode API groups so `mysql.<group>.help()` works as documented.
+- Added `scriptPath` and `dryRun` parameters to `mysqlsh_run_script` with strict IO root path validation.

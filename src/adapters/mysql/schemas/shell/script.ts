@@ -3,11 +3,13 @@ import { z } from "zod";
 export const ShellRunScriptInputSchemaBase = z
   .object({
     script: z.string().optional().describe("Script content to execute"),
+    scriptPath: z.string().optional().describe("Path to script file to execute"),
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
       .default("js")
       .describe("Script language (JavaScript, Python, or SQL)"),
+    dryRun: z.boolean().optional().describe("If true, perform a dry run without executing"),
     timeout: z
       .number()
       .int()
@@ -22,10 +24,13 @@ export const ShellRunScriptInputSchemaBase = z
 export const ShellRunScriptInputSchema = z
   .object({
     script: z.unknown().optional(),
+    scriptPath: z.string().optional(),
+    path: z.string().optional(), // alias
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
       .default("js"),
+    dryRun: z.boolean().optional(),
     timeout: z.number().int().optional().default(60000),
   })
   .transform((data) => ({
@@ -33,9 +38,11 @@ export const ShellRunScriptInputSchema = z
       data.script === undefined
         ? ""
         : String(data.script as string | number | boolean),
+    scriptPath: data.scriptPath ?? data.path ?? "",
     language: data.language,
+    dryRun: data.dryRun ?? false,
     timeout: data.timeout,
   }))
-  .refine((data) => data.script !== "", {
-    message: "Script content cannot be empty",
+  .refine((data) => data.script !== "" || data.scriptPath !== "", {
+    message: "Either script content or scriptPath must be provided",
   });

@@ -260,7 +260,7 @@ export function createShellLoadDumpTool(
 }
 
 export function createShellRunScriptTool(
-  _adapter: MySQLAdapter,
+  adapter: MySQLAdapter,
 ): ToolDefinition {
   return {
     name: "mysqlsh_run_script",
@@ -279,7 +279,7 @@ export function createShellRunScriptTool(
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { script, language, timeout } =
+        const { script, scriptPath, language, dryRun, timeout } =
           ShellRunScriptInputSchema.parse(params);
         const config = getShellConfig();
 
@@ -304,10 +304,38 @@ export function createShellRunScriptTool(
             });
         }
 
+        if (scriptPath) {
+          assertSafeIoPath(scriptPath, adapter.getAllowedIoRoots(), false);
+          try {
+            await fs.access(scriptPath);
+          } catch {
+            throw new MySQLMcpError(
+              `Script file not found: ${scriptPath}`,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION
+            );
+          }
+        }
+
+        if (dryRun) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              language,
+              exitCode: 0,
+              stdout: "Dry run successful",
+              stderr: "",
+            },
+          });
+        }
+
         let result;
-        // SQL scripts with comments or multi-line content break when passed via -e
-        // Use --file approach for SQL to properly handle all syntax
-        if (language === "sql") {
+        if (scriptPath) {
+          const args = ["--uri", config.connectionUri, langFlag, "--file", scriptPath];
+          result = await execMySQLShell(args, { timeout });
+        } else if (language === "sql") {
+          // SQL scripts with comments or multi-line content break when passed via -e
+          // Use --file approach for SQL to properly handle all syntax
           // Create a secure temp directory via mkdtemp (restrictive permissions,
           // unique path) to avoid CodeQL js/insecure-temporary-file alert.
           const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
