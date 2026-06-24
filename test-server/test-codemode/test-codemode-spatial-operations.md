@@ -153,28 +153,28 @@ spatial-operations Tool Group (4 tools +1 for code mode):
 4. 'mysql_spatial_geojson'
 5. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 **Checklist:**
 
-1. `mysql_spatial_intersection({...})` → happy path
-2. `mysql_spatial_buffer({...})` → happy path
-3. `mysql_spatial_transform({...})` → happy path
-4. `mysql_spatial_geojson({...})` → happy path
+1. `mysql.spatial.intersection({...})` → happy path
+2. `mysql.spatial.buffer({...})` → happy path
+3. `mysql.spatial.transform({...})` → happy path
+4. `mysql.spatial.geojson({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_spatial_intersection({...})` → domain error
-6. 🔴 `mysql_spatial_buffer({...})` → domain error
-7. 🔴 `mysql_spatial_transform({...})` → domain error
-8. 🔴 `mysql_spatial_geojson({...})` → domain error
+5. 🔴 `mysql.spatial.intersection({...})` → domain error
+6. 🔴 `mysql.spatial.buffer({...})` → domain error
+7. 🔴 `mysql.spatial.transform({...})` → domain error
+8. 🔴 `mysql.spatial.geojson({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_spatial_intersection({})` → validation error
-10. 🔴 `mysql_spatial_buffer({})` → validation error
-11. 🔴 `mysql_spatial_transform({})` → validation error
-12. 🔴 `mysql_spatial_geojson({})` → validation error
+9. 🔴 `mysql.spatial.intersection({})` → validation error
+10. 🔴 `mysql.spatial.buffer({})` → validation error
+11. 🔴 `mysql.spatial.transform({})` → validation error
+12. 🔴 `mysql.spatial.geojson({})` → validation error
 
 ---
 
