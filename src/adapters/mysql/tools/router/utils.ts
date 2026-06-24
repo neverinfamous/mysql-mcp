@@ -159,7 +159,7 @@ export async function safeRouterFetch(path: string): Promise<SafeRouterResult<un
           success: false,
           error: msg,
           code: "NOT_FOUND_ERROR",
-          category: "domain" as ErrorResponse["category"],
+          category: "resource",
           suggestion: undefined,
           details: undefined,
           recoverable: false,

@@ -17,3 +17,4 @@
 - Fixed factual errors in `test-codemode-json-helpers.md` by removing a domain error test for `mysql_json_validate`, since `JSON_VALID` correctly evaluates strings instead of throwing.
 - Fixed factual errors in `test-codemode-migration.md` and `test-migration.md` by targeting an active migration instead of a rolled-back migration to properly assert `DUPLICATE_MIGRATION` and `CHECKSUM_MISMATCH` validation errors for `mysql_migration_apply`.
 - Fixed `mysql_explain_analyze` to throw a structured `ValidationError` instead of returning a raw error object when `FORMAT=JSON` is requested.
+- Fixed `safeRouterFetch` in the `router` tools to use the standard `ErrorCategory.RESOURCE` instead of casting an invalid `"domain"` category for 404 responses.
