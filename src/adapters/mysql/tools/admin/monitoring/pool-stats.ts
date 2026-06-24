@@ -3,20 +3,18 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { PoolStatsOutputSchema } from "../../../schemas/index.js";
+import { PoolStatsSchemaBase, PoolStatsOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { z } from "zod";
 
 export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
 
   return {
     name: "mysql_pool_stats",
     title: "MySQL Pool Stats",
     description: "Get connection pool statistics.",
     group: "monitoring",
-    inputSchema: schema,
+    inputSchema: PoolStatsSchemaBase,
     outputSchema: PoolStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

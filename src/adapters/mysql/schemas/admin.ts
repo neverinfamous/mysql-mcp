@@ -261,6 +261,39 @@ export const ShowVariablesSchema = z
     { message: "limit must be a positive integer" },
   );
 
+export const InnodbStatusSchemaBase = z.object({
+  summary: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Return parsed summary with key metrics. Set to true for parsed output, false for raw string output.",
+    ),
+});
+
+export const InnodbStatusSchema = InnodbStatusSchemaBase;
+
+export const ReplicationStatusSchemaBase = z.object({
+  summary: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Return key replication metrics only instead of full 50+ field output (recommended)",
+    ),
+});
+
+export const ReplicationStatusSchema = ReplicationStatusSchemaBase;
+
+export const PoolStatsSchemaBase = z.object({});
+
+export const PoolStatsSchema = PoolStatsSchemaBase;
+
+export const ServerHealthSchemaBase = z.object({});
+
+export const ServerHealthSchema = ServerHealthSchemaBase;
+
+
 // --- ServerConfig ---
 export const ServerConfigSchemaBase = z.object({
   action: z

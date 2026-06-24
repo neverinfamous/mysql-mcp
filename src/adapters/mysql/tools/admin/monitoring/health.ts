@@ -3,20 +3,18 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ServerHealthOutputSchema } from "../../../schemas/index.js";
+import { ServerHealthSchemaBase, ServerHealthOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { z } from "zod";
 
 export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
 
   return {
     name: "mysql_server_health",
     title: "MySQL Server Health",
     description: "Get comprehensive server health information.",
     group: "monitoring",
-    inputSchema: schema,
+    inputSchema: ServerHealthSchemaBase,
     outputSchema: ServerHealthOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

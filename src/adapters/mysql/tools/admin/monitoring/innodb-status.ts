@@ -3,10 +3,9 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { InnodbStatusOutputSchema } from "../../../schemas/index.js";
+import { InnodbStatusSchema, InnodbStatusSchemaBase, InnodbStatusOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { z } from "zod";
 
 /**
  * Parse InnoDB status output into key metrics summary
@@ -90,15 +89,7 @@ function parseInnodbStatusSummary(rawStatus: string): Record<string, unknown> {
   return summary;
 }
 
-const InnodbStatusSchema = z.object({
-  summary: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe(
-      "Return parsed summary with key metrics. Set to true for parsed output, false for raw string output.",
-    ),
-});
+
 
 export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -107,7 +98,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed InnoDB engine status. Defaults to parsed summary. Use summary=false for raw output.",
     group: "monitoring",
-    inputSchema: InnodbStatusSchema,
+    inputSchema: InnodbStatusSchemaBase,
     outputSchema: InnodbStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

@@ -3,23 +3,13 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ReplicationStatusOutputSchema } from "../../../schemas/index.js";
+import { ReplicationStatusSchema, ReplicationStatusSchemaBase, ReplicationStatusOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { z } from "zod";
 
 export function createReplicationStatusTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    summary: z
-      .boolean()
-      .optional()
-      .default(false)
-      .describe(
-        "Return key replication metrics only instead of full 50+ field output (recommended)",
-      ),
-  });
 
   /** Extract key metrics from raw SHOW REPLICA STATUS row */
   function extractReplicationSummary(
@@ -59,13 +49,13 @@ export function createReplicationStatusTool(
     description:
       "Show replication slave/replica status. Use summary=true for key metrics only.",
     group: "monitoring",
-    inputSchema: schema,
+    inputSchema: ReplicationStatusSchemaBase,
     outputSchema: ReplicationStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { summary } = schema.parse(params);
+        const { summary } = ReplicationStatusSchema.parse(params);
 
         // Try both old and new syntax
         try {
