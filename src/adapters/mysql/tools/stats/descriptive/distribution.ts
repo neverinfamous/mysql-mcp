@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { DistributionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { DistributionSchemaBase, DistributionSchema } from "./schemas.js";
@@ -31,12 +32,8 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, column, buckets, where } =
           DistributionSchema.parse(params);
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
         if (buckets < 1) {
           throw new ValidationError("buckets must be at least 1");
         }
@@ -45,7 +42,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get min/max for bucket calculation
         const rangeResult = await adapter.executeQuery(
-          `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val FROM \`${table}\` ${whereClause}`,
+          `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val FROM ${escapeQualifiedTable(table)} ${whereClause}`,
         );
 
         const rangeRow = rangeResult.rows?.[0];
@@ -77,7 +74,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
                     COUNT(*) as count,
                     MIN(\`${column}\`) as bucket_min,
                     MAX(\`${column}\`) as bucket_max
-                FROM \`${table}\`
+                FROM ${escapeQualifiedTable(table)}
                 ${whereClause}
                 GROUP BY bucket
                 ORDER BY bucket

@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { HistogramOutputSchema } from "../../../schemas/stats.js";
 import { WRITE } from "../../../../../utils/annotations.js";
 import { HistogramSchemaBase, HistogramSchema } from "./schemas.js";
@@ -30,15 +31,11 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, column, buckets, update } =
           HistogramSchema.parse(params);
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
 
         // Ensure table and column exist to trigger ER_NO_SUCH_TABLE or ER_BAD_FIELD_ERROR for P154 compliance
-        await adapter.executeQuery(`SELECT \`${column}\` FROM \`${table}\` LIMIT 1`);
+        await adapter.executeQuery(`SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} LIMIT 1`);
 
         let warning: string | undefined;
         if (update) {
@@ -48,7 +45,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
             warning = `Requested ${buckets} buckets; clamped to max 1024`;
           }
           await adapter.executeQuery(
-            `ANALYZE TABLE \`${table}\` UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
+            `ANALYZE TABLE ${escapeQualifiedTable(table)} UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
           );
         }
 

@@ -7,8 +7,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ValidationError } from "../../../../../types/index.js";
 import { DescriptiveStatsOutputSchema } from "../../../schemas/stats.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { DescriptiveStatsSchemaBase, DescriptiveStatsSchema } from "./schemas.js";
 
@@ -32,18 +32,14 @@ export function createDescriptiveStatsTool(
       try {
         const { table, column, where } = DescriptiveStatsSchema.parse(params);
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
 
         const whereClause = where ? `WHERE ${where}` : "";
 
         // Get basic count for median calculation
         const countResult = await adapter.executeQuery(
-          `SELECT COUNT(*) as count FROM \`${table}\` ${whereClause}`,
+          `SELECT COUNT(*) as count FROM ${escapeQualifiedTable(table)} ${whereClause}`,
         );
         const totalCount = Number(countResult.rows?.[0]?.["count"] ?? 0);
 
@@ -73,7 +69,7 @@ export function createDescriptiveStatsTool(
                 SELECT AVG(val) as median
                 FROM (
                     SELECT \`${column}\` as val
-                    FROM \`${table}\`
+                    FROM ${escapeQualifiedTable(table)}
                     ${whereClause}
                     ORDER BY \`${column}\`
                     LIMIT ${String(limit)}
@@ -91,7 +87,7 @@ export function createDescriptiveStatsTool(
                     MAX(\`${column}\`) as max,
                     MAX(\`${column}\`) - MIN(\`${column}\`) as \`range\`,
                     SUM(\`${column}\`) as sum
-                FROM \`${table}\`
+                FROM ${escapeQualifiedTable(table)}
                 ${whereClause}
             `;
 

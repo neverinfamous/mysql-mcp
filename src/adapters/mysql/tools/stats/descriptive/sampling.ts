@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { SampleOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { SamplingSchemaBase, SamplingSchema } from "./schemas.js";
@@ -35,9 +36,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Validate table name
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
+        validateQualifiedIdentifier(table, "table");
 
         // Validate column names if provided
         if (columns) {
@@ -64,7 +63,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         if (seed !== undefined) {
           query = `
                     SELECT ${columnList}
-                    FROM \`${table}\`
+                    FROM ${escapeQualifiedTable(table)}
                     ${whereClause}
                     ORDER BY RAND(${String(seed)})
                     LIMIT ${String(sampleSize)}
@@ -72,7 +71,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         } else {
           query = `
                     SELECT ${columnList}
-                    FROM \`${table}\`
+                    FROM ${escapeQualifiedTable(table)}
                     ${whereClause}
                     ORDER BY RAND()
                     LIMIT ${String(sampleSize)}

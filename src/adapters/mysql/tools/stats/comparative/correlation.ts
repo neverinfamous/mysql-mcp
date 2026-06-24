@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { CorrelationOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { CorrelationSchemaBase, CorrelationSchema } from "./schemas.js";
@@ -31,20 +32,14 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, column1, column2, where } =
           CorrelationSchema.parse(params);
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
-        if (
-          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column1) ||
-          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column2)
-        ) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column1, "column");
+        validateIdentifier(column2, "column");
 
         const whereClause = where ? `WHERE (${where}) AND \`${column1}\` IS NOT NULL AND \`${column2}\` IS NOT NULL` : `WHERE \`${column1}\` IS NOT NULL AND \`${column2}\` IS NOT NULL`;
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 1`);
+        await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
 
         // Verify columns are numeric (P154)
         const colCheck = await adapter.executeQuery(
@@ -101,7 +96,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
                     AVG(\`${column2}\`) as mean_y,
                     STD(\`${column1}\`) as std_x,
                     STD(\`${column2}\`) as std_y
-                FROM \`${table}\`
+                FROM ${escapeQualifiedTable(table)}
                 ${whereClause}
             `;
 

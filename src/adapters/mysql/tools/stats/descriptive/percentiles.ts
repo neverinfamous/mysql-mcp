@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { PercentilesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { PercentilesSchemaBase, PercentilesSchema } from "./schemas.js";
@@ -30,17 +31,13 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, column, percentiles, where } =
           PercentilesSchema.parse(params);
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
 
         const whereClause = where ? `WHERE ${where}` : "";
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 1`);
+        await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
 
         // Check if column is numeric
         const colCheck = await adapter.executeQuery(
@@ -52,7 +49,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
         // Empty result means column doesn't exist; non-empty result with non-numeric type means wrong type
         if (!colCheck.rows || colCheck.rows.length === 0) {
-          throw new ValidationError(`Column '${column}' not found on table '${table}'`);
+          throw new ValidationError(`Column '${column}' not found on table ${escapeQualifiedTable(table)}`);
         }
         if (
           ![
@@ -72,7 +69,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get total count
         const countResult = await adapter.executeQuery(
-          `SELECT COUNT(*) as cnt FROM \`${table}\` ${whereClause}`,
+          `SELECT COUNT(*) as cnt FROM ${escapeQualifiedTable(table)} ${whereClause}`,
         );
         const totalCount = (countResult.rows?.[0]?.["cnt"] as number) ?? 0;
 
@@ -94,7 +91,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
           const offset = Math.floor((p / 100) * (totalCount - 1));
           const query = `
                     SELECT \`${column}\` as value
-                    FROM \`${table}\`
+                    FROM ${escapeQualifiedTable(table)}
                     ${whereClause}
                     ORDER BY \`${column}\`
                     LIMIT 1 OFFSET ${String(offset)}

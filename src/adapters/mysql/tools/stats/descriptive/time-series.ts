@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { TimeSeriesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { TimeSeriesSchemaBase, TimeSeriesSchema } from "./schemas.js";
@@ -41,15 +42,9 @@ export function createTimeSeriesToolStats(
         } = TimeSeriesSchema.parse(params);
 
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
-        if (
-          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(valueColumn) ||
-          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(timeColumn)
-        ) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(valueColumn, "column");
+        validateIdentifier(timeColumn, "column");
 
         const validIntervals = ["minute", "hour", "day", "week", "month"];
         if (!validIntervals.includes(interval)) {
@@ -91,7 +86,7 @@ export function createTimeSeriesToolStats(
                     COUNT(*) as data_points,
                     MIN(\`${valueColumn}\`) as period_min,
                     MAX(\`${valueColumn}\`) as period_max
-                FROM \`${table}\`
+                FROM ${escapeQualifiedTable(table)}
                 ${whereClause}
                 GROUP BY period
                 ORDER BY period DESC

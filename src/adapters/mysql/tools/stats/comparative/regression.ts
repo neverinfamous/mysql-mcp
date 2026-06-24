@@ -8,6 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { RegressionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { RegressionSchemaBase, RegressionSchema } from "./schemas.js";
@@ -31,9 +32,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, xColumn, yColumn, where } =
           RegressionSchema.parse(params);
         // Validate identifiers
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-          throw new ValidationError("Invalid table name");
-        }
+        validateQualifiedIdentifier(table, "table");
         if (
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
           !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
@@ -99,7 +98,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
                     SUM(\`${xColumn}\` * \`${yColumn}\`) as sum_xy,
                     SUM(\`${xColumn}\`) as sum_x,
                     SUM(\`${yColumn}\`) as sum_y
-                FROM \`${table}\`
+                FROM ${escapeQualifiedTable(table)}
                 ${whereClause}
             `;
 
