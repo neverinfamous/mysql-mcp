@@ -63,10 +63,19 @@ export function parseDocFilter(filter: string): {
   }
 
   // Check for simple field=value pattern
-  const eqMatch = /^([a-zA-Z_][a-zA-Z0-9_]*)=(.+)$/.exec(filter);
+  const eqMatch = /^(?:\$\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$/.exec(filter);
   if (eqMatch) {
     const field = eqMatch[1] ?? "";
-    const value = eqMatch[2] ?? "";
+    let value = eqMatch[2] ?? "";
+    
+    // Strip surrounding quotes if present
+    if (
+      (value.startsWith("'") && value.endsWith("'")) ||
+      (value.startsWith('"') && value.endsWith('"'))
+    ) {
+      value = value.slice(1, -1);
+    }
+    
     // Defense-in-depth: validate field name against identifier regex
     if (!IDENTIFIER_RE.test(field)) {
       throw new ValidationError(
@@ -75,7 +84,7 @@ export function parseDocFilter(filter: string): {
     }
     // Try to parse as number
     const numVal = Number(value);
-    if (!isNaN(numVal)) {
+    if (!isNaN(numVal) && value.trim() !== "") {
       return {
         where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
         params: [`$.${field}`, String(numVal)],

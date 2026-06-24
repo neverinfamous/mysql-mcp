@@ -272,12 +272,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const updates: string[] = [];
           const updateParams: unknown[] = [];
           if (set) {
-            for (const [path, value] of Object.entries(set)) {
+            for (const [rawPath, value] of Object.entries(set)) {
+              const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
               // Validate path against identifier regex to prevent injection
               if (!IDENTIFIER_RE.test(path)) {
                 return withTokenEstimate({
                   success: false,
-                  error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  error: `Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`,
                   code: "VALIDATION_ERROR",
                   category: "validation",
                 });
@@ -287,12 +288,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
           }
           if (unset) {
-            for (const path of unset) {
+            for (const rawPath of unset) {
+              const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
               // Validate path against identifier regex to prevent injection
               if (!IDENTIFIER_RE.test(path)) {
                 return withTokenEstimate({
                   success: false,
-                  error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  error: `Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`,
                   code: "VALIDATION_ERROR",
                   category: "validation",
                 });
