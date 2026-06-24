@@ -29,7 +29,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
         // SHOW commands don't support parameter binding - build SQL directly
-        if (typeof like === "string" && like.length > 0) {
+        if (typeof like === "string") {
           // Escape the like pattern for safety
           const escapedLike = like.replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
