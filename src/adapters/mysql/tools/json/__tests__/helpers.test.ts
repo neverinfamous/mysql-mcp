@@ -90,8 +90,8 @@ describe("JSON Helper Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_SEARCH");
-      expect(call).toContain("SELECT id, JSON_SEARCH");
-      expect(call).not.toContain("SELECT *");
+      expect(call).toContain("SELECT *, JSON_SEARCH");
+      expect(call).not.toContain("SELECT id, JSON_SEARCH");
     });
   });
 

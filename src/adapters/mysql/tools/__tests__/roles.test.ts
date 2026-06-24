@@ -114,7 +114,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name" }),
+        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
       );
     });
 
@@ -184,7 +184,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name" }),
+        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
       );
     });
   });
@@ -260,7 +260,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name" }),
+        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
       );
     });
 

@@ -619,7 +619,7 @@ describe("Performance Analysis Tools", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' doesn't exist",
+        error: "Table 'nonexistent' does not exist",
       });
       // Should only call once (existence check), not the index usage query
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(1);
@@ -699,7 +699,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return structured error on query failure", async () => {
