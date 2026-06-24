@@ -20,3 +20,4 @@
 - Fixed `test_documents` schema in `test-seed.sql` to strictly align with standard X DevAPI collections by generating `_id` and setting a default for `collection_name`.
 - Fixed test prompt in `test-codemode-json-core-read.md` to use the correct parameter `value` instead of `candidate` for `mysql_json_contains`.
 - Fixed `preprocessJsonColumnParams` and JSON modify schemas (`JsonSet`, `JsonInsert`, `JsonReplace`, `JsonRemove`, `JsonArrayAppend`, `JsonUpdate`) to accept `condition` as an alias for `where`.
+- Fixed `mysql_json_search` to support tables without an `id` column by returning all columns (`SELECT *`) alongside the `match_path`, instead of hardcoding `SELECT id`.
