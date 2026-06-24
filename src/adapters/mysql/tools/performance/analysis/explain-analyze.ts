@@ -10,6 +10,7 @@ import {
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
+import { ValidationError } from "../../../../../types/modules/errors.js";
 
 export function createExplainAnalyzeTool(
   adapter: MySQLAdapter,
@@ -32,15 +33,9 @@ export function createExplainAnalyzeTool(
         // (requires explain_json_format_version=2 which is not widely available).
         // Return a descriptive error for JSON format requests.
         if (format === "JSON") {
-          const response = {
-            success: false,
-            error:
-              "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead.",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          throw new ValidationError(
+            "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead."
           );
-          return { ...response, metrics: { tokenEstimate } };
         }
 
         const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;

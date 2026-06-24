@@ -15,3 +15,4 @@
 - Fixed `JsonGetOutputSchema` to match `mysql_json_get` output structure (`value` and `rowFound` instead of `rows` and `count`).
 - Fixed factual errors in `test-codemode-json-helpers.md` by removing a domain error test for `mysql_json_validate`, since `JSON_VALID` correctly evaluates strings instead of throwing.
 - Fixed factual errors in `test-codemode-migration.md` and `test-migration.md` by targeting an active migration instead of a rolled-back migration to properly assert `DUPLICATE_MIGRATION` and `CHECKSUM_MISMATCH` validation errors for `mysql_migration_apply`.
+- Fixed `mysql_explain_analyze` to throw a structured `ValidationError` instead of returning a raw error object when `FORMAT=JSON` is requested.
