@@ -53,6 +53,7 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
+  limit: z.number().optional().describe("Maximum number of records to return"),
   user: z.string().optional().describe("Filter by username"),
   mode: z.string().optional().describe("Filter by mode"),
 });
@@ -60,6 +61,7 @@ const FirewallRulesSchemaBase = z.object({
 const FirewallRulesSchema = z.preprocess(
   (val: unknown) => val,
   z.object({
+    limit: z.number().default(50),
     user: z.string().optional(),
     mode: z.string().optional(),
   })
@@ -306,7 +308,7 @@ export function createSecurityFirewallRulesTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { user, mode } = FirewallRulesSchema.parse(params);
+        const { limit, user, mode } = FirewallRulesSchema.parse(params);
 
 
         const validModes: readonly ["RECORDING", "PROTECTING", "DETECTING", "OFF"] = [
@@ -364,6 +366,9 @@ export function createSecurityFirewallRulesTool(
         if (conditions.length > 0) {
           usersQuery += " WHERE " + conditions.join(" AND ");
         }
+        
+        usersQuery += " LIMIT ?";
+        queryParams.push(limit);
 
         const usersResult = await adapter.executeQuery(usersQuery, queryParams);
 
@@ -373,13 +378,18 @@ export function createSecurityFirewallRulesTool(
                     FROM mysql.firewall_whitelist
                 `;
 
+        const rulesParams: unknown[] = [];
         if (user) {
           rulesQuery += " WHERE USERHOST LIKE ?";
+          rulesParams.push(`%${user}%`);
         }
+        
+        rulesQuery += " LIMIT ?";
+        rulesParams.push(limit);
 
         const rulesResult = await adapter.executeQuery(
           rulesQuery,
-          user ? [`%${user}%`] : [],
+          rulesParams,
         );
 
         return withTokenEstimate({

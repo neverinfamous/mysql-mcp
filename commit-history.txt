@@ -1,5 +1,1 @@
-Fix docstore tools to return structured validation errors instead of raw unknown errors.
-
-- Replaced `throw new Error()` with `throw new ValidationError()` in `parseDocFilter`.
-- Invalid JSON paths and filters now correctly map to `VALIDATION_ERROR` instead of `UNKNOWN_ERROR`.
-- Verified all lifecycle and edge case operations in Code Mode.
+Fixed schema mappings for security tools. Made value and type required in MaskDataSchemaBase to fix a Split Schema violation where they were required downstream but not exposed to the MCP client. Added userName alias to UserPrivilegesSchemaBase and preprocessed it into user to match what was being tested. Also corrected hallucinated API signatures in test-codemode-security-audit.md.
