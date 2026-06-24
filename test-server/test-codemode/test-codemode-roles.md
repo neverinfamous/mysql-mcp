@@ -153,7 +153,32 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: roles\n\nroles Tool Group (8 tools +1 code mode):\n\n1. `mysql_role_list`\n2. `mysql_role_create`\n3. `mysql_role_drop`\n4. `mysql_role_grants`\n5. `mysql_role_grant`\n6. `mysql_role_assign`\n7. `mysql_role_revoke`\n8. `mysql_user_roles`\n\n> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.\n\n1. `mysql.roles.help()` -> verify method listing\n2. `mysql.roles.someMethod({...})` -> verify success\n3. `mysql.roles.someMethod({...})` -> verify success\n4. `mysql.roles.someMethod({...})` -> verify success\n5. `mysql.roles.someMethod({...})` -> verify success\n6. `mysql.roles.someMethod({...})` -> verify success\n7. `mysql.roles.someMethod({...})` -> verify success\n8. `mysql.roles.someMethod({...})` -> verify success\n9. `mysql.roles.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n10. 🔴 `mysql.roles.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n11. 🔴 `mysql.roles.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n12. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: roles\n\nroles Tool Group (8 tools +1 code mode):\n\n1. `mysql_role_list`\n2. `mysql_role_create`\n3. `mysql_role_drop`\n4. `mysql_role_grants`\n5. `mysql_role_grant`\n6. `mysql_role_assign`\n7. `mysql_role_revoke`\n8. `mysql_user_roles`\n\n> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.
+
+1. `mysql.roles.help()` → verify method listing
+2. `mysql.roles.roleList({ limit: 5 })` → verify success
+3. `mysql.roles.roleCreate({ roleName: "test_role_x" })` → verify success
+4. `mysql.roles.roleGrant({ roleName: "test_role_x", privileges: ["SELECT"], object: "testdb.*" })` → verify success
+5. `mysql.roles.roleGrants({ roleName: "test_role_x" })` → verify success
+6. `mysql.roles.roleAssign({ roleName: "test_role_x", userName: "root" })` → verify success
+7. `mysql.roles.userRoles({ userName: "root" })` → verify success
+8. `mysql.roles.roleRevoke({ roleName: "test_role_x", userName: "root" })` → verify success
+9. `mysql.roles.roleDrop({ roleName: "test_role_x" })` → verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.roles.roleDrop({ roleName: "nonexistent_role_xyz" })` → `{success: false}`
+11. 🔴 `mysql.roles.roleGrant({ roleName: "nonexistent_role_xyz", privileges: ["SELECT"], object: "testdb.*" })` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.roles.roleCreate({})` → `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+13. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---\n\n## Post-Test Procedures
 
 ### Reporting Rules
 
@@ -179,28 +204,3 @@ During testing, check for these inconsistencies:
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
-
-## Post-Test Procedures
-
-### Reporting Rules
-
-- Use ✅ only in inline notes during testing; omit from Final Summary
-- Do not mention what already works well or issues already documented in help resources and runtime hints
-
-### After Testing
-
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
-2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
-3. **Scope of fixes** includes corrections to any of:
-   - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
-   - This prompt
-
-### After Implementation
-
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Halt your work and instruct the user to validate the changes by running the validation suite (`pnpm run check`). Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

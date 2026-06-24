@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [admin]
+# mysql-mcp Advanced Stress Testing: [security-system]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -149,9 +149,50 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
+
 
 ---
+
+## Comprehensive Tool Coverage (security)
+
+Ensure EVERY tool in the security group is comprehensively tested.
+
+security Tool Group (9 tools +1 code mode):
+
+1. `mysql_security_audit`
+2. `mysql_security_firewall_status`
+3. `mysql_security_firewall_rules`
+4. `mysql_security_mask_data`
+5. `mysql_security_password_validate`
+6. `mysql_security_ssl_status`
+7. `mysql_security_user_privileges`
+8. `mysql_security_sensitive_tables`
+9. `mysql_security_encryption_status`
+
+> **Instructions**: Use `mysql.security.*` namespace.
+
+1. `mysql.security.help()` -> verify method listing
+2. `mysql.security.someMethod({...})` -> verify success
+3. `mysql.security.someMethod({...})` -> verify success
+4. `mysql.security.someMethod({...})` -> verify success
+5. `mysql.security.someMethod({...})` -> verify success
+6. `mysql.security.someMethod({...})` -> verify success
+7. `mysql.security.someMethod({...})` -> verify success
+8. `mysql.security.someMethod({...})` -> verify success
+9. `mysql.security.someMethod({...})` -> verify success
+10. `mysql.security.someMethod({...})` -> verify success
+
+**Domain error paths (🔴):**
+
+11. 🔴 `mysql.security.someMethod({invalid})` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.security.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+13. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 
 
@@ -159,41 +200,43 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_optimize_table`
-- `mysql_analyze_table`
-- `mysql_check_table`
-- `mysql_repair_table`
-- `mysql_flush_tables`
-- `mysql_kill_query`
-- `mysql_append_insight`
-- `mysql_server_config`
-- `mysql_audit_search`
+- mysql_security_firewall_status
+- mysql_security_firewall_rules
+- mysql_security_password_validate
+- mysql_security_ssl_status
+- mysql_security_encryption_status
 
-## Category 1: Error Message Quality
+## Category 1: Password Validation Boundaries
 
-1. For each tool group, pass intentionally invalid parameters and capture the error message
-2. Verify error messages are human-readable (not raw MySQL error codes)
-3. Verify error messages include the relevant entity name (table, column, etc.)
+1. `mysql_security_password_validate({password: ""})` → verify structured response (empty password)
+2. `mysql_security_password_validate({password: "a"})` → verify weak assessment
+3. `mysql_security_password_validate({password: "A1!aB2@bC3#cD4$d"})` → verify strong assessment
+4. `mysql_security_password_validate({password: "' OR 1=1 --"})` → verify structured response (no SQL injection)
+5. `mysql_security_password_validate` with a 256-character password → verify no truncation crash
 
-## Category 2: Type Mismatches
+## Category 2: Sensitive Table Detection
 
-4. Pass string where number expected for all tools with numeric params
-5. Pass number where string expected (e.g., `table: 123`)
-6. Pass array where string expected
-7. All must return structured errors, NOT raw MCP `-32602`
+6. Create `testdb.stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
+7. `mysql_security_sensitive_tables({database: "testdb"})` → verify `stress_sensitive` is flagged
+8. Create `testdb.stress_safe` table with columns: `id INT`, `name VARCHAR(100)`, `quantity INT`
+9. `mysql_security_sensitive_tables({database: "testdb"})` → verify `stress_safe` is NOT flagged
 
-## Category 3: Payload Monitoring
+## Category 3: Privilege Enumeration Edge Cases
 
-8. Call `mysql_innodb_status()` without summary — log token estimate
-9. Call `mysql_innodb_status({summary: true})` — log token estimate, verify reduction
-10. Call `mysql_show_status()` without filter — log token estimate
-11. Call `mysql_show_variables()` without filter — log token estimate
-12. Flag any response > 500 tokens as 📦
+10. `mysql_security_user_privileges({user: "root"})` → log token estimate (full)
+11. `mysql_security_user_privileges({user: "root", summary: true})` → log token estimate (summary)
+12. Verify summary is smaller than full output
+13. `mysql_security_user_privileges({user: "nonexistent_user_xyz"})` → verify structured `{success: false}` or empty result
 
-## Category 4: Health Check Workflow
+## Category 4: Payload Monitoring
 
-13. Execute full health check: `serverHealth()` → `analyzeTable()` → `checkTable()` → `tableStats()`
-14. Verify no error accumulation across sequential admin operations
+14. `mysql_security_audit()` → log token estimate, flag > 500 tokens as 📦
+15. `mysql_security_encryption_status()` → log token estimate
+16. `mysql_security_ssl_status()` → log token estimate
+
+## Cleanup
+
+17. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
 
 ---
 
@@ -217,7 +260,7 @@ During testing, check for these inconsistencies:
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-admin.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-security.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

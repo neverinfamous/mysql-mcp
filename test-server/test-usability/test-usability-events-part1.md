@@ -1,4 +1,4 @@
-# mysql-mcp Usability & Hallucination Test: Events
+# mysql-mcp Usability & Hallucination Test: Events (Part 1)
 
 > **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
@@ -12,9 +12,6 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `e
 - `mysql_event_create`
 - `mysql_event_alter`
 - `mysql_event_drop`
-- `mysql_event_list`
-- `mysql_event_status`
-- `mysql_scheduler_status`
 
 **Instructions:**
 

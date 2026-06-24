@@ -158,13 +158,13 @@ vector-search Tool Group (3 tools +1 for code mode):
 
 1. `mysql_vector_search({...})` → happy path
 2. `mysql_vector_range_search({...})` → happy path
-3. `mysql_vector_hybrid_search({...})` → happy path
+3. `mysql_vector_hybrid_search({table: "test_products", query: "test", vector: [0.1, 0.2], metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → happy path
 
 **Domain error paths (🔴):**
 
 4. 🔴 `mysql_vector_search({...})` → domain error
 5. 🔴 `mysql_vector_range_search({...})` → domain error
-6. 🔴 `mysql_vector_hybrid_search({...})` → domain error
+6. 🔴 `mysql_vector_hybrid_search({table: "test_products", query: "test", vector: [0.1, 0.2], metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → domain error
 
 **Zod validation error paths (🔴):**
 

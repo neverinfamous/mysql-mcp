@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [monitoring]
+# mysql-mcp Advanced Stress Testing: [monitoring-status]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -160,13 +160,9 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_show_processlist`
-- `mysql_show_status`
-- `mysql_show_variables`
-- `mysql_innodb_status`
-- `mysql_replication_status`
-- `mysql_pool_stats`
-- `mysql_server_health`
+- mysql_show_processlist
+- mysql_show_status
+- mysql_show_variables
 
 ## Category 1: Payload Efficiency
 

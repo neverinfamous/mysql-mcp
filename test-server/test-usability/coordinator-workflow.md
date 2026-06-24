@@ -26,13 +26,14 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
    - If a subagent edits any `server-instructions/*.md` files, they MUST run `npx tsx scripts/generate-server-instructions.ts` before building.
 4. **Commit**:
    - Once all local tests pass, the subagent will commit the code (`git commit -m "Optimize [group] tool usage"`), create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes, summarize findings, and exit. If no modifications were needed, no commit or journal entry is required.
+   - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
    - Once the subagent completes, mark the task as done and move to the next test in the queue.
 5. **Code Mode Error Testing Protocol**:
    - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
 6. **Tool Availability Warning**:
    - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user. NOTE: The ecosystem tools (cluster, proxysql, router, shell) are running on a different port/MCP config (`mysql-ecosystem`) than the standard tools/tool groups. Ecosystem should be enabled for them already, but if it isn't working, the subagent MUST let the user know immediately so they can enable it. We want to actively test ecosystem, not just test graceful degradation.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues."
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 61. Fixed Z issues [W Prompt / V Code]."
    - Do NOT output any other text to the user during the test sequence.
 
 ## Test Sequence Queue
@@ -44,56 +45,60 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
 5. `test-usability-json-part2.md`
 6. `test-usability-json-part3.md`
 7. `test-usability-json-part4.md`
-8. `test-usability-text.md`
-9. `test-usability-fulltext.md`
-10. `test-usability-performance-part1.md`
-11. `test-usability-performance-part2.md`
-12. `test-usability-performance-part3.md`
-13. `test-usability-optimization.md`
-14. `test-usability-admin-part1.md`
-15. `test-usability-admin-part2.md`
-16. `test-usability-monitoring-part1.md`
-17. `test-usability-monitoring-part2.md`
-18. `test-usability-backup-part1.md`
-19. `test-usability-backup-part2.md`
-20. `test-usability-replication.md`
-21. `test-usability-partitioning.md`
-22. `test-usability-transactions-part1.md`
-23. `test-usability-transactions-part2.md`
-24. `test-usability-router-part1.md`
-25. `test-usability-router-part2.md`
-26. `test-usability-proxysql-part1.md`
-27. `test-usability-proxysql-part2.md`
-28. `test-usability-proxysql-part3.md`
-29. `test-usability-shell-part1.md`
-30. `test-usability-shell-part2.md`
-31. `test-usability-schema-part1.md`
-32. `test-usability-schema-part2.md`
-33. `test-usability-schema-part3.md`
-34. `test-usability-events.md`
-35. `test-usability-sysschema-part1.md`
-36. `test-usability-sysschema-part2.md`
-37. `test-usability-stats-part1.md`
-38. `test-usability-stats-part2.md`
-39. `test-usability-stats-part3.md`
-40. `test-usability-stats-part4.md`
-41. `test-usability-spatial-part1.md`
-42. `test-usability-spatial-part2.md`
-43. `test-usability-spatial-part3.md`
-44. `test-usability-security-part1.md`
-45. `test-usability-security-part2.md`
-46. `test-usability-cluster-part1.md`
-47. `test-usability-cluster-part2.md`
-48. `test-usability-roles-part1.md`
-49. `test-usability-roles-part2.md`
-50. `test-usability-docstore-part1.md`
-51. `test-usability-docstore-part2.md`
-52. `test-usability-introspection.md`
-53. `test-usability-migration.md`
-54. `test-usability-vector-part1.md`
-55. `test-usability-vector-part2.md`
-56. `test-usability-vector-part3.md`
-57. `test-usability-codemode.md`
+8. `test-usability-text-part1.md`
+9. `test-usability-text-part2.md`
+10. `test-usability-fulltext.md`
+11. `test-usability-performance-part1.md`
+12. `test-usability-performance-part2.md`
+13. `test-usability-performance-part3.md`
+14. `test-usability-optimization.md`
+15. `test-usability-admin-part1.md`
+16. `test-usability-admin-part2.md`
+17. `test-usability-monitoring-part1.md`
+18. `test-usability-monitoring-part2.md`
+19. `test-usability-backup-part1.md`
+20. `test-usability-backup-part2.md`
+21. `test-usability-replication.md`
+22. `test-usability-partitioning.md`
+23. `test-usability-transactions-part1.md`
+24. `test-usability-transactions-part2.md`
+25. `test-usability-router-part1.md`
+26. `test-usability-router-part2.md`
+27. `test-usability-proxysql-part1.md`
+28. `test-usability-proxysql-part2.md`
+29. `test-usability-proxysql-part3.md`
+30. `test-usability-shell-part1.md`
+31. `test-usability-shell-part2.md`
+32. `test-usability-schema-part1.md`
+33. `test-usability-schema-part2.md`
+34. `test-usability-schema-part3.md`
+35. `test-usability-events-part1.md`
+36. `test-usability-events-part2.md`
+37. `test-usability-sysschema-part1.md`
+38. `test-usability-sysschema-part2.md`
+39. `test-usability-stats-part1.md`
+40. `test-usability-stats-part2.md`
+41. `test-usability-stats-part3.md`
+42. `test-usability-stats-part4.md`
+43. `test-usability-spatial-part1.md`
+44. `test-usability-spatial-part2.md`
+45. `test-usability-spatial-part3.md`
+46. `test-usability-security-part1.md`
+47. `test-usability-security-part2.md`
+48. `test-usability-cluster-part1.md`
+49. `test-usability-cluster-part2.md`
+50. `test-usability-roles-part1.md`
+51. `test-usability-roles-part2.md`
+52. `test-usability-docstore-part1.md`
+53. `test-usability-docstore-part2.md`
+54. `test-usability-introspection-part1.md`
+55. `test-usability-introspection-part2.md`
+56. `test-usability-migration-part1.md`
+57. `test-usability-migration-part2.md`
+58. `test-usability-vector-part1.md`
+59. `test-usability-vector-part2.md`
+60. `test-usability-vector-part3.md`
+61. `test-usability-codemode.md`
 
 ## Finalization
 

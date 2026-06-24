@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [backup]
+# mysql-mcp Advanced Stress Testing: [backup-audit]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -197,13 +197,9 @@ backup Tool Group (7 tools +1 code mode):
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_export_table`
-- `mysql_import_data`
-- `mysql_create_dump`
-- `mysql_restore_dump`
-- `mysql_audit_list_backups`
-- `mysql_audit_restore_backup`
-- `mysql_audit_diff_backup`
+- mysql_audit_list_backups
+- mysql_audit_restore_backup
+- mysql_audit_diff_backup
 
 ## Category 1: Export Edge Cases
 

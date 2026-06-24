@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [fulltext]
+# mysql-mcp Advanced Stress Testing: [backup-export]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -22,7 +22,19 @@
 
 ### Test Schema Reference
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+| Table               | Rows | Key Columns                                       | JSON Columns        |
+| ------------------- | ---- | ------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                         | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                            | data                |
+| `test_categories`   | 17   | id, name, path, level                             | —                   |
 
 ## Reporting Format
 
@@ -77,7 +89,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+| Tool | Focus Area | Code Mode Validation |
 
 ### Structured Error Response Pattern
 
@@ -137,64 +149,87 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-
+- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
 
 ---
 
-## Group Focus: fulltext
+## Comprehensive Tool Coverage (backup)
 
-### fulltext Group-Specific Testing
+Ensure EVERY tool in the backup group is comprehensively tested.
 
-fulltext Tool Group (5 tools +1 for code mode):
+backup Tool Group (7 tools +1 code mode):
 
-1. 'mysql_fulltext_create'
-2. 'mysql_fulltext_drop'
-3. 'mysql_fulltext_search'
-4. 'mysql_fulltext_boolean'
-5. 'mysql_fulltext_expand'
-6. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_export_table`
+2. `mysql_import_data`
+3. `mysql_create_dump`
+4. `mysql_restore_dump`
+5. `mysql_audit_list_backups`
+6. `mysql_audit_restore_backup`
+7. `mysql_audit_diff_backup`
 
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: Use `mysql.backup.*` namespace.
 
-**Test data:** Uses `test_articles` which has a FULLTEXT INDEX on `(title, body)`.
-
-Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `replication`.
-
-**Checklist:**
-
-1. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → at least 1 result with relevance scores
-2. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
-3. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results containing both terms
-4. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL -JSON"})` → results with MySQL but not JSON
-5. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
-6. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
-7. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` is returned
-8. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor from previous call>"})` → verify pagination
-9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
-
-10. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 50})` → verify returned results have string fields truncated to 50 chars
-11. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL", maxLength: 50})` → verify truncated fields
-12. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database", maxLength: 50})` → verify truncated fields
-
-**Create → Search → Drop lifecycle:**
-
-13. `mysql_fulltext_create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-14. `mysql_fulltext_search({table: "test_users", columns: ["bio"], query: "developer"})` → results
-15. `mysql_fulltext_drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+1. `mysql.backup.help()` -> verify method listing
+2. `mysql.backup.someMethod({...})` -> verify success
+3. `mysql.backup.someMethod({...})` -> verify success
+4. `mysql.backup.someMethod({...})` -> verify success
+5. `mysql.backup.someMethod({...})` -> verify success
+6. `mysql.backup.someMethod({...})` -> verify success
+7. `mysql.backup.someMethod({...})` -> verify success
+8. `mysql.backup.someMethod({...})` -> verify success
 
 **Domain error paths (🔴):**
 
-16. 🔴 `mysql_fulltext_search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false, error: "..."}` handler error
-17. 🔴 `mysql_fulltext_search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false, error: "..."}` (no FULLTEXT index)
+9. 🔴 `mysql.backup.someMethod({invalid})` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-18. 🔴 `mysql_fulltext_search({})` → `{success: false, error: "..."}` (missing required params)
-19. 🔴 `mysql_fulltext_create({})` → `{success: false, error: "..."}` (missing required params)
+10. 🔴 `mysql.backup.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
+    *(Note: Tools with all optional parameters or defaults like `mysql_audit_list_backups` and `mysql_create_dump` will legitimately succeed with `{}` if valid defaults apply, which is expected behavior.)*
 
-**Wrong-type numeric param coercion (🔴):**
+**Alias acceptance (🟢):**
 
-20. 🔴 `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: "abc"})` → must NOT return raw MCP error
+11. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+
+
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- mysql_export_table
+- mysql_import_data
+- mysql_create_dump
+- mysql_restore_dump
+
+## Category 1: Export Edge Cases
+
+1. Create `stress_empty_export` table with 0 rows
+2. `mysql_export_table({table: "stress_empty_export"})` → verify returns empty dataset (not crash)
+3. `mysql_export_table({table: "test_products", limit: 0})` → verify behavior (empty or error)
+4. `mysql_export_table({table: "nonexistent_xyz"})` → verify structured `{success: false}`
+
+## Category 2: Format Boundary Values
+
+5. `mysql_export_table({table: "test_products", format: "CSV", limit: 3})` → verify case-insensitive format acceptance
+6. `mysql_export_table({table: "test_products", format: "csv", limit: 3})` → verify lowercase works
+7. `mysql_export_table({table: "test_products", format: "json", limit: 3})` → verify JSON format
+8. `mysql_export_table({table: "test_products", format: "invalid_format_xyz"})` → verify structured error
+
+## Category 3: Dump Parameter Validation
+
+9. `mysql_create_dump({database: "nonexistent_db_xyz"})` → verify structured `{success: false}`
+10. `mysql_create_dump({database: "testdb", tables: []})` → verify behavior with empty tables array
+11. `mysql_create_dump({database: "testdb", tables: ["nonexistent_table_xyz"]})` → verify structured error
+
+## Category 4: Payload Monitoring
+
+12. `mysql_export_table({table: "test_products"})` with no limit → log token estimate
+13. Flag any response > 500 tokens as 📦
+
+## Cleanup
+
+14. Drop all `stress_*` tables
 
 ---
 
@@ -218,7 +253,7 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-fulltext.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-backup.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

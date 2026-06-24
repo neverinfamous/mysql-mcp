@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [security]
+# mysql-mcp Advanced Stress Testing: [admin-control]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -89,7 +89,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
 
 ### Structured Error Response Pattern
 
@@ -149,34 +149,46 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-
+- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
 
 ---
 
-## Group Focus: security\n\nsecurity Tool Group (9 tools +1 code mode):\n\n1. `mysql_security_audit`\n2. `mysql_security_firewall_status`\n3. `mysql_security_firewall_rules`\n4. `mysql_security_mask_data`\n5. `mysql_security_password_validate`\n6. `mysql_security_ssl_status`\n7. `mysql_security_user_privileges`\n8. `mysql_security_sensitive_tables`\n9. `mysql_security_encryption_status`\n\n> **Instructions**: Use `mysql.security.*` namespace, push deviations to `failures` array.\n\n1. `mysql.security.help()` -> verify method listing\n2. `mysql.security.someMethod({...})` -> verify success\n3. `mysql.security.someMethod({...})` -> verify success\n4. `mysql.security.someMethod({...})` -> verify success\n5. `mysql.security.someMethod({...})` -> verify success\n6. `mysql.security.someMethod({...})` -> verify success\n7. `mysql.security.someMethod({...})` -> verify success\n8. `mysql.security.someMethod({...})` -> verify success\n9. `mysql.security.someMethod({...})` -> verify success\n10. `mysql.security.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n11. 🔴 `mysql.security.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n12. 🔴 `mysql.security.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n13. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
-### Reporting Rules
 
-- Use ✅ only in inline notes during testing; omit from Final Summary
-- Do not mention what already works well or issues already documented in help resources and runtime hints
+### Explicit Tool Coverage Requirements
 
-### After Testing
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
-2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
-3. **Scope of fixes** includes corrections to any of:
-   - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
-   - This prompt
+- mysql_kill_query
+- mysql_append_insight
+- mysql_server_config
+- mysql_audit_search
 
-### After Implementation
+## Category 1: Error Message Quality
 
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-security.md]`) so the history can be traced.
-6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+1. For each tool group, pass intentionally invalid parameters and capture the error message
+2. Verify error messages are human-readable (not raw MySQL error codes)
+3. Verify error messages include the relevant entity name (table, column, etc.)
+
+## Category 2: Type Mismatches
+
+4. Pass string where number expected for all tools with numeric params
+5. Pass number where string expected (e.g., `table: 123`)
+6. Pass array where string expected
+7. All must return structured errors, NOT raw MCP `-32602`
+
+## Category 3: Payload Monitoring
+
+8. Call `mysql_innodb_status()` without summary — log token estimate
+9. Call `mysql_innodb_status({summary: true})` — log token estimate, verify reduction
+10. Call `mysql_show_status()` without filter — log token estimate
+11. Call `mysql_show_variables()` without filter — log token estimate
+12. Flag any response > 500 tokens as 📦
+
+## Category 4: Health Check Workflow
+
+13. Execute full health check: `serverHealth()` → `analyzeTable()` → `checkTable()` → `tableStats()`
+14. Verify no error accumulation across sequential admin operations
 
 ---
 
@@ -200,7 +212,7 @@ During testing, check for these inconsistencies:
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Halt your work and instruct the user to validate the changes by running the validation suite (`pnpm run check`). Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-admin.md]`) so the history can be traced.
+6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

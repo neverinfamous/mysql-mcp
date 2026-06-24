@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [fulltext]
+# mysql-mcp Code Mode Testing: [core]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -22,7 +22,19 @@
 
 ### Test Schema Reference
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+| Table               | Rows | Key Columns                                       | JSON Columns        |
+| ------------------- | ---- | ------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                         | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                            | data                |
+| `test_categories`   | 17   | id, name, path, level                             | —                   |
 
 ## Reporting Format
 
@@ -77,7 +89,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Structured Error Response Pattern
 
@@ -141,60 +153,31 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: fulltext
+## Group Focus: core (Read)
 
-### fulltext Group-Specific Testing
+core Tool Group - Read Tools:
+1. 'mysql_read_query'
+2. 'mysql_list_tables'
+3. 'mysql_describe_table'
+4. 'mysql_get_indexes'
 
-fulltext Tool Group (5 tools +1 for code mode):
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 
-1. 'mysql_fulltext_create'
-2. 'mysql_fulltext_drop'
-3. 'mysql_fulltext_search'
-4. 'mysql_fulltext_boolean'
-5. 'mysql_fulltext_expand'
-6. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_articles` which has a FULLTEXT INDEX on `(title, body)`.
-
-Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `replication`.
-
-**Checklist:**
-
-1. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → at least 1 result with relevance scores
-2. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
-3. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results containing both terms
-4. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL -JSON"})` → results with MySQL but not JSON
-5. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
-6. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
-7. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` is returned
-8. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor from previous call>"})` → verify pagination
-9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
-
-10. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 50})` → verify returned results have string fields truncated to 50 chars
-11. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL", maxLength: 50})` → verify truncated fields
-12. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database", maxLength: 50})` → verify truncated fields
-
-**Create → Search → Drop lifecycle:**
-
-13. `mysql_fulltext_create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-14. `mysql_fulltext_search({table: "test_users", columns: ["bio"], query: "developer"})` → results
-15. `mysql_fulltext_drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+1. `mysql.core.help()`
+2. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders"})`
+3. `mysql.core.readQuery({query: "SELECT id, name FROM test_products WHERE price > 50 LIMIT 3"})`
+4. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders", stream: true, chunkSize: 5})`
+5. `mysql.core.readQuery({query: "SELECT id FROM test_measurements"})`
+6. `mysql.core.listTables({database: "testdb", limit: 5})`
+7. `mysql.core.describeTable({table: "test_products"})`
+8. `mysql.core.getIndexes({table: "test_orders"})`
 
 **Domain error paths (🔴):**
-
-16. 🔴 `mysql_fulltext_search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false, error: "..."}` handler error
-17. 🔴 `mysql_fulltext_search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false, error: "..."}` (no FULLTEXT index)
+9. 🔴 `mysql.core.readQuery({query: "SELECT * FROM nonexistent_table_xyz"})`
+10. 🔴 `mysql.core.describeTable({table: "nonexistent_xyz"})`
 
 **Zod validation error paths (🔴):**
-
-18. 🔴 `mysql_fulltext_search({})` → `{success: false, error: "..."}` (missing required params)
-19. 🔴 `mysql_fulltext_create({})` → `{success: false, error: "..."}` (missing required params)
-
-**Wrong-type numeric param coercion (🔴):**
-
-20. 🔴 `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: "abc"})` → must NOT return raw MCP error
+11. 🔴 `mysql.core.describeTable({})`
 
 ---
 
@@ -218,7 +201,7 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-fulltext.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-core-read.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

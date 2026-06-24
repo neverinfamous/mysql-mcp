@@ -141,7 +141,7 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: backup\n\n### backup Group-Specific Testing\n\nbackup Tool Group (7 tools +1 for code mode):\n\n1. 'mysql_export_table'\n2. 'mysql_import_data'\n3. 'mysql_create_dump'\n4. 'mysql_restore_dump'\n5. 'mysql_audit_list_backups'\n6. 'mysql_audit_restore_backup'\n7. 'mysql_audit_diff_backup'\n8. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.\n\n1. `mysql_export_table({...})` -> verify success\n2. `mysql_import_data({...})` -> verify success\n3. `mysql_create_dump({...})` -> verify success\n4. `mysql_restore_dump({...})` -> verify success\n5. `mysql_audit_list_backups({...})` -> verify success\n6. `mysql_audit_restore_backup({...})` -> verify success\n7. `mysql_audit_diff_backup({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n8. 🔴 `mysql_export_table({...})` -> `{success: false, error: "..."}` handler error\n9. 🔴 `mysql_import_data({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_create_dump({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_restore_dump({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_audit_list_backups({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_audit_restore_backup({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_audit_diff_backup({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n15. 🔴 `mysql_export_table({})` -> `{success: false, error: "..."}` (Zod validation)\n16. 🔴 `mysql_import_data({})` -> `{success: false, error: "..."}` (Zod validation)\n17. 🔴 `mysql_create_dump({})` -> `{success: false, error: "..."}` (Zod validation)\n18. 🔴 `mysql_restore_dump({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🟢 `mysql_audit_list_backups({})` -> `{success: true, data: {...}}` (defaults)\n20. 🔴 `mysql_audit_restore_backup({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_audit_diff_backup({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n22. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: backup\n\n### backup Group-Specific Testing\n\nbackup Tool Group (7 tools +1 for code mode):\n\n1. 'mysql_export_table'\n2. 'mysql_import_data'\n3. 'mysql_create_dump'\n4. 'mysql_restore_dump'\n5. 'mysql_audit_list_backups'\n6. 'mysql_audit_restore_backup'\n7. 'mysql_audit_diff_backup'\n8. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.\n\n1. `mysql_export_table({table: "test_products", limit: 5})` -> verify success with limit\n2. `mysql_import_data({...})` -> verify success\n3. `mysql_create_dump({...})` -> verify success\n4. `mysql_restore_dump({...})` -> verify success\n5. `mysql_audit_list_backups({...})` -> verify success\n6. `mysql_audit_restore_backup({...})` -> verify success\n7. `mysql_audit_diff_backup({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n8. 🔴 `mysql_export_table({...})` -> `{success: false, error: "..."}` handler error\n9. 🔴 `mysql_import_data({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_create_dump({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_restore_dump({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_audit_list_backups({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_audit_restore_backup({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_audit_diff_backup({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n15. 🔴 `mysql_export_table({})` -> `{success: false, error: "..."}` (Zod validation)\n16. 🔴 `mysql_import_data({})` -> `{success: false, error: "..."}` (Zod validation)\n17. 🔴 `mysql_create_dump({})` -> `{success: false, error: "..."}` (Zod validation)\n18. 🔴 `mysql_restore_dump({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🟢 `mysql_audit_list_backups({})` -> `{success: true, data: {...}}` (defaults)\n20. 🔴 `mysql_audit_restore_backup({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_audit_diff_backup({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n22. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
 
 ### Reporting Rules
 
@@ -166,29 +166,3 @@ During testing, check for these inconsistencies:
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
----
-
-## Post-Test Procedures
-
-### Reporting Rules
-
-- Use ✅ only in inline notes during testing; omit from Final Summary
-- Do not mention what already works well or issues already documented in help resources and runtime hints
-
-### After Testing
-
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
-2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
-3. **Scope of fixes** includes corrections to any of:
-   - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
-   - This prompt
-
-### After Implementation
-
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Halt your work and instruct the user to validate the changes by running the validation suite (`pnpm run check`). Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

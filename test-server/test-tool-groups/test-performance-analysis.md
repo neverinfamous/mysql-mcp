@@ -161,7 +161,9 @@ performance-analysis Tool Group (8 tools +1 for code mode):
 
 1. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1"})` → verify execution plan returned
 2. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → verify JSON-format plan
-3. `mysql_table_stats({table: "test_products"})` → verify `{rows, avgRowLength, dataLength}` present
+3. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TREE"})` → verify TREE-format plan
+4. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TRADITIONAL"})` → verify TRADITIONAL-format plan
+5. `mysql_table_stats({table: "test_products"})` → verify `{rows, avgRowLength, dataLength}` present
 4. `mysql_index_usage({table: "test_products"})` → verify index usage statistics
 5. `mysql_buffer_pool_stats()` → verify buffer pool metrics
 6. `mysql_thread_stats()` → verify thread statistics

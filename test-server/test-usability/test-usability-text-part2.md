@@ -1,4 +1,4 @@
-# mysql-mcp Usability & Hallucination Test: Text
+# mysql-mcp Usability & Hallucination Test: Text (Part 2)
 
 > **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
@@ -9,9 +9,6 @@ This prompt instructs you to organically test the `text` tool group using Code M
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `text` group:
-- `mysql_regexp_match`
-- `mysql_like_search`
-- `mysql_soundex`
 - `mysql_substring`
 - `mysql_concat`
 - `mysql_collation_convert`

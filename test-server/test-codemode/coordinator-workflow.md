@@ -30,62 +30,64 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - The subagent MUST commit all changes locally (`git commit -m "..."`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and immediately move to the next test in the queue.
-   - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied`** (e.g., **`0 fixes applied`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite.
+   - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues." (e.g., "This is test 40 out of 46. Fixed 10 issues.")
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues [W Prompt / V Code]." (e.g., "This is test 40 out of 46. Fixed 10 issues [2 Prompt / 8 Code].")
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 
 ## Test Sequence Queue (Dependency DAG)
 
-1. `test-codemode-core.md` (**MUST PASS FIRST**)
-2. `test-codemode-admin-maintenance.md`
-3. `test-codemode-admin-audit.md`
+1. `test-codemode-core-read.md` (**MUST PASS FIRST**)
+2. `test-codemode-admin-audit.md`
+3. `test-codemode-admin-maintenance.md`
 4. `test-codemode-backup.md`
 5. `test-codemode-cluster-group-replication.md`
 6. `test-codemode-cluster-innodb.md`
-7. `test-codemode-docstore-collections.md`
-8. `test-codemode-docstore-documents.md`
-9. `test-codemode-events.md`
-10. `test-codemode-fulltext.md`
-11. `test-codemode-introspection.md`
-12. `test-codemode-json-core-read.md`
-13. `test-codemode-json-core-write.md`
-14. `test-codemode-json-enhanced.md`
-15. `test-codemode-json-helpers.md`
-16. `test-codemode-migration.md`
-17. `test-codemode-monitoring.md`
-18. `test-codemode-optimization.md`
-19. `test-codemode-partitioning.md`
-20. `test-codemode-performance-analysis-queries.md`
-21. `test-codemode-performance-analysis-system.md`
-22. `test-codemode-performance-anomaly.md`
-23. `test-codemode-proxysql-config.md`
-24. `test-codemode-proxysql-status.md`
-25. `test-codemode-replication.md`
-26. `test-codemode-roles.md`
-27. `test-codemode-router.md`
-28. `test-codemode-schema-management.md`
-29. `test-codemode-schema-routines.md`
-30. `test-codemode-security.md`
-31. `test-codemode-shell-data.md`
-32. `test-codemode-shell-utils.md`
-33. `test-codemode-spatial-geometry.md`
-34. `test-codemode-spatial-operations.md`
-35. `test-codemode-spatial-queries.md`
-36. `test-codemode-spatial-setup.md`
-37. `test-codemode-stats-advanced.md`
-38. `test-codemode-stats-descriptive.md`
-39. `test-codemode-stats-window.md`
-40. `test-codemode-sys.md`
-41. `test-codemode-text.md`
-42. `test-codemode-transactions.md`
-43. `test-codemode-vector-management.md`
-44. `test-codemode-vector-search.md`
-45. `test-codemode-vector-storage.md`
-46. `test-codemode-versioning.md`
+7. `test-codemode-core-write.md`
+8. `test-codemode-docstore-collections.md`
+9. `test-codemode-docstore-documents.md`
+10. `test-codemode-events.md`
+11. `test-codemode-fulltext.md`
+12. `test-codemode-introspection.md`
+13. `test-codemode-json-core-read.md`
+14. `test-codemode-json-core-write.md`
+15. `test-codemode-json-enhanced.md`
+16. `test-codemode-json-helpers.md`
+17. `test-codemode-migration.md`
+18. `test-codemode-monitoring.md`
+19. `test-codemode-optimization.md`
+20. `test-codemode-partitioning.md`
+21. `test-codemode-performance-analysis-queries.md`
+22. `test-codemode-performance-analysis-system.md`
+23. `test-codemode-performance-anomaly.md`
+24. `test-codemode-proxysql-config.md`
+25. `test-codemode-proxysql-status.md`
+26. `test-codemode-replication.md`
+27. `test-codemode-roles.md`
+28. `test-codemode-router.md`
+29. `test-codemode-schema-management.md`
+30. `test-codemode-schema-routines.md`
+31. `test-codemode-security-audit.md`
+32. `test-codemode-security-firewall.md`
+33. `test-codemode-shell-data.md`
+34. `test-codemode-shell-utils.md`
+35. `test-codemode-spatial-geometry.md`
+36. `test-codemode-spatial-operations.md`
+37. `test-codemode-spatial-queries.md`
+38. `test-codemode-spatial-setup.md`
+39. `test-codemode-stats-advanced.md`
+40. `test-codemode-stats-descriptive.md`
+41. `test-codemode-stats-window.md`
+42. `test-codemode-sys.md`
+43. `test-codemode-text.md`
+44. `test-codemode-transactions.md`
+45. `test-codemode-vector-management.md`
+46. `test-codemode-vector-search.md`
+47. `test-codemode-vector-storage.md`
+48. `test-codemode-versioning.md`
 
 ## Telemetry Collection
 

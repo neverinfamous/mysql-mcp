@@ -164,7 +164,7 @@ shell Tool Group (10 tools +1 for code mode):
 1. `mysqlsh_version()` → verify MySQL Shell version and installation status
 2. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
 3. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
-4. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_tables", dryRun: true})` → verify table dump command
+4. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
 
 **Domain error paths (🔴):**
 

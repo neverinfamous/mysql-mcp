@@ -1,27 +1,24 @@
-# mysql-mcp Usability & Hallucination Test: Migration
+# mysql-mcp Usability & Hallucination Test: Text (Part 1)
 
 > **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 > **This test is optimized for an autonomous agent.**
 
-This prompt instructs you to organically test the `migration` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
+This prompt instructs you to organically test the `text` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with the following tools in the `migration` group:
-- `mysql_migration_init`
-- `mysql_migration_record`
-- `mysql_migration_apply`
-- `mysql_migration_rollback`
-- `mysql_migration_history`
-- `mysql_migration_status`
+Use the `mysql_execute_code` tool to interact with the following tools in the `text` group:
+- `mysql_regexp_match`
+- `mysql_like_search`
+- `mysql_soundex`
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
-- Test positional params: Try `mysql.migration.<method>("value")` if applicable.
-- Test aliases: See if intuitively named methods work (e.g. `mysql.migration.get()`).
+- Test positional params: Try `mysql.text.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.text.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
@@ -42,7 +39,7 @@ If you encounter any failures, errors, or hallucinations:
 
 ## 4. Commit
 
-1. If local verification passes, run `git add .` and `git commit -m "Optimize migration tool usage"`.
+1. If local verification passes, run `git add .` and `git commit -m "Optimize text tool usage"`.
 2. Report your findings to the Coordinator.
 
 ## 5. Continuous Improvement

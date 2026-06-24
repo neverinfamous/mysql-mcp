@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [roles]
+# mysql-mcp Code Mode Testing: [security-firewall]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -89,7 +89,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Structured Error Response Pattern
 
@@ -153,94 +153,14 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Comprehensive Tool Coverage (roles)
+## Group Focus: security (Firewall & SSL)
 
-Ensure EVERY tool in the roles group is comprehensively tested.
-
-roles Tool Group (8 tools +1 code mode):
-
-1. `mysql_role_list`
-2. `mysql_role_create`
-3. `mysql_role_drop`
-4. `mysql_role_grants`
-5. `mysql_role_grant`
-6. `mysql_role_assign`
-7. `mysql_role_revoke`
-8. `mysql_user_roles`
-
-> **Instructions**: Use `mysql.roles.*` namespace.
-
-1. `mysql.roles.help()` -> verify method listing
-2. `mysql.roles.someMethod({...})` -> verify success
-3. `mysql.roles.someMethod({...})` -> verify success
-4. `mysql.roles.someMethod({...})` -> verify success
-5. `mysql.roles.someMethod({...})` -> verify success
-6. `mysql.roles.someMethod({...})` -> verify success
-7. `mysql.roles.someMethod({...})` -> verify success
-8. `mysql.roles.someMethod({...})` -> verify success
-9. `mysql.roles.someMethod({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.roles.someMethod({invalid})` -> `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-11. 🔴 `mysql.roles.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance (🟢):**
-
-12. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
-
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_role_list`
-- `mysql_role_create`
-- `mysql_role_drop`
-- `mysql_role_grants`
-- `mysql_role_grant`
-- `mysql_role_assign`
-- `mysql_role_revoke`
-- `mysql_user_roles`
-
-## Category 1: Role Lifecycle Collisions
-
-1. `mysql_role_create({name: "stress_role_a"})` → success
-2. `mysql_role_create({name: "stress_role_a"})` again → verify structured `{success: false}` (duplicate)
-3. `mysql_role_drop({name: "stress_role_nonexist"})` → verify structured `{success: false}` (not found)
-
-## Category 2: Privilege Grant/Revoke Sequences
-
-4. `mysql_role_grant({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → success
-5. `mysql_role_grants({role: "stress_role_a"})` → verify SELECT is listed
-6. `mysql_role_grant({role: "stress_role_a", privilege: "INSERT", on: "testdb.*"})` → success
-7. `mysql_role_grants({role: "stress_role_a"})` → verify both SELECT and INSERT are listed
-8. `mysql_role_revoke({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → success
-9. `mysql_role_grants({role: "stress_role_a"})` → verify SELECT is removed, INSERT remains
-
-## Category 3: Cascading Assign/Revoke Verification
-
-10. `mysql_role_grant({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → re-grant
-11. Verify `mysql_role_grants` reflects the re-granted privilege
-12. `mysql_role_drop({name: "stress_role_a"})` → drop role entirely
-
-## Category 4: Parameter Alias Parity
-
-13. `mysql_role_grants` with `name` param → verify identical response to `role` param
-14. `mysql_role_grant` with `privilege` and `on` aliases → verify structured success
-
-## Category 5: Error Quality
-
-15. `mysql_role_grant({role: "stress_role_nonexist", privilege: "SELECT", on: "testdb.*"})` → verify structured `{success: false}` (role not found)
-16. `mysql_role_revoke({role: "stress_role_nonexist", privilege: "SELECT", on: "testdb.*"})` → verify structured `{success: false}`
-
-## Cleanup
-
-17. Drop all `stress_*` roles
+1. `mysql.security.help()`
+2. `mysql.security.securityFirewallStatus()`
+3. `mysql.security.securityFirewallRules({ limit: 5 })`
+4. `mysql.security.securitySslStatus()`
+5. `mysql.security.securityEncryptionStatus()`
+6. `mysql.security.securityPasswordValidate({ password: "weak" })`
 
 ---
 
@@ -264,7 +184,9 @@ roles Tool Group (8 tools +1 code mode):
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-roles.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-security-firewall.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+
+---

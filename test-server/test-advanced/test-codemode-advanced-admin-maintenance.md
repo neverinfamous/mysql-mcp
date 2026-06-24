@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [docstore]
+# mysql-mcp Advanced Stress Testing: [admin-maintenance]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -149,7 +149,7 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-
+- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
 
 ---
 
@@ -159,38 +159,37 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_doc_list_collections`
-- `mysql_doc_create_collection`
-- `mysql_doc_drop_collection`
-- `mysql_doc_find`
-- `mysql_doc_add`
-- `mysql_doc_modify`
-- `mysql_doc_remove`
-- `mysql_doc_create_index`
-- `mysql_doc_collection_info`
+- mysql_optimize_table
+- mysql_analyze_table
+- mysql_check_table
+- mysql_repair_table
+- mysql_flush_tables
 
-## Category 1: Collection Lifecycle
+## Category 1: Error Message Quality
 
-1. Create collection `stress_docs`, add 5 documents, verify count
-2. Drop and recreate — verify clean state
-3. Create collection with same name as dropped — verify no leakage
+1. For each tool group, pass intentionally invalid parameters and capture the error message
+2. Verify error messages are human-readable (not raw MySQL error codes)
+3. Verify error messages include the relevant entity name (table, column, etc.)
 
-## Category 2: Edge Cases
+## Category 2: Type Mismatches
 
-4. Find with empty criteria `{}` — should return all documents
-5. Find with criteria matching no documents — verify empty result (not error)
-6. Add document with empty object `{}` — verify insertion succeeds
-7. Modify with criteria matching no documents — verify structured response
-8. Remove with criteria matching no documents — verify structured response
+4. Pass string where number expected for all tools with numeric params
+5. Pass number where string expected (e.g., `table: 123`)
+6. Pass array where string expected
+7. All must return structured errors, NOT raw MCP `-32602`
 
-## Category 3: Index Operations
+## Category 3: Payload Monitoring
 
-9. Create index on JSON path for `stress_docs` collection
-10. Drop collection with index — verify clean removal
+8. Call `mysql_innodb_status()` without summary — log token estimate
+9. Call `mysql_innodb_status({summary: true})` — log token estimate, verify reduction
+10. Call `mysql_show_status()` without filter — log token estimate
+11. Call `mysql_show_variables()` without filter — log token estimate
+12. Flag any response > 500 tokens as 📦
 
-## Cleanup
+## Category 4: Health Check Workflow
 
-11. Drop `stress_docs` if still exists
+13. Execute full health check: `serverHealth()` → `analyzeTable()` → `checkTable()` → `tableStats()`
+14. Verify no error accumulation across sequential admin operations
 
 ---
 
@@ -214,7 +213,7 @@ During testing, check for these inconsistencies:
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-docstore.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-admin.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

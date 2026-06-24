@@ -155,7 +155,7 @@ optimization Tool Group (4 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-1. `mysql_index_recommendation({table: "test_orders"})` → verify recommendations returned, including missing FK checks and duplicate index checks
+1. `mysql_index_recommendation({table: "test_orders", includeRedundant: true, includeUnindexed: true})` → verify recommendations returned, including missing FK checks and duplicate index checks
 2. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"]})` → verify EXPLAIN-based composite recommendations
 3. `mysql_index_recommendation({table: "test_orders", queries: ["SELECT * FROM test_orders WHERE status = 'completed' AND customer_name = 'Alice'"]})` → verify composite index suggestion for multi-column WHERE
 4. `mysql_index_recommendation({})` → verify database-wide audit runs (table is optional)

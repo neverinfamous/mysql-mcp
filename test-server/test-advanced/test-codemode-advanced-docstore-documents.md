@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [core]
+# mysql-mcp Advanced Stress Testing: [docstore-documents]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -89,7 +89,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
 
 ### Structured Error Response Pattern
 
@@ -153,53 +153,39 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: core
 
-### core Group-Specific Testing
 
-core Tool Group (8 tools +1 code mode):
+### Explicit Tool Coverage Requirements
 
-1. 'mysql_read_query'
-2. 'mysql_write_query'
-3. 'mysql_list_tables'
-4. 'mysql_describe_table'
-5. 'mysql_create_table'
-6. 'mysql_drop_table'
-7. 'mysql_create_index'
-8. 'mysql_get_indexes'
-9. 'mysql_execute_code' (codemode, auto-added)
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below. Use the `mysql.*` namespace to call the corresponding methods with the exact inputs shown. Compare responses against the expected results within your script, and push any deviations or errors to a `failures` array. Return the `failures` array at the end of the script. Report any issues logged.
+- mysql_doc_find
+- mysql_doc_add
+- mysql_doc_modify
+- mysql_doc_remove
 
-1. `mysql.core.help()` → verify method listing includes `readQuery`, `writeQuery`, `listTables`, etc.
-2. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `n === 20`
-3. `mysql.core.readQuery({query: "SELECT id, name FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows
-4. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders", stream: true, chunkSize: 5})` → verify returns `{rowCount: 1, rows: [{n: 20}]}` and DOES NOT return `streamed: true` (degrades gracefully in Code Mode)
-5. `mysql.core.readQuery({query: "SELECT id FROM test_measurements"})` → verify `count` is 50, retrieve `nextCursor`
-6. `mysql.core.readQuery({query: "SELECT id FROM test_measurements", cursor: <nextCursor from previous call>})` → verify pagination works
-7. `mysql.core.listTables({database: "testdb", limit: 5})` → 5 tables returned
-8. `mysql.core.describeTable({table: "test_products"})` → columns include `id`, `name`, `price`
-9. `mysql.core.getIndexes({table: "test_orders"})` → verify `idx_orders_status` present
+## Category 1: Collection Lifecycle
 
-**Create → Use → Drop lifecycle:**
+1. Create collection `stress_docs`, add 5 documents, verify count
+2. Drop and recreate — verify clean state
+3. Create collection with same name as dropped — verify no leakage
 
-7. `mysql.core.createTable({table: "temp_cm_core", columns: [{name: "id", type: "INT", primaryKey: true}, {name: "val", type: "VARCHAR(50)"}]})` → `success: true`
-8. `mysql.core.writeQuery({query: "INSERT INTO temp_cm_core (id, val) VALUES (1, 'test')"})` → `rowsAffected: 1`
-9. `mysql.core.readQuery({query: "SELECT * FROM temp_cm_core"})` → 1 row
-10. `mysql.core.dropTable({table: "temp_cm_core"})` → `success: true`
+## Category 2: Edge Cases
 
-**Domain error paths (🔴):**
+4. Find with empty criteria `{}` — should return all documents
+5. Find with criteria matching no documents — verify empty result (not error)
+6. Add document with empty object `{}` — verify insertion succeeds
+7. Modify with criteria matching no documents — verify structured response
+8. Remove with criteria matching no documents — verify structured response
 
-11. 🔴 `mysql.core.readQuery({query: "SELECT * FROM nonexistent_table_xyz"})` → `{success: false, error: "..."}` — NOT raw exception
-12. 🔴 `mysql.core.describeTable({table: "nonexistent_xyz"})` → `{success: false, error: "..."}`
-13. 🔴 `mysql.core.readQuery({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
-14. 🔴 `mysql.core.getIndexes({table: "nonexistent_xyz"})` → `{success: false, error: "..."}`
+## Category 3: Index Operations
 
-**Zod validation error paths (🔴):**
+9. Create index on JSON path for `stress_docs` collection
+10. Drop collection with index — verify clean removal
 
-15. 🔴 `mysql.core.createTable({})` → `{success: false, error: "Validation error: ..."}`
-16. 🔴 `mysql.core.describeTable({})` → `{success: false, error: "Validation error: ..."}`
-17. 🔴 `mysql.core.readQuery({})` → `{success: false, error: "Validation error: ..."}`
+## Cleanup
+
+11. Drop `stress_docs` if still exists
 
 ---
 
@@ -223,7 +209,7 @@ core Tool Group (8 tools +1 code mode):
 ### After Implementation
 
 4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-core.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-docstore.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

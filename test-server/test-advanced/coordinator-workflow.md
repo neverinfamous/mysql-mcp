@@ -28,12 +28,12 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - The subagent MUST commit all changes locally (`git commit -m "..."`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and immediately move to the next test in the queue.
-   - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied`** (e.g., **`0 fixes applied`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite.
+   - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues."
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 53. Fixed Z issues [W Prompt / V Code]."
    - Do NOT output any other text to the user during the test sequence.
 
 ## Test Sequence Queue (Dependency DAG)
@@ -76,14 +76,14 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 36. `test-codemode-advanced-stats-descriptive.md`
 37. `test-codemode-advanced-stats-time-series.md`
 38. `test-codemode-advanced-stats-window.md`
-38. `test-codemode-advanced-sys.md`
-39. `test-codemode-advanced-text.md`
-40. `test-codemode-advanced-transactions.md`
-41. `test-codemode-advanced-vector-management.md`
-42. `test-codemode-advanced-vector-search.md`
-43. `test-codemode-advanced-vector-storage.md`
-44. `test-codemode-advanced-versioning.md`
-45. `test-codemode-sandbox.md`
+39. `test-codemode-advanced-sys.md`
+40. `test-codemode-advanced-text.md`
+41. `test-codemode-advanced-transactions.md`
+42. `test-codemode-advanced-vector-management.md`
+43. `test-codemode-advanced-vector-search.md`
+44. `test-codemode-advanced-vector-storage.md`
+45. `test-codemode-advanced-versioning.md`
+46. `test-codemode-sandbox.md`
 
 ## Telemetry Collection
 

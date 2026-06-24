@@ -164,23 +164,24 @@ partitioning Tool Group (4 tools +1 code mode):
 
 > **Instructions**: Use `mysql.partitioning.*` namespace, push deviations to `failures` array.
 
-1. `mysql.partitioning.help()` -> verify method listing
-2. `mysql.partitioning.someMethod({...})` -> verify success
-3. `mysql.partitioning.someMethod({...})` -> verify success
-4. `mysql.partitioning.someMethod({...})` -> verify success
-5. `mysql.partitioning.someMethod({...})` -> verify success
+1. `mysql.partitioning.help()` → verify method listing
+2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
+3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "pNew", lessThan: "'2026-01-01'" })` → verify success
+4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", partitionNames: ["pNew"], newPartitions: [{name: "pNew1", lessThan: "'2025-06-01'"}, {name: "pNew2", lessThan: "'2026-01-01'"}] })` → verify success
+5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionNames: ["pNew1", "pNew2"] })` → verify success
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.partitioning.someMethod({invalid})` -> `{success: false}`
+6. 🔴 `mysql.partitioning.partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
+7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionNames: ["nonexistent_p"] })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql.partitioning.someMethod({})` -> `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.partitioning.addPartition({})` → `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 
-8. 🟢 Verify any parameter aliases are accepted for applicable tools.
+9. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
 

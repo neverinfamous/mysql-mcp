@@ -1,27 +1,24 @@
-# mysql-mcp Usability & Hallucination Test: Introspection
+# mysql-mcp Usability & Hallucination Test: Migration (Part 2)
 
 > **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 > **This test is optimized for an autonomous agent.**
 
-This prompt instructs you to organically test the `introspection` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
+This prompt instructs you to organically test the `migration` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
 
 ## 1. Fuzz Phase
 
-Use the `mysql_execute_code` tool to interact with the following tools in the `introspection` group:
-- `mysql_dependency_graph`
-- `mysql_topological_sort`
-- `mysql_cascade_simulator`
-- `mysql_schema_snapshot`
-- `mysql_constraint_analysis`
-- `mysql_migration_risks`
+Use the `mysql_execute_code` tool to interact with the following tools in the `migration` group:
+- `mysql_migration_rollback`
+- `mysql_migration_history`
+- `mysql_migration_status`
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
-- Test positional params: Try `mysql.introspection.<method>("value")` if applicable.
-- Test aliases: See if intuitively named methods work (e.g. `mysql.introspection.get()`).
+- Test positional params: Try `mysql.migration.<method>("value")` if applicable.
+- Test aliases: See if intuitively named methods work (e.g. `mysql.migration.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
@@ -42,7 +39,7 @@ If you encounter any failures, errors, or hallucinations:
 
 ## 4. Commit
 
-1. If local verification passes, run `git add .` and `git commit -m "Optimize introspection tool usage"`.
+1. If local verification passes, run `git add .` and `git commit -m "Optimize migration tool usage"`.
 2. Report your findings to the Coordinator.
 
 ## 5. Continuous Improvement

@@ -153,7 +153,31 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: backup\n\nbackup Tool Group (7 tools +1 code mode):\n\n1. `mysql_export_table`\n2. `mysql_import_data`\n3. `mysql_create_dump`\n4. `mysql_restore_dump`\n5. `mysql_audit_list_backups`\n6. `mysql_audit_restore_backup`\n7. `mysql_audit_diff_backup`\n\n> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.\n\n1. `mysql.backup.help()` -> verify method listing\n2. `mysql.backup.someMethod({...})` -> verify success\n3. `mysql.backup.someMethod({...})` -> verify success\n4. `mysql.backup.someMethod({...})` -> verify success\n5. `mysql.backup.someMethod({...})` -> verify success\n6. `mysql.backup.someMethod({...})` -> verify success\n7. `mysql.backup.someMethod({...})` -> verify success\n8. `mysql.backup.someMethod({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n9. 🔴 `mysql.backup.someMethod({invalid})` -> `{success: false}`\n\n**Zod validation error paths (🔴):**\n\n10. 🔴 `mysql.backup.someMethod({})` -> `{success: false, error: "Validation error: ..."}`\n\n**Alias acceptance (🟢):**\n\n11. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: backup\n\nbackup Tool Group (7 tools +1 code mode):\n\n1. `mysql_export_table`\n2. `mysql_import_data`\n3. `mysql_create_dump`\n4. `mysql_restore_dump`\n5. `mysql_audit_list_backups`\n6. `mysql_audit_restore_backup`\n7. `mysql_audit_diff_backup`\n\n> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
+
+1. `mysql.backup.help()` → verify method listing
+2. `mysql.backup.exportTable({ schema: "testdb", table: "test_products", outputPath: "/tmp/backup_export.csv", format: "csv" })` → verify success
+3. `mysql.backup.importData({ schema: "testdb", table: "test_products", inputPath: "/tmp/backup_export.csv", format: "csv" })` → verify success
+4. `mysql.backup.createDump({ schema: "testdb", outputPath: "/tmp/backup_dump.sql" })` → verify success
+5. `mysql.backup.restoreDump({ inputPath: "/tmp/backup_dump.sql", targetSchema: "testdb" })` → verify success
+6. `mysql.backup.auditListBackups({ limit: 5 })` → verify success
+7. `mysql.backup.auditRestoreBackup({ backupId: "some-backup-id", dryRun: true })` → verify success
+8. `mysql.backup.auditDiffBackup({ backupId: "some-backup-id" })` → verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql.backup.exportTable({ schema: "testdb", table: "nonexistent_xyz", outputPath: "/tmp/err.csv" })` → `{success: false}`
+10. 🔴 `mysql.backup.auditRestoreBackup({ backupId: "nonexistent-id" })` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.backup.exportTable({})` → `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---\n\n## Post-Test Procedures
 
 ### Reporting Rules
 
@@ -179,28 +203,3 @@ During testing, check for these inconsistencies:
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
 ---
-
-## Post-Test Procedures
-
-### Reporting Rules
-
-- Use ✅ only in inline notes during testing; omit from Final Summary
-- Do not mention what already works well or issues already documented in help resources and runtime hints
-
-### After Testing
-
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
-2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
-3. **Scope of fixes** includes corrections to any of:
-   - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
-   - This prompt
-
-### After Implementation
-
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Halt your work and instruct the user to validate the changes by running the validation suite (`pnpm run check`). Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

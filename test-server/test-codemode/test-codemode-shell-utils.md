@@ -159,28 +159,28 @@ shell Tool Group (10 tools +1 code mode):
 
 1. `mysqlsh_version` 2. `mysqlsh_check_upgrade` 3. `mysqlsh_run_script`
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
 
 1. `mysql.shell.help()` → verify method listing
-2. `mysql.shell.version()` → MySQL Shell version
-3. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "/tmp/cm_dump", dryRun: true})` → dump command
-4. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "/tmp/cm_dump", ddlOnly: true, dryRun: true})` → DDL-only
-5. `mysql.shell.dumpTables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true})` → table dump
+2. `mysql.shell.version()` → verify success
+3. `mysql.shell.checkUpgrade()` → verify success
+4. `mysql.shell.runScript({ scriptPath: "/tmp/script.js", language: "javascript", dryRun: true })` → verify success
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.shell.dumpSchemas({schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test"})` → `{success: false}`
+5. 🔴 `mysql.shell.runScript({ scriptPath: "/tmp/nonexistent.js" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
-8. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
-9. 🔴 `mysql.shell.runScript({})` → `{success: false, error: "Validation error: ..."}`
+6. 🔴 `mysql.shell.runScript({})` → `{success: false, error: "Validation error: ..."}`
 
 **Security boundary validation paths (🔴):**
 
-10. 🔴 `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}`
-11. 🔴 `mysql.shell.dumpInstance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}`
+7. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/script.js" })` → `{success: false, code: "SECURITY_ERROR"}`
+
+**Alias acceptance (🟢):**
+
+8. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
 
