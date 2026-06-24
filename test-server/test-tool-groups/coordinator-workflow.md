@@ -23,7 +23,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - When a Phase is complete, the Coordinator MUST pause and message the user: _"Phase X complete. Please switch the main config shortcut to `[Next Shortcut]` and manually restart the `mysql-mcp` server. Reply 'ready' when done."_
    - Do NOT proceed to the next Phase until the user replies 'ready'.
 4. **Validation and Immediate Continuation (Within a Phase)**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run check; pnpm run build; pnpm run test; pnpm run test:e2e`. They must ensure these pass completely cleanly. This explicitly means ensuring that **lint, typecheck, vitest, and playwright MUST ALL BE PASSING completely cleanly** and any resulting errors are fixed.
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck && pnpm run test`. They MUST SKIP `pnpm run test:e2e` as the coordinator will run E2E tests at the end. Ensure the local tests pass cleanly and any resulting errors are fixed.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation and immediately report back to the Coordinator.
 5. **Finalization and Commit**:
    - Once local CI passes (or if no fixes were needed), the subagent MUST update `UNRELEASED.md` with all changes.
