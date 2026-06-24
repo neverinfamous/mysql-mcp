@@ -166,6 +166,9 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
 
         const table = sanitizeIdentifier(validated.table);
         
+        // Pre-check table existence to satisfy P154
+        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        
         const query = `ANALYZE TABLE \`${table}\``;
         const result = await adapter.rawQuery(query);
 
@@ -218,6 +221,9 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
 
         const table = sanitizeIdentifier(validated.table);
         const column = sanitizeIdentifier(validated.column);
+
+        // Pre-check table existence to satisfy P154
+        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
 
         // Pre-check column type to avoid raw MySQL "Incorrect arguments to vector_dim" errors
         const colCheck = await adapter.executeQuery(`
