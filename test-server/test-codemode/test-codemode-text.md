@@ -172,13 +172,13 @@ text Tool Group (6 tools +1 code mode):
 
 **Domain error paths (🔴):**
 
-7. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
-8. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-9. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
-10. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
