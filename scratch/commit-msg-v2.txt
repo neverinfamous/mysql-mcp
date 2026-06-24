@@ -1,0 +1,8 @@
+docs(testing): require specific test group names in commits and skip unit tests
+
+History-Category: Changed
+History-Entry: Updated instructions globally across all test-server testing directories. Subagents are now strictly required to include the exact name of the tool group prompt file they are testing within their commit message to guarantee traceability when debugging integration tests at the end. Additionally, stripped out the requirement for subagents to run `pnpm run test` (Vitest unit tests) locally, moving entirely to relying on lint and typecheck at the edge, with all behavioral testing validated by the coordinator in the final pass.
+
+History-Impact: 0.1
+History-Trust: 1.0
+History-Validation: none

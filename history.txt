@@ -1,0 +1,4 @@
+Category: Tests
+Executed Code Mode advanced migration test suite.
+Updated test prompt to properly instruct the dropping of the `_mcp_schema_versions_chk_1` check constraint before simulating a corrupted status in tracking tables, as MySQL enforces strict enum integrity.
+Validated full local pipeline successfully.
