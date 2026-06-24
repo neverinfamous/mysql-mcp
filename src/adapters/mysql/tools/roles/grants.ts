@@ -124,9 +124,8 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { role, privileges, database, table } =
             RoleGrantPrivilegeSchema.parse(params);
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(role)) {
-            return formatHandlerErrorResponse(new Error("Invalid role name"));
-          }
+
+          validateIdentifier(role, "role");
 
           for (const priv of privileges) {
             validateMySQLPrivilege(priv);

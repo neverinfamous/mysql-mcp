@@ -23,3 +23,4 @@
 - Fixed `mysql_json_search` to support tables without an `id` column by returning all columns (`SELECT *`) alongside the `match_path`, instead of hardcoding `SELECT id`.
 - Fixed P154 error string compliance in `mysql_table_stats` and `mysql_index_usage` to correctly format the `TABLE_NOT_FOUND` error as `Table 'X' does not exist` instead of `Table 'X' doesn't exist`.
 - Fixed factual error in `test-codemode-proxysql-config.md` where the test prompt incorrectly expected the `proxysql_commands` tool to execute `SHOW TABLES` (which is restricted by the schema to explicit admin commands like `LOAD MYSQL USERS TO RUNTIME`).
+- Fixed `mysql_role_create`, `mysql_role_drop`, and `mysql_role_grant` to correctly use `validateIdentifier` for role names, standardizing their output errors to a structured domain error format instead of raw Zod errors.
