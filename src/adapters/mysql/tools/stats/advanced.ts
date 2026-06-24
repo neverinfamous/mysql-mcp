@@ -493,22 +493,11 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         
         const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
 
-        // Check if table exists (P154)
+        // Check if table exists (P154) and allow native error formatting
+        await adapter.executeQuery(`SELECT 1 FROM ${fullTableName} LIMIT 1`);
+
         const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
         const tblParam = table.includes('.') ? table.split('.')[1] : table;
-        const tableCheck = await adapter.executeQuery(
-          `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = ${dbParam ? '?' : 'DATABASE()'} AND TABLE_NAME = ?`,
-          dbParam ? [dbParam, tblParam] : [tblParam],
-        );
-
-        if (!tableCheck.rows || tableCheck.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            code: "VALIDATION_ERROR",
-            error: `Table '${table}' doesn't exist`,
-          });
-        }
 
         // Determine columns to summarize
         let targetColumns: string[];
@@ -521,11 +510,11 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           const colQuery = `
             SELECT COLUMN_NAME, DATA_TYPE
             FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = ${dbParam ? '?' : 'DATABASE()'}
+            WHERE TABLE_SCHEMA = ${dbParam != null ? '?' : 'DATABASE()'}
               AND TABLE_NAME = ?
             ORDER BY ORDINAL_POSITION
           `;
-          const colResult = await adapter.executeQuery(colQuery, dbParam ? [dbParam, tblParam] : [tblParam]);
+          const colResult = await adapter.executeQuery(colQuery, dbParam != null ? [dbParam, tblParam] : [tblParam]);
           const colRows = (colResult.rows ?? []).map((row) => ({
             COLUMN_NAME: String(row["COLUMN_NAME"]),
             DATA_TYPE: String(row["DATA_TYPE"]),

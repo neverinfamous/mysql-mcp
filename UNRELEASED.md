@@ -12,3 +12,4 @@
 - Fixed Partitioning tools (`mysql_partition_info`, `mysql_add_partition`, `mysql_drop_partition`, `mysql_reorganize_partition`) to support an optional `database` parameter and cross-database validation checks.
 - Fixed `ProxySQLCommandInputSchemaBase` to mark the `command` parameter as required in the MCP interface so it aligns with the stricter internal `ProxySQLCommandInputSchema` validation.
 - Fixed `mysql_vector_range_search` to support the optional `select` parameter to maintain architectural consistency with `mysql_vector_search` and `mysql_vector_hybrid_search`.
+- Fixed `mysql_stats_summary` to use native MySQL queries for checking table existence instead of manual `information_schema` lookups, ensuring consistent `TABLE_NOT_FOUND` error handling with proper categories and details.
