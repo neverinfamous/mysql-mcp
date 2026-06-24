@@ -9,6 +9,7 @@ import { BaseOutputSchema } from "../output-schemas.js";
  */
 export const DependencyGraphSchemaBase = z.object({
   schema: z.string().describe("Schema to analyze"),
+  database: z.string().optional().describe("Alias for schema"),
   includeRowCounts: z
     .boolean()
     .optional()
@@ -55,6 +56,7 @@ export const TopologicalSortSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema to analyze (default: all user schemas)"),
+  database: z.string().optional().describe("Alias for schema"),
   direction: z
     .string()
     .optional()
@@ -82,7 +84,10 @@ export const CascadeSimulatorSchemaBase = z.object({
   table: z
     .string()
     .describe("Table name to simulate deletion from (supports schema.table)"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   schema: z.string().optional().describe("Schema name (default: public)"),
+  database: z.string().optional().describe("Alias for schema"),
   operation: z
     .string()
     .optional()
@@ -128,6 +133,7 @@ export const SchemaSnapshotSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema to snapshot (default: all user schemas)"),
+  database: z.string().optional().describe("Alias for schema"),
   includeSystem: z
     .boolean()
     .optional()
@@ -190,10 +196,13 @@ export const ConstraintAnalysisSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema to analyze (default: all user schemas)"),
+  database: z.string().optional().describe("Alias for schema"),
   table: z
     .string()
     .optional()
     .describe("Analyze constraints for a specific table only"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   checks: z
     .array(
       z.enum([
@@ -269,6 +278,7 @@ export const MigrationRisksSchemaBase = z.object({
     .string()
     .optional()
     .describe("Target schema context (default: public)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 export const MigrationRisksSchema = z.object({
