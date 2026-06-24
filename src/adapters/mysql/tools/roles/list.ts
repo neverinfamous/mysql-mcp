@@ -44,8 +44,7 @@ export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
           args.push(pattern);
         }
         if (limit) {
-          query += ` LIMIT ?`;
-          args.push(limit);
+          query += ` LIMIT ${limit}`;
         }
         const result = await adapter.executeQuery(query, args);
         const data = {
