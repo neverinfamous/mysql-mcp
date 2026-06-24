@@ -156,18 +156,18 @@ During testing, check for these inconsistencies:
 ## Group Focus: backup\n\nbackup Tool Group (7 tools +1 code mode):\n\n1. `mysql_export_table`\n2. `mysql_import_data`\n3. `mysql_create_dump`\n4. `mysql_restore_dump`\n5. `mysql_audit_list_backups`\n6. `mysql_audit_restore_backup`\n7. `mysql_audit_diff_backup`\n\n> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
 
 1. `mysql.backup.help()` → verify method listing
-2. `mysql.backup.exportTable({ schema: "testdb", table: "test_products", outputPath: "/tmp/backup_export.csv", format: "csv" })` → verify success
-3. `mysql.backup.importData({ schema: "testdb", table: "test_products", inputPath: "/tmp/backup_export.csv", format: "csv" })` → verify success
-4. `mysql.backup.createDump({ schema: "testdb", outputPath: "/tmp/backup_dump.sql" })` → verify success
-5. `mysql.backup.restoreDump({ inputPath: "/tmp/backup_dump.sql", targetSchema: "testdb" })` → verify success
+2. `mysql.backup.exportTable({ table: "test_products", format: "csv" })` → verify success
+3. `mysql.backup.importData({ table: "test_products", data: [{ id: 999, name: "Test Item", price: 10.0, category: "electronics" }] })` → verify success (clean up the row afterward)
+4. `mysql.backup.createDump({ database: "testdb" })` → verify success
+5. `mysql.backup.restoreDump({ filename: "/tmp/backup_dump.sql", database: "testdb" })` → verify success
 6. `mysql.backup.auditListBackups({ limit: 5 })` → verify success
-7. `mysql.backup.auditRestoreBackup({ backupId: "some-backup-id", dryRun: true })` → verify success
-8. `mysql.backup.auditDiffBackup({ backupId: "some-backup-id" })` → verify success
+7. `mysql.backup.auditRestoreBackup({ filename: "some-backup-file.json", dryRun: true })` → verify success (or `{success: false}` with NOT_FOUND_ERROR)
+8. `mysql.backup.auditDiffBackup({ filename: "some-backup-file.json" })` → verify success (or `{success: false}` with NOT_FOUND_ERROR)
 
 **Domain error paths (🔴):**
 
-9. 🔴 `mysql.backup.exportTable({ schema: "testdb", table: "nonexistent_xyz", outputPath: "/tmp/err.csv" })` → `{success: false}`
-10. 🔴 `mysql.backup.auditRestoreBackup({ backupId: "nonexistent-id" })` → `{success: false}`
+9. 🔴 `mysql.backup.exportTable({ table: "nonexistent_xyz" })` → `{success: false}`
+10. 🔴 `mysql.backup.auditRestoreBackup({ filename: "nonexistent-file.json" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
