@@ -14,16 +14,17 @@ import { WRITE } from "../../../../utils/annotations.js";
 export const RoleCreateSchemaBase = z.object({
   name: z.string().optional().describe("Role name"),
   role: z.string().optional().describe("Alias for name"),
+  roleName: z.string().optional().describe("Alias for name"),
   ifNotExists: z.boolean().default(false),
 });
 
 export const RoleCreateSchema = RoleCreateSchemaBase.refine(
-  (val) => val.name || val.role,
+  (val) => val.name || val.role || val.roleName,
   {
-    message: "Must provide 'name' or 'role'",
+    message: "Must provide 'name', 'role', or 'roleName'",
   },
 ).transform((val) => {
-  const name = val.name || val.role || "";
+  const name = val.name || val.role || val.roleName || "";
   return { ...val, name };
 });
 

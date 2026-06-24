@@ -20,21 +20,23 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 export const RoleGrantsSchemaBase = z.object({
   role: z.string().optional(),
   name: z.string().optional(),
+  roleName: z.string().optional(),
 });
 
 export const RoleGrantsSchema = RoleGrantsSchemaBase.refine(
-  (val) => val.role || val.name,
+  (val) => val.role || val.name || val.roleName,
   {
-    message: "Must provide 'role' or 'name'",
+    message: "Must provide 'role', 'name', or 'roleName'",
   },
 ).transform((val) => {
-  const role = val.role || val.name || "";
+  const role = val.role || val.name || val.roleName || "";
   return { ...val, role };
 });
 
 export const RoleGrantPrivilegeSchemaBase = z.object({
   role: z.string().optional(),
   name: z.string().optional(),
+  roleName: z.string().optional(),
   privileges: z.array(z.string()).optional(),
   privilege: z.string().optional(),
   database: z.string().default("*"),
@@ -44,13 +46,13 @@ export const RoleGrantPrivilegeSchemaBase = z.object({
 });
 
 export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
-  (val) => val.role || val.name,
+  (val) => val.role || val.name || val.roleName,
   {
-    message: "Must provide 'role'",
+    message: "Must provide 'role', 'name', or 'roleName'",
   },
 )
   .transform((val) => {
-    const role = val.role || val.name || "";
+    const role = val.role || val.name || val.roleName || "";
     const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
     let database = val.db ?? val.database;
     let table = val.table;

@@ -22,29 +22,33 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 export const RoleAssignSchemaBase = z.object({
   role: z.string().optional(),
   name: z.string().optional(),
+  roleName: z.string().optional(),
   user: z.string().optional(),
   toUser: z.string().optional(),
+  userName: z.string().optional(),
   host: z.string().default("%"),
   withAdminOption: z.boolean().default(false),
 });
 
-export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role || val.name, {
-  message: "Must provide 'role'",
+export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role || val.name || val.roleName, {
+  message: "Must provide 'role', 'name', or 'roleName'",
 })
-  .refine((val) => val.user || val.toUser, {
-    message: "Must provide 'user' or 'toUser'",
+  .refine((val) => val.user || val.toUser || val.userName, {
+    message: "Must provide 'user', 'toUser', or 'userName'",
   })
   .transform((val) => {
-    const role = val.role || val.name || "";
-    const user = val.user || val.toUser || "";
+    const role = val.role || val.name || val.roleName || "";
+    const user = val.user || val.toUser || val.userName || "";
     return { ...val, role, user };
   });
 
 export const RoleRevokeSchemaBase = z.object({
   role: z.string().optional(),
   name: z.string().optional(),
+  roleName: z.string().optional(),
   user: z.string().optional(),
   fromUser: z.string().optional(),
+  userName: z.string().optional(),
   host: z.string().default("%"),
   privileges: z.union([z.string(), z.array(z.string())]).optional(),
   privilege: z.string().optional(),
@@ -54,22 +58,23 @@ export const RoleRevokeSchemaBase = z.object({
   on: z.string().optional(),
 });
 
-export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role || val.name, {
-  message: "Must provide 'role'",
+export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role || val.name || val.roleName, {
+  message: "Must provide 'role', 'name', or 'roleName'",
 })
   .refine(
     (val) =>
       Boolean(val.user) ||
       Boolean(val.fromUser) ||
+      Boolean(val.userName) ||
       Boolean(val.privileges) ||
       Boolean(val.privilege),
     {
-      message: "Must provide 'user'/'fromUser' OR 'privileges'/'privilege'",
+      message: "Must provide 'user'/'fromUser'/'userName' OR 'privileges'/'privilege'",
     },
   )
   .transform((val) => {
-    const role = val.role || val.name || "";
-    const user = val.user || val.fromUser || "";
+    const role = val.role || val.name || val.roleName || "";
+    const user = val.user || val.fromUser || val.userName || "";
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
     let database = val.db ?? val.database;
@@ -91,16 +96,17 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
 export const UserRolesSchemaBase = z.object({
   user: z.string().optional(),
   targetUser: z.string().optional(),
+  userName: z.string().optional(),
   host: z.string().default("%"),
 });
 
 export const UserRolesSchema = UserRolesSchemaBase.refine(
-  (val) => val.user || val.targetUser,
+  (val) => val.user || val.targetUser || val.userName,
   {
-    message: "Must provide 'user' or 'targetUser'",
+    message: "Must provide 'user', 'targetUser', or 'userName'",
   },
 ).transform((val) => {
-  const user = val.user || val.targetUser || "";
+  const user = val.user || val.targetUser || val.userName || "";
   return { ...val, user };
 });
 

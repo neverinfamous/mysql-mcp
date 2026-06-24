@@ -56,6 +56,13 @@ export function createGroupApi(
     }
   }
 
+  // Add help method for this group
+  api["help"] = () => Promise.resolve({
+    success: true,
+    data: { methods: Object.keys(api) },
+    metrics: { tokenEstimate: 20 },
+  });
+
   return api;
 }
 

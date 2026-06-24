@@ -14,16 +14,17 @@ import { DESTRUCTIVE } from "../../../../utils/annotations.js";
 export const RoleDropSchemaBase = z.object({
   name: z.string().optional().describe("Role name"),
   role: z.string().optional().describe("Alias for name"),
+  roleName: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().default(false),
 });
 
 export const RoleDropSchema = RoleDropSchemaBase.refine(
-  (val) => val.name || val.role,
+  (val) => val.name || val.role || val.roleName,
   {
-    message: "Must provide 'name' or 'role'",
+    message: "Must provide 'name', 'role', or 'roleName'",
   },
 ).transform((val) => {
-  const name = val.name || val.role || "";
+  const name = val.name || val.role || val.roleName || "";
   return { ...val, name };
 });
 
