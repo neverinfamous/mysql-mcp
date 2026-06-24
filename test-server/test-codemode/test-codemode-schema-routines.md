@@ -168,7 +168,7 @@ schema Tool Group (11 tools +1 code mode):
 4. `mysql.schema.listFunctions({database: "testdb"})` → verify structure
 5. `mysql.schema.listEvents({database: "testdb"})` → verify structure
 6. 🔴 `mysql.schema.listTriggers({database: "nonexistent_db_xyz"})` → `{success: false}`
-7. 🔴 `mysql.schema.listStoredProcedures({})` → `{success: false, error: "Validation error: ..."}`
+7. ✅ `mysql.schema.listStoredProcedures({})` → `{success: true}` (schema is optional)
 
 ---
 
