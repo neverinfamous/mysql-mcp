@@ -19,6 +19,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -49,7 +50,7 @@ const MaskDataSchema = z.preprocess(
   },
   z.object({
     value: z.string(),
-    type: z.string(),
+    type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]),
     keepFirst: z.coerce.number().default(0),
     keepLast: z.coerce.number().default(0),
     maskChar: z.string().default("*"),
@@ -166,23 +167,6 @@ export function createSecurityMaskDataTool(
       try {
         const { value, type, keepFirst, keepLast, maskChar } =
           MaskDataSchema.parse(params);
-
-        const validTypes: readonly ["email", "phone", "ssn", "credit_card", "partial"] = [
-          "email",
-          "phone",
-          "ssn",
-          "credit_card",
-          "partial",
-        ];
-        if (!validTypes.some(t => t === type)) {
-          return Promise.resolve(
-            formatHandlerErrorResponse(
-              new Error(
-                `Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`,
-              ),
-            ),
-          );
-        }
 
         let maskedValue: string;
 
@@ -317,7 +301,7 @@ export function createSecurityUserPrivilegesTool(
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`User '${user}' does not exist.`),
+              new ValidationError(`User '${user}' does not exist.`),
             );
           }
         }
@@ -483,7 +467,7 @@ export function createSecuritySensitiveTablesTool(
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${schema}' does not exist.`),
+              new ValidationError(`Schema '${schema}' does not exist.`),
             );
           }
         }

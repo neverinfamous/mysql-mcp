@@ -20,3 +20,5 @@
 - Fixed `safeRouterFetch` in the `router` tools to use the standard `ErrorCategory.RESOURCE` instead of casting an invalid `"domain"` category for 404 responses.
 - Fixed Split Schema pattern for `mysql_list_schemas`, `mysql_create_schema`, and `mysql_drop_schema` to properly use `z.preprocess` and support schema/database aliases.
 - Fixed Split Schema pattern for `mysql_list_events` by exposing the `status` enum in the base input schema.
+- Fixed `MaskDataSchema` to use `z.enum` for `type` validation to properly leverage Zod validation instead of throwing manual `UNKNOWN_ERROR` exceptions.
+- Fixed `createSecurityUserPrivilegesTool` and `createSecuritySensitiveTablesTool` to properly return structured `ValidationError` responses instead of throwing `UNKNOWN_ERROR` domain errors when users or schemas do not exist.
