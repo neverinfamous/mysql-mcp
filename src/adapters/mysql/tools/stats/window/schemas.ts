@@ -2,6 +2,7 @@ import { z } from "zod";
 import { preprocessJsonColumnParams } from "../../../schemas/preprocess-utils.js";
 
 export const StatsRowNumberSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
@@ -23,6 +24,7 @@ export const StatsRowNumberSchemaBase = z.object({
 export const StatsRowNumberSchema = z.preprocess(
   preprocessJsonColumnParams,
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     orderBy: z.string().min(1, "orderBy is required"),
     partitionBy: z.string().optional(),
@@ -34,6 +36,7 @@ export const StatsRowNumberSchema = z.preprocess(
 );
 
 export const StatsRankSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   orderBy: z
     .string()
@@ -59,6 +62,7 @@ export const StatsRankSchemaBase = z.object({
 export const StatsRankSchema = z.preprocess(
   preprocessJsonColumnParams,
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     orderBy: z.string().min(1, "orderBy is required"),
     partitionBy: z.string().optional(),
@@ -71,6 +75,7 @@ export const StatsRankSchema = z.preprocess(
 );
 
 export const StatsLagLeadSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Column to get lag/lead value from"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
@@ -105,6 +110,7 @@ export const StatsLagLeadSchemaBase = z.object({
 export const StatsLagLeadSchema = z.preprocess(
   preprocessJsonColumnParams,
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     orderBy: z.string().min(1, "orderBy is required"),
@@ -120,6 +126,7 @@ export const StatsLagLeadSchema = z.preprocess(
 );
 
 export const StatsRunningTotalSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Numeric column to sum"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
@@ -145,6 +152,7 @@ export const StatsRunningTotalSchemaBase = z.object({
 export const StatsRunningTotalSchema = z.preprocess(
   preprocessJsonColumnParams,
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     orderBy: z.string().min(1, "orderBy is required"),
@@ -157,6 +165,7 @@ export const StatsRunningTotalSchema = z.preprocess(
 );
 
 export const StatsMovingAvgSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   column: z.string().optional().describe("Numeric column to average"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
@@ -183,6 +192,7 @@ export const StatsMovingAvgSchemaBase = z.object({
 export const StatsMovingAvgSchema = z.preprocess(
   preprocessJsonColumnParams,
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     orderBy: z.string().min(1, "orderBy is required"),
@@ -196,6 +206,7 @@ export const StatsMovingAvgSchema = z.preprocess(
 );
 
 export const StatsNtileSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   buckets: z
@@ -221,6 +232,7 @@ export const StatsNtileSchemaBase = z.object({
 export const StatsNtileSchema = z.preprocess(
   preprocessJsonColumnParams,
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     orderBy: z.string().min(1, "orderBy is required"),
     buckets: z.number().min(1).default(4),

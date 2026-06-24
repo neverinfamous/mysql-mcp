@@ -31,13 +31,17 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsLagLeadSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.table)) {
+        if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
+        
+        const fullTableName = parsed.database 
+          ? `\`${parsed.database}\`.\`${parsed.table}\`` 
+          : (parsed.table.includes('.') ? parsed.table.split('.').map(p => `\`${p}\``).join('.') : `\`${parsed.table}\``);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
           return withTokenEstimate({
             success: false,
@@ -58,7 +62,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, alias)}
-          FROM \`${parsed.table}\`
+          FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}
           LIMIT ${String(parsed.limit)} OFFSET ${String(parsed.paginationOffset)}
