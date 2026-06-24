@@ -23,6 +23,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 export const StatsHypothesisSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -49,6 +50,7 @@ export const StatsHypothesisSchema = z.preprocess(
     };
   },
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     testType: z.enum(["t_test", "z_test"]).default("t_test"),
@@ -86,6 +88,7 @@ export function createStatsHypothesisTool(
       try {
         
         const {
+          database,
           table,
           column,
           testType,
@@ -98,9 +101,11 @@ export function createStatsHypothesisTool(
           group2,
         } = StatsHypothesisSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Invalid table name" });
         }
+        
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Invalid column name" });
         }
@@ -129,7 +134,7 @@ export function createStatsHypothesisTool(
                   COUNT(\`${column}\`) as n,
                   AVG(\`${column}\`) as mean,
                   STDDEV_SAMP(\`${column}\`) as stddev
-              FROM \`${table}\`
+              FROM ${fullTableName}
               ${whereClause ? whereClause + ' AND ' : 'WHERE '} \`${groupColumn}\` IN (?, ?)
               GROUP BY \`${groupColumn}\`
           `;
@@ -213,7 +218,7 @@ export function createStatsHypothesisTool(
         };
 
         if (groupBy !== undefined) {
-          const sql = `SELECT \`${groupBy}\` as group_key, COUNT(\`${column}\`) as n, AVG(\`${column}\`) as mean, STDDEV_SAMP(\`${column}\`) as stddev FROM \`${table}\` ${whereClause} GROUP BY \`${groupBy}\` ORDER BY \`${groupBy}\``;
+          const sql = `SELECT \`${groupBy}\` as group_key, COUNT(\`${column}\`) as n, AVG(\`${column}\`) as mean, STDDEV_SAMP(\`${column}\`) as stddev FROM ${fullTableName} ${whereClause} GROUP BY \`${groupBy}\` ORDER BY \`${groupBy}\``;
           const result = await adapter.executeQuery(sql);
           const groups = (result.rows ?? []).map(row => ({
             groupKey: row["group_key"],
@@ -222,7 +227,7 @@ export function createStatsHypothesisTool(
           return withTokenEstimate({ success: true, data: { table, column, testType, hypothesizedMean, groupBy, groups, count: groups.length } });
         }
 
-        const sql = `SELECT COUNT(\`${column}\`) as n, AVG(\`${column}\`) as mean, STDDEV_SAMP(\`${column}\`) as stddev FROM \`${table}\` ${whereClause}`;
+        const sql = `SELECT COUNT(\`${column}\`) as n, AVG(\`${column}\`) as mean, STDDEV_SAMP(\`${column}\`) as stddev FROM ${fullTableName} ${whereClause}`;
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
         const row = rows[0];

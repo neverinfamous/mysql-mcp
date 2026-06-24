@@ -57,6 +57,7 @@ const NUMERIC_TYPES = new Set([
 // =============================================================================
 
 export const StatsTopNSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -85,6 +86,7 @@ export const StatsTopNSchema = z.preprocess(
     };
   },
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     n: z.number().min(1).max(100).default(10),
@@ -95,6 +97,7 @@ export const StatsTopNSchema = z.preprocess(
 );
 
 export const StatsDistinctSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -118,6 +121,7 @@ export const StatsDistinctSchema = z.preprocess(
     };
   },
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     limit: z.number().min(1).max(1000).default(100),
@@ -126,6 +130,7 @@ export const StatsDistinctSchema = z.preprocess(
 );
 
 export const StatsFrequencySchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -152,6 +157,7 @@ export const StatsFrequencySchema = z.preprocess(
     };
   },
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     limit: z.number().min(1).max(1000).default(20),
@@ -160,6 +166,7 @@ export const StatsFrequencySchema = z.preprocess(
 );
 
 export const StatsSummarySchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -182,6 +189,7 @@ export const StatsSummarySchema = z.preprocess(
     };
   },
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     columns: z.array(z.string()).optional(),
     where: z.string().optional(),
@@ -207,16 +215,18 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsTopNSchema.parse(params);
 
-        const { table, column, n, direction, selectColumns, where } = parsed;
+        const { database, table, column, n, direction, selectColumns, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
+        
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
 
         let columnList: string;
         let hint: string | undefined;
@@ -229,10 +239,12 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
           const colQuery = `
             SELECT COLUMN_NAME, DATA_TYPE
             FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?
+            WHERE TABLE_SCHEMA = ${database ? '?' : (table.includes('.') ? '?' : 'DATABASE()')} AND TABLE_NAME = ?
             ORDER BY ORDINAL_POSITION
           `;
-          const colResult = await adapter.executeQuery(colQuery, [table]);
+          const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
+          const tblParam = table.includes('.') ? table.split('.')[1] : table;
+          const colResult = await adapter.executeQuery(colQuery, dbParam ? [dbParam, tblParam] : [tblParam]);
           const allCols = (colResult.rows ?? []).map((row) => ({
             COLUMN_NAME: String(row["COLUMN_NAME"]),
             DATA_TYPE: String(row["DATA_TYPE"]),
@@ -261,7 +273,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
 
         const sql = `
           SELECT ${columnList}
-          FROM \`${table}\`
+          FROM ${fullTableName}
           ${whereClause}
           ORDER BY \`${column}\` ${direction.toUpperCase()}
           LIMIT ${String(n)}
@@ -311,10 +323,10 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsDistinctSchema.parse(params);
 
-        const { table, column, limit, where } = parsed;
+        const { database, table, column, limit, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
@@ -329,9 +341,11 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
+
         const sql = `
           SELECT DISTINCT \`${column}\` AS value
-          FROM \`${table}\`
+          FROM ${fullTableName}
           ${whereClause}
           ORDER BY \`${column}\`
           LIMIT ${String(limit)}
@@ -343,7 +357,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         // Get total distinct count
         const countSql = `
           SELECT COUNT(DISTINCT \`${column}\`) AS cnt
-          FROM \`${table}\`
+          FROM ${fullTableName}
           ${whereClause}
         `;
         const countResult = await adapter.executeQuery(countSql);
@@ -384,10 +398,10 @@ export function createStatsFrequencyTool(
       try {
         const parsed = StatsFrequencySchema.parse(params);
 
-        const { table, column, limit, where } = parsed;
+        const { database, table, column, limit, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
@@ -402,12 +416,14 @@ export function createStatsFrequencyTool(
           });
         }
 
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
+
         const sql = `
           SELECT
             \`${column}\` AS value,
             COUNT(*) AS frequency,
             ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 2) AS percentage
-          FROM \`${table}\`
+          FROM ${fullTableName}
           ${whereClause}
           GROUP BY \`${column}\`
           ORDER BY COUNT(*) DESC
@@ -424,7 +440,7 @@ export function createStatsFrequencyTool(
         // Get total distinct count
         const countSql = `
           SELECT COUNT(DISTINCT \`${column}\`) AS cnt
-          FROM \`${table}\`
+          FROM ${fullTableName}
           ${whereClause}
         `;
         const countResult = await adapter.executeQuery(countSql);
@@ -464,22 +480,26 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsSummarySchema.parse(params);
 
-        const { table, where } = parsed;
+        const { database, table, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
+        
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
 
         // Check if table exists (P154)
+        const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
+        const tblParam = table.includes('.') ? table.split('.')[1] : table;
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbParam ? '?' : 'DATABASE()'} AND TABLE_NAME = ?`,
+          dbParam ? [dbParam, tblParam] : [tblParam],
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
@@ -501,11 +521,11 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           const colQuery = `
             SELECT COLUMN_NAME, DATA_TYPE
             FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE()
+            WHERE TABLE_SCHEMA = ${dbParam ? '?' : 'DATABASE()'}
               AND TABLE_NAME = ?
             ORDER BY ORDINAL_POSITION
           `;
-          const colResult = await adapter.executeQuery(colQuery, [table]);
+          const colResult = await adapter.executeQuery(colQuery, dbParam ? [dbParam, tblParam] : [tblParam]);
           const colRows = (colResult.rows ?? []).map((row) => ({
             COLUMN_NAME: String(row["COLUMN_NAME"]),
             DATA_TYPE: String(row["DATA_TYPE"]),
@@ -537,7 +557,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
 
         const sql = `
           SELECT ${selectParts.join(",\n            ")}
-          FROM \`${table}\`
+          FROM ${fullTableName}
           ${whereClause}
         `;
 

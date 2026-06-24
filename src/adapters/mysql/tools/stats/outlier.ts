@@ -23,6 +23,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 export const StatsOutliersSchemaBase = z.object({
+  database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -58,6 +59,7 @@ export const StatsOutliersSchema = z.preprocess(
     };
   },
   z.object({
+    database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     method: z.enum(["iqr", "zscore"]).default("iqr"),
@@ -90,15 +92,17 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsOutliersSchema.parse(params);
 
-        const { table, column, method, limit, maxOutliers, where } = parsed;
+        const { database, table, column, method, limit, maxOutliers, where } = parsed;
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
             error: "Invalid table name",
           });
         }
+        
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
@@ -108,7 +112,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Validate minimum rows to perform outlier detection
-        const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM \`${table}\` ${where ? `WHERE ${where}` : ""}`;
+        const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM ${fullTableName} ${where ? `WHERE ${where}` : ""}`;
         const countRes = await adapter.executeQuery(countQuery);
         const totalRows = Number(countRes.rows?.[0]?.["cnt"] ?? 0);
         if (totalRows < 3) {
@@ -125,7 +129,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate(
             await detectZScoreOutliers(
               adapter,
-              { table, column, whereClause },
+              { table: fullTableName, column, whereClause },
               parsed.threshold ?? 3,
               limit,
               maxOutliers,
@@ -136,7 +140,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(
           await detectIqrOutliers(
             adapter,
-            { table, column, whereClause },
+            { table: fullTableName, column, whereClause },
             parsed.threshold ?? 1.5,
             limit,
             maxOutliers,
@@ -174,7 +178,7 @@ async function detectZScoreOutliers(
       AVG(\`${column}\`) AS mean,
       STDDEV_SAMP(\`${column}\`) AS stddev,
       COUNT(\`${column}\`) AS total_count
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause}
   `;
   const statsResult = await adapter.executeQuery(statsSql);
@@ -218,7 +222,7 @@ async function detectZScoreOutliers(
   // Find outliers — values outside threshold standard deviations
   const outlierSql = `
     SELECT \`${column}\` AS value
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause ? whereClause + " AND" : "WHERE"}
       ABS((\`${column}\` - ${String(mean)}) / ${String(stdDev)}) > ${String(threshold)}
     ORDER BY ABS(\`${column}\` - ${String(mean)}) DESC
@@ -266,7 +270,7 @@ async function detectIqrOutliers(
   // Get count to calculate offsets for Q1 (25th percentile) and Q3 (75th percentile)
   const countSql = `
     SELECT COUNT(\`${column}\`) AS total_count
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause}
   `;
   const countResult = await adapter.executeQuery(countSql);
@@ -293,7 +297,7 @@ async function detectIqrOutliers(
     const offset = Math.floor((p / 100) * (totalRows - 1));
     const query = `
       SELECT \`${column}\` as value
-      FROM \`${table}\`
+      FROM ${table}
       ${whereClause}
       ORDER BY \`${column}\`
       LIMIT 1 OFFSET ${String(offset)}
