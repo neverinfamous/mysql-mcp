@@ -18,13 +18,14 @@ node scripts/reboot-cluster.mjs
 node scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
 ```
 
-**What it does (5 steps):**
+**What it does (6 steps):**
 
 1. Verifies containers `mysql-node1/2/3` are running (starts them if not)
 2. Waits for MySQL readiness on the primary
-3. Runs `dba.rebootClusterFromCompleteOutage()` via MySQL Shell
-4. Rejoins secondaries from inside Docker network (MySQL Shell on Windows can't resolve Docker container hostnames)
-5. Verifies cluster status
+3. Cleans up any test tables lacking a Primary Key (Group Replication requirement)
+4. Runs `dba.rebootClusterFromCompleteOutage()` via MySQL Shell
+5. Rejoins secondaries from inside Docker network (MySQL Shell on Windows can't resolve Docker container hostnames)
+6. Verifies cluster status
 
 **Prerequisites:**
 
@@ -156,19 +157,6 @@ npx tsx scripts/teardown.ts
 ```
 
 ## Refactoring & Maintenance Scripts
-
-### `run-checks.ts`
-
-A local CI script that runs `eslint` and `tsc --noEmit` sequentially. By default, it will also automatically execute `update-code-map.ts` if no arguments are provided. It writes the pass/fail state to `.test-output/health-status.json`.
-
-```bash
-# Run all checks
-npx tsx scripts/run-checks.ts
-
-# Run specific check
-npx tsx scripts/run-checks.ts lint
-npx tsx scripts/run-checks.ts typecheck
-```
 
 ### `update-code-map.ts`
 
