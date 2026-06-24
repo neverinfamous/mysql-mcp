@@ -51,13 +51,36 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, summary } = PartitionInfoSchema.parse(params);
+        const { table, summary, database } = PartitionInfoSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // Check if table exists (P154)
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
@@ -89,11 +112,11 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
                     CREATE_TIME,
                     UPDATE_TIME
                 FROM information_schema.PARTITIONS
-                WHERE TABLE_SCHEMA = DATABASE()
+                WHERE TABLE_SCHEMA = ${dbFilter}
                   AND TABLE_NAME = ?
                 ORDER BY PARTITION_ORDINAL_POSITION
             `,
-          [table],
+          checkParams,
         );
 
         // Check if table is partitioned
@@ -157,14 +180,37 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, partitionName, partitionType, value } =
+        const { table, partitionName, partitionType, value, database } =
           AddPartitionSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // P154: Check if table exists
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
@@ -181,19 +227,20 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         let sql: string;
+        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
 
         switch (partitionType) {
           case "RANGE":
           case "RANGE COLUMNS":
-            sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
             break;
           case "LIST":
           case "LIST COLUMNS":
-            sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
             break;
           case "HASH":
           case "KEY":
-            sql = `ALTER TABLE \`${table}\` ADD PARTITION PARTITIONS ${value}`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION PARTITIONS ${value}`;
             break;
           default: {
             const unexpectedType: never = partitionType as never;
@@ -297,13 +344,36 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, partitionName } = DropPartitionSchema.parse(params);
+        const { table, partitionName, database } = DropPartitionSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // P154: Check if table exists
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
@@ -320,8 +390,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         try {
+          const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
           await adapter.executeQuery(
-            `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``,
+            `ALTER TABLE ${tableRef} DROP PARTITION \`${partitionName}\``,
           );
 
           adapter.clearSchemaCache();
@@ -401,14 +472,37 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, fromPartitions, partitionType, toPartitions } =
+        const { table, fromPartitions, partitionType, toPartitions, database } =
           ReorganizePartitionSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // P154: Check if table exists
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
@@ -438,7 +532,8 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           })
           .join(", ");
 
-        const sql = `ALTER TABLE \`${table}\` REORGANIZE PARTITION ${fromList} INTO (${toList})`;
+        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+        const sql = `ALTER TABLE ${tableRef} REORGANIZE PARTITION ${fromList} INTO (${toList})`;
 
         try {
           await adapter.executeQuery(sql);
