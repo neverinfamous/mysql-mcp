@@ -186,8 +186,10 @@ describe("Advanced Stats Tools", () => {
 
     it("should reject non-existent tables", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
-        if (query.includes("information_schema.TABLES")) {
-          return createMockQueryResult([]);
+        if (query.includes("missing_table")) {
+          const error = new Error("Table 'testdb.missing_table' doesn't exist");
+          Object.assign(error, { code: "ER_NO_SUCH_TABLE" });
+          throw error;
         }
         return createMockQueryResult([]);
       });
@@ -198,7 +200,7 @@ describe("Advanced Stats Tools", () => {
       );
 
       expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("doesn't exist");
+      expect(Reflect.get(result || {}, "code")).toBe("TABLE_NOT_FOUND");
     });
   });
 });
