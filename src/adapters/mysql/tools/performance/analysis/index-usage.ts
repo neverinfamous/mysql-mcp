@@ -34,7 +34,7 @@ export function createIndexUsageTool(adapter: MySQLAdapter): ToolDefinition {
           if (!check.rows || check.rows.length === 0) {
             const response = {
               success: false,
-              error: `Table '${table}' doesn't exist`,
+              error: `Table '${table}' does not exist`,
               code: "NOT_FOUND",
               category: "database",
               suggestion:
