@@ -17,7 +17,7 @@ Because testing and healing all tools at once exhausts an agent's context window
 
 1. **Pick a test file** (e.g., `test-usability-core.md`).
 2. **Spawn a subagent** (or start a new thread) and feed them the file.
-3. **Local Validation**: The subagent will run full local CI (`pnpm run check`, `pnpm run test`, etc.) whenever they apply a codebase fix.
+3. **Local Validation**: The subagent will run full local CI (`pnpm run check`) whenever they apply a codebase fix.
 4. **Commit**: The subagent commits the fix. Move on to the next test file.
 5. **Final Sweep**: Once all tests complete, a live verification run is conducted against a fresh, restarted server.
 

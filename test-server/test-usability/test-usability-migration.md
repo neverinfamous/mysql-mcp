@@ -30,7 +30,7 @@ If you encounter any failures, errors, or hallucinations:
 
 ## 3. Local Verification
 
-1. Run `pnpm run check`, `pnpm run build`, `pnpm run test` and `pnpm run test:e2e` locally.
+1. Run `pnpm run check` locally.
 2. **DO NOT PROCEED** until all tests and types pass locally.
 3. You do NOT need to wait for a live server restart.
 
