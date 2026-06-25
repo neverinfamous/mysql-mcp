@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS ${qualifiedTable} (
  */
 export async function ensureTrackingTable(
   adapter: MySQLAdapter,
-  schema?: string,
+  database?: string,
 ): Promise<boolean> {
-  let targetSchema = schema;
+  let targetSchema = database;
   if (!targetSchema) {
     const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db"))
       .rows?.[0];
@@ -83,7 +83,7 @@ export async function checkDuplicateHash(
   adapter: MySQLAdapter,
   version: string,
   migrationSql: string,
-  schema?: string,
+  database?: string,
 ): Promise<{
   migrationHash: string;
   duplicateError: null | {
@@ -95,7 +95,7 @@ export async function checkDuplicateHash(
     metrics?: { tokenEstimate: number };
   };
 }> {
-  let targetSchema = schema;
+  let targetSchema = database;
   if (!targetSchema) {
     const dbRow = (await adapter.executeReadQuery("SELECT DATABASE() as db"))
       .rows?.[0];

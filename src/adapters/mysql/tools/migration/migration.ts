@@ -55,7 +55,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = MigrationInitSchema.parse(params);
 
-        let targetSchema = parsed.schema;
+        let targetSchema = parsed.database;
         if (!targetSchema) {
           const dbRow = (
             await adapter.executeReadQuery("SELECT DATABASE() as db")
@@ -130,19 +130,23 @@ export function createMigrationRecordTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationRecordSchema.parse(params);
-        await ensureTrackingTable(adapter);
+        await ensureTrackingTable(adapter, parsed.database);
 
         const { migrationHash, duplicateError } = await checkDuplicateHash(
           adapter,
           parsed.version,
           parsed.migrationSql,
+          parsed.database,
         );
         if (duplicateError) return withTokenEstimate(duplicateError);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         await adapter.executeWriteQuery(
@@ -216,19 +220,23 @@ export function createMigrationApplyTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationApplySchema.parse(params);
-        await ensureTrackingTable(adapter);
+        await ensureTrackingTable(adapter, parsed.database);
 
         const { migrationHash, duplicateError } = await checkDuplicateHash(
           adapter,
           parsed.version,
           parsed.migrationSql,
+          parsed.database,
         );
         if (duplicateError) return withTokenEstimate(duplicateError);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         // We do not use transactions for DDL in MySQL because MySQL DDL commits implicitly

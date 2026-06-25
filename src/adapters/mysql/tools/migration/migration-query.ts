@@ -56,10 +56,13 @@ export function createMigrationRollbackTool(
       try {
         const parsed = MigrationRollbackSchema.parse(params);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         await ensureTrackingTable(adapter, targetSchema);
 
         if (parsed.id === undefined && parsed.version === undefined) {
@@ -240,10 +243,13 @@ export function createMigrationHistoryTool(
       try {
         const parsed = MigrationHistorySchema.parse(params);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         await ensureTrackingTable(adapter, targetSchema);
@@ -330,7 +336,7 @@ export function createMigrationStatusTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationStatusSchema.parse(params);
-        let targetSchema = parsed.schema;
+        let targetSchema = parsed.database;
 
         if (!targetSchema) {
           const dbRow = (
@@ -347,10 +353,10 @@ export function createMigrationStatusTool(
           [targetSchema, TRACKING_TABLE],
         );
 
-        if (parsed.schema) {
+        if (parsed.database) {
           const schemaCheck = await adapter.executeReadQuery(
             `SELECT EXISTS(SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?) AS schema_exists`,
-            [parsed.schema]
+            [parsed.database]
           );
           const schemaRow = (schemaCheck.rows ?? [])[0];
           const schemaExists = schemaRow?.["schema_exists"] === 1 || schemaRow?.["schema_exists"] === true;
@@ -358,7 +364,7 @@ export function createMigrationStatusTool(
           if (!schemaExists) {
             const errorResponse = {
               success: false as const,
-              error: `Database '${parsed.schema}' does not exist.`,
+              error: `Database '${parsed.database}' does not exist.`,
               code: "NOT_FOUND",
               category: "validation",
               recoverable: true,

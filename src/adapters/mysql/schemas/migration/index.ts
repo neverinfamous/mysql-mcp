@@ -8,10 +8,10 @@ import { BaseOutputSchema } from "../output-schemas.js";
  * mysql_migration_init input
  */
 export const MigrationInitSchemaBase = z.object({
-  schema: z
+  database: z
     .string()
     .optional()
-    .describe("Schema to create the tracking table in (default: public)"),
+    .describe("Database to create the tracking table in (default: active database)"),
 });
 
 export const MigrationInitSchema = MigrationInitSchemaBase.default({});
@@ -44,6 +44,10 @@ export const MigrationRecordSchemaBase = z.object({
     .string()
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
+  database: z
+    .string()
+    .optional()
+    .describe("Database to apply the migration in (default: active database)"),
 });
 
 // Internal parse schema — version and migrationSql are required
@@ -65,6 +69,10 @@ const MigrationRecordParseSchema = z.object({
     .string()
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
+  database: z
+    .string()
+    .optional()
+    .describe("Database to apply the migration in (default: active database)"),
 });
 
 export const MigrationRecordSchema = z.preprocess((input: unknown) => {
@@ -110,6 +118,10 @@ export const MigrationRollbackSchemaBase = z.object({
     .describe(
       "If true, return the rollback SQL without executing (default: false)",
     ),
+  database: z
+    .string()
+    .optional()
+    .describe("Database to roll back the migration in (default: active database)"),
 });
 
 export const MigrationRollbackSchema = z.object({
@@ -121,6 +133,7 @@ export const MigrationRollbackSchema = z.object({
     .optional(),
   version: z.string().optional(),
   dryRun: z.boolean().optional(),
+  database: z.string().optional(),
 });
 
 /**
@@ -137,6 +150,10 @@ export const MigrationHistorySchemaBase = z.object({
     .union([z.number(), z.string()])
     .optional()
     .describe("Offset for pagination (default: 0)"),
+  database: z
+    .string()
+    .optional()
+    .describe("Database to read the migration history from (default: active database)"),
 });
 
 export const MigrationHistorySchema = z
@@ -155,6 +172,7 @@ export const MigrationHistorySchema = z
         return val;
       }, z.number().optional())
       .optional(),
+    database: z.string().optional(),
   })
   .default({});
 
@@ -162,10 +180,10 @@ export const MigrationHistorySchema = z
  * mysql_migration_status input
  */
 export const MigrationStatusSchemaBase = z.object({
-  schema: z
+  database: z
     .string()
     .optional()
-    .describe("Schema where the tracking table lives (default: public)"),
+    .describe("Database where the tracking table lives (default: active database)"),
 });
 
 export const MigrationStatusSchema = MigrationStatusSchemaBase.default({});
