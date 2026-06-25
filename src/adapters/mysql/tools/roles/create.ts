@@ -90,7 +90,14 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
             typeof params.role === "string"
               ? params.role
               : undefined;
-          const roleName = pName ?? pRole ?? "unknown";
+          const pRoleName =
+            params !== null &&
+            typeof params === "object" &&
+            "roleName" in params &&
+            typeof params.roleName === "string"
+              ? params.roleName
+              : undefined;
+          const roleName = pName ?? pRole ?? pRoleName ?? "unknown";
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Role '${roleName}' already exists`, "OBJECT_ALREADY_EXISTS", ErrorCategory.RESOURCE)
           );

@@ -43,6 +43,7 @@ export const RoleGrantPrivilegeSchemaBase = z.object({
   db: z.string().optional(),
   table: z.string().default("*"),
   on: z.string().optional(),
+  object: z.string().optional(),
 });
 
 export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
@@ -56,14 +57,15 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
     const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
     let database = val.db ?? val.database;
     let table = val.table;
+    const targetOn = val.on ?? val.object;
 
-    if (val.on) {
-      if (val.on.includes(".")) {
-        const [db, tbl] = val.on.split(".");
+    if (targetOn) {
+      if (targetOn.includes(".")) {
+        const [db, tbl] = targetOn.split(".");
         database = db || "*";
         table = tbl || "*";
       } else {
-        database = val.on;
+        database = targetOn;
       }
     }
 
