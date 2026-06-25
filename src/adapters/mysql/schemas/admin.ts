@@ -331,7 +331,20 @@ export const AuditSearchSchemaBase = z.object({
   offset: z.number().int().min(0).default(0).describe("Pagination offset"),
 });
 
-export const AuditSearchSchema = AuditSearchSchemaBase;
+export const AuditSearchSchema = z.preprocess((obj: unknown) => {
+  if (obj === null || obj === undefined || typeof obj !== "object") return obj;
+  const record = obj as Record<string, unknown>;
+  const result = { ...record };
+  if (typeof result["limit"] === "string") {
+    const num = Number(result["limit"]);
+    if (!Number.isNaN(num)) result["limit"] = num;
+  }
+  if (typeof result["offset"] === "string") {
+    const num = Number(result["offset"]);
+    if (!Number.isNaN(num)) result["offset"] = num;
+  }
+  return result;
+}, AuditSearchSchemaBase);
 
 // --- AppendInsight ---
 export const AppendInsightSchemaBase = z.object({
