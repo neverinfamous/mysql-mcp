@@ -156,11 +156,11 @@ During testing, check for these inconsistencies:
 ## Group Focus: security (Firewall & SSL)
 
 1. `mysql.security.help()`
-2. `mysql.security.securityFirewallStatus()`
-3. `mysql.security.securityFirewallRules({ limit: 5 })`
-4. `mysql.security.securitySslStatus()`
-5. `mysql.security.securityEncryptionStatus()`
-6. `mysql.security.securityPasswordValidate({ password: "weak" })`
+2. `mysql.security.firewallStatus()`
+3. `mysql.security.firewallRules({ limit: 5 })`
+4. `mysql.security.sslStatus()`
+5. `mysql.security.encryptionStatus()`
+6. `mysql.security.passwordValidate({ password: "weak" })`
 
 ---
 
