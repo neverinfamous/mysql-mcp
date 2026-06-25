@@ -156,7 +156,7 @@ During testing, check for these inconsistencies:
 ## Group Focus: security (Audit & Mask)
 
 1. `mysql.security.help()`
-2. `mysql.security.audit({ scope: "users" })`
+2. `mysql.security.audit({ user: "root" })`
 3. `mysql.security.maskData({ value: "test@example.com", type: "email" })`
 4. `mysql.security.userPrivileges({ userName: "root" })`
 5. `mysql.security.sensitiveTables({ database: "testdb" })`
