@@ -1,0 +1,32 @@
+{
+    "options": {
+        "schema": "testdb",
+        "table": "test_products",
+        "columns": [
+            "id",
+            "name",
+            "description",
+            "price",
+            "category",
+            "metadata",
+            "created_at"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "id"
+    ],
+    "partitions": [],
+    "basenames": {}
+}

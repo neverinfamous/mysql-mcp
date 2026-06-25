@@ -1,0 +1,30 @@
+{
+    "options": {
+        "schema": "testdb",
+        "table": "test_events",
+        "columns": [
+            "id",
+            "event_type",
+            "user_id",
+            "payload",
+            "event_date"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "id"
+    ],
+    "partitions": [],
+    "basenames": {}
+}

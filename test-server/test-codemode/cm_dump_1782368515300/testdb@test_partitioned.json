@@ -1,0 +1,42 @@
+{
+    "options": {
+        "schema": "testdb",
+        "table": "test_partitioned",
+        "columns": [
+            "id",
+            "region",
+            "created_at",
+            "data"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "id",
+        "region"
+    ],
+    "partitions": [
+        "p_east",
+        "p_west1",
+        "p_west2",
+        "p_central",
+        "p_south"
+    ],
+    "basenames": {
+        "p_east": "testdb@test_partitioned@p_east",
+        "p_west1": "testdb@test_partitioned@p_west1",
+        "p_west2": "testdb@test_partitioned@p_west2",
+        "p_central": "testdb@test_partitioned@p_central",
+        "p_south": "testdb@test_partitioned@p_south"
+    }
+}

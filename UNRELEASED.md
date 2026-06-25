@@ -38,3 +38,4 @@
 - Fixed factual error in `test-codemode-security-audit.md` test script by correcting the invalid `scope: "users"` parameter to `user: "root"` for the `mysql_security_audit` tool.
 - Fixed factual errors in `test-codemode-security-firewall.md` test script by correcting the invalid `securityFirewallStatus` and related method names to their actual exported names.
 - Fixed factual errors in `test-codemode-shell-data.md` test script regarding test validation for `mysqlsh_load_dump` (added missing flags) and `mysqlsh_export_table` (fixed IO sandbox boundary issues).
+- Fixed factual error in `test-codemode-shell-utils.md` test script by replacing a hardcoded IO boundary `scriptPath` with an inline `script` payload to reliably test valid `runScript` execution without being blocked by dynamic sandbox constraints [Testing: test-codemode-shell-utils.md].

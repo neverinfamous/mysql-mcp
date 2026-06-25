@@ -1,0 +1,28 @@
+{
+    "options": {
+        "schema": "testdb",
+        "table": "test_documents",
+        "columns": [
+            "doc",
+            "collection_name",
+            "created_at"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "_id"
+    ],
+    "partitions": [],
+    "basenames": {}
+}

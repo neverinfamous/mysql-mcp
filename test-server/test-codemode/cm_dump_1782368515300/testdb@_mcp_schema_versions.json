@@ -1,0 +1,36 @@
+{
+    "options": {
+        "schema": "testdb",
+        "table": "_mcp_schema_versions",
+        "columns": [
+            "id",
+            "version",
+            "description",
+            "applied_at",
+            "applied_by",
+            "migration_hash",
+            "migration_sql",
+            "source_system",
+            "rollback_sql",
+            "status",
+            "error_information"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "id"
+    ],
+    "partitions": [],
+    "basenames": {}
+}
