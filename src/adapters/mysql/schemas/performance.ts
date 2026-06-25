@@ -129,13 +129,33 @@ export const IndexUsageSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      limit: z.coerce.number().int().positive().optional().default(3),
+      limit: z.coerce.number().int().positive().optional().default(5),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name,
     limit: data.limit,
   }));
+
+// --- BufferPoolStats ---
+export const BufferPoolStatsSchemaBase = z.object({});
+
+export const BufferPoolStatsSchema = z.object({});
+
+// --- ThreadStats ---
+export const ThreadStatsSchemaBase = z.object({
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(5)
+    .describe("Maximum number of threads to return (default: 5)"),
+});
+
+export const ThreadStatsSchema = z.object({
+  limit: z.coerce.number().int().positive().optional().default(5),
+});
 
 // --- TableStats ---
 export const TableStatsSchemaBase = z.object({

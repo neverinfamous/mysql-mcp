@@ -28,3 +28,4 @@
 - Fixed `HistogramOutputSchema` to match the actual handler response structure, replacing the incorrect `buckets` array with actual metadata fields (e.g. `exists`, `actualBuckets`).
 - Added a Wrong-Type Coercion test case for `mysql.stats.distribution` to the `test-codemode-stats-descriptive.md` test script.
 - Fixed factual errors in `test-codemode-stats-window.md` test script by correcting the invalid `dense: true` parameter to `method: "dense_rank"` for the `mysql_stats_rank` tool.
+- Fixed Split Schema pattern and missing coercion for `mysql_buffer_pool_stats`, `mysql_thread_stats`, and `mysql_index_usage` tools [Testing: test-codemode-performance-analysis-system.md].

@@ -3,27 +3,30 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { BufferPoolStatsOutputSchema } from "../../../schemas/index.js";
+import {
+  BufferPoolStatsOutputSchema,
+  BufferPoolStatsSchemaBase,
+  BufferPoolStatsSchema,
+} from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { z } from "zod";
 
 export function createBufferPoolStatsTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({});
 
   return {
     name: "mysql_buffer_pool_stats",
     title: "MySQL Buffer Pool Stats",
     description: "Get InnoDB buffer pool statistics.",
     group: "performance",
-    inputSchema: schema,
+    inputSchema: BufferPoolStatsSchemaBase,
     outputSchema: BufferPoolStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        BufferPoolStatsSchema.parse(params);
         const result = await adapter.executeReadQuery(
           `SELECT POOL_ID, POOL_SIZE, FREE_BUFFERS, DATABASE_PAGES,
                 OLD_DATABASE_PAGES, MODIFIED_DATABASE_PAGES, PENDING_DECOMPRESS,

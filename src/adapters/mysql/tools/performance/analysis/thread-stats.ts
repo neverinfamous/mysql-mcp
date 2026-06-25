@@ -3,37 +3,28 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ThreadStatsOutputSchema } from "../../../schemas/index.js";
+import {
+  ThreadStatsOutputSchema,
+  ThreadStatsSchemaBase,
+  ThreadStatsSchema,
+} from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { z } from "zod";
 
 export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
-  const schemaBase = z.object({
-    limit: z
-      .number()
-      .int()
-      .positive()
-      .optional()
-      .describe("Maximum number of threads to return (default: 5)"),
-  });
-
-  const schema = z.object({
-    limit: z.number().int().positive().optional().default(5),
-  });
 
   return {
     name: "mysql_thread_stats",
     title: "MySQL Thread Stats",
     description: "Get thread activity statistics.",
     group: "performance",
-    inputSchema: schemaBase,
+    inputSchema: ThreadStatsSchemaBase,
     outputSchema: ThreadStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { limit } = schema.parse(params);
+        const { limit } = ThreadStatsSchema.parse(params);
         const result = await adapter.executeReadQuery(`
                 SELECT 
                     THREAD_ID,
