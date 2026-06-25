@@ -168,10 +168,13 @@ performance-anomaly Tool Group (3 tools +1 code mode):
 
 **Domain error paths:**
 
+1. - `mysql.performance.detectBloatRisk({table: "nonexistent_table"})` → `{success: false, error: "Table 'nonexistent_table' does not exist", code: "TABLE_NOT_FOUND"}`
 
 **Zod validation error paths:**
 
 1. - `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+2. - `mysql.performance.detectBloatRisk({minSizeMb: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+3. - `mysql.performance.detectConnectionSpike({windowMinutes: "invalid"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
