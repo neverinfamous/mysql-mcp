@@ -183,6 +183,7 @@ export const ShellImportJSONInputSchemaBase = z
     inputPath: z.string().optional().describe("JSON file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
+    table: z.string().optional().describe("Target table name (alias for collection)"),
     collection: z
       .string()
       .optional()
@@ -203,6 +204,7 @@ export const ShellImportJSONInputSchema = z
     inputPath: z.string().optional(),
     inputUrl: z.string().optional(),
     schema: z.unknown().optional(),
+    table: z.unknown().optional(),
     collection: z.unknown().optional(),
     tableColumn: z.string().optional(),
     convertBsonTypes: booleanCoerce.optional().default(false),
@@ -214,9 +216,11 @@ export const ShellImportJSONInputSchema = z
         ? ""
         : String(data.schema as string | number | boolean),
     collection:
-      data.collection === undefined
-        ? ""
-        : String(data.collection as string | number | boolean),
+      data.collection !== undefined
+        ? String(data.collection as string | number | boolean)
+        : data.table !== undefined
+        ? String(data.table as string | number | boolean)
+        : "",
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.collection !== "", {
