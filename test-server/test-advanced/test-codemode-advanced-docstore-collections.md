@@ -165,25 +165,6 @@ During testing, check for these inconsistencies:
 - mysql_doc_collection_info
 - mysql_doc_create_index
 
-## Category 1: Collection Lifecycle
-
-1. Create collection `stress_docs`, add 5 documents, verify count
-2. Drop and recreate — verify clean state
-3. Create collection with same name as dropped — verify no leakage
-
-## Category 2: Edge Cases
-
-4. Find with empty criteria `{}` — should return all documents
-5. Find with criteria matching no documents — verify empty result (not error)
-6. Add document with empty object `{}` — verify insertion succeeds
-7. Modify with criteria matching no documents — verify structured response
-8. Remove with criteria matching no documents — verify structured response
-
-## Category 3: Index Operations
-
-9. Create index on JSON path for `stress_docs` collection
-10. Drop collection with index — verify clean removal
-
 ## Cleanup
 
 11. Drop `stress_docs` if still exists
