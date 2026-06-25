@@ -51,7 +51,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
           options.push(`targetVersion: "${targetVersion}"`);
         }
 
-        const jsCode = `return util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
+        const jsCode = `util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
 
         let rawResult;
         try {
