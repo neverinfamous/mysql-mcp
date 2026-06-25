@@ -157,8 +157,8 @@ During testing, check for these inconsistencies:
 
 cluster Tool Group (10 tools +1 code mode):
 
-1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
-4. `mysql_cluster_router_status` 5. `mysql_cluster_switchover`
+1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary` 4. `mysql_gr_transactions` 5. `mysql_gr_flow_control`
+6. `mysql_cluster_status` 7. `mysql_cluster_instances` 8. `mysql_cluster_topology` 9. `mysql_cluster_router_status` 10. `mysql_cluster_switchover`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
