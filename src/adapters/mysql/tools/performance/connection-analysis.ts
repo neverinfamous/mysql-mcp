@@ -26,14 +26,14 @@ import { ValidationError } from "../../../../types/index.js";
 
 export const DetectConnectionSpikeSchemaBase = z.object({
   warningPercent: z
-    .unknown()
+    .number()
     .optional()
     .describe("Percentage threshold for flagging concentration (default: 70)"),
   windowMinutes: z
-    .unknown()
+    .number()
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
-  thresholdPercent: z.unknown().optional().describe("Alias for warningPercent"),
+  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
 });
 
 export const DetectConnectionSpikeSchema = z.object({

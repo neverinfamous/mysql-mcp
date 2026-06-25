@@ -52,15 +52,15 @@ export function riskFromScore(score: number): RiskLevel {
 
 export const DetectQueryAnomaliesSchemaBase = z.object({
   threshold: z
-    .unknown()
+    .number()
     .optional()
     .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.unknown().optional().describe("Alias for threshold"),
+  stdDevThreshold: z.number().optional().describe("Alias for threshold"),
   minCalls: z
-    .unknown()
+    .number()
     .optional()
     .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.unknown().optional().describe("Alias for minCalls"),
+  minExecutions: z.number().optional().describe("Alias for minCalls"),
 });
 
 export const DetectQueryAnomaliesSchema = z.object({
@@ -85,17 +85,17 @@ export const DetectQueryAnomaliesSchema = z.object({
 
 export const DetectBloatRiskSchemaBase = z.object({
   schema: z
-    .unknown()
+    .string()
     .optional()
     .describe("Filter to a specific database schema"),
   table: z
-    .unknown()
+    .string()
     .optional()
     .describe("Filter to a specific table"),
-  tableName: z.unknown().optional().describe("Alias for table"),
-  name: z.unknown().optional().describe("Alias for table"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   minSizeMb: z
-    .unknown()
+    .number()
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
 });
