@@ -14,7 +14,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { ShellCheckUpgradeInputSchema, ShellCheckUpgradeOutputSchema } from "../../schemas/shell/index.js";
-import { getShellConfig, escapeForJS, execShellJS } from "./common.js";
+import { getShellConfig, escapeForJS, execMySQLShell } from "./common.js";
 
 /**
  * Check server upgrade compatibility
@@ -53,21 +53,34 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
 
         const jsCode = `return util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
 
-        let result;
+        let rawResult;
         try {
-          result = await execShellJS(jsCode, { timeout: 120000 });
+          rawResult = await execMySQLShell(
+            ["--uri", config.connectionUri, "--js", "-e", jsCode],
+            { timeout: 120000 }
+          );
         } catch (error) {
           return formatHandlerErrorResponse(error);
         }
 
-        // Parse the upgrade check result
-        // util.checkForServerUpgrade returns { errorCount, warningCount, noticeCount, ... }
-        if (
-          result !== null &&
-          result !== undefined &&
-          typeof result === "object"
-        ) {
-          const checkResult = result as {
+        // Try to parse the upgrade check result from stdout
+        let checkResult: unknown;
+        if (rawResult?.stdout) {
+          try {
+            // Find the start of the JSON object in case there are warnings
+            const stdoutStr = rawResult.stdout.trim();
+            const jsonStart = stdoutStr.indexOf('{');
+            if (jsonStart !== -1) {
+              const jsonStr = stdoutStr.substring(jsonStart);
+              checkResult = JSON.parse(jsonStr) as unknown;
+            }
+          } catch {
+            // parsing failed, checkResult remains undefined
+          }
+        }
+
+        if (checkResult !== undefined && typeof checkResult === "object" && checkResult !== null) {
+          const typedResult = checkResult as {
             errorCount?: number;
             warningCount?: number;
             noticeCount?: number;
@@ -79,16 +92,16 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
           return withTokenEstimate({
             success: true,
             data: {
-              targetVersion: checkResult.targetVersion ?? targetVersion,
-              serverVersion: checkResult.serverVersion,
-              errorCount: checkResult.errorCount ?? 0,
-              warningCount: checkResult.warningCount ?? 0,
-              noticeCount: checkResult.noticeCount ?? 0,
-              checksPerformed: checkResult.checksPerformed?.length ?? 0,
+              targetVersion: typedResult.targetVersion ?? targetVersion,
+              serverVersion: typedResult.serverVersion,
+              errorCount: typedResult.errorCount ?? 0,
+              warningCount: typedResult.warningCount ?? 0,
+              noticeCount: typedResult.noticeCount ?? 0,
+              checksPerformed: typedResult.checksPerformed?.length ?? 0,
               upgradeCheck:
                 outputFormat === "TEXT"
                   ? "Use outputFormat: JSON for detailed results"
-                  : checkResult,
+                  : typedResult,
             },
           });
         }
@@ -100,7 +113,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             errorCount: 0,
             warningCount: 0,
             noticeCount: 0,
-            upgradeCheck: result,
+            upgradeCheck: rawResult?.stdout,
           },
         });
       } catch (error) {

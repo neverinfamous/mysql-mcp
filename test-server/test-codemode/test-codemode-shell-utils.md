@@ -164,11 +164,11 @@ shell Tool Group (10 tools +1 code mode):
 1. `mysql.shell.help()` → verify method listing
 2. `mysql.shell.version()` → verify success
 3. `mysql.shell.checkUpgrade()` → verify success
-4. `mysql.shell.runScript({ scriptPath: "/tmp/script.js", language: "javascript", dryRun: true })` → verify success
+4. `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/package.json", language: "javascript", dryRun: true })` → verify success
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql.shell.runScript({ scriptPath: "/tmp/nonexistent.js" })` → `{success: false}`
+5. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/nonexistent.js" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 

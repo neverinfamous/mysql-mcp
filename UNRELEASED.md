@@ -23,3 +23,5 @@
 - Fixed `MaskDataSchema` to use `z.enum` for `type` validation to properly leverage Zod validation instead of throwing manual `UNKNOWN_ERROR` exceptions.
 - Fixed `createSecurityUserPrivilegesTool` and `createSecuritySensitiveTablesTool` to properly return structured `ValidationError` responses instead of throwing `UNKNOWN_ERROR` domain errors when users or schemas do not exist.
 - Fixed missing aliases `name` and `tableName` for `tables` parameter in `mysqlsh_dump_tables` via split schema.
+- Fixed `mysqlsh_check_upgrade` to properly capture and return the `util.checkForServerUpgrade()` JSON results from `stdout` instead of returning `undefined`.
+- Fixed factual errors in `test-codemode-shell-utils.md` test script regarding invalid IO root paths that incorrectly assert dry-run success and domain errors instead of `SECURITY_ERROR`.
