@@ -22,3 +22,4 @@
 - Fixed Split Schema pattern for `mysql_list_events` by exposing the `status` enum in the base input schema.
 - Fixed `MaskDataSchema` to use `z.enum` for `type` validation to properly leverage Zod validation instead of throwing manual `UNKNOWN_ERROR` exceptions.
 - Fixed `createSecurityUserPrivilegesTool` and `createSecuritySensitiveTablesTool` to properly return structured `ValidationError` responses instead of throwing `UNKNOWN_ERROR` domain errors when users or schemas do not exist.
+- Fixed missing aliases `name` and `tableName` for `tables` parameter in `mysqlsh_dump_tables` via split schema.

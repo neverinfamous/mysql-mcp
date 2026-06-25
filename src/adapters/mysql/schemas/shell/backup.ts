@@ -120,6 +120,8 @@ export const ShellDumpTablesInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Schema containing tables"),
     tables: z.array(z.string()).optional().describe("Table names to dump"),
+    tableName: z.array(z.string()).optional().describe("Alias for tables"),
+    name: z.array(z.string()).optional().describe("Alias for tables"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
@@ -156,6 +158,8 @@ export const ShellDumpTablesInputSchema = z
   .object({
     schema: z.unknown().optional(),
     tables: z.unknown().optional(),
+    tableName: z.unknown().optional(),
+    name: z.unknown().optional(),
     outputDir: z.string().optional(),
     outputUrl: z.string().optional(),
     threads: z.number().int().optional().default(4),
@@ -164,14 +168,23 @@ export const ShellDumpTablesInputSchema = z
     dryRun: booleanCoerce.optional().default(false),
     all: booleanCoerce.optional().default(false),
   })
-  .transform((data) => ({
-    ...data,
-    schema:
-      data.schema === undefined
-        ? ""
-        : String(data.schema as string | number | boolean),
-    tables: Array.isArray(data.tables) ? data.tables.map(String) : [],
-  }))
+  .transform((data) => {
+    const rawTables = data.tables ?? data.tableName ?? data.name;
+    return {
+      ...data,
+      schema:
+        typeof data.schema === "string"
+          ? data.schema
+          : typeof data.schema === "number" || typeof data.schema === "boolean"
+            ? String(data.schema)
+            : "",
+      tables: Array.isArray(rawTables) 
+        ? rawTables.map(String) 
+        : typeof rawTables === "string" 
+          ? [rawTables] 
+          : [],
+    };
+  })
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.tables.length > 0, {
     message: "At least one table name is required",
