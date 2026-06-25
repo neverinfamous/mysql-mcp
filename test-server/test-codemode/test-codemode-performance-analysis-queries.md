@@ -165,13 +165,15 @@ performance-analysis-queries Tool Group:
 1. `mysql.performance.help()` → verify method listing
 2. `mysql.performance.explain({query: "SELECT * FROM test_products WHERE id = 1"})` → execution plan
 3. `mysql.performance.explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → JSON plan
-4. `mysql.performance.queryStats({limit: 3})` → top queries
+4. `mysql.performance.explainAnalyze({query: "SELECT * FROM test_products WHERE id = 1"})` → execution plan with timing
+5. `mysql.performance.slowQueries({limit: 3})` → slow queries log
+6. `mysql.performance.queryStats({limit: 3})` → top queries
 
 **Domain error paths (🔴):**
-5. 🔴 `mysql.performance.explain({query: "SELEKT * FROM test_products"})` → `{success: false}` syntax error
+7. 🔴 `mysql.performance.explain({query: "SELEKT * FROM test_products"})` → `{success: false}` syntax error
 
 **Zod validation error paths (🔴):**
-6. 🔴 `mysql.performance.explain({})` → `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.performance.explain({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
