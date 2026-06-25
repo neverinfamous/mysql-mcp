@@ -29,3 +29,4 @@
 - Added a Wrong-Type Coercion test case for `mysql.stats.distribution` to the `test-codemode-stats-descriptive.md` test script.
 - Fixed factual errors in `test-codemode-stats-window.md` test script by correcting the invalid `dense: true` parameter to `method: "dense_rank"` for the `mysql_stats_rank` tool.
 - Fixed Split Schema pattern and missing coercion for `mysql_buffer_pool_stats`, `mysql_thread_stats`, and `mysql_index_usage` tools [Testing: test-codemode-performance-analysis-system.md].
+- Fixed `FirewallRulesSchema` to use `z.enum` for `mode` validation instead of throwing manual `UNKNOWN_ERROR` exceptions [Testing: test-codemode-security-firewall.md].

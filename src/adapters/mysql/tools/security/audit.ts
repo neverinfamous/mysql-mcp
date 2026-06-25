@@ -55,7 +55,7 @@ const AuditLogSchema = z.preprocess(
 const FirewallRulesSchemaBase = z.object({
   limit: z.number().optional().describe("Maximum number of records to return"),
   user: z.string().optional().describe("Filter by username"),
-  mode: z.string().optional().describe("Filter by mode"),
+  mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
 });
 
 const FirewallRulesSchema = z.preprocess(
@@ -63,7 +63,7 @@ const FirewallRulesSchema = z.preprocess(
   z.object({
     limit: z.number().default(50),
     user: z.string().optional(),
-    mode: z.string().optional(),
+    mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
   })
 );
 
@@ -309,21 +309,6 @@ export function createSecurityFirewallRulesTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit, user, mode } = FirewallRulesSchema.parse(params);
-
-
-        const validModes: readonly ["RECORDING", "PROTECTING", "DETECTING", "OFF"] = [
-          "RECORDING",
-          "PROTECTING",
-          "DETECTING",
-          "OFF",
-        ];
-        if (mode && !validModes.some(m => m === mode)) {
-          return formatHandlerErrorResponse(
-            new Error(
-              `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,
-            ),
-          );
-        }
 
         // Check if firewall plugin is installed
         const pluginResult = await adapter.executeQuery(`
