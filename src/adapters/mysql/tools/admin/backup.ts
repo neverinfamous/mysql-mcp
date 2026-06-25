@@ -277,6 +277,29 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate table name for SQL injection prevention
         validateIdentifier(table, "table");
 
+        // Verify table exists (P154)
+        try {
+          const tableCheck = await adapter.executeReadQuery(
+            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+            [table],
+          );
+          if (!tableCheck.rows || tableCheck.rows.length === 0) {
+            return withTokenEstimate({
+              success: false,
+              error: `Table '${table}' does not exist`,
+              code: "TABLE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Table does not exist. Run mysql_list_tables to see available tables.",
+              recoverable: false,
+              details: { exists: false, table },
+            });
+          }
+        } catch (dbErr) {
+          return withTokenEstimate(
+            { ...formatHandlerErrorResponse(dbErr) }
+          );
+        }
+
         if (data.length === 0) {
           return withTokenEstimate({
             success: true,
