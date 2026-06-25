@@ -32,3 +32,4 @@
 - Fixed `FirewallRulesSchema` to use `z.enum` for `mode` validation instead of throwing manual `UNKNOWN_ERROR` exceptions [Testing: test-codemode-security-firewall.md].
 - Fixed `mysqlsh_load_dump` to properly bypass `assertSafeIoPath` validation when `dryRun` is set to `true` [Testing: test-codemode-shell-data.md].
 - Fixed `mysqlsh_check_upgrade` to execute without throwing an `Invalid return statement (SyntaxError)` by removing the `return` keyword when evaluating `util.checkForServerUpgrade` [Testing: test-codemode-shell-utils.md].
+- Fixed `mysql2` binary charset issue with JSON update functions (`mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_array_append`, `mysql_doc_modify`) by changing `CAST(? AS JSON)` to `CAST(CONVERT(? USING utf8mb4) AS JSON)` to ensure stringified JSON is interpreted correctly [Testing: test-codemode-json-core-write.md].

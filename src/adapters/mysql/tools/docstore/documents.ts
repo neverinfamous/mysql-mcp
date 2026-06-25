@@ -283,7 +283,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   category: "validation",
                 });
               }
-              updates.push(`doc = JSON_SET(doc, ?, CAST(? AS JSON))`);
+              updates.push(`doc = JSON_SET(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
               updateParams.push(`$.${path}`, JSON.stringify(value));
             }
           }

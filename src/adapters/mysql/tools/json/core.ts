@@ -140,8 +140,8 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
@@ -188,8 +188,8 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
           checkResult.rows?.[0]?.["existing_value"] !== null &&
           checkResult.rows?.[0]?.["existing_value"] !== undefined;
 
-        // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
@@ -243,8 +243,8 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
@@ -438,8 +438,8 @@ export function createJsonArrayAppendTool(
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);

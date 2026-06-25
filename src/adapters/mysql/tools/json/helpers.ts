@@ -129,8 +129,8 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           jsonValue = JSON.stringify(value);
         }
 
-        // Use CAST(? AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(? AS JSON)) WHERE ${where}`;
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
         if (result.rowsAffected === 0) {
