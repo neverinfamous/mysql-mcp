@@ -632,7 +632,7 @@ describe("Performance Analysis Tools", () => {
       await tool.handler({}, mockContext);
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).toContain("LIMIT 3");
+      expect(call).toContain("LIMIT 5");
     });
 
     it("should use custom limit", async () => {
