@@ -166,7 +166,7 @@ shell Tool Group (10 tools +1 code mode):
 1. `mysql.shell.help()` → verify method listing
 2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
 3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
-4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success
+4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success
 5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
 6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
 7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success

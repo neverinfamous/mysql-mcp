@@ -23,8 +23,8 @@
     "source": {
         "binlog": {
             "file": "mysql-bin.000045",
-            "position": 294525,
-            "gtidExecuted": "56a26ff1-1dc7-11f1-b74a-1a023623e935:1-23030,\n56a28a17-1dc7-11f1-b74a-1a023623e935:1-47,\n613caa29-1d02-11f1-807c-c6f2de3f2c14:1-7751,\naaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:1-70"
+            "position": 309450,
+            "gtidExecuted": "56a26ff1-1dc7-11f1-b74a-1a023623e935:1-23082,\n56a28a17-1dc7-11f1-b74a-1a023623e935:1-47,\n613caa29-1d02-11f1-807c-c6f2de3f2c14:1-7751,\naaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:1-70"
         },
         "sysvars": {
             "activate_all_roles_on_login": "OFF",
@@ -212,7 +212,7 @@
             "group_replication_transaction_size_limit": "150000000",
             "group_replication_unreachable_majority_timeout": "0",
             "group_replication_view_change_uuid": "56a28a17-1dc7-11f1-b74a-1a023623e935",
-            "gtid_executed": "56a26ff1-1dc7-11f1-b74a-1a023623e935:1-23030,\n56a28a17-1dc7-11f1-b74a-1a023623e935:1-47,\n613caa29-1d02-11f1-807c-c6f2de3f2c14:1-7751,\naaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:1-70",
+            "gtid_executed": "56a26ff1-1dc7-11f1-b74a-1a023623e935:1-23082,\n56a28a17-1dc7-11f1-b74a-1a023623e935:1-47,\n613caa29-1d02-11f1-807c-c6f2de3f2c14:1-7751,\naaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:1-70",
             "gtid_executed_compression_period": "0",
             "gtid_mode": "ON",
             "gtid_owned": "",
@@ -743,8 +743,8 @@
     "server": "mysql-node1",
     "serverVersion": "8.0.45",
     "binlogFile": "mysql-bin.000045",
-    "binlogPosition": 294525,
-    "gtidExecuted": "56a26ff1-1dc7-11f1-b74a-1a023623e935:1-23030,\n56a28a17-1dc7-11f1-b74a-1a023623e935:1-47,\n613caa29-1d02-11f1-807c-c6f2de3f2c14:1-7751,\naaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:1-70",
+    "binlogPosition": 309450,
+    "gtidExecuted": "56a26ff1-1dc7-11f1-b74a-1a023623e935:1-23082,\n56a28a17-1dc7-11f1-b74a-1a023623e935:1-47,\n613caa29-1d02-11f1-807c-c6f2de3f2c14:1-7751,\naaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:1-70",
     "partialRevokes": false,
     "compatibilityOptions": [],
     "capabilities": [
@@ -755,5 +755,5 @@
         }
     ],
     "checksum": false,
-    "begin": "2026-06-25 06:21:35"
+    "begin": "2026-06-25 08:45:54"
 }

@@ -390,12 +390,23 @@ export function createShellImportJSONTool(
         }
 
         if (result.exitCode !== 0) {
+          const stderrText = result.stderr || result.stdout || "MySQL Shell import failed";
+          
+          if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away")) {
             throw new MySQLMcpError(
-              result.stderr || result.stdout || "MySQL Shell import failed",
-              "QUERY_ERROR",
-              ErrorCategory.QUERY,
-              { details: { protocol: "X Protocol" } }
+              stderrText,
+              "CONNECTION_ERROR",
+              ErrorCategory.CONNECTION,
+              { details: { protocol: "X Protocol" }, recoverable: true }
             );
+          }
+
+          throw new MySQLMcpError(
+            stderrText,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY,
+            { details: { protocol: "X Protocol" } }
+          );
         }
 
         return withTokenEstimate({
