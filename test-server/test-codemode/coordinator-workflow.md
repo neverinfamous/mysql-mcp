@@ -1,12 +1,10 @@
 # mysql-mcp Code Mode Testing Coordinator Workflow
 
-We're workong on the mysql-mcp project/repository in this thread.
+We're working on the mysql-mcp project/repository in this thread.
 
 > **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
-
-We're working in the `mysql-mcp` project in this thread.
 
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` Code Mode test suite using subagents.
 
