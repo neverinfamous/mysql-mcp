@@ -80,18 +80,20 @@ export const RegressionOutputSchema = BaseOutputSchema.extend({
 
 export const HistogramOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    column: z.string(),
-    buckets: z.array(
-      z.object({
-        bucket: z.number(),
-        min: z.number(),
-        max: z.number(),
-        count: z.number(),
-      })
-    ).optional(),
-    min: z.number().nullish(),
-    max: z.number().nullish(),
-    bucketWidth: z.number().nullish(),
+    exists: z.boolean(),
+    table: z.string().optional(),
+    column: z.string().optional(),
+    schemaName: z.string().optional(),
+    tableName: z.string().optional(),
+    columnName: z.string().optional(),
+    histogramType: z.string().optional(),
+    bucketsSpecified: z.number().nullish(),
+    samplingRate: z.number().nullish(),
+    lastUpdated: z.string().optional(),
+    actualBuckets: z.number().nullish(),
+    updated: z.boolean().optional(),
+    warning: z.string().optional(),
+    hint: z.string().optional(),
   }).loose().optional(),
 });
 

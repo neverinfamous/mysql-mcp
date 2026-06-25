@@ -25,3 +25,5 @@
 - Fixed missing aliases `name` and `tableName` for `tables` parameter in `mysqlsh_dump_tables` via split schema.
 - Fixed `mysqlsh_check_upgrade` to properly capture and return the `util.checkForServerUpgrade()` JSON results from `stdout` instead of returning `undefined`.
 - Fixed factual errors in `test-codemode-shell-utils.md` test script regarding invalid IO root paths that incorrectly assert dry-run success and domain errors instead of `SECURITY_ERROR`.
+- Fixed `HistogramOutputSchema` to match the actual handler response structure, replacing the incorrect `buckets` array with actual metadata fields (e.g. `exists`, `actualBuckets`).
+- Added a Wrong-Type Coercion test case for `mysql.stats.distribution` to the `test-codemode-stats-descriptive.md` test script.

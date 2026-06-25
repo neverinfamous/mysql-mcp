@@ -176,6 +176,7 @@ stats-descriptive Tool Group (8 tools +1 code mode):
 
 13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
 14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
