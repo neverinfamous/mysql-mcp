@@ -14,6 +14,8 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListConstraintsSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table name"),
+  name: z.string().optional().describe("Alias for table name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   type: z.string().optional().describe("Filter by constraint type"),
@@ -25,6 +27,7 @@ const ListConstraintsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
+        table: obj['table'] ?? obj['tableName'] ?? obj['name'],
         schema: obj['schema'] ?? obj['database'],
       };
     }
