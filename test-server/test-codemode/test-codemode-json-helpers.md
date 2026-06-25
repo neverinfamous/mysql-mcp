@@ -171,10 +171,10 @@ json-helpers Tool Group (4 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_json_get({})` → validation error
-10. 🔴 `mysql_json_update({})` → validation error
-11. 🔴 `mysql_json_search({})` → validation error
-12. 🔴 `mysql_json_validate({})` → validation error
+8. 🔴 `mysql_json_get({})` → validation error
+9. 🔴 `mysql_json_update({})` → validation error
+10. 🔴 `mysql_json_search({})` → validation error
+11. 🔴 `mysql_json_validate({})` → validation error
 
 ---
 
