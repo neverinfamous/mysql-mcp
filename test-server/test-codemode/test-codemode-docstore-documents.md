@@ -165,8 +165,8 @@ docstore-documents Tool Group:
 1. `mysql.docstore.help()` → verify method listing
 2. `mysql.docstore.find({collection: "test_documents"})` → list of docs
 3. `mysql.docstore.add({collection: "test_documents", documents: [{name: "test"}]})` → inserted count
-4. `mysql.docstore.modify({collection: "test_documents", condition: "$.name = 'test'", set: {"$.status": "active"}})` → modified count
-5. `mysql.docstore.remove({collection: "test_documents", condition: "$.name = 'test'"})` → removed count
+4. `mysql.docstore.modify({collection: "test_documents", filter: "name=test", set: {"$.status": "active"}})` → modified count
+5. `mysql.docstore.remove({collection: "test_documents", filter: "name=test"})` → removed count
 
 **Domain error paths (🔴):**
 6. 🔴 `mysql.docstore.find({collection: "nonexistent_xyz"})` → `{success: false}`
