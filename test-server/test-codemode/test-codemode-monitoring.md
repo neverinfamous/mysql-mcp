@@ -175,7 +175,7 @@ monitoring Tool Group (7 tools +1 code mode):
 
 **Domain error paths (🔴):**
 
-9. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
 ---
 
