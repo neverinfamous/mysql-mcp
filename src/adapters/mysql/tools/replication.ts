@@ -7,6 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { ErrorCategory, MySQLMcpError } from "../../../types/index.js";
 import {
   BinlogEventsSchemaBase,
   BinlogEventsSchema,
@@ -109,7 +110,11 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
       return formatHandlerErrorResponse(
-        "This server is not configured as a replica",
+        new MySQLMcpError(
+          "This server is not configured as a replica",
+          "DOMAIN_ERROR",
+          ErrorCategory.CONFIGURATION,
+        ),
       );
     },
   };
@@ -318,7 +323,11 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
       }
 
       return formatHandlerErrorResponse(
-        "This server is not configured as a replica",
+        new MySQLMcpError(
+          "This server is not configured as a replica",
+          "DOMAIN_ERROR",
+          ErrorCategory.CONFIGURATION,
+        ),
       );
     },
   };
