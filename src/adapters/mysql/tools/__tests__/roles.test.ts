@@ -79,7 +79,8 @@ describe("Handler Execution", () => {
       const call = mockAdapter.executeQuery.mock.calls[0][0];
       const params = mockAdapter.executeQuery.mock.calls[0][1];
       expect(call).toContain("LIKE ?");
-      expect(params).toEqual(["admin%", 50]);
+      expect(call).toContain("LIMIT 50");
+      expect(params).toEqual(["admin%"]);
     });
   });
 

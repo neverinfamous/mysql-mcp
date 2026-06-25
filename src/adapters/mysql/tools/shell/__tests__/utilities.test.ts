@@ -52,8 +52,7 @@ describe("Shell Utilities Tools", () => {
   describe("mysqlsh_check_upgrade", () => {
     it("should run upgrade check and return JSON result", async () => {
       const successJson = JSON.stringify({
-        success: true,
-        result: { status: "OK" },
+        status: "OK",
       });
       setupMockSpawn(`${successJson}\n`, "");
 
@@ -80,7 +79,7 @@ describe("Shell Utilities Tools", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
-      expect(result.data.upgradeCheck).toEqual({ raw: "Raw text output" });
+      expect(result.data.upgradeCheck).toBe("Raw text output");
     });
 
     it("should return structured error for failed execution", async () => {
@@ -109,7 +108,7 @@ describe("Shell Utilities Tools", () => {
         mockContext,
       );
 
-      expect(result.data.upgradeCheck.raw).toBe("Non-JSON output");
+      expect(result.data.upgradeCheck).toBe("Non-JSON output");
     });
 
     it("should always use JSON outputFormat internally for reliable parsing", async () => {

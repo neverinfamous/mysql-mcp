@@ -59,6 +59,9 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             ["--uri", config.connectionUri, "--js", "-e", jsCode],
             { timeout: 120000 }
           );
+          if (rawResult.exitCode !== 0) {
+            throw new Error(rawResult.stderr || rawResult.stdout || "MySQL Shell command failed");
+          }
         } catch (error) {
           return formatHandlerErrorResponse(error);
         }
