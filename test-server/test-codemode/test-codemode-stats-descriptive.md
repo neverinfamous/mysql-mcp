@@ -164,7 +164,7 @@ stats-descriptive Tool Group (8 tools +1 code mode):
 6. `mysql.stats.timeSeries({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
 7. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
 8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
-9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram data
+9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
 
 **Domain error paths (🔴):**
 
