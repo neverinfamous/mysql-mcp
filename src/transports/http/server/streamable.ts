@@ -162,6 +162,12 @@ export async function handleStreamableRequest(
     if (sid) {
       res.setHeader("Mcp-Session-Id", sid);
       sessionManager.incrementInFlight(sid);
+      
+      res.on("close", () => {
+        if (sessionManager.get(sid)) {
+          void sessionManager.close(sid);
+        }
+      });
     }
     try {
       await newTransport.handleRequest(req, res, body);
