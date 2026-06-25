@@ -203,40 +203,37 @@ roles Tool Group (8 tools +1 code mode):
 - mysql_role_revoke
 - mysql_user_roles
 
-## Category 1: Role Lifecycle Collisions
+## Category 1: Role Assignment Lifecycles
 
 1. `mysql_role_create({name: "stress_role_a"})` → success
-2. `mysql_role_create({name: "stress_role_a"})` again → verify structured `{success: false}` (duplicate)
-3. `mysql_role_drop({name: "stress_role_nonexist"})` → verify structured `{success: false}` (not found)
+2. `mysql_role_assign({role: "stress_role_a", user: "root"})` → success
+3. `mysql_user_roles({user: "root"})` → verify `stress_role_a` is listed
+4. `mysql_role_revoke({role: "stress_role_a", user: "root"})` → success
+5. `mysql_user_roles({user: "root"})` → verify `stress_role_a` is removed
 
-## Category 2: Privilege Grant/Revoke Sequences
+## Category 2: Invalid Assignments
 
-4. `mysql_role_grant({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → success
-5. `mysql_role_grants({role: "stress_role_a"})` → verify SELECT is listed
-6. `mysql_role_grant({role: "stress_role_a", privilege: "INSERT", on: "testdb.*"})` → success
-7. `mysql_role_grants({role: "stress_role_a"})` → verify both SELECT and INSERT are listed
-8. `mysql_role_revoke({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → success
-9. `mysql_role_grants({role: "stress_role_a"})` → verify SELECT is removed, INSERT remains
+6. `mysql_role_assign({role: "stress_role_nonexist", user: "root"})` → verify structured `{success: false}` (role not found)
+7. `mysql_role_assign({role: "stress_role_a", user: "nonexistent_user"})` → verify structured `{success: false}` (user not found)
 
-## Category 3: Cascading Assign/Revoke Verification
+## Category 3: Invalid Revokes
 
-10. `mysql_role_grant({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → re-grant
-11. Verify `mysql_role_grants` reflects the re-granted privilege
-12. `mysql_role_drop({name: "stress_role_a"})` → drop role entirely
+8. `mysql_role_revoke({role: "stress_role_a", user: "root"})` → verify structured `{success: false}` (not assigned)
 
 ## Category 4: Parameter Alias Parity
 
-13. `mysql_role_grants` with `name` param → verify identical response to `role` param
-14. `mysql_role_grant` with `privilege` and `on` aliases → verify structured success
+9. `mysql_role_assign` with `name` and `toUser` aliases → verify structured success
+10. `mysql_user_roles` with `userName` alias → verify structured success
 
 ## Category 5: Error Quality
 
-15. `mysql_role_grant({role: "stress_role_nonexist", privilege: "SELECT", on: "testdb.*"})` → verify structured `{success: false}` (role not found)
-16. `mysql_role_revoke({role: "stress_role_nonexist", privilege: "SELECT", on: "testdb.*"})` → verify structured `{success: false}`
+11. `mysql_user_roles({user: "nonexistent_user"})` → verify structured `{success: false}`
+12. Empty parameter tests for all assignment tools
 
 ## Cleanup
 
-17. Drop all `stress_*` roles
+13. Drop all `stress_*` roles
+14. Ensure `root` has no residual stress roles
 
 ---
 
