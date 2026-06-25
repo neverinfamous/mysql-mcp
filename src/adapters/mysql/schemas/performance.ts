@@ -110,16 +110,10 @@ export const QueryStatsSchema = z.object({
 
 // --- IndexUsage ---
 export const IndexUsageSchemaBase = z.object({
-  table: z.string().optional().describe("Filter by table name"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  limit: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .default(5)
-    .describe("Maximum number of indexes to return"),
+  table: z.unknown().optional().describe("Filter by table name"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  limit: z.unknown().optional().describe("Maximum number of indexes to return"),
 });
 
 export const IndexUsageSchema = z
@@ -144,13 +138,7 @@ export const BufferPoolStatsSchema = z.object({});
 
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({
-  limit: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .default(5)
-    .describe("Maximum number of threads to return (default: 5)"),
+  limit: z.unknown().optional().describe("Maximum number of threads to return (default: 5)"),
 });
 
 export const ThreadStatsSchema = z.object({
