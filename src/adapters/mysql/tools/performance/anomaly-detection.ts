@@ -113,7 +113,7 @@ export const DetectBloatRiskSchema = z.object({
   name: z.string().optional().describe("Alias for table"),
   minSizeMb: z.coerce
     .number()
-    .min(0, "Expected number, received string")
+    .min(0)
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
 });

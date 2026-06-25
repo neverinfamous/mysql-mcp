@@ -166,12 +166,12 @@ performance-anomaly Tool Group (3 tools +1 code mode):
 3. `mysql.performance.detectBloatRisk()` → table bloat risks
 4. `mysql.performance.detectConnectionSpike()` → connection spike risks
 
-**Domain error paths (🔴):**
+**Domain error paths:**
 
 
-**Zod validation error paths (🔴):**
+**Zod validation error paths:**
 
-1. 🔴 `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+1. - `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
