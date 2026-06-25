@@ -27,3 +27,4 @@
 - Fixed factual errors in `test-codemode-shell-utils.md` test script regarding invalid IO root paths that incorrectly assert dry-run success and domain errors instead of `SECURITY_ERROR`.
 - Fixed `HistogramOutputSchema` to match the actual handler response structure, replacing the incorrect `buckets` array with actual metadata fields (e.g. `exists`, `actualBuckets`).
 - Added a Wrong-Type Coercion test case for `mysql.stats.distribution` to the `test-codemode-stats-descriptive.md` test script.
+- Fixed factual errors in `test-codemode-stats-window.md` test script by correcting the invalid `dense: true` parameter to `method: "dense_rank"` for the `mysql_stats_rank` tool.
