@@ -74,7 +74,9 @@ export function createShellLoadDumpTool(
           throw new ValidationError("inputDir or inputUrl is required");
         }
 
-        assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
+        if (!dryRun) {
+          assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
+        }
 
         const resolvedPath = resolve(finalInputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
