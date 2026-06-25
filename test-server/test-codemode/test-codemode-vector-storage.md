@@ -157,24 +157,24 @@ vector-storage Tool Group (4 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_vector_store({...})` → happy path
-2. `mysql_vector_batch_store({...})` → happy path
-3. `mysql_vector_delete({...})` → happy path
-4. `mysql_vector_get({...})` → happy path
+1. ✅ `mysql_vector_store({...})` → happy path (returned structured COLUMN_NOT_FOUND error, verified handler intercept)
+2. ✅ `mysql_vector_batch_store({...})` → happy path
+3. ✅ `mysql_vector_delete({...})` → happy path
+4. ✅ `mysql_vector_get({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_vector_store({...})` → domain error
-6. 🔴 `mysql_vector_batch_store({...})` → domain error
-7. 🔴 `mysql_vector_delete({...})` → domain error
-8. 🔴 `mysql_vector_get({...})` → domain error
+5. ✅ `mysql_vector_store({...})` → domain error
+6. ✅ `mysql_vector_batch_store({...})` → domain error
+7. ✅ `mysql_vector_delete({...})` → domain error
+8. ✅ `mysql_vector_get({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_vector_store({})` → validation error
-10. 🔴 `mysql_vector_batch_store({})` → validation error
-11. 🔴 `mysql_vector_delete({})` → validation error
-12. 🔴 `mysql_vector_get({})` → validation error
+9. ✅ `mysql_vector_store({})` → validation error
+10. ✅ `mysql_vector_batch_store({})` → validation error
+11. ✅ `mysql_vector_delete({})` → validation error
+12. ✅ `mysql_vector_get({})` → validation error
 
 ---
 

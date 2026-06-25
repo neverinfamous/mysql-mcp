@@ -157,24 +157,24 @@ vector-management Tool Group (4 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_vector_info({...})` → happy path
-2. `mysql_vector_create_index({...})` → happy path
-3. `mysql_vector_optimize({...})` → happy path
-4. `mysql_vector_stats({...})` → happy path
+1. ✅ `mysql_vector_info({...})` → happy path
+2. ✅ `mysql_vector_create_index({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql_vector_optimize({...})` → happy path
+4. ✅ `mysql_vector_stats({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_vector_info({...})` → domain error
-6. 🔴 `mysql_vector_create_index({...})` → domain error
-7. 🔴 `mysql_vector_optimize({...})` → domain error
-8. 🔴 `mysql_vector_stats({...})` → domain error
+5. ✅ `mysql_vector_info({...})` → domain error
+6. ✅ `mysql_vector_create_index({...})` → domain error
+7. ✅ `mysql_vector_optimize({...})` → domain error
+8. ✅ `mysql_vector_stats({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql_vector_info({})` → validation error
-10. 🔴 `mysql_vector_create_index({})` → validation error
-11. 🔴 `mysql_vector_optimize({})` → validation error
-12. 🔴 `mysql_vector_stats({})` → validation error
+9. ✅ `mysql_vector_info({})` → validation error
+10. ✅ `mysql_vector_create_index({})` → validation error
+11. ✅ `mysql_vector_optimize({})` → validation error
+12. ✅ `mysql_vector_stats({})` → validation error
 
 ---
 
