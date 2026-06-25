@@ -3,6 +3,7 @@ import { preprocessDocFilterParams, preprocessDocIndexParams, preprocessDocColle
 
 export const ListCollectionsSchemaBase = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
+  database: z.string().optional().describe("Alias for schema"),
 });
 export const ListCollectionsSchemaStrict = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
@@ -15,6 +16,7 @@ export const ListCollectionsSchema = z.preprocess(
 export const CreateCollectionSchemaBase = z.object({
   name: z.string().optional().describe("Collection name"),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
   validation: z
     .object({
@@ -58,6 +60,7 @@ export const CreateCollectionSchema = z.preprocess(
 export const DropCollectionSchemaBase = z.object({
   name: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().optional(),
 });
 
@@ -75,6 +78,7 @@ export const DropCollectionSchema = z.preprocess(
 export const FindSchemaBase = z.object({
   collection: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   filter: z
     .string()
     .optional()
@@ -109,6 +113,7 @@ export const FindSchema = z.preprocess(
 export const AddDocSchemaBase = z.object({
   collection: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   documents: z
     .array(z.record(z.string(), z.unknown()))
     .optional()
@@ -131,6 +136,7 @@ export const AddDocSchema = z.preprocess(
 export const ModifyDocSchemaBase = z.object({
   collection: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   filter: z
     .string()
     .optional()
@@ -163,6 +169,7 @@ export const ModifyDocSchema = z.preprocess(
 export const RemoveDocSchemaBase = z.object({
   collection: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   filter: z
     .string()
     .optional()
@@ -190,6 +197,7 @@ export const RemoveDocSchema = z.preprocess(
 export const CreateDocIndexSchemaBase = z.object({
   collection: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
   name: z.string().optional(),
   fields: z
     .array(
@@ -226,6 +234,7 @@ export const CreateDocIndexSchema = z.preprocess(
 export const CollectionInfoSchemaBase = z.object({
   collection: z.string().optional(),
   schema: z.string().optional(),
+  database: z.string().optional().describe("Alias for schema"),
 });
 
 export const CollectionInfoSchemaStrict = z.object({

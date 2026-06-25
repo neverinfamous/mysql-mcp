@@ -24,6 +24,9 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
   if (result["name"] === undefined && result["collection"] !== undefined) {
     result["name"] = result["collection"];
   }
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
+  }
   return result;
 }
 
@@ -240,6 +243,10 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   const v = val as Record<string, unknown>;
   const result = { ...v };
 
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
+  }
+
   // Aliases
   if (result["filter"] === undefined) {
     if (result["criteria"] !== undefined) {
@@ -298,6 +305,9 @@ export function preprocessDocIndexParams(val: unknown): unknown {
 
   if (result["name"] === undefined && result["indexName"] !== undefined) {
     result["name"] = result["indexName"];
+  }
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
   }
 
   if (Array.isArray(result["fields"])) {
