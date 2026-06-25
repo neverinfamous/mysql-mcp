@@ -134,7 +134,7 @@ src/
 | **events** | `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status` |
 | **fulltext** | `mysql_fulltext_boolean`, `mysql_fulltext_create`, `mysql_fulltext_drop`, `mysql_fulltext_expand`, `mysql_fulltext_search` |
 | **introspection** | `mysql_constraint_analysis`, `mysql_migration_risks`, `mysql_cascade_simulator`, `mysql_dependency_graph`, `mysql_topological_sort`, `mysql_schema_snapshot` |
-| **json** | `mysql_json_extract`, `mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_remove`, `mysql_json_contains`, `mysql_json_keys`, `mysql_json_array_append`, `mysql_json_diff`, `mysql_json_index_suggest`, `mysql_json_merge`, `mysql_json_normalize`, `mysql_json_stats` |
+| **json** | `mysql_json_extract`, `mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_remove`, `mysql_json_contains`, `mysql_json_keys`, `mysql_json_array_append`, `mysql_json_get`, `mysql_json_update`, `mysql_json_search`, `mysql_json_validate`, `mysql_json_diff`, `mysql_json_index_suggest`, `mysql_json_merge`, `mysql_json_normalize`, `mysql_json_stats` |
 | **migration** | `mysql_migration_rollback`, `mysql_migration_history`, `mysql_migration_status`, `mysql_migration_init`, `mysql_migration_record`, `mysql_migration_apply` |
 | **monitoring** | `mysql_server_health`, `mysql_innodb_status`, `mysql_pool_stats`, `mysql_show_processlist`, `mysql_replication_status`, `mysql_show_status`, `mysql_show_variables` |
 | **optimization** | `mysql_index_recommendation`, `mysql_query_rewrite`, `mysql_force_index`, `mysql_optimizer_trace` |
