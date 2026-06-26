@@ -157,7 +157,7 @@ json-core-write Tool Group:
 6. `mysql.json.arrayAppend({table: "test_json_docs", column: "tags", path: "$", value: "new_tag", condition: "id=1"})` → appended
 
 **Domain error paths (🔴):**
-7. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1"})` → `{success: false}`
+7. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
