@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Transactions (Part 1)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `transactions` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -11,7 +10,6 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `t
 - `mysql_transaction_begin`
 - `mysql_transaction_commit`
 - `mysql_transaction_rollback`
-- `mysql_transaction_savepoint`
 
 **Instructions:**
 

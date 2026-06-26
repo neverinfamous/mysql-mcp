@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Stats (Part 4)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `stats` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,11 +7,9 @@ This prompt instructs you to organically test the `stats` tool group using Code 
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `stats` group:
-- `mysql_stats_outliers`
-- `mysql_stats_top_n`
-- `mysql_stats_distinct`
-- `mysql_stats_frequency`
-- `mysql_stats_summary`
+- `mysql_stats_rank`
+- `mysql_stats_lag_lead`
+- `mysql_stats_running_total`
 
 **Instructions:**
 

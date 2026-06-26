@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Docstore (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `docstore` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,10 +7,9 @@ This prompt instructs you to organically test the `docstore` tool group using Co
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `docstore` group:
+- `mysql_doc_find`
+- `mysql_doc_add`
 - `mysql_doc_modify`
-- `mysql_doc_remove`
-- `mysql_doc_create_index`
-- `mysql_doc_collection_info`
 
 **Instructions:**
 

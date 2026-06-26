@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Performance (Part 3)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `performance` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,9 +7,9 @@ This prompt instructs you to organically test the `performance` tool group using
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `performance` group:
+- `mysql_buffer_pool_stats`
+- `mysql_thread_stats`
 - `mysql_detect_query_anomalies`
-- `mysql_detect_bloat_risk`
-- `mysql_detect_connection_spike`
 
 **Instructions:**
 

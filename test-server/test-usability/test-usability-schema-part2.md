@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Schema (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `schema` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,10 +7,9 @@ This prompt instructs you to organically test the `schema` tool group using Code
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `schema` group:
+- `mysql_list_views`
 - `mysql_create_view`
 - `mysql_drop_view`
-- `mysql_list_stored_procedures`
-- `mysql_list_functions`
 
 **Instructions:**
 

@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Monitoring (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `monitoring` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,9 +7,9 @@ This prompt instructs you to organically test the `monitoring` tool group using 
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `monitoring` group:
+- `mysql_innodb_status`
 - `mysql_replication_status`
 - `mysql_pool_stats`
-- `mysql_server_health`
 
 **Instructions:**
 

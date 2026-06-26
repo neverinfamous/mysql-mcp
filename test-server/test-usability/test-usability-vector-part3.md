@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Vector (Part 3)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `vector` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,9 +7,9 @@ This prompt instructs you to organically test the `vector` tool group using Code
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `vector` group:
+- `mysql_vector_hybrid_search`
+- `mysql_vector_info`
 - `mysql_vector_create_index`
-- `mysql_vector_optimize`
-- `mysql_vector_stats`
 
 **Instructions:**
 

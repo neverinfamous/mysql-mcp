@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Shell (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `shell` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,11 +7,9 @@ This prompt instructs you to organically test the `shell` tool group using Code 
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `shell` group:
+- `mysqlsh_import_table`
+- `mysqlsh_import_json`
 - `mysqlsh_dump_instance`
-- `mysqlsh_dump_schemas`
-- `mysqlsh_dump_tables`
-- `mysqlsh_load_dump`
-- `mysqlsh_run_script`
 
 **Instructions:**
 

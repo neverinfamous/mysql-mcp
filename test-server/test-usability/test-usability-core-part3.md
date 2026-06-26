@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Core (Part 3)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `core` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,10 +7,9 @@ This prompt instructs you to organically test the `core` tool group using Code M
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `core` group:
+- `mysql_create_index`
+- `mysql_get_indexes`
 - `mysql_enable_versioning`
-- `mysql_disable_versioning`
-- `mysql_check_version`
-- `mysql_conditional_update`
 
 **Instructions:**
 

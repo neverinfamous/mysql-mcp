@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Proxysql (Part 3)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `proxysql` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,9 +7,9 @@ This prompt instructs you to organically test the `proxysql` tool group using Co
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `proxysql` group:
+- `proxysql_global_variables`
+- `proxysql_runtime_status`
 - `proxysql_memory_stats`
-- `proxysql_commands`
-- `proxysql_process_list`
 
 **Instructions:**
 

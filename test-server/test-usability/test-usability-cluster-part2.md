@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Cluster (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `cluster` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,11 +7,9 @@ This prompt instructs you to organically test the `cluster` tool group using Cod
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `cluster` group:
+- `mysql_gr_transactions`
+- `mysql_gr_flow_control`
 - `mysql_cluster_status`
-- `mysql_cluster_instances`
-- `mysql_cluster_topology`
-- `mysql_cluster_router_status`
-- `mysql_cluster_switchover`
 
 **Instructions:**
 

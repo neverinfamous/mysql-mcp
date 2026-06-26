@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Sysschema (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `sysschema` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,10 +7,9 @@ This prompt instructs you to organically test the `sysschema` tool group using C
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `sysschema` group:
+- `mysql_sys_wait_summary`
 - `mysql_sys_innodb_lock_waits`
 - `mysql_sys_schema_stats`
-- `mysql_sys_host_summary`
-- `mysql_sys_memory_summary`
 
 **Instructions:**
 

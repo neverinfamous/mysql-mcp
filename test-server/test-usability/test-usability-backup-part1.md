@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Backup (Part 1)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `backup` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -11,7 +10,6 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `b
 - `mysql_export_table`
 - `mysql_import_data`
 - `mysql_create_dump`
-- `mysql_restore_dump`
 
 **Instructions:**
 

@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Codemode
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `codemode` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -14,8 +13,6 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `c
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
-- Test positional params: Try `mysql.codemode.<method>("value")` if applicable.
-- Test aliases: See if intuitively named methods work (e.g. `mysql.codemode.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 

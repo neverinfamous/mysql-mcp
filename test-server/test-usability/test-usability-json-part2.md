@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Json (Part 2)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `json` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -8,11 +7,9 @@ This prompt instructs you to organically test the `json` tool group using Code M
 ## 1. Fuzz Phase
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `json` group:
+- `mysql_json_replace`
+- `mysql_json_remove`
 - `mysql_json_contains`
-- `mysql_json_keys`
-- `mysql_json_array_append`
-- `mysql_json_get`
-- `mysql_json_update`
 
 **Instructions:**
 

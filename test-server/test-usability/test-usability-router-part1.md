@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Router (Part 1)
 
-
 > **This test is optimized for an autonomous agent.**
 
 This prompt instructs you to organically test the `router` tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
@@ -11,8 +10,6 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `r
 - `mysql_router_status`
 - `mysql_router_routes`
 - `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
 
 **Instructions:**
 
