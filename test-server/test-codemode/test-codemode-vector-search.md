@@ -146,10 +146,10 @@ During testing, check for these inconsistencies:
 
 vector-search Tool Group (3 tools +1 for code mode):
 
-1. 'mysql_vector_search'
-2. 'mysql_vector_range_search'
-3. 'mysql_vector_hybrid_search'
-4. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_vector_search`
+2. `mysql_vector_range_search`
+3. `mysql_vector_hybrid_search`
+4. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 

@@ -146,11 +146,11 @@ During testing, check for these inconsistencies:
 
 vector-management Tool Group (4 tools +1 for code mode):
 
-1. 'mysql_vector_info'
-2. 'mysql_vector_create_index'
-3. 'mysql_vector_optimize'
-4. 'mysql_vector_stats'
-5. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_vector_info`
+2. `mysql_vector_create_index`
+3. `mysql_vector_optimize`
+4. `mysql_vector_stats`
+5. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 

@@ -140,7 +140,58 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: backup\n\n### backup Group-Specific Testing\n\nbackup Tool Group (7 tools +1 for code mode):\n\n1. 'mysql_export_table'\n2. 'mysql_import_data'\n3. 'mysql_create_dump'\n4. 'mysql_restore_dump'\n5. 'mysql_audit_list_backups'\n6. 'mysql_audit_restore_backup'\n7. 'mysql_audit_diff_backup'\n8. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.\n\n1. `mysql_export_table({table: "test_products", limit: 5})` -> verify success with limit\n2. `mysql_import_data({...})` -> verify success\n3. `mysql_create_dump({...})` -> verify success\n4. `mysql_restore_dump({...})` -> verify success\n5. `mysql_audit_list_backups({...})` -> verify success\n6. `mysql_audit_restore_backup({...})` -> verify success\n7. `mysql_audit_diff_backup({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n8. 🔴 `mysql_export_table({...})` -> `{success: false, error: "..."}` handler error\n9. 🔴 `mysql_import_data({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_create_dump({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_restore_dump({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_audit_list_backups({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_audit_restore_backup({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_audit_diff_backup({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n15. 🔴 `mysql_export_table({})` -> `{success: false, error: "..."}` (Zod validation)\n16. 🔴 `mysql_import_data({})` -> `{success: false, error: "..."}` (Zod validation)\n17. 🔴 `mysql_create_dump({})` -> `{success: false, error: "..."}` (Zod validation)\n18. 🔴 `mysql_restore_dump({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🟢 `mysql_audit_list_backups({})` -> `{success: true, data: {...}}` (defaults)\n20. 🔴 `mysql_audit_restore_backup({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_audit_diff_backup({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n22. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: backup
+
+### backup Group-Specific Testing
+
+backup Tool Group (7 tools +1 for code mode):
+
+1. 'mysql_export_table'
+2. 'mysql_import_data'
+3. 'mysql_create_dump'
+4. 'mysql_restore_dump'
+5. 'mysql_audit_list_backups'
+6. 'mysql_audit_restore_backup'
+7. 'mysql_audit_diff_backup'
+8. 'mysql_execute_code' (codemode, auto-added)
+
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+
+1. `mysql_export_table({table: "test_products", limit: 5})` -> verify success with limit
+2. `mysql_import_data({...})` -> verify success
+3. `mysql_create_dump({...})` -> verify success
+4. `mysql_restore_dump({...})` -> verify success
+5. `mysql_audit_list_backups({...})` -> verify success
+6. `mysql_audit_restore_backup({...})` -> verify success
+7. `mysql_audit_diff_backup({...})` -> verify success
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql_export_table({...})` -> `{success: false, error: "..."}` handler error
+9. 🔴 `mysql_import_data({...})` -> `{success: false, error: "..."}` handler error
+10. 🔴 `mysql_create_dump({...})` -> `{success: false, error: "..."}` handler error
+11. 🔴 `mysql_restore_dump({...})` -> `{success: false, error: "..."}` handler error
+12. 🔴 `mysql_audit_list_backups({...})` -> `{success: false, error: "..."}` handler error
+13. 🔴 `mysql_audit_restore_backup({...})` -> `{success: false, error: "..."}` handler error
+14. 🔴 `mysql_audit_diff_backup({...})` -> `{success: false, error: "..."}` handler error
+
+**Zod validation error paths (🔴):**
+
+15. 🔴 `mysql_export_table({})` -> `{success: false, error: "..."}` (Zod validation)
+16. 🔴 `mysql_import_data({})` -> `{success: false, error: "..."}` (Zod validation)
+17. 🔴 `mysql_create_dump({})` -> `{success: false, error: "..."}` (Zod validation)
+18. 🔴 `mysql_restore_dump({})` -> `{success: false, error: "..."}` (Zod validation)
+19. 🟢 `mysql_audit_list_backups({})` -> `{success: true, data: {...}}` (defaults)
+20. 🔴 `mysql_audit_restore_backup({})` -> `{success: false, error: "..."}` (Zod validation)
+21. 🔴 `mysql_audit_diff_backup({})` -> `{success: false, error: "..."}` (Zod validation)
+
+**Alias acceptance (🟢):**
+
+22. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Post-Test Procedures
 
 ### Reporting Rules
 

@@ -158,14 +158,14 @@ During testing, check for these inconsistencies:
 
 transactions Tool Group (7 tools +1 code mode):
 
-1. 'mysql_transaction_begin'
-2. 'mysql_transaction_commit'
-3. 'mysql_transaction_rollback'
-4. 'mysql_transaction_savepoint'
-5. 'mysql_transaction_release'
-6. 'mysql_transaction_rollback_to'
-7. 'mysql_transaction_execute'
-8. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
 

@@ -146,11 +146,11 @@ During testing, check for these inconsistencies:
 
 spatial-operations Tool Group (4 tools +1 for code mode):
 
-1. 'mysql_spatial_intersection'
-2. 'mysql_spatial_buffer'
-3. 'mysql_spatial_transform'
-4. 'mysql_spatial_geojson'
-5. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_spatial_intersection`
+2. `mysql_spatial_buffer`
+3. `mysql_spatial_transform`
+4. `mysql_spatial_geojson`
+5. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

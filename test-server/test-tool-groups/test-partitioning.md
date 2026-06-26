@@ -140,7 +140,46 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: partitioning\n\n### partitioning Group-Specific Testing\n\npartitioning Tool Group (4 tools +1 for code mode):\n\n1. 'mysql_partition_info'\n2. 'mysql_add_partition'\n3. 'mysql_drop_partition'\n4. 'mysql_reorganize_partition'\n5. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.\n\n1. `mysql_partition_info({...})` -> verify success\n2. `mysql_add_partition({...})` -> verify success\n3. `mysql_drop_partition({...})` -> verify success\n4. `mysql_reorganize_partition({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n5. 🔴 `mysql_partition_info({...})` -> `{success: false, error: "..."}` handler error\n6. 🔴 `mysql_add_partition({...})` -> `{success: false, error: "..."}` handler error\n7. 🔴 `mysql_drop_partition({...})` -> `{success: false, error: "..."}` handler error\n8. 🔴 `mysql_reorganize_partition({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n9. 🔴 `mysql_partition_info({})` -> `{success: false, error: "..."}` (Zod validation)\n10. 🔴 `mysql_add_partition({})` -> `{success: false, error: "..."}` (Zod validation)\n11. 🔴 `mysql_drop_partition({})` -> `{success: false, error: "..."}` (Zod validation)\n12. 🔴 `mysql_reorganize_partition({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n13. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: partitioning
+
+### partitioning Group-Specific Testing
+
+partitioning Tool Group (4 tools +1 for code mode):
+
+1. 'mysql_partition_info'
+2. 'mysql_add_partition'
+3. 'mysql_drop_partition'
+4. 'mysql_reorganize_partition'
+5. 'mysql_execute_code' (codemode, auto-added)
+
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+
+1. `mysql_partition_info({...})` -> verify success
+2. `mysql_add_partition({...})` -> verify success
+3. `mysql_drop_partition({...})` -> verify success
+4. `mysql_reorganize_partition({...})` -> verify success
+
+**Domain error paths (🔴):**
+
+5. 🔴 `mysql_partition_info({...})` -> `{success: false, error: "..."}` handler error
+6. 🔴 `mysql_add_partition({...})` -> `{success: false, error: "..."}` handler error
+7. 🔴 `mysql_drop_partition({...})` -> `{success: false, error: "..."}` handler error
+8. 🔴 `mysql_reorganize_partition({...})` -> `{success: false, error: "..."}` handler error
+
+**Zod validation error paths (🔴):**
+
+9. 🔴 `mysql_partition_info({})` -> `{success: false, error: "..."}` (Zod validation)
+10. 🔴 `mysql_add_partition({})` -> `{success: false, error: "..."}` (Zod validation)
+11. 🔴 `mysql_drop_partition({})` -> `{success: false, error: "..."}` (Zod validation)
+12. 🔴 `mysql_reorganize_partition({})` -> `{success: false, error: "..."}` (Zod validation)
+
+**Alias acceptance (🟢):**
+
+13. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Post-Test Procedures
 
 ### Reporting Rules
 

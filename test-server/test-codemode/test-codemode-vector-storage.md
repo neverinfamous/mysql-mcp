@@ -146,11 +146,11 @@ During testing, check for these inconsistencies:
 
 vector-storage Tool Group (4 tools +1 for code mode):
 
-1. 'mysql_vector_store'
-2. 'mysql_vector_batch_store'
-3. 'mysql_vector_delete'
-4. 'mysql_vector_get'
-5. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_vector_store`
+2. `mysql_vector_batch_store`
+3. `mysql_vector_delete`
+4. `mysql_vector_get`
+5. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 

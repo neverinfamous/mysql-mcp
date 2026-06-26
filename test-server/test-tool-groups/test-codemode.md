@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [stats-advanced]
+# mysql-mcp Tool Group Testing: [codemode]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -21,7 +21,21 @@
 
 ### Test Schema Reference
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+The test database (`testdb`) contains these tables:
+
+| Table               | Rows | Key Columns                                                                            | JSON Columns        |
+| ------------------- | ---- | -------------------------------------------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                                                              | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM: pending/shipped/completed/cancelled) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                                                                | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                                                     | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role                                                  | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity                                         | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT)                                      | —                   |
+| `test_categories`   | 17   | id, name, path, level                                                                  | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date                                       | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)                                                  | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                                                                 | data                |
 
 ## Reporting Format
 
@@ -76,7 +90,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 
 ### Structured Error Response Pattern
 
@@ -140,36 +154,34 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: stats-advanced
+## Group Focus: codemode
 
-stats-advanced Tool Group (6 tools +1 code mode):
+### codemode Group-Specific Testing
 
-1. `mysql_stats_hypothesis`
-2. `mysql_stats_outliers`
-3. `mysql_stats_top_n`
-4. `mysql_stats_distinct`
-5. `mysql_stats_frequency`
-6. `mysql_stats_summary`
+codemode Tool Group (1 tool):
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+1. 'mysql_execute_code'
 
-1. `mysql.stats.help()` → verify method listing
-2. `mysql.stats.hypothesis({table: "test_products", column: "price", testType: "t_test", hypothesizedMean: 100})` → verify t-test results
-3. `mysql.stats.outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
-4. `mysql.stats.topN({table: "test_measurements", column: "temperature", n: 5, direction: "desc"})` → verify top 5
-5. `mysql.stats.distinct({table: "test_events", column: "event_type"})` → verify distinct counts
-6. `mysql.stats.frequency({table: "test_events", column: "event_type"})` → verify frequency distribution
-7. `mysql.stats.summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
+All tools implement P154 structured error handling. Test with valid and invalid JavaScript payloads.
+
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
+
+**Code Execution tools:**
+
+1. `mysql_execute_code({code: "return 1 + 1;"})` -> `{success: true, output: 2}`
+2. `mysql_execute_code({code: "return 'hello world';"})` -> `{success: true, output: "hello world"}`
+3. `mysql_execute_code({code: "return {a: 1, b: 2};"})` -> `{success: true, output: {a: 1, b: 2}}`
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql.stats.topN({table: "nonexistent_xyz", column: "temperature"})` → `{success: false}`
-9. 🔴 `mysql.stats.hypothesis({table: "test_products", column: "nonexistent", testType: "t_test", hypothesizedMean: 100})` → `{success: false}`
+4. 🔴 `mysql_execute_code({code: "throw new Error('test error');"})` -> `{success: false, error: "..."}` handler error mentioning "test error"
+5. 🔴 `mysql_execute_code({code: "return undefined_var;"})` -> `{success: false, error: "..."}` ReferenceError handler error
+6. 🔴 `mysql_execute_code({code: "return {'unclosed_brace: 1;"})` -> `{success: false, error: "..."}` SyntaxError handler error
 
-**Zod validation error paths (🔴):**
+**Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
 
-10. 🔴 `mysql.stats.outliers({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.stats.summary({})` → `{success: false, error: "Validation error: ..."}`
+7. 🔴 `mysql_execute_code({})` -> `{success: false, error: "Validation error: ..."}` (missing required `code`)
+8. 🔴 `mysql_execute_code({code: 123})` -> `{success: false, error: "Validation error: ..."}` (wrong type)
 
 ---
 
@@ -193,7 +205,7 @@ stats-advanced Tool Group (6 tools +1 code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-stats-advanced.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

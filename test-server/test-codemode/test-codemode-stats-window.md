@@ -144,12 +144,12 @@ During testing, check for these inconsistencies:
 
 stats-window Tool Group (6 tools +1 code mode):
 
-1. 'mysql_stats_row_number'
-2. 'mysql_stats_rank'
-3. 'mysql_stats_lag_lead'
-4. 'mysql_stats_running_total'
-5. 'mysql_stats_moving_avg'
-6. 'mysql_stats_ntile'
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

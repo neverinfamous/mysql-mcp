@@ -144,14 +144,14 @@ During testing, check for these inconsistencies:
 
 stats-descriptive Tool Group (8 tools +1 code mode):
 
-1. 'mysql_stats_descriptive'
-2. 'mysql_stats_percentiles'
-3. 'mysql_stats_correlation'
-4. 'mysql_stats_distribution'
-5. 'mysql_stats_time_series'
-6. 'mysql_stats_regression'
-7. 'mysql_stats_sampling'
-8. 'mysql_stats_histogram'
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_correlation`
+4. `mysql_stats_distribution`
+5. `mysql_stats_time_series`
+6. `mysql_stats_regression`
+7. `mysql_stats_sampling`
+8. `mysql_stats_histogram`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 

@@ -140,7 +140,62 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: roles\n\n### roles Group-Specific Testing\n\nroles Tool Group (8 tools +1 for code mode):\n\n1. 'mysql_role_list'\n2. 'mysql_role_create'\n3. 'mysql_role_drop'\n4. 'mysql_role_grants'\n5. 'mysql_role_grant'\n6. 'mysql_role_assign'\n7. 'mysql_role_revoke'\n8. 'mysql_user_roles'\n9. 'mysql_execute_code' (codemode, auto-added)\n\n> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.\n\n1. `mysql_role_list({...})` -> verify success\n2. `mysql_role_create({...})` -> verify success\n3. `mysql_role_drop({...})` -> verify success\n4. `mysql_role_grants({...})` -> verify success\n5. `mysql_role_grant({...})` -> verify success\n6. `mysql_role_assign({...})` -> verify success\n7. `mysql_role_revoke({...})` -> verify success\n8. `mysql_user_roles({...})` -> verify success\n\n**Domain error paths (🔴):**\n\n9. 🔴 `mysql_role_list({...})` -> `{success: false, error: "..."}` handler error\n10. 🔴 `mysql_role_create({...})` -> `{success: false, error: "..."}` handler error\n11. 🔴 `mysql_role_drop({...})` -> `{success: false, error: "..."}` handler error\n12. 🔴 `mysql_role_grants({...})` -> `{success: false, error: "..."}` handler error\n13. 🔴 `mysql_role_grant({...})` -> `{success: false, error: "..."}` handler error\n14. 🔴 `mysql_role_assign({...})` -> `{success: false, error: "..."}` handler error\n15. 🔴 `mysql_role_revoke({...})` -> `{success: false, error: "..."}` handler error\n16. 🔴 `mysql_user_roles({...})` -> `{success: false, error: "..."}` handler error\n\n**Zod validation error paths (🔴):**\n\n17. 🟢 `mysql_role_list({})` -> verify success (no required params)\n18. 🔴 `mysql_role_create({})` -> `{success: false, error: "..."}` (Zod validation)\n19. 🔴 `mysql_role_drop({})` -> `{success: false, error: "..."}` (Zod validation)\n20. 🔴 `mysql_role_grants({})` -> `{success: false, error: "..."}` (Zod validation)\n21. 🔴 `mysql_role_grant({})` -> `{success: false, error: "..."}` (Zod validation)\n22. 🔴 `mysql_role_assign({})` -> `{success: false, error: "..."}` (Zod validation)\n23. 🔴 `mysql_role_revoke({})` -> `{success: false, error: "..."}` (Zod validation)\n24. 🔴 `mysql_user_roles({})` -> `{success: false, error: "..."}` (Zod validation)\n\n**Alias acceptance (🟢):**\n\n25. 🟢 Verify any parameter aliases are accepted for applicable tools.\n\n---\n\n## Post-Test Procedures
+## Group Focus: roles
+
+### roles Group-Specific Testing
+
+roles Tool Group (8 tools +1 for code mode):
+
+1. 'mysql_role_list'
+2. 'mysql_role_create'
+3. 'mysql_role_drop'
+4. 'mysql_role_grants'
+5. 'mysql_role_grant'
+6. 'mysql_role_assign'
+7. 'mysql_role_revoke'
+8. 'mysql_user_roles'
+9. 'mysql_execute_code' (codemode, auto-added)
+
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+
+1. `mysql_role_list({...})` -> verify success
+2. `mysql_role_create({...})` -> verify success
+3. `mysql_role_drop({...})` -> verify success
+4. `mysql_role_grants({...})` -> verify success
+5. `mysql_role_grant({...})` -> verify success
+6. `mysql_role_assign({...})` -> verify success
+7. `mysql_role_revoke({...})` -> verify success
+8. `mysql_user_roles({...})` -> verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql_role_list({...})` -> `{success: false, error: "..."}` handler error
+10. 🔴 `mysql_role_create({...})` -> `{success: false, error: "..."}` handler error
+11. 🔴 `mysql_role_drop({...})` -> `{success: false, error: "..."}` handler error
+12. 🔴 `mysql_role_grants({...})` -> `{success: false, error: "..."}` handler error
+13. 🔴 `mysql_role_grant({...})` -> `{success: false, error: "..."}` handler error
+14. 🔴 `mysql_role_assign({...})` -> `{success: false, error: "..."}` handler error
+15. 🔴 `mysql_role_revoke({...})` -> `{success: false, error: "..."}` handler error
+16. 🔴 `mysql_user_roles({...})` -> `{success: false, error: "..."}` handler error
+
+**Zod validation error paths (🔴):**
+
+17. 🟢 `mysql_role_list({})` -> verify success (no required params)
+18. 🔴 `mysql_role_create({})` -> `{success: false, error: "..."}` (Zod validation)
+19. 🔴 `mysql_role_drop({})` -> `{success: false, error: "..."}` (Zod validation)
+20. 🔴 `mysql_role_grants({})` -> `{success: false, error: "..."}` (Zod validation)
+21. 🔴 `mysql_role_grant({})` -> `{success: false, error: "..."}` (Zod validation)
+22. 🔴 `mysql_role_assign({})` -> `{success: false, error: "..."}` (Zod validation)
+23. 🔴 `mysql_role_revoke({})` -> `{success: false, error: "..."}` (Zod validation)
+24. 🔴 `mysql_user_roles({})` -> `{success: false, error: "..."}` (Zod validation)
+
+**Alias acceptance (🟢):**
+
+25. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Post-Test Procedures
 
 ### Reporting Rules
 

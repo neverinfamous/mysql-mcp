@@ -165,7 +165,7 @@ The JSON body must include `"activeSessions": 1` (or incremented by 1 from the b
 
 ### Step 4: Validate Ongoing Communication
 
-Use the established session to execute a simple tool (e.g., `mysql_core_read_query` or `mysql_monitoring_show_status`).
+Use the established session to execute a simple tool (e.g., `mysql_read_query` or `mysql_show_status`).
 
 **Expected Result**:
 The tool executes successfully, proving the session is active and functional. The `SessionManager.touch()` method is implicitly called during this request.

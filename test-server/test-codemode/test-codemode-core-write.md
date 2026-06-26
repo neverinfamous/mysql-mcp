@@ -155,10 +155,10 @@ During testing, check for these inconsistencies:
 ## Group Focus: core (Write)
 
 core Tool Group - Write Tools:
-1. 'mysql_write_query'
-2. 'mysql_create_table'
-3. 'mysql_drop_table'
-4. 'mysql_create_index'
+1. `mysql_write_query`
+2. `mysql_create_table`
+3. `mysql_drop_table`
+4. `mysql_create_index`
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 

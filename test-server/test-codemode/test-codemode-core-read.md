@@ -155,10 +155,10 @@ During testing, check for these inconsistencies:
 ## Group Focus: core (Read)
 
 core Tool Group - Read Tools:
-1. 'mysql_read_query'
-2. 'mysql_list_tables'
-3. 'mysql_describe_table'
-4. 'mysql_get_indexes'
+1. `mysql_read_query`
+2. `mysql_list_tables`
+3. `mysql_describe_table`
+4. `mysql_get_indexes`
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 

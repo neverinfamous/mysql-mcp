@@ -44,6 +44,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 ### Phase 1: `starter` shortcut
 
 - `test-core.md` (**MUST PASS FIRST**)
+- `test-codemode.md`
 - `test-json-core.md`
 - `test-json-enhanced.md`
 - `test-json-helpers.md`
