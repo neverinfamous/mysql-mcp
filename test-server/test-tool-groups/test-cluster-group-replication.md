@@ -162,6 +162,8 @@ cluster Tool Group (10 tools +1 for code mode):
 
 1. `mysql_gr_status()` → verify GR status or structured "not configured" message
 2. `mysql_gr_members()` → verify members list or structured empty response
+2b. `mysql_gr_transactions()` -> verify transactions info
+2c. `mysql_gr_flow_control()` -> verify flow control info
 3. `mysql_cluster_status()` → verify cluster status or structured error
 4. `mysql_cluster_status({summary: true})` → verify summarized output (if cluster running)
 5. `mysql_cluster_instances()` → verify instance details

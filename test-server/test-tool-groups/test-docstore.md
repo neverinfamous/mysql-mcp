@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: PART 2 [shell-utils]
+# mysql-mcp Tool Group Testing: ALL PARTS.[docstore]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of PART 2 of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Please conduct an exhaustive test of ALL PARTS.of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -140,23 +140,34 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: shell-utils
+## Group Focus: docstore
 
-### shell Group-Specific Testing
+### docstore Group-Specific Testing
 
-shell Tool Group (10 tools +1 for code mode):
+docstore Tool Group (9 tools +1 for code mode):
 
-7. 'mysqlsh_dump_schemas'
-8. 'mysqlsh_dump_tables'
-9. 'mysqlsh_load_dump'
-10. 'mysqlsh_run_script'
-11. 'mysql_execute_code' (codemode, auto-added)
+1. 'mysql_doc_list_collections'
+2. 'mysql_doc_create_collection'
+3. 'mysql_doc_drop_collection'
+4. 'mysql_doc_find'
+5. 'mysql_doc_add'
 
-> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
+1. `mysql_doc_list_collections()` -> verify list of collections
+2. `mysql_doc_create_collection({collection: "test_coll"})` -> verify success
+3. `mysql_doc_collection_info({collection: "test_coll"})` -> verify info
+4. `mysql_doc_add({collection: "test_coll", documents: [{"_id": "1", "name": "test"}]})` -> verify success
+5. `mysql_doc_find({collection: "test_coll", condition: "_id = '1'"})` -> verify document found
+6. `mysql_doc_modify({collection: "test_coll", condition: "_id = '1'", modifications: [{operation: "set", path: "$.name", value: "updated"}]})` -> verify success
+7. `mysql_doc_create_index({collection: "test_coll", name: "idx_name", fields: [{field: "$.name", type: "STRING"}]})` -> verify success
+8. `mysql_doc_remove({collection: "test_coll", condition: "_id = '1'"})` -> verify success
+9. `mysql_doc_drop_collection({collection: "test_coll"})` -> verify success
 
----
+**Domain error paths (??):**
+10. ?? `mysql_doc_find({collection: "nonexistent_coll"})` -> `{success: false, error: "..."}`
 
-
+**Zod validation error paths (??):**
+11. ?? `mysql_doc_create_collection({})` -> `{success: false, error: "..."}`
+12. ?? `mysql_doc_add({})` -> `{success: false, error: "..."}`
 
 ## Post-Test Procedures
 
@@ -178,7 +189,7 @@ shell Tool Group (10 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-shell-utils.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-docstore.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

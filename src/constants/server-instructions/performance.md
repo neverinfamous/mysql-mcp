@@ -14,7 +14,7 @@
 - **Index Usage**: `mysql_index_usage` filters to the current database by default. Returns `{ exists: false, table }` if the specific table doesn't exist.
 
 ### Table Statistics (`mysql_table_stats`)
-- Returns gracefully with `{ exists: false, table: "..." }` if the table is missing.
+- Returns gracefully with `{ exists: false, table: "..." }` if the table is missing (P154 pattern).
 
 ### Detectors (`mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`)
 - **Query Anomalies**: Identifies queries with execution times exceeding standard deviation thresholds.

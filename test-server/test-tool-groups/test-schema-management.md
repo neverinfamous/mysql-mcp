@@ -144,7 +144,7 @@ During testing, check for these inconsistencies:
 
 ### schema Group-Specific Testing
 
-schema Tool Group (11 tools +1 for code mode):
+schema-management Tool Group (7 tools +1 for code mode):
 
 1. 'mysql_list_schemas'
 2. 'mysql_create_schema'
@@ -152,49 +152,41 @@ schema Tool Group (11 tools +1 for code mode):
 4. 'mysql_list_views'
 5. 'mysql_create_view'
 6. 'mysql_drop_view'
-7. 'mysql_list_stored_procedures'
-8. 'mysql_list_functions'
-9. 'mysql_list_triggers'
-10. 'mysql_list_constraints'
-11. 'mysql_list_events'
-12. 'mysql_execute_code' (codemode, auto-added)
+7. 'mysql_list_constraints'
+8. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
 
 1. `mysql_list_schemas()` → verify `testdb`, `information_schema`, `mysql` in results
 2. `mysql_list_views({database: "testdb"})` → verify response structure (may be empty)
 3. `mysql_list_constraints({table: "test_orders"})` → verify FK to `test_products` appears
-4. `mysql_list_triggers({database: "testdb"})` → verify response structure (may be empty)
-5. `mysql_list_stored_procedures({database: "testdb"})` → verify response structure
-6. `mysql_list_functions({database: "testdb"})` → verify response structure
-7. `mysql_list_events({database: "testdb"})` → verify response structure
 
 **Subscription Verification:**
 
-8. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle `mysql://schema` and `mysql://tables` resource URIs.
+4. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle `mysql://schema` and `mysql://tables` resource URIs.
 
 **Create → Use → Drop lifecycle:**
 
-9. `mysql_create_view({name: "temp_view_order_totals", query: "SELECT product_id, SUM(total_price) AS total FROM test_orders GROUP BY product_id"})` → `{success: true}`
-10. `mysql_list_views({database: "testdb"})` → verify `temp_view_order_totals` appears
+5. `mysql_create_view({name: "temp_view_order_totals", query: "SELECT product_id, SUM(total_price) AS total FROM test_orders GROUP BY product_id"})` → `{success: true}`
+6. `mysql_list_views({database: "testdb"})` → verify `temp_view_order_totals` appears
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql_list_constraints({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` or empty results — not raw MCP error
-12. 🔴 `mysql_drop_schema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}` handler error
+7. 🔴 `mysql_list_constraints({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` or empty results — not raw MCP error
+8. 🔴 `mysql_drop_schema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-13. 🔴 `mysql_create_view({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-14. 🔴 `mysql_create_schema({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+9. 🔴 `mysql_create_view({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+10. 🔴 `mysql_create_schema({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
 
 **Wrong-type numeric param coercion (🔴):**
 
-15. 🔴 `mysql_list_constraints({limit: "abc"})` → must NOT return raw MCP `-32602` error
+11. 🔴 `mysql_list_constraints({limit: "abc"})` → must NOT return raw MCP `-32602` error
 
 **Cleanup:**
 
-16. Drop `temp_view_order_totals` view via `mysql_drop_view({name: "temp_view_order_totals"})`
+12. Drop `temp_view_order_totals` view via `mysql_drop_view({name: "temp_view_order_totals"})`
 
 ---
 

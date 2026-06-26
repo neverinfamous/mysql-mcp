@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: PART 1 [security]
+# mysql-mcp Tool Group Testing: ALL PARTS.[security]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of PART 1 of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Please conduct an exhaustive test of ALL PARTS.of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -156,4 +156,21 @@ security Tool Group (9 tools +1 for code mode):
 8. 'mysql_security_sensitive_tables'
 9. 'mysql_security_encryption_status'
 
-## Post-Test Proceduresundefined
+1. `mysql_security_audit()` -> verify security configuration
+2. `mysql_security_firewall_status()` -> verify firewall status (if installed) or structured "not installed" message
+3. `mysql_security_firewall_rules({user: "root@localhost"})` -> verify rules or structured "not installed" message
+4. `mysql_security_mask_data({table: "test_users", columns: ["email", "phone"]})` -> verify masking preview
+5. `mysql_security_password_validate({password: "TestPass123!"})` -> verify validation results
+6. `mysql_security_ssl_status()` -> verify SSL configuration
+7. `mysql_security_user_privileges({user: "root@localhost"})` -> verify privileges
+8. `mysql_security_sensitive_tables({schema: "testdb"})` -> verify sensitive tables listing
+9. `mysql_security_encryption_status()` -> verify encryption info
+
+**Domain error paths (??):**
+10. ?? `mysql_security_user_privileges({user: "nonexistent_user@localhost"})` -> `{success: false, error: "..."}`
+
+**Zod validation error paths (??):**
+11. ?? `mysql_security_mask_data({})` -> `{success: false, error: "..."}`
+12. ?? `mysql_security_password_validate({})` -> `{success: false, error: "..."}`
+
+## Post-Test Procedures

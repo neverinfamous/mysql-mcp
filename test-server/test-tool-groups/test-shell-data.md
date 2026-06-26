@@ -165,6 +165,11 @@ shell Tool Group (10 tools +1 for code mode):
 3. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
 4. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
 
+4b. `mysqlsh_check_upgrade()` -> verify success
+4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
+4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> verify success
+4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> verify success
+
 **Domain error paths (🔴):**
 
 5. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test_dump"})` → `{success: false, error: "..."}` handler error

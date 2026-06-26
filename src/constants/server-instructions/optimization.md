@@ -8,7 +8,7 @@
   ```json
   { "queries": ["SELECT * FROM users WHERE status = 'active'"] }
   ```
-- Scans for redundant/duplicate indexes, missing FK indexes, and unindexed large tables by default.
+- Scans for redundant/duplicate indexes, missing FK indexes, and unindexed large tables by default. Toggle specific checks using `includeRedundant` and `includeUnindexed` flags.
 - Use `table` parameter to focus on one table, omit for database-wide audit.
 - Returns `{ findings: [...], summary: { redundant, missingFk, ... } }`.
 

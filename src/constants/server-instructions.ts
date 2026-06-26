@@ -122,9 +122,9 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 
 ## InnoDB Cluster (\`mysql_cluster_*\`)
 
-- **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (\`mysql_innodb_cluster_metadata\`) must exist.
+- **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (mysql_innodb_cluster_metadata) must exist.
 - **Cluster status**: \`mysql_cluster_status\` returns cluster metadata. Use \`summary: true\` for condensed output without Router configuration schemas. Returns \`isInnoDBCluster: false\` if not in a cluster.
-- **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role. Accepts \`limit\` parameter (default: 100, must be a non-negative integer). Falls back from InnoDB Cluster metadata to Group Replication member data when metadata is unavailable (response includes \`source: "group_replication"\` in fallback mode).
+- **Instance list**: \`mysql_cluster_instances\` lists all configured instances with their current member state and role. Includes offline node reporting. Accepts \`limit\` parameter (default: 100, must be a non-negative integer). Falls back from InnoDB Cluster metadata to Group Replication member data when metadata is unavailable (response includes \`source: "group_replication"\` in fallback mode).
 - **Topology**: \`mysql_cluster_topology\` returns a structured \`topology\` object (with \`primary\`, \`secondaries\`, \`recovering\`, \`offline\` arrays) and a \`visualization\` string grouping members by role.
 - **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return routerId, routerName, address, version, lastCheckIn, roPort, rwPort, and localCluster. Each router includes \`isStale\` (true if lastCheckIn is null or >1 hour old). The response includes \`staleCount\` for quick filtering.
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.`],
@@ -380,7 +380,7 @@ Tools: \`mysql_show_processlist\`, \`mysql_show_status\`, \`mysql_show_variables
   \`\`\`json
   { "queries": ["SELECT * FROM users WHERE status = 'active'"] }
   \`\`\`
-- Scans for redundant/duplicate indexes, missing FK indexes, and unindexed large tables by default.
+- Scans for redundant/duplicate indexes, missing FK indexes, and unindexed large tables by default. Toggle specific checks using \`includeRedundant\` and \`includeUnindexed\` flags.
 - Use \`table\` parameter to focus on one table, omit for database-wide audit.
 - Returns \`{ findings: [...], summary: { redundant, missingFk, ... } }\`.
 
@@ -425,7 +425,7 @@ Tools: \`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition
 - **Index Usage**: \`mysql_index_usage\` filters to the current database by default. Returns \`{ exists: false, table }\` if the specific table doesn't exist.
 
 ### Table Statistics (\`mysql_table_stats\`)
-- Returns gracefully with \`{ exists: false, table: "..." }\` if the table is missing.
+- Returns gracefully with \`{ exists: false, table: "..." }\` if the table is missing (P154 pattern).
 
 ### Detectors (\`mysql_detect_query_anomalies\`, \`mysql_detect_bloat_risk\`, \`mysql_detect_connection_spike\`)
 - **Query Anomalies**: Identifies queries with execution times exceeding standard deviation thresholds.
@@ -620,13 +620,13 @@ Tools: \`mysql_transaction_begin\`, \`mysql_transaction_commit\`, \`mysql_transa
   ["vector", `# Vector Tools (\`mysql_vector_*\`)
 
 - **Version gate**: ALL vector tools require MySQL 9.0+. Returns \`{ success: false, code: "EXTENSION_MISSING" }\` on older versions. \`mysql_vector_create_index\` requires MySQL 9.1+ specifically.
-- **Store**: \`mysql_vector_store({ table, column, id, vector: number[] })\` → upserts a single vector. Uses \`STRING_TO_VECTOR()\` internally. Dimensions must match the column's \`VECTOR(N)\` definition.
-- **Batch store**: \`mysql_vector_batch_store({ table, column, items: [{ id, vector }] })\` → bulk insert. Significantly faster than individual stores. All vectors must have matching dimensions.
-- **Delete**: \`mysql_vector_delete({ table, id })\` → deletes by primary key. Returns \`{ success: false, error }\` if row doesn't exist (P154).
-- **Get**: \`mysql_vector_get({ table, id })\` → retrieves vector as \`number[]\` via \`VECTOR_TO_STRING()\`. Returns \`{ exists: false }\` if row doesn't exist.
-- **KNN search**: \`mysql_vector_search({ table, column, queryVector, k?, metric?, filter?, select? })\` → top-k nearest neighbors. Metrics: \`COSINE\` (default), \`EUCLIDEAN\`, \`DOT\`. Use \`filter\` for WHERE clause conditions. Use \`select\` to limit returned columns.
-- **Range search**: \`mysql_vector_range_search({ table, column, queryVector, maxDistance })\` → all vectors within distance threshold. Default limit: 50.
-- **Hybrid search**: \`mysql_vector_hybrid_search({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, vectorWeight?, textWeight?, select?, filter? })\` → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
+- **Store**: \`mysql_vector_store\`({ table, column, id, vector: number[] }) → upserts a single vector. Uses \`STRING_TO_VECTOR()\` internally. Dimensions must match the column's \`VECTOR(N)\` definition.
+- **Batch store**: \`mysql_vector_batch_store\`({ table, column, items: [{ id, vector }] }) → bulk insert. Significantly faster than individual stores. All vectors must have matching dimensions.
+- **Delete**: \`mysql_vector_delete\`({ table, id }) → deletes by primary key. Returns \`{ success: false, error }\` if row doesn't exist (P154).
+- **Get**: \`mysql_vector_get\`({ table, id }) → retrieves vector as \`number[]\` via \`VECTOR_TO_STRING()\`. Returns \`{ exists: false }\` if row doesn't exist.
+- **KNN search**: \`mysql_vector_search\`({ table, column, queryVector, k?, metric?, filter?, select? }) → top-k nearest neighbors. Metrics: \`COSINE\` (default), \`EUCLIDEAN\`, \`DOT\`. Use \`filter\` for WHERE clause conditions. Use \`select\` to limit returned columns.
+- **Range search**: \`mysql_vector_range_search\`({ table, column, queryVector, maxDistance }) → all vectors within distance threshold. Default limit: 50.
+- **Hybrid search**: \`mysql_vector_hybrid_search\`({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, vectorWeight?, textWeight?, select?, filter? }) → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
   - Requires FULLTEXT index on \`textColumn\`. At least one of \`queryVector\` or \`queryText\` required.
   - \`metric\`: COSINE (default), EUCLIDEAN, or DOT — controls the vector distance function.
   - \`rrfK\`: RRF smoothing constant (default: 60). Lower = more weight to top ranks, higher = more uniform fusion.
@@ -635,10 +635,10 @@ Tools: \`mysql_transaction_begin\`, \`mysql_transaction_commit\`, \`mysql_transa
   - \`filter\`: SQL WHERE clause applied as pre-filter before scoring (e.g., \`"category = 'tech'"\`).
   - \`queryText\` is automatically sanitized (unbalanced quotes/parens stripped, dangling operators removed).
   - Provides three fallback modes: both signals → full RRF, vector only → vector-ranked, text only → FTS-ranked.
-- **Info**: \`mysql_vector_info({ table })\` → lists all VECTOR columns with dimensions, row counts, index status. Use this first to check compatibility.
-- **Create index**: \`mysql_vector_create_index({ table, column })\` → creates HNSW vector index (MySQL 9.1+ only). Speeds up KNN search significantly on large tables.
-- **Optimize**: \`mysql_vector_optimize({ table })\` → runs \`ANALYZE TABLE\` to update vector index statistics.
-- **Stats**: \`mysql_vector_stats({ table, column })\` → dimension count, vector count, null count.
+- **Info**: \`mysql_vector_info\`({ table }) → lists all VECTOR columns with dimensions, row counts, index status. Use this first to check compatibility.
+- **Create index**: \`mysql_vector_create_index\`({ table, column }) → creates HNSW vector index (MySQL 9.1+ only). Speeds up KNN search significantly on large tables.
+- **Optimize**: \`mysql_vector_optimize\`({ table }) → runs \`ANALYZE TABLE\` to update vector index statistics.
+- **Stats**: \`mysql_vector_stats\`({ table, column }) → dimension count, vector count, null count.
 - ❌ Don't store raw text in VECTOR columns — convert embeddings to \`number[]\` first.
 - ❌ Don't mix dimensions within the same column — all vectors must have the same dimensionality.
 - ❌ Don't use \`mysql_vector_hybrid_search\` without a FULLTEXT index on \`textColumn\` — returns \`FULLTEXT_INDEX_MISSING\` error.

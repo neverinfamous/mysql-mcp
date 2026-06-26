@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [versioning]
+# mysql-mcp Code Mode Testing: [core]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -140,7 +140,7 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: versioning
+## Group Focus: core (Versioning)
 You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
 
 ## Tasks
