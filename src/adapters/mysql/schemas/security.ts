@@ -36,6 +36,7 @@ export const SecurityFirewallRulesOutputSchema = BaseOutputSchema.extend({
     rules: z.array(z.record(z.string(), z.unknown())),
     userCount: z.number(),
     ruleCount: z.number(),
+    message: z.string().optional(),
   }).loose().optional(),
 });
 
