@@ -339,6 +339,7 @@ export class AuditLogger {
     requestId?: string | undefined;
     fromTimestamp?: string | undefined;
     toTimestamp?: string | undefined;
+    search?: string | undefined;
     limit?: number | undefined;
     offset?: number | undefined;
   }): Promise<{ entries: AuditEntry[]; totalCount: number }> {
@@ -383,6 +384,12 @@ export class AuditLogger {
         sql += " AND timestamp <= ?";
         countSql += " AND timestamp <= ?";
         params.push(filters.toTimestamp);
+      }
+      if (filters.search) {
+        sql += " AND (error LIKE ? OR args LIKE ? OR tool LIKE ?)";
+        countSql += " AND (error LIKE ? OR args LIKE ? OR tool LIKE ?)";
+        const searchTerm = `%${filters.search}%`;
+        params.push(searchTerm, searchTerm, searchTerm);
       }
 
       const totalCount = (db.prepare(countSql).get(...params) as { c: number })

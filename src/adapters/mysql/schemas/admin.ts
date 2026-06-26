@@ -321,6 +321,7 @@ export const ServerConfigSchema = ServerConfigSchemaBase.refine(
 
 // --- AuditSearch ---
 export const AuditSearchSchemaBase = z.object({
+  search: z.string().optional().describe("Fuzzy text search across tool, category, error, and args"),
   tool: z.string().optional().describe("Filter by exact tool name"),
   category: z.string().optional().describe("Filter by category (e.g. read, write, admin)"),
   success: z.boolean().optional().describe("Filter by success status"),
