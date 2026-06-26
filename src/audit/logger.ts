@@ -318,7 +318,7 @@ export class AuditLogger {
       for (let i = 4; i >= 1; i--) {
         const oldFile = `${this.config.logPath}.${String(i)}`;
         const newFile = `${this.config.logPath}.${String(i + 1)}`;
-        await rename(oldFile, newFile).catch(() => null); // ignore if .i doesn't exist
+        await rename(oldFile, newFile).catch(() => null); // ignore if .i does not exist
       }
 
       // Rename current to .1

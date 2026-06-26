@@ -141,7 +141,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 },
               });
             }
-            // If schema doesn't exist, report it even with ifNotExists
+            // If schema does not exist, report it even with ifNotExists
             if (check.reason === "schema") {
               return withTokenEstimate({
                 success: false,

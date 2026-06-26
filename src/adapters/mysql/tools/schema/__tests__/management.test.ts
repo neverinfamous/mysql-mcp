@@ -64,7 +64,7 @@ describe("Schema Management Tools", () => {
       const tool = createCreateSchemaTool(
         mockAdapter,
       );
-      // Pre-check returns no rows (schema doesn't exist)
+      // Pre-check returns no rows (schema does not exist)
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       // CREATE DATABASE succeeds
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
@@ -256,7 +256,7 @@ describe("Schema Management Tools", () => {
           createMockQueryResult([{ SCHEMA_NAME: "gone_db" }]),
         )
         .mockRejectedValueOnce(
-          new Error("Can't drop database 'gone_db'; database doesn't exist"),
+          new Error("Can't drop database 'gone_db'; database does not exist"),
         );
 
       const result = (await tool.handler(

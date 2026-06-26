@@ -101,7 +101,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should return structured error on explain failure", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createQueryRewriteTool(
@@ -114,7 +114,7 @@ describe("Performance Optimization Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain(
-        "Table 'testdb.nonexistent' doesn't exist",
+        "Table 'testdb.nonexistent' does not exist",
       );
     });
 
@@ -292,7 +292,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should handle query execution failure gracefully", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createOptimizerTraceTool(
@@ -305,7 +305,7 @@ describe("Performance Optimization Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
 
       // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -315,7 +315,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should handle query failure gracefully in summary mode", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.ghost' doesn't exist"),
+        new Error("Table 'testdb.ghost' does not exist"),
       );
 
       const tool = createOptimizerTraceTool(
@@ -328,7 +328,7 @@ describe("Performance Optimization Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
 
       // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -339,7 +339,7 @@ describe("Performance Optimization Tools", () => {
     it("should strip adapter prefix from query execution error", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
-          "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
+          "Query failed: Execute failed: Table 'testdb.ghost' does not exist",
         ),
       );
 
@@ -353,7 +353,7 @@ describe("Performance Optimization Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should accept sql alias for query parameter", async () => {
@@ -483,7 +483,7 @@ describe("Performance Optimization Tools", () => {
     it("mysql_query_rewrite should strip adapter prefix from error", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
-          "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
+          "Query failed: Execute failed: Table 'testdb.ghost' does not exist",
         ),
       );
 
@@ -497,7 +497,7 @@ describe("Performance Optimization Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(
-        "Table 'testdb.ghost' doesn't exist",
+        "Table 'testdb.ghost' does not exist",
       );
     });
   });

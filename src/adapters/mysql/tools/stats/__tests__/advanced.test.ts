@@ -187,7 +187,7 @@ describe("Advanced Stats Tools", () => {
     it("should reject non-existent tables", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
         if (query.includes("missing_table")) {
-          const error = new Error("Table 'testdb.missing_table' doesn't exist");
+          const error = new Error("Table 'testdb.missing_table' does not exist");
           Object.assign(error, { code: "ER_NO_SUCH_TABLE" });
           throw error;
         }

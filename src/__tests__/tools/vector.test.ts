@@ -176,7 +176,7 @@ describe("Vector Tools", () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
       mockAdapter.executeQuery.mockImplementation(async (sql) => {
         if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
-        throw new Error("Table 't1' doesn't exist");
+        throw new Error("Table 't1' does not exist");
       });
       
       const result = await tool.handler(

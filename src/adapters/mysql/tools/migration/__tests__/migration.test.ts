@@ -26,7 +26,7 @@ describe("Migration Core Tools", () => {
         return createMockQueryResult([{ db: "testdb" }]);
       }
       if (query.includes("information_schema.TABLES")) {
-        // Assume table doesn't exist by default for init test
+        // Assume table does not exist by default for init test
         return createMockQueryResult([{ table_exists: 0 }]);
       }
       if (query.includes("COUNT(*)")) {

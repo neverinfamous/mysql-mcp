@@ -7,7 +7,7 @@
  * auto-detection.
  *
  * MySQL wire-protocol error codes are matched via their message patterns
- * (e.g., errno 1146 → "Table '.*' doesn't exist").
+ * (e.g., errno 1146 → "Table '.*' does not exist").
  */
 
 import { ErrorCategory } from "../types/modules/error-types.js";

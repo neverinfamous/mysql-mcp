@@ -47,7 +47,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
         const dataType =
           typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
-        // Empty result means column doesn't exist; non-empty result with non-numeric type means wrong type
+        // Empty result means column does not exist; non-empty result with non-numeric type means wrong type
         if (!colCheck.rows || colCheck.rows.length === 0) {
           throw new ValidationError(`Column '${column}' not found on table ${escapeQualifiedTable(table)}`);
         }

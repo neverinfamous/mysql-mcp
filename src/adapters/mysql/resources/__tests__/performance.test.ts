@@ -66,7 +66,7 @@ describe("Performance Resource", () => {
 
     // Mock performance schema failure
     mockAdapter.executeQuery.mockRejectedValueOnce(
-      new Error("Table doesn't exist"),
+      new Error("Table does not exist"),
     );
 
     const resource = createPerformanceResource(

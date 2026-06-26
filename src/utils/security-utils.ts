@@ -152,7 +152,7 @@ export function assertSafeIoPath(
       isSymlink = true;
     }
   } catch {
-    // If file doesn't exist, that's fine
+    // If file does not exist, that's fine
   }
 
   if (isSymlink) {

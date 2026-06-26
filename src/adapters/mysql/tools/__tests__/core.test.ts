@@ -183,7 +183,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_read_query")!;
@@ -194,7 +194,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect((result as Record<string, unknown>).error).toContain(
-        "doesn't exist",
+        "does not exist",
       );
     });
 
@@ -260,7 +260,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_write_query")!;
@@ -271,7 +271,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect((result as Record<string, unknown>).error).toContain(
-        "doesn't exist",
+        "does not exist",
       );
     });
 
@@ -780,7 +780,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error when table does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
@@ -820,7 +820,7 @@ describe("Handler Execution", () => {
 
     it("should return column-specific error for invalid column names", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Key column 'nonexistent_col' doesn't exist in table"),
+        new Error("Key column 'nonexistent_col' does not exist in table"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
@@ -1006,7 +1006,7 @@ describe("Handler Execution", () => {
 
     it("mysql_create_index should return error for Key column doesnt exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Key column 'nonexistent' doesn't exist in table"),
+        new Error("Key column 'nonexistent' does not exist in table"),
       );
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
       const result = await tool.handler(
@@ -1021,7 +1021,7 @@ describe("Handler Execution", () => {
 
     it("mysql_create_index should return error for Key column doesnt exist no regex", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Key column doesn't exist"),
+        new Error("Key column does not exist"),
       );
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
       const result = await tool.handler(

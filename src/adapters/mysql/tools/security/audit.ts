@@ -202,7 +202,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const stripped = stripErrorPrefix(msg);
         const lower = stripped.toLowerCase();
         if (
-          lower.includes("doesn't exist") ||
+          lower.includes("does not exist") ||
           lower.includes("does not exist") ||
           lower.includes("access denied")
         ) {

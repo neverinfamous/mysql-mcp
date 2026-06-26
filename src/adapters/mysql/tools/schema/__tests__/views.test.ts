@@ -136,7 +136,7 @@ describe("Schema View Tools", () => {
 
     it("should return success false for invalid SQL definition", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent_table' doesn't exist"),
+        new Error("Table 'testdb.nonexistent_table' does not exist"),
       );
       const tool = createCreateViewTool(mockAdapter);
 
@@ -149,7 +149,7 @@ describe("Schema View Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
     it("should return structured error for invalid algorithm", async () => {
       const tool = createCreateViewTool(mockAdapter);

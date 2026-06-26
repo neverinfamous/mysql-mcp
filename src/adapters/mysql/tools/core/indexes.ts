@@ -120,7 +120,7 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
               )
             );
           }
-          if (message.includes("doesn't exist")) {
+          if (message.includes("does not exist")) {
             return formatHandlerErrorResponse(
               new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
             );

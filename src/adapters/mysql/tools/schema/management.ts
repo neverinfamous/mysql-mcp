@@ -319,7 +319,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (
-            message.toLowerCase().includes("database doesn't exist") ||
+            message.toLowerCase().includes("database does not exist") ||
             message.toLowerCase().includes("database does not exist")
           ) {
             return formatHandlerErrorResponse(

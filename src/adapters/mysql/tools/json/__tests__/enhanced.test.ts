@@ -544,7 +544,7 @@ describe("JSON Enhanced Tools", () => {
     });
 
     describe("P154 Graceful Error Handling", () => {
-      const tableError = new Error("Table 'testdb.nonexistent' doesn't exist");
+      const tableError = new Error("Table 'testdb.nonexistent' does not exist");
 
       it("json_normalize should return exists: false for nonexistent table", async () => {
         mockAdapter.executeQuery.mockRejectedValue(tableError);
@@ -557,7 +557,7 @@ describe("JSON Enhanced Tools", () => {
         );
         expect(result).toMatchObject({
           success: false,
-          error: "Table 'testdb.nonexistent' doesn't exist",
+          error: "Table 'testdb.nonexistent' does not exist",
         });
       });
 
@@ -572,7 +572,7 @@ describe("JSON Enhanced Tools", () => {
         );
         expect(result).toMatchObject({
           success: false,
-          error: "Table 'testdb.nonexistent' doesn't exist",
+          error: "Table 'testdb.nonexistent' does not exist",
         });
       });
 
@@ -587,7 +587,7 @@ describe("JSON Enhanced Tools", () => {
         );
         expect(result).toMatchObject({
           success: false,
-          error: "Table 'testdb.nonexistent' doesn't exist",
+          error: "Table 'testdb.nonexistent' does not exist",
         });
       });
 

@@ -466,7 +466,7 @@ describe("Handler Execution", () => {
       );
       // GRANT rawQuery fails with table not found
       mockAdapter.rawQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_role_grant")!;
@@ -483,7 +483,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "Table 'testdb.nonexistent' doesn't exist",
+          error: "Table 'testdb.nonexistent' does not exist",
         }),
       );
     });

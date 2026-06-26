@@ -35,8 +35,8 @@ export function formatZodError(error: ZodError): string {
  * returning just the meaningful error description.
  *
  * @example
- * formatMysqlError(new Error("Query failed: ER_NO_SUCH_TABLE: Table 'testdb.xyz' doesn't exist"))
- * // => "Table 'testdb.xyz' doesn't exist"
+ * formatMysqlError(new Error("Query failed: ER_NO_SUCH_TABLE: Table 'testdb.xyz' does not exist"))
+ * // => "Table 'testdb.xyz' does not exist"
  *
  * formatMysqlError(new Error("Execute failed: ER_DUP_ENTRY: Duplicate entry '1' for key 'PRIMARY'"))
  * // => "Duplicate entry '1' for key 'PRIMARY'"
@@ -55,6 +55,8 @@ export function formatMysqlError(err: unknown): string {
       .replace(/^ER_[A-Z_]+:\s*/i, "")
       // Strip numeric error code patterns (e.g., "1146 (42S02): ...")
       .replace(/^\d+\s*\([A-Z0-9]+\):\s*/, "")
+      // Normalize "doesn't exist" to "does not exist" for consistency
+      .replace(/doesn't exist/g, "does not exist")
       .trim()
   );
 }

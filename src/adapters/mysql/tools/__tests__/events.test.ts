@@ -206,7 +206,7 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error when ifExists is true and event does not exist", async () => {
-      // Pre-check returns empty (event doesn't exist)
+      // Pre-check returns empty (event does not exist)
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_drop")!;
@@ -373,7 +373,7 @@ describe("Event Create Advanced", () => {
   });
 
   it("should add IF NOT EXISTS clause when specified", async () => {
-    // Pre-check returns empty (event doesn't exist), then CREATE succeeds
+    // Pre-check returns empty (event does not exist), then CREATE succeeds
     mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
     mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 

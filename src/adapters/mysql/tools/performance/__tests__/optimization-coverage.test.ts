@@ -237,7 +237,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
     it("should handle query execution failure in trace mode", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery.mockRejectedValueOnce(
-        new Error("Table 'nonexistent' doesn't exist"),
+        new Error("Table 'nonexistent' does not exist"),
       );
 
       const tool = createOptimizerTraceTool(
@@ -249,7 +249,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should handle query execution failure in non-summary mode", async () => {
@@ -477,7 +477,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
   // Force Index edge cases
   // ===========================================================================
   describe("force index edge cases", () => {
-    it("should return error when index doesn't exist", async () => {
+    it("should return error when index does not exist", async () => {
       mockAdapter.describeTable.mockResolvedValue({
         columns: [{ name: "id", type: "int", nullable: false }],
       });

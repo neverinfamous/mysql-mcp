@@ -181,10 +181,10 @@ describe("AuditInterceptor", () => {
         { sql: "INSERT INTO nonexistent" },
         "req-006",
         async () => {
-          throw new Error("Table 'nonexistent' doesn't exist");
+          throw new Error("Table 'nonexistent' does not exist");
         },
       ),
-    ).rejects.toThrow("Table 'nonexistent' doesn't exist");
+    ).rejects.toThrow("Table 'nonexistent' does not exist");
 
     await logger.flush();
 
@@ -192,7 +192,7 @@ describe("AuditInterceptor", () => {
     const entry = JSON.parse(content.trim()) as AuditEntry;
 
     expect(entry.success).toBe(false);
-    expect(entry.error).toBe("Table 'nonexistent' doesn't exist");
+    expect(entry.error).toBe("Table 'nonexistent' does not exist");
     expect(entry.tool).toBe("mysql_write_query");
   });
 

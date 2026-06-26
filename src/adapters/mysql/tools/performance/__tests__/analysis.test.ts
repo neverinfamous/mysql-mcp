@@ -131,7 +131,7 @@ describe("Performance Analysis Tools", () => {
 
     it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createExplainTool(mockAdapter);
@@ -141,7 +141,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success false for invalid SQL", async () => {
@@ -212,7 +212,7 @@ describe("Performance Analysis Tools", () => {
 
     it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createExplainAnalyzeTool(
@@ -224,7 +224,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success false for invalid SQL", async () => {

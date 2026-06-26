@@ -845,7 +845,7 @@ describe("Stats Nonexistent Table Handling", () => {
   });
 
   const tableDoesNotExistError = new Error(
-    "Table 'testdb.nonexistent' doesn't exist",
+    "Table 'testdb.nonexistent' does not exist",
   );
 
   it("mysql_stats_descriptive returns success:false for nonexistent table", async () => {
@@ -858,7 +858,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_percentiles returns success:false for nonexistent table", async () => {
@@ -871,7 +871,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_correlation returns success:false for nonexistent table", async () => {
@@ -884,7 +884,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_distribution returns success:false for nonexistent table", async () => {
@@ -897,7 +897,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_time_series returns success:false for nonexistent table", async () => {
@@ -914,7 +914,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_regression returns success:false for nonexistent table", async () => {
@@ -927,7 +927,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_sampling returns success:false for nonexistent table", async () => {
@@ -940,7 +940,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_histogram returns success:false for nonexistent table", async () => {
@@ -953,7 +953,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("doesn't exist");
+    expect(result.error).toContain("does not exist");
   });
 
   it("mysql_stats_descriptive returns success:false for unknown column", async () => {

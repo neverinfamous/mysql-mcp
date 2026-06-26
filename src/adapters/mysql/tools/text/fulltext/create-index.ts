@@ -56,7 +56,7 @@ export function createFulltextCreateTool(
           ) {
             return formatHandlerErrorResponse(new Error(msg));
           }
-          if (msg.includes("doesn't exist")) {
+          if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
               new Error(`Table '${table}' does not exist`),
             );

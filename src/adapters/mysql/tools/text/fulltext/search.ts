@@ -158,7 +158,7 @@ export function createFulltextSearchTool(
           });
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
-          if (msg.includes("doesn't exist")) {
+          if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
               new Error(`Table '${table}' does not exist`),
             );

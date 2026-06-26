@@ -256,7 +256,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -277,7 +277,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
       const tool = findTool("mysql_spatial_distance_sphere")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -298,7 +298,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (contains)", async () => {
       const tool = findTool("mysql_spatial_contains")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -319,7 +319,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (within)", async () => {
       const tool = findTool("mysql_spatial_within")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -340,7 +340,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (create_column)", async () => {
       const tool = findTool("mysql_spatial_create_column")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -360,7 +360,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (create_index)", async () => {
       const tool = findTool("mysql_spatial_create_index")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(

@@ -119,7 +119,7 @@ export function createSpatialDistanceTool(
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
+        if (msg.includes("does not exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
@@ -209,7 +209,7 @@ export function createSpatialDistanceSphereTool(
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
+        if (msg.includes("does not exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
@@ -286,7 +286,7 @@ export function createSpatialContainsTool(
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
+        if (msg.includes("does not exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
@@ -360,7 +360,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
+        if (msg.includes("does not exist")) {
           const tbl = paramStr(params, "table");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",

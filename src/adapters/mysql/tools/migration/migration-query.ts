@@ -328,7 +328,7 @@ export function createMigrationStatusTool(
     title: "Migration Status",
     description:
       "Get current migration tracking status: latest version, counts by status, " +
-      "and list of source systems. Returns initialized: false if tracking table doesn't exist.",
+      "and list of source systems. Returns initialized: false if tracking table does not exist.",
     group: "migration",
     inputSchema: MigrationStatusSchemaBase,
     outputSchema: MigrationStatusOutputSchema,

@@ -52,7 +52,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
             );
           }
           const msg = err instanceof Error ? err.message : String(err);
-          if (msg.includes("doesn't exist")) {
+          if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
               new Error(`Table '${table}' does not exist`),
             );

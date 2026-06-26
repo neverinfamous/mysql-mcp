@@ -526,7 +526,7 @@ describe("Admin Backup Tools", () => {
 
     it("should return structured error for non-existent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createImportDataTool(mockAdapter);
@@ -543,7 +543,7 @@ describe("Admin Backup Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
       expect(result.details.rowsInserted).toBe(0);
     });
 

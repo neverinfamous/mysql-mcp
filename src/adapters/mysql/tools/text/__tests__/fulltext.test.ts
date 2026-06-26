@@ -119,7 +119,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should return structured error for nonexistent column", async () => {
       const colError = new Error(
-        "Key column 'nonexistent_col' doesn't exist in table",
+        "Key column 'nonexistent_col' does not exist in table",
       );
       (colError as Error & { errno?: number }).errno = 1072;
       mockAdapter.executeQuery.mockRejectedValue(colError);
@@ -142,7 +142,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createFulltextCreateTool(
@@ -218,7 +218,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createFulltextDropTool(
@@ -356,7 +356,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createFulltextSearchTool(
@@ -444,7 +444,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createFulltextBooleanTool(
@@ -530,7 +530,7 @@ describe("Text Fulltext Tools", () => {
 
     it("should return success:false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createFulltextExpandTool(

@@ -79,14 +79,14 @@ describe("Window Function Tools", () => {
 
     it("should handle table not found error", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'unknown' doesn't exist"),
+        new Error("Table 'unknown' does not exist"),
       );
       const result = await tool.handler(
         { table: "unknown", orderBy: "score DESC" },
         mockContext,
       );
       expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("doesn't exist");
+      expect(Reflect.get(result || {}, "error")).toContain("does not exist");
     });
   });
 

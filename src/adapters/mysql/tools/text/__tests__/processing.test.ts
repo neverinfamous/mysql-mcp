@@ -261,7 +261,7 @@ describe("Text Processing Tools", () => {
   describe("P154: createRegexpMatchTool error handling", () => {
     it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createRegexpMatchTool(
@@ -273,7 +273,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -297,7 +297,7 @@ describe("Text Processing Tools", () => {
   describe("P154: createLikeSearchTool error handling", () => {
     it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createLikeSearchTool(mockAdapter);
@@ -307,7 +307,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -329,7 +329,7 @@ describe("Text Processing Tools", () => {
   describe("P154: createSoundexTool error handling", () => {
     it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createSoundexTool(mockAdapter);
@@ -339,7 +339,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -361,7 +361,7 @@ describe("Text Processing Tools", () => {
   describe("P154: createSubstringTool error handling", () => {
     it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createSubstringTool(mockAdapter);
@@ -371,7 +371,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -393,7 +393,7 @@ describe("Text Processing Tools", () => {
   describe("P154: createConcatTool error handling", () => {
     it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createConcatTool(mockAdapter);
@@ -403,7 +403,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success: false for other query errors", async () => {
@@ -425,7 +425,7 @@ describe("Text Processing Tools", () => {
   describe("P154: createCollationConvertTool error handling", () => {
     it("should return success: false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createCollationConvertTool(
@@ -437,7 +437,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success: false for other query errors", async () => {
