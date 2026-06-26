@@ -68,7 +68,11 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate(response);
         } catch (e) {
           return formatHandlerErrorResponse(
-            `Binary logging may not be enabled: ${String(e)}`,
+            new MySQLMcpError(
+              `Binary logging may not be enabled: ${String(e)}`,
+              "DOMAIN_ERROR",
+              ErrorCategory.CONFIGURATION
+            )
           );
         }
       }
@@ -205,11 +209,19 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           const targetFile = effectiveLogFile || logFile;
           if (targetFile && message.includes("Could not find target log")) {
             return formatHandlerErrorResponse(
-              `Binlog file '${targetFile}' not found`,
+              new MySQLMcpError(
+                `Binlog file '${targetFile}' not found`,
+                "DOMAIN_ERROR",
+                ErrorCategory.RESOURCE
+              )
             );
           }
           return formatHandlerErrorResponse(
-            `Failed to read binlog events: ${message}`,
+            new MySQLMcpError(
+              `Failed to read binlog events: ${message}`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
           );
         }
       } catch (e) {
@@ -259,7 +271,11 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (e) {
         return formatHandlerErrorResponse(
-          `Failed to retrieve GTID status: ${String(e)}`,
+          new MySQLMcpError(
+            `Failed to retrieve GTID status: ${String(e)}`,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY
+          )
         );
       }
     },
