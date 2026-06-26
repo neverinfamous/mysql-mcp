@@ -17,7 +17,7 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
 3. **Validation and Immediate Continuation**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. They MUST SKIP `pnpm run test` and `pnpm run test:e2e` as the coordinator will run the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. They MUST SKIP `pnpm run test` and `pnpm run test:e2e`. The coordinator will run `pnpm run check` to validate the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
 4. **Finalization and Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
@@ -25,7 +25,7 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
    - The subagent MUST commit all changes locally (`git commit -m "..."`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
-   - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, and immediately move to the next test in the queue.
+   - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the queue.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.

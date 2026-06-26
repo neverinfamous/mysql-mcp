@@ -17,7 +17,7 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt.
 3. **Local Verification (NO PAUSING)**:
-   - If you or a subagent modifies the codebase, you MUST run the full validation pipeline (`pnpm run check`) locally, and ensure they all pass completely cleanly **BEFORE** committing.
+   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. The coordinator will run `pnpm run check` to validate the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
    - **Quality Gates**: Pay strict attention to ESLint and TypeScript compiler outputs. You MUST fix all `pnpm run check` validation issues prior to committing. Do NOT ignore warnings or errors. Follow strict TypeScript guidelines: NEVER use `any` (use `unknown` with type guards), avoid unsafe typecasts, and ensure explicit return types.
    - **WARNING**: Do NOT commit your code and then attempt to use `git commit --amend` to fix a lingering lint or test issue later. Amending a commit rewrites the commit SHA, which will permanently break the changelog tracking workflow.
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.
@@ -26,7 +26,7 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - Once all local tests pass, the subagent will commit the code (`git commit -m "Optimize [group] tool usage"`), create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes, summarize findings, and exit. If no modifications were needed, no commit or journal entry is required.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
-   - Once the subagent completes, mark the task as done and move to the next test in the queue.
+   - Once the subagent completes, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and move to the next test in the queue.
 5. **Code Mode Error Testing Protocol**:
    - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
 6. **Tool Availability Warning**:
