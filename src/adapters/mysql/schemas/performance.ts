@@ -256,6 +256,111 @@ export const ForceIndexSchema = z
     message: "indexName (or index alias) is required",
   });
 
+// --- Anomaly Detection ---
+
+export const DetectQueryAnomaliesSchemaBase = z.object({
+  threshold: z
+    .number()
+    .optional()
+    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
+  stdDevThreshold: z.number().optional().describe("Alias for threshold"),
+  minCalls: z
+    .number()
+    .optional()
+    .describe("Minimum call count to filter noise (default: 50)"),
+  minExecutions: z.number().optional().describe("Alias for minCalls"),
+});
+
+export const DetectQueryAnomaliesSchema = z
+  .preprocess(
+    (data: unknown) => {
+      if (typeof data !== "object" || data === null) return data;
+      const record = data as Record<string, unknown>;
+      return {
+        ...record,
+        threshold: record["threshold"] ?? record["stdDevThreshold"],
+        minCalls: record["minCalls"] ?? record["minExecutions"],
+      };
+    },
+    z.object({
+      threshold: z.coerce.number().min(2).max(10000).optional().default(10.0),
+      stdDevThreshold: z.coerce.number().optional(),
+      minCalls: z.coerce.number().int().min(1).max(100000).optional().default(50),
+      minExecutions: z.coerce.number().optional(),
+    }),
+  )
+  .transform((data) => ({
+    threshold: data.threshold ?? data.stdDevThreshold ?? 10.0,
+    minCalls: data.minCalls ?? data.minExecutions ?? 50,
+  }));
+
+export const DetectBloatRiskSchemaBase = z.object({
+  schema: z
+    .string()
+    .optional()
+    .describe("Filter to a specific database schema"),
+  table: z
+    .string()
+    .optional()
+    .describe("Filter to a specific table"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  minSizeMb: z
+    .number()
+    .optional()
+    .describe("Minimum table size in MB to include (default: 10)"),
+});
+
+export const DetectBloatRiskSchema = z
+  .preprocess(
+    preprocessTableParams,
+    z.object({
+      schema: z.string().optional(),
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      minSizeMb: z.coerce.number().min(0).optional().default(10),
+    }),
+  )
+  .transform((data) => ({
+    schema: data.schema,
+    table: data.table ?? data.tableName ?? data.name,
+    minSizeMb: data.minSizeMb ?? 10,
+  }));
+
+export const DetectConnectionSpikeSchemaBase = z.object({
+  warningPercent: z
+    .number()
+    .optional()
+    .describe("Percentage threshold for flagging concentration (default: 70)"),
+  windowMinutes: z
+    .number()
+    .optional()
+    .describe("Idle time window in minutes to flag connections (default: 5)"),
+  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
+});
+
+export const DetectConnectionSpikeSchema = z
+  .preprocess(
+    (data: unknown) => {
+      if (typeof data !== "object" || data === null) return data;
+      const record = data as Record<string, unknown>;
+      return {
+        ...record,
+        warningPercent: record["warningPercent"] ?? record["thresholdPercent"],
+      };
+    },
+    z.object({
+      warningPercent: z.coerce.number().min(0).max(100).optional().default(70),
+      windowMinutes: z.coerce.number().int().min(1).max(1440).optional().default(5),
+      thresholdPercent: z.coerce.number().optional(),
+    }),
+  )
+  .transform((data) => ({
+    warningPercent: data.warningPercent ?? data.thresholdPercent ?? 70,
+    windowMinutes: data.windowMinutes ?? 5,
+  }));
+
 // =============================================================================
 // Output Schemas
 // =============================================================================

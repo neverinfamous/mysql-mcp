@@ -8,48 +8,22 @@
  *   - mysql_detect_connection_spike: connection concentration detection
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { DetectConnectionSpikeOutputSchema } from "../../schemas/index.js";
+import {
+  DetectConnectionSpikeSchemaBase,
+  DetectConnectionSpikeSchema,
+  DetectConnectionSpikeOutputSchema,
+} from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-import { ValidationError } from "../../../../types/index.js";
 
-// =============================================================================
-// Schemas
-// =============================================================================
 
-export const DetectConnectionSpikeSchemaBase = z.object({
-  warningPercent: z
-    .number()
-    .optional()
-    .describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z
-    .number()
-    .optional()
-    .describe("Idle time window in minutes to flag connections (default: 5)"),
-  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
-});
-
-export const DetectConnectionSpikeSchema = z.object({
-  warningPercent: z.coerce
-    .number()
-    .min(0)
-    .optional()
-    .describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("Idle time window in minutes to flag connections (default: 5)"),
-  thresholdPercent: z.coerce.number().min(0).optional().describe("Alias for warningPercent"),
-});
 
 // =============================================================================
 // Tool Definition
@@ -79,17 +53,9 @@ export function createDetectConnectionSpikeTool(
       try {
         const parsed = DetectConnectionSpikeSchema.parse(params);
 
-        const rawPercent =
-          parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
-        if (rawPercent < 0 || rawPercent > 100) {
-          throw new ValidationError("warningPercent (or thresholdPercent) must be between 0 and 100");
-        }
-        const warningPercent = rawPercent;
-        const windowMinutes = parsed.windowMinutes ?? 5;
+        const warningPercent = parsed.warningPercent;
+        const windowMinutes = parsed.windowMinutes;
 
-        if (windowMinutes < 1 || windowMinutes > 1440) {
-          throw new ValidationError("windowMinutes must be between 1 and 1440");
-        }
         const idleSeconds = windowMinutes * 60;
 
         // Gather connection data in parallel

@@ -13,14 +13,18 @@
  *   - toNum, toStr, safeNum, riskFromScore, RiskLevel
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import {
+  DetectQueryAnomaliesSchemaBase,
+  DetectQueryAnomaliesSchema,
   DetectQueryAnomaliesOutputSchema,
+  DetectBloatRiskSchemaBase,
+  DetectBloatRiskSchema,
   DetectBloatRiskOutputSchema,
 } from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
@@ -46,77 +50,7 @@ export function riskFromScore(score: number): RiskLevel {
   return "low";
 }
 
-// =============================================================================
-// Schemas
-// =============================================================================
 
-export const DetectQueryAnomaliesSchemaBase = z.object({
-  threshold: z
-    .number()
-    .optional()
-    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.number().optional().describe("Alias for threshold"),
-  minCalls: z
-    .number()
-    .optional()
-    .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.number().optional().describe("Alias for minCalls"),
-});
-
-export const DetectQueryAnomaliesSchema = z.object({
-  threshold: z.coerce
-    .number()
-    .optional()
-    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.coerce.number().optional().describe("Alias for threshold"),
-  minCalls: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("Alias for minCalls"),
-});
-
-export const DetectBloatRiskSchemaBase = z.object({
-  schema: z
-    .string()
-    .optional()
-    .describe("Filter to a specific database schema"),
-  table: z
-    .string()
-    .optional()
-    .describe("Filter to a specific table"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  minSizeMb: z
-    .number()
-    .optional()
-    .describe("Minimum table size in MB to include (default: 10)"),
-});
-
-export const DetectBloatRiskSchema = z.object({
-  schema: z
-    .string()
-    .optional()
-    .describe("Filter to a specific database schema"),
-  table: z
-    .string()
-    .optional()
-    .describe("Filter to a specific table"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  minSizeMb: z.coerce
-    .number()
-    .min(0)
-    .optional()
-    .describe("Minimum table size in MB to include (default: 10)"),
-});
 
 // =============================================================================
 // 1. mysql_detect_query_anomalies
@@ -139,15 +73,8 @@ export function createDetectQueryAnomaliesTool(
       try {
         const parsed = DetectQueryAnomaliesSchema.parse(params);
 
-        const threshold = parsed.stdDevThreshold ?? parsed.threshold ?? 10.0;
-        const minCalls = parsed.minExecutions ?? parsed.minCalls ?? 50;
-
-        if (threshold < 2 || threshold > 10000) {
-          throw new ValidationError("threshold (or stdDevThreshold) must be between 2 and 10000");
-        }
-        if (minCalls < 1 || minCalls > 100000) {
-          throw new ValidationError("minCalls (or minExecutions) must be between 1 and 100000");
-        }
+        const threshold = parsed.threshold;
+        const minCalls = parsed.minCalls;
 
         // Check if performance_schema is available
         try {
@@ -256,9 +183,9 @@ export function createDetectBloatRiskTool(
       try {
         const parsed = DetectBloatRiskSchema.parse(params);
 
-        const minSizeMb = parsed.minSizeMb ?? 10;
+        const minSizeMb = parsed.minSizeMb;
         const schema = parsed.schema;
-        const table = parsed.table ?? parsed.tableName ?? parsed.name;
+        const table = parsed.table;
 
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
