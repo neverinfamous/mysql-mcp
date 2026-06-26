@@ -4,6 +4,7 @@ export const ShellRunScriptInputSchemaBase = z
   .object({
     script: z.string().optional().describe("Script content to execute"),
     scriptPath: z.string().optional().describe("Path to script file to execute"),
+    path: z.string().optional().describe("Alias for scriptPath"),
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
