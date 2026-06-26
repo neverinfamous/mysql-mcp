@@ -29,7 +29,14 @@ export interface ShellConfig {
 export function getShellConfig(): ShellConfig {
   const host = process.env["MYSQL_HOST"] ?? "localhost";
   const port = process.env["MYSQL_PORT"] ?? "3306";
-  const xPort = process.env["MYSQL_XPORT"] ?? "33060";
+  let xPort = process.env["MYSQL_XPORT"];
+  if (!xPort) {
+    if (port === "3307") xPort = "33061";
+    else if (port === "3308") xPort = "33062";
+    else if (port === "3309") xPort = "33063";
+    else if (port === "6446") xPort = "6448";
+    else xPort = "33060";
+  }
   const user = process.env["MYSQL_USER"] ?? "root";
   const password = process.env["MYSQL_PASSWORD"] ?? "";
   const database = process.env["MYSQL_DATABASE"] ?? "";
