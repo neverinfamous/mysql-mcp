@@ -166,8 +166,8 @@ backup Tool Group (Data) (4 tools +1 code mode):
 1. `mysql.backup.help()` -> verify method listing
 2. `mysql.backup.exportTable({ table: "test_products", format: "csv" })` -> verify success
 3. `mysql.backup.importData({ table: "test_products", data: [{ id: 999, name: "Test Item", price: 10.0, category: "electronics" }] })` -> verify success (clean up the row afterward)
-4. `mysql.backup.createDump({ database: "testdb" })` -> verify success
-5. `mysql.backup.restoreDump({ filename: "/tmp/backup_dump.sql", database: "testdb" })` -> verify success
+4. `mysql.backup.createDump({ database: "testdb" })` -> verify success (returns mysqldump command string)
+5. `mysql.backup.restoreDump({ filename: "/tmp/backup_dump.sql", database: "testdb" })` -> verify success (returns mysql < command string)
 
 **Domain error paths (🔴):**
 
