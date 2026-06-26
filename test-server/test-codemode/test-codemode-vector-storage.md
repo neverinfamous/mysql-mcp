@@ -156,7 +156,7 @@ vector-storage Tool Group (4 tools +1 for code mode):
 
 **Checklist:**
 
-1. ✅ `mysql.vector.store({...})` → happy path (returned structured COLUMN_NOT_FOUND error, verified handler intercept)
+1. ✅ `mysql.vector.store({...})` → happy path (returned structured EXTENSION_MISSING error on MySQL 8, verified handler intercept)
 2. ✅ `mysql.vector.batchStore({...})` → happy path
 3. ✅ `mysql.vector.delete({...})` → happy path
 4. ✅ `mysql.vector.get({...})` → happy path
