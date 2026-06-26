@@ -120,8 +120,9 @@ export const ShellDumpTablesInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Schema containing tables"),
     tables: z.array(z.string()).optional().describe("Table names to dump"),
-    tableName: z.array(z.string()).optional().describe("Alias for tables"),
-    name: z.array(z.string()).optional().describe("Alias for tables"),
+    table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
+    tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
+    name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
@@ -158,6 +159,7 @@ export const ShellDumpTablesInputSchema = z
   .object({
     schema: z.unknown().optional(),
     tables: z.unknown().optional(),
+    table: z.unknown().optional(),
     tableName: z.unknown().optional(),
     name: z.unknown().optional(),
     outputDir: z.string().optional(),
@@ -169,7 +171,7 @@ export const ShellDumpTablesInputSchema = z
     all: booleanCoerce.optional().default(false),
   })
   .transform((data) => {
-    const rawTables = data.tables ?? data.tableName ?? data.name;
+    const rawTables = data.tables ?? data.table ?? data.tableName ?? data.name;
     return {
       ...data,
       schema:
