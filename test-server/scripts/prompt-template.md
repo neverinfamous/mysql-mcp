@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
-> If there are no changes/fixes, do not update UNRELEASED.md or create a memory-journal-mcp entry.
+> If there are no changes/fixes, do not create a memory-journal-mcp entry.
 
 ## Setup & Pre-requisites
 
@@ -10,7 +10,7 @@
 
 **Step 2:** {{EXECUTION_MODE}}
 
-**Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
+**Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
 > [!WARNING]
 > **Stale Build Issues:** The MCP server runs from the compiled `dist/` directory, NOT `src/`. If you encounter inexplicable behavior (e.g., tools executing old logic or throwing validation errors for things already fixed in the source code), the server might be running a stale build. Check if the compiled code in `dist/` matches the source code in `src/`. If out of sync, stop and instruct the user to run `npm run build` and restart the server before continuing testing.
@@ -161,7 +161,7 @@ During testing, check for these inconsistencies:
 
 ### After Implementation
 
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
 5. **Commit**: Stage and commit all changes — do NOT push.
 6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.

@@ -1,6 +1,5 @@
 # Agent Usability & Hallucination Testing
 
-> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 > **This directory is optimized for AI agent consumption.**
 

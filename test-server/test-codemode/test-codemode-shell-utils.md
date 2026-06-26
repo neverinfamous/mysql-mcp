@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
-> If there are no changes/fixes, do not update UNRELEASED.md or create a memory-journal-mcp entry.
+> If there are no changes/fixes, do not create a memory-journal-mcp entry.
 
 ## Setup & Pre-requisites
 
@@ -10,7 +10,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\UNRELEASED.md`, update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
+**Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
 > [!WARNING]
 > **Stale Build Issues:** The MCP server runs from the compiled `dist/` directory, NOT `src/`. If you encounter inexplicable behavior (e.g., tools executing old logic or throwing validation errors for things already fixed in the source code), the server might be running a stale build. Check if the compiled code in `dist/` matches the source code in `src/`. If out of sync, stop and instruct the user to run `npm run build` and restart the server before continuing testing.
@@ -18,7 +18,6 @@
 > **Note**: If temp tables are present from a previous test pass, it's because the database is locked. Ignore them. Use existing `test_*` tables for read operations.
 
 
-> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 ### Test Schema Reference
 
@@ -203,7 +202,7 @@ shell Tool Group (10 tools +1 code mode):
 
 ### After Implementation
 
-4. **Document**: Update `UNRELEASED.md`, `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
 5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-shell-utils.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.

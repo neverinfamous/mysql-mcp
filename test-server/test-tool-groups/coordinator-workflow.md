@@ -24,7 +24,6 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. They MUST SKIP `pnpm run test` and `pnpm run test:e2e` as the coordinator will run the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation and immediately report back to the Coordinator.
 5. **Finalization and Commit**:
-   - Do NOT use `UNRELEASED.md`. We only use the git history instead of changelog/unreleased.
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.

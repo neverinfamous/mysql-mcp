@@ -1,6 +1,5 @@
 # MySQL-MCP Code Mode Testing Suite
 
-> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 **Directory Purpose**: This folder contains 29 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Code Mode (`mysql_execute_code`) validation only**.
 

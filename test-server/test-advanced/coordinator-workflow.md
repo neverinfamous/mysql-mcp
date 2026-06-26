@@ -20,7 +20,6 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. They MUST SKIP `pnpm run test` and `pnpm run test:e2e` as the coordinator will run the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
 4. **Finalization and Commit**:
-   - Do NOT use `UNRELEASED.md`. We only use the git history instead of changelog/unreleased.
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
@@ -38,51 +37,58 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 ## Test Sequence Queue (Dependency DAG)
 
 1. `test-codemode-advanced-core.md` (**MUST PASS FIRST**)
-2. `test-codemode-advanced-admin.md`
-3. `test-codemode-advanced-backup.md`
-4. `test-codemode-advanced-cluster-group-replication.md`
-5. `test-codemode-advanced-cluster-innodb.md`
-6. `test-codemode-advanced-concurrency.md`
-7. `test-codemode-advanced-docstore.md`
-8. `test-codemode-advanced-events.md`
-9. `test-codemode-advanced-fulltext.md`
-10. `test-codemode-advanced-introspection.md`
-11. `test-codemode-advanced-json-core.md`
-12. `test-codemode-advanced-json-enhanced.md`
-13. `test-codemode-advanced-json-helpers.md`
-14. `test-codemode-advanced-migration.md`
-15. `test-codemode-advanced-monitoring.md`
-16. `test-codemode-advanced-optimization.md`
-17. `test-codemode-advanced-partitioning.md`
-18. `test-codemode-advanced-performance-analysis.md`
-19. `test-codemode-advanced-performance-anomaly.md`
-20. `test-codemode-advanced-proxysql-config.md`
-21. `test-codemode-advanced-proxysql-status.md`
-22. `test-codemode-advanced-replication.md`
-23. `test-codemode-advanced-roles.md`
-24. `test-codemode-advanced-router.md`
-25. `test-codemode-advanced-schema-management.md`
-26. `test-codemode-advanced-schema-routines.md`
-27. `test-codemode-advanced-security.md`
-28. `test-codemode-advanced-sessions.md`
-29. `test-codemode-advanced-shell-data.md`
-30. `test-codemode-advanced-shell-utils.md`
-31. `test-codemode-advanced-spatial-geometry.md`
-32. `test-codemode-advanced-spatial-operations.md`
-33. `test-codemode-advanced-spatial-queries.md`
-34. `test-codemode-advanced-spatial-setup.md`
-35. `test-codemode-advanced-stats-advanced.md`
-36. `test-codemode-advanced-stats-descriptive.md`
-37. `test-codemode-advanced-stats-time-series.md`
-38. `test-codemode-advanced-stats-window.md`
-39. `test-codemode-advanced-sys.md`
-40. `test-codemode-advanced-text.md`
-41. `test-codemode-advanced-transactions.md`
-42. `test-codemode-advanced-vector-management.md`
-43. `test-codemode-advanced-vector-search.md`
-44. `test-codemode-advanced-vector-storage.md`
-45. `test-codemode-advanced-versioning.md`
-46. `test-codemode-sandbox.md`
+2. `test-codemode-advanced-admin-control.md`
+3. `test-codemode-advanced-admin-maintenance.md`
+4. `test-codemode-advanced-backup-audit.md`
+5. `test-codemode-advanced-backup-export.md`
+6. `test-codemode-advanced-cluster-group-replication.md`
+7. `test-codemode-advanced-cluster-innodb.md`
+8. `test-codemode-advanced-concurrency.md`
+9. `test-codemode-advanced-docstore-collections.md`
+10. `test-codemode-advanced-docstore-documents.md`
+11. `test-codemode-advanced-events.md`
+12. `test-codemode-advanced-fulltext.md`
+13. `test-codemode-advanced-introspection.md`
+14. `test-codemode-advanced-json-core.md`
+15. `test-codemode-advanced-json-enhanced.md`
+16. `test-codemode-advanced-json-helpers.md`
+17. `test-codemode-advanced-migration.md`
+18. `test-codemode-advanced-monitoring-health.md`
+19. `test-codemode-advanced-monitoring-status.md`
+20. `test-codemode-advanced-optimization.md`
+21. `test-codemode-advanced-partitioning.md`
+22. `test-codemode-advanced-performance-analysis.md`
+23. `test-codemode-advanced-performance-anomaly.md`
+24. `test-codemode-advanced-proxysql-config.md`
+25. `test-codemode-advanced-proxysql-status.md`
+26. `test-codemode-advanced-replication.md`
+27. `test-codemode-advanced-roles-assignment.md`
+28. `test-codemode-advanced-roles-management.md`
+29. `test-codemode-advanced-router-advanced.md`
+30. `test-codemode-advanced-router-routes.md`
+31. `test-codemode-advanced-schema-management.md`
+32. `test-codemode-advanced-schema-routines.md`
+33. `test-codemode-advanced-security-audit.md`
+34. `test-codemode-advanced-security-system.md`
+35. `test-codemode-advanced-sessions.md`
+36. `test-codemode-advanced-shell-data.md`
+37. `test-codemode-advanced-shell-utils.md`
+38. `test-codemode-advanced-spatial-geometry.md`
+39. `test-codemode-advanced-spatial-operations.md`
+40. `test-codemode-advanced-spatial-queries.md`
+41. `test-codemode-advanced-spatial-setup.md`
+42. `test-codemode-advanced-stats-advanced.md`
+43. `test-codemode-advanced-stats-descriptive.md`
+44. `test-codemode-advanced-stats-time-series.md`
+45. `test-codemode-advanced-stats-window.md`
+46. `test-codemode-advanced-sys.md`
+47. `test-codemode-advanced-text.md`
+48. `test-codemode-advanced-transactions.md`
+49. `test-codemode-advanced-vector-management.md`
+50. `test-codemode-advanced-vector-search.md`
+51. `test-codemode-advanced-vector-storage.md`
+52. `test-codemode-advanced-versioning.md`
+53. `test-codemode-sandbox.md`
 
 ## Telemetry Collection
 

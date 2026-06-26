@@ -1,6 +1,5 @@
 # mysql-mcp Usability & Hallucination Test: Performance (Part 1)
 
-> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 > **This test is optimized for an autonomous agent.**
 

@@ -23,7 +23,6 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.
    - If a subagent edits any `server-instructions/*.md` files, they MUST run `npx tsx scripts/generate-server-instructions.ts` before building.
 4. **Commit**:
-   - Do NOT use `UNRELEASED.md`. We only use the git history instead of changelog/unreleased.
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - Once all local tests pass, the subagent will commit the code (`git commit -m "Optimize [group] tool usage"`), create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes, summarize findings, and exit. If no modifications were needed, no commit or journal entry is required.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.

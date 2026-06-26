@@ -1,6 +1,5 @@
 # MySQL-MCP Advanced Stress Tests
 
-> **Note**: The default test database is `testdb`. If you need to specify a database explicitly in your API calls, use `testdb`.
 
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 
@@ -15,13 +14,16 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 
 The original monolithic advanced stress testing suite was split into granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-- `test-codemode-advanced-admin.md`
-- `test-codemode-advanced-backup.md`
+- `test-codemode-advanced-core.md`
+- `test-codemode-advanced-admin-control.md`
+- `test-codemode-advanced-admin-maintenance.md`
+- `test-codemode-advanced-backup-audit.md`
+- `test-codemode-advanced-backup-export.md`
 - `test-codemode-advanced-cluster-group-replication.md`
 - `test-codemode-advanced-cluster-innodb.md`
 - `test-codemode-advanced-concurrency.md`
-- `test-codemode-advanced-core.md`
-- `test-codemode-advanced-docstore.md`
+- `test-codemode-advanced-docstore-collections.md`
+- `test-codemode-advanced-docstore-documents.md`
 - `test-codemode-advanced-events.md`
 - `test-codemode-advanced-fulltext.md`
 - `test-codemode-advanced-introspection.md`
@@ -29,7 +31,8 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-json-enhanced.md`
 - `test-codemode-advanced-json-helpers.md`
 - `test-codemode-advanced-migration.md`
-- `test-codemode-advanced-monitoring.md`
+- `test-codemode-advanced-monitoring-health.md`
+- `test-codemode-advanced-monitoring-status.md`
 - `test-codemode-advanced-optimization.md`
 - `test-codemode-advanced-partitioning.md`
 - `test-codemode-advanced-performance-analysis.md`
@@ -37,11 +40,14 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-proxysql-config.md`
 - `test-codemode-advanced-proxysql-status.md`
 - `test-codemode-advanced-replication.md`
-- `test-codemode-advanced-roles.md`
-- `test-codemode-advanced-router.md`
+- `test-codemode-advanced-roles-assignment.md`
+- `test-codemode-advanced-roles-management.md`
+- `test-codemode-advanced-router-advanced.md`
+- `test-codemode-advanced-router-routes.md`
 - `test-codemode-advanced-schema-management.md`
 - `test-codemode-advanced-schema-routines.md`
-- `test-codemode-advanced-security.md`
+- `test-codemode-advanced-security-audit.md`
+- `test-codemode-advanced-security-system.md`
 - `test-codemode-advanced-sessions.md`
 - `test-codemode-advanced-shell-data.md`
 - `test-codemode-advanced-shell-utils.md`
@@ -51,6 +57,7 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-spatial-setup.md`
 - `test-codemode-advanced-stats-advanced.md`
 - `test-codemode-advanced-stats-descriptive.md`
+- `test-codemode-advanced-stats-time-series.md`
 - `test-codemode-advanced-stats-window.md`
 - `test-codemode-advanced-sys.md`
 - `test-codemode-advanced-text.md`
@@ -59,6 +66,7 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-vector-search.md`
 - `test-codemode-advanced-vector-storage.md`
 - `test-codemode-advanced-versioning.md`
+- `test-codemode-sandbox.md`
 
 ## Agent Execution Protocol
 
