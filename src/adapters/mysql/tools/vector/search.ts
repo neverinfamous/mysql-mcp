@@ -107,17 +107,7 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
             )
           );
         }
-        if (msg.includes("doesn't exist")) {
-          const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(
-              `Table '${String(tableName)}' does not exist`,
-              "TABLE_NOT_FOUND",
-              ErrorCategory.QUERY,
-              { suggestion: "Use mysql_list_tables to find available tables" }
-            )
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -211,17 +201,7 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
             )
           );
         }
-        if (msg.includes("doesn't exist")) {
-          const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(
-              `Table '${String(tableName)}' does not exist`,
-              "TABLE_NOT_FOUND",
-              ErrorCategory.QUERY,
-              { suggestion: "Use mysql_list_tables to find available tables" }
-            )
-          );
-        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -410,17 +390,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
             )
           );
         }
-        if (msg.includes("doesn't exist")) {
-          const tableName = typeof params === 'object' && params !== null ? (params as Record<string, unknown>)['table'] : 'unknown';
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(
-              `Table '${String(tableName)}' does not exist`,
-              "TABLE_NOT_FOUND",
-              ErrorCategory.QUERY,
-              { suggestion: "Use mysql_list_tables to find available tables" }
-            )
-          );
-        }
+
         if (msg.includes("Can't find FULLTEXT index")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
