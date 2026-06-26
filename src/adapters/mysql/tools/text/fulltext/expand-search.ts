@@ -108,7 +108,7 @@ export function createFulltextExpandTool(
             facets = {};
             const countSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
             try {
-              const countResult = await adapter.executeReadQuery(countSql, queryArgs);
+              const countResult = await adapter.executeReadQuery(countSql, [sanitizedQuery]);
               totalCount = Number(countResult.rows?.[0]?.["cnt"] ?? data.length);
             } catch {
               // Ignore and fallback to data.length
