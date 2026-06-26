@@ -172,7 +172,7 @@ export const MetadataNameInputSchema = z
   });
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
-  poolName: z.string().optional().describe("Name of the connection pool (defaults to 'main')"),
+  poolName: z.string().optional().describe("Name of the connection pool"),
   name: z.string().optional().describe("Alias for poolName"),
 });
 
@@ -188,7 +188,7 @@ export const ConnectionPoolNameInputSchema = z
         ? raw
         : typeof raw === "number" || typeof raw === "boolean"
           ? raw.toString()
-          : "main";
+          : "";
     return { poolName: resolved };
   })
   .refine((data) => data.poolName !== "", {
