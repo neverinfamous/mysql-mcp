@@ -162,11 +162,6 @@ cluster Tool Group (10 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.grStatus()` → GR status or structured error
-3. `mysql.cluster.grMembers()` → members or empty
-4. `mysql.cluster.grPrimary()` → primary status
-5. `mysql.cluster.grTransactions()` → transactions status
-6. `mysql.cluster.grFlowControl()` → flow control status
 7. `mysql.cluster.status()` → cluster status or structured error
 8. `mysql.cluster.status({summary: true})` → summarized output
 9. `mysql.cluster.instances()` → instance details

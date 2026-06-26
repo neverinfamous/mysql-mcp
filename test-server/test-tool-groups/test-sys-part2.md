@@ -146,26 +146,6 @@ During testing, check for these inconsistencies:
 
 sysschema Tool Group (8 tools +1 for code mode):
 
-1. 'mysql_sys_user_summary'
-2. 'mysql_sys_io_summary'
-3. 'mysql_sys_statement_summary'
-4. 'mysql_sys_wait_summary'
-5. 'mysql_sys_innodb_lock_waits'
-6. 'mysql_sys_schema_stats'
-7. 'mysql_sys_host_summary'
-8. 'mysql_sys_memory_summary'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Happy paths (🟢):**
-*(Note: All sys tools have optional parameters. Calling with `{}` is a valid happy path.)*
-
-1. 🟢 `mysql_sys_user_summary({})` -> verify success
-2. 🟢 `mysql_sys_io_summary({})` -> verify success
-3. 🟢 `mysql_sys_statement_summary({})` -> verify success
-4. 🟢 `mysql_sys_wait_summary({})` -> verify success
-5. 🟢 `mysql_sys_innodb_lock_waits({})` -> verify success
 6. 🟢 `mysql_sys_schema_stats({})` -> verify success
 7. 🟢 `mysql_sys_host_summary({})` -> verify success
 8. 🟢 `mysql_sys_memory_summary({})` -> verify success
@@ -189,6 +169,8 @@ sysschema Tool Group (8 tools +1 for code mode):
 17. 🟢 (No parameter aliases are documented for sys tools)
 
 ---
+
+
 
 ## Post-Test Procedures
 

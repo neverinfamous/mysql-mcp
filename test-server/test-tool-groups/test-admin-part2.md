@@ -146,27 +146,6 @@ During testing, check for these inconsistencies:
 
 admin Tool Group (9 tools +1 for code mode):
 
-1. 'mysql_optimize_table'
-2. 'mysql_analyze_table'
-3. 'mysql_check_table'
-4. 'mysql_repair_table'
-5. 'mysql_flush_tables'
-6. 'mysql_kill_query'
-7. 'mysql_append_insight'
-8. 'mysql_server_config'
-9. 'mysql_audit_search'
-10. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_analyze_table({table: "test_products"})` → `{success: true}`
-2. `mysql_check_table({table: "test_products"})` → verify `status: "OK"`
-3. `mysql_optimize_table({table: "test_products"})` → verify success response
-4. `mysql_kill_query({id: 99999})` → `{success: false}` or structured error (invalid process ID)
-5. `mysql_server_config({action: "get"})` → verify success and config object
-6. `mysql_server_config({action: "set", setting: "logLevel", value: "debug"})` → `{success: true, message: ...}`
-7. `mysql_server_config({action: "set", setting: "logLevel", value: "info"})` → `{success: true, message: ...}`
-8. `mysql_repair_table({table: "test_products"})` → verify InnoDB not supported message
 9. `mysql_flush_tables({tables: ["test_products"]})` → verify success
 10. `mysql_append_insight({insight: "Test insight"})` → verify success
 11. `mysql_audit_search({})` → `{success: true, entries: [...]}`
@@ -193,6 +172,8 @@ admin Tool Group (9 tools +1 for code mode):
 23. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error
 
 ---
+
+
 
 ## Post-Test Procedures
 

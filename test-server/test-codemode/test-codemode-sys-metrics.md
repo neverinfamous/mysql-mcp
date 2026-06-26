@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: PART 1 [schema-routines]
+# mysql-mcp Code Mode Testing: [sys-metrics]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of PART 1 of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -21,7 +21,19 @@
 
 ### Test Schema Reference
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+| Table               | Rows | Key Columns                                       | JSON Columns        |
+| ------------------- | ---- | ------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                         | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                            | data                |
+| `test_categories`   | 17   | id, name, path, level                             | —                   |
 
 ## Reporting Format
 
@@ -76,7 +88,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Structured Error Response Pattern
 
@@ -140,65 +152,40 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: schema-routines
+## Group Focus: sysschema
 
-### schema Group-Specific Testing
+sysschema Tool Group (8 tools +1 code mode):
 
-schema Tool Group (11 tools +1 for code mode):
+1. `mysql_sys_user_summary`
+2. `mysql_sys_io_summary`
+3. `mysql_sys_statement_summary`
+4. `mysql_sys_wait_summary`
+5. `mysql_sys_innodb_lock_waits`
+6. `mysql_sys_schema_stats`
+7. `mysql_sys_host_summary`
+8. `mysql_sys_memory_summary`
 
-1. 'mysql_list_schemas'
-2. 'mysql_create_schema'
-3. 'mysql_drop_schema'
-4. 'mysql_list_views'
-5. 'mysql_create_view'
-6. 'mysql_drop_view'
-7. 'mysql_list_stored_procedures'
-8. 'mysql_list_functions'
-9. 'mysql_list_triggers'
-10. 'mysql_list_constraints'
-11. 'mysql_list_events'
-12. 'mysql_execute_code' (codemode, auto-added)
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
-
-1. `mysql_list_schemas()` → verify `testdb`, `information_schema`, `mysql` in results
-2. `mysql_list_views({database: "testdb"})` → verify response structure (may be empty)
-3. `mysql_list_constraints({table: "test_orders"})` → verify FK to `test_products` appears
-4. `mysql_list_triggers({database: "testdb"})` → verify response structure (may be empty)
-5. `mysql_list_stored_procedures({database: "testdb"})` → verify response structure
-6. `mysql_list_functions({database: "testdb"})` → verify response structure
-7. `mysql_list_events({database: "testdb"})` → verify response structure
-
-**Subscription Verification:**
-
-8. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle `mysql://schema` and `mysql://tables` resource URIs.
-
-**Create → Use → Drop lifecycle:**
-
-9. `mysql_create_view({name: "temp_view_order_totals", query: "SELECT product_id, SUM(total_price) AS total FROM test_orders GROUP BY product_id"})` → `{success: true}`
-10. `mysql_list_views({database: "testdb"})` → verify `temp_view_order_totals` appears
+1. `mysql.sys.help()` -> verify method listing
+2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
+3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
+8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
+9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql_list_constraints({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` or empty results — not raw MCP error
-12. 🔴 `mysql_drop_schema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}` handler error
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-13. 🔴 `mysql_create_view({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-14. 🔴 `mysql_create_schema({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
 
-**Wrong-type numeric param coercion (🔴):**
+**Alias acceptance (🟢):**
 
-15. 🔴 `mysql_list_constraints({limit: "abc"})` → must NOT return raw MCP `-32602` error
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
-**Cleanup:**
-
-16. Drop `temp_view_order_totals` view via `mysql_drop_view({name: "temp_view_order_totals"})`
-
----
-
-## Post-Test Procedures
+---\n\n## Post-Test Procedures
 
 ### Reporting Rules
 
@@ -218,7 +205,9 @@ schema Tool Group (11 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-schema-routines.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-sys.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+
+---

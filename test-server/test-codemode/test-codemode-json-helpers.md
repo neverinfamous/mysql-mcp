@@ -146,34 +146,34 @@ During testing, check for these inconsistencies:
 
 json-helpers Tool Group (4 tools +1 for code mode):
 
-1. `mysql_json_get`
-2. `mysql_json_update`
-3. `mysql_json_search`
-4. `mysql_json_validate`
+1. `mysql.json.get`
+2. `mysql.json.update`
+3. `mysql.json.search`
+4. `mysql.json.validate`
 5. `mysql_execute_code` (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 
 **Checklist:**
 
-1. `mysql_json_get({...})` → happy path
-2. `mysql_json_update({...})` → happy path
-3. `mysql_json_search({...})` → happy path
-4. `mysql_json_validate({...})` → happy path
+1. `mysql.json.get({...})` → happy path
+2. `mysql.json.update({...})` → happy path
+3. `mysql.json.search({...})` → happy path
+4. `mysql.json.validate({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_json_get({...})` → domain error
-6. 🔴 `mysql_json_update({...})` → domain error
-7. 🔴 `mysql_json_search({...})` → domain error
+5. 🔴 `mysql.json.get({...})` → domain error
+6. 🔴 `mysql.json.update({...})` → domain error
+7. 🔴 `mysql.json.search({...})` → domain error
 
 
 **Zod validation error paths (🔴):**
 
-8. 🔴 `mysql_json_get({})` → validation error
-9. 🔴 `mysql_json_update({})` → validation error
-10. 🔴 `mysql_json_search({})` → validation error
-11. 🔴 `mysql_json_validate({})` → validation error
+8. 🔴 `mysql.json.get({})` → validation error
+9. 🔴 `mysql.json.update({})` → validation error
+10. 🔴 `mysql.json.search({})` → validation error
+11. 🔴 `mysql.json.validate({})` → validation error
 
 ---
 

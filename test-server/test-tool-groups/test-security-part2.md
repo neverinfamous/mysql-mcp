@@ -146,60 +146,9 @@ During testing, check for these inconsistencies:
 
 security Tool Group (9 tools +1 for code mode):
 
-1. 'mysql_security_audit'
-2. 'mysql_security_firewall_status'
-3. 'mysql_security_firewall_rules'
-4. 'mysql_security_mask_data'
-5. 'mysql_security_password_validate'
-6. 'mysql_security_ssl_status'
-7. 'mysql_security_user_privileges'
-8. 'mysql_security_sensitive_tables'
-9. 'mysql_security_encryption_status'
 10. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_security_audit({...})` -> verify success
-2. `mysql_security_firewall_status({...})` -> verify success
-3. `mysql_security_firewall_rules({...})` -> verify success
-4. `mysql_security_mask_data({...})` -> verify success
-5. `mysql_security_password_validate({...})` -> verify success
-6. `mysql_security_ssl_status({...})` -> verify success
-7. `mysql_security_user_privileges({user: "root", host: "localhost", summary: true})` -> verify success
-8. `mysql_security_sensitive_tables({...})` -> verify success
-9. `mysql_security_encryption_status({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql_security_audit({...})` -> `{success: false, error: "..."}` handler error
-11. 🔴 `mysql_security_firewall_status({...})` -> `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_security_firewall_rules({...})` -> `{success: false, error: "..."}` handler error
-13. 🔴 `mysql_security_mask_data({...})` -> `{success: false, error: "..."}` handler error
-14. 🔴 `mysql_security_password_validate({...})` -> `{success: false, error: "..."}` handler error
-15. 🔴 `mysql_security_ssl_status({...})` -> `{success: false, error: "..."}` handler error
-16. 🔴 `mysql_security_user_privileges({...})` -> `{success: false, error: "..."}` handler error
-17. 🔴 `mysql_security_sensitive_tables({...})` -> `{success: false, error: "..."}` handler error
-18. 🔴 `mysql_security_encryption_status({...})` -> `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-19. 🔴 `mysql_security_audit({})` -> `{success: false, error: "..."}` (Zod validation)
-20. 🔴 `mysql_security_firewall_status({})` -> `{success: false, error: "..."}` (Zod validation)
-21. 🔴 `mysql_security_firewall_rules({})` -> `{success: false, error: "..."}` (Zod validation)
-22. 🔴 `mysql_security_mask_data({})` -> `{success: false, error: "..."}` (Zod validation)
-23. 🔴 `mysql_security_password_validate({})` -> `{success: false, error: "..."}` (Zod validation)
-24. 🔴 `mysql_security_ssl_status({})` -> `{success: false, error: "..."}` (Zod validation)
-25. 🔴 `mysql_security_user_privileges({})` -> `{success: false, error: "..."}` (Zod validation)
-26. 🔴 `mysql_security_sensitive_tables({})` -> `{success: false, error: "..."}` (Zod validation)
-27. 🔴 `mysql_security_encryption_status({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-28. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
-## Post-Test Procedures
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 ### Reporting Rules
 
@@ -224,3 +173,6 @@ security Tool Group (9 tools +1 for code mode):
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
 
+
+
+## Post-Test Proceduresundefined

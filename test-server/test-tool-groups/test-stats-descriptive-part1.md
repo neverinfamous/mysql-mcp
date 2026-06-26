@@ -156,7 +156,7 @@ stats-descriptive Tool Group (8 tools +1 for code mode):
 8. 'mysql_stats_histogram'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 **Test data:** Uses `test_measurements`, `test_events`, etc.
 
@@ -166,29 +166,6 @@ stats-descriptive Tool Group (8 tools +1 for code mode):
 2. `mysql_stats_percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → verify 3 percentile values
 3. `mysql_stats_correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → verify correlation value between -1 and 1
 4. `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: 10})` → verify `buckets` array with entries
-5. `mysql_stats_time_series({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
-6. `mysql_stats_regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → verify regression coefficients returned
-7. `mysql_stats_sampling({table: "test_measurements", sampleSize: 10})` → verify approximately 10 rows returned
-8. `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: 10})` → verify histogram data
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_stats_descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false, error: "..."}` handler error
-10. 🔴 `mysql_stats_correlation({table: "test_products", column1: "name", column2: "description"})` → error about non-numeric columns
-11. 🔴 `mysql_stats_regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-12. 🔴 `mysql_stats_descriptive({})` → `{success: false, error: "..."}` (Zod validation)
-13. 🔴 `mysql_stats_percentiles({})` → `{success: false, error: "..."}` (missing required params)
-
-**Wrong-type numeric param coercion (🔴):**
-
-14. 🔴 `mysql_stats_sampling({table: "test_measurements", sampleSize: "abc"})` → must NOT return raw MCP error
-15. 🔴 `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
-16. 🔴 `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
-
----
 
 ## Post-Test Procedures
 

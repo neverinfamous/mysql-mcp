@@ -95,7 +95,7 @@ src/
 │   ├── sandbox-factory.ts          # Sandbox creation factory
 │   ├── auto-return.ts              # Last-expression auto-return transform (IIFE helper)
 │   ├── api/
-│   │   ├── mysql-api/              # mysql.* API bridge — injects AuditInterceptor into all 24 groups
+│   │   ├── mysql-api/              # mysql.* API bridge — injects AuditInterceptor into all 28 groups
 │   │   ├── constants/              # Code Mode method aliases, positional params, prefix rules
 │   │   ├── generator.ts            # createGroupApi() — dynamic tool→method generator with audit wrapper
 │   │   └── index.ts                # Barrel
@@ -370,6 +370,7 @@ try {
 | `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |
 | `test-server/test-tool-groups/`             | Basic functionality tests for all 28 tool groups                     |
 | `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
+| `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
 | `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
 | `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |

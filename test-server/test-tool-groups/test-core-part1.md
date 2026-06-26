@@ -172,7 +172,7 @@ core Tool Group (8 tools +1 for code mode):
 
 All tools implement P154 structured error handling for nonexistent tables. Test with `test_products` and `test_orders`.
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation. These are the minimum-bar tests that must pass every run — freeform testing comes after.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 **Read/Write/Schema tools:**
 
@@ -195,42 +195,6 @@ All tools implement P154 structured error handling for nonexistent tables. Test 
 11. 🔴 `mysql_get_indexes({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
 12. 🔴 `mysql_read_query({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` SQL syntax error
 
-**Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
-
-13. 🔴 `mysql_create_table({})` → `{success: false, error: "Validation error: ..."}` — NOT raw MCP error
-14. 🔴 `mysql_describe_table({})` → `{success: false, error: "Validation error: ..."}` (missing required `table`)
-15. 🔴 `mysql_read_query({})` → `{success: false, error: "Validation error: ..."}` (missing required `query`)
-16. 🔴 `mysql_write_query({})` → `{success: false, error: "Validation error: ..."}` (missing required `query`)
-17. 🔴 `mysql_create_index({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-18. 🔴 `mysql_drop_table({})` → `{success: false, error: "Validation error: ..."}` (missing required `table`)
-
-**Wrong-type numeric param coercion (🔴):**
-
-19. 🔴 `mysql_list_tables({limit: "abc"})` → must NOT return raw MCP `-32602` error — should return handler error or silently default `limit`
-20. 🔴 `mysql_read_query({query: "SELECT * FROM test_products", limit: "abc"})` → must NOT return raw MCP error
-
-**Alias acceptance (verify aliases produce identical results):**
-
-21. `mysql_read_query({sql: "SELECT 1 AS test"})` → works via `sql` alias for `query`
-22. `mysql_describe_table({name: "test_products"})` → works via `name` alias for `table`
-23. `mysql_describe_table({tableName: "test_products"})` → works via `tableName` alias for `table`
-24. `mysql_drop_table({name: "temp_alias_test", ifExists: true})` → works via `name` alias
-
-**Create → Use → Drop lifecycle (temp tables):**
-
-25. `mysql_create_table({table: "temp_lifecycle", columns: [{name: "id", type: "INT", primaryKey: true, autoIncrement: true}, {name: "name", type: "VARCHAR(100)", notNull: true}]})` → `{success: true}`
-26. `mysql_write_query({query: "INSERT INTO temp_lifecycle (name) VALUES ('Alice'), ('Bob')"})` → `{rowsAffected: 2}`
-27. `mysql_read_query({query: "SELECT COUNT(*) AS n FROM temp_lifecycle"})` → `{rows: [{n: 2}]}`
-28. `mysql_create_index({table: "temp_lifecycle", columns: ["name"], name: "idx_temp_name"})` → `{success: true}`
-29. `mysql_get_indexes({table: "temp_lifecycle"})` → verify `idx_temp_name` appears
-30. `mysql_drop_table({table: "temp_lifecycle", ifExists: true})` → `{success: true}`
-31. `mysql_drop_table({table: "temp_lifecycle", ifExists: true})` → `{success: true}` or `{existed: false}` (already dropped)
-
-**Subscription Verification:**
-
-32. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle the `mysql://health` resource URI.
-
----
 
 ## Post-Test Procedures
 

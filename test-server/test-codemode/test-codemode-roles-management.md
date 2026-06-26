@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [json-enhanced]
+# mysql-mcp Code Mode Testing: [roles-management]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -21,7 +21,19 @@
 
 ### Test Schema Reference
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+| Table               | Rows | Key Columns                                       | JSON Columns        |
+| ------------------- | ---- | ------------------------------------------------- | ------------------- |
+| `test_products`     | 16   | id, name, price, category                         | metadata            |
+| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
+| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
+| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
+| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
+| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
+| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
+| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
+| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
+| `test_partitioned`  | 26   | id, region, created_at                            | data                |
+| `test_categories`   | 17   | id, name, path, level                             | —                   |
 
 ## Reporting Format
 
@@ -140,48 +152,28 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: json-enhanced
+## Group Focus: roles\n\nroles Tool Group (8 tools +1 code mode):\n\n1. `mysql_role_list`\n2. `mysql_role_create`\n3. `mysql_role_drop`\n4. `mysql_role_grants`\n5. `mysql_role_grant`\n6. `mysql_role_assign`\n7. `mysql_role_revoke`\n8. `mysql_user_roles`\n\n> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.
 
-### json-enhanced Group-Specific Testing
-
-json-enhanced Tool Group (5 tools +1 for code mode):
-
-1. `mysql.json.merge`
-2. `mysql.json.diff`
-3. `mysql.json.normalize`
-4. `mysql.json.stats`
-5. `mysql.json.indexSuggest`
-6. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. `mysql.json.merge({...})` → happy path
-2. `mysql.json.diff({...})` → happy path
-3. `mysql.json.normalize({...})` → happy path
-4. `mysql.json.stats({...})` → happy path
-5. `mysql.json.indexSuggest({...})` → happy path
+1. `mysql.roles.help()` → verify method listing
+2. `mysql.roles.roleList({ limit: 5 })` → verify success
+3. `mysql.roles.roleCreate({ roleName: "test_role_x" })` → verify success
+7. `mysql.roles.userRoles({ userName: "root" })` → verify success
+9. `mysql.roles.roleDrop({ roleName: "test_role_x" })` → verify success
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.json.merge({...})` → domain error
-7. 🔴 `mysql.json.diff({...})` → domain error
-8. 🔴 `mysql.json.normalize({...})` → domain error
-9. 🔴 `mysql.json.stats({...})` → domain error
-10. 🔴 `mysql.json.indexSuggest({...})` → domain error
+10. 🔴 `mysql.roles.roleDrop({ roleName: "nonexistent_role_xyz" })` → `{success: false}`
+11. 🔴 `mysql.roles.roleGrant({ roleName: "nonexistent_role_xyz", privileges: ["SELECT"], object: "testdb.*" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.json.merge({})` → validation error
-12. 🔴 `mysql.json.diff({})` → validation error
-13. 🔴 `mysql.json.normalize({})` → validation error
-14. 🔴 `mysql.json.stats({})` → validation error
-15. 🔴 `mysql.json.indexSuggest({})` → validation error
+12. 🔴 `mysql.roles.roleCreate({})` → `{success: false, error: "Validation error: ..."}`
 
----
+**Alias acceptance (🟢):**
 
-## Post-Test Procedures
+13. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---\n\n## Post-Test Procedures
 
 ### Reporting Rules
 
@@ -201,7 +193,9 @@ json-enhanced Tool Group (5 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-json-enhanced.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-roles.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+
+---

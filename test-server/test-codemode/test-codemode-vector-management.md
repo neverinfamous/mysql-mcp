@@ -146,34 +146,34 @@ During testing, check for these inconsistencies:
 
 vector-management Tool Group (4 tools +1 for code mode):
 
-1. `mysql_vector_info`
-2. `mysql_vector_create_index`
-3. `mysql_vector_optimize`
-4. `mysql_vector_stats`
+1. `mysql.vector.info`
+2. `mysql.vector.createIndex`
+3. `mysql.vector.optimize`
+4. `mysql.vector.stats`
 5. `mysql_execute_code` (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 
 **Checklist:**
 
-1. ✅ `mysql_vector_info({...})` → happy path
-2. ✅ `mysql_vector_create_index({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-3. ✅ `mysql_vector_optimize({...})` → happy path
-4. ✅ `mysql_vector_stats({...})` → happy path
+1. ✅ `mysql.vector.info({...})` → happy path
+2. ✅ `mysql.vector.createIndex({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql.vector.optimize({...})` → happy path
+4. ✅ `mysql.vector.stats({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. ✅ `mysql_vector_info({...})` → domain error
-6. ✅ `mysql_vector_create_index({...})` → domain error
-7. ✅ `mysql_vector_optimize({...})` → domain error
-8. ✅ `mysql_vector_stats({...})` → domain error
+5. ✅ `mysql.vector.info({...})` → domain error
+6. ✅ `mysql.vector.createIndex({...})` → domain error
+7. ✅ `mysql.vector.optimize({...})` → domain error
+8. ✅ `mysql.vector.stats({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. ✅ `mysql_vector_info({})` → validation error
-10. ✅ `mysql_vector_create_index({})` → validation error
-11. ✅ `mysql_vector_optimize({})` → validation error
-12. ✅ `mysql_vector_stats({})` → validation error
+9. ✅ `mysql.vector.info({})` → validation error
+10. ✅ `mysql.vector.createIndex({})` → validation error
+11. ✅ `mysql.vector.optimize({})` → validation error
+12. ✅ `mysql.vector.stats({})` → validation error
 
 ---
 

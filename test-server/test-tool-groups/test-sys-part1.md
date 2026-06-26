@@ -156,7 +156,7 @@ sysschema Tool Group (8 tools +1 for code mode):
 8. 'mysql_sys_memory_summary'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 **Happy paths (🟢):**
 *(Note: All sys tools have optional parameters. Calling with `{}` is a valid happy path.)*
@@ -166,29 +166,6 @@ sysschema Tool Group (8 tools +1 for code mode):
 3. 🟢 `mysql_sys_statement_summary({})` -> verify success
 4. 🟢 `mysql_sys_wait_summary({})` -> verify success
 5. 🟢 `mysql_sys_innodb_lock_waits({})` -> verify success
-6. 🟢 `mysql_sys_schema_stats({})` -> verify success
-7. 🟢 `mysql_sys_host_summary({})` -> verify success
-8. 🟢 `mysql_sys_memory_summary({})` -> verify success
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_sys_statement_summary({ orderBy: "invalid_col" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-10. 🔴 `mysql_sys_wait_summary({ type: "invalid_type" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-11. 🔴 `mysql_sys_io_summary({ type: "invalid_type" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-12. 🔴 `mysql_sys_schema_stats({ schema: "nonexistent_db_xyz" })` -> `{success: false, error: "...", code: "NOT_FOUND_ERROR"}` (P154)
-
-**Zod validation error paths via coercion (🔴):**
-
-13. 🔴 `mysql_sys_user_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-14. 🔴 `mysql_sys_host_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-15. 🔴 `mysql_sys_innodb_lock_waits({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-16. 🔴 `mysql_sys_memory_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-
-**Alias acceptance (🟢):**
-
-17. 🟢 (No parameter aliases are documented for sys tools)
-
----
 
 ## Post-Test Procedures
 

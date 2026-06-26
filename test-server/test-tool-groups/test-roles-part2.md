@@ -146,30 +146,6 @@ During testing, check for these inconsistencies:
 
 roles Tool Group (8 tools +1 for code mode):
 
-1. 'mysql_role_list'
-2. 'mysql_role_create'
-3. 'mysql_role_drop'
-4. 'mysql_role_grants'
-5. 'mysql_role_grant'
-6. 'mysql_role_assign'
-7. 'mysql_role_revoke'
-8. 'mysql_user_roles'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_role_list({...})` -> verify success
-2. `mysql_role_create({...})` -> verify success
-3. `mysql_role_drop({...})` -> verify success
-4. `mysql_role_grants({...})` -> verify success
-5. `mysql_role_grant({...})` -> verify success
-6. `mysql_role_assign({...})` -> verify success
-7. `mysql_role_revoke({...})` -> verify success
-8. `mysql_user_roles({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_role_list({...})` -> `{success: false, error: "..."}` handler error
 10. 🔴 `mysql_role_create({...})` -> `{success: false, error: "..."}` handler error
 11. 🔴 `mysql_role_drop({...})` -> `{success: false, error: "..."}` handler error
 12. 🔴 `mysql_role_grants({...})` -> `{success: false, error: "..."}` handler error
@@ -194,6 +170,8 @@ roles Tool Group (8 tools +1 for code mode):
 25. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
+
+
 
 ## Post-Test Procedures
 

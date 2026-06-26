@@ -146,26 +146,6 @@ During testing, check for these inconsistencies:
 
 stats-descriptive Tool Group (8 tools +1 for code mode):
 
-1. 'mysql_stats_descriptive'
-2. 'mysql_stats_percentiles'
-3. 'mysql_stats_correlation'
-4. 'mysql_stats_distribution'
-5. 'mysql_stats_time_series'
-6. 'mysql_stats_regression'
-7. 'mysql_stats_sampling'
-8. 'mysql_stats_histogram'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_measurements`, `test_events`, etc.
-
-**Checklist:**
-
-1. `mysql_stats_descriptive({table: "test_measurements", column: "temperature"})` → verify `mean`, `stddev`, `min`, `max` present
-2. `mysql_stats_percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → verify 3 percentile values
-3. `mysql_stats_correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → verify correlation value between -1 and 1
-4. `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: 10})` → verify `buckets` array with entries
 5. `mysql_stats_time_series({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
 6. `mysql_stats_regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → verify regression coefficients returned
 7. `mysql_stats_sampling({table: "test_measurements", sampleSize: 10})` → verify approximately 10 rows returned
@@ -189,6 +169,8 @@ stats-descriptive Tool Group (8 tools +1 for code mode):
 16. 🔴 `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
 
 ---
+
+
 
 ## Post-Test Procedures
 

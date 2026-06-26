@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [router]
+# mysql-mcp Code Mode Testing: [stats-basic]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -21,19 +21,7 @@
 
 ### Test Schema Reference
 
-| Table               | Rows | Key Columns                                       | JSON Columns        |
-| ------------------- | ---- | ------------------------------------------------- | ------------------- |
-| `test_products`     | 16   | id, name, price, category                         | metadata            |
-| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
-| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
-| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
-| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
-| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
-| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
-| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
-| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
-| `test_partitioned`  | 26   | id, region, created_at                            | data                |
-| `test_categories`   | 17   | id, name, path, level                             | —                   |
+> See `code-map.md` in the `test-server/` directory for the complete test database schema.
 
 ## Reporting Format
 
@@ -152,43 +140,39 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: router
+## Group Focus: stats-descriptive
 
-router Tool Group (9 tools +1 code mode):
+stats-descriptive Tool Group (8 tools +1 code mode):
 
-1. `mysql_router_status`
-2. `mysql_router_routes`
-3. `mysql_router_route_status`
-4. `mysql_router_route_health`
-5. `mysql_router_route_connections`
-6. `mysql_router_route_destinations`
-7. `mysql_router_route_blocked_hosts`
-8. `mysql_router_metadata_status`
-9. `mysql_router_pool_status`
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_correlation`
+4. `mysql_stats_distribution`
+5. `mysql_stats_time_series`
+6. `mysql_stats_regression`
+7. `mysql_stats_sampling`
+8. `mysql_stats_histogram`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-2. `mysql.router.status()` → Router version
-3. `mysql.router.routes()` → configured routes
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-9. `mysql.router.metadataStatus({metadataName: "bootstrap"})` → metadata cache
-10. `mysql.router.poolStatus({poolName: "main"})` → pool status or structured error
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
+8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
+9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-12. 🔴 `mysql.router.poolStatus({poolName: "nonexistent_xyz"})` → `{success: false}`
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
@@ -212,7 +196,7 @@ router Tool Group (9 tools +1 code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-router.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-stats-descriptive.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

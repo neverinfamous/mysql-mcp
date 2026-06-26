@@ -167,13 +167,6 @@ cluster Tool Group (10 tools +1 code mode):
 4. `mysql.cluster.grPrimary()` → primary node details
 5. `mysql.cluster.grTransactions()` → transaction metrics
 6. `mysql.cluster.grFlowControl()` → flow control stats
-7. `mysql.cluster.status()` → cluster status or structured error
-8. `mysql.cluster.status({summary: true})` → summarized output
-9. `mysql.cluster.instances()` → instance details
-10. `mysql.cluster.topology()` → topology map
-11. `mysql.cluster.routerStatus()` → router status
-12. `mysql.cluster.routerStatus({summary: true})` → summarized
-13. `mysql.cluster.switchover()` → switchover recommendations
 
 ---
 

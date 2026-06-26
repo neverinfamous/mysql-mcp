@@ -162,6 +162,7 @@ During testing, check for these inconsistencies:
 - `mysqlsh_dump_schemas`
 - `mysqlsh_dump_tables`
 - `mysqlsh_load_dump`
+- `mysqlsh_run_script`
 
 ## Tasks
 

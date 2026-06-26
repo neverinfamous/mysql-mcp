@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [json-enhanced]
+# mysql-mcp Code Mode Testing: [stats-analytics]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -140,44 +140,35 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: json-enhanced
+## Group Focus: stats-descriptive
 
-### json-enhanced Group-Specific Testing
+stats-descriptive Tool Group (8 tools +1 code mode):
 
-json-enhanced Tool Group (5 tools +1 for code mode):
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_correlation`
+4. `mysql_stats_distribution`
+5. `mysql_stats_time_series`
+6. `mysql_stats_regression`
+7. `mysql_stats_sampling`
+8. `mysql_stats_histogram`
 
-1. `mysql.json.merge`
-2. `mysql.json.diff`
-3. `mysql.json.normalize`
-4. `mysql.json.stats`
-5. `mysql.json.indexSuggest`
-6. `mysql_execute_code` (codemode, auto-added)
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. `mysql.json.merge({...})` → happy path
-2. `mysql.json.diff({...})` → happy path
-3. `mysql.json.normalize({...})` → happy path
-4. `mysql.json.stats({...})` → happy path
-5. `mysql.json.indexSuggest({...})` → happy path
+1. `mysql.stats.help()` → verify method listing
+4. `mysql.stats.correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
+6. `mysql.stats.timeSeries({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
+7. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.json.merge({...})` → domain error
-7. 🔴 `mysql.json.diff({...})` → domain error
-8. 🔴 `mysql.json.normalize({...})` → domain error
-9. 🔴 `mysql.json.stats({...})` → domain error
-10. 🔴 `mysql.json.indexSuggest({...})` → domain error
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.json.merge({})` → validation error
-12. 🔴 `mysql.json.diff({})` → validation error
-13. 🔴 `mysql.json.normalize({})` → validation error
-14. 🔴 `mysql.json.stats({})` → validation error
-15. 🔴 `mysql.json.indexSuggest({})` → validation error
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
@@ -201,7 +192,7 @@ json-enhanced Tool Group (5 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-json-enhanced.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-stats-descriptive.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

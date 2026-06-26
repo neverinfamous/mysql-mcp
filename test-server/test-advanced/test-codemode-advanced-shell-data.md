@@ -164,6 +164,7 @@ During testing, check for these inconsistencies:
 - `mysqlsh_import_json`
 - `mysqlsh_dump_schemas`
 - `mysqlsh_load_dump`
+- `mysqlsh_run_script`
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
 

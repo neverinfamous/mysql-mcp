@@ -146,30 +146,30 @@ During testing, check for these inconsistencies:
 
 vector-search Tool Group (3 tools +1 for code mode):
 
-1. `mysql_vector_search`
-2. `mysql_vector_range_search`
-3. `mysql_vector_hybrid_search`
+1. `mysql.vector.search`
+2. `mysql.vector.rangeSearch`
+3. `mysql.vector.hybridSearch`
 4. `mysql_execute_code` (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 
 **Checklist:**
 
-1. ✅ `mysql_vector_search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-2. ✅ `mysql_vector_range_search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-3. ✅ `mysql_vector_hybrid_search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+1. ✅ `mysql.vector.search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+2. ✅ `mysql.vector.rangeSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql.vector.hybridSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
 
 **Domain error paths (🔴):**
 
-4. ✅ `mysql_vector_search({...})` → domain error (TABLE_NOT_FOUND)
-5. ✅ `mysql_vector_range_search({...})` → domain error (TABLE_NOT_FOUND)
-6. ✅ `mysql_vector_hybrid_search({...})` → domain error (TABLE_NOT_FOUND)
+4. ✅ `mysql.vector.search({...})` → domain error (TABLE_NOT_FOUND)
+5. ✅ `mysql.vector.rangeSearch({...})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql.vector.hybridSearch({...})` → domain error (TABLE_NOT_FOUND)
 
 **Zod validation error paths (🔴):**
 
-7. ✅ `mysql_vector_search({})` → validation error
-8. ✅ `mysql_vector_range_search({})` → validation error
-9. ✅ `mysql_vector_hybrid_search({})` → validation error
+7. ✅ `mysql.vector.search({})` → validation error
+8. ✅ `mysql.vector.rangeSearch({})` → validation error
+9. ✅ `mysql.vector.hybridSearch({})` → validation error
 
 ---
 

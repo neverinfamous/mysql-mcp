@@ -152,29 +152,6 @@ cluster Tool Group (10 tools +1 for code mode):
 4. 'mysql_gr_transactions'
 5. 'mysql_gr_flow_control'
 6. 'mysql_cluster_status'
-7. 'mysql_cluster_instances'
-8. 'mysql_cluster_topology'
-9. 'mysql_cluster_router_status'
-10. 'mysql_cluster_switchover'
-11. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
-
-1. `mysql_gr_status()` → verify GR status or structured "not configured" message
-2. `mysql_gr_members()` → verify members list or structured empty response
-3. `mysql_cluster_status()` → verify cluster status or structured error
-4. `mysql_cluster_status({summary: true})` → verify summarized output (if cluster running)
-5. `mysql_cluster_instances()` → verify instance details
-6. `mysql_cluster_topology()` → verify topology map
-7. `mysql_cluster_router_status()` → verify router status or structured error
-8. `mysql_cluster_router_status({summary: true})` → verify summarized output
-9. `mysql_cluster_switchover()` → verify readiness check (should not actually perform switchover without params)
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql_gr_primary({})` → verify behavior (may accept empty params for read-only mode)
-
----
 
 ## Post-Test Procedures
 

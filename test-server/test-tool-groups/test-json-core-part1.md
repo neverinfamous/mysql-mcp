@@ -156,7 +156,7 @@ json-core Tool Group (8 tools +1 for code mode):
 8. 'mysql_json_array_append'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 **Checklist (Happy paths):**
 
@@ -169,29 +169,6 @@ json-core Tool Group (8 tools +1 for code mode):
 7. `mysql_json_keys({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
 8. `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.array_key", value: "new_item", idColumn: "id", rowId: 1})` → happy path
 
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_json_extract({table: "nonexistent_table", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → domain error (table not found)
-10. 🔴 `mysql_json_set({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error (column not found)
-11. 🔴 `mysql_json_insert({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", idColumn: "id", rowId: 1})` → domain error (invalid path)
-12. 🔴 `mysql_json_replace({table: "test_json_docs", column: "doc", path: "$.key1", value: "v", idColumn: "id", rowId: 999})` → domain error (row not found)
-13. 🔴 `mysql_json_remove({table: "test_json_docs", column: "doc", path: "$.nonexistent", idColumn: "id", rowId: 1})` → domain error
-14. 🔴 `mysql_json_contains({table: "test_json_docs", column: "doc", value: "v", path: "invalid", idColumn: "id", rowId: 1})` → domain error
-15. 🔴 `mysql_json_keys({table: "nonexistent_table", column: "doc", idColumn: "id", rowId: 1})` → domain error
-16. 🔴 `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error (not an array)
-
-**Zod validation error paths (🔴):**
-
-17. 🔴 `mysql_json_extract({})` → validation error
-18. 🔴 `mysql_json_set({})` → validation error
-19. 🔴 `mysql_json_insert({})` → validation error
-20. 🔴 `mysql_json_replace({})` → validation error
-21. 🔴 `mysql_json_remove({})` → validation error
-22. 🔴 `mysql_json_contains({})` → validation error
-23. 🔴 `mysql_json_keys({})` → validation error
-24. 🔴 `mysql_json_array_append({})` → validation error
-
----
 
 ## Post-Test Procedures
 

@@ -146,34 +146,34 @@ During testing, check for these inconsistencies:
 
 vector-storage Tool Group (4 tools +1 for code mode):
 
-1. `mysql_vector_store`
-2. `mysql_vector_batch_store`
-3. `mysql_vector_delete`
-4. `mysql_vector_get`
+1. `mysql.vector.store`
+2. `mysql.vector.batchStore`
+3. `mysql.vector.delete`
+4. `mysql.vector.get`
 5. `mysql_execute_code` (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 
 **Checklist:**
 
-1. ✅ `mysql_vector_store({...})` → happy path (returned structured COLUMN_NOT_FOUND error, verified handler intercept)
-2. ✅ `mysql_vector_batch_store({...})` → happy path
-3. ✅ `mysql_vector_delete({...})` → happy path
-4. ✅ `mysql_vector_get({...})` → happy path
+1. ✅ `mysql.vector.store({...})` → happy path (returned structured COLUMN_NOT_FOUND error, verified handler intercept)
+2. ✅ `mysql.vector.batchStore({...})` → happy path
+3. ✅ `mysql.vector.delete({...})` → happy path
+4. ✅ `mysql.vector.get({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. ✅ `mysql_vector_store({...})` → domain error
-6. ✅ `mysql_vector_batch_store({...})` → domain error
-7. ✅ `mysql_vector_delete({...})` → domain error
-8. ✅ `mysql_vector_get({...})` → domain error
+5. ✅ `mysql.vector.store({...})` → domain error
+6. ✅ `mysql.vector.batchStore({...})` → domain error
+7. ✅ `mysql.vector.delete({...})` → domain error
+8. ✅ `mysql.vector.get({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. ✅ `mysql_vector_store({})` → validation error
-10. ✅ `mysql_vector_batch_store({})` → validation error
-11. ✅ `mysql_vector_delete({})` → validation error
-12. ✅ `mysql_vector_get({})` → validation error
+9. ✅ `mysql.vector.store({})` → validation error
+10. ✅ `mysql.vector.batchStore({})` → validation error
+11. ✅ `mysql.vector.delete({})` → validation error
+12. ✅ `mysql.vector.get({})` → validation error
 
 ---
 

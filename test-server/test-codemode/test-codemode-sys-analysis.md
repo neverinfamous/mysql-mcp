@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [sys]
+# mysql-mcp Code Mode Testing: [sys-analysis]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -168,14 +168,10 @@ sysschema Tool Group (8 tools +1 code mode):
 > **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
 
 1. `mysql.sys.help()` -> verify method listing
-2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
-3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
 4. `mysql.sys.sysStatementSummary({ orderBy: "total_latency" })` -> verify success
 5. `mysql.sys.sysWaitSummary({ type: "global" })` -> verify success
 6. `mysql.sys.sysInnodbLockWaits({ limit: 5 })` -> verify success
 7. `mysql.sys.sysSchemaStats({ schema: "testdb" })` -> verify success
-8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
-9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
 
 **Domain error paths (🔴):**
 

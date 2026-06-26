@@ -151,47 +151,6 @@ docstore Tool Group (9 tools +1 for code mode):
 3. 'mysql_doc_drop_collection'
 4. 'mysql_doc_find'
 5. 'mysql_doc_add'
-6. 'mysql_doc_modify'
-7. 'mysql_doc_remove'
-8. 'mysql_doc_create_index'
-9. 'mysql_doc_collection_info'
-10. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_documents` (10 rows, collection_name, doc JSON, \_id UUID).
-
-**Checklist:**
-
-1. `mysql_doc_list_collections()` → verify `test_documents` appears in results
-2. `mysql_doc_find({collection: "test_documents", limit: 3})` → verify 3 documents returned with `_id` fields
-3. `mysql_doc_collection_info({collection: "test_documents"})` → verify `{count: 10, ...}` or similar structure
-
-**Create → Use → Drop lifecycle:**
-
-4. `mysql_doc_create_collection({name: "temp_doc_test"})` → `{success: true}`
-5. `mysql_doc_add({collection: "temp_doc_test", documents: [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]})` → verify 2 documents added
-6. `mysql_doc_find({collection: "temp_doc_test"})` → verify 2 documents
-7. `mysql_doc_modify({collection: "temp_doc_test", criteria: {"name": "Alice"}, update: {"age": 31}})` → verify update
-8. `mysql_doc_create_index({collection: "temp_doc_test", name: "idx_age", fields: [{"field": "age", "type": "INTEGER"}]})` → `{success: true}`
-9. `mysql_doc_remove({collection: "temp_doc_test", criteria: {"name": "Bob"}})` → verify removal
-10. `mysql_doc_drop_collection({name: "temp_doc_test"})` → `{success: true}`
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql_doc_find({collection: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_doc_collection_info({collection: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-12. 🔴 `mysql_doc_add({})` → `{success: false, error: "..."}` (missing required params)
-13. 🔴 `mysql_doc_create_collection({})` → `{success: false, error: "..."}` (missing required `name`)
-
-**Wrong-type numeric param coercion (🔴):**
-
-14. 🔴 `mysql_doc_find({collection: "test_documents", limit: "abc"})` → must NOT return raw MCP error
-
----
 
 ## Post-Test Procedures
 

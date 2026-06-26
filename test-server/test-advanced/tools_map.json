@@ -1,0 +1,73 @@
+{
+  "test-codemode-advanced-concurrency.md": [
+    "mysql_execute_code"
+  ],
+  "test-codemode-advanced-core-part1.md": [
+    "mysql_read_query",
+    "mysql_write_query",
+    "mysql_list_tables",
+    "mysql_describe_table"
+  ],
+  "test-codemode-advanced-core-part2.md": [
+    "mysql_create_table",
+    "mysql_drop_table",
+    "mysql_create_index",
+    "mysql_get_indexes",
+    "mysql_conditional_update"
+  ],
+  "test-codemode-advanced-json-core-part1.md": [
+    "mysql_json_extract",
+    "mysql_json_set",
+    "mysql_json_insert",
+    "mysql_json_replace"
+  ],
+  "test-codemode-advanced-json-core-part2.md": [
+    "mysql_json_remove",
+    "mysql_json_contains",
+    "mysql_json_keys",
+    "mysql_json_array_append"
+  ],
+  "test-codemode-advanced-performance-analysis-part1.md": [
+    "mysql_explain",
+    "mysql_explain_analyze",
+    "mysql_slow_queries",
+    "mysql_query_stats",
+    "mysql_index_usage"
+  ],
+  "test-codemode-advanced-performance-analysis-part2.md": [
+    "mysql_table_stats",
+    "mysql_buffer_pool_stats",
+    "mysql_thread_stats",
+    "mysql_detect_query_anomalies"
+  ],
+  "test-codemode-advanced-shell-utils-part1.md": [
+    "mysqlsh_version",
+    "mysqlsh_check_upgrade",
+    "mysqlsh_export_table",
+    "mysqlsh_import_table",
+    "mysqlsh_import_json"
+  ],
+  "test-codemode-advanced-shell-utils-part2.md": [
+    "mysqlsh_dump_instance",
+    "mysqlsh_dump_schemas",
+    "mysqlsh_dump_tables",
+    "mysqlsh_load_dump"
+  ],
+  "test-codemode-advanced-sys-part1.md": [
+    "mysql_sys_user_summary",
+    "mysql_sys_io_summary",
+    "mysql_sys_statement_summary",
+    "mysql_sys_wait_summary"
+  ],
+  "test-codemode-advanced-sys-part2.md": [
+    "mysql_sys_innodb_lock_waits",
+    "mysql_sys_schema_stats",
+    "mysql_sys_host_summary",
+    "mysql_sys_memory_summary"
+  ],
+  "test-codemode-advanced-versioning.md": [
+    "mysql_enable_versioning",
+    "mysql_disable_versioning",
+    "mysql_check_version"
+  ]
+}

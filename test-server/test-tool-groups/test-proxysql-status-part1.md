@@ -152,38 +152,6 @@ proxysql Tool Group (11 tools +1 for code mode):
 4. 'proxysql_query_digest'
 5. 'proxysql_connection_pool'
 6. 'proxysql_users'
-7. 'proxysql_global_variables'
-8. 'proxysql_runtime_status'
-9. 'proxysql_memory_stats'
-10. 'proxysql_commands'
-11. 'proxysql_process_list'
-12. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `proxysql_status()` → verify ProxySQL version, uptime
-2. `proxysql_status({summary: true})` → verify summarized output
-3. `proxysql_servers()` → verify backend server listing
-4. `proxysql_query_rules()` → verify query routing rules
-5. `proxysql_connection_pool()` → verify pool statistics
-6. `proxysql_users()` → verify user listing
-7. `proxysql_global_variables({limit: 10})` → verify first 10 variables
-8. `proxysql_global_variables({like: "mysql-max_connections"})` → verify specific variable
-9. `proxysql_runtime_status()` → verify runtime configuration
-10. `proxysql_runtime_status({summary: true})` → verify summarized output
-11. `proxysql_memory_stats()` → verify memory usage
-12. `proxysql_process_list()` → verify active sessions
-13. `proxysql_query_digest({limit: 5})` → verify top queries
-
-**Zod validation error paths (🔴):**
-
-14. 🔴 `proxysql_commands({})` → `{success: false, error: "..."}` (Zod validation — missing required `command`)
-
-**Wrong-type numeric param coercion (🔴):**
-
-15. 🔴 `proxysql_query_digest({limit: "abc"})` → must NOT return raw MCP error
-
----
 
 ## Post-Test Procedures
 

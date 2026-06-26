@@ -146,23 +146,6 @@ During testing, check for these inconsistencies:
 
 performance-analysis Tool Group (8 tools +1 for code mode):
 
-1. 'mysql_explain'
-2. 'mysql_explain_analyze'
-3. 'mysql_slow_queries'
-4. 'mysql_query_stats'
-5. 'mysql_index_usage'
-6. 'mysql_table_stats'
-7. 'mysql_buffer_pool_stats'
-8. 'mysql_thread_stats'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1"})` → verify execution plan returned
-2. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → verify JSON-format plan
-3. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TREE"})` → verify TREE-format plan
-4. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TRADITIONAL"})` → verify TRADITIONAL-format plan
-5. `mysql_table_stats({table: "test_products"})` → verify `{rows, avgRowLength, dataLength}` present
 4. `mysql_index_usage({table: "test_products"})` → verify index usage statistics
 5. `mysql_buffer_pool_stats()` → verify buffer pool metrics
 6. `mysql_thread_stats()` → verify thread statistics
@@ -184,6 +167,8 @@ performance-analysis Tool Group (8 tools +1 for code mode):
 17. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error
 
 ---
+
+
 
 ## Post-Test Procedures
 

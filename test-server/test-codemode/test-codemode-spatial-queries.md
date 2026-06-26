@@ -146,34 +146,34 @@ During testing, check for these inconsistencies:
 
 spatial-queries Tool Group (4 tools +1 for code mode):
 
-1. `mysql_spatial_distance`
-2. `mysql_spatial_distance_sphere`
-3. `mysql_spatial_contains`
-4. `mysql_spatial_within`
+1. `mysql.spatial.distance`
+2. `mysql.spatial.distanceSphere`
+3. `mysql.spatial.contains`
+4. `mysql.spatial.within`
 5. `mysql_execute_code` (codemode, auto-added)
 
-> **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
 
 **Checklist:**
 
-1. ✅ `mysql_spatial_distance({ table: 'test_locations', spatialColumn: 'geom', point: { longitude: -73.965400, latitude: 40.782900 } })` → happy path
-2. ✅ `mysql_spatial_distance_sphere({ table: 'test_locations', spatialColumn: 'geom', point: { longitude: -73.965400, latitude: 40.782900 } })` → happy path
-3. ✅ `mysql_spatial_contains({ table: 'test_locations', spatialColumn: 'geom', polygon: 'POLYGON((-74 40, -73 40, -73 41, -74 41, -74 40))' })` → happy path
-4. ✅ `mysql_spatial_within({ table: 'test_locations', spatialColumn: 'geom', geometry: 'POLYGON((-74 40, -73 40, -73 41, -74 41, -74 40))' })` → happy path
+1. ✅ `mysql.spatial.distance({ table: 'test_locations', spatialColumn: 'geom', point: { longitude: -73.965400, latitude: 40.782900 } })` → happy path
+2. ✅ `mysql.spatial.distanceSphere({ table: 'test_locations', spatialColumn: 'geom', point: { longitude: -73.965400, latitude: 40.782900 } })` → happy path
+3. ✅ `mysql.spatial.contains({ table: 'test_locations', spatialColumn: 'geom', polygon: 'POLYGON((-74 40, -73 40, -73 41, -74 41, -74 40))' })` → happy path
+4. ✅ `mysql.spatial.within({ table: 'test_locations', spatialColumn: 'geom', geometry: 'POLYGON((-74 40, -73 40, -73 41, -74 41, -74 40))' })` → happy path
 
 **Domain error paths (🔴):**
 
-5. ✅ `mysql_spatial_distance({ table: 'nonexistent_table', spatialColumn: 'geom', point: { longitude: 0, latitude: 0 } })` → domain error
-6. ✅ `mysql_spatial_distance_sphere({ table: 'nonexistent_table', spatialColumn: 'geom', point: { longitude: 0, latitude: 0 } })` → domain error
-7. ✅ `mysql_spatial_contains({ table: 'nonexistent_table', spatialColumn: 'geom', polygon: 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))' })` → domain error
-8. ✅ `mysql_spatial_within({ table: 'nonexistent_table', spatialColumn: 'geom', geometry: 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))' })` → domain error
+5. ✅ `mysql.spatial.distance({ table: 'nonexistent_table', spatialColumn: 'geom', point: { longitude: 0, latitude: 0 } })` → domain error
+6. ✅ `mysql.spatial.distanceSphere({ table: 'nonexistent_table', spatialColumn: 'geom', point: { longitude: 0, latitude: 0 } })` → domain error
+7. ✅ `mysql.spatial.contains({ table: 'nonexistent_table', spatialColumn: 'geom', polygon: 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))' })` → domain error
+8. ✅ `mysql.spatial.within({ table: 'nonexistent_table', spatialColumn: 'geom', geometry: 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))' })` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. ✅ `mysql_spatial_distance({})` → validation error
-10. ✅ `mysql_spatial_distance_sphere({})` → validation error
-11. ✅ `mysql_spatial_contains({})` → validation error
-12. ✅ `mysql_spatial_within({})` → validation error
+9. ✅ `mysql.spatial.distance({})` → validation error
+10. ✅ `mysql.spatial.distanceSphere({})` → validation error
+11. ✅ `mysql.spatial.contains({})` → validation error
+12. ✅ `mysql.spatial.within({})` → validation error
 
 ---
 

@@ -156,7 +156,7 @@ roles Tool Group (8 tools +1 for code mode):
 8. 'mysql_user_roles'
 9. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 1. `mysql_role_list({...})` -> verify success
 2. `mysql_role_create({...})` -> verify success
@@ -170,30 +170,6 @@ roles Tool Group (8 tools +1 for code mode):
 **Domain error paths (🔴):**
 
 9. 🔴 `mysql_role_list({...})` -> `{success: false, error: "..."}` handler error
-10. 🔴 `mysql_role_create({...})` -> `{success: false, error: "..."}` handler error
-11. 🔴 `mysql_role_drop({...})` -> `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_role_grants({...})` -> `{success: false, error: "..."}` handler error
-13. 🔴 `mysql_role_grant({...})` -> `{success: false, error: "..."}` handler error
-14. 🔴 `mysql_role_assign({...})` -> `{success: false, error: "..."}` handler error
-15. 🔴 `mysql_role_revoke({...})` -> `{success: false, error: "..."}` handler error
-16. 🔴 `mysql_user_roles({...})` -> `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-17. 🟢 `mysql_role_list({})` -> verify success (no required params)
-18. 🔴 `mysql_role_create({})` -> `{success: false, error: "..."}` (Zod validation)
-19. 🔴 `mysql_role_drop({})` -> `{success: false, error: "..."}` (Zod validation)
-20. 🔴 `mysql_role_grants({})` -> `{success: false, error: "..."}` (Zod validation)
-21. 🔴 `mysql_role_grant({})` -> `{success: false, error: "..."}` (Zod validation)
-22. 🔴 `mysql_role_assign({})` -> `{success: false, error: "..."}` (Zod validation)
-23. 🔴 `mysql_role_revoke({})` -> `{success: false, error: "..."}` (Zod validation)
-24. 🔴 `mysql_user_roles({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-25. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
 
 ## Post-Test Procedures
 

@@ -157,29 +157,11 @@ router Tool Group (9 tools +1 for code mode):
 9. 'mysql_router_pool_status'
 10. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 1. `mysql_router_status()` → verify Router version and process status
 2. `mysql_router_routes()` → verify configured routes listing
 3. `mysql_router_route_status({routeName: "bootstrap_rw"})` → verify route status (or structured error if route doesn't exist)
-4. `mysql_router_route_health({routeName: "bootstrap_rw"})` → verify health check
-5. `mysql_router_route_connections({routeName: "bootstrap_rw"})` → verify active connections
-6. `mysql_router_route_destinations({routeName: "bootstrap_rw"})` → verify backend destinations
-7. `mysql_router_route_blocked_hosts({routeName: "bootstrap_rw"})` → verify blocked hosts (may be empty)
-8. `mysql_router_metadata_status({metadataName: "bootstrap"})` → verify metadata cache status (requires InnoDB Cluster)
-9. `mysql_router_pool_status({poolName: "default"})` → verify pool statistics
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql_router_route_status({routeName: "nonexistent_route_xyz"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-11. 🔴 `mysql_router_route_status({})` → `{success: false, error: "..."}` (missing required `routeName`)
-
-**Alias acceptance paths (🟢):**
-12. 🟢 `mysql_router_route_status({name: "bootstrap_rw"})` → behaves identically to `routeName`
-
----
 
 ## Post-Test Procedures
 

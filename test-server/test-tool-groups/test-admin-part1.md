@@ -157,7 +157,7 @@ admin Tool Group (9 tools +1 for code mode):
 9. 'mysql_audit_search'
 10. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 1. Execute the FIRST HALF of the numbered checklist items (roughly up to the middle). You may need to run setup steps. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 1. `mysql_analyze_table({table: "test_products"})` → `{success: true}`
 2. `mysql_check_table({table: "test_products"})` → verify `status: "OK"`
@@ -167,32 +167,6 @@ admin Tool Group (9 tools +1 for code mode):
 6. `mysql_server_config({action: "set", setting: "logLevel", value: "debug"})` → `{success: true, message: ...}`
 7. `mysql_server_config({action: "set", setting: "logLevel", value: "info"})` → `{success: true, message: ...}`
 8. `mysql_repair_table({table: "test_products"})` → verify InnoDB not supported message
-9. `mysql_flush_tables({tables: ["test_products"]})` → verify success
-10. `mysql_append_insight({insight: "Test insight"})` → verify success
-11. `mysql_audit_search({})` → `{success: true, entries: [...]}`
-12. `mysql_audit_search({limit: 5, offset: 1})` → verify pagination
-13. `mysql_audit_search({tool: "mysql_write_query"})` → verify tool filtering
-14. `mysql_audit_search({success: false})` → verify outcome filtering
-
-**Domain error paths (🔴):**
-
-15. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
-16. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
-17. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
-
-**Zod validation error paths (🔴):**
-
-18. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
-19. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
-20. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
-21. 🔴 `mysql_audit_search({limit: "abc"})` → `{success: false, error: "..."}` (Zod validation, wrong type)
-22. 🔴 `mysql_flush_tables({tables: "not_array"})` → `{success: false, error: "..."}` (Zod validation)
-
-**Wrong-type numeric param coercion (🔴):**
-
-23. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error
-
----
 
 ## Post-Test Procedures
 

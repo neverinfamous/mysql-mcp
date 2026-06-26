@@ -146,41 +146,17 @@ During testing, check for these inconsistencies:
 
 shell Tool Group (10 tools +1 for code mode):
 
-1. 'mysqlsh_version'
-2. 'mysqlsh_check_upgrade'
-3. 'mysqlsh_export_table'
-4. 'mysqlsh_import_table'
-5. 'mysqlsh_import_json'
-6. 'mysqlsh_dump_instance'
 7. 'mysqlsh_dump_schemas'
 8. 'mysqlsh_dump_tables'
 9. 'mysqlsh_load_dump'
 10. 'mysqlsh_run_script'
 11. 'mysql_execute_code' (codemode, auto-added)
 
-> **Instructions**: THIS IS PART 2. Execute the SECOND HALF of the numbered checklist items. You MAY NEED to run the setup steps from the first half to prepare the state, but focus your testing on the second half of the tools. Delete temp tables when done. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysqlsh_version()` → verify MySQL Shell version and installation status
-2. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
-3. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
-4. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_tables", dryRun: true})` → verify table dump command
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test", dryRun: true})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-6. 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
-7. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
-8. 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
-
-**Security boundary validation paths (🔴):**
-
-9. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
-10. 🔴 `mysqlsh_dump_instance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}` (Directory traversal)
+> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
 ---
+
+
 
 ## Post-Test Procedures
 
