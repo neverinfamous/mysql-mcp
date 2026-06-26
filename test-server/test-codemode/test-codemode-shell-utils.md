@@ -175,7 +175,7 @@ shell Tool Group (3 tools +1 code mode):
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/nonexistent.js" })` → `{success: false}`
+5. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent.js" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
