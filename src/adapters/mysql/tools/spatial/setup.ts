@@ -115,7 +115,7 @@ export function createSpatialCreateColumnTool(
             success: false, error: "Cannot add a NOT NULL column to a table with existing rows without a default. Please set nullable: true or clear the table.", code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
-        if (msg.includes("does not exist")) {
+        if (msg.includes("does not exist") || msg.includes("doesn't exist")) {
           const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
@@ -235,7 +235,7 @@ export function createSpatialCreateIndexTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
-        if (msg.includes("Table") && msg.includes("does not exist")) {
+        if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
             details: { exists: false, table: tbl },
