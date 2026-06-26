@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
 import { RegressionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { RegressionSchemaBase, RegressionSchema } from "./schemas.js";
@@ -33,14 +33,13 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
           RegressionSchema.parse(params);
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
-        if (
-          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(xColumn) ||
-          !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(yColumn)
-        ) {
-          throw new ValidationError("Invalid column name");
-        }
+        validateIdentifier(xColumn, "column");
+        validateIdentifier(yColumn, "column");
 
         const whereClause = where ? `WHERE ${where}` : "";
+
+        // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
+        await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
 
         // Verify columns are numeric (P154)
         const colCheck = await adapter.executeQuery(
