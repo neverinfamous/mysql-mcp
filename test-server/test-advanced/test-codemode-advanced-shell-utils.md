@@ -160,10 +160,14 @@ During testing, check for these inconsistencies:
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysqlsh_check_upgrade`
-- `mysqlsh_import_table`
 - `mysqlsh_dump_instance`
+- `mysqlsh_dump_schemas`
 - `mysqlsh_dump_tables`
+- `mysqlsh_export_table`
+- `mysqlsh_import_table`
+- `mysqlsh_load_dump`
 - `mysqlsh_run_script`
+- `mysqlsh_version`
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
 
