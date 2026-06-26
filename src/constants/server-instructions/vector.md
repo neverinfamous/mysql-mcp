@@ -1,5 +1,6 @@
-# Vector Tools (`mysql_vector_*`)
+# Vector Tools
 
+Tools: `mysql_vector_store`, `mysql_vector_batch_store`, `mysql_vector_delete`, `mysql_vector_get`, `mysql_vector_search`, `mysql_vector_range_search`, `mysql_vector_hybrid_search`, `mysql_vector_info`, `mysql_vector_create_index`, `mysql_vector_optimize`, `mysql_vector_stats`
 - **Version gate**: ALL vector tools require MySQL 9.0+. Returns `{ success: false, code: "EXTENSION_MISSING" }` on older versions. `mysql_vector_create_index` requires MySQL 9.1+ specifically.
 - **Store**: `mysql_vector_store`({ table, column, id, vector: number[] }) → upserts a single vector. Uses `STRING_TO_VECTOR()` internally. Dimensions must match the column's `VECTOR(N)` definition.
 - **Batch store**: `mysql_vector_batch_store`({ table, column, items: [{ id, vector }] }) → bulk insert. Significantly faster than individual stores. All vectors must have matching dimensions.

@@ -1,5 +1,6 @@
-# Security Tools (`mysql_security_*`)
+# Security Tools
 
+Tools: `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security_firewall_rules`, `mysql_security_mask_data`, `mysql_security_password_validate`, `mysql_security_ssl_status`, `mysql_security_user_privileges`, `mysql_security_sensitive_tables`, `mysql_security_encryption_status`
 - **SSL status**: `mysql_security_ssl_status` returns SSL/TLS connection status, cipher, certificate paths, and session statistics.
 - **Encryption status**: `mysql_security_encryption_status` checks TDE availability, keyring plugins, encrypted tablespaces, and encryption settings.
 - **Password validation**: `mysql_security_password_validate` uses MySQL `validate_password` component to check password strength (0-100 scale). Returns `available: false` if component not installed.

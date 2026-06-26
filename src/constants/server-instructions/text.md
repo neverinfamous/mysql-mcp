@@ -1,6 +1,6 @@
-# Text Tools (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, etc.)
+# Text Tools
 
-**Encapsulated Tools**: `mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`
+Tools: `mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`
 
 ### Search & Match (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`)
 - **LIKE patterns**: `%` matches any characters, `_` matches single character.

@@ -146,11 +146,11 @@ During testing, check for these inconsistencies:
 
 json-enhanced Tool Group (5 tools +1 for code mode):
 
-1. `mysql.json.merge`
-2. `mysql.json.diff`
-3. `mysql.json.normalize`
-4. `mysql.json.stats`
-5. `mysql.json.indexSuggest`
+1. `mysql_json_merge`
+2. `mysql_json_diff`
+3. `mysql_json_normalize`
+4. `mysql_json_stats`
+5. `mysql_json_index_suggest`
 6. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.

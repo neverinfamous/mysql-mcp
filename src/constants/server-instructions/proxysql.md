@@ -1,4 +1,4 @@
-# ProxySQL Tools (`proxysql_*`)
+# ProxySQL Tools
 
 Tools: `proxysql_status`, `proxysql_servers`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_connection_pool`, `proxysql_users`, `proxysql_global_variables`, `proxysql_runtime_status`, `proxysql_memory_stats`, `proxysql_commands`, `proxysql_process_list`
 

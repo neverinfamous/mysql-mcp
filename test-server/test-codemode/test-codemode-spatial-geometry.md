@@ -146,8 +146,8 @@ During testing, check for these inconsistencies:
 
 spatial-geometry Tool Group (2 tools +1 for code mode):
 
-1. `mysql.spatial.point`
-2. `mysql.spatial.polygon`
+1. `mysql_spatial_point`
+2. `mysql_spatial_polygon`
 3. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.

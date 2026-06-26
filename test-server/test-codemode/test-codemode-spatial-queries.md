@@ -146,10 +146,10 @@ During testing, check for these inconsistencies:
 
 spatial-queries Tool Group (4 tools +1 for code mode):
 
-1. `mysql.spatial.distance`
-2. `mysql.spatial.distanceSphere`
-3. `mysql.spatial.contains`
-4. `mysql.spatial.within`
+1. `mysql_spatial_distance`
+2. `mysql_spatial_distance_sphere`
+3. `mysql_spatial_contains`
+4. `mysql_spatial_within`
 5. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.

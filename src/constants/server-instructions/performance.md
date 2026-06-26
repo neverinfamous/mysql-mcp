@@ -1,6 +1,6 @@
-# Performance Tools (`mysql_explain`, `mysql_query_stats`, etc.)
+# Performance Tools
 
-**Encapsulated Tools**: `mysql_explain`, `mysql_explain_analyze`, `mysql_slow_queries`, `mysql_query_stats`, `mysql_index_usage`, `mysql_table_stats`, `mysql_buffer_pool_stats`, `mysql_thread_stats`, `mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`
+Tools: `mysql_explain`, `mysql_explain_analyze`, `mysql_slow_queries`, `mysql_query_stats`, `mysql_index_usage`, `mysql_table_stats`, `mysql_buffer_pool_stats`, `mysql_thread_stats`, `mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`
 
 ### Query Analysis (`mysql_explain`, `mysql_explain_analyze`)
 - **EXPLAIN**: Supports JSON (default), TREE, and TRADITIONAL formats.

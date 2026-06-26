@@ -154,6 +154,13 @@ During testing, check for these inconsistencies:
 
 ## Group Focus: security (Audit & Mask)
 
+security (audit) Tool Group:
+1. `mysql_security_audit`
+2. `mysql_security_mask_data`
+3. `mysql_security_user_privileges`
+4. `mysql_security_sensitive_tables`
+5. `mysql_execute_code` (codemode, auto-added)
+
 1. `mysql.security.help()`
 2. `mysql.security.audit({ user: "root" })`
 3. `mysql.security.maskData({ value: "test@example.com", type: "email" })`

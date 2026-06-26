@@ -146,8 +146,8 @@ During testing, check for these inconsistencies:
 
 spatial-setup Tool Group (2 tools +1 for code mode):
 
-1. `mysql.spatial.createColumn`
-2. `mysql.spatial.createIndex`
+1. `mysql_spatial_create_column`
+2. `mysql_spatial_create_index`
 3. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.

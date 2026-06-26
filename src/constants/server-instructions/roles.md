@@ -1,4 +1,6 @@
-# Role Management (`mysql_role_*`, `mysql_user_roles`)
+# Role Management
+
+Tools: `mysql_role_list`, `mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`
 
 - **Privilege requirements**: Role management requires `CREATE ROLE`, `DROP ROLE`, `GRANT`, and `REVOKE` privileges.
 - **Role lifecycle**: Create roles with `mysql_role_create`, grant privileges with `mysql_role_grant`, then assign to users with `mysql_role_assign`.

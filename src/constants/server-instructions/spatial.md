@@ -1,5 +1,6 @@
-# Spatial Tools (`mysql_spatial_*`)
+# Spatial Tools
 
+Tools: `mysql_spatial_create_column`, `mysql_spatial_create_index`, `mysql_spatial_point`, `mysql_spatial_polygon`, `mysql_spatial_distance`, `mysql_spatial_distance_sphere`, `mysql_spatial_contains`, `mysql_spatial_within`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, `mysql_spatial_geojson`
 - **Coordinate Order**: All spatial tools use standard **longitude, latitude** parameter order (X, Y), matching GeoJSON and common mapping conventions.
   - ✅ Example: `{ longitude: -122.4194, latitude: 37.7749 }` for San Francisco
   - MySQL 8.0+ uses EPSG standard axis order (latitude, longitude) internally for SRID 4326, but tools handle this conversion automatically using `axis-order=long-lat` option.

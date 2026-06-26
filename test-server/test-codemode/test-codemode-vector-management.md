@@ -146,10 +146,10 @@ During testing, check for these inconsistencies:
 
 vector-management Tool Group (4 tools +1 for code mode):
 
-1. `mysql.vector.info`
-2. `mysql.vector.createIndex`
-3. `mysql.vector.optimize`
-4. `mysql.vector.stats`
+1. `mysql_vector_info`
+2. `mysql_vector_create_index`
+3. `mysql_vector_optimize`
+4. `mysql_vector_stats`
 5. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.

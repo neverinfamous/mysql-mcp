@@ -146,10 +146,10 @@ During testing, check for these inconsistencies:
 
 json-helpers Tool Group (4 tools +1 for code mode):
 
-1. `mysql.json.get`
-2. `mysql.json.update`
-3. `mysql.json.search`
-4. `mysql.json.validate`
+1. `mysql_json_get`
+2. `mysql_json_update`
+3. `mysql_json_search`
+4. `mysql_json_validate`
 5. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.

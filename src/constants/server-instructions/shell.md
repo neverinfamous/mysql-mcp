@@ -1,5 +1,6 @@
-# MySQL Shell Tools (`mysqlsh_*`)
+# MySQL Shell Tools
 
+Tools: `mysqlsh_version`, `mysqlsh_check_upgrade`, `mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_load_dump`, `mysqlsh_run_script`
 - **Prerequisites**: MySQL Shell must be installed and accessible via `MYSQLSH_PATH` environment variable or system PATH.
 - **Version check**: `mysqlsh_version` verifies MySQL Shell availability before running other shell tools.
 - **Upgrade checking**: `mysqlsh_check_upgrade` analyzes MySQL server for upgrade compatibility issues. Returns `errorCount`, `warningCount`, and `noticeCount` summary with full JSON report. **Note**: Returns `{ success: false, error }` when MySQL Shell's version is lower than the current server version—Shell cannot analyze a server newer than itself. Also fails when `targetVersion` is lower than the current server version (no downgrade analysis).
