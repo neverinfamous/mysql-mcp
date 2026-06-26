@@ -158,7 +158,8 @@ proxysql Tool Group (11 tools +1 code mode):
 
 1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
 4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
-7. `proxysql_query_digest`
+7. `proxysql_query_digest` 8. `proxysql_query_rules` 9. `proxysql_users`
+10. `proxysql_global_variables` 11. `proxysql_commands`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
@@ -170,7 +171,11 @@ proxysql Tool Group (11 tools +1 code mode):
 6. `mysql.proxysql.memoryStats()` → memory
 7. `mysql.proxysql.processList()` → sessions
 8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
-9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
+9. `mysql.proxysql.queryRules()` → routing rules
+10. `mysql.proxysql.users()` → proxysql users
+11. `mysql.proxysql.globalVariables()` → admin variables
+12. `mysql.proxysql.commands({command: "PROXYSQL FLUSH LOGS"})` → admin commands
+13. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
 ---
 
