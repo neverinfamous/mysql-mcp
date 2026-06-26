@@ -159,7 +159,7 @@ export function createDisableVersioningTool(
             });
           }
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`Table '${table}' does not exist.`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
           );
         }
 
@@ -216,7 +216,7 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
         const describeInfo = await adapter.describeTable(table);
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`Table '${table}' does not exist.`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
           );
         }
 
@@ -240,7 +240,7 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
           });
         } else {
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column).`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column)`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
           );
         }
       } catch (error: unknown) {
@@ -288,7 +288,7 @@ export function createConditionalUpdateTool(
         const describeInfo = await adapter.describeTable(table);
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`Table '${table}' does not exist.`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
           );
         }
 
@@ -324,7 +324,7 @@ export function createConditionalUpdateTool(
           const currentVersionRaw = checkResult.rows[0]?.["_version"];
           if (currentVersionRaw === undefined || currentVersionRaw === null) {
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column).`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column)`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
