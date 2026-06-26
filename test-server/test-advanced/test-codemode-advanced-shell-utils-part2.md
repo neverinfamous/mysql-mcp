@@ -93,6 +93,12 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+|---|---|---|
+| `mysqlsh_dump_instance` | | |
+| `mysqlsh_dump_schemas` | | |
+| `mysqlsh_dump_tables` | | |
+| `mysqlsh_load_dump` | | |
+| `mysqlsh_run_script` | | |
 
 ### Structured Error Response Pattern
 

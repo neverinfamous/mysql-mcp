@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [versioning]
+# mysql-mcp Tool Group Testing: PART 2 [versioning]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -158,19 +158,9 @@ All tools should gracefully handle nonexistent tables and validation errors. Tes
 
 **Setup / Happy Paths:**
 
-1. `mysql_create_table({table: "temp_versioning", columns: [{name: "id", type: "INT", primaryKey: true, autoIncrement: true}, {name: "quantity", type: "INT"}]})` → `{success: true}`
-2. `mysql_write_query({query: "INSERT INTO temp_versioning (quantity) VALUES (100)"})` → `{rowsAffected: 1}`
-3. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `message` indicates trigger added
-4. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `alreadyEnabled` is true
-5. `mysql_check_version({table: "temp_versioning", rowId: 1})` → `{success: true}` and `version: 1`
-6. `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: true, rowsAffected: 1}`
 
 **Domain error paths (🔴):**
 
-7. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 999}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning version conflict — NOT raw MCP error
-8. 🔴 `mysql_check_version({table: "nonexistent_table_xyz", rowId: 1})` → `{success: false, error: "..."}` mentioning table name
-9. 🔴 `mysql_check_version({table: "temp_versioning", rowId: 9999})` → `{success: false, error: "..."}` mentioning row not found
-10. 🔴 `mysql_enable_versioning({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` mentioning table name
 11. 🔴 `mysql_conditional_update({table: "nonexistent_table_xyz", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning table name
 
 **Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
@@ -193,6 +183,7 @@ All tools should gracefully handle nonexistent tables and validation errors. Tes
 
 ---
 
+
 ## Post-Test Procedures
 
 ### Reporting Rules
@@ -213,7 +204,7 @@ All tools should gracefully handle nonexistent tables and validation errors. Tes
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-versioning.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-versioning-part2.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

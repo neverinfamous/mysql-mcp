@@ -63,7 +63,8 @@ _(Coordinator pauses: Asks user to switch filter to `dev-power` and restart)_
 - `test-performance-analysis-part1.md`
 - `test-performance-analysis-part2.md`
 - `test-performance-anomaly.md`
-- `test-fulltext.md`
+- `test-fulltext-part1.md`
+- `test-fulltext-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dev-analytics` and restart)_
 
@@ -134,7 +135,8 @@ _(Coordinator pauses: Asks user to switch filter to `dba-schema` and restart)_
 
 - `test-introspection.md`
 - `test-migration.md`
-- `test-versioning.md`
+- `test-versioning-part1.md`
+- `test-versioning-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `ecosystem` and restart)_
 

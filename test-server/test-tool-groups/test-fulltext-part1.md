@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [fulltext]
+# mysql-mcp Tool Group Testing: PART 1 [fulltext]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -172,30 +172,21 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
 
 10. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 50})` → verify returned results have string fields truncated to 50 chars
-11. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL", maxLength: 50})` → verify truncated fields
-12. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database", maxLength: 50})` → verify truncated fields
 
 **Create → Search → Drop lifecycle:**
 
-13. `mysql_fulltext_create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-14. `mysql_fulltext_search({table: "test_users", columns: ["bio"], query: "developer"})` → results
-15. `mysql_fulltext_drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
 
 **Domain error paths (🔴):**
 
-16. 🔴 `mysql_fulltext_search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false, error: "..."}` handler error
-17. 🔴 `mysql_fulltext_search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false, error: "..."}` (no FULLTEXT index)
 
 **Zod validation error paths (🔴):**
 
-18. 🔴 `mysql_fulltext_search({})` → `{success: false, error: "..."}` (missing required params)
-19. 🔴 `mysql_fulltext_create({})` → `{success: false, error: "..."}` (missing required params)
 
 **Wrong-type numeric param coercion (🔴):**
 
-20. 🔴 `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: "abc"})` → must NOT return raw MCP error
 
 ---
+
 
 ## Post-Test Procedures
 
@@ -217,7 +208,7 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-fulltext.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-fulltext-part1.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
