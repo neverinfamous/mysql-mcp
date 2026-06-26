@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [monitoring-status]
+# mysql-mcp Tool Group Testing: [proxysql-part2]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -21,19 +21,7 @@
 
 ### Test Schema Reference
 
-| Table               | Rows | Key Columns                                       | JSON Columns        |
-| ------------------- | ---- | ------------------------------------------------- | ------------------- |
-| `test_products`     | 16   | id, name, price, category                         | metadata            |
-| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
-| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
-| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
-| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
-| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
-| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
-| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
-| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
-| `test_partitioned`  | 26   | id, region, created_at                            | data                |
-| `test_categories`   | 17   | id, name, path, level                             | —                   |
+> See `code-map.md` in the `test-server/` directory for the complete test database schema.
 
 ## Reporting Format
 
@@ -80,7 +68,6 @@
    - (b) An **empty parameters test** (call the tool with `{}`).
      Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
      > **Note on Aliases & Zod**: Tools that support legacy parameter aliases (e.g. `tableName` instead of `table`) often use `.default("")` in their Zod schema so the SDK validation lets the payload reach the handler's alias-resolution logic. For these tools, calling with `{}` will pass Zod validation and correctly trigger a handler-level domain error (e.g. `TABLE_NOT_FOUND`) instead of a strict Zod `invalid_type` error. **This is expected behavior.** Do NOT remove `.default("")` from schemas to force a Zod error, as this will break alias compatibility.
-     > **Note on Monitoring Tools**: Many monitoring tools (e.g., `showProcesslist`, `showStatus`) do not have required parameters. For these tools, calling with `{}` is valid and should correctly return `{ success: true }`.
 3. **Output Schema Testing**: For **every** tool that has an `outputSchema`, confirm that at least one valid happy-path call returns a structured JSON response — NOT a raw MCP `-32602` "output schema" error. Output schema mismatches produce the same `-32602` code as input errors but are only caught with valid inputs.
 4. **Wrong-Type Coercion**: For every tool with optional numeric parameters (e.g., `limit`), call the tool with `param: "abc"` (string instead of number). The tool must NOT return a raw MCP `-32602` error.
    > **Note on Zod Coercion & Validation Errors**: When passing `"abc"` to a numeric field, receiving a structured handler error like `{ success: false, error: "limit: Expected number, received string", code: "VALIDATION_ERROR" }` is **correct**. This proves the global SDK monkey-patch successfully intercepted Zod's `invalid_type` error and transformed it into a structured domain error. Do NOT attempt to "fix" `coerceNumber` or schema definitions to bypass this Zod validation or force a silent fallback to `undefined`.
@@ -89,7 +76,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
+| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 
 ### Structured Error Response Pattern
 
@@ -153,42 +140,36 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: proxysql-part2
 
+### proxysql Group-Specific Testing
 
-### Explicit Tool Coverage Requirements
+proxysql Tool Group (6 tools +1 for code mode):
 
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+1. 'proxysql_users'
+2. 'proxysql_global_variables'
+3. 'proxysql_runtime_status'
+4. 'proxysql_memory_stats'
+5. 'proxysql_commands'
+6. 'proxysql_process_list'
+7. 'mysql_execute_code'
 
-- mysql_show_processlist
-- mysql_show_status
-- mysql_show_variables
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-## Category 1: Payload Efficiency
+8. `proxysql_users()` → verify user listing
+9. `proxysql_global_variables({limit: 10})` → verify first 10 variables
+10. `proxysql_global_variables({like: "mysql-max_connections"})` → verify specific variable
+11. `proxysql_runtime_status()` → verify runtime configuration
+12. `proxysql_runtime_status({summary: true})` → verify summarized output
+13. `proxysql_memory_stats()` → verify memory usage
+14. `proxysql_process_list()` → verify active sessions
 
-1. `mysql_show_processlist()` → log token estimate
-2. `mysql_show_status()` with no filter → log token estimate
-3. `mysql_show_status({like: "Uptime"})` → log token estimate, verify drastic reduction vs. unfiltered
-4. `mysql_show_variables()` with no filter → log token estimate
-5. `mysql_show_variables({like: "max_connections"})` → log token estimate, verify reduction
-6. Flag any unfiltered response > 500 tokens as 📦
+**Zod validation error paths (🔴):**
 
-## Category 2: Summary Mode Parity
+1. 🔴 `proxysql_commands({})` → `{success: false, error: "..."}` (Zod validation — missing required `command`)
 
-7. `mysql_innodb_status()` full → log token estimate
-8. `mysql_innodb_status({summary: true})` → log token estimate
-9. Verify summary token estimate is ≥ 50% smaller than full output
+**Wrong-type numeric param coercion (🔴):**
 
-## Category 3: Filter Edge Cases
-
-10. `mysql_show_status({like: ""})` → verify behavior (empty filter)
-11. `mysql_show_status({like: "%"})` → verify returns same as no filter
-12. `mysql_show_variables({like: "nonexistent_var_xyz_12345"})` → verify empty result set (not error)
-13. `mysql_show_status({like: "Com_%"})` → verify wildcard filter returns subset
-
-## Category 4: Sequential Stability
-
-14. Call `mysql_server_health()` 5 times in rapid succession → verify all return `{success: true}` with no error accumulation
-15. Call `mysql_pool_stats()` between health checks → verify pool metrics remain stable
 
 ---
 
@@ -212,7 +193,7 @@ During testing, check for these inconsistencies:
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-monitoring-status.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-proxysql-config.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

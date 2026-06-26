@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [backup]
+# mysql-mcp Tool Group Testing: [cluster-group-replication]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -136,58 +136,37 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
+
 
 ---
 
-## Group Focus: backup
+## Group Focus: cluster-innodb
 
-### backup Group-Specific Testing
+### cluster Group-Specific Testing
 
-backup Tool Group (7 tools +1 for code mode):
+cluster-innodb Tool Group (5 tools +1 for code mode):
 
-1. 'mysql_export_table'
-2. 'mysql_import_data'
-3. 'mysql_create_dump'
-4. 'mysql_restore_dump'
-5. 'mysql_audit_list_backups'
-6. 'mysql_audit_restore_backup'
-7. 'mysql_audit_diff_backup'
-8. 'mysql_execute_code' (codemode, auto-added)
+1. 'mysql_cluster_status'
+2. 'mysql_cluster_instances'
+3. 'mysql_cluster_topology'
+4. 'mysql_cluster_router_status'
+5. 'mysql_cluster_switchover'
+6. 'mysql_execute_code'
 
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
 
-1. `mysql_export_table({table: "test_products", limit: 5})` -> verify success with limit
-2. `mysql_import_data({...})` -> verify success
-3. `mysql_create_dump({...})` -> verify success
-4. `mysql_restore_dump({...})` -> verify success
-5. `mysql_audit_list_backups({...})` -> verify success
-6. `mysql_audit_restore_backup({...})` -> verify success
-7. `mysql_audit_diff_backup({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql_export_table({...})` -> `{success: false, error: "..."}` handler error
-9. 🔴 `mysql_import_data({...})` -> `{success: false, error: "..."}` handler error
-10. 🔴 `mysql_create_dump({...})` -> `{success: false, error: "..."}` handler error
-11. 🔴 `mysql_restore_dump({...})` -> `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_audit_list_backups({...})` -> `{success: false, error: "..."}` handler error
-13. 🔴 `mysql_audit_restore_backup({...})` -> `{success: false, error: "..."}` handler error
-14. 🔴 `mysql_audit_diff_backup({...})` -> `{success: false, error: "..."}` handler error
+2b. `mysql_gr_transactions()` -> verify transactions info
+2c. `mysql_gr_flow_control()` -> verify flow control info
+7. `mysql_cluster_status()` → verify cluster status or structured error
+8. `mysql_cluster_status({summary: true})` → verify summarized output (if cluster running)
+9. `mysql_cluster_instances()` → verify instance details
+10. `mysql_cluster_topology()` → verify topology map
+11. `mysql_cluster_router_status()` → verify router status or structured error
+12. `mysql_cluster_router_status({summary: true})` → verify summarized output
+13. `mysql_cluster_switchover()` → verify readiness check (should not actually perform switchover without params)
 
 **Zod validation error paths (🔴):**
 
-15. 🔴 `mysql_export_table({})` -> `{success: false, error: "..."}` (Zod validation)
-16. 🔴 `mysql_import_data({})` -> `{success: false, error: "..."}` (Zod validation)
-17. 🔴 `mysql_create_dump({})` -> `{success: false, error: "..."}` (Zod validation)
-18. 🔴 `mysql_restore_dump({})` -> `{success: false, error: "..."}` (Zod validation)
-19. 🟢 `mysql_audit_list_backups({})` -> `{success: true, data: {...}}` (defaults)
-20. 🔴 `mysql_audit_restore_backup({})` -> `{success: false, error: "..."}` (Zod validation)
-21. 🔴 `mysql_audit_diff_backup({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-22. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
 
@@ -211,8 +190,7 @@ backup Tool Group (7 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-backup.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-cluster-innodb.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
-

@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [proxysql-config]
+# mysql-mcp Tool Group Testing: [cluster-group-replication]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -140,48 +140,29 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: proxysql-config
+## Group Focus: cluster-gr
 
-### proxysql Group-Specific Testing
+### cluster Group-Specific Testing
 
-proxysql Tool Group (11 tools +1 for code mode):
+cluster-gr Tool Group (5 tools +1 for code mode):
 
-1. 'proxysql_status'
-2. 'proxysql_servers'
-3. 'proxysql_query_rules'
-4. 'proxysql_query_digest'
-5. 'proxysql_connection_pool'
-6. 'proxysql_users'
-7. 'proxysql_global_variables'
-8. 'proxysql_runtime_status'
-9. 'proxysql_memory_stats'
-10. 'proxysql_commands'
-11. 'proxysql_process_list'
-12. 'mysql_execute_code' (codemode, auto-added)
+1. 'mysql_gr_status'
+2. 'mysql_gr_members'
+3. 'mysql_gr_primary'
+4. 'mysql_gr_transactions'
+5. 'mysql_gr_flow_control'
+6. 'mysql_execute_code'
 
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
 
-1. `proxysql_status()` → verify ProxySQL version, uptime
-2. `proxysql_status({summary: true})` → verify summarized output
-3. `proxysql_servers()` → verify backend server listing
-4. `proxysql_query_rules()` → verify query routing rules
-5. `proxysql_connection_pool()` → verify pool statistics
-6. `proxysql_users()` → verify user listing
-7. `proxysql_global_variables({limit: 10})` → verify first 10 variables
-8. `proxysql_global_variables({like: "mysql-max_connections"})` → verify specific variable
-9. `proxysql_runtime_status()` → verify runtime configuration
-10. `proxysql_runtime_status({summary: true})` → verify summarized output
-11. `proxysql_memory_stats()` → verify memory usage
-12. `proxysql_process_list()` → verify active sessions
-13. `proxysql_query_digest({limit: 5})` → verify top queries
+7. `mysql_gr_status()` → verify GR status or structured "not configured" message
+8. `mysql_gr_members()` → verify members list or structured empty response
+2b. `mysql_gr_transactions()` -> verify transactions info
+2c. `mysql_gr_flow_control()` -> verify flow control info
 
 **Zod validation error paths (🔴):**
 
-14. 🔴 `proxysql_commands({})` → `{success: false, error: "..."}` (Zod validation — missing required `command`)
-
-**Wrong-type numeric param coercion (🔴):**
-
-15. 🔴 `proxysql_query_digest({limit: "abc"})` → must NOT return raw MCP error
+9. 🔴 `mysql_gr_primary({})` → verify behavior (may accept empty params for read-only mode)
 
 ---
 
@@ -205,7 +186,7 @@ proxysql Tool Group (11 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-proxysql-config.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-cluster-gr.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: ALL PARTS.[docstore]
+# mysql-mcp Tool Group Testing: [shell-part1]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of ALL PARTS.of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -140,34 +140,40 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: docstore
+## Group Focus: shell-part1
 
-### docstore Group-Specific Testing
+### shell Group-Specific Testing
 
-docstore Tool Group (9 tools +1 for code mode):
+shell Tool Group (5 tools +1 for code mode):
 
-1. 'mysql_doc_list_collections'
-2. 'mysql_doc_create_collection'
-3. 'mysql_doc_drop_collection'
-4. 'mysql_doc_find'
-5. 'mysql_doc_add'
+1. 'mysqlsh_version'
+2. 'mysqlsh_check_upgrade'
+3. 'mysqlsh_export_table'
+4. 'mysqlsh_import_table'
+5. 'mysqlsh_import_json'
+6. 'mysql_execute_code'
 
-1. `mysql_doc_list_collections()` -> verify list of collections
-2. `mysql_doc_create_collection({collection: "test_coll"})` -> verify success
-3. `mysql_doc_collection_info({collection: "test_coll"})` -> verify info
-4. `mysql_doc_add({collection: "test_coll", documents: [{"_id": "1", "name": "test"}]})` -> verify success
-5. `mysql_doc_find({collection: "test_coll", condition: "_id = '1'"})` -> verify document found
-6. `mysql_doc_modify({collection: "test_coll", condition: "_id = '1'", modifications: [{operation: "set", path: "$.name", value: "updated"}]})` -> verify success
-7. `mysql_doc_create_index({collection: "test_coll", name: "idx_name", fields: [{field: "$.name", type: "STRING"}]})` -> verify success
-8. `mysql_doc_remove({collection: "test_coll", condition: "_id = '1'"})` -> verify success
-9. `mysql_doc_drop_collection({collection: "test_coll"})` -> verify success
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-**Domain error paths (??):**
-10. ?? `mysql_doc_find({collection: "nonexistent_coll"})` -> `{success: false, error: "..."}`
+7. `mysqlsh_version()` → verify MySQL Shell version and installation status
 
-**Zod validation error paths (??):**
-11. ?? `mysql_doc_create_collection({})` -> `{success: false, error: "..."}`
-12. ?? `mysql_doc_add({})` -> `{success: false, error: "..."}`
+4b. `mysqlsh_check_upgrade()` -> verify success
+4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
+4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> verify success
+4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> verify success
+
+**Domain error paths (🔴):**
+
+
+**Zod validation error paths (🔴):**
+
+1. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
+
+**Security boundary validation paths (🔴):**
+
+2. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
+
+---
 
 ## Post-Test Procedures
 
@@ -189,7 +195,7 @@ docstore Tool Group (9 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-docstore.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-shell-data.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

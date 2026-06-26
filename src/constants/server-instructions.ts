@@ -134,15 +134,18 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist.`],
   ["codemode", `# Code Mode (\`mysql_execute_code\`)
 
-- **Purpose**: Safely execute arbitrary raw SQL queries natively on the database.
-- **Tools**: \`mysql_execute_code\` is the singular entry point for ad-hoc execution when specific MCP tools do not cover the requirements.
-- **Safety**: 
-  - Ensure queries are valid against the specific MySQL/MariaDB version.
-  - Pay attention to the response if it returns errors or partial execution results.
+- **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 241 MySQL MCP tools via the global \`mysql.*\` API.
+- **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
+- **API Access**: 
+  - All tools are organized into groups on the \`mysql\` object (e.g., \`mysql.core.readQuery()\`, \`mysql.admin.optimizeTable()\`, \`mysql.json.extract()\`, \`mysql.shell.version()\`).
+  - Tools that take a single object parameter can be called positionally or with the object (e.g. \`mysql.core.readQuery("SELECT 1")\` or \`mysql.core.readQuery({ query: "SELECT 1" })\`).
+- **Safety & Execution**: 
+  - The sandbox intercepts all tool calls and routes them through the same \`AuditInterceptor\` as standard MCP calls.
+  - The last expression in the script is automatically returned (Node REPL semantics) via an auto-return transform. You do not need explicit \`return\` statements for the final value.
+  - Smart result proxies handle missing \`await\` statements, preventing Promise-related errors.
 - **Best Practices**:
-  - Only use this tool if no other specialized tool (e.g., introspection, vector, docstore) provides the requested functionality.
-  - Parameterize variables whenever possible or format the SQL carefully to avoid syntax errors.
-  - When returning large data sets, use \`LIMIT\` to avoid overwhelming the context window.`],
+  - **Always** use Code Mode for iterative tasks (like paginating through records, bulk updates, or parsing results to feed into another query).
+  - You can combine tools from multiple groups (e.g., fetch data with \`mysql.core.readQuery\`, transform it in JS, and insert via \`mysql.core.writeQuery\`).`],
   ["core", `# Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_create_table\`, etc.)
 
 **Encapsulated Tools**: \`mysql_read_query\`, \`mysql_write_query\`, \`mysql_list_tables\`, \`mysql_describe_table\`, \`mysql_create_table\`, \`mysql_drop_table\`, \`mysql_create_index\`, \`mysql_get_indexes\`, \`mysql_enable_versioning\`, \`mysql_disable_versioning\`, \`mysql_check_version\`, \`mysql_conditional_update\`

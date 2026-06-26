@@ -78,7 +78,8 @@ _(Coordinator pauses: Asks user to switch filter to `ai-data-nosql` and restart)
 
 ### Phase 4: `ai-data-nosql` shortcut
 
-- `test-docstore.md`
+- `test-docstore-part1.md`
+- `test-docstore-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `ai-search` and restart)_
 
@@ -112,7 +113,8 @@ _(Coordinator pauses: Asks user to switch filter to `dba-manage` and restart)_
 
 - `test-admin-part1.md`
 - `test-admin-part2.md`
-- `test-backup.md`
+- `test-backup-part1.md`
+- `test-backup-part2.md`
 - `test-replication.md`
 - `test-partitioning.md`
 - `test-events.md`
@@ -121,7 +123,8 @@ _(Coordinator pauses: Asks user to switch filter to `dba-secure` and restart)_
 
 ### Phase 9: `dba-secure` shortcut
 
-- `test-security.md`
+- `test-security-part1.md`
+- `test-security-part2.md`
 - `test-roles-part1.md`
 - `test-roles-part2.md`
 
@@ -137,11 +140,14 @@ _(Coordinator pauses: Asks user to switch filter to `ecosystem` and restart)_
 
 ### Phase 11: `ecosystem` shortcut
 
-- `test-cluster-group-replication.md`
-- `test-proxysql-config.md`
+- `test-cluster-gr.md`
+- `test-cluster-innodb.md`
+- `test-proxysql-part1.md`
+- `test-proxysql-part2.md`
 - `test-router-part1.md`
 - `test-router-part2.md`
-- `test-shell-data.md`
+- `test-shell-part1.md`
+- `test-shell-part2.md`
 
 ## Telemetry Collection
 

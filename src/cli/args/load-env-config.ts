@@ -18,6 +18,10 @@ export function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServ
   const host = process.env["MCP_HOST"] ?? process.env["HOST"];
   if (host) config.host = host;
 
+  // Check for server port in environment
+  const port = process.env["MYSQLMCP_PORT"] ?? process.env["PORT"];
+  if (port) config.port = parseInt(port, 10);
+
   // Check for allowed IO roots in environment
   const allowedIoRoots = process.env["ALLOWED_IO_ROOTS"];
   if (allowedIoRoots) {
@@ -72,7 +76,7 @@ export function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServ
       logPath: auditLogPath,
       redact: process.env["AUDIT_REDACT"] === "true",
       auditReads: process.env["AUDIT_READS"] === "true",
-      maxSizeBytes: 10 * 1024 * 1024,
+      maxSizeBytes: process.env["AUDIT_LOG_MAX_SIZE"] ? parseInt(process.env["AUDIT_LOG_MAX_SIZE"], 10) : (10 * 1024 * 1024),
     };
 
     if (process.env["AUDIT_BACKUP"] === "true") {
@@ -81,7 +85,7 @@ export function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServ
         includeData: process.env["AUDIT_BACKUP_DATA"] === "true",
         maxAgeDays: 30, // Fixed default for now
         maxCount: 1000, // Fixed default for now
-        maxDataSizeBytes: 50 * 1024 * 1024,
+        maxDataSizeBytes: process.env["AUDIT_BACKUP_MAX_SIZE"] ? parseInt(process.env["AUDIT_BACKUP_MAX_SIZE"], 10) : (50 * 1024 * 1024),
       };
     }
   }

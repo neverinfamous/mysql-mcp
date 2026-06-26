@@ -1,4 +1,4 @@
-# mysql-mcp Advanced Stress Testing: [monitoring-status]
+# mysql-mcp Code Mode Testing: [backup-audit]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -80,7 +80,6 @@
    - (b) An **empty parameters test** (call the tool with `{}`).
      Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
      > **Note on Aliases & Zod**: Tools that support legacy parameter aliases (e.g. `tableName` instead of `table`) often use `.default("")` in their Zod schema so the SDK validation lets the payload reach the handler's alias-resolution logic. For these tools, calling with `{}` will pass Zod validation and correctly trigger a handler-level domain error (e.g. `TABLE_NOT_FOUND`) instead of a strict Zod `invalid_type` error. **This is expected behavior.** Do NOT remove `.default("")` from schemas to force a Zod error, as this will break alias compatibility.
-     > **Note on Monitoring Tools**: Many monitoring tools (e.g., `showProcesslist`, `showStatus`) do not have required parameters. For these tools, calling with `{}` is valid and should correctly return `{ success: true }`.
 3. **Output Schema Testing**: For **every** tool that has an `outputSchema`, confirm that at least one valid happy-path call returns a structured JSON response — NOT a raw MCP `-32602` "output schema" error. Output schema mismatches produce the same `-32602` code as input errors but are only caught with valid inputs.
 4. **Wrong-Type Coercion**: For every tool with optional numeric parameters (e.g., `limit`), call the tool with `param: "abc"` (string instead of number). The tool must NOT return a raw MCP `-32602` error.
    > **Note on Zod Coercion & Validation Errors**: When passing `"abc"` to a numeric field, receiving a structured handler error like `{ success: false, error: "limit: Expected number, received string", code: "VALIDATION_ERROR" }` is **correct**. This proves the global SDK monkey-patch successfully intercepted Zod's `invalid_type` error and transformed it into a structured domain error. Do NOT attempt to "fix" `coerceNumber` or schema definitions to bypass this Zod validation or force a silent fallback to `undefined`.
@@ -89,7 +88,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Structured Error Response Pattern
 
@@ -149,50 +148,33 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-
+- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
 
 ---
 
+## Group Focus: backup-audit
 
+backup Tool Group (Audit) (3 tools +1 code mode):
 
-### Explicit Tool Coverage Requirements
+1. `mysql_audit_list_backups`
+2. `mysql_audit_restore_backup`
+3. `mysql_audit_diff_backup`
 
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
 
-- mysql_show_processlist
-- mysql_show_status
-- mysql_show_variables
+1. `mysql.backup.help()` -> verify method listing
+2. `mysql.backup.auditListBackups({ limit: 5 })` -> verify success
+3. `mysql.backup.auditRestoreBackup({ filename: "some-backup-file.json", dryRun: true })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
+4. `mysql.backup.auditDiffBackup({ filename: "some-backup-file.json" })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
 
-## Category 1: Payload Efficiency
+**Domain error paths (🔴):**
 
-1. `mysql_show_processlist()` → log token estimate
-2. `mysql_show_status()` with no filter → log token estimate
-3. `mysql_show_status({like: "Uptime"})` → log token estimate, verify drastic reduction vs. unfiltered
-4. `mysql_show_variables()` with no filter → log token estimate
-5. `mysql_show_variables({like: "max_connections"})` → log token estimate, verify reduction
-6. Flag any unfiltered response > 500 tokens as 📦
-
-## Category 2: Summary Mode Parity
-
-7. `mysql_innodb_status()` full → log token estimate
-8. `mysql_innodb_status({summary: true})` → log token estimate
-9. Verify summary token estimate is ≥ 50% smaller than full output
-
-## Category 3: Filter Edge Cases
-
-10. `mysql_show_status({like: ""})` → verify behavior (empty filter)
-11. `mysql_show_status({like: "%"})` → verify returns same as no filter
-12. `mysql_show_variables({like: "nonexistent_var_xyz_12345"})` → verify empty result set (not error)
-13. `mysql_show_status({like: "Com_%"})` → verify wildcard filter returns subset
-
-## Category 4: Sequential Stability
-
-14. Call `mysql_server_health()` 5 times in rapid succession → verify all return `{success: true}` with no error accumulation
-15. Call `mysql_pool_stats()` between health checks → verify pool metrics remain stable
+5. 🔴 `mysql.backup.auditRestoreBackup({ filename: "nonexistent-file.json" })` -> `{success: false}`
 
 ---
 
 ## Post-Test Procedures
+
 
 ### Reporting Rules
 
@@ -212,7 +194,9 @@ During testing, check for these inconsistencies:
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-monitoring-status.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-backup-audit.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+
+---

@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [shell-data]
+# mysql-mcp Tool Group Testing: [shell-part2]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -140,30 +140,24 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: shell-data
+## Group Focus: shell-part2
 
 ### shell Group-Specific Testing
 
-shell Tool Group (10 tools +1 for code mode):
+shell Tool Group (5 tools +1 for code mode):
 
-1. 'mysqlsh_version'
-2. 'mysqlsh_check_upgrade'
-3. 'mysqlsh_export_table'
-4. 'mysqlsh_import_table'
-5. 'mysqlsh_import_json'
-6. 'mysqlsh_dump_instance'
-7. 'mysqlsh_dump_schemas'
-8. 'mysqlsh_dump_tables'
-9. 'mysqlsh_load_dump'
-10. 'mysqlsh_run_script'
-11. 'mysql_execute_code' (codemode, auto-added)
+1. 'mysqlsh_dump_instance'
+2. 'mysqlsh_dump_schemas'
+3. 'mysqlsh_dump_tables'
+4. 'mysqlsh_load_dump'
+5. 'mysqlsh_run_script'
+6. 'mysql_execute_code'
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-1. `mysqlsh_version()` → verify MySQL Shell version and installation status
-2. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
-3. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
-4. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
+7. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
+8. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
+9. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
 
 4b. `mysqlsh_check_upgrade()` -> verify success
 4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
@@ -172,18 +166,16 @@ shell Tool Group (10 tools +1 for code mode):
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test_dump"})` → `{success: false, error: "..."}` handler error
+1. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test_dump"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-6. 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
-7. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
-8. 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
+1. 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
+2. 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
 
 **Security boundary validation paths (🔴):**
 
-9. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
-10. 🔴 `mysqlsh_dump_instance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}` (Directory traversal)
+3. 🔴 `mysqlsh_dump_instance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}` (Directory traversal)
 
 ---
 

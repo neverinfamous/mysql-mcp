@@ -52,6 +52,10 @@
 | 2 - Poor (no object name)              | ⚠️      |
 | 1 - Useless (generic)                  | ❌      |
 
+
+> [!CAUTION]
+> **ECOSYSTEM TOOL TESTING**: This test covers an ecosystem tool. You MUST use `ServerName: "mysql-ecosystem"` for all `call_mcp_tool` executions (e.g., when calling `mysql_execute_code`). If you use the standard `mysql` server, the tools will gracefully degrade or fail because the ecosystem services are connected to the alternate MCP server port configuration!
+
 ## Testing Requirements & Error Standards
 
 > [!NOTE]

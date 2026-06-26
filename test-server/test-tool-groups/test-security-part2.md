@@ -1,4 +1,4 @@
-# mysql-mcp Code Mode Testing: [backup]
+# mysql-mcp Tool Group Testing: ALL PARTS.[security]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Please conduct an exhaustive test of ALL PARTS.of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -21,19 +21,7 @@
 
 ### Test Schema Reference
 
-| Table               | Rows | Key Columns                                       | JSON Columns        |
-| ------------------- | ---- | ------------------------------------------------- | ------------------- |
-| `test_products`     | 16   | id, name, price, category                         | metadata            |
-| `test_orders`       | 20   | id, product_id (FK), customer_name, status (ENUM) | notes               |
-| `test_json_docs`    | 8    | id, doc, metadata, tags                           | doc, metadata, tags |
-| `test_articles`     | 10   | id, title, body, author (FULLTEXT)                | —                   |
-| `test_users`        | 10   | id, username, email, phone, bio, role             | —                   |
-| `test_measurements` | 200  | id, sensor_id (INT 1-5), temperature, humidity    | —                   |
-| `test_locations`    | 15   | id, name, city, latitude, longitude, geom (POINT) | —                   |
-| `test_events`       | 100  | id, event_type (ENUM), user_id (1-8), event_date  | payload             |
-| `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
-| `test_partitioned`  | 26   | id, region, created_at                            | data                |
-| `test_categories`   | 17   | id, name, path, level                             | —                   |
+> See `code-map.md` in the `test-server/` directory for the complete test database schema.
 
 ## Reporting Format
 
@@ -88,7 +76,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 
 ### Structured Error Response Pattern
 
@@ -148,57 +136,29 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
+
 
 ---
 
-## Group Focus: backup\n\nbackup Tool Group (7 tools +1 code mode):\n\n1. `mysql_export_table`\n2. `mysql_import_data`\n3. `mysql_create_dump`\n4. `mysql_restore_dump`\n5. `mysql_audit_list_backups`\n6. `mysql_audit_restore_backup`\n7. `mysql_audit_diff_backup`\n\n> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
+## Group Focus: security-part2
 
-1. `mysql.backup.help()` → verify method listing
-2. `mysql.backup.exportTable({ table: "test_products", format: "csv" })` → verify success
-3. `mysql.backup.importData({ table: "test_products", data: [{ id: 999, name: "Test Item", price: 10.0, category: "electronics" }] })` → verify success (clean up the row afterward)
-4. `mysql.backup.createDump({ database: "testdb" })` → verify success
-5. `mysql.backup.restoreDump({ filename: "/tmp/backup_dump.sql", database: "testdb" })` → verify success
-6. `mysql.backup.auditListBackups({ limit: 5 })` → verify success
-7. `mysql.backup.auditRestoreBackup({ filename: "some-backup-file.json", dryRun: true })` → verify success (or `{success: false}` with NOT_FOUND_ERROR)
-8. `mysql.backup.auditDiffBackup({ filename: "some-backup-file.json" })` → verify success (or `{success: false}` with NOT_FOUND_ERROR)
+### security Group-Specific Testing
 
-**Domain error paths (🔴):**
+security Tool Group (4 tools +1 for code mode):
 
-9. 🔴 `mysql.backup.exportTable({ table: "nonexistent_xyz" })` → `{success: false}`
-10. 🔴 `mysql.backup.auditRestoreBackup({ filename: "nonexistent-file.json" })` → `{success: false}`
+1. 'mysql_security_ssl_status'
+2. 'mysql_security_user_privileges'
+3. 'mysql_security_sensitive_tables'
+4. 'mysql_security_encryption_status'
 
-**Zod validation error paths (🔴):**
+5. `mysql_security_ssl_status()` -> verify SSL configuration
+6. `mysql_security_user_privileges({user: "root@localhost"})` -> verify privileges
+7. `mysql_security_sensitive_tables({schema: "testdb"})` -> verify sensitive tables listing
+8. `mysql_security_encryption_status()` -> verify encryption info
 
-11. 🔴 `mysql.backup.exportTable({})` → `{success: false, error: "Validation error: ..."}`
+**Domain error paths (??):**
+1. ?? `mysql_security_user_privileges({user: "nonexistent_user@localhost"})` -> `{success: false, error: "..."}`
 
-**Alias acceptance (🟢):**
+**Zod validation error paths (??):**
 
-12. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----\n\n## Post-Test Procedures
-
-### Reporting Rules
-
-- Use ✅ only in inline notes during testing; omit from Final Summary
-- Do not mention what already works well or issues already documented in help resources and runtime hints
-
-### After Testing
-
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
-2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
-3. **Scope of fixes** includes corrections to any of:
-   - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
-   - This prompt
-
-### After Implementation
-
-4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-backup.md]`) so the history can be traced.
-6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
-
----
+## Post-Test Procedures

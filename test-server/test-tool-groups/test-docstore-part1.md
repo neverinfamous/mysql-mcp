@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: [cluster-group-replication]
+# mysql-mcp Tool Group Testing: ALL PARTS.[docstore]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -8,7 +8,7 @@
 
 **Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
-**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+**Step 2:** Please conduct an exhaustive test of ALL PARTS.of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** The agent should update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate, and create a `memory-journal-mcp` entry summarizing the changes/fixes.
 
@@ -140,43 +140,25 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: cluster-group-replication
+## Group Focus: docstore-part1
 
-### cluster Group-Specific Testing
+### docstore Group-Specific Testing
 
-cluster Tool Group (10 tools +1 for code mode):
+docstore Tool Group (4 tools +1 for code mode):
 
-1. 'mysql_gr_status'
-2. 'mysql_gr_members'
-3. 'mysql_gr_primary'
-4. 'mysql_gr_transactions'
-5. 'mysql_gr_flow_control'
-6. 'mysql_cluster_status'
-7. 'mysql_cluster_instances'
-8. 'mysql_cluster_topology'
-9. 'mysql_cluster_router_status'
-10. 'mysql_cluster_switchover'
-11. 'mysql_execute_code' (codemode, auto-added)
+1. 'mysql_doc_list_collections'
+2. 'mysql_doc_create_collection'
+3. 'mysql_doc_drop_collection'
 
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
+4. `mysql_doc_list_collections()` -> verify list of collections
+5. `mysql_doc_create_collection({collection: "test_coll"})` -> verify success
+6. `mysql_doc_collection_info({collection: "test_coll"})` -> verify info
+7. `mysql_doc_drop_collection({collection: "test_coll"})` -> verify success
 
-1. `mysql_gr_status()` → verify GR status or structured "not configured" message
-2. `mysql_gr_members()` → verify members list or structured empty response
-2b. `mysql_gr_transactions()` -> verify transactions info
-2c. `mysql_gr_flow_control()` -> verify flow control info
-3. `mysql_cluster_status()` → verify cluster status or structured error
-4. `mysql_cluster_status({summary: true})` → verify summarized output (if cluster running)
-5. `mysql_cluster_instances()` → verify instance details
-6. `mysql_cluster_topology()` → verify topology map
-7. `mysql_cluster_router_status()` → verify router status or structured error
-8. `mysql_cluster_router_status({summary: true})` → verify summarized output
-9. `mysql_cluster_switchover()` → verify readiness check (should not actually perform switchover without params)
+**Domain error paths (??):**
 
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql_gr_primary({})` → verify behavior (may accept empty params for read-only mode)
-
----
+**Zod validation error paths (??):**
+1. ?? `mysql_doc_create_collection({})` -> `{success: false, error: "..."}`
 
 ## Post-Test Procedures
 
@@ -198,7 +180,7 @@ cluster Tool Group (10 tools +1 for code mode):
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-cluster-group-replication.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-docstore.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

@@ -100,8 +100,6 @@ Environment Variables:
   AUDIT_READS                 Log read operations
   AUDIT_BACKUP                Enable pre-mutation DDL snapshots
   AUDIT_BACKUP_DATA           Include sample data in pre-mutation snapshots
-  PROJECT_REGISTRY            Project registry namespace
-  TEAM_DB_PATH                Path to team database
   MYSQLMCP_PORT               Port for mysql-mcp
 `);
 }

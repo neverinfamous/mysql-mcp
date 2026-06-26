@@ -8,7 +8,7 @@ The mysql-mcp MySQL MCP server implements comprehensive security measures to pro
 
 **Identifier Sanitization** (`src/utils/identifiers.ts`)
 
-- ✅ **Comprehensive coverage** — all table, column, schema, and index names validated and quoted across every tool group (admin, backup, core, jsonb, monitoring, partitioning, performance, postgis, schema, stats, text, vector)
+- ✅ **Comprehensive coverage** — all table, column, schema, and index names validated and quoted across every tool group (admin, backup, core, json, monitoring, partitioning, performance, spatial, schema, stats, text, vector)
 - ✅ **MySQL identifier rules enforced** — start with letter/underscore, contain only alphanumerics, underscores, or $ signs
 - ✅ **64-character limit** enforced (MySQL maximum)
 - ✅ **Invalid identifiers** throw `InvalidIdentifierError`

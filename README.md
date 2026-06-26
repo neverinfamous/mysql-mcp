@@ -17,11 +17,15 @@
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
-## The Most Comprehensive MySQL MCP Server Available
+## Unleash Your Database
 
-**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Features **Code Mode** — a revolutionary approach that provides access to all 241 tools through a single JavaScript sandbox, eliminating the massive token overhead of multi-step tool calls. Also includes deterministic error handling, process-isolated code execution, and enterprise-grade features without sacrificing ease of use.
+**mysql-mcp** is the premier **Model Context Protocol server for MySQL**. It empowers AI assistants with **unparalleled database capabilities**.
 
-## 🎯 What Sets Us Apart
+Experience **Code Mode**. Access all 241 tools through a single JavaScript sandbox. Eliminate the massive token overhead of multi-step tool calls.
+
+Enjoy deterministic error handling and process-isolated code execution. Get enterprise-grade features without sacrificing ease of use.
+
+## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -699,6 +703,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
 | `--dump-config`           | —                       | Print the resolved configuration and exit           |
+| `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
 | `--mysql`, `-m`           | `MYSQL_URL`             | MySQL connection string                             |

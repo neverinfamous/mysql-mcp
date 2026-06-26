@@ -216,7 +216,6 @@ mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspect
 4. **Write meaningful Vitest tests** and update E2E spec files if making systemic changes
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/server-instructions/`)
 6. **Verify OAuth Scope** — ensure the new tool aligns with its group's defined OAuth 2.1 scope (`read`, `write`, or `admin`)
-7. **Update `UNRELEASED.md`** with your change (see [Changelog](#-changelog) below)
 
 ## 🐛 Bug Reports
 
@@ -251,7 +250,6 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 - [ ] **Test** your changes (`pnpm run check && pnpm test`)
 - [ ] **Update documentation** if you changed APIs or behavior
 - [ ] **Add examples** for new features
-- [ ] **Update `UNRELEASED.md`** with your change
 - [ ] **Check** that existing functionality still works
 
 ### PR Description Should Include
@@ -280,13 +278,21 @@ All checks must pass before merge. Security steps **hard-fail on fixable issues*
 
 ## 📄 Changelog
 
-Log all changes in **[`UNRELEASED.md`](UNRELEASED.md)** at the project root using [Keep a Changelog](https://keepachangelog.com/) format. Use the appropriate header:
+Log all changes directly in your **git commit messages** using git trailers. We use an automated workflow that generates the changelog from commit history.
 
-- `### Added` — new features or tools
-- `### Changed` — changes to existing functionality
-- `### Fixed` — bug fixes
-- `### Removed` — removed features
-- `### Security` — vulnerability fixes
+Example commit message:
+```text
+feat: add Code Mode limits
+
+Changelog-Added: Implement maximum result size for Code Mode executions.
+```
+
+Available trailers:
+- `Changelog-Added` — new features or tools
+- `Changelog-Changed` — changes to existing functionality
+- `Changelog-Fixed` — bug fixes
+- `Changelog-Removed` — removed features
+- `Changelog-Security` — vulnerability fixes
 
 > **Do not edit `CHANGELOG.md` directly** — it is assembled automatically during the release process.
 

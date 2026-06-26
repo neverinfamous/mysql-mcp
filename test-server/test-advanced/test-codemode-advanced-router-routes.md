@@ -52,6 +52,10 @@
 | 2 - Poor (no object name)              | ⚠️      |
 | 1 - Useless (generic)                  | ❌      |
 
+
+> [!CAUTION]
+> **ECOSYSTEM TOOL TESTING**: This test covers an ecosystem tool. You MUST use `ServerName: "mysql-ecosystem"` for all `call_mcp_tool` executions (e.g., when calling `mysql_execute_code`). If you use the standard `mysql` server, the tools will gracefully degrade or fail because the ecosystem services are connected to the alternate MCP server port configuration!
+
 ## Testing Requirements & Error Standards
 
 > [!NOTE]
@@ -221,7 +225,7 @@ During testing, check for these inconsistencies:
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-router.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-codemode-advanced-router-routes.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

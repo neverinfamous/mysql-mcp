@@ -152,7 +152,20 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: roles\n\nroles Tool Group (8 tools +1 code mode):\n\n1. `mysql_role_list`\n2. `mysql_role_create`\n3. `mysql_role_drop`\n4. `mysql_role_grants`\n5. `mysql_role_grant`\n6. `mysql_role_assign`\n7. `mysql_role_revoke`\n8. `mysql_user_roles`\n\n> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.
+## Group Focus: roles
+
+roles Tool Group (8 tools +1 code mode):
+
+1. `mysql_role_list`
+2. `mysql_role_create`
+3. `mysql_role_drop`
+4. `mysql_role_grants`
+5. `mysql_role_grant`
+6. `mysql_role_assign`
+7. `mysql_role_revoke`
+8. `mysql_user_roles`
+
+> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.
 
 1. `mysql.roles.help()` → verify method listing
 4. `mysql.roles.roleGrant({ roleName: "test_role_x", privileges: ["SELECT"], object: "testdb.*" })` → verify success
@@ -172,7 +185,9 @@ During testing, check for these inconsistencies:
 
 13. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
----\n\n## Post-Test Procedures
+---
+
+## Post-Test Procedures
 
 ### Reporting Rules
 

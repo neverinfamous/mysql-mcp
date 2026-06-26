@@ -185,7 +185,9 @@ sysschema Tool Group (8 tools +1 code mode):
 
 12. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
----\n\n## Post-Test Procedures
+---
+
+## Post-Test Procedures
 
 ### Reporting Rules
 
