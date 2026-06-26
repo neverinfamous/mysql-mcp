@@ -260,15 +260,13 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
             return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           } else {
-            const response = {
-              success: false,
-              error:
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
                 "Must provide 'user' to revoke role from user, or 'privileges' to revoke privileges from role",
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+                "VALIDATION_ERROR",
+                ErrorCategory.VALIDATION
+              )
             );
-            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
           }
         } catch (error: unknown) {
           if (error instanceof ZodError) {
