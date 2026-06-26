@@ -66,6 +66,9 @@
 > [!TIP]
 > **Zod Validation & Safe Parsing**: When evaluating schema boundaries and input validation errors, refer to the `/zod` skill for best practices on Standard Schema, `safeParse()`, and ensuring Zod errors are structurally wrapped by the handler rather than leaked to the MCP client.
 
+> [!TIP]
+> **MySQL Standards**: When constructing queries, evaluating schemas, or interacting with the database, refer to the `/mysql` skill for production standards on query safety, parameterization, and ecosystem configurations.
+
 1. **Test Realism**: Test each tool with realistic inputs based on the schema above.
 2. **Error Path Testing**: For **every** tool, test at least **two** invalid inputs:
    - (a) A domain error (e.g., non-existent table).
@@ -140,7 +143,8 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-- **Temporary files**: Delete any export/dump/backup artifacts from `C:\\Users\\chris\\Desktop\\mysql-mcp\\tmp`
+- **Scratch Data:** **[WHEN]** generating temporary files, test data, or export/dump artifacts -> **[NEVER]** write scratch files to the project workspace. **[ALWAYS]** write them to `<appDataDir>\brain\<conversation-id>\scratch\`.
+- **Cleanup:** Make sure to clean up any generated files in the scratch directory or elsewhere before committing.
 
 ---
 

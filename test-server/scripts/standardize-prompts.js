@@ -20,7 +20,6 @@ const getTemplate = (
   titleType,
   groupName,
   schemaRef,
-  fileCleanup,
   testContent,
   executionMode,
   coverageMatrix
@@ -29,7 +28,6 @@ const getTemplate = (
     .replace("{{TITLE_TYPE}}", () => titleType)
     .replace("{{GROUP_NAME}}", () => groupName)
     .replace("{{SCHEMA_REF}}", () => schemaRef.trim())
-    .replace("{{FILE_CLEANUP}}", () => fileCleanup)
     .replace("{{EXECUTION_MODE}}", () => executionMode)
     .replace("{{COVERAGE_MATRIX}}", () => coverageMatrix)
     .replace("{{TEST_CONTENT}}", () => testContent.trim());
@@ -139,16 +137,10 @@ function processDirectory(dirName) {
 
     const testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
 
-    let fileCleanup = "";
-    if (file.includes("admin") || file.includes("backup")) {
-      fileCleanup = `- **Temporary files**: Delete any export/dump/backup artifacts from \`C:\\\\Users\\\\chris\\\\Desktop\\\\mysql-mcp\\\\tmp\``;
-    }
-
     const newContent = getTemplate(
       titleType,
       groupName,
       schemaRef,
-      fileCleanup,
       testContent,
       executionMode,
       coverageMatrix
