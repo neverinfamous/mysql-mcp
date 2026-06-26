@@ -4,6 +4,7 @@
  * Enterprise backup planning with RTO/RPO considerations.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createBackupStrategyPrompt(): PromptDefinition {
   return {
@@ -87,7 +88,7 @@ Based on your RPO of ${rpo}:
 - Plan retention policy
 - Set up monitoring and alerting
 
-Please provide your RPO/RTO requirements if not specified, and I'll create a tailored backup plan.`);
+Please provide your RPO/RTO requirements if not specified, and I'll create a tailored backup plan.${getSkillDirective()}`);
     },
   };
 }

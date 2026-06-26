@@ -4,6 +4,7 @@
  * MySQL replication configuration guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupReplicationPrompt(): PromptDefinition {
   return {
@@ -149,7 +150,7 @@ Regular monitoring should include:
 4. Update application connection strings
 5. Re-point other replicas to new source
 
-Start by checking current replication status with \`mysql://replication\`.`);
+Start by checking current replication status with \`mysql://replication\`.${getSkillDirective()}`);
     },
   };
 }

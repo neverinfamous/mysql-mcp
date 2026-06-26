@@ -4,6 +4,7 @@
  * MySQL Shell installation and usage guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupMysqlshPrompt(): PromptDefinition {
   return {
@@ -113,7 +114,7 @@ Use mysqlsh_import_table tool:
 - **Timeout**: Increase MYSQLSH_TIMEOUT for large operations
 - **Connection errors**: Verify MySQL connection string
 
-Start by running \`mysqlsh_version\` to verify installation.`);
+Start by running \`mysqlsh_version\` to verify installation.${getSkillDirective()}`);
     },
   };
 }

@@ -4,6 +4,7 @@
  * Complete MySQL Router configuration guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupRouterPrompt(): PromptDefinition {
   return {
@@ -105,7 +106,7 @@ Use Router tools to verify:
 2. **SSL errors**: Use MYSQL_ROUTER_INSECURE=true for self-signed certs
 3. **No destinations**: Verify backend servers are healthy
 
-Start by checking if MySQL Router is installed and running.`);
+Start by checking if MySQL Router is installed and running.${getSkillDirective()}`);
     },
   };
 }

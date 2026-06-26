@@ -4,6 +4,7 @@
  * Index analysis and optimization workflow.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createIndexTuningPrompt(): PromptDefinition {
   return {
@@ -95,7 +96,7 @@ After changes:
 2. Compare query execution times
 3. Monitor \`mysql://performance\` for improvements
 
-${table ? `\nStart by analyzing indexes on table **${table}**.` : "\nStart by reviewing the `mysql://indexes` resource."}`);
+${table ? `\nStart by analyzing indexes on table **${table}**.` : "\nStart by reviewing the `mysql://indexes` resource."}${getSkillDirective()}`);
     },
   };
 }

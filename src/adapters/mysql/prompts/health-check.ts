@@ -4,6 +4,7 @@
  * Guides user through comprehensive database health assessment.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createDatabaseHealthCheckPrompt(): PromptDefinition {
   return {
@@ -55,7 +56,7 @@ Based on findings, provide:
 2. Performance optimization opportunities
 3. Maintenance tasks to schedule
 
-Please proceed with the health check and report findings.`);
+Please proceed with the health check and report findings.${getSkillDirective()}`);
     },
   };
 }

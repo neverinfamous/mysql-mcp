@@ -47,3 +47,7 @@ The server supports `.yaml` or `.json` configuration files via the `--config <pa
 4. **Defaults** (lowest priority)
 
 You can verify the final merged configuration the server will use by running with the `--dump-config` flag.
+
+## Skill Injection
+
+When AI agents use the MCP prompts to generate database queries or schema designs, the server can dynamically inject a directive pointing to the \`mysql\` agent skill. This ensures that consuming agents strictly adhere to production boundaries (e.g., parameterized queries, connection pooling). This behavior is driven by the \`MYSQL_SKILL_PATH\` environment variable, which defines the absolute path to the skill markdown file.

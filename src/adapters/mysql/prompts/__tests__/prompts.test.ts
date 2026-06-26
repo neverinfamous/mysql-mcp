@@ -58,6 +58,17 @@ describe("Prompt Handler Execution", () => {
 
   const findPrompt = (name: string) => prompts.find((p) => p.name === name);
 
+  describe("Skill Injection", () => {
+    it("should inject skill directive when MYSQL_SKILL_PATH is set", async () => {
+      process.env.MYSQL_SKILL_PATH = "/custom/skill/path.md";
+      const prompt = findPrompt("mysql_query_builder");
+      const result = String(await prompt!.handler({ operation: "SELECT", table: "users", description: "test" }, mockContext));
+      expect(result).toContain("/custom/skill/path.md");
+      expect(result).toContain("CRITICAL");
+      delete process.env.MYSQL_SKILL_PATH;
+    });
+  });
+
   describe("mysql_query_builder", () => {
     it("should return message with query guidance", async () => {
       const prompt = findPrompt("mysql_query_builder");
