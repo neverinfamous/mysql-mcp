@@ -293,7 +293,11 @@ export function createSecurityUserPrivilegesTool(
         const { user, host, includeRoles, summary } =
           UserPrivilegesSchema.parse(params);
 
-
+        if (!user) {
+          return formatHandlerErrorResponse(
+            new ValidationError("Parameter 'user' (or 'userName') is required to prevent payload bloat.")
+          );
+        }
         // P154: User existence check when explicitly provided
         if (user) {
           const userCheck = await adapter.executeQuery(
@@ -460,7 +464,11 @@ export function createSecuritySensitiveTablesTool(
       try {
         const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);
 
-
+        if (!schema) {
+          return formatHandlerErrorResponse(
+            new ValidationError("Parameter 'schema' (or 'database') is required to prevent payload bloat.")
+          );
+        }
         // P154: Schema existence check when explicitly provided
         if (schema) {
           const schemaCheck = await adapter.executeQuery(
