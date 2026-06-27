@@ -52,7 +52,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
             success: false,
             error: `Table '${table}' does not exist`,
             code: "NOT_FOUND",
-            category: "database",
+            category: "resource",
             suggestion: "Verify the table name exists in the target database.",
             recoverable: true,
           };
