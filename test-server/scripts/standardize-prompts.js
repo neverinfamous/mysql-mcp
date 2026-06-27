@@ -62,8 +62,13 @@ function processDirectory(dirName) {
 
     if (dirName === "test-advanced") {
       titleType = "Advanced Stress Testing";
-      executionMode = "Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.";
-      coverageMatrix = "| Tool | Focus Area | Code Mode Validation |";
+      if (groupName === "sessions") {
+        executionMode = "Execute ALL tests below using terminal scripts (via pwsh/curl/node) to test the HTTP endpoints directly. Do NOT use code mode, as `fetch` and network access are blocked by the Sandbox Security Manager. Return an aggregated `failures` array.";
+        coverageMatrix = "| Endpoint | Focus Area | HTTP Validation |";
+      } else {
+        executionMode = "Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.";
+        coverageMatrix = "| Tool | Focus Area | Code Mode Validation |";
+      }
     } else if (dirName === "test-codemode") {
       titleType = "Code Mode Testing";
       executionMode = "Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.";

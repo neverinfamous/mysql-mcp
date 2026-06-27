@@ -293,11 +293,6 @@ export function createSecurityUserPrivilegesTool(
         const { user, host, includeRoles, summary } =
           UserPrivilegesSchema.parse(params);
 
-        if (!user) {
-          return formatHandlerErrorResponse(
-            new ValidationError("User parameter is required.")
-          );
-        }
 
         // P154: User existence check when explicitly provided
         if (user) {
@@ -465,11 +460,6 @@ export function createSecuritySensitiveTablesTool(
       try {
         const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);
 
-        if (!schema) {
-          return formatHandlerErrorResponse(
-            new ValidationError("Schema parameter is required.")
-          );
-        }
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
