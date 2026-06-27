@@ -38,7 +38,7 @@ const ListEventsSchema = z.preprocess(
     return val;
   },
   z.object({
-    schema: z.string().optional(),
+    schema: z.string(),
     status: z
       .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
       .optional()
