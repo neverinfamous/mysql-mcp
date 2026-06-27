@@ -16,6 +16,7 @@ export const FulltextCreateSchemaBase = z.object({
   indexName: z.string().optional().describe("Optional index name"),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
+  index: z.string().optional().describe("Alias for indexName"),
 });
 
 export const FulltextCreateSchema = z
@@ -28,12 +29,13 @@ export const FulltextCreateSchema = z
       columns: z.array(z.string()).optional(),
       indexName: z.string().optional(),
       index_name: z.string().optional(),
+      index: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? "",
     columns: data.columns ?? [],
-    indexName: data.indexName ?? data.index_name ?? data.name,
+    indexName: data.indexName ?? data.index_name ?? data.index ?? data.name,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName alias) is required",
@@ -48,6 +50,8 @@ export const FulltextSearchSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   columns: z.array(z.string()).optional().describe("Columns to search"),
+  col: z.array(z.string()).optional().describe("Alias for columns"),
+  column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z.string().optional().describe("Search query"),
   sql: z.string().optional().describe("Alias for query"),
   mode: z
@@ -86,6 +90,8 @@ export const FulltextSearchSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       columns: z.array(z.string()).optional(),
+      col: z.array(z.string()).optional(),
+      column: z.array(z.string()).optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
       mode: z
@@ -100,7 +106,7 @@ export const FulltextSearchSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    columns: data.columns ?? [],
+    columns: data.columns ?? data.col ?? data.column ?? [],
     query: data.query ?? data.sql ?? "",
     mode: data.mode,
     maxLength: data.maxLength,
@@ -134,6 +140,7 @@ export const FulltextDropSchemaBase = z.object({
     .describe("Name of the FULLTEXT index to drop"),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
+  index: z.string().optional().describe("Alias for indexName"),
 });
 
 export const FulltextDropSchema = z
@@ -145,11 +152,12 @@ export const FulltextDropSchema = z
       name: z.string().optional(),
       indexName: z.string().optional(),
       index_name: z.string().optional(),
+      index: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? "",
-    indexName: data.indexName ?? data.index_name ?? data.name ?? "",
+    indexName: data.indexName ?? data.index_name ?? data.index ?? data.name ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName alias) is required",
@@ -164,6 +172,8 @@ export const FulltextBooleanSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   columns: z.array(z.string()).optional().describe("Columns to search"),
+  col: z.array(z.string()).optional().describe("Alias for columns"),
+  column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z
     .string()
     .optional()
@@ -196,6 +206,8 @@ export const FulltextBooleanSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       columns: z.array(z.string()).optional(),
+      col: z.array(z.string()).optional(),
+      column: z.array(z.string()).optional(),
       query: z.string().optional(),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
@@ -205,7 +217,7 @@ export const FulltextBooleanSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    columns: data.columns ?? [],
+    columns: data.columns ?? data.col ?? data.column ?? [],
     query: data.query ?? "",
     maxLength: data.maxLength,
     limit: data.limit,
@@ -234,6 +246,8 @@ export const FulltextExpandSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   columns: z.array(z.string()).optional().describe("Columns to search"),
+  col: z.array(z.string()).optional().describe("Alias for columns"),
+  column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z.string().optional().describe("Search query to expand"),
   maxLength: z
     .unknown()
@@ -263,6 +277,8 @@ export const FulltextExpandSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       columns: z.array(z.string()).optional(),
+      col: z.array(z.string()).optional(),
+      column: z.array(z.string()).optional(),
       query: z.string().optional(),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
@@ -272,7 +288,7 @@ export const FulltextExpandSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    columns: data.columns ?? [],
+    columns: data.columns ?? data.col ?? data.column ?? [],
     query: data.query ?? "",
     maxLength: data.maxLength,
     limit: data.limit,
