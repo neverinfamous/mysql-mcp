@@ -40,7 +40,7 @@ export const ShellVersionInputSchema = z
 // Utility Tools
 // =============================================================================
 
-export const ShellCheckUpgradeInputSchema = z
+export const ShellCheckUpgradeInputSchemaBase = z
   .object({
     targetVersion: z
       .string()
@@ -57,6 +57,19 @@ export const ShellCheckUpgradeInputSchema = z
   .describe(
     "Check server upgrade compatibility using util.checkForServerUpgrade()",
   );
+
+export const ShellCheckUpgradeInputSchema = z
+  .object({
+    targetVersion: z.unknown().optional(),
+    outputFormat: z.enum(["TEXT", "JSON"]).optional().default("JSON"),
+  })
+  .transform((data) => ({
+    targetVersion:
+      data.targetVersion === undefined
+        ? undefined
+        : String(data.targetVersion as string | number | boolean),
+    outputFormat: data.outputFormat,
+  }));
 
 // =============================================================================
 // Data Transfer Tools
