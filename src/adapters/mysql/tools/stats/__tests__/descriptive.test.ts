@@ -159,6 +159,9 @@ describe("Descriptive Stats Tools", () => {
 
     it("should calculate distribution buckets", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("GROUP BY bucket")) {
           return createMockQueryResult([
             { bucket: 0, count: 50, bucket_min: 0, bucket_max: 9 },

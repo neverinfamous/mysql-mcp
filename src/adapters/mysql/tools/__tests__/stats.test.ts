@@ -245,8 +245,19 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_distribution", () => {
     it("should analyze data distribution", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ min_val: 0, max_val: 100 }]),
+      mockAdapter.executeQuery.mockImplementation(
+        async (query: string, _params?: any[]) => {
+          if (
+            typeof query === "string" &&
+            query.includes("information_schema.COLUMNS")
+          ) {
+            return createMockQueryResult([{ DATA_TYPE: "int" }]);
+          }
+          if (typeof query === "string" && query.includes("min_val")) {
+            return createMockQueryResult([{ min_val: 0, max_val: 100 }]);
+          }
+          return createMockQueryResult([{ bucket: 0, count: 10 }]);
+        },
       );
 
       const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
@@ -615,8 +626,19 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should handle same min/max values", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ min_val: 50, max_val: 50 }]),
+      mockAdapter.executeQuery.mockImplementation(
+        async (query: string, _params?: any[]) => {
+          if (
+            typeof query === "string" &&
+            query.includes("information_schema.COLUMNS")
+          ) {
+            return createMockQueryResult([{ DATA_TYPE: "int" }]);
+          }
+          if (typeof query === "string" && query.includes("min_val")) {
+            return createMockQueryResult([{ min_val: 50, max_val: 50 }]);
+          }
+          return createMockQueryResult([]);
+        },
       );
 
       const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
