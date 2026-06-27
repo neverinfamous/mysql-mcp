@@ -63,7 +63,13 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
  */
 function truncateWktPrecision(wkt: unknown, decimals = 5): unknown {
   if (typeof wkt !== "string") return wkt;
-  return wkt.replace(/\d+\.\d{6,}/g, (match) => parseFloat(match).toFixed(decimals));
+  return wkt.replace(/-?\d+(?:\.\d+)?(?:e[-+]\d+)?/gi, (match) => {
+    const parts = match.split('.');
+    if (match.toLowerCase().includes('e') || (parts.length > 1 && parts[1] && parts[1].length > decimals)) {
+      return parseFloat(parseFloat(match).toFixed(decimals)).toString();
+    }
+    return match;
+  });
 }
 
 // =============================================================================
