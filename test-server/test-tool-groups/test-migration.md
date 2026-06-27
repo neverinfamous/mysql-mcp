@@ -50,6 +50,9 @@
 > **Testing Code Mode**: Do NOT write test scripts to the filesystem. Pass your JavaScript snippets directly to the `mysql_execute_code` tool's `code` parameter. Do NOT wrap your tests in monolithic `try/catch` blocks that suppress or transform the server's natural error output. You must allow the server to return its native structured error responses so you can evaluate them against the standards below.
 
 > [!CAUTION]
+> **Code Mode Transaction Safety**: When testing transactions in Code Mode via `mysql.transactions.begin()`, you MUST pass the returned `transactionId` (or `txId`) to all subsequent query calls (e.g., `mysql.core.writeQuery({ sql: "...", txId })`) that are part of the transaction. If you omit it, Code Mode will check out a different connection from the pool, which will deadlock on any tables locked by your active transaction and permanently hang the server until it times out and crashes. Always ensure transactions are rolled back or committed in a `finally` block if errors occur.
+
+> [!CAUTION]
 > **Zero tolerance for raw MCP errors.** ANY response that is a raw MCP error (e.g., `-32602`, or a raw text string wrapped in `isError: true` with no `success` field) is a **bug that must be reported and fixed** — never an acceptable design choice, SDK limitation, or expected behavior. If you see one, report it as ❌ immediately. Do not rationalize it as "the SDK rejecting at the boundary" or "by design for range-constrained params." The handler MUST catch it.
 >
 > ⚠️ **ARCHITECTURAL NOTE — `isError: true` rules for tools with `outputSchema`**: The MCP SDK uses `isError` to decide whether to validate `structuredContent` against the `outputSchema`. Getting this wrong causes either raw `-32602` crashes or valid responses wrapped in error frames. **This is now handled automatically by the server framework in `tools.ts`**, but as a tester, you must verify the SDK output matches this rule:
