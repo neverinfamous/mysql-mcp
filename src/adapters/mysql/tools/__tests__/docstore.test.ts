@@ -276,17 +276,15 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_doc_drop_collection", () => {
-    it("should drop collection with IF EXISTS by default", async () => {
-      mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // pre-check: collection exists
-        .mockResolvedValueOnce(createMockQueryResult([])); // DROP TABLE
+    it("should drop collection without IF EXISTS by default", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([])); // DROP TABLE
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
       const result = await tool.handler({ name: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const dropCall = mockAdapter.executeQuery.mock.calls[1][0];
-      expect(dropCall).toContain("DROP TABLE IF EXISTS `users`");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      const dropCall = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(dropCall).toContain("DROP TABLE `users`");
       expect(result).toHaveProperty("success", true);
       expect(result).not.toHaveProperty("message");
     });
@@ -296,24 +294,26 @@ describe("Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
       const result = (await tool.handler(
-        { name: "nonexistent" },
+        { name: "nonexistent", ifExists: true },
         mockContext,
-      )) as { success: boolean; collection: string; message: string };
+      )) as { success: boolean; data: { collection: string; reason: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.collection", "nonexistent");
-      expect(result).toHaveProperty("data.message", "Collection did not exist");
+      expect(result).toHaveProperty("data.reason", "Collection did not exist");
     });
 
-    it("should drop collection without IF EXISTS when requested", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+    it("should drop collection with IF EXISTS when requested", async () => {
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // pre-check
+        .mockResolvedValueOnce(createMockQueryResult([])); // drop
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
-      await tool.handler({ name: "users", ifExists: false }, mockContext);
+      await tool.handler({ name: "users", ifExists: true }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toBe("DROP TABLE `users`");
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
+      expect(call).toBe("DROP TABLE IF EXISTS `users`");
     });
 
     it("should reject invalid collection names", async () => {
