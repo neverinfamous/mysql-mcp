@@ -35,20 +35,6 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Helpers
 // =============================================================================
 
-/** Safely extract a string field from raw params for error context */
-function paramStr(params: unknown, key: string): string {
-  if (
-    params !== null &&
-    params !== undefined &&
-    typeof params === "object" &&
-    key in params
-  ) {
-    const val = typeof params === "object" && params !== null ? (params as Record<string, unknown>)[key] : undefined;
-    return typeof val === "string" ? val : "";
-  }
-  return "";
-}
-
 // =============================================================================
 
 /**
@@ -117,22 +103,6 @@ export function createSpatialDistanceTool(
       } catch (error) {
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("does not exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
-            category: "resource",
-            recoverable: false,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
         }
         return formatHandlerErrorResponse(error);
       }
@@ -208,22 +178,6 @@ export function createSpatialDistanceSphereTool(
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("does not exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
-            category: "resource",
-            recoverable: false,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
-        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -285,22 +239,6 @@ export function createSpatialContainsTool(
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("does not exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
-            category: "resource",
-            recoverable: false,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
-        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -358,22 +296,6 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (error) {
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("does not exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND",
-            category: "resource",
-            recoverable: false,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        if (msg.includes("Unknown column")) {
-          return withTokenEstimate({ success: false, error: msg, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false });
         }
         return formatHandlerErrorResponse(error);
       }
