@@ -113,13 +113,10 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
           // Fall through to not-configured response
         }
       }
-      return formatHandlerErrorResponse(
-        new MySQLMcpError(
-          "This server is not configured as a replica",
-          "DOMAIN_ERROR",
-          ErrorCategory.CONFIGURATION,
-        ),
-      );
+      return withTokenEstimate({
+        success: true as const,
+        data: { configured: false },
+      });
     },
   };
 }
@@ -338,13 +335,10 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      return formatHandlerErrorResponse(
-        new MySQLMcpError(
-          "This server is not configured as a replica",
-          "DOMAIN_ERROR",
-          ErrorCategory.CONFIGURATION,
-        ),
-      );
+      return withTokenEstimate({
+        success: true as const,
+        data: { lagSeconds: null },
+      });
     },
   };
 }
