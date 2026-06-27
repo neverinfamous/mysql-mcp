@@ -54,8 +54,7 @@ export const DependencyGraphSchema = z.object({
 export const TopologicalSortSchemaBase = z.object({
   schema: z
     .string()
-    .optional()
-    .describe("Schema to analyze (default: all user schemas)"),
+    .describe("Schema to analyze"),
   database: z.string().optional().describe("Alias for schema"),
   direction: z
     .string()
@@ -131,8 +130,7 @@ export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
 export const SchemaSnapshotSchemaBase = z.object({
   schema: z
     .string()
-    .optional()
-    .describe("Schema to snapshot (default: all user schemas)"),
+    .describe("Schema to snapshot"),
   database: z.string().optional().describe("Alias for schema"),
   includeSystem: z
     .boolean()
@@ -195,7 +193,7 @@ export const ConstraintAnalysisSchemaBase = z.object({
   schema: z
     .string()
     .optional()
-    .describe("Schema to analyze (default: all user schemas)"),
+    .describe("Schema to analyze"),
   database: z.string().optional().describe("Alias for schema"),
   table: z
     .string()
