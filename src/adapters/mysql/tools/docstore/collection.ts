@@ -266,7 +266,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 success: true,
                 data: {
                   collection: name,
-                  message: "Collection did not exist",
+                  skipped: true,
+                  reason: "Collection did not exist",
                 },
               });
             }

@@ -84,16 +84,17 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           const tableRef = escapeTableRef(collection, schema);
           for (const field of fields) {
-            const colName = `_idx_${field.path.replace(/\./g, "_")}`;
+            const cleanPath = field.path.replace(/^\$\.?/, "");
+            const colName = `_idx_${cleanPath.replace(/\./g, "_")}`;
             const cast = field.type === "TEXT" ? "CHAR(255)" : field.type.toUpperCase().replace(/^STRING/, "VARCHAR");
             await adapter.executeQuery(
               `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast}
-                           GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${field.path}'))) STORED`,
+                           GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${cleanPath}'))) STORED`,
             );
           }
 
           const cols = fields
-            .map((f) => `\`_idx_${f.path.replace(/\./g, "_")}\``)
+            .map((f) => `\`_idx_${f.path.replace(/^\$\.?/, "").replace(/\./g, "_")}\``)
             .join(", ");
           const uniqueClause = unique ? "UNIQUE " : "";
           await adapter.executeQuery(

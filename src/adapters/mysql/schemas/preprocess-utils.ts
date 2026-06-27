@@ -23,6 +23,8 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
   const result = { ...(input as Record<string, unknown>) };
   if (result["name"] === undefined && result["collection"] !== undefined) {
     result["name"] = result["collection"];
+  } else if (result["collection"] === undefined && result["name"] !== undefined) {
+    result["collection"] = result["name"];
   }
   if (result["schema"] === undefined && result["database"] !== undefined) {
     result["schema"] = result["database"];
@@ -240,7 +242,8 @@ export function preprocessAdminTableParams(val: unknown): unknown {
 
 export function preprocessDocFilterParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
-  const v = val as Record<string, unknown>;
+  // Call preprocessDocCollectionParams to handle collection/name aliases
+  const v = preprocessDocCollectionParams(val) as Record<string, unknown>;
   const result = { ...v };
 
   if (result["schema"] === undefined && result["database"] !== undefined) {
@@ -300,14 +303,12 @@ export function preprocessEventParams(input: unknown): unknown {
 
 export function preprocessDocIndexParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
-  const v = val as Record<string, unknown>;
+  // Call preprocessDocCollectionParams to handle collection/name aliases
+  const v = preprocessDocCollectionParams(val) as Record<string, unknown>;
   const result = { ...v };
 
   if (result["name"] === undefined && result["indexName"] !== undefined) {
     result["name"] = result["indexName"];
-  }
-  if (result["schema"] === undefined && result["database"] !== undefined) {
-    result["schema"] = result["database"];
   }
 
   if (Array.isArray(result["fields"])) {
