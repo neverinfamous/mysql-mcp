@@ -22,6 +22,8 @@ const ListEventsSchemaBase = z.object({
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
     .describe("Filter by status"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
 });
 
 const ListEventsSchema = z.preprocess(
@@ -41,6 +43,8 @@ const ListEventsSchema = z.preprocess(
       .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
       .optional()
       .describe("Filter by status"),
+    limit: z.number().default(50),
+    offset: z.number().default(0),
   })
 );
 
@@ -113,7 +117,8 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams.push(status);
         }
 
-        query += " ORDER BY EVENT_NAME";
+        query += " ORDER BY EVENT_NAME LIMIT ? OFFSET ?";
+        queryParams.push(parsedParams.limit, parsedParams.offset);
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({

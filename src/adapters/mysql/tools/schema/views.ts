@@ -22,6 +22,8 @@ const ListViewsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
 });
 
 const ListViewsSchema = z.preprocess(
@@ -37,6 +39,8 @@ const ListViewsSchema = z.preprocess(
   },
   z.object({
     schema: z.string().optional(),
+    limit: z.number().default(50),
+    offset: z.number().default(0),
   })
 );
 
@@ -175,10 +179,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM information_schema.VIEWS
                 WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
                 ORDER BY TABLE_NAME
+                LIMIT ? OFFSET ?
             `;
 
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
+          parsedParams.limit,
+          parsedParams.offset,
         ]);
         return withTokenEstimate({
           success: true,

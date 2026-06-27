@@ -19,6 +19,8 @@ const ListTriggersSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
 });
 
 const ListTriggersSchema = z.preprocess(
@@ -35,6 +37,8 @@ const ListTriggersSchema = z.preprocess(
   z.object({
     table: z.string().optional(),
     schema: z.string().optional(),
+    limit: z.number().default(50),
+    offset: z.number().default(0),
   })
 );
 
@@ -111,7 +115,9 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         query +=
-          " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION";
+          " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION LIMIT ? OFFSET ?";
+        
+        queryParams.push(parsedParams.limit, parsedParams.offset);
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({

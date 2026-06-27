@@ -18,6 +18,8 @@ const ListObjectsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
 });
 
 const ListObjectsSchema = z.preprocess(
@@ -33,6 +35,8 @@ const ListObjectsSchema = z.preprocess(
   },
   z.object({
     schema: z.string().optional(),
+    limit: z.number().default(50),
+    offset: z.number().default(0),
   })
 );
 
@@ -108,10 +112,13 @@ export function createListStoredProceduresTool(
                 GROUP BY r.ROUTINE_NAME, r.ROUTINE_TYPE, r.DEFINER, r.CREATED,
                          r.LAST_ALTERED, r.SQL_DATA_ACCESS, r.SECURITY_TYPE, r.ROUTINE_COMMENT
                 ORDER BY r.ROUTINE_NAME
+                LIMIT ? OFFSET ?
             `;
 
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
+          parsedParams.limit,
+          parsedParams.offset,
         ]);
         return withTokenEstimate({
           success: true,
@@ -174,10 +181,13 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'FUNCTION'
                 ORDER BY r.ROUTINE_NAME
+                LIMIT ? OFFSET ?
             `;
 
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
+          parsedParams.limit,
+          parsedParams.offset,
         ]);
         return withTokenEstimate({
           success: true,
