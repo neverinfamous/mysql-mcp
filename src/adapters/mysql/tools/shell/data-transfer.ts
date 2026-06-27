@@ -390,7 +390,9 @@ export function createShellImportJSONTool(
         }
 
         if (result.exitCode !== 0) {
-          const stderrText = result.stderr || result.stdout || "MySQL Shell import failed";
+          const stderrText = (result.stderr || result.stdout || "MySQL Shell import failed")
+            .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+            .trim() || "MySQL Shell import failed";
           
           if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away")) {
             throw new MySQLMcpError(

@@ -60,7 +60,10 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             { timeout: 120000 }
           );
           if (rawResult.exitCode !== 0) {
-            throw new Error(rawResult.stderr || rawResult.stdout || "MySQL Shell command failed");
+            const errorMsg = (rawResult.stderr || rawResult.stdout || "MySQL Shell command failed")
+              .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+              .trim() || "MySQL Shell command failed";
+            throw new Error(errorMsg);
           }
         } catch (error) {
           return formatHandlerErrorResponse(error);
