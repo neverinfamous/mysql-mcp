@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { booleanCoerce } from "./base.js";
 
 export const ShellRunScriptInputSchemaBase = z
   .object({
@@ -10,7 +11,7 @@ export const ShellRunScriptInputSchemaBase = z
       .optional()
       .default("js")
       .describe("Script language (JavaScript, Python, or SQL)"),
-    dryRun: z.boolean().optional().describe("If true, perform a dry run without executing"),
+    dryRun: booleanCoerce.optional().describe("If true, perform a dry run without executing"),
     timeout: z
       .number()
       .int()
@@ -31,7 +32,7 @@ export const ShellRunScriptInputSchema = z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
       .default("js"),
-    dryRun: z.boolean().optional(),
+    dryRun: booleanCoerce.optional(),
     timeout: z.number().int().optional().default(60000),
   })
   .transform((data) => ({
