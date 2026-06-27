@@ -161,6 +161,7 @@ This document provides testing instructions to validate the server's connection 
 - `mysql_execute_code`
 
 ## Tasks
+## Tasks
 
 ### 1. Promise.all() Connection Saturation
 - Use `mysql_execute_code` to execute 50 concurrent `SELECT SLEEP(1)` or similar lightweight queries via `Promise.all()`.
@@ -169,11 +170,12 @@ This document provides testing instructions to validate the server's connection 
 
 ### 2. Mixed Workload Concurrency
 - Use `Promise.all()` to execute a mix of reads (`SELECT`) and writes (`INSERT`, `UPDATE`) on a test table concurrently (e.g., 20 reads, 20 writes).
+- **CRITICAL:** Ensure `UPDATE` queries are strictly targeted to individual specific rows (e.g. `UPDATE table SET val = val + 1 WHERE id = 1`) rather than blanket conditions (`WHERE id > 0`). Blanket updates executed concurrently will trigger InnoDB gap locks, causing deliberate lock wait timeouts and stalling the test.
 - Verify all operations succeed and no deadlocks or connection drops occur.
 
 ### 3. Connection Leak Prevention
 - Deliberately execute a code snippet that throws an error midway through a transaction or concurrent batch.
-- Verify that the connection is cleanly returned to the pool (by running a subsequent query and ensuring the pool hasn't been exhausted).
+- **CRITICAL**: When the code throws an error, the `mysql_execute_code` tool will legitimately return an `ERROR` status (`EXECUTION_ERROR`). This is EXPECTED behavior. Acknowledge the error, ensure your agent loop doesn't get stuck, and proceed to run a subsequent query to ensure the pool hasn't been exhausted.
 
 ---
 
