@@ -80,7 +80,7 @@ const UserPrivilegesSchema = z.preprocess(
     return val;
   },
   z.object({
-    user: z.string().optional(),
+    user: z.string().default(""),
     host: z.string().default("%"),
     includeRoles: z.boolean().default(true),
     summary: z.boolean().default(false),
@@ -115,8 +115,8 @@ const SensitiveTablesSchema = z
       return val;
     },
     z.object({
-      schema: z.string().optional(),
-      database: z.string().optional(),
+      schema: z.string().default(""),
+      database: z.string().default(""),
       patterns: z
         .array(z.string())
         .default([
@@ -293,6 +293,12 @@ export function createSecurityUserPrivilegesTool(
         const { user, host, includeRoles, summary } =
           UserPrivilegesSchema.parse(params);
 
+        if (!user) {
+          return formatHandlerErrorResponse(
+            new ValidationError("User parameter is required.")
+          );
+        }
+
         // P154: User existence check when explicitly provided
         if (user) {
           const userCheck = await adapter.executeQuery(
@@ -458,6 +464,12 @@ export function createSecuritySensitiveTablesTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);
+
+        if (!schema) {
+          return formatHandlerErrorResponse(
+            new ValidationError("Schema parameter is required.")
+          );
+        }
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
