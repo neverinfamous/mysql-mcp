@@ -181,12 +181,19 @@ export async function main(args?: {
             `mysql:${dbConfig.database ?? "default"}`,
           );
         } else {
-          // Normal flow: connect then register
-          await adapter.connect(dbConfig);
+          // Normal flow: register first, connect asynchronously
+          // This allows the MCP server to start immediately and prevents "context deadline exceeded" timeouts in Claude Desktop
           server.registerAdapter(
             adapter,
             `mysql:${dbConfig.database ?? "default"}`,
           );
+          
+          adapter.connect(dbConfig).catch((error: unknown) => {
+            logger.error(
+              `Failed to connect to database ${dbConfig.database ?? "default"} in background`,
+              { error: String(error) },
+            );
+          });
         }
       }
     }
