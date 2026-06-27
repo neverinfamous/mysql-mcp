@@ -106,7 +106,7 @@ test.describe("Code Mode Groups: Introspection", () => {
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
-          const result = await mysql.introspection.schemaSnapshot({});
+          const result = await mysql.introspection.schemaSnapshot({ schema: 'testdb' });
           return { hasTables: Array.isArray((result.data?.snapshot ?? result.snapshot)?.tables ?? (result.data?.tables ?? result.tables)) };
         `,
       });

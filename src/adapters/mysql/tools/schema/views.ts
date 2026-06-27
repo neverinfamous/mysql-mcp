@@ -179,13 +179,11 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM information_schema.VIEWS
                 WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
                 ORDER BY TABLE_NAME
-                LIMIT ? OFFSET ?
+                LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
-          parsedParams.limit,
-          parsedParams.offset,
         ]);
         return withTokenEstimate({
           success: true,

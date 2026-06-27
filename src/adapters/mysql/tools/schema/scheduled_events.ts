@@ -117,8 +117,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams.push(status);
         }
 
-        query += " ORDER BY EVENT_NAME LIMIT ? OFFSET ?";
-        queryParams.push(parsedParams.limit, parsedParams.offset);
+        query += ` ORDER BY EVENT_NAME LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}`;
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({

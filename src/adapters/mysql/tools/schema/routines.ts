@@ -112,13 +112,11 @@ export function createListStoredProceduresTool(
                 GROUP BY r.ROUTINE_NAME, r.ROUTINE_TYPE, r.DEFINER, r.CREATED,
                          r.LAST_ALTERED, r.SQL_DATA_ACCESS, r.SECURITY_TYPE, r.ROUTINE_COMMENT
                 ORDER BY r.ROUTINE_NAME
-                LIMIT ? OFFSET ?
+                LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
-          parsedParams.limit,
-          parsedParams.offset,
         ]);
         return withTokenEstimate({
           success: true,
@@ -181,13 +179,11 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'FUNCTION'
                 ORDER BY r.ROUTINE_NAME
-                LIMIT ? OFFSET ?
+                LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
           targetSchema ?? null,
-          parsedParams.limit,
-          parsedParams.offset,
         ]);
         return withTokenEstimate({
           success: true,

@@ -115,10 +115,8 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         query +=
-          " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION LIMIT ? OFFSET ?";
+          ` ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}`;
         
-        queryParams.push(parsedParams.limit, parsedParams.offset);
-
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
