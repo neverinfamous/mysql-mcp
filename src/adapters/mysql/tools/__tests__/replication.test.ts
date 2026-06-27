@@ -765,11 +765,11 @@ describe("Replication Fallback Handling", () => {
       const tool = tools.find((t) => t.name === "mysql_slave_status")!;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
-        error: string;
+        data: { configured: boolean };
       };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("not configured");
+      expect(result.success).toBe(true);
+      expect(result.data.configured).toBe(false);
     });
   });
 
@@ -912,24 +912,27 @@ describe("Replication Fallback Handling", () => {
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
-        error: string;
+        data: { lagSeconds: null };
       };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("not configured");
+      expect(result.success).toBe(true);
+      expect(result.data.lagSeconds).toBeNull();
     });
 
-    it("should return structured error when replica status returns empty", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+    it("should return message when replica status returns empty", async () => {
+      // Empty result means it's not configured as a replica
+      mockAdapter.executeQuery
+        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
-        error: string;
+        data: { lagSeconds: null };
       };
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("not configured");
+      expect(result.success).toBe(true);
+      expect(result.data.lagSeconds).toBeNull();
     });
   });
 });

@@ -164,21 +164,22 @@ describe("CLI Main", () => {
     );
   });
 
-  it("should handle adapter connection errors", async () => {
-    const dbConfig = { type: "mysql" as const };
+  it("should handle adapter connection errors without exiting", async () => {
+    const dbConfig = { type: "mysql" as const, database: "test_db" };
     const error = new Error("Connection failed");
     mockAdapter.connect.mockRejectedValue(error);
 
-    await expect(
-      main({
-        config: {},
-        databases: [dbConfig],
-        oauth: undefined,
-      }),
-    ).rejects.toThrow(/Process exited with code 1/);
+    await main({
+      config: {},
+      databases: [dbConfig],
+      oauth: undefined,
+    });
 
-    expect(mockConsoleError).toHaveBeenCalledWith("Fatal error:", error);
-    expect(mockExit).toHaveBeenCalledWith(1);
+    // We have to wait a tick for the unhandled promise rejection catch block to run
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(mockExit).not.toHaveBeenCalled();
+    expect(mockServer.start).toHaveBeenCalled();
   });
 
   it("should register signal handlers for graceful shutdown", async () => {

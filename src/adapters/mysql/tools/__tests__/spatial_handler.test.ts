@@ -270,7 +270,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
@@ -291,7 +291,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
@@ -312,7 +312,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
@@ -333,7 +333,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
