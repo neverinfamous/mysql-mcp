@@ -411,14 +411,10 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_assign - error handling", () => {
     it("should return graceful error for nonexistent user", async () => {
-      // Role exists check succeeds
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ "1": 1 }]),
-      );
-      // GRANT rawQuery fails with unknown user
-      mockAdapter.rawQuery.mockRejectedValue(
-        new Error("Unknown authorization ID `baduser`@`%`"),
-      );
+      // 1: role exists; 2: user does NOT exist
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_assign")!;
       const result = await tool.handler(
@@ -429,9 +425,10 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User does not exist",
+          error: "User 'baduser' does not exist",
         }),
       );
+      expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
 

@@ -140,6 +140,16 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
           }
 
+          const userCheck = await adapter.executeQuery(
+            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+            [user, host],
+          );
+          if (!userCheck.rows || userCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(`User '${user}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
+          }
+
           let sql = `GRANT '${role}' TO '${user}'@'${host}'`;
           if (withAdminOption) sql += " WITH ADMIN OPTION";
           await adapter.rawQuery(sql);
