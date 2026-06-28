@@ -35,8 +35,9 @@ export function createShellVersionTool(): ToolDefinition {
       destructiveHint: false,
       sensitiveHint: false,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        ShellVersionInputSchema.parse(params);
         const config = getShellConfig();
 
         const result = await execMySQLShell(["--version"]);
