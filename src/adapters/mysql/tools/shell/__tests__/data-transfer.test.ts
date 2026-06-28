@@ -16,6 +16,10 @@ vi.mock("child_process", () => ({
   spawn: vi.fn(),
 }));
 
+vi.mock("fs", () => ({
+  existsSync: vi.fn().mockReturnValue(true),
+}));
+
 describe("Shell Data Transfer Tools", () => {
   let mockContext: ReturnType<typeof createMockRequestContext>;
   let mockSpawn: ReturnType<typeof vi.fn>;

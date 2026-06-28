@@ -70,7 +70,7 @@ describe("Sys Schema Resource Tools", () => {
       expect(result.data?.schemaName).toBe("testdb");
     });
 
-    it("should use default limit of 1", async () => {
+    it("should use default limit of 5", async () => {
       // Mock SELECT DATABASE()
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ db: "testdb" }]),
@@ -84,7 +84,7 @@ describe("Sys Schema Resource Tools", () => {
 
       // First call is SELECT DATABASE(), second is table stats
       const call = mockAdapter.executeQuery.mock.calls[1][0];
-      expect(call).toContain("LIMIT 1");
+      expect(call).toContain("LIMIT 5");
     });
 
     it("should filter by schema with existence check", async () => {
