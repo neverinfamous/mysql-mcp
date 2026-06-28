@@ -454,11 +454,37 @@ export const AuditSearchOutputSchema = BaseOutputSchema.extend({
 });
 
 // --- audit-backup.ts ---
+export const AuditListBackupsSchemaBase = z.object({
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .default(10)
+    .describe("Max backups to return"),
+  target: z
+    .string()
+    .optional()
+    .describe("Filter by exact target object name (e.g. users)"),
+});
+
 export const AuditListBackupsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     backups: z.array(z.record(z.string(), z.unknown())),
     total: z.number()
   }).optional()
+});
+
+export const AuditRestoreBackupSchemaBase = z.object({
+  filename: z.string().describe("Snapshot filename to restore"),
+  includeData: z
+    .boolean()
+    .default(false)
+    .describe("Execute INSERT data if present in snapshot"),
+  dryRun: z
+    .boolean()
+    .default(false)
+    .describe("Return the DDL/DML without executing it"),
 });
 
 export const AuditRestoreBackupOutputSchema = BaseOutputSchema.extend({
@@ -468,6 +494,12 @@ export const AuditRestoreBackupOutputSchema = BaseOutputSchema.extend({
     restoredFilename: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional()
   }).optional()
+});
+
+export const AuditDiffBackupSchemaBase = z.object({
+  filename: z
+    .string()
+    .describe("Snapshot filename to compare against current schema"),
 });
 
 export const AuditDiffBackupOutputSchema = BaseOutputSchema.extend({
