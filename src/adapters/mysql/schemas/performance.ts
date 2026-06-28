@@ -127,9 +127,12 @@ export const IndexUsageSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name,
+    table: data.table ?? data.tableName ?? data.name ?? "",
     limit: data.limit,
-  }));
+  }))
+  .refine((data) => data.table !== "", {
+    message: "table (or tableName/name alias) is required",
+  });
 
 // --- BufferPoolStats ---
 export const BufferPoolStatsSchemaBase = z.object({});
