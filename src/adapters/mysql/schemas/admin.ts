@@ -212,22 +212,34 @@ export const ShowStatusSchemaBase = z.object({
     ),
 });
 
-export const ShowStatusSchema = z
-  .object({
-    like: z.string().optional(),
-    global: z.boolean().optional().default(true),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    like: data.like,
-    global: data.global,
-    limit: data.limit !== undefined ? Number(data.limit) : 30,
-  }))
-  .refine(
-    (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive integer" },
-  );
+export const ShowStatusSchema = z.preprocess(
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = obj as Record<string, unknown>;
+      return {
+        ...data,
+        like: data["like"] ?? data["pattern"],
+      };
+    }
+    return obj;
+  },
+  z
+    .object({
+      like: z.string().optional(),
+      global: z.boolean().optional().default(true),
+      limit: z.unknown().optional(),
+    })
+    .transform((data) => ({
+      like: data.like,
+      global: data.global,
+      limit: data.limit !== undefined ? Number(data.limit) : 30,
+    }))
+    .refine(
+      (data) =>
+        data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+      { message: "limit must be a positive integer" },
+    )
+);
 
 export const ShowVariablesSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern"),
@@ -244,22 +256,34 @@ export const ShowVariablesSchemaBase = z.object({
     ),
 });
 
-export const ShowVariablesSchema = z
-  .object({
-    like: z.string().optional(),
-    global: z.boolean().optional().default(true),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    like: data.like,
-    global: data.global,
-    limit: data.limit !== undefined ? Number(data.limit) : 30,
-  }))
-  .refine(
-    (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive integer" },
-  );
+export const ShowVariablesSchema = z.preprocess(
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = obj as Record<string, unknown>;
+      return {
+        ...data,
+        like: data["like"] ?? data["pattern"],
+      };
+    }
+    return obj;
+  },
+  z
+    .object({
+      like: z.string().optional(),
+      global: z.boolean().optional().default(true),
+      limit: z.unknown().optional(),
+    })
+    .transform((data) => ({
+      like: data.like,
+      global: data.global,
+      limit: data.limit !== undefined ? Number(data.limit) : 30,
+    }))
+    .refine(
+      (data) =>
+        data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+      { message: "limit must be a positive integer" },
+    )
+);
 
 export const InnodbStatusSchemaBase = z.object({
   summary: z
