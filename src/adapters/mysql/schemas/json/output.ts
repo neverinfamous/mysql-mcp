@@ -79,36 +79,57 @@ export const JsonUpdateOutputSchema = BaseOutputSchema.extend({
 
 export const JsonNormalizeOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    rowsProcessed: z.number().optional(),
-    rowsAffected: z.number().optional(),
-    failed: z.number().optional(),
+    uniqueKeys: z.array(z.string()).optional(),
+    keyCount: z.number().optional(),
+    keyStats: z.array(z.object({
+      key: z.string(),
+      types: z.array(z.object({
+        value_type: z.string().nullable(),
+        count: z.number()
+      }))
+    })).optional(),
+    truncated: z.boolean().optional(),
   }).optional(),
 });
 
 export const JsonStatsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    totalRows: z.number().optional(),
-    nonNullRows: z.number().optional(),
-    validJsonRows: z.number().optional(),
-    invalidJsonRows: z.number().optional(),
-    typeDistribution: z.record(z.string(), z.number()).optional(),
-    avgSize: z.number().optional(),
-    maxSize: z.number().optional(),
-    maxDepth: z.number().optional(),
+    totalSampled: z.number().optional(),
+    nullCount: z.number().optional(),
+    length: z.object({
+      avg: z.number().optional(),
+      max: z.number().optional(),
+      min: z.number().optional()
+    }).optional(),
+    depth: z.object({
+      avg: z.number().optional(),
+      max: z.number().optional(),
+      min: z.number().optional()
+    }).optional(),
+    sizeBytes: z.object({
+      avg: z.number().optional(),
+      max: z.number().optional(),
+      min: z.number().optional()
+    }).optional(),
+    sampleSize: z.number().optional(),
+    topKeys: z.array(z.object({
+      key: z.string(),
+      count: z.number()
+    })).optional(),
   }).optional(),
 });
 
 export const JsonIndexSuggestOutputSchema = BaseOutputSchema.extend({
   data: z.object({
+    table: z.string().optional(),
+    column: z.string().optional(),
     suggestions: z.array(z.object({
       path: z.string(),
-      frequency: z.number().optional(),
       type: z.string().optional(),
-      selectivity: z.number().optional(),
-      recommendation: z.string().optional(),
+      cardinality: z.number().optional(),
+      indexDdl: z.string().optional(),
     })).optional(),
-    sampleSize: z.number().optional(),
-    message: z.string().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 
