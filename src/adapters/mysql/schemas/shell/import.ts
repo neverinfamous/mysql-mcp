@@ -48,41 +48,27 @@ export const ShellImportTableInputSchemaBase = z
   })
   .describe("Parallel table import using util.importTable()");
 
-export const ShellImportTableInputSchema = z
-  .object({
-    inputPath: z.string().optional(),
-    inputUrl: z.string().optional(),
-    schema: z.unknown().optional(),
-    table: z.unknown().optional(),
-    tableName: z.unknown().optional(),
-    name: z.unknown().optional(),
-    threads: z.number().int().optional().default(4),
-    skipRows: z.number().int().optional(),
-    columns: z.array(z.string()).optional(),
-    fieldsTerminatedBy: z.string().optional(),
-    linesTerminatedBy: z.string().optional(),
-    updateServerSettings: booleanCoerce.optional().default(false),
-  })
-  .transform((data) => {
-    const rawTable = data.table ?? data.tableName ?? data.name;
+export const ShellImportTableInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown };
+    const rawTable = obj.table ?? obj.tableName ?? obj.name;
     return {
-      ...data,
+      ...obj,
       schema:
-        typeof data.schema === "string"
-          ? data.schema
-          : typeof data.schema === "number" || typeof data.schema === "boolean"
-            ? data.schema.toString()
-            : "",
+        typeof obj.schema === "number" || typeof obj.schema === "boolean"
+          ? String(obj.schema)
+          : obj.schema,
       table:
-        typeof rawTable === "string"
-          ? rawTable
-          : typeof rawTable === "number" || typeof rawTable === "boolean"
-            ? rawTable.toString()
-            : "",
+        typeof rawTable === "number" || typeof rawTable === "boolean"
+          ? String(rawTable)
+          : rawTable,
+      inputPath: obj.inputPath ?? obj.inputUrl,
     };
-  })
-  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.table !== "", { message: "table must not be empty" });
+  },
+  ShellImportTableInputSchemaBase
+).refine((data) => data.schema !== "", { message: "schema must not be empty" })
+ .refine((data) => data.table !== "", { message: "table must not be empty" });
 
 export const ShellImportJSONInputSchemaBase = z
   .object({
@@ -107,37 +93,24 @@ export const ShellImportJSONInputSchemaBase = z
   })
   .describe("Import JSON documents using util.importJson()");
 
-export const ShellImportJSONInputSchema = z
-  .object({
-    inputPath: z.string().optional(),
-    inputUrl: z.string().optional(),
-    schema: z.unknown().optional(),
-    collection: z.unknown().optional(),
-    table: z.unknown().optional(),
-    tableName: z.unknown().optional(),
-    name: z.unknown().optional(),
-    tableColumn: z.string().optional(),
-    convertBsonTypes: booleanCoerce.optional().default(false),
-  })
-  .transform((data) => {
-    const rawCollection = data.collection ?? data.table ?? data.tableName ?? data.name;
+export const ShellImportJSONInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { schema?: unknown; collection?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown };
+    const rawCollection = obj.collection ?? obj.table ?? obj.tableName ?? obj.name;
     return {
-      ...data,
+      ...obj,
       schema:
-        typeof data.schema === "string"
-          ? data.schema
-          : typeof data.schema === "number" || typeof data.schema === "boolean"
-            ? data.schema.toString()
-            : "",
+        typeof obj.schema === "number" || typeof obj.schema === "boolean"
+          ? String(obj.schema)
+          : obj.schema,
       collection:
-        typeof rawCollection === "string"
-          ? rawCollection
-          : typeof rawCollection === "number" || typeof rawCollection === "boolean"
-            ? rawCollection.toString()
-            : "",
+        typeof rawCollection === "number" || typeof rawCollection === "boolean"
+          ? String(rawCollection)
+          : rawCollection,
+      inputPath: obj.inputPath ?? obj.inputUrl,
     };
-  })
-  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.collection !== "", {
-    message: "collection must not be empty",
-  });
+  },
+  ShellImportJSONInputSchemaBase
+).refine((data) => data.schema !== "", { message: "schema must not be empty" })
+ .refine((data) => data.collection !== "", { message: "collection must not be empty" });

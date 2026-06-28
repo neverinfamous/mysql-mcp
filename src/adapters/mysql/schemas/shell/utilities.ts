@@ -18,15 +18,19 @@ export const ShellCheckUpgradeInputSchemaBase = z
     "Check server upgrade compatibility using util.checkForServerUpgrade()",
   );
 
-export const ShellCheckUpgradeInputSchema = z
-  .object({
-    targetVersion: z.unknown().optional(),
-    outputFormat: z.enum(["TEXT", "JSON"]).optional().default("JSON"),
-  })
-  .transform((data) => ({
-    targetVersion:
-      data.targetVersion === undefined
-        ? undefined
-        : String(data.targetVersion as string | number | boolean),
-    outputFormat: data.outputFormat,
-  }));
+export const ShellCheckUpgradeInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { targetVersion?: unknown };
+    return {
+      ...obj,
+      targetVersion:
+        obj.targetVersion === undefined
+          ? undefined
+          : typeof obj.targetVersion === "string" || typeof obj.targetVersion === "number" || typeof obj.targetVersion === "boolean"
+            ? String(obj.targetVersion)
+            : obj.targetVersion,
+    };
+  },
+  ShellCheckUpgradeInputSchemaBase
+);

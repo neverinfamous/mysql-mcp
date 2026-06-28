@@ -24,37 +24,26 @@ export const ShellExportTableInputSchemaBase = z
   })
   .describe("Export table to file using util.exportTable()");
 
-export const ShellExportTableInputSchema = z
-  .object({
-    schema: z.unknown().optional(),
-    table: z.unknown().optional(),
-    tableName: z.unknown().optional(),
-    name: z.unknown().optional(),
-    outputPath: z.string().optional(),
-    outputUrl: z.string().optional(),
-    format: z.enum(["csv", "tsv"]).optional().default("csv"),
-    where: z.string().optional(),
-    filter: z.string().optional(),
-  })
-  .transform((data) => {
-    const rawTable = data.table ?? data.tableName ?? data.name;
-    const finalWhere = data.where ?? data.filter;
+export const ShellExportTableInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown };
+    const rawTable = obj.table ?? obj.tableName ?? obj.name;
+    const finalWhere = obj.where ?? obj.filter;
     return {
-      ...data,
+      ...obj,
       schema:
-        typeof data.schema === "string"
-          ? data.schema
-          : typeof data.schema === "number" || typeof data.schema === "boolean"
-            ? String(data.schema)
-            : "",
+        typeof obj.schema === "number" || typeof obj.schema === "boolean"
+          ? String(obj.schema)
+          : obj.schema,
       table:
-        typeof rawTable === "string"
-          ? rawTable
-          : typeof rawTable === "number" || typeof rawTable === "boolean"
-            ? String(rawTable)
-            : "",
+        typeof rawTable === "number" || typeof rawTable === "boolean"
+          ? String(rawTable)
+          : rawTable,
       where: finalWhere,
+      outputPath: obj.outputPath ?? obj.outputUrl,
     };
-  })
-  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.table !== "", { message: "table must not be empty" });
+  },
+  ShellExportTableInputSchemaBase
+).refine((data) => data.schema !== "", { message: "schema must not be empty" })
+ .refine((data) => data.table !== "", { message: "table must not be empty" });
