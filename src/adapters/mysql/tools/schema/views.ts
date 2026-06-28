@@ -325,8 +325,8 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
         let schemaForCheck = targetSchema;
         if (name.includes('.')) {
           const parts = name.split('.');
-          schemaForCheck = parts[0]!;
-          unqualifiedName = parts[1]!;
+          schemaForCheck = parts[0] || targetSchema;
+          unqualifiedName = parts[1] || name;
         }
 
         const checkQuery = "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
