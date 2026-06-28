@@ -140,7 +140,7 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, value, where, limit } =
+        const { table, column, value, where, includeSourceColumn, limit } =
           SoundexSchema.parse(params);
 
         // Validate inputs
@@ -148,8 +148,11 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Return only id, matched column, and soundex value for minimal payload
-        let sql = `SELECT id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
+        // Return only id and soundex value for minimal payload (unless includeSourceColumn is true)
+        const selectColumns = includeSourceColumn
+          ? `id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value`
+          : `id, SOUNDEX(\`${column}\`) as soundex_value`;
+        let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
         const queryParams: unknown[] = [value];
         if (where !== undefined) {
           sql += ` AND (${where})`;
@@ -185,7 +188,7 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, start, length, where, limit } =
+        const { table, column, start, length, where, includeSourceColumn, limit } =
           SubstringSchema.parse(params);
 
         // Validate inputs
@@ -198,8 +201,11 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
             ? `SUBSTRING(\`${column}\`, ?, ?)`
             : `SUBSTRING(\`${column}\`, ?)`;
 
-        // Return only id, source column, and substring result for minimal payload
-        let sql = `SELECT id, \`${column}\`, ${substringExpr} as substring_value FROM ${escapeQualifiedTable(table)}`;
+        // Return only id and substring result for minimal payload (unless includeSourceColumn is true)
+        const selectColumns = includeSourceColumn
+          ? `id, \`${column}\`, ${substringExpr} as substring_value`
+          : `id, ${substringExpr} as substring_value`;
+        let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] =
           length !== undefined ? [start, length] : [start];
 
@@ -302,7 +308,7 @@ export function createCollationConvertTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, charset, collation, where, limit } =
+        const { table, column, charset, collation, where, includeSourceColumn, limit } =
           CollationConvertSchema.parse(params);
 
         // Validate inputs
@@ -322,8 +328,11 @@ export function createCollationConvertTool(
           convertExpr = `${convertExpr} COLLATE ${collation}`;
         }
 
-        // Return only id, source column, and converted result for minimal payload
-        let sql = `SELECT id, \`${column}\`, ${convertExpr} as converted_value FROM ${escapeQualifiedTable(table)}`;
+        // Return only id and converted result for minimal payload (unless includeSourceColumn is true)
+        const selectColumns = includeSourceColumn
+          ? `id, \`${column}\`, ${convertExpr} as converted_value`
+          : `id, ${convertExpr} as converted_value`;
+        let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] = [];
 
         if (where !== undefined) {

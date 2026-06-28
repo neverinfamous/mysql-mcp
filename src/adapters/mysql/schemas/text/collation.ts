@@ -16,6 +16,13 @@ export const CollationConvertSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  includeSourceColumn: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
@@ -46,6 +53,7 @@ export const CollationConvertSchema = z
       collation: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.boolean().optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -55,6 +63,7 @@ export const CollationConvertSchema = z
     charset: data.charset ?? "",
     collation: data.collation,
     where: data.where ?? data.filter,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {

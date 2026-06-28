@@ -114,6 +114,13 @@ export const SoundexSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  includeSourceColumn: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
@@ -129,6 +136,7 @@ export const SoundexSchema = z
       value: z.string(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.boolean().optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -137,6 +145,7 @@ export const SoundexSchema = z
     column: data.column ?? data.col ?? "",
     value: data.value,
     where: data.where ?? data.filter,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -165,6 +174,13 @@ export const SubstringSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  includeSourceColumn: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
 
@@ -181,6 +197,7 @@ export const SubstringSchema = z
       length: z.coerce.number().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.boolean().optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -190,6 +207,7 @@ export const SubstringSchema = z
     start: data.start,
     length: data.length,
     where: data.where ?? data.filter,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -228,9 +246,9 @@ export const ConcatSchemaBase = z.object({
   includeSourceColumns: z
     .boolean()
     .optional()
-    .default(true)
+    .default(false)
     .describe(
-      "Include individual source columns in output (default: true). Set to false for minimal payload.",
+      "Include individual source columns in output (default: false). Set to true for full context.",
     ),
   limit: z.unknown().optional().describe("Maximum number of rows to return"),
 });
@@ -247,7 +265,7 @@ export const ConcatSchema = z
       alias: z.string().optional().default("concatenated"),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumns: z.boolean().optional().default(true),
+      includeSourceColumns: z.boolean().optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
