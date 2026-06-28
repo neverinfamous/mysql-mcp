@@ -270,10 +270,9 @@ export async function analyzeQueriesWithExplain(
 
           if (typeof n["table_name"] === "string") {
              const keys: string[] = [];
-             if (Array.isArray(n["key_columns"])) {
-               for (const k of n["key_columns"]) {
-                 if (typeof k === "string") keys.push(k);
-               }
+             const keyArray = Array.isArray(n["used_key_parts"]) ? n["used_key_parts"] : (Array.isArray(n["key_columns"]) ? n["key_columns"] : []);
+             for (const k of keyArray) {
+               if (typeof k === "string") keys.push(k);
              }
              tableAccesses.push({
                table: n["table_name"],
@@ -300,11 +299,16 @@ export async function analyzeQueriesWithExplain(
           const cond = typeof n["attached_condition"] === "string" ? n["attached_condition"] :
                        typeof n["attached_pushed_condition"] === "string" ? n["attached_pushed_condition"] : undefined;
           if (cond && typeof n["table_name"] === "string") {
-            const matches = cond.matchAll(/`([^`]+)`/g);
-            for (const m of matches) {
-              if (m[1] && m[1] !== n["table_name"]) {
-                filterColumns.push({ table: n["table_name"], col: m[1] });
-              }
+            const parts = cond.split(/[^`a-zA-Z0-9_.]+/);
+            for (const part of parts) {
+               const backticked = Array.from(part.matchAll(/`([^`]+)`/g)).map(m => m[1] as string);
+               if (backticked.length > 0) {
+                 const col = backticked[backticked.length - 1];
+                 const table = backticked.length > 1 ? backticked[backticked.length - 2] : (typeof n["table_name"] === "string" ? n["table_name"] : "");
+                 if (col && table === n["table_name"]) {
+                    filterColumns.push({ table: table, col: col });
+                 }
+               }
             }
           }
 

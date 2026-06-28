@@ -175,7 +175,7 @@ During testing, check for these inconsistencies:
 5. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (summary)
 6. Verify summary token estimate is ≥ 30% smaller than full trace
 7. `mysql_optimizer_trace` with complex JOIN query and `summary: false` → log token estimate, flag > 500 tokens as 📦
-8. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics' AND price < 500", "SELECT * FROM test_orders WHERE status = 'shipped' ORDER BY created_at DESC"]})` → verify composite index suggestions
+8. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics' AND price < 500", "SELECT * FROM test_orders WHERE status = 'shipped' ORDER BY order_date DESC"]})` → verify composite index suggestions
 
 ## Category 3: Force Index Edge Cases
 
