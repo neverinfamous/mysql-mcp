@@ -26,10 +26,10 @@ describe("Schema View Tools", () => {
       );
 
       const tool = createListViewsTool(mockAdapter);
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ schema: "testdb" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("information_schema.VIEWS");
       expect(result).toBeDefined();
     });

@@ -547,6 +547,10 @@ describe("Security Tools", () => {
   describe("mysql_security_user_privileges", () => {
     it("should return comprehensive user report", async () => {
       // mysql.user
+      // P154: User existence pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ User: "root" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -572,7 +576,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      const result = (await tool?.handler({ summary: false }, mockContext));
+      const result = (await tool?.handler({ user: "root", summary: false }, mockContext));
 
       expect(result.data.count).toBe(1);
       expect(result.data.users[0].user).toBe("root");
@@ -606,18 +610,26 @@ describe("Security Tools", () => {
     });
 
     it("should filter by specific host", async () => {
+      // P154 pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ User: "root" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      await tool?.handler({ host: "127.0.0.1" }, mockContext);
+      await tool?.handler({ user: "root", host: "127.0.0.1" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("Host = ?");
     });
 
     it("should return condensed summary when summary=true", async () => {
+      // P154 pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ User: "root" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -644,7 +656,7 @@ describe("Security Tools", () => {
         (t) => t.name === "mysql_security_user_privileges",
       );
       const result = (await tool?.handler(
-        { summary: true },
+        { user: "root", summary: true },
         mockContext,
       ));
 
@@ -863,7 +875,7 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      const result = (await tool?.handler({}, mockContext));
+      const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Access denied to mysql.user");
@@ -877,13 +889,17 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_sensitive_tables",
       );
-      const result = (await tool?.handler({}, mockContext));
+      const result = (await tool?.handler({ schema: "test" }, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Connection lost");
     });
 
     it("mysql_security_user_privileges should use backtick-quoted identifiers in SHOW GRANTS", async () => {
+      // P154 pre-check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ User: "test_user" }]),
+      );
       // Setup: one user returned
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -910,10 +926,10 @@ describe("Security Tools", () => {
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
-      await tool?.handler({}, mockContext);
+      await tool?.handler({ user: "test_user" }, mockContext);
 
-      // The SHOW GRANTS call is the second call (index 1)
-      const grantsCall = mockAdapter.executeQuery.mock.calls[1][0];
+      // The SHOW GRANTS call is the third call (index 2)
+      const grantsCall = mockAdapter.executeQuery.mock.calls[2][0];
       expect(grantsCall).toContain("`test_user`@`localhost`");
       expect(grantsCall).not.toContain("'test_user'@'localhost'");
     });

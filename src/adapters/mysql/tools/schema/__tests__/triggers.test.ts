@@ -28,10 +28,10 @@ describe("Schema Trigger Tools", () => {
       const tool = createListTriggersTool(
         mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ schema: "testdb" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("information_schema.TRIGGERS");
       expect(result).toBeDefined();
     });
@@ -52,6 +52,9 @@ describe("Schema Trigger Tools", () => {
     });
 
     it("should return exists false for nonexistent table", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "testdb" }]),
+      );
       // Table existence check returns empty
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -59,7 +62,7 @@ describe("Schema Trigger Tools", () => {
         mockAdapter,
       );
       const result = (await tool.handler(
-        { table: "nonexistent_table" },
+        { schema: "testdb", table: "nonexistent_table" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -68,6 +71,9 @@ describe("Schema Trigger Tools", () => {
     });
 
     it("should filter by table when provided", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "testdb" }]),
+      );
       // Table existence check returns a row
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ TABLE_NAME: "users" }]),
@@ -78,12 +84,12 @@ describe("Schema Trigger Tools", () => {
       const tool = createListTriggersTool(
         mockAdapter,
       );
-      await tool.handler({ table: "users" }, mockContext);
+      await tool.handler({ schema: "testdb", table: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0];
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
+      const call = mockAdapter.executeQuery.mock.calls[2][0];
       expect(call).toContain("EVENT_OBJECT_TABLE = ?");
-      const params = mockAdapter.executeQuery.mock.calls[1][1];
+      const params = mockAdapter.executeQuery.mock.calls[2][1];
       expect(params).toContain("users");
     });
   });

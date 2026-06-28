@@ -264,7 +264,7 @@ test.describe("Boundary: View Lifecycle", () => {
       expectSuccess(create);
 
       // List views — should include our view
-      const list = await callToolAndParse(client, "mysql_list_views", {});
+      const list = await callToolAndParse(client, "mysql_list_views", { schema: "testdb" });
       expectSuccess(list);
       const views = (list.data?.views ?? list.views) as Array<{ name: string }>;
       expect(

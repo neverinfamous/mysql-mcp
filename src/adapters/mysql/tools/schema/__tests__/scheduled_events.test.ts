@@ -26,10 +26,10 @@ describe("Schema Event Tools", () => {
       );
 
       const tool = createListEventsTool(mockAdapter);
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ schema: "testdb" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("information_schema.EVENTS");
       expect(result).toBeDefined();
     });
@@ -48,15 +48,18 @@ describe("Schema Event Tools", () => {
     });
 
     it("should filter by status when provided", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "testdb" }]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createListEventsTool(mockAdapter);
-      await tool.handler({ status: "ENABLED" }, mockContext);
+      await tool.handler({ schema: "testdb", status: "ENABLED" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("STATUS = ?");
-      const params = mockAdapter.executeQuery.mock.calls[0][1];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params).toContain("ENABLED");
     });
     it("should return structured error for invalid status", async () => {
