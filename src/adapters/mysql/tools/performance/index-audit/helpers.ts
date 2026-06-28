@@ -301,12 +301,15 @@ export async function analyzeQueriesWithExplain(
           if (cond && typeof n["table_name"] === "string") {
             const parts = cond.split(/[^`a-zA-Z0-9_.]+/);
             for (const part of parts) {
-               const backticked = Array.from(part.matchAll(/`([^`]+)`/g)).map(m => m[1] as string);
+               const backticked = Array.from(part.matchAll(/`([^`]+)`/g)).map(m => String(m[1]));
                if (backticked.length > 0) {
-                 const col = backticked[backticked.length - 1];
-                 const table = backticked.length > 1 ? backticked[backticked.length - 2] : (typeof n["table_name"] === "string" ? n["table_name"] : "");
-                 if (col && table === n["table_name"]) {
-                    filterColumns.push({ table: table, col: col });
+                 const col = String(backticked[backticked.length - 1]);
+                 const tableNameVal = n["table_name"];
+                 const tableNameStr = typeof tableNameVal === "string" ? tableNameVal : "";
+                 const tableStr = backticked.length > 1 ? backticked[backticked.length - 2] : tableNameStr;
+                 const table = String(tableStr);
+                 if (col && table === tableNameStr) {
+                    filterColumns.push({ table, col });
                  }
                }
             }
