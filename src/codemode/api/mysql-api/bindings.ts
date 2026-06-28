@@ -303,7 +303,6 @@ export function buildSandboxBindings(
       "bufferPoolStats",
       "tableStats",
       "threadStats",
-      "serverHealth",
     ]) {
       if (performanceApi[method] !== undefined) {
         bindings[method] = performanceApi[method];
@@ -336,6 +335,7 @@ export function buildSandboxBindings(
       "showVariables",
       "showProcesslist",
       "innodbStatus",
+      "serverHealth",
     ]) {
       if (monitoringApi[method] !== undefined) {
         bindings[method] = monitoringApi[method];
