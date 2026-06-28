@@ -44,7 +44,21 @@ export async function handleStreamableRequest(
   if (req.method !== "POST") {
     if (sessionId) {
       const session = sessionManager.get(sessionId);
-      if (session && session.transport instanceof StreamableHTTPServerTransport) {
+      if (!session) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: -32000,
+              message: "Bad Request: Session not found or invalid session ID",
+            },
+            id: null,
+          }),
+        );
+        return;
+      }
+      if (session.transport instanceof StreamableHTTPServerTransport) {
         if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
           res.writeHead(401, { "Content-Type": "application/json" });
           res.end(
@@ -66,6 +80,20 @@ export async function handleStreamableRequest(
         }
         return;
       }
+      
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: {
+            code: -32000,
+            message:
+              "Bad Request: Session exists but uses a different transport protocol",
+          },
+          id: null,
+        }),
+      );
+      return;
     }
     res.writeHead(400, { "Content-Type": "application/json" });
     res.end(
@@ -102,7 +130,22 @@ export async function handleStreamableRequest(
 
   if (sessionId) {
     const session = sessionManager.get(sessionId);
-    if (session && session.transport instanceof StreamableHTTPServerTransport) {
+    if (!session) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: {
+            code: -32000,
+            message: "Bad Request: Session not found or invalid session ID",
+          },
+          id: null,
+        }),
+      );
+      return;
+    }
+    
+    if (session.transport instanceof StreamableHTTPServerTransport) {
       if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
         res.writeHead(401, { "Content-Type": "application/json" });
         res.end(
@@ -124,6 +167,7 @@ export async function handleStreamableRequest(
       }
       return;
     }
+    
     res.writeHead(400, { "Content-Type": "application/json" });
     res.end(
       JSON.stringify({
