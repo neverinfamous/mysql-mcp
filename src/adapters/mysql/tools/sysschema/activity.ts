@@ -31,39 +31,47 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const UserSummarySchema = z
-  .object({
+const UserSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { user?: unknown; username?: unknown; limit?: unknown };
+    return {
+      user: v.user ?? v.username,
+      limit: v.limit,
+    };
+  },
+  z.object({
     user: z.string().optional(),
-    limit: z.unknown().optional(),
+    limit: z.coerce.number().int().positive().default(5),
   })
-  .transform((data) => ({
-    user: data.user,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+);
 
 const HostSummarySchemaBase = z.object({
   host: z.string().optional().describe("Filter by specific host"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const HostSummarySchema = z
-  .object({
+const HostSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { host?: unknown; hostname?: unknown; limit?: unknown };
+    return {
+      host: v.host ?? v.hostname,
+      limit: v.limit,
+    };
+  },
+  z.object({
     host: z.string().optional(),
-    limit: z.unknown().optional(),
+    limit: z.coerce.number().int().positive().default(5),
   })
-  .transform((data) => ({
-    host: data.host,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+);
 
 /**
  * Get user activity summary

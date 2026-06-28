@@ -40,21 +40,25 @@ const VALID_ORDER_BY: readonly string[] = [
 
 const StatementSummarySchemaBase = z.object({
   orderBy: z.string().optional().describe("Order results by"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const StatementSummarySchema = z
-  .object({
+const StatementSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; limit?: unknown };
+    return {
+      orderBy: v.orderBy ?? v.order ?? v.sort,
+      limit: v.limit,
+    };
+  },
+  z.object({
     orderBy: z.string().default("total_latency"),
-    limit: z.unknown().optional(),
+    limit: z.coerce.number().int().positive().default(5),
   })
-  .transform((data) => ({
-    orderBy: data.orderBy,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+);
 
 const VALID_WAIT_TYPES: readonly string[] = [
   "global",
@@ -65,41 +69,49 @@ const VALID_WAIT_TYPES: readonly string[] = [
 
 const WaitSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of wait summary"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const WaitSummarySchema = z
-  .object({
+const WaitSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { type?: unknown; waitType?: unknown; limit?: unknown };
+    return {
+      type: v.type ?? v.waitType,
+      limit: v.limit,
+    };
+  },
+  z.object({
     type: z.string().default("global"),
-    limit: z.unknown().optional(),
+    limit: z.coerce.number().int().positive().default(5),
   })
-  .transform((data) => ({
-    type: data.type,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+);
 
 const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 
 const IOSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of I/O summary"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const IOSummarySchema = z
-  .object({
+const IOSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { type?: unknown; ioType?: unknown; limit?: unknown };
+    return {
+      type: v.type ?? v.ioType,
+      limit: v.limit,
+    };
+  },
+  z.object({
     type: z.string().default("table"),
-    limit: z.unknown().optional(),
+    limit: z.coerce.number().int().positive().default(5),
   })
-  .transform((data) => ({
-    type: data.type,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+);
 
 /**
  * Get statement execution summary
