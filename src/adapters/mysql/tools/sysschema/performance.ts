@@ -40,6 +40,8 @@ const VALID_ORDER_BY: readonly string[] = [
 
 const StatementSummarySchemaBase = z.object({
   orderBy: z.string().optional().describe("Order results by"),
+  order: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
 
@@ -69,6 +71,7 @@ const VALID_WAIT_TYPES: readonly string[] = [
 
 const WaitSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of wait summary"),
+  waitType: z.string().optional().describe("Alias for type"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
 
@@ -93,6 +96,7 @@ const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 
 const IOSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of I/O summary"),
+  ioType: z.string().optional().describe("Alias for type"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
 
