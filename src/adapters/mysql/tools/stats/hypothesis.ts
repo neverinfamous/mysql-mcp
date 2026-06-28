@@ -102,18 +102,18 @@ export function createStatsHypothesisTool(
         } = StatsHypothesisSchema.parse(params);
 
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
-          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Invalid table name" });
+          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name" });
         }
         
         const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Invalid column name" });
+          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name" });
         }
         if (groupBy && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
-          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Invalid groupBy column name" });
+          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupBy column name" });
         }
         if (groupColumn && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupColumn)) {
-          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Invalid groupColumn name" });
+          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupColumn name" });
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
@@ -146,7 +146,7 @@ export function createStatsHypothesisTool(
           const group2Row = rows.find((r) => String(r["group_key"]) === String(group2));
 
           if (!group1Row || !group2Row) {
-            return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Could not find data for both groups" });
+            return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Could not find data for both groups" });
           }
 
           const n1 = Number(group1Row['n'] ?? 0);
@@ -158,7 +158,7 @@ export function createStatsHypothesisTool(
           const stddev2 = Number(group2Row['stddev'] ?? 0);
 
           if (n1 < 2 || n2 < 2 || isNaN(stddev1) || isNaN(stddev2) || (stddev1 === 0 && stddev2 === 0)) {
-            return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "Insufficient data or zero variance in groups" });
+            return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Insufficient data or zero variance in groups" });
           }
 
           const var1 = stddev1 * stddev1;
@@ -231,9 +231,9 @@ export function createStatsHypothesisTool(
         const result = await adapter.executeQuery(sql);
         const rows = result.rows ?? [];
         const row = rows[0];
-        if (!row) return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", error: "No data found" });
+        if (!row) return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "No data found" });
         const resultObj = calculateTestResults(Number(row['n'] ?? 0), Number(row['mean'] ?? 0), Number(row['stddev'] ?? 0));
-        return withTokenEstimate(resultObj['error'] != null ? { success: false, code: "CALCULATION_ERROR", error: typeof resultObj['error'] === 'string' ? resultObj['error'] : "Calculation error" } : { success: true, data: { table, column, testType, hypothesizedMean, results: resultObj } });
+        return withTokenEstimate(resultObj['error'] != null ? { success: false, code: "CALCULATION_ERROR", category: "calculation", recoverable: false, error: typeof resultObj['error'] === 'string' ? resultObj['error'] : "Calculation error" } : { success: true, data: { table, column, testType, hypothesizedMean, results: resultObj } });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

@@ -98,6 +98,8 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
             error: "Invalid table name",
           });
         }
@@ -107,6 +109,8 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
             error: "Invalid column name",
           });
         }
@@ -119,6 +123,8 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
             error: "Insufficient data to calculate outliers (minimum 3 rows required)",
           });
         }
