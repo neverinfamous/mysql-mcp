@@ -20,7 +20,7 @@ const ListViewsSchemaBase = z.object({
   schema: z
     .string()
     .optional()
-    .describe("Schema name (defaults to current database)"),
+    .describe("Schema name (database)"),
   database: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
@@ -38,7 +38,7 @@ const ListViewsSchema = z.preprocess(
     return val;
   },
   z.object({
-    schema: z.string().optional(),
+    schema: z.string(),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -108,7 +108,7 @@ const DropViewSchemaBase = z.object({
   view: z.string().optional().describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
-  ifExists: z.boolean().optional().describe("Use IF EXISTS"),
+  ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
 });
 
 const DropViewSchema = z.preprocess(
@@ -126,7 +126,7 @@ const DropViewSchema = z.preprocess(
   z.object({
     name: z.string().describe("View name"),
     schema: z.string().optional(),
-    ifExists: z.boolean().default(true).describe("Use IF EXISTS"),
+    ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
   })
 );
 
@@ -177,13 +177,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                     CHECK_OPTION as checkOption,
                     IS_UPDATABLE as isUpdatable
                 FROM information_schema.VIEWS
-                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
+                WHERE TABLE_SCHEMA = ?
                 ORDER BY TABLE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
-          targetSchema ?? null,
+          targetSchema,
         ]);
         return withTokenEstimate({
           success: true,
