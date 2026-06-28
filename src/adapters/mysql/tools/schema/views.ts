@@ -19,7 +19,8 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 const ListViewsSchemaBase = z.object({
   schema: z
     .string()
-    .describe("Schema name"),
+    .optional()
+    .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
