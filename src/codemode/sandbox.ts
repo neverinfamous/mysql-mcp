@@ -386,17 +386,25 @@ export class CodeModeSandbox {
       `);
 
       const wrappedCode = `(async () => { 
-        const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
-        return __sandbox_result === undefined ? undefined : JSON.parse(JSON.stringify(__sandbox_result));
+        try {
+          const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
+          return { __isIsolateSuccess: true, data: __sandbox_result === undefined ? undefined : JSON.parse(JSON.stringify(__sandbox_result)) };
+        } catch (e) {
+          return { __isIsolateSuccess: false, message: e && e.message ? String(e.message) : String(e) };
+        }
       })()`;
       script = isolate.compileScriptSync(wrappedCode, {
         filename: `code-mode.js`,
       });
-      result = await script.run(context, {
+      const isolateRes = (await script.run(context, {
         timeout: effectiveTimeout,
         promise: true,
         copy: true,
-      });
+      })) as { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
+      if (isolateRes?.__isIsolateSuccess === false) {
+        throw new Error(isolateRes.message ?? "Unknown isolate error");
+      }
+      result = isolateRes?.__isIsolateSuccess ? isolateRes.data : isolateRes;
     } catch (error: unknown) {
       success = false;
       errorMsg = error instanceof Error ? error.message : String(error);
