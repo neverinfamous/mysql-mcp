@@ -306,3 +306,21 @@ export function escapeQualifiedTable(table: string): string {
     .map((part) => `\`${part.replace(/`/g, "``")}\``)
     .join(".");
 }
+
+/**
+ * Parse a potentially qualified table name into schema and table
+ * Returns the schema and table parts, stripping any backticks.
+ * If no schema is provided, schema is undefined.
+ */
+export function parseQualifiedTable(table: string): { schema?: string; table: string } {
+  const parts = table.split(".");
+  if (parts.length > 1) {
+    return {
+      schema: parts[0]?.replace(/`/g, ""),
+      table: parts[1]?.replace(/`/g, "") ?? "",
+    };
+  }
+  return {
+    table: table.replace(/`/g, ""),
+  };
+}

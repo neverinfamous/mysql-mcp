@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
 import { PercentilesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { PercentilesSchemaBase, PercentilesSchema } from "./schemas.js";
@@ -39,10 +39,11 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
 
-        // Check if column is numeric
+        const { schema, table: parsedTableName } = parseQualifiedTable(table);
+
         const colCheck = await adapter.executeQuery(
-          `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-          [table, column],
+          `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          schema ? [schema, parsedTableName, column] : [parsedTableName, column],
         );
         const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
         const dataType =

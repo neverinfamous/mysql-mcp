@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
 import { CorrelationOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { CorrelationSchemaBase, CorrelationSchema } from "./schemas.js";
@@ -42,11 +42,13 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
 
         // Verify columns are numeric (P154)
+        const { schema, table: parsedTableName } = parseQualifiedTable(table);
+
         const colCheck = await adapter.executeQuery(
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? 
+           WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? 
            AND COLUMN_NAME IN (?, ?)`,
-          [table, column1, column2],
+          schema ? [schema, parsedTableName, column1, column2] : [parsedTableName, column1, column2],
         );
 
         const NUMERIC_TYPES = new Set([

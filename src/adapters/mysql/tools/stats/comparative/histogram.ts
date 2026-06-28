@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
 import { HistogramOutputSchema } from "../../../schemas/stats.js";
 import { WRITE } from "../../../../../utils/annotations.js";
 import { HistogramSchemaBase, HistogramSchema } from "./schemas.js";
@@ -49,7 +49,8 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        // Get histogram info from information_schema
+        const { schema, table: parsedTableName } = parseQualifiedTable(table);
+
         const histogramQuery = `
                 SELECT
                     SCHEMA_NAME as schemaName,
@@ -63,13 +64,11 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM information_schema.COLUMN_STATISTICS
                 WHERE TABLE_NAME = ?
                   AND COLUMN_NAME = ?
-                  AND SCHEMA_NAME = DATABASE()
+                  AND SCHEMA_NAME = ${schema ? '?' : 'DATABASE()'}
             `;
 
-        const result = await adapter.executeQuery(histogramQuery, [
-          table,
-          column,
-        ]);
+        const queryParams = schema ? [parsedTableName, column, schema] : [parsedTableName, column];
+        const result = await adapter.executeQuery(histogramQuery, queryParams);
 
         if (!result.rows || result.rows.length === 0) {
           if (update) {
