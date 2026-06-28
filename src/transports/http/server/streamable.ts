@@ -184,15 +184,14 @@ export async function handleStreamableRequest(
   }
 
   if (!sessionId && isInitializeRequest(body)) {
+    const generatedSessionId = randomUUID();
     const newTransport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => randomUUID(),
-      onsessioninitialized: (newSessionId: string) => {
-        sessionManager.register(newSessionId, newTransport);
-      },
+      sessionIdGenerator: () => generatedSessionId,
     });
+    sessionManager.register(generatedSessionId, newTransport);
 
     newTransport.onclose = () => {
-      const sid = newTransport.sessionId;
+      const sid = newTransport.sessionId ?? generatedSessionId;
       if (sid && sessionManager.get(sid)) {
         void sessionManager.close(sid);
       }
@@ -202,18 +201,14 @@ export async function handleStreamableRequest(
       await onConnect(newTransport);
     }
 
-    const sid = newTransport.sessionId;
-    if (sid) {
-      res.setHeader("Mcp-Session-Id", sid);
-      sessionManager.incrementInFlight(sid);
-    }
+    res.setHeader("Mcp-Session-Id", generatedSessionId);
+    sessionManager.incrementInFlight(generatedSessionId);
+    
     try {
       await newTransport.handleRequest(req, res, body);
     } finally {
-      if (sid) {
-        sessionManager.decrementInFlight(sid);
-        sessionManager.touch(sid);
-      }
+      sessionManager.decrementInFlight(generatedSessionId);
+      sessionManager.touch(generatedSessionId);
     }
     return;
   }
