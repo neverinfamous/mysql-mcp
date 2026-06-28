@@ -286,6 +286,18 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
+        if (upperQuery.includes(" IN (SELECT")) {
+          suggestions.push(
+            "IN (SELECT ...) subqueries can often be rewritten as JOINs for better performance",
+          );
+        }
+
+        if (upperQuery.includes(" JOIN ")) {
+          suggestions.push(
+            "Ensure foreign keys or indexes exist on all JOIN conditions",
+          );
+        }
+
         // Get EXPLAIN for the query
         let explainResult: unknown = null;
         const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
