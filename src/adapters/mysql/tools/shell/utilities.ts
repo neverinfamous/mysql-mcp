@@ -90,10 +90,17 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             errorCount?: number;
             warningCount?: number;
             noticeCount?: number;
-            checksPerformed?: unknown[];
+            checksPerformed?: { status?: string; detectedProblems?: unknown[] }[];
             targetVersion?: string;
             serverVersion?: string;
           };
+
+          if (typedResult.checksPerformed !== undefined && Array.isArray(typedResult.checksPerformed)) {
+            typedResult.checksPerformed = typedResult.checksPerformed.filter(check => {
+              const hasProblems = check.detectedProblems !== undefined && Array.isArray(check.detectedProblems) && check.detectedProblems.length > 0;
+              return check.status !== "OK" || hasProblems;
+            });
+          }
 
           return withTokenEstimate({
             success: true,
