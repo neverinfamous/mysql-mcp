@@ -15,8 +15,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 const ListEventsSchemaBase = z.object({
   schema: z
     .string()
-    .optional()
-    .describe("Schema name (defaults to current database)"),
+    .describe("Schema name"),
   database: z.string().optional().describe("Alias for schema"),
   status: z
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
