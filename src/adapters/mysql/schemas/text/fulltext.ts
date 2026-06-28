@@ -94,10 +94,10 @@ export const FulltextSearchSchema = z
       column: z.array(z.string()).optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      mode: z
-        .enum(["NATURAL", "BOOLEAN", "EXPANSION"])
-        .optional()
-        .default("NATURAL"),
+      mode: z.preprocess(
+        (val) => (typeof val === "string" ? val.toUpperCase() : val),
+        z.enum(["NATURAL", "BOOLEAN", "EXPANSION"]).optional().default("NATURAL")
+      ),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
       includeFacets: z.boolean().optional().default(false),

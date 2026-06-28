@@ -143,11 +143,7 @@ export function createFulltextSearchTool(
                 }
               }
             }
-            if (Object.keys(facets).length === 0) {
-              facets = undefined;
-            } else {
-              facets["total"] = totalCount;
-            }
+            facets["total"] = totalCount;
           }
 
           return withTokenEstimate({
