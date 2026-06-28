@@ -205,7 +205,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("does not support FORMAT=JSON");
+      expect(result.error).toContain("expected \"TREE\"");
       // Should NOT call executeReadQuery for JSON format
       expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
     });
