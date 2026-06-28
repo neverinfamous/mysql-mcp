@@ -83,7 +83,7 @@ export interface PoolConfig {
   /** Maximum waiting requests (0 = unlimited, default: 0) */
   queueLimit?: number;
 
-  /** Connection acquire timeout in ms (default: 10000) */
+  /** Connection acquire timeout in ms (default: 30000) */
   acquireTimeout?: number;
 
   /** Enable TCP keep-alive (default: true) */

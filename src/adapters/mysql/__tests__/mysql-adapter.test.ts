@@ -153,7 +153,7 @@ describe("MySQLAdapter", () => {
           database: "",
           charset: "utf8mb4",
           timezone: "local",
-          connectTimeout: 10000,
+          connectTimeout: 30000,
         }),
       );
     });

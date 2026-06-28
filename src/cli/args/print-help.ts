@@ -20,7 +20,7 @@ Connection Options:
 
 Pool Options:
   --pool-size <n>             Connection pool size (default: 10)
-  --pool-timeout <ms>         Connection acquire timeout (default: 10000)
+  --pool-timeout <ms>         Connection acquire timeout (default: 30000)
   --pool-queue-limit <n>      Queue limit for waiting requests (default: 0)
 
 Server Options:

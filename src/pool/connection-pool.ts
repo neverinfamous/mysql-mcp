@@ -73,7 +73,7 @@ export class ConnectionPool {
         queueLimit: poolConfig.queueLimit ?? 0,
 
         // Connection options
-        connectTimeout: this.config.connectTimeout ?? 10000,
+        connectTimeout: this.config.connectTimeout ?? 30000,
         charset: this.config.charset ?? "utf8mb4",
         timezone: this.config.timezone ?? "local",
 
