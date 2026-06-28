@@ -183,17 +183,16 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           
           // Strip repetitive columns to save tokens and prevent payload bloat
           const events = (result.rows ?? []).map((row: Record<string, unknown>) => {
-            const optimized = { ...row };
-            delete optimized["Log_name"];
-            delete optimized["Server_id"];
-
-            if (
-              typeof optimized["Info"] === "string" &&
-              optimized["Info"].length > 150
-            ) {
-              optimized["Info"] = optimized["Info"].substring(0, 147) + "...";
+            let info = row["Info"];
+            if (typeof info === "string" && info.length > 100) {
+              info = info.substring(0, 97) + "...";
             }
-            return optimized;
+            return {
+              pos: row["Pos"],
+              type: row["Event_type"],
+              end: row["End_log_pos"],
+              info
+            };
           });
 
           const response = {
