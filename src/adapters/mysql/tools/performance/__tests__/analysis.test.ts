@@ -584,13 +584,15 @@ describe("Performance Analysis Tools", () => {
     });
 
     it("should query index usage stats", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createIndexUsageTool(mockAdapter);
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ table: "users" }, mockContext);
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain("table_io_waits_summary_by_index_usage");
       expect(result).toHaveProperty("data.indexUsage");
     });
@@ -626,32 +628,36 @@ describe("Performance Analysis Tools", () => {
     });
 
     it("should apply default limit", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createIndexUsageTool(mockAdapter);
-      await tool.handler({}, mockContext);
+      await tool.handler({ table: "users" }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain("LIMIT 5");
     });
 
     it("should use custom limit", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createIndexUsageTool(mockAdapter);
-      await tool.handler({ limit: 10 }, mockContext);
+      await tool.handler({ table: "users", limit: 10 }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain("LIMIT 10");
     });
 
     it("should return structured error on query failure", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Access denied for performance_schema"),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockRejectedValueOnce(new Error("Access denied for performance_schema"));
 
       const tool = createIndexUsageTool(mockAdapter);
-      const result = (await tool.handler({}, mockContext)) as {
+      const result = (await tool.handler({ table: "users" }, mockContext)) as {
         success: boolean;
         error: string;
       };
