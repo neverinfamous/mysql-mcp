@@ -6,6 +6,7 @@
 
 import { ZodError } from "zod";
 import * as path from "path";
+import * as fs from "fs";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -282,6 +283,16 @@ export function createShellImportJSONTool(
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots());
 
         const resolvedPath = path.resolve(finalInputPath);
+        
+        if (!fs.existsSync(resolvedPath)) {
+          throw new MySQLMcpError(
+            `Cannot open file '${resolvedPath}': No such file or directory`,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY,
+            { details: { protocol: "X Protocol" } }
+          );
+        }
+
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
