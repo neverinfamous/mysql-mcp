@@ -31,19 +31,23 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const LimitSchemaBase = z.object({
-  limit: z.unknown().optional().describe("Maximum number of results to return"),
+  limit: z.number().optional().describe("Maximum number of results to return"),
 });
 
-const LimitSchema = z
-  .object({
-    limit: z.unknown().optional(),
+const LimitSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { limit?: unknown };
+    return {
+      limit: v.limit,
+    };
+  },
+  z.object({
+    limit: z.coerce.number().int().positive().default(3),
   })
-  .transform((data) => ({
-    limit: data.limit !== undefined ? Number(data.limit) : 3,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+);
 
 const SchemaStatsSchemaBase = z.object({
   schema: z
@@ -51,30 +55,23 @@ const SchemaStatsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
 const SchemaStatsSchema = z.preprocess(
   (val: unknown) => {
-    if (typeof val === "object" && val !== null) {
-      const obj = val as Record<string, unknown>;
-      return {
-        ...obj,
-        schema: obj['schema'] ?? obj['database'],
-      };
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
     }
-    return val;
+    const v = val as { schema?: unknown; database?: unknown; limit?: unknown };
+    return {
+      schema: v.schema ?? v.database,
+      limit: v.limit,
+    };
   },
   z.object({
     schema: z.string().optional(),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    schema: data.schema,
-    limit: data.limit !== undefined ? Number(data.limit) : 1,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
+    limit: z.coerce.number().int().positive().default(1),
   })
 );
 
