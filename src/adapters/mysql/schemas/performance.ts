@@ -44,7 +44,7 @@ export const ExplainAnalyzeSchemaBase = z.object({
   query: z.string().optional().describe("SQL query to analyze"),
   sql: z.string().optional().describe("Alias for query"),
   format: z
-    .enum(["JSON", "TREE"])
+    .enum(["TREE"])
     .optional()
     .default("TREE")
     .describe("Output format"),
@@ -56,7 +56,7 @@ export const ExplainAnalyzeSchema = z
     z.object({
       query: z.string().optional(),
       sql: z.string().optional(),
-      format: z.enum(["JSON", "TREE"]).optional().default("TREE"),
+      format: z.enum(["TREE"]).optional().default("TREE"),
     }),
   )
   .transform((data) => ({
@@ -69,8 +69,8 @@ export const ExplainAnalyzeSchema = z
 
 // --- SlowQuery (no table/query aliases — simple passthrough) ---
 export const SlowQuerySchemaBase = z.object({
-  limit: z.unknown().optional().describe("Number of slow queries to return"),
-  minTime: z.unknown().optional().describe("Minimum query time in seconds"),
+  limit: z.number().optional().describe("Number of slow queries to return"),
+  minTime: z.number().optional().describe("Minimum query time in seconds"),
 });
 
 export const SlowQuerySchema = z.object({
@@ -89,8 +89,8 @@ export const SlowQuerySchema = z.object({
 
 // --- QueryStats (no table/query aliases — simple passthrough) ---
 export const QueryStatsSchemaBase = z.object({
-  orderBy: z.unknown().optional().describe("Order results by metric"),
-  limit: z.unknown().optional().describe("Maximum number of queries to return"),
+  orderBy: z.enum(["total_time", "avg_time", "executions"]).optional().describe("Order results by metric"),
+  limit: z.number().optional().describe("Maximum number of queries to return"),
 });
 
 export const QueryStatsSchema = z.object({
@@ -110,10 +110,10 @@ export const QueryStatsSchema = z.object({
 
 // --- IndexUsage ---
 export const IndexUsageSchemaBase = z.object({
-  table: z.unknown().optional().describe("Filter by table name"),
-  tableName: z.unknown().optional().describe("Alias for table"),
-  name: z.unknown().optional().describe("Alias for table"),
-  limit: z.unknown().optional().describe("Maximum number of indexes to return"),
+  table: z.string().optional().describe("Filter by table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  limit: z.number().optional().describe("Maximum number of indexes to return"),
 });
 
 export const IndexUsageSchema = z
@@ -141,7 +141,7 @@ export const BufferPoolStatsSchema = z.object({});
 
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({
-  limit: z.unknown().optional().describe("Maximum number of threads to return (default: 5)"),
+  limit: z.number().optional().describe("Maximum number of threads to return (default: 5)"),
 });
 
 export const ThreadStatsSchema = z.object({

@@ -10,7 +10,6 @@ import {
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { ValidationError } from "../../../../../types/modules/errors.js";
 
 export function createExplainAnalyzeTool(
   adapter: MySQLAdapter,
@@ -29,14 +28,6 @@ export function createExplainAnalyzeTool(
       try {
         const { query, format } = ExplainAnalyzeSchema.parse(params);
 
-        // MySQL does not support EXPLAIN ANALYZE with FORMAT=JSON
-        // (requires explain_json_format_version=2 which is not widely available).
-        // Return a descriptive error for JSON format requests.
-        if (format === "JSON") {
-          throw new ValidationError(
-            "EXPLAIN ANALYZE does not support FORMAT=JSON. Use FORMAT=TREE (default) instead."
-          );
-        }
 
         const sql = `EXPLAIN ANALYZE FORMAT=${format} ${query}`;
         const result = await adapter.executeReadQuery(sql);

@@ -4,7 +4,6 @@
  * Exposes the Audit Subsystem's pre-mutation snapshots to the agent.
  */
 
-import { z } from "zod";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -20,6 +19,9 @@ import {
   AuditListBackupsOutputSchema,
   AuditRestoreBackupOutputSchema,
   AuditDiffBackupOutputSchema,
+  AuditListBackupsSchemaBase,
+  AuditRestoreBackupSchemaBase,
+  AuditDiffBackupSchemaBase,
 } from "../../schemas/index.js";
 
 
@@ -27,19 +29,7 @@ import {
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    limit: z
-      .number()
-      .int()
-      .min(1)
-      .max(100)
-      .default(10)
-      .describe("Max backups to return"),
-    target: z
-      .string()
-      .optional()
-      .describe("Filter by exact target object name (e.g. users)"),
-  });
+  const schema = AuditListBackupsSchemaBase;
 
   return {
     name: "mysql_audit_list_backups",
@@ -92,17 +82,7 @@ export function createAuditListBackupsTool(
 export function createAuditRestoreBackupTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    filename: z.string().describe("Snapshot filename to restore"),
-    includeData: z
-      .boolean()
-      .default(false)
-      .describe("Execute INSERT data if present in snapshot"),
-    dryRun: z
-      .boolean()
-      .default(false)
-      .describe("Return the DDL/DML without executing it"),
-  });
+  const schema = AuditRestoreBackupSchemaBase;
 
   return {
     name: "mysql_audit_restore_backup",
@@ -189,11 +169,7 @@ export function createAuditRestoreBackupTool(
 export function createAuditDiffBackupTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    filename: z
-      .string()
-      .describe("Snapshot filename to compare against current schema"),
-  });
+  const schema = AuditDiffBackupSchemaBase;
 
   return {
     name: "mysql_audit_diff_backup",
