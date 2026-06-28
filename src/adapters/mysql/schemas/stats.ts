@@ -39,11 +39,14 @@ export const TimeSeriesOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     timeColumn: z.string(),
     valueColumn: z.string(),
-    data: z.array(
+    interval: z.string().optional(),
+    aggregation: z.string().optional(),
+    count: z.number().optional(),
+    dataPoints: z.array(
       z.object({
         period: z.string(),
-        value: z.number().nullish(),
-      })
+        value: z.union([z.number(), z.string()]).nullish(),
+      }).loose()
     ).optional(),
   }).loose().optional(),
 });
