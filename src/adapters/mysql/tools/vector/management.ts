@@ -34,10 +34,11 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorInfoSchema.parse(params);
-        await ensureVectorSupport(adapter);
 
         // Pre-check table existence to satisfy P154
         await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(validated.table)}\` LIMIT 0`);
+
+        await ensureVectorSupport(adapter);
 
         const tableParam = validated.table; // Parameterized
         const columnFilters: unknown[] = [tableParam];
@@ -102,14 +103,15 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorCreateIndexSchema.parse(params);
-        // HNSW indexes were added in MySQL 9.1
-        await ensureVectorIndexSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
         const column = sanitizeIdentifier(validated.column);
         
         // Pre-check table existence to satisfy P154
         await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+
+        // HNSW indexes were added in MySQL 9.1
+        await ensureVectorIndexSupport(adapter);
         
         const indexName = `idx_${table}_${column}_vec`;
 
@@ -162,12 +164,13 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorOptimizeSchema.parse(params);
-        await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
         
         // Pre-check table existence to satisfy P154
         await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+
+        await ensureVectorSupport(adapter);
         
         const query = `ANALYZE TABLE \`${table}\``;
         const result = await adapter.rawQuery(query);
@@ -217,13 +220,14 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorStatsSchema.parse(params);
-        await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
         const column = sanitizeIdentifier(validated.column);
 
         // Pre-check table existence to satisfy P154
         await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+
+        await ensureVectorSupport(adapter);
 
         // Pre-check column type to avoid raw MySQL "Incorrect arguments to vector_dim" errors
         const colCheck = await adapter.executeQuery(`
