@@ -90,7 +90,7 @@ export const ShellExportTableOutputSchema = BaseOutputSchema.extend({
     table: z.string(),
     outputPath: z.string(),
     format: z.string().optional(),
-    result: z.unknown(),
+    result: z.unknown().optional(),
   }).loose().optional(),
 });
 
@@ -100,7 +100,7 @@ export const ShellImportTableOutputSchema = BaseOutputSchema.extend({
     schema: z.string(),
     table: z.string(),
     localInfileEnabled: z.boolean().optional(),
-    result: z.unknown(),
+    result: z.unknown().optional(),
   }).loose().optional(),
 });
 
@@ -110,7 +110,7 @@ export const ShellImportJSONOutputSchema = BaseOutputSchema.extend({
     schema: z.string(),
     collection: z.string(),
     protocol: z.string(),
-    result: z.unknown(),
+    result: z.unknown().optional(),
   }).loose().optional(),
 });
 
@@ -118,7 +118,7 @@ export const ShellDumpInstanceOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     outputDir: z.string(),
     dryRun: z.boolean(),
-    result: z.unknown(),
+    result: z.unknown().optional(),
   }).loose().optional(),
 });
 
@@ -128,7 +128,7 @@ export const ShellDumpSchemasOutputSchema = BaseOutputSchema.extend({
     outputDir: z.string(),
     dryRun: z.boolean(),
     ddlOnly: z.boolean(),
-    result: z.unknown(),
+    result: z.unknown().optional(),
   }).loose().optional(),
 });
 
@@ -139,7 +139,7 @@ export const ShellDumpTablesOutputSchema = BaseOutputSchema.extend({
     outputDir: z.string(),
     dryRun: z.boolean(),
     triggersExcluded: z.boolean().optional(),
-    result: z.unknown(),
+    result: z.unknown().optional(),
   }).loose().optional(),
 });
 
