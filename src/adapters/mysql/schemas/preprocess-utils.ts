@@ -222,6 +222,10 @@ export function preprocessQueryOnlyParams(val: unknown): unknown {
 export function preprocessAdminTableParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
+  // If 'tables' is passed as a string (e.g. via codemode positional arg), wrap it into an array
+  if (typeof v["tables"] === "string") {
+    v["tables"] = [v["tables"]];
+  }
   // If 'table' is passed as a string and 'tables' is not set, wrap it into an array
   if (typeof v["table"] === "string" && !Array.isArray(v["tables"])) {
     return { ...v, tables: [v["table"]] };
