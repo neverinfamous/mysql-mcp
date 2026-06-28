@@ -307,9 +307,11 @@ export function preprocessEventParams(input: unknown): unknown {
 
 export function preprocessDocIndexParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
-  // Call preprocessDocCollectionParams to handle collection/name aliases
-  const v = preprocessDocCollectionParams(val) as Record<string, unknown>;
-  const result = { ...v };
+  const result = { ...(val as Record<string, unknown>) };
+
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
+  }
 
   if (result["name"] === undefined && result["indexName"] !== undefined) {
     result["name"] = result["indexName"];
