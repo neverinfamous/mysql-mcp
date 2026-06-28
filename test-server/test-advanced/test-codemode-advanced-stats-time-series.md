@@ -153,7 +153,7 @@ During testing, check for these inconsistencies:
 
 ## Category 1: Time Series Edge Cases
 
-1. Create a table `stress_stats_time_series` with columns `id INT`, `val_col INT`, `time_col DATETIME`.
+1. Create a table `stress_stats_time_series` with columns `id INT PRIMARY KEY`, `val_col INT`, `time_col DATETIME`.
 2. Insert 10 rows: some with NULL values in `val_col`, and spread across different days/hours.
 3. Run `mysql_stats_time_series` with valid parameters (`interval: 'day'`, `aggregation: 'avg'`). Verify it aggregates properly and doesn't crash on NULLs.
 4. Test with invalid interval: Run `mysql_stats_time_series` with `interval: 'decade'`. It must return `{success: false, error: ...}` and NOT a raw MCP error.
