@@ -45,7 +45,7 @@ const LimitSchema = z.preprocess(
     };
   },
   z.object({
-    limit: z.coerce.number().int().positive().default(3),
+    limit: z.coerce.number().int().positive().default(5),
   })
 );
 
@@ -71,7 +71,7 @@ const SchemaStatsSchema = z.preprocess(
   },
   z.object({
     schema: z.string().optional(),
-    limit: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().default(5),
   })
 );
 
