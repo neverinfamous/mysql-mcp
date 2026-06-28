@@ -1,5 +1,7 @@
 # MySQL Ecosystem Setup for mysql-mcp Testing
 
+**🤖 AGENT OPTIMIZED README**
+
 _Created: December 16, 2025_
 _Updated: March 6, 2026_
 
