@@ -243,7 +243,7 @@ export function createSpatialCreateIndexTool(
         }
         if (
           msg.includes("Key column") &&
-          msg.includes("does not exist in table")
+          (msg.includes("does not exist in table") || msg.includes("doesn't exist in table"))
         ) {
           const col = paramStr(params, "column");
           return withTokenEstimate({
