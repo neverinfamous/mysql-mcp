@@ -126,7 +126,7 @@ const DropViewSchema = z.preprocess(
   z.object({
     name: z.string().describe("View name"),
     schema: z.string().optional(),
-    ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
+    ifExists: z.boolean().default(true).describe("Use IF EXISTS"),
   })
 );
 
@@ -318,6 +318,35 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
           validateQualifiedIdentifier(name, "view");
         } catch (err: unknown) {
           return formatHandlerErrorResponse(err);
+        }
+
+        // Pre-check: detect no-op when ifExists is true
+        let unqualifiedName = name;
+        let schemaForCheck = targetSchema;
+        if (name.includes('.')) {
+          const parts = name.split('.');
+          schemaForCheck = parts[0] as string;
+          unqualifiedName = parts[1] as string;
+        }
+
+        const checkQuery = "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
+        const check = await adapter.executeQuery(checkQuery, [schemaForCheck ?? null, unqualifiedName]);
+        const viewAbsent = check.rows === undefined || check.rows.length === 0;
+
+        if (viewAbsent) {
+          if (parsedParams.ifExists) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                skipped: true,
+                reason: `View did not exist`,
+              },
+            });
+          } else {
+            return formatHandlerErrorResponse(
+              new Error(`Unknown table '${schemaForCheck || 'database'}.${unqualifiedName}'`),
+            );
+          }
         }
 
         const fullViewName = escapeQualifiedTable(name);
