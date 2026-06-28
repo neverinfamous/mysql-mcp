@@ -26,7 +26,15 @@ export function buildSandboxBindings(
 
   // Methods within mixed groups that perform writes (excluded when readonly)
   const writeMethods: Record<string, Set<string>> = {
-    core: new Set(["writeQuery", "dropTable", "createTable", "createIndex"]),
+    core: new Set([
+      "writeQuery",
+      "dropTable",
+      "createTable",
+      "createIndex",
+      "enableVersioning",
+      "disableVersioning",
+      "conditionalUpdate"
+    ]),
     docstore: new Set([
       "docAdd",
       "docModify",
@@ -218,6 +226,19 @@ export function buildSandboxBindings(
     }
     if (coreApi["getIndexes"] !== undefined) {
       bindings["getIndexes"] = coreApi["getIndexes"];
+    }
+    // Versioning
+    if (coreApi["enableVersioning"] !== undefined) {
+      bindings["enableVersioning"] = coreApi["enableVersioning"];
+    }
+    if (coreApi["disableVersioning"] !== undefined) {
+      bindings["disableVersioning"] = coreApi["disableVersioning"];
+    }
+    if (coreApi["checkVersion"] !== undefined) {
+      bindings["checkVersion"] = coreApi["checkVersion"];
+    }
+    if (coreApi["conditionalUpdate"] !== undefined) {
+      bindings["conditionalUpdate"] = coreApi["conditionalUpdate"];
     }
   }
 
