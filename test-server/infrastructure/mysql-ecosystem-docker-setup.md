@@ -451,6 +451,13 @@ docker start proxysql
 docker logs proxysql
 ```
 
+### Infrastructure UI Tools (Debugging & Management)
+
+For visual management and real-time log debugging of the MySQL cluster, the following UI tools are recommended (provided via `infra-tools.yml`):
+
+- **Adminer** (Web-based Database Manager): Access at `http://localhost:8081` to execute queries against `mysql-node1` (port 3307), Router (port 6446/6447), or ProxySQL (port 6033).
+- **Dozzle** (Real-time Container Logs): Access at `http://localhost:8080` to instantly view, search, and stream logs for the cluster nodes, router, and proxysql without using the CLI.
+
 ---
 
 ## mysql-mcp Tools Available
