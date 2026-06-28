@@ -8,7 +8,7 @@ import { BaseOutputSchema } from "../output-schemas.js";
  * mysql_dependency_graph input
  */
 export const DependencyGraphSchemaBase = z.object({
-  schema: z.string().describe("Schema to analyze"),
+  schema: z.string().optional().describe("Schema to analyze"),
   database: z.string().optional().describe("Alias for schema"),
   includeRowCounts: z
     .boolean()
@@ -54,6 +54,7 @@ export const DependencyGraphSchema = z.object({
 export const TopologicalSortSchemaBase = z.object({
   schema: z
     .string()
+    .optional()
     .describe("Schema to analyze"),
   database: z.string().optional().describe("Alias for schema"),
   direction: z
@@ -82,6 +83,7 @@ export const TopologicalSortSchema = z
 export const CascadeSimulatorSchemaBase = z.object({
   table: z
     .string()
+    .optional()
     .describe("Table name to simulate deletion from (supports schema.table)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -130,6 +132,7 @@ export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
 export const SchemaSnapshotSchemaBase = z.object({
   schema: z
     .string()
+    .optional()
     .describe("Schema to snapshot"),
   database: z.string().optional().describe("Alias for schema"),
   includeSystem: z
