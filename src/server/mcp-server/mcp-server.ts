@@ -200,9 +200,10 @@ export class McpServer {
       return;
     }
 
-    if (this.systemDbInitPromise) {
-      await this.systemDbInitPromise;
-    }
+    // We intentionally DO NOT await systemDbInitPromise here.
+    // Blocking start() delays the MCP initialize handshake, which causes
+    // clients to throw 'context deadline exceeded' under heavy machine load.
+    // AuditLogger safely queues entries until the system database is ready.
 
     logger.info("Starting MCP server...");
 
@@ -338,6 +339,9 @@ export class McpServer {
     }
     metrics.close();
     if (this.systemDb) {
+      if (this.systemDbInitPromise) {
+        await this.systemDbInitPromise;
+      }
       this.systemDb.close();
     }
 

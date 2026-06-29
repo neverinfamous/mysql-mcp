@@ -66,6 +66,7 @@ export class SystemDb {
         );
 
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_timestamp ON metrics_snapshots(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_tool ON metrics_snapshots(tool);
       `);
 
       logger.info(`System database initialized at ${this.config.dbPath}`);

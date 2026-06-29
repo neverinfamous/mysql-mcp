@@ -118,8 +118,12 @@ export class MetricsRegistry {
 
   setSystemDb(systemDb: SystemDb): void {
     this.systemDb = systemDb;
-    this.loadHistorical();
-    this.startFlushTimer();
+    // Defer loading historical metrics to ensure the MCP handshake completes first.
+    // Heavy SQLite aggregations can block the event loop for seconds on large databases.
+    setTimeout(() => {
+      this.loadHistorical();
+      this.startFlushTimer();
+    }, 1000).unref();
   }
 
   private loadHistorical(): void {

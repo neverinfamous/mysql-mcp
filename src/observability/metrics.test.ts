@@ -63,8 +63,8 @@ describe("MetricsRegistry", () => {
     it("should flush metrics to SystemDb periodically", () => {
       registry.recordToolCall("test_tool", 100, true, 50);
       
-      // Fast-forward 5 minutes to trigger interval
-      vi.advanceTimersByTime(5 * 60 * 1000);
+      // Fast-forward 5 minutes + 1 second (startup deferral) to trigger interval
+      vi.advanceTimersByTime(5 * 60 * 1000 + 1000);
       
       const db = systemDb.getDb();
       const rows = db.prepare("SELECT * FROM metrics_snapshots").all() as { tool: string; calls: number }[];
