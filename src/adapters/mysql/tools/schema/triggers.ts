@@ -10,6 +10,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListTriggersSchemaBase = z.object({
@@ -70,7 +71,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!targetSchema) {
           return formatHandlerErrorResponse(
-            new Error("Schema parameter is required (use 'schema' or 'database')"),
+            new ValidationError("Schema parameter is required (use 'schema' or 'database')")
           );
         }
 
