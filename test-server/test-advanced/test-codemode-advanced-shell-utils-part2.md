@@ -94,11 +94,11 @@
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysqlsh_dump_instance` | | |
-| `mysqlsh_dump_schemas` | | |
-| `mysqlsh_dump_tables` | | |
-| `mysqlsh_load_dump` | | |
-| `mysqlsh_run_script` | | |
+| `mysqlsh_dump_instance` | Error Handling, Aliases | ✅ Passed |
+| `mysqlsh_dump_schemas` | Error Handling, Aliases | ✅ Passed |
+| `mysqlsh_dump_tables` | Error Handling, Aliases | ✅ Passed |
+| `mysqlsh_load_dump` | Error Handling | ✅ Passed |
+| `mysqlsh_run_script` | Error Handling, Security | ✅ Passed |
 
 ### Structured Error Response Pattern
 
