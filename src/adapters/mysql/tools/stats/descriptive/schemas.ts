@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const DescriptiveStatsSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column name"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
@@ -25,6 +27,8 @@ export const DescriptiveStatsSchema = z.preprocess(
 
 export const PercentilesSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column name"),
   percentiles: z.unknown().optional().describe("Percentiles to calculate"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
@@ -52,6 +56,8 @@ export const PercentilesSchema = z.preprocess(
 
 export const DistributionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to analyze"),
   buckets: z.unknown().optional().describe("Number of histogram buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
@@ -77,6 +83,8 @@ export const DistributionSchema = z.preprocess(
 
 export const TimeSeriesSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   valueColumn: z.string().optional().describe("Numeric column for values"),
   timeColumn: z.string().optional().describe("Timestamp/datetime column"),
   interval: z.string().optional().describe("Aggregation interval"),
@@ -107,6 +115,8 @@ export const TimeSeriesSchema = z.preprocess(
 
 export const SamplingSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   sampleSize: z.unknown().optional().describe("Number of rows to sample"),
   columns: z
     .unknown()
