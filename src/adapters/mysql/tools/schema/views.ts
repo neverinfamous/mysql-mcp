@@ -19,9 +19,9 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 const ListViewsSchemaBase = z.object({
   schema: z
     .string()
-    .optional()
+    .default("")
     .describe("Schema name (database)"),
-  database: z.string().optional().describe("Alias for schema"),
+  database: z.string().default("").describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
 });
@@ -32,13 +32,13 @@ const ListViewsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj['schema'] ?? obj['database'],
+        schema: obj['schema'] || obj['database'] ? (obj['schema'] || obj['database']) : undefined,
       };
     }
     return val;
   },
   z.object({
-    schema: z.string().optional(),
+    schema: z.string({ required_error: "Schema is required" }).min(1, "Schema is required"),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -52,15 +52,15 @@ const ListViewsOutputSchema = BaseOutputSchema.extend({
 });
 
 const CreateViewSchemaBase = z.object({
-  name: z.string().optional().describe("View name"),
-  view: z.string().optional().describe("Alias for name"),
+  name: z.string().default("").describe("View name"),
+  view: z.string().default("").describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   definition: z
     .string()
-    .optional()
+    .default("")
     .describe("SELECT statement defining the view"),
-  query: z.string().optional().describe("Alias for definition"),
+  query: z.string().default("").describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
   checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
@@ -72,9 +72,9 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] ?? obj['view'],
-        schema: obj['schema'] ?? obj['database'],
-        definition: obj['definition'] ?? obj['query'],
+        name: obj['name'] || obj['view'] ? (obj['name'] || obj['view']) : undefined,
+        schema: obj['schema'] || obj['database'] ? (obj['schema'] || obj['database']) : undefined,
+        definition: obj['definition'] || obj['query'] ? (obj['definition'] || obj['query']) : undefined,
       };
     }
     return val;
@@ -104,8 +104,8 @@ const CreateViewOutputSchema = BaseOutputSchema.extend({
 });
 
 const DropViewSchemaBase = z.object({
-  name: z.string().optional().describe("View name"),
-  view: z.string().optional().describe("Alias for name"),
+  name: z.string().default("").describe("View name"),
+  view: z.string().default("").describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
@@ -117,8 +117,8 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] ?? obj['view'],
-        schema: obj['schema'] ?? obj['database'],
+        name: obj['name'] || obj['view'] ? (obj['name'] || obj['view']) : undefined,
+        schema: obj['schema'] || obj['database'] ? (obj['schema'] || obj['database']) : undefined,
       };
     }
     return val;
@@ -177,13 +177,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                     CHECK_OPTION as checkOption,
                     IS_UPDATABLE as isUpdatable
                 FROM information_schema.VIEWS
-                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
+                WHERE TABLE_SCHEMA = ?
                 ORDER BY TABLE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
-          targetSchema ?? null,
+          targetSchema,
         ]);
         return withTokenEstimate({
           success: true,
