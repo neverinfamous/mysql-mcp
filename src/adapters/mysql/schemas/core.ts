@@ -464,7 +464,7 @@ export const CheckVersionSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided."),
-  rowId: z.unknown().describe("Primary key value of the row"),
+  rowId: z.union([z.string(), z.number()]).describe("Primary key value of the row"),
 });
 
 export const CheckVersionSchema = z
