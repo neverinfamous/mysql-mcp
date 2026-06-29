@@ -325,7 +325,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (error: unknown) {
           return formatHandlerErrorResponse(error);
         }
