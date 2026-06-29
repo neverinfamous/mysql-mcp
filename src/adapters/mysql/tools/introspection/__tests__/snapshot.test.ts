@@ -136,16 +136,16 @@ describe("Schema Snapshot Tool", () => {
 
     expect(Reflect.get(result || {}, "success")).toBe(true);
     const data = Reflect.get(result || {}, "data");
-    expect(data.snapshot.tables).toBeDefined();
-    expect(data.snapshot.views).toBeDefined();
-    expect(data.snapshot.indexes).toBeDefined();
-    expect(data.snapshot.constraints).toBeDefined();
-    expect(data.snapshot.functions).toBeDefined();
-    expect(data.snapshot.triggers).toBeDefined();
+    expect(data.tables).toBeDefined();
+    expect(data.views).toBeDefined();
+    expect(data.indexes).toBeDefined();
+    expect(data.constraints).toBeDefined();
+    expect(data.functions).toBeDefined();
+    expect(data.triggers).toBeDefined();
 
     // Check that columns were attached to tables
-    expect(data.snapshot.tables[0].columns).toBeDefined();
-    expect(data.snapshot.tables[0].columns.length).toBe(2);
+    expect(data.tables[0].columns).toBeDefined();
+    expect(data.tables[0].columns.length).toBe(2);
   });
 
   it("should only return specified sections", async () => {
@@ -156,9 +156,9 @@ describe("Schema Snapshot Tool", () => {
 
     expect(Reflect.get(result || {}, "success")).toBe(true);
     const data = Reflect.get(result || {}, "data");
-    expect(data.snapshot.tables).toBeDefined();
-    expect(data.snapshot.views).toBeUndefined();
-    expect(data.snapshot.indexes).toBeUndefined();
+    expect(data.tables).toBeDefined();
+    expect(data.views).toBeUndefined();
+    expect(data.indexes).toBeUndefined();
   });
 
   it("should handle compact mode without returning definitions and columns", async () => {
@@ -169,7 +169,7 @@ describe("Schema Snapshot Tool", () => {
 
     expect(Reflect.get(result || {}, "success")).toBe(true);
     const data = Reflect.get(result || {}, "data");
-    expect(data.snapshot.views).toBeDefined();
-    expect(data.snapshot.views[0].definition).toBeUndefined(); // Compact mode sets definition to NULL which gets stripped
+    expect(data.views).toBeDefined();
+    expect(data.views[0].definition).toBeUndefined(); // Compact mode sets definition to NULL which gets stripped
   });
 });
