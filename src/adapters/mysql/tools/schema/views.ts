@@ -38,7 +38,7 @@ const ListViewsSchema = z.preprocess(
     return val;
   },
   z.object({
-    schema: z.string(),
+    schema: z.string().optional(),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
