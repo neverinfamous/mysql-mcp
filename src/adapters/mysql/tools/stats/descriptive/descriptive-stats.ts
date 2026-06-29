@@ -8,7 +8,8 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { DescriptiveStatsOutputSchema } from "../../../schemas/stats.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { DescriptiveStatsSchemaBase, DescriptiveStatsSchema } from "./schemas.js";
 
@@ -36,6 +37,38 @@ export function createDescriptiveStatsTool(
         validateIdentifier(column, "column");
 
         const whereClause = where ? `WHERE ${where}` : "";
+
+        // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
+        await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
+
+        const { schema, table: parsedTableName } = parseQualifiedTable(table);
+
+        const colCheck = await adapter.executeQuery(
+          `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          schema ? [schema, parsedTableName, column] : [parsedTableName, column],
+        );
+        const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
+        const dataType =
+          typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
+        // Empty result means column does not exist; non-empty result with non-numeric type means wrong type
+        if (!colCheck.rows || colCheck.rows.length === 0) {
+          throw new ValidationError(`Column '${column}' not found on table ${escapeQualifiedTable(table)}`);
+        }
+        if (
+          ![
+            "tinyint",
+            "smallint",
+            "mediumint",
+            "int",
+            "bigint",
+            "decimal",
+            "numeric",
+            "float",
+            "double",
+          ].includes(dataType)
+        ) {
+          throw new ValidationError(`Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`);
+        }
 
         // Get basic count for median calculation
         const countResult = await adapter.executeQuery(
