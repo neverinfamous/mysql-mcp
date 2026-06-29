@@ -59,7 +59,9 @@ export const ShellDumpInstanceInputSchema = z
 
 export const ShellDumpSchemasInputSchemaBase = z
   .object({
-    schemas: z.array(z.string()).optional().describe("Schema names to dump"),
+    schemas: z.union([z.string(), z.array(z.string())]).optional().describe("Schema names to dump"),
+    schema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
+    name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     threads: z
@@ -99,6 +101,8 @@ export const ShellDumpSchemasInputSchemaBase = z
 export const ShellDumpSchemasInputSchema = z
   .object({
     schemas: z.unknown().optional(),
+    schema: z.unknown().optional(),
+    name: z.unknown().optional(),
     outputDir: z.string().optional(),
     outputUrl: z.string().optional(),
     threads: z.number().int().optional().default(4),
@@ -108,10 +112,17 @@ export const ShellDumpSchemasInputSchema = z
     excludeTables: z.array(z.string()).optional(),
     ddlOnly: booleanCoerce.optional().default(false),
   })
-  .transform((data) => ({
-    ...data,
-    schemas: Array.isArray(data.schemas) ? data.schemas.map(String) : [],
-  }))
+  .transform((data) => {
+    const rawSchemas = data.schemas ?? data.schema ?? data.name;
+    return {
+      ...data,
+      schemas: Array.isArray(rawSchemas) 
+        ? rawSchemas.map(String) 
+        : typeof rawSchemas === "string" 
+          ? [rawSchemas] 
+          : [],
+    };
+  })
   .refine((data) => data.schemas.length > 0, {
     message: "At least one schema name is required",
   });
