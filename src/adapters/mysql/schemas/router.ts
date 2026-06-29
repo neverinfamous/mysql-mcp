@@ -122,25 +122,22 @@ export const RouteNameInputSchemaBase = z.object({
   name: z.string().optional().describe("Alias for routeName"),
 });
 
-export const RouteNameInputSchema = z
-  .object({
-    routeName: z.unknown().optional(),
-    name: z.unknown().optional(),
-  })
-  .transform((data) => {
-    const raw = data.routeName !== undefined ? data.routeName : data.name;
+export const RouteNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
     return {
-      routeName:
-        typeof raw === "string"
-          ? raw
-          : typeof raw === "number" || typeof raw === "boolean"
-            ? raw.toString()
-            : "",
+      ...obj,
+      routeName: obj["routeName"] !== undefined ? obj["routeName"] : obj["name"],
     };
-  })
-  .refine((data) => data.routeName !== "", {
-    message: "routeName must not be empty",
-  });
+  },
+  RouteNameInputSchemaBase
+).refine((data) => data.routeName !== undefined && data.routeName !== "", {
+  message: "routeName must not be empty",
+  path: ["routeName"]
+}).transform((data) => ({
+  routeName: data.routeName ?? "",
+}));
 
 export const MetadataNameInputSchemaBase = z.object({
   metadataName: z
@@ -150,50 +147,44 @@ export const MetadataNameInputSchemaBase = z.object({
   name: z.string().optional().describe("Alias for metadataName"),
 });
 
-export const MetadataNameInputSchema = z
-  .object({
-    metadataName: z.unknown().optional(),
-    name: z.unknown().optional(),
-  })
-  .transform((data) => {
-    const raw =
-      data.metadataName !== undefined ? data.metadataName : data.name;
+export const MetadataNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
     return {
-      metadataName:
-        typeof raw === "string"
-          ? raw
-          : typeof raw === "number" || typeof raw === "boolean"
-            ? raw.toString()
-            : "",
+      ...obj,
+      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : obj["name"],
     };
-  })
-  .refine((data) => data.metadataName !== "", {
-    message: "metadataName must not be empty",
-  });
+  },
+  MetadataNameInputSchemaBase
+).refine((data) => data.metadataName !== undefined && data.metadataName !== "", {
+  message: "metadataName must not be empty",
+  path: ["metadataName"]
+}).transform((data) => ({
+  metadataName: data.metadataName ?? "",
+}));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
   poolName: z.string().optional().describe("Name of the connection pool"),
   name: z.string().optional().describe("Alias for poolName"),
 });
 
-export const ConnectionPoolNameInputSchema = z
-  .object({
-    poolName: z.unknown().optional(),
-    name: z.unknown().optional(),
-  })
-  .transform((data) => {
-    const raw = data.poolName !== undefined ? data.poolName : data.name;
-    const resolved =
-      typeof raw === "string"
-        ? raw
-        : typeof raw === "number" || typeof raw === "boolean"
-          ? raw.toString()
-          : "";
-    return { poolName: resolved };
-  })
-  .refine((data) => data.poolName !== "", {
-    message: "poolName must not be empty",
-  });
+export const ConnectionPoolNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
+    return {
+      ...obj,
+      poolName: obj["poolName"] !== undefined ? obj["poolName"] : obj["name"],
+    };
+  },
+  ConnectionPoolNameInputSchemaBase
+).refine((data) => data.poolName !== undefined && data.poolName !== "", {
+  message: "poolName must not be empty",
+  path: ["poolName"]
+}).transform((data) => ({
+  poolName: data.poolName ?? "",
+}));
 
 // =============================================================================
 // Tool Output Schemas
