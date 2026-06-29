@@ -316,7 +316,8 @@ export class CodeModeSandbox {
               const refName = `fnRef_${groupName}_${methodName}`;
               context.global.setSync(refName, fnRef);
               batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
-                  const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
+                  const safeArgs = JSON.parse(JSON.stringify(args));
+                  const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
                       if (res && typeof res === 'object' && res.__isHostError) {
                           throw new Error(res.message);
                       }
@@ -350,7 +351,8 @@ export class CodeModeSandbox {
           const refName = `fnRef_${groupName}`;
           context.global.setSync(refName, fnRef);
           batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = (...args) => {
-              const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
+              const safeArgs = JSON.parse(JSON.stringify(args));
+              const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
                   if (res && typeof res === 'object' && res.__isHostError) {
                       throw new Error(res.message);
                   }
