@@ -18,13 +18,14 @@ import {
 } from "../../../../codemode/sandbox-factory.js";
 import { CodeModeSecurityManager } from "../../../../codemode/security.js";
 import { createMysqlApi } from "../../../../codemode/api/index.js";
-import type { ExecuteCodeOptions } from "../../../../codemode/types.js";
 import { logger } from "../../../../utils/logger.js";
 
 import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
+import { defaultToEmpty } from "../../schemas/preprocess-utils.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 // Schema for mysql_execute_code input
-export const ExecuteCodeSchema = z.object({
+export const ExecuteCodeSchemaBase = z.object({
   code: z
     .string()
     .optional()
@@ -40,6 +41,11 @@ export const ExecuteCodeSchema = z.object({
     .optional()
     .describe("If true, restricts to read-only operations"),
 });
+
+export const ExecuteCodeSchema = z.preprocess(
+  defaultToEmpty,
+  ExecuteCodeSchemaBase,
+);
 
 // Schema for mysql_execute_code output
 export const ExecuteCodeOutputSchema = z
@@ -144,7 +150,7 @@ for (const t of tables.tables) {
 return results;
 \`\`\``,
     group: "codemode",
-    inputSchema: ExecuteCodeSchema,
+    inputSchema: ExecuteCodeSchemaBase,
     outputSchema: ExecuteCodeOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
@@ -155,9 +161,10 @@ return results;
       sensitiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { code, readonly, timeout } = params as ExecuteCodeOptions & { timeout?: number };
+      try {
+        const { code, readonly, timeout } = ExecuteCodeSchema.parse(params);
 
-      if (!code) {
+        if (!code) {
         return {
           success: false,
           error: "Code parameter is required",
@@ -267,15 +274,18 @@ return results;
       const helpHint =
         "Tip: Use mysql.help() to list all groups, or mysql.core.help() for group-specific methods.";
 
-      // Include hint and enriched metrics in response
-      return {
-        ...result,
-        metrics:
-          result.metrics != null
-            ? { ...result.metrics, tokenEstimate }
-            : undefined,
-        hint: helpHint,
-      };
+        // Include hint and enriched metrics in response
+        return {
+          ...result,
+          metrics:
+            result.metrics != null
+              ? { ...result.metrics, tokenEstimate }
+              : undefined,
+          hint: helpHint,
+        };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
     },
   };
 }
