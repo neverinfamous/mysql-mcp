@@ -185,7 +185,7 @@ export function createSysSchemaStatsTool(
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes") {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
               cleaned[key] = value;
             }
           }
@@ -260,11 +260,21 @@ export function createSysInnoDBLockWaitsTool(
                 LIMIT ${String(limit)}
             `;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows,
+            rows: (result.rows ?? []).map(cleanRow),
             count: result.rows?.length ?? 0,
             hasContention: (result.rows?.length ?? 0) > 0,
           },
@@ -332,11 +342,21 @@ export function createSysMemorySummaryTool(
           adapter.executeQuery(userQuery),
         ]);
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         return withTokenEstimate({
           success: true,
           data: {
-            globalMemory: globalStats.rows ?? [],
-            memoryByUser: userStats.rows ?? [],
+            globalMemory: (globalStats.rows ?? []).map(cleanRow),
+            memoryByUser: (userStats.rows ?? []).map(cleanRow),
             globalMemoryCount: (globalStats.rows ?? []).length,
             memoryByUserCount: (userStats.rows ?? []).length,
           },

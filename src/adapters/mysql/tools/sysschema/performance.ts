@@ -167,11 +167,21 @@ export function createSysStatementSummaryTool(
                 LIMIT ${String(actualLimit)}
             `;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             orderedBy: orderBy,
             count: result.rows?.length ?? 0,
           },
@@ -276,11 +286,21 @@ export function createSysWaitSummaryTool(
             throw new Error(`Unexpected type: ${type}`);
         }
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             type,
             count: result.rows?.length ?? 0,
           },
@@ -378,11 +398,21 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             throw new Error(`Unexpected type: ${type}`);
         }
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             type,
             count: result.rows?.length ?? 0,
           },

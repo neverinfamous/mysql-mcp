@@ -117,11 +117,21 @@ export function createSysUserSummaryTool(
 
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             count: result.rows?.length ?? 0,
           },
         });
@@ -176,11 +186,21 @@ export function createSysHostSummaryTool(
 
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             count: result.rows?.length ?? 0,
           },
         });
