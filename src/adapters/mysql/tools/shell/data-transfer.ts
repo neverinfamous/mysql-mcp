@@ -87,7 +87,8 @@ export function createShellExportTableTool(
 
         const optionsStr =
           options.length > 0 ? `, { ${options.join(", ")} }` : "";
-        const jsCode = `return util.exportTable("${schema}.${table}", "${escapedPath}"${optionsStr});`;
+        const target = schema ? `${schema}.${table}` : table;
+        const jsCode = `return util.exportTable("${target}", "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode);
 
@@ -173,7 +174,9 @@ export function createShellImportTableTool(
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
-        options.push(`schema: "${schema}"`);
+        if (schema) {
+          options.push(`schema: "${schema}"`);
+        }
         options.push(`table: "${table}"`);
         if (threads) {
           options.push(`threads: ${threads}`);
@@ -296,7 +299,9 @@ export function createShellImportJSONTool(
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
-        options.push(`schema: "${schema}"`);
+        if (schema) {
+          options.push(`schema: "${schema}"`);
+        }
 
         if (tableColumn) {
           // Importing to a table column
