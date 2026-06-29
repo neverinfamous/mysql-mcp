@@ -311,7 +311,7 @@ export function createSchemaSnapshotTool(
             : undefined;
 
         const data = {
-          ...(Object.keys(snapshot).length > 0 ? { snapshot } : {}),
+          ...snapshot,
           ...(Object.keys(finalStats).length > 0 ? { stats: finalStats } : {}),
           ...(finalHint ? { hint: finalHint } : {}),
           generatedAt: new Date().toISOString(),

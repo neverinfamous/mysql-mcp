@@ -26,11 +26,17 @@ export const DependencyGraphSchemaBase = z.object({
     .union([z.number(), z.string()])
     .optional()
     .describe("Maximum depth for traversal (default: no limit)"),
+  table: z.string().optional().describe("Table to filter dependencies for"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
 });
 
 export const DependencyGraphSchema = z.object({
   schema: z.string().default(""),
   database: z.string().optional(),
+  table: z.string().optional(),
+  tableName: z.string().optional(),
+  name: z.string().optional(),
   includeRowCounts: z.boolean().optional(),
   compact: z.boolean().optional(),
   limit: z.preprocess((val) => {
@@ -45,6 +51,20 @@ export const DependencyGraphSchema = z.object({
     .optional(),
 }).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
+  if (val.tableName && !val.table) val.table = val.tableName;
+  if (val.name && !val.table) val.table = val.name;
+  
+  if (
+    typeof val.table === "string" &&
+    val.table.includes(".") &&
+    typeof val.schema === "undefined"
+  ) {
+    const parts = val.table.split(".");
+    if (parts.length === 2 && parts[0] && parts[1]) {
+      val.schema = parts[0];
+      val.table = parts[1];
+    }
+  }
   return val;
 });
 

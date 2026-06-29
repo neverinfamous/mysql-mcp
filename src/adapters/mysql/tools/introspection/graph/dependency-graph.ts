@@ -19,6 +19,7 @@ import {
   fetchTableNodes,
   qualifiedName,
   checkSchemaExists,
+  checkTableExists,
 } from "../helpers.js";
 import {
   detectCycles,
@@ -41,6 +42,7 @@ export function createDependencyGraphTool(
       try {
         const parsed = DependencyGraphSchema.parse(params) as {
           schema: string;
+          table?: string;
           compact?: boolean;
           includeRowCounts?: boolean;
           limit?: number;
@@ -53,6 +55,10 @@ export function createDependencyGraphTool(
 
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
+
+        if (parsed.table) {
+          await checkTableExists(adapter, parsed.table, parsed.schema);
+        }
 
         const includeRowCounts =
           parsed.includeRowCounts !== false && !parsed.compact;
@@ -80,6 +86,7 @@ export function createDependencyGraphTool(
         for (const fk of fks) {
           const from = qualifiedName(fk.fromSchema, fk.fromTable);
           const to = qualifiedName(fk.toSchema, fk.toTable);
+          
           allNodes.add(from);
           allNodes.add(to);
 
