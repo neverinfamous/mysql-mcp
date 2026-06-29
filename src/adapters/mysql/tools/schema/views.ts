@@ -32,13 +32,13 @@ const ListViewsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj['schema'] || obj['database'] ? (obj['schema'] || obj['database']) : undefined,
+        schema: obj['schema'] ?? obj['database'],
       };
     }
     return val;
   },
   z.object({
-    schema: z.string({ required_error: "Schema is required" }).min(1, "Schema is required"),
+    schema: z.string().min(1, "Schema is required"),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -72,9 +72,9 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] || obj['view'] ? (obj['name'] || obj['view']) : undefined,
-        schema: obj['schema'] || obj['database'] ? (obj['schema'] || obj['database']) : undefined,
-        definition: obj['definition'] || obj['query'] ? (obj['definition'] || obj['query']) : undefined,
+        name: obj['name'] ?? obj['view'],
+        schema: obj['schema'] ?? obj['database'],
+        definition: obj['definition'] ?? obj['query'],
       };
     }
     return val;
@@ -117,8 +117,8 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] || obj['view'] ? (obj['name'] || obj['view']) : undefined,
-        schema: obj['schema'] || obj['database'] ? (obj['schema'] || obj['database']) : undefined,
+        name: obj['name'] ?? obj['view'],
+        schema: obj['schema'] ?? obj['database'],
       };
     }
     return val;
