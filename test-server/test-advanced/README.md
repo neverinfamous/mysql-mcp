@@ -14,7 +14,8 @@ This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` too
 
 The original monolithic advanced stress testing suite was split into granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-- `test-codemode-advanced-core.md`
+- `test-codemode-advanced-core-part1.md`
+- `test-codemode-advanced-core-part2.md`
 - `test-codemode-advanced-admin-control.md`
 - `test-codemode-advanced-admin-maintenance.md`
 - `test-codemode-advanced-backup-audit.md`
@@ -27,7 +28,8 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-events.md`
 - `test-codemode-advanced-fulltext.md`
 - `test-codemode-advanced-introspection.md`
-- `test-codemode-advanced-json-core.md`
+- `test-codemode-advanced-json-core-part1.md`
+- `test-codemode-advanced-json-core-part2.md`
 - `test-codemode-advanced-json-enhanced.md`
 - `test-codemode-advanced-json-helpers.md`
 - `test-codemode-advanced-migration.md`
@@ -35,7 +37,8 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-monitoring-status.md`
 - `test-codemode-advanced-optimization.md`
 - `test-codemode-advanced-partitioning.md`
-- `test-codemode-advanced-performance-analysis.md`
+- `test-codemode-advanced-performance-analysis-part1.md`
+- `test-codemode-advanced-performance-analysis-part2.md`
 - `test-codemode-advanced-performance-anomaly.md`
 - `test-codemode-advanced-proxysql-config.md`
 - `test-codemode-advanced-proxysql-status.md`
@@ -46,11 +49,14 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-router-routes.md`
 - `test-codemode-advanced-schema-management.md`
 - `test-codemode-advanced-schema-routines.md`
+- `test-codemode-advanced-schema-triggers.md`
+- `test-codemode-advanced-schema-views.md`
 - `test-codemode-advanced-security-audit.md`
 - `test-codemode-advanced-security-system.md`
 - `test-codemode-advanced-sessions.md`
 - `test-codemode-advanced-shell-data.md`
-- `test-codemode-advanced-shell-utils.md`
+- `test-codemode-advanced-shell-utils-part1.md`
+- `test-codemode-advanced-shell-utils-part2.md`
 - `test-codemode-advanced-spatial-geometry.md`
 - `test-codemode-advanced-spatial-operations.md`
 - `test-codemode-advanced-spatial-queries.md`
@@ -59,7 +65,8 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-stats-descriptive.md`
 - `test-codemode-advanced-stats-time-series.md`
 - `test-codemode-advanced-stats-window.md`
-- `test-codemode-advanced-sys.md`
+- `test-codemode-advanced-sys-part1.md`
+- `test-codemode-advanced-sys-part2.md`
 - `test-codemode-advanced-text.md`
 - `test-codemode-advanced-transactions.md`
 - `test-codemode-advanced-vector-management.md`

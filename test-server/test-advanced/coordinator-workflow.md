@@ -31,7 +31,7 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 58. Fixed Z issues [W Prompt / V Code]."
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 60. Fixed Z issues [W Prompt / V Code]."
    - Do NOT output any other text to the user during the test sequence.
 
 ## Test Sequence Queue (Dependency DAG)
@@ -71,29 +71,31 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 33. `test-codemode-advanced-router-routes.md`
 34. `test-codemode-advanced-schema-management.md`
 35. `test-codemode-advanced-schema-routines.md`
-36. `test-codemode-advanced-security-audit.md`
-37. `test-codemode-advanced-security-system.md`
-38. `test-codemode-advanced-sessions.md`
-39. `test-codemode-advanced-shell-data.md`
-40. `test-codemode-advanced-shell-utils-part1.md`
-41. `test-codemode-advanced-shell-utils-part2.md`
-42. `test-codemode-advanced-spatial-geometry.md`
-43. `test-codemode-advanced-spatial-operations.md`
-44. `test-codemode-advanced-spatial-queries.md`
-45. `test-codemode-advanced-spatial-setup.md`
-46. `test-codemode-advanced-stats-advanced.md`
-47. `test-codemode-advanced-stats-descriptive.md`
-48. `test-codemode-advanced-stats-time-series.md`
-49. `test-codemode-advanced-stats-window.md`
-50. `test-codemode-advanced-sys-part1.md`
-51. `test-codemode-advanced-sys-part2.md`
-52. `test-codemode-advanced-text.md`
-53. `test-codemode-advanced-transactions.md`
-54. `test-codemode-advanced-vector-management.md`
-55. `test-codemode-advanced-vector-search.md`
-56. `test-codemode-advanced-vector-storage.md`
-57. `test-codemode-advanced-versioning.md`
-58. `test-codemode-sandbox.md`
+36. `test-codemode-advanced-schema-triggers.md`
+37. `test-codemode-advanced-schema-views.md`
+38. `test-codemode-advanced-security-audit.md`
+39. `test-codemode-advanced-security-system.md`
+40. `test-codemode-advanced-sessions.md`
+41. `test-codemode-advanced-shell-data.md`
+42. `test-codemode-advanced-shell-utils-part1.md`
+43. `test-codemode-advanced-shell-utils-part2.md`
+44. `test-codemode-advanced-spatial-geometry.md`
+45. `test-codemode-advanced-spatial-operations.md`
+46. `test-codemode-advanced-spatial-queries.md`
+47. `test-codemode-advanced-spatial-setup.md`
+48. `test-codemode-advanced-stats-advanced.md`
+49. `test-codemode-advanced-stats-descriptive.md`
+50. `test-codemode-advanced-stats-time-series.md`
+51. `test-codemode-advanced-stats-window.md`
+52. `test-codemode-advanced-sys-part1.md`
+53. `test-codemode-advanced-sys-part2.md`
+54. `test-codemode-advanced-text.md`
+55. `test-codemode-advanced-transactions.md`
+56. `test-codemode-advanced-vector-management.md`
+57. `test-codemode-advanced-vector-search.md`
+58. `test-codemode-advanced-vector-storage.md`
+59. `test-codemode-advanced-versioning.md`
+60. `test-codemode-sandbox.md`
 
 ## Telemetry Collection
 
