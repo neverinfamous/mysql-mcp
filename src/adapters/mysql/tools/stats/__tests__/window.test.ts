@@ -164,7 +164,7 @@ describe("Window Function Tools", () => {
       );
       expect(Reflect.get(result || {}, "success")).toBe(false);
       expect(Reflect.get(result || {}, "error")).toContain(
-        "Unknown column",
+        "Unknown column 'missing_col'",
       );
     });
   });

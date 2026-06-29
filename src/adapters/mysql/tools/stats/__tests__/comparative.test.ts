@@ -255,7 +255,7 @@ describe("Comparative Stats Tools", () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column 'nonexistent_col'");
+      expect(result.error).toContain("Column 'nonexistent_col' not found");
     });
   });
 });

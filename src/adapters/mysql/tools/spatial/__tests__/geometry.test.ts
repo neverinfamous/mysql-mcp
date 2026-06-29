@@ -54,10 +54,11 @@ describe("Spatial Geometry Tools", () => {
       )) as { data: { wkt: string; geoJson: Record<string, unknown> } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const sql = mockAdapter.executeQuery.mock.calls[0][0];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       // With axis-order=long-lat, longitude comes first in POINT
-      expect(call).toContain("POINT(10 20)");
-      expect(call).toContain("axis-order=long-lat");
+      expect(args[0]).toBe("POINT(10 20)");
+      expect(sql).toContain("axis-order=long-lat");
       expect(result.data.wkt).toBe("POINT(20 10)");
       expect(result.data.geoJson).toEqual({
         type: "Point",
@@ -73,8 +74,8 @@ describe("Spatial Geometry Tools", () => {
       );
       await tool.handler({ longitude: 10, latitude: 20 }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("4326");
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(args).toContain(4326);
     });
 
     it("should handle custom SRID", async () => {
@@ -88,8 +89,8 @@ describe("Spatial Geometry Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("3857");
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(args).toContain(3857);
     });
   });
 

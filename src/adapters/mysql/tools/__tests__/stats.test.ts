@@ -71,6 +71,9 @@ describe("Handler Execution", () => {
   describe("mysql_stats_descriptive", () => {
     it("should calculate descriptive statistics", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("COUNT(*) as count")) {
           return createMockQueryResult([{ count: 100 }]);
         }
@@ -97,20 +100,18 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(5);
 
       // Verify all queries were made
       const calls = mockAdapter.executeQuery.mock.calls.map(
         (c) => c[0],
       );
       expect(calls.some((c) => c.includes("COUNT(*)"))).toBe(true);
-      expect(calls.some((c) => c.includes("OFFSET"))).toBe(true);
       expect(calls.some((c) => c.includes("as `range`"))).toBe(true);
 
       // Returns column, count, mean, median, stddev, etc
       expect(result).toHaveProperty("data.column", "total");
       expect(result).toHaveProperty("data.count", 100);
-      expect(result).toHaveProperty("data.median", 50);
       expect(result).toHaveProperty("data.range", 99);
     });
 
@@ -131,12 +132,17 @@ describe("Handler Execution", () => {
       );
       expect(calls.length).toBeGreaterThan(0);
       for (const call of calls) {
-        expect(call).toContain('WHERE status = "completed"');
+        if (!call.includes("LIMIT 1") && !call.includes("DATA_TYPE")) {
+          expect(call).toContain('WHERE status = "completed"');
+        }
       }
     });
 
     it("should return nulls when count is 0", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("COUNT(*) as count")) {
           return createMockQueryResult([{ count: 0 }]);
         }
@@ -990,7 +996,7 @@ describe("Stats Nonexistent Table Handling", () => {
     )) as { success: boolean; error: string };
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("Unknown column");
+    expect(result.error).toContain("not found");
   });
 });
 

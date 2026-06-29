@@ -380,7 +380,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { success: false } for MySQL error (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Unknown column 'bad_col' in 'field list'"),
+        new Error("Column 'bad_col' not found"),
       );
 
       const result = await tool.handler(
@@ -394,7 +394,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Unknown column 'bad_col' in 'field list'",
+        error: "Column 'bad_col' not found",
       });
     });
 

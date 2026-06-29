@@ -290,7 +290,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
     });
   });
 
@@ -322,7 +322,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
     });
   });
 
@@ -354,7 +354,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
     });
   });
 
@@ -386,7 +386,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
     });
   });
 
@@ -418,7 +418,7 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
     });
   });
 

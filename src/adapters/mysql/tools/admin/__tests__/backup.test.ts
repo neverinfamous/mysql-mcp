@@ -256,7 +256,7 @@ describe("Admin Backup Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("Unknown column 'invalid_col' in 'where clause'");
     });
 
     it("should generate proper INSERT statements with column names", async () => {
@@ -566,7 +566,7 @@ describe("Admin Backup Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
       expect(result.details.rowsInserted).toBe(0);
     });
 

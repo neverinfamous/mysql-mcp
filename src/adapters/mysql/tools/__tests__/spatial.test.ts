@@ -231,8 +231,8 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("POINT");
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(args[0]).toContain("POINT");
       expect(result).toBeDefined();
     });
 

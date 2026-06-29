@@ -251,7 +251,7 @@ describe("Sys Schema Resource Tools", () => {
         };
       };
 
-      expect(result.data?.rows).toBeUndefined(); 
+      expect(result.data?.rows).toEqual([]); 
       expect(result.data?.count).toBe(0);
       expect(result.data?.hasContention).toBe(false);
     });

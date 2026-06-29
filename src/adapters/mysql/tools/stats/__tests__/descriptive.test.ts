@@ -32,6 +32,9 @@ describe("Descriptive Stats Tools", () => {
 
     it("should calculate descriptive stats", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("COUNT(*)")) {
           return createMockQueryResult([{ count: 10 }]);
         }
@@ -71,6 +74,9 @@ describe("Descriptive Stats Tools", () => {
 
     it("should handle empty tables gracefully", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("COUNT(*)")) {
           return createMockQueryResult([{ count: 0 }]);
         }
