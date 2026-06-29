@@ -90,10 +90,10 @@
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_sys_innodb_lock_waits` | | |
-| `mysql_sys_schema_stats` | | |
-| `mysql_sys_host_summary` | | |
-| `mysql_sys_memory_summary` | | |
+| `mysql_sys_innodb_lock_waits` | No params, validation errors | ✅ Confirmed |
+| `mysql_sys_schema_stats` | Schema filter, missing DB, validation errors | ✅ Confirmed |
+| `mysql_sys_host_summary` | Host filter, missing host, validation errors | ✅ Confirmed |
+| `mysql_sys_memory_summary` | No params, validation errors | ✅ Confirmed |
 
 ### Structured Error Response Pattern
 
