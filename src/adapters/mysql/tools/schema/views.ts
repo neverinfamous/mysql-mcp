@@ -132,7 +132,9 @@ const DropViewSchema = z.preprocess(
 
 const DropViewOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    viewName: z.string(),
+    viewName: z.string().optional(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
   }).optional()
 });
 
