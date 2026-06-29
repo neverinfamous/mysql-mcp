@@ -34,8 +34,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
           });
         }
         

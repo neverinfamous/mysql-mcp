@@ -34,8 +34,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid table name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
           });
         }
         
@@ -45,8 +44,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR",
-            error: "Invalid column name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
           });
         }
 
