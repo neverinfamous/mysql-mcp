@@ -86,8 +86,8 @@ export const ShellCheckUpgradeOutputSchema = BaseOutputSchema.extend({
 
 export const ShellExportTableOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    schema: z.string(),
-    table: z.string(),
+    schema: z.string().optional(),
+    table: z.string().optional(),
     outputPath: z.string(),
     format: z.string().optional(),
     result: z.unknown().optional(),
@@ -97,8 +97,8 @@ export const ShellExportTableOutputSchema = BaseOutputSchema.extend({
 export const ShellImportTableOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     inputPath: z.string(),
-    schema: z.string(),
-    table: z.string(),
+    schema: z.string().optional(),
+    table: z.string().optional(),
     localInfileEnabled: z.boolean().optional(),
     result: z.unknown().optional(),
   }).loose().optional(),
@@ -107,8 +107,8 @@ export const ShellImportTableOutputSchema = BaseOutputSchema.extend({
 export const ShellImportJSONOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     inputPath: z.string(),
-    schema: z.string(),
-    collection: z.string(),
+    schema: z.string().optional(),
+    collection: z.string().optional(),
     protocol: z.string(),
     result: z.unknown().optional(),
   }).loose().optional(),
