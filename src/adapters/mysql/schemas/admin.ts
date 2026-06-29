@@ -208,7 +208,7 @@ export const ShowStatusSchemaBase = z.object({
     .unknown()
     .optional()
     .describe(
-      "Maximum number of variables to return (default: 30). Set higher to see all.",
+      "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
 });
 
@@ -232,7 +232,7 @@ export const ShowStatusSchema = z.preprocess(
     .transform((data) => ({
       like: data.like,
       global: data.global,
-      limit: data.limit !== undefined ? Number(data.limit) : 30,
+      limit: data.limit !== undefined ? Number(data.limit) : 10,
     }))
     .refine(
       (data) =>
@@ -252,7 +252,7 @@ export const ShowVariablesSchemaBase = z.object({
     .unknown()
     .optional()
     .describe(
-      "Maximum number of variables to return (default: 30). Set higher to see all.",
+      "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
 });
 
@@ -276,7 +276,7 @@ export const ShowVariablesSchema = z.preprocess(
     .transform((data) => ({
       like: data.like,
       global: data.global,
-      limit: data.limit !== undefined ? Number(data.limit) : 30,
+      limit: data.limit !== undefined ? Number(data.limit) : 10,
     }))
     .refine(
       (data) =>
@@ -289,9 +289,9 @@ export const InnodbStatusSchemaBase = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
-      "Return parsed summary with key metrics. Set to true for parsed output, false for raw string output.",
+      "Return parsed summary with key metrics. Defaults to true. Set to false for raw string output.",
     ),
 });
 

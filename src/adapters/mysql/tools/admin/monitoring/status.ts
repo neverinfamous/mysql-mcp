@@ -24,7 +24,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowStatusSchema.parse(params);
-        const effectiveLimit = limit ?? 30;
+        const effectiveLimit = limit ?? 10;
 
         let sql = global ? "SHOW GLOBAL STATUS" : "SHOW STATUS";
 

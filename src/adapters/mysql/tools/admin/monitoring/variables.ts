@@ -24,7 +24,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { like, global, limit } = ShowVariablesSchema.parse(params);
-        const effectiveLimit = limit ?? 30;
+        const effectiveLimit = limit ?? 10;
 
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
 
