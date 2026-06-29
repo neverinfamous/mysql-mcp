@@ -298,6 +298,7 @@ Recoverable errors can be retried. Check \`recoverable: true\` in the response.
 - **Return value**: The last expression in the code block is returned as the result. Use \`return\` in async functions or let the final expression evaluate.
 - **Security**: Code runs in a strict C++ V8 isolate engine (\`isolated-vm\`), not \`worker_threads\`. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Execution is synchronous with a hard timeout. Rate-limited to 60 executions/min (Redis-backed with in-memory fallback).
 - **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
+- **DDL Propagation Delay**: MySQL 8.0 \`information_schema.COLUMNS\` often exhibits a brief propagation lag after DDL operations (e.g., \`CREATE TABLE\`, \`mysql.core.enableVersioning\`). When chaining DDL and metadata checks synchronously in Code Mode, you MUST add \`await mysql.core.readQuery("SELECT SLEEP(1)")\` immediately following the DDL operation to ensure subsequent steps see the correct schema.
 - **Scope**: Requires \`admin\` scope.`],
   ["introspection", `# Introspection Tools
 
@@ -508,7 +509,7 @@ Tools: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_sec
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Returns \`{ exists: false, user }\` for nonexistent users (P154). Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps \`globalPrivileges\` at 10 entries and includes \`totalGlobalPrivileges\` for the full count.
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope. Returns \`{ exists: false, schema }\` for nonexistent schemas (P154).
 - **Enterprise features**: \`mysql_security_firewall_status\` and \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
-- **Audit fallback**: \`mysql_security_audit\` falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`). Default limit is 20.
+- **Audit fallback**: \`mysql_security_audit\` falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`). Default limit is 5.
 
 ### Example: Data Masking
 \`\`\`json
