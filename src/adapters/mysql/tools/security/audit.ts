@@ -45,7 +45,7 @@ const AuditLogSchemaBase = z.object({
 const AuditLogSchema = z.preprocess(
   (val: unknown) => val,
   z.object({
-    limit: z.number().default(10),
+    limit: z.number().default(5),
     user: z.string().optional(),
     eventType: z.string().optional(),
     startTime: z.string().optional(),
