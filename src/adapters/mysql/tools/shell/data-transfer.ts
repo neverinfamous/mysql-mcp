@@ -121,6 +121,48 @@ export function createShellExportTableTool(
             )
           );
         }
+        
+        if (
+          errorMessage.includes("1146") ||
+          errorMessage.includes("doesn't exist")
+        ) {
+          const match = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const msg = match ? `Table '${match[1]}' does not exist` : "Table does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the table name and schema.",
+            })
+          );
+        }
+        if (
+          errorMessage.includes("1049") ||
+          errorMessage.includes("Unknown database")
+        ) {
+          const match = /Unknown database '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Database '${match[1]}' does not exist` : "Database does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the schema (database) name.",
+            })
+          );
+        }
+        if (errorMessage.includes("1054") || errorMessage.includes("Unknown column")) {
+          const match = /Unknown column '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Column '${match[1]}' not found` : "Column not found";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the column name in your query.",
+            })
+          );
+        }
+        if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Check your SQL syntax.",
+            })
+          );
+        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -239,6 +281,48 @@ export function createShellImportTableTool(
             )
           );
         }
+        
+        if (
+          errorMessage.includes("1146") ||
+          errorMessage.includes("doesn't exist")
+        ) {
+          const match = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const msg = match ? `Table '${match[1]}' does not exist` : "Table does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the table name and schema.",
+            })
+          );
+        }
+        if (
+          errorMessage.includes("1049") ||
+          errorMessage.includes("Unknown database")
+        ) {
+          const match = /Unknown database '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Database '${match[1]}' does not exist` : "Database does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the schema (database) name.",
+            })
+          );
+        }
+        if (errorMessage.includes("1054") || errorMessage.includes("Unknown column")) {
+          const match = /Unknown column '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Column '${match[1]}' not found` : "Column not found";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the column name in your query.",
+            })
+          );
+        }
+        if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Check your SQL syntax.",
+            })
+          );
+        }
+
         return formatHandlerErrorResponse(error);
       }
     },
