@@ -57,6 +57,10 @@ export function formatMysqlError(err: unknown): string {
       .replace(/^\d+\s*\([A-Z0-9]+\):\s*/, "")
       // Normalize "doesn't exist" to "does not exist" for consistency
       .replace(/doesn't exist/g, "does not exist")
+      // Map unknown column to "Column 'X' not found"
+      .replace(/Unknown column ('.*?') in 'field list'/i, "Column $1 not found")
+      // Map SQL syntax errors to "SQL syntax error: near '...'"
+      .replace(/You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ('.*?').*/i, "SQL syntax error: near $1")
       .trim()
   );
 }
