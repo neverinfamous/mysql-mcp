@@ -170,7 +170,7 @@ export function createSysStatementSummaryTool(
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -289,7 +289,7 @@ export function createSysWaitSummaryTool(
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -401,7 +401,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "") {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
