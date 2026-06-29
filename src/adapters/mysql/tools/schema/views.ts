@@ -177,13 +177,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                     CHECK_OPTION as checkOption,
                     IS_UPDATABLE as isUpdatable
                 FROM information_schema.VIEWS
-                WHERE TABLE_SCHEMA = ?
+                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
                 ORDER BY TABLE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
-          targetSchema,
+          targetSchema ?? null,
         ]);
         return withTokenEstimate({
           success: true,
