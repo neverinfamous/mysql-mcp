@@ -32,7 +32,7 @@ const ListViewsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj['schema'] ?? obj['database'],
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
       };
     }
     return val;
@@ -72,9 +72,9 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] ?? obj['view'],
-        schema: obj['schema'] ?? obj['database'],
-        definition: obj['definition'] ?? obj['query'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'],
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
+        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? obj['query'],
       };
     }
     return val;
@@ -117,8 +117,8 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] ?? obj['view'],
-        schema: obj['schema'] ?? obj['database'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'],
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
       };
     }
     return val;
