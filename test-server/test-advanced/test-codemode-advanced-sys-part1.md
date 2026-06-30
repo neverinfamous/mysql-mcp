@@ -166,31 +166,103 @@ sysschema Tool Group (8 tools +1 code mode):
 1. `mysql_sys_user_summary`
 2. `mysql_sys_io_summary`
 3. `mysql_sys_statement_summary`
+
+### Structured Error Response Pattern
+
+All tools should return errors as strongly-typed structured objects instead of throwing. The expected pattern:
+
+```json
+{
+  "success": false,
+  "error": "Human-readable error message",
+  "code": "VALIDATION_ERROR",
+  "category": "validation",
+  "recoverable": false,
+  "details": { }
+}
+```
+
+| Type                 | Source                                                                          | What you see                                                                                                              | Verdict            |
+| -------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **Handler error** ✅ | Handler catches error and returns `{success: false, error: "...", code: "..."}` | Parseable JSON object with `success`, `error`, `code` (e.g., `VALIDATION_ERROR`, `CONFLICT_ERROR`), and `category` fields | Correct            |
+| **MCP error** ❌     | Uncaught throw propagates to MCP framework                                      | Raw text error string, often prefixed with `Error:`, wrapped in an `isError: true` content block — no `success` field     | Bug — report as ❌ |
+
+## Split Schema Pattern Verification
+
+All tools use the Split Schema pattern: a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing. Verify:
+
+1. **Parameter visibility**: For tools with optional parameters (e.g., `database`, `limit`), make a direct MCP call using those parameters. If the tool ignores or rejects documented parameters, report as a Split Schema violation.
+2. **Alias acceptance**: For tools with documented parameter aliases (e.g., `table`/`tableName`/`name`, `query`/`sql`, `where`/`filter`), verify that direct MCP tool calls correctly accept the aliases — not just the primary parameter name.
+3. **`z.preprocess()` as `inputSchema`**: If a tool uses `z.preprocess()` directly as its `inputSchema` (instead of a plain `SchemaBase`), parameter metadata is stripped from JSON Schema generation. Report as a Split Schema violation.
+
+## P154 Object Existence Verification
+
+All tools that accept a table name should return structured error responses for nonexistent tables and databases. For each, verify:
+
+1. **Nonexistent table**: Calling with `table: "nonexistent_table_xyz"` returns a structured error — not a raw MySQL exception
+2. **Nonexistent database/schema**: Where applicable, calling with a nonexistent database produces a similarly clear structured error
+
+Key MySQL error codes that should be intercepted by handlers (not leaked as raw errors):
+
+| MySQL Error Code          | Meaning                | Expected Structured Message   |
+| ------------------------- | ---------------------- | ----------------------------- |
+| 1146 (ER_NO_SUCH_TABLE)   | Table doesn't exist    | `Table 'X' does not exist`    |
+| 1049 (ER_BAD_DB_ERROR)    | Database doesn't exist | `Database 'X' does not exist` |
+| 1054 (ER_BAD_FIELD_ERROR) | Unknown column         | `Column 'X' not found`        |
+| 1064 (ER_PARSE_ERROR)     | SQL syntax error       | `SQL syntax error: ...`       |
+
+## Error Consistency Audit
+
+During testing, check for these inconsistencies:
+
+1. **Throw-vs-return**: If a tool throws a raw error instead of returning `{success: false}`, report as ❌.
+2. **Error field name**: All `{ success: false }` error responses should use `error` as the field name.
+3. **Zod validation leaks**: If calling a tool with an invalid enum value or missing required field produces a raw MCP `-32602` Zod validation error instead of a structured response, report as ❌.
+
+## Naming & Cleanup
+
+- **Temporary tables**: `temp_*` (or `stress_*`) prefix
+- **Temporary views**: `test_view_*` prefix
+- **Temporary procedures**: `test_proc_*` prefix
+- Drop at the end of the script. If DROP fails due to lock, note and move on.
+
+
+---
+
+## Comprehensive Tool Coverage (sysschema)
+
+Ensure EVERY tool in the sysschema group is comprehensively tested.
+
+sysschema Tool Group (8 tools +1 code mode):
+
+1. `mysql_sys_user_summary`
+2. `mysql_sys_io_summary`
+3. `mysql_sys_statement_summary`
 4. `mysql_sys_wait_summary`
 5. `mysql_sys_innodb_lock_waits`
 6. `mysql_sys_schema_stats`
 7. `mysql_sys_host_summary`
 8. `mysql_sys_memory_summary`
 
-> **Instructions**: Use `mysql.sys.*` namespace.
+> **Instructions**: Use `mysql.sysschema.*` namespace.
 
-1. `mysql.sys.help()` -> verify method listing
-2. `mysql.sys.someMethod({...})` -> verify success
-3. `mysql.sys.someMethod({...})` -> verify success
-4. `mysql.sys.someMethod({...})` -> verify success
-5. `mysql.sys.someMethod({...})` -> verify success
-6. `mysql.sys.someMethod({...})` -> verify success
-7. `mysql.sys.someMethod({...})` -> verify success
-8. `mysql.sys.someMethod({...})` -> verify success
-9. `mysql.sys.someMethod({...})` -> verify success
+1. `mysql.sysschema.help()` -> verify method listing
+2. `mysql.sysschema.someMethod({...})` -> verify success
+3. `mysql.sysschema.someMethod({...})` -> verify success
+4. `mysql.sysschema.someMethod({...})` -> verify success
+5. `mysql.sysschema.someMethod({...})` -> verify success
+6. `mysql.sysschema.someMethod({...})` -> verify success
+7. `mysql.sysschema.someMethod({...})` -> verify success
+8. `mysql.sysschema.someMethod({...})` -> verify success
+9. `mysql.sysschema.someMethod({...})` -> verify success
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.sys.someMethod({invalid})` -> `{success: false}`
+10. 🔴 `mysql.sysschema.someMethod({invalid})` -> `{success: false}`
 
 **Empty param paths (🟢):**
 
-11. 🟢 `mysql.sys.someMethod({})` -> `{success: true}` (Sys tools have optional parameters)
+11. 🟢 `mysql.sysschema.someMethod({})` -> `{success: true}` (Sys tools have optional parameters)
 
 **Alias acceptance (🟢):**
 
