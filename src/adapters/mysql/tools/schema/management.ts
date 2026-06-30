@@ -58,7 +58,7 @@ const CreateSchemaSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().describe("Schema/database name"),
+    name: z.string().min(1, "Schema name is required").describe("Schema/database name"),
     charset: z.string().optional().default("utf8mb4").describe("Character set"),
     collation: z
       .string()
@@ -100,7 +100,7 @@ const DropSchemaSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().describe("Schema/database name to drop"),
+    name: z.string().min(1, "Schema name is required").describe("Schema/database name to drop"),
     ifExists: z
       .boolean()
       .optional()

@@ -80,7 +80,7 @@ const CreateViewSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().describe("View name"),
+    name: z.string().min(1, "View name is required").describe("View name"),
     schema: z.string().optional(),
     definition: z
       .string()
@@ -124,7 +124,7 @@ const DropViewSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().describe("View name"),
+    name: z.string().min(1, "View name is required").describe("View name"),
     schema: z.string().optional(),
     ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
   })
