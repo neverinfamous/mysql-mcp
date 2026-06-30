@@ -148,14 +148,14 @@ json-core Tool Group (8 tools +1 for code mode):
 
 **Domain error paths (🔴):**
 
-9. 🔴 `mysql_json_extract({table: "nonexistent_table", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → domain error (table not found)
-10. 🔴 `mysql_json_set({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error (column not found)
-11. 🔴 `mysql_json_insert({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", idColumn: "id", rowId: 1})` → domain error (invalid path)
-12. 🔴 `mysql_json_replace({table: "test_json_docs", column: "doc", path: "$.key1", value: "v", idColumn: "id", rowId: 999})` → domain error (row not found)
-13. 🔴 `mysql_json_remove({table: "test_json_docs", column: "doc", path: "$.nonexistent", idColumn: "id", rowId: 1})` → domain error
-14. 🔴 `mysql_json_contains({table: "test_json_docs", column: "doc", value: "v", path: "invalid", idColumn: "id", rowId: 1})` → domain error
-15. 🔴 `mysql_json_keys({table: "nonexistent_table", column: "doc", idColumn: "id", rowId: 1})` → domain error
-16. 🔴 `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error (not an array)
+9. 🔴 `mysql_json_extract({table: "nonexistent_table", column: "doc", path: "$.key1", where: "id = 1"})` → domain error (table not found)
+10. 🔴 `mysql_json_set({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", where: "id = 1"})` → domain error (column not found)
+11. 🔴 `mysql_json_insert({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", where: "id = 1"})` → domain error (invalid path)
+12. 🔴 `mysql_json_replace({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", where: "id = 1"})` → domain error (invalid path)
+13. 🔴 `mysql_json_remove({table: "test_json_docs", column: "doc", paths: ["invalid_path"], where: "id = 1"})` → domain error (invalid path)
+14. 🔴 `mysql_json_contains({table: "test_json_docs", column: "doc", value: "v", path: "invalid", where: "id = 1"})` → domain error
+15. 🔴 `mysql_json_keys({table: "nonexistent_table", column: "doc", where: "id = 1"})` → domain error
+16. 🔴 `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", where: "id = 1"})` → domain error (invalid path)
 
 **Zod validation error paths (🔴):**
 
