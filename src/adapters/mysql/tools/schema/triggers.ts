@@ -10,7 +10,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListTriggersSchemaBase = z.object({
@@ -37,7 +36,7 @@ const ListTriggersSchema = z.preprocess(
   },
   z.object({
     table: z.string().optional(),
-    schema: z.string().default(""),
+    schema: z.string().optional(),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -69,28 +68,26 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
         const targetSchema = parsedParams.schema;
         const table = parsedParams.table;
 
-        if (!targetSchema) {
-          return formatHandlerErrorResponse(
-            new ValidationError("Schema parameter is required (use 'schema' or 'database')")
-          );
-        }
-
         // P154: Schema existence check
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [targetSchema],
-        );
-        if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-          return formatHandlerErrorResponse(
-            new Error(`Schema '${targetSchema}' does not exist`),
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
           );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`),
+            );
+          }
         }
 
         // P154: Table existence check when explicitly provided
         if (table !== undefined && table !== "") {
+          // If targetSchema is not provided, we need to check the table in the current database
+          const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
           const tableCheck = await adapter.executeQuery(
-            "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?",
-            [targetSchema, table],
+            tableCheckQuery,
+            [targetSchema ?? null, table],
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -109,14 +106,14 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
                     DEFINER as definer,
                     CREATED as created
                 FROM information_schema.TRIGGERS
-                WHERE TRIGGER_SCHEMA = ?
+                WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-        const queryParams: unknown[] = [targetSchema];
+        const queryParams: unknown[] = [targetSchema ?? null];
 
         if (table !== undefined && table !== "") {
-          query += " AND EVENT_OBJECT_TABLE = ?";
-          queryParams.push(table);
+            query += " AND EVENT_OBJECT_TABLE = ?";
+            queryParams.push(table);
         }
 
         query +=
