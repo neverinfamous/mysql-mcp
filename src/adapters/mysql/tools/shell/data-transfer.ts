@@ -545,6 +545,38 @@ export function createShellImportJSONTool(
           },
         });
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes("1146") ||
+          errorMessage.includes("doesn't exist") ||
+          errorMessage.includes("was not found in the database")
+        ) {
+          const match1 = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const match2 = /table `([^`]+)`\.`([^`]+)` was not found/i.exec(errorMessage);
+          const msg = match1 
+            ? `Table '${match1[1]}' does not exist` 
+            : (match2 ? `Table '${match2[1]}.${match2[2]}' does not exist` : "Table does not exist");
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the table name and schema.",
+            })
+          );
+        }
+        if (
+          errorMessage.includes("1049") ||
+          errorMessage.includes("Unknown database")
+        ) {
+          const match = /Unknown database '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Database '${match[1]}' does not exist` : "Database does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the schema (database) name.",
+            })
+          );
+        }
         return formatHandlerErrorResponse(error);
       }
     },

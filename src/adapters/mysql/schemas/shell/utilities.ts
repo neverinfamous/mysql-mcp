@@ -27,9 +27,7 @@ export const ShellCheckUpgradeInputSchema = z.preprocess(
       targetVersion:
         obj.targetVersion === undefined
           ? undefined
-          : typeof obj.targetVersion === "string" || typeof obj.targetVersion === "number" || typeof obj.targetVersion === "boolean"
-            ? String(obj.targetVersion)
-            : obj.targetVersion,
+          : obj.targetVersion,
     };
   },
   ShellCheckUpgradeInputSchemaBase
