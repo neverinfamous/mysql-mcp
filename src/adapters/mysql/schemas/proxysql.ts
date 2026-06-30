@@ -306,7 +306,6 @@ export const ProxySQLCommandInputSchemaBase = z.object({
       "PROXYSQL FLUSH QUERY CACHE",
       "PROXYSQL FLUSH LOGS",
     ])
-    .optional()
     .describe("ProxySQL admin command to execute"),
 });
 
