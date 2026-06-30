@@ -295,7 +295,17 @@ export const InnodbStatusSchemaBase = z.object({
     ),
 });
 
-export const InnodbStatusSchema = InnodbStatusSchemaBase;
+export const InnodbStatusSchema = z.preprocess(
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = { ...(obj as Record<string, unknown>) };
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      return data;
+    }
+    return obj ?? {};
+  },
+  InnodbStatusSchemaBase
+);
 
 export const ReplicationStatusSchemaBase = z.object({
   summary: z
@@ -307,15 +317,31 @@ export const ReplicationStatusSchemaBase = z.object({
     ),
 });
 
-export const ReplicationStatusSchema = ReplicationStatusSchemaBase;
+export const ReplicationStatusSchema = z.preprocess(
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = { ...(obj as Record<string, unknown>) };
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      return data;
+    }
+    return obj ?? {};
+  },
+  ReplicationStatusSchemaBase
+);
 
 export const PoolStatsSchemaBase = z.object({});
 
-export const PoolStatsSchema = PoolStatsSchemaBase;
+export const PoolStatsSchema = z.preprocess(
+  (obj: unknown) => obj ?? {},
+  PoolStatsSchemaBase
+);
 
 export const ServerHealthSchemaBase = z.object({});
 
-export const ServerHealthSchema = ServerHealthSchemaBase;
+export const ServerHealthSchema = z.preprocess(
+  (obj: unknown) => obj ?? {},
+  ServerHealthSchemaBase
+);
 
 
 // --- ServerConfig ---
