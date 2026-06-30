@@ -90,7 +90,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             errorCount?: number;
             warningCount?: number;
             noticeCount?: number;
-            checksPerformed?: { status?: string; detectedProblems?: unknown[] }[];
+            checksPerformed?: { status?: string; detectedProblems?: unknown[]; description?: string }[];
             targetVersion?: string;
             serverVersion?: string;
           };
@@ -98,6 +98,18 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
           if (typedResult.checksPerformed !== undefined && Array.isArray(typedResult.checksPerformed)) {
             typedResult.checksPerformed = typedResult.checksPerformed.filter(check => {
               const hasProblems = check.detectedProblems !== undefined && Array.isArray(check.detectedProblems) && check.detectedProblems.length > 0;
+              
+              if (hasProblems && outputFormat !== "TEXT") {
+                const allProblems = check.detectedProblems as { level?: string }[];
+                const errorsOnly = allProblems.filter(p => p.level === "Error");
+                
+                if (allProblems.length > errorsOnly.length) {
+                   check.detectedProblems = errorsOnly;
+                   const omitted = allProblems.length - errorsOnly.length;
+                   check.description = (check.description ?? "") + ` [NOTE: ${omitted} Warnings/Notices omitted to save context space. Use outputFormat: "TEXT" to view them.]`;
+                }
+              }
+
               return check.status !== "OK" || hasProblems;
             });
           }
