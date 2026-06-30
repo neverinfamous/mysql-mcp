@@ -193,7 +193,7 @@ core Tool Group (8 tools +1 for code mode):
 
 **Subscription Verification:**
 
-32. Verify the server capabilities block and `SubscribeRequestSchema` in `src/server/mcp-server.ts` explicitly handle the `mysql://health` resource URI.
+32. Verify the server capabilities block in `src/server/mcp-server/mcp-server.ts` and `SubscribeRequestSchema` in `src/server/mcp-server/subscriptions.ts` explicitly handle the `mysql://health` resource URI.
 
 ---
 
