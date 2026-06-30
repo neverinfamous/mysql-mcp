@@ -67,6 +67,10 @@ export function preprocessVectorParams(input: unknown): unknown {
     result["queryText"] = result["query"];
   }
   
+  if (typeof result["metric"] === "string") {
+    result["metric"] = result["metric"].toUpperCase();
+  }
+  
   return result;
 }
 
