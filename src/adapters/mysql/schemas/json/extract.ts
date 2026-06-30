@@ -56,6 +56,8 @@ export const JsonGetSchemaBase = z.object({
   path: z.unknown().optional().describe("JSON path to extract"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonGetSchema = z

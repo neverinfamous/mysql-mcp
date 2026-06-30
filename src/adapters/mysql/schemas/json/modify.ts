@@ -275,6 +275,8 @@ export const JsonUpdateSchemaBase = z.object({
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonUpdateSchema = z

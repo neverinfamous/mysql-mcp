@@ -170,14 +170,14 @@ json-helpers Tool Group (4 tools +1 for code mode):
 1. `mysql_json_get({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
 2. `mysql_json_update({table: "test_json_docs", column: "doc", path: "$.key1", value: "new_val", idColumn: "id", rowId: 1})` → happy path
 3. `mysql_json_search({table: "test_json_docs", column: "doc", searchString: "value1"})` → happy path
-4. `mysql_json_validate({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
+4. `mysql_json_validate({value: "{\"key\": \"valid_json\"}"})` → happy path
 
 **Domain error paths (🔴):**
 
 5. 🔴 `mysql_json_get({table: "nonexistent_table", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → domain error
 6. 🔴 `mysql_json_update({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error
 7. 🔴 `mysql_json_search({table: "nonexistent_table", column: "doc", searchString: "value1"})` → domain error
-8. 🔴 `mysql_json_validate({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 999})` → domain error
+8. 🔴 `mysql_json_validate({value: "{invalid_json}"})` → domain error
 
 **Zod validation error paths (🔴):**
 

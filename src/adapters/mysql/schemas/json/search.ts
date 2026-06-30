@@ -59,6 +59,7 @@ export const JsonSearchSchemaBase = z.object({
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   searchValue: z.unknown().optional().describe("String value to search for"),
+  searchString: z.unknown().optional().describe("Alias for searchValue"),
   mode: z
     .enum(["one", "all"])
     .optional()

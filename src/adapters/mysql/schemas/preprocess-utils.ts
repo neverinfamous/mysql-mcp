@@ -198,11 +198,26 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
 export function preprocessJsonColumnParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
+  
+  let where = v["where"] ?? v["filter"] ?? v["condition"];
+  if (where === undefined && v["idColumn"] !== undefined && v["rowId"] !== undefined) {
+    const idCol = v["idColumn"] as string;
+    const rowId = v["rowId"];
+    let formattedRowId = "''";
+    if (typeof rowId === 'string') {
+      formattedRowId = `'${rowId}'`;
+    } else if (typeof rowId === 'number' || typeof rowId === 'boolean') {
+      formattedRowId = String(rowId);
+    }
+    where = `\`${idCol}\` = ${formattedRowId}`;
+  }
+  
   return {
     ...v,
     table: v["table"] ?? v["tableName"] ?? v["name"],
     column: v["column"] ?? v["col"] ?? v["valueColumn"],
-    where: v["where"] ?? v["filter"] ?? v["condition"],
+    where,
+    searchValue: v["searchValue"] ?? v["searchString"],
   };
 }
 
