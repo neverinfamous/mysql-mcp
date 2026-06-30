@@ -57,6 +57,7 @@ export function createShellLoadDumpTool(
         const {
           inputDir,
           inputUrl,
+          dumpDir,
           threads,
           dryRun,
           includeSchemas,
@@ -69,7 +70,7 @@ export function createShellLoadDumpTool(
           updateServerSettings,
         } = ShellLoadDumpInputSchema.parse(params);
 
-        const finalInputDir = inputDir ?? inputUrl;
+        const finalInputDir = inputDir ?? inputUrl ?? dumpDir;
         if (!finalInputDir) {
           throw new ValidationError("inputDir or inputUrl is required");
         }

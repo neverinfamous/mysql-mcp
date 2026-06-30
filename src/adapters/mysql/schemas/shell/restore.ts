@@ -8,6 +8,7 @@ export const ShellLoadDumpInputSchemaBase = z
       .optional()
       .describe("Directory containing MySQL Shell dump"),
     inputUrl: z.string().optional().describe("Alias for inputDir"),
+    dumpDir: z.string().optional().describe("Alias for inputDir"),
     threads: z
       .number()
       .int()
@@ -58,6 +59,7 @@ export const ShellLoadDumpInputSchema = z
   .object({
     inputDir: z.string().optional(),
     inputUrl: z.string().optional(),
+    dumpDir: z.string().optional(),
     threads: z.number().int().optional().default(4),
     dryRun: booleanCoerce.optional().default(false),
     includeSchemas: z.array(z.string()).optional(),
