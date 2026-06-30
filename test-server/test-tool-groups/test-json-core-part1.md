@@ -160,14 +160,14 @@ json-core Tool Group (8 tools +1 for code mode):
 
 **Checklist (Happy paths):**
 
-1. `mysql_json_extract({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
-2. `mysql_json_set({table: "test_json_docs", column: "doc", path: "$.new_key", value: "new_value", idColumn: "id", rowId: 1})` → happy path
-3. `mysql_json_insert({table: "test_json_docs", column: "doc", path: "$.insert_key", value: "inserted", idColumn: "id", rowId: 1})` → happy path
-4. `mysql_json_replace({table: "test_json_docs", column: "doc", path: "$.key1", value: "replaced", idColumn: "id", rowId: 1})` → happy path
-5. `mysql_json_remove({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
-6. `mysql_json_contains({table: "test_json_docs", column: "doc", value: "value1", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
-7. `mysql_json_keys({table: "test_json_docs", column: "doc", idColumn: "id", rowId: 1})` → happy path
-8. `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.array_key", value: "new_item", idColumn: "id", rowId: 1})` → happy path
+1. `mysql_json_extract({table: "test_json_docs", column: "doc", path: "$.key1", where: "id = 1"})` → happy path
+2. `mysql_json_set({table: "test_json_docs", column: "doc", path: "$.new_key", value: "new_value", where: "id = 1"})` → happy path
+3. `mysql_json_insert({table: "test_json_docs", column: "doc", path: "$.insert_key", value: "inserted", where: "id = 1"})` → happy path
+4. `mysql_json_replace({table: "test_json_docs", column: "doc", path: "$.key1", value: "replaced", where: "id = 1"})` → happy path
+5. `mysql_json_remove({table: "test_json_docs", column: "doc", path: "$.key1", where: "id = 1"})` → happy path
+6. `mysql_json_contains({table: "test_json_docs", column: "doc", value: "value1", path: "$.key1", where: "id = 1"})` → happy path
+7. `mysql_json_keys({table: "test_json_docs", column: "doc", where: "id = 1"})` → happy path
+8. `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "$.array_key", value: "new_item", where: "id = 1"})` → happy path
 
 
 ## Post-Test Procedures
