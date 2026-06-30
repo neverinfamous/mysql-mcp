@@ -346,7 +346,7 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
             });
           } else {
             return formatHandlerErrorResponse(
-              new Error(`Unknown table '${schemaForCheck || 'database'}.${unqualifiedName}'`),
+              new Error(`Unknown table '${schemaForCheck ? schemaForCheck + '.' : ''}${unqualifiedName}'`),
             );
           }
         }
