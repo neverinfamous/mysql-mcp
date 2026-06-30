@@ -8,6 +8,11 @@ import { z } from 'zod';
 import { match, P } from 'ts-pattern';
 
 const VALID_CATEGORIES = ['Added', 'Changed', 'Fixed', 'Removed', 'Security', 'Deprecated'] as const;
+const JOURNAL_IMPACT_THRESHOLD = 0.4;
+
+function isValidCategory(cat: string): cat is typeof VALID_CATEGORIES[number] {
+  return (VALID_CATEGORIES as readonly string[]).includes(cat);
+}
 
 const TYPE_TO_CATEGORY: Record<string, typeof VALID_CATEGORIES[number]> = {
   feat: 'Added',
@@ -98,7 +103,7 @@ function parseArguments(): CliArgs {
         console.error(`Error parsing CLI arguments: ${e instanceof Error ? e.message : String(e)}`);
         process.exit(1);
       });
-    return process.exit(1);
+    process.exit(1);
   }
   
   let messageCount = 0;
@@ -158,7 +163,7 @@ function parseArguments(): CliArgs {
           return `Missing required flag.`;
         })
         .with({ code: 'invalid_type', expected: 'number', received: P.union('nan', 'NaN') }, () => {
-          if ((mergedValues as Record<string, unknown>)[field] === undefined) {
+          if (mergedValues[field as keyof typeof mergedValues] === undefined) {
             if (field === 'impact') return `Missing required flag. You MUST append an impact score (e.g. '--impact 0.5').`;
             if (field === 'confidence') return `Missing required flag. You MUST append a confidence score (e.g. '--confidence 1.0').`;
             return `Missing required flag.`;
@@ -170,7 +175,7 @@ function parseArguments(): CliArgs {
         .with({ code: 'too_big', maximum: P.number }, (e: { maximum: number }) => `Too big: expected number to be <=${e.maximum}`)
         .with({ code: 'too_small', minimum: P.number }, (e: { minimum: number }) => `Too small: expected number to be >=${e.minimum}`)
         .with({ code: 'invalid_value', values: P.select(P.array(P.union(P.string, P.number))) }, (values: (string | number)[]) => {
-          if ((mergedValues as Record<string, unknown>)[field] === undefined) {
+          if (mergedValues[field as keyof typeof mergedValues] === undefined) {
             if (field === 'validation') return `Missing required flag. You MUST append '--validation passed', '--validation failed', or '--validation none' to your command.`;
             return `Missing required flag.`;
           }
@@ -236,7 +241,7 @@ function validateCommitMessage(msg?: string): string {
 function ensureStagedFiles(filesToAdd?: string[]): void {
   if (filesToAdd && filesToAdd.length > 0) {
     try {
-      execSync(`git add ${filesToAdd.map(f => `"${f}"`).join(' ')}`, { stdio: 'inherit' });
+      execFileSync('git', ['add', ...filesToAdd], { stdio: 'inherit' });
     } catch (e) {
       console.error(`Error adding files: ${e instanceof Error ? e.message : String(e)}`);
       process.exit(1);
@@ -285,7 +290,7 @@ function parseCategory(history: string, type: string): { category: string; entry
     const matchedCat = categoryMatch[1];
     const capitalizedMatch = matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1).toLowerCase();
     
-    if ((VALID_CATEGORIES as readonly string[]).includes(capitalizedMatch)) {
+    if (isValidCategory(capitalizedMatch)) {
       rawCategory = matchedCat.trim();
       entry = categoryMatch[2].trim();
     } else {
@@ -299,7 +304,7 @@ function parseCategory(history: string, type: string): { category: string; entry
 
   const category = rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1).toLowerCase();
 
-  if (!(VALID_CATEGORIES as readonly string[]).includes(category)) {
+  if (!isValidCategory(category)) {
     console.error(`Error: Invalid explicit category '${category}'. Must be one of: ${VALID_CATEGORIES.join(', ')}`);
     process.exit(1);
   }
@@ -307,34 +312,10 @@ function parseCategory(history: string, type: string): { category: string; entry
   return { category, entry };
 }
 
-function generateHistoryEntry(args: CliArgs, type: string): string {
-
-
-  let historyContent = args.history || '';
-  if (args['history-file']) {
-    try {
-      historyContent = fs.readFileSync(path.resolve(args['history-file']), 'utf-8');
-    } catch (e) {
-      console.error(`Error reading history file: ${e instanceof Error ? e.message : String(e)}`);
-      process.exit(1);
-    }
-  }
-
-  if (!historyContent && !args['no-history']) {
-    console.warn("⚠️ AUTONOMOUS HEALING: Missing history flag detected. Defaulting to --no-history.");
-    args['no-history'] = true;
-  }
+function generateHistoryEntry(args: CliArgs, type: string, historyContent: string): string {
 
   const parsedCategory = parseCategory(historyContent, type);
-  let category = args.category || parsedCategory.category;
-  
-  if (args.category) {
-    category = args.category;
-    if (!(VALID_CATEGORIES as readonly string[]).includes(category)) {
-      console.error(`Error: Invalid explicit category '${category}'. Must be one of: ${VALID_CATEGORIES.join(', ')}`);
-      process.exit(1);
-    }
-  }
+  const category = args.category || parsedCategory.category;
 
   let entry = parsedCategory.entry;
 
@@ -372,7 +353,7 @@ function generateHistoryEntry(args: CliArgs, type: string): string {
   return body;
 }
 
-function executeCommit(header: string, body: string, args: CliArgs): void {
+function executeCommit(header: string, body: string, args: CliArgs, historyContent: string): void {
   const msgFile = path.join(os.tmpdir(), `commit-msg-${crypto.randomUUID()}.txt`);
   fs.writeFileSync(msgFile, `${header}${body}`);
   try {
@@ -388,6 +369,11 @@ function executeCommit(header: string, body: string, args: CliArgs): void {
   console.log(`__COMMIT_SHA__:${sha}`);
 
   if (args.journal) {
+    if (args.impact !== undefined && args.impact < JOURNAL_IMPACT_THRESHOLD && !historyContent) {
+      console.log(`\n📓 Skipping automated journal entry: impact (${args.impact}) is trivial and no history was provided.`);
+      return;
+    }
+
     console.log(`\n📓 Creating automated journal entry for ${sha}...`);
     try {
       const frontmatterLines = [
@@ -409,14 +395,6 @@ function executeCommit(header: string, body: string, args: CliArgs): void {
       frontmatterLines.push(`  commits: ["${sha}"]`);
       frontmatterLines.push('---');
       
-      let historyContent = args.history || '';
-      if (args['history-file']) {
-        try {
-          historyContent = fs.readFileSync(path.resolve(args['history-file']), 'utf-8');
-        } catch {
-          // Fallback if history file does not exist
-        }
-      }
       const journalBody = historyContent || header;
       const journalContent = `${frontmatterLines.join('\n')}\n${journalBody}\n\nCommit: ${sha}`;
       
@@ -459,8 +437,23 @@ async function main(): Promise<void> {
     const type = validateCommitMessage(args.msg);
     ensureStagedFiles(args.add);
     
-    const body = generateHistoryEntry(args, type);
-    executeCommit(args.msg!, body, args);
+    let historyContent = args.history || '';
+    if (args['history-file']) {
+      try {
+        historyContent = fs.readFileSync(path.resolve(args['history-file']), 'utf-8');
+      } catch (e) {
+        console.error(`Error reading history file: ${e instanceof Error ? e.message : String(e)}`);
+        process.exit(1);
+      }
+    }
+
+    if (!historyContent && !args['no-history']) {
+      console.warn("⚠️ AUTONOMOUS HEALING: Missing history flag detected. Defaulting to --no-history.");
+      args['no-history'] = true;
+    }
+
+    const body = generateHistoryEntry(args, type, historyContent);
+    executeCommit(args.msg!, body, args, historyContent);
 
   } catch (error) {
     if (error instanceof Error) {
@@ -476,3 +469,4 @@ async function main(): Promise<void> {
 }
 
 main();
+
