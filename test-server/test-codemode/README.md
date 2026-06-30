@@ -1,7 +1,7 @@
 # MySQL-MCP Code Mode Testing Suite
 
 
-**Directory Purpose**: This folder contains 29 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Code Mode (`mysql_execute_code`) validation only**.
+**Directory Purpose**: This folder contains 53 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Code Mode (`mysql_execute_code`) validation only**.
 
 ## Agent Instructions
 
@@ -35,50 +35,61 @@ Never proceed to the final step until every tool in a given group has both colum
 - Any write tests should operate on temporary tables or objects prefixed with `temp_` (e.g., `temp_users`).
 - Your script should explicitly drop `temp_` objects at the end of execution.
 
-## Tool Groups Available
+## Test Files Available
 
-1. `admin`
-2. `backup`
-3. `cluster-group-replication`
-4. `cluster-innodb`
-5. `core`
-6. `docstore`
-7. `events`
-8. `fulltext`
-9. `introspection`
-10. `json-core`
-11. `json-enhanced`
-12. `json-helpers`
-13. `migration`
-14. `monitoring`
-15. `optimization`
-16. `partitioning`
-17. `performance-analysis`
-18. `performance-anomaly`
-19. `proxysql-config`
-20. `proxysql-status`
-21. `replication`
-22. `roles`
-23. `router`
-24. `schema-management`
-25. `schema-routines`
-26. `security`
-27. `shell-data`
-28. `shell-utils`
-29. `spatial-geometry`
-30. `spatial-operations`
-31. `spatial-queries`
-32. `spatial-setup`
-33. `stats-advanced`
-34. `stats-descriptive`
-35. `stats-window`
-36. `sys`
-37. `text`
-38. `transactions`
-39. `vector-management`
-40. `vector-search`
-41. `vector-storage`
-42. `versioning`
+- `test-codemode-admin-audit.md`
+- `test-codemode-admin-maintenance.md`
+- `test-codemode-backup-audit.md`
+- `test-codemode-backup-data.md`
+- `test-codemode-cluster-group-replication.md`
+- `test-codemode-cluster-innodb.md`
+- `test-codemode-core-read.md`
+- `test-codemode-core-write.md`
+- `test-codemode-docstore-collections.md`
+- `test-codemode-docstore-documents.md`
+- `test-codemode-events.md`
+- `test-codemode-fulltext.md`
+- `test-codemode-introspection.md`
+- `test-codemode-json-core-read.md`
+- `test-codemode-json-core-write.md`
+- `test-codemode-json-enhanced.md`
+- `test-codemode-json-helpers.md`
+- `test-codemode-migration.md`
+- `test-codemode-monitoring.md`
+- `test-codemode-optimization.md`
+- `test-codemode-partitioning.md`
+- `test-codemode-performance-analysis-queries.md`
+- `test-codemode-performance-analysis-system.md`
+- `test-codemode-performance-anomaly.md`
+- `test-codemode-proxysql-config.md`
+- `test-codemode-proxysql-status.md`
+- `test-codemode-replication.md`
+- `test-codemode-roles-grants.md`
+- `test-codemode-roles-management.md`
+- `test-codemode-router-core.md`
+- `test-codemode-router-routes.md`
+- `test-codemode-schema-management.md`
+- `test-codemode-schema-routines.md`
+- `test-codemode-security-audit.md`
+- `test-codemode-security-firewall.md`
+- `test-codemode-shell-data.md`
+- `test-codemode-shell-utils.md`
+- `test-codemode-spatial-geometry.md`
+- `test-codemode-spatial-operations.md`
+- `test-codemode-spatial-queries.md`
+- `test-codemode-spatial-setup.md`
+- `test-codemode-stats-advanced.md`
+- `test-codemode-stats-analytics.md`
+- `test-codemode-stats-basic.md`
+- `test-codemode-stats-window.md`
+- `test-codemode-sys-analysis.md`
+- `test-codemode-sys-metrics.md`
+- `test-codemode-text.md`
+- `test-codemode-transactions.md`
+- `test-codemode-vector-management.md`
+- `test-codemode-vector-search.md`
+- `test-codemode-vector-storage.md`
+- `test-codemode-versioning.md`
 
 ## Test Results
 

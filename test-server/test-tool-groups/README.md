@@ -1,7 +1,7 @@
 # MySQL-MCP Standard Testing Suite
 
 
-**Directory Purpose**: This folder contains 28 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.
+**Directory Purpose**: This folder contains 57 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.
 
 ## Agent Instructions
 
@@ -34,50 +34,65 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - When completed, explicitly drop all `temp_` artifacts.
 - Update `../code-map.md`, handlers, and instructions if bugs are uncovered, then update the Changelog with fixes before summarizing your work.
 
-## Tool Groups Available
+## Test Files Available
 
-1. `admin`
-2. `backup`
-3. `cluster-group-replication`
-4. `cluster-innodb`
-5. `core`
-6. `docstore`
-7. `events`
-8. `fulltext`
-9. `introspection`
-10. `json-core`
-11. `json-enhanced`
-12. `json-helpers`
-13. `migration`
-14. `monitoring`
-15. `optimization`
-16. `partitioning`
-17. `performance-analysis`
-18. `performance-anomaly`
-19. `proxysql-config`
-20. `proxysql-status`
-21. `replication`
-22. `roles`
-23. `router`
-24. `schema-management`
-25. `schema-routines`
-26. `security`
-27. `shell-data`
-28. `shell-utils`
-29. `spatial-geometry`
-30. `spatial-operations`
-31. `spatial-queries`
-32. `spatial-setup`
-33. `stats-advanced`
-34. `stats-descriptive`
-35. `stats-window`
-36. `sys`
-37. `text`
-38. `transactions`
-39. `vector-management`
-40. `vector-search`
-41. `vector-storage`
-42. `versioning`
+- `test-admin-part1.md`
+- `test-admin-part2.md`
+- `test-backup-part1.md`
+- `test-backup-part2.md`
+- `test-cluster-gr.md`
+- `test-cluster-innodb.md`
+- `test-codemode.md`
+- `test-core-part1.md`
+- `test-core-part2.md`
+- `test-docstore-part1.md`
+- `test-docstore-part2.md`
+- `test-events.md`
+- `test-fulltext-part1.md`
+- `test-fulltext-part2.md`
+- `test-introspection.md`
+- `test-json-core-part1.md`
+- `test-json-core-part2.md`
+- `test-json-enhanced.md`
+- `test-json-helpers.md`
+- `test-migration.md`
+- `test-monitoring.md`
+- `test-optimization.md`
+- `test-partitioning.md`
+- `test-performance-analysis-part1.md`
+- `test-performance-analysis-part2.md`
+- `test-performance-anomaly.md`
+- `test-proxysql-part1.md`
+- `test-proxysql-part2.md`
+- `test-replication.md`
+- `test-roles-part1.md`
+- `test-roles-part2.md`
+- `test-router-part1.md`
+- `test-router-part2.md`
+- `test-schema-management.md`
+- `test-schema-routines-part1.md`
+- `test-schema-routines-part2.md`
+- `test-security-part1.md`
+- `test-security-part2.md`
+- `test-shell-part1.md`
+- `test-shell-part2.md`
+- `test-spatial-geometry.md`
+- `test-spatial-operations.md`
+- `test-spatial-queries.md`
+- `test-spatial-setup.md`
+- `test-stats-advanced.md`
+- `test-stats-descriptive-part1.md`
+- `test-stats-descriptive-part2.md`
+- `test-stats-window.md`
+- `test-sys-part1.md`
+- `test-sys-part2.md`
+- `test-text.md`
+- `test-transactions.md`
+- `test-vector-management.md`
+- `test-vector-search.md`
+- `test-vector-storage.md`
+- `test-versioning-part1.md`
+- `test-versioning-part2.md`
 
 ## Execution
 

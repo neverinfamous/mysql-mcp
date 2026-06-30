@@ -25,13 +25,40 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
    - The subagent MUST commit all changes locally (`git commit -m "..."`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
+# mysql-mcp Advanced Code Mode Testing Coordinator Workflow
+
+We're working in the `mysql-mcp` project in this thread.
+
+> **This document is optimized for an autonomous agent acting as a Coordinator.**
+
+This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advanced Code Mode test suite using subagents.
+
+## Goal
+
+Systematically execute all Advanced Code Mode tests in `test-server/test-advanced/` to verify sandbox isolation, workflow orchestration, payload optimization, and error handling for complex, multi-step agentic sequences. You will delegate testing to subagents, ensuring high-fidelity results and structured error handling, while compiling telemetry.
+
+## Workflow Rules
+
+1. **Sequential Execution**: Tests MUST be executed sequentially (one subagent at a time) according to the Dependency DAG below. Parallel execution may cause conflicts or server instability.
+2. **Subagent Delegation**:
+   - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
+   - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
+3. **Validation and Immediate Continuation**:
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. They MUST SKIP `pnpm run test` and `pnpm run test:e2e`. The coordinator will run `pnpm run check` to validate the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
+   - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
+4. **Finalization and Commit**:
+   - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
+   - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
+   - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
+   - The subagent MUST commit all changes locally (`git commit -m "..."`).
+   - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the queue.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 60. Fixed Z issues [W Prompt / V Code]."
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 64. Fixed Z issues [W Prompt / V Code]."
    - Do NOT output any other text to the user during the test sequence.
 
 ## Test Sequence Queue (Dependency DAG)
@@ -91,11 +118,15 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
 53. `test-codemode-advanced-sys-part2.md`
 54. `test-codemode-advanced-text.md`
 55. `test-codemode-advanced-transactions.md`
-56. `test-codemode-advanced-vector-management.md`
-57. `test-codemode-advanced-vector-search.md`
-58. `test-codemode-advanced-vector-storage.md`
-59. `test-codemode-advanced-versioning.md`
-60. `test-codemode-sandbox.md`
+56. `test-codemode-advanced-types-binary.md`
+57. `test-codemode-advanced-types-date.md`
+58. `test-codemode-advanced-types-json.md`
+59. `test-codemode-advanced-types-numeric.md`
+60. `test-codemode-advanced-vector-management.md`
+61. `test-codemode-advanced-vector-search.md`
+62. `test-codemode-advanced-vector-storage.md`
+63. `test-codemode-advanced-versioning.md`
+64. `test-codemode-sandbox.md`
 
 ## Telemetry Collection
 

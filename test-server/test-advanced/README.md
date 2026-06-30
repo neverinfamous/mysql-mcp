@@ -69,6 +69,10 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-sys-part2.md`
 - `test-codemode-advanced-text.md`
 - `test-codemode-advanced-transactions.md`
+- `test-codemode-advanced-types-binary.md`
+- `test-codemode-advanced-types-date.md`
+- `test-codemode-advanced-types-json.md`
+- `test-codemode-advanced-types-numeric.md`
 - `test-codemode-advanced-vector-management.md`
 - `test-codemode-advanced-vector-search.md`
 - `test-codemode-advanced-vector-storage.md`
