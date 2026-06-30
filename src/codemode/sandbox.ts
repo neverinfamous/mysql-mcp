@@ -280,6 +280,15 @@ export class CodeModeSandbox {
         globalThis.mysql = {};
       `;
       context.evalSync(setupScript);
+      
+      context.evalSync(`
+        globalThis.__sandbox_replacer = function(k, v) {
+          if (this[k] instanceof Uint8Array) {
+            return { type: 'Buffer', data: Array.from(this[k]) };
+          }
+          return v;
+        };
+      `);
 
       let rpcCount = 0;
       // Security (CWE-400): Limit host tool calls per execution to prevent
@@ -287,6 +296,20 @@ export class CodeModeSandbox {
       const MAX_RPC_CALLS = 1000;
 
       // Inject apiBindings
+      const reviveBuffers = (obj: unknown): unknown => {
+        if (obj === null || typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) return obj.map((item) => reviveBuffers(item));
+        const record = obj as Record<string, unknown>;
+        if (record['type'] === 'Buffer' && Array.isArray(record['data'])) {
+          return Buffer.from(record['data'] as number[]);
+        }
+        const revived: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(record)) {
+          revived[k] = reviveBuffers(v);
+        }
+        return revived;
+      };
+
       let batchedScript = "";
       for (const [groupName, groupValue] of Object.entries(apiBindings)) {
         if (typeof groupValue === "object" && groupValue !== null) {
@@ -303,7 +326,7 @@ export class CodeModeSandbox {
                   }
                   const res = await (
                     methodFn as (...args: unknown[]) => Promise<unknown>
-                  )(...args);
+                  )(...(reviveBuffers(args) as unknown[]));
                   return res;
                 } catch (e) {
                   return {
@@ -316,7 +339,7 @@ export class CodeModeSandbox {
               const refName = `fnRef_${groupName}_${methodName}`;
               context.global.setSync(refName, fnRef);
               batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
-                  const safeArgs = JSON.parse(JSON.stringify(args));
+                  const safeArgs = JSON.parse(JSON.stringify(args, globalThis.__sandbox_replacer));
                   const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
                       if (res && typeof res === 'object' && res.__isHostError) {
                           throw new Error(res.message);
@@ -338,7 +361,7 @@ export class CodeModeSandbox {
               }
               const res = await (
                 groupValue as (...args: unknown[]) => Promise<unknown>
-              )(...args);
+              )(...(reviveBuffers(args) as unknown[]));
               return res;
             } catch (e) {
               return {
@@ -351,7 +374,7 @@ export class CodeModeSandbox {
           const refName = `fnRef_${groupName}`;
           context.global.setSync(refName, fnRef);
           batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = (...args) => {
-              const safeArgs = JSON.parse(JSON.stringify(args));
+              const safeArgs = JSON.parse(JSON.stringify(args, globalThis.__sandbox_replacer));
               const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
                   if (res && typeof res === 'object' && res.__isHostError) {
                       throw new Error(res.message);
@@ -390,7 +413,7 @@ export class CodeModeSandbox {
       const wrappedCode = `(async () => { 
         try {
           const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
-          const __sandbox_str = JSON.stringify(__sandbox_result);
+          const __sandbox_str = JSON.stringify(__sandbox_result, globalThis.__sandbox_replacer);
           return { __isIsolateSuccess: true, data: __sandbox_str === undefined ? undefined : JSON.parse(__sandbox_str) };
         } catch (e) {
           return { __isIsolateSuccess: false, message: e && e.message ? String(e.message) : String(e) };
