@@ -7,19 +7,19 @@ import { preprocessTableParams, preprocessVectorParams } from "./preprocess-util
  */
 
 const tableAliasesBase = {
-  table: z.unknown().optional().describe("Target table name"),
-  tableName: z.unknown().optional().describe("Alias for table"),
-  name: z.unknown().optional().describe("Alias for table"),
+  table: z.string().optional().describe("Target table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
 };
-const columnParamBase = z.unknown().optional().describe("Vector column name");
-const idParamBase = z.unknown().optional().describe("Row identifier (primary key value)");
-const idColumnParamBase = z.unknown().optional().describe("Primary key column name (default: 'id')");
+const columnParamBase = z.string().optional().describe("Vector column name");
+const idParamBase = z.union([z.string(), z.number()]).optional().describe("Row identifier (primary key value)");
+const idColumnParamBase = z.string().optional().describe("Primary key column name (default: 'id')");
 const metricParamBase = z
-  .unknown()
+  .enum(["COSINE", "EUCLIDEAN", "DOT"])
   .optional()
   .describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')");
 const filterParamBase = z
-  .unknown()
+  .string()
   .optional()
   .describe("Optional SQL WHERE clause fragment to filter results (e.g., 'status = \"active\"')");
 
@@ -50,7 +50,7 @@ export const VectorStoreSchemaBase = z.object({
   ...tableAliasesBase,
   column: columnParamBase,
   id: idParamBase,
-  vector: z.unknown().optional().describe("Vector embedding as an array of numbers"),
+  vector: z.array(z.number()).optional().describe("Vector embedding as an array of numbers"),
   idColumn: idColumnParamBase,
 });
 
@@ -69,7 +69,7 @@ export const VectorStoreSchema = z
 export const VectorBatchStoreSchemaBase = z.object({
   ...tableAliasesBase,
   column: columnParamBase,
-  items: z.unknown().optional().describe("Array of objects with 'id' and 'vector' fields"),
+  items: z.array(z.object({ id: z.union([z.string(), z.number()]), vector: z.array(z.number()) })).optional().describe("Array of objects with 'id' and 'vector' fields"),
   idColumn: idColumnParamBase,
 });
 
@@ -106,7 +106,7 @@ export const VectorDeleteSchema = z
 export const VectorGetSchemaBase = z.object({
   ...tableAliasesBase,
   id: idParamBase,
-  column: z.unknown().optional().describe("Specific vector column to return (if omitted, searches for VECTOR columns)"),
+  column: z.string().optional().describe("Specific vector column to return (if omitted, searches for VECTOR columns)"),
   idColumn: idColumnParamBase,
 });
 
@@ -128,12 +128,12 @@ export const VectorGetSchema = z
 export const VectorSearchSchemaBase = z.object({
   ...tableAliasesBase,
   column: columnParamBase,
-  queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
-  vector: z.unknown().optional().describe("Alias for queryVector"),
-  k: z.unknown().optional().describe("Number of nearest neighbors to return (default: 10)"),
+  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers"),
+  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
+  k: z.number().optional().describe("Number of nearest neighbors to return (default: 10)"),
   metric: metricParamBase,
   filter: filterParamBase,
-  select: z.unknown().optional().describe("Array of additional column names to return alongside the distance score"),
+  select: z.array(z.string()).optional().describe("Array of additional column names to return alongside the distance score"),
 });
 
 export const VectorSearchSchema = z
@@ -153,14 +153,14 @@ export const VectorSearchSchema = z
 export const VectorRangeSearchSchemaBase = z.object({
   ...tableAliasesBase,
   column: columnParamBase,
-  queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
-  vector: z.unknown().optional().describe("Alias for queryVector"),
-  maxDistance: z.unknown().optional().describe("Maximum distance threshold"),
-  distance: z.unknown().optional().describe("Alias for maxDistance"),
+  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers"),
+  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
+  maxDistance: z.number().optional().describe("Maximum distance threshold"),
+  distance: z.number().optional().describe("Alias for maxDistance"),
   metric: metricParamBase,
-  limit: z.unknown().optional().describe("Maximum number of results to return (default: 50)"),
+  limit: z.number().optional().describe("Maximum number of results to return (default: 50)"),
   filter: filterParamBase,
-  select: z.unknown().optional().describe("Array of additional column names to return alongside the distance score"),
+  select: z.array(z.string()).optional().describe("Array of additional column names to return alongside the distance score"),
 });
 
 export const VectorRangeSearchSchema = z
@@ -180,19 +180,19 @@ export const VectorRangeSearchSchema = z
 
 export const VectorHybridSearchSchemaBase = z.object({
   ...tableAliasesBase,
-  vectorColumn: z.unknown().optional().describe("Name of the vector column"),
-  textColumn: z.unknown().optional().describe("Name of the fulltext-indexed column"),
-  queryVector: z.unknown().optional().describe("Query vector as an array of numbers"),
-  vector: z.unknown().optional().describe("Alias for queryVector"),
-  queryText: z.unknown().optional().describe("Natural language search query"),
-  query: z.unknown().optional().describe("Alias for queryText"),
-  k: z.unknown().optional().describe("Number of fused results to return (default: 10)"),
-  metric: z.unknown().optional().describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')"),
-  rrfK: z.unknown().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
-  vectorWeight: z.unknown().optional().describe("Weight for vector score in RRF (0.0 to 1.0, default: 0.5)"),
-  textWeight: z.unknown().optional().describe("Weight for text score in RRF (0.0 to 1.0, default: 0.5)"),
-  select: z.unknown().optional().describe("Array of column names to return alongside scores"),
-  filter: z.unknown().optional().describe("Optional SQL WHERE clause fragment to pre-filter results"),
+  vectorColumn: z.string().optional().describe("Name of the vector column"),
+  textColumn: z.string().optional().describe("Name of the fulltext-indexed column"),
+  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers"),
+  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
+  queryText: z.string().optional().describe("Natural language search query"),
+  query: z.string().optional().describe("Alias for queryText"),
+  k: z.number().optional().describe("Number of fused results to return (default: 10)"),
+  metric: z.enum(["COSINE", "EUCLIDEAN", "DOT"]).optional().describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')"),
+  rrfK: z.number().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
+  vectorWeight: z.number().optional().describe("Weight for vector score in RRF (0.0 to 1.0, default: 0.5)"),
+  textWeight: z.number().optional().describe("Weight for text score in RRF (0.0 to 1.0, default: 0.5)"),
+  select: z.array(z.string()).optional().describe("Array of column names to return alongside scores"),
+  filter: z.string().optional().describe("Optional SQL WHERE clause fragment to pre-filter results"),
 });
 
 export const VectorHybridSearchSchema = z
@@ -224,7 +224,7 @@ export const VectorHybridSearchSchema = z
 
 export const VectorInfoSchemaBase = z.object({
   ...tableAliasesBase,
-  column: z.unknown().optional().describe("Specific vector column to check (if omitted, checks all VECTOR columns)"),
+  column: z.string().optional().describe("Specific vector column to check (if omitted, checks all VECTOR columns)"),
 });
 
 export const VectorInfoSchema = z
@@ -240,7 +240,7 @@ export const VectorCreateIndexSchemaBase = z.object({
   ...tableAliasesBase,
   column: columnParamBase,
   metric: metricParamBase,
-  type: z.unknown().optional().describe("Vector index type (default: 'HNSW')"),
+  type: z.enum(["HNSW"]).optional().describe("Vector index type (default: 'HNSW')"),
 });
 
 export const VectorCreateIndexSchema = z
