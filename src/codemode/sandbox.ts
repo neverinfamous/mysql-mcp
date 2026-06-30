@@ -390,7 +390,8 @@ export class CodeModeSandbox {
       const wrappedCode = `(async () => { 
         try {
           const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
-          return { __isIsolateSuccess: true, data: __sandbox_result === undefined ? undefined : JSON.parse(JSON.stringify(__sandbox_result)) };
+          const __sandbox_str = JSON.stringify(__sandbox_result);
+          return { __isIsolateSuccess: true, data: __sandbox_str === undefined ? undefined : JSON.parse(__sandbox_str) };
         } catch (e) {
           return { __isIsolateSuccess: false, message: e && e.message ? String(e.message) : String(e) };
         }
