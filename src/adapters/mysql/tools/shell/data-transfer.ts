@@ -124,10 +124,14 @@ export function createShellExportTableTool(
         
         if (
           errorMessage.includes("1146") ||
-          errorMessage.includes("doesn't exist")
+          errorMessage.includes("doesn't exist") ||
+          errorMessage.includes("was not found in the database")
         ) {
-          const match = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
-          const msg = match ? `Table '${match[1]}' does not exist` : "Table does not exist";
+          const match1 = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const match2 = /table `([^`]+)`\.`([^`]+)` was not found/i.exec(errorMessage);
+          const msg = match1 
+            ? `Table '${match1[1]}' does not exist` 
+            : (match2 ? `Table '${match2[1]}.${match2[2]}' does not exist` : "Table does not exist");
           return formatHandlerErrorResponse(
             new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Verify the table name and schema.",
@@ -284,10 +288,14 @@ export function createShellImportTableTool(
         
         if (
           errorMessage.includes("1146") ||
-          errorMessage.includes("doesn't exist")
+          errorMessage.includes("doesn't exist") ||
+          errorMessage.includes("was not found in the database")
         ) {
-          const match = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
-          const msg = match ? `Table '${match[1]}' does not exist` : "Table does not exist";
+          const match1 = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const match2 = /table `([^`]+)`\.`([^`]+)` was not found/i.exec(errorMessage);
+          const msg = match1 
+            ? `Table '${match1[1]}' does not exist` 
+            : (match2 ? `Table '${match2[1]}.${match2[2]}' does not exist` : "Table does not exist");
           return formatHandlerErrorResponse(
             new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Verify the table name and schema.",

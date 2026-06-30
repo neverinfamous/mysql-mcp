@@ -79,22 +79,22 @@ function parseArguments(): CliArgs {
     }
   }
 
-  let values: Record<string, any>, positionals: string[];
+  let values: Record<string, unknown>, positionals: string[];
   try {
     const parsedArgs = parseArgs({ args: sanitizedArgs, options, allowPositionals: true });
     values = parsedArgs.values;
     positionals = parsedArgs.positionals;
   } catch (error) {
     match(error)
-      .with({ code: 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE', message: P.string }, (e: any) => {
+      .with({ code: 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE', message: P.string }, (e: { message: string }) => {
         console.error(`Error parsing CLI arguments: ${e.message}`);
         process.exit(1);
       })
-      .with({ code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION', message: P.string }, (e: any) => {
+      .with({ code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION', message: P.string }, (e: { message: string }) => {
         console.error(`Error: Unknown CLI argument. ${e.message}`);
         process.exit(1);
       })
-      .otherwise((e: any) => {
+      .otherwise((e: unknown) => {
         console.error(`Error parsing CLI arguments: ${e instanceof Error ? e.message : String(e)}`);
         process.exit(1);
       });
@@ -111,7 +111,7 @@ function parseArguments(): CliArgs {
   if (positionals.length > 0) {
     if (messageCount > 0) {
       console.warn("⚠️ AUTONOMOUS HEALING: Extra positional arguments detected alongside --msg. Assuming these are space-separated files for --add.");
-      values.add = [...(values.add || []), ...positionals];
+      values.add = [...(Array.isArray(values.add) ? values.add : []), ...positionals];
       positionals = []; // Clear them so they aren't parsed as a second commit message
     } else {
       messageCount++; // First positional is the commit message
@@ -165,18 +165,18 @@ function parseArguments(): CliArgs {
           }
           return 'Expected a valid number, but received NaN';
         })
-        .with({ code: 'invalid_type', expected: P.string, received: P.string }, (e: any) => `Expected ${e.expected}, but received ${e.received}`)
+        .with({ code: 'invalid_type', expected: P.string, received: P.string }, (e: { expected: string; received: string }) => `Expected ${e.expected}, but received ${e.received}`)
         .with({ code: 'invalid_union' }, () => 'Invalid value provided')
-        .with({ code: 'too_big', maximum: P.number }, (e: any) => `Too big: expected number to be <=${e.maximum}`)
-        .with({ code: 'too_small', minimum: P.number }, (e: any) => `Too small: expected number to be >=${e.minimum}`)
-        .with({ code: 'invalid_value', values: P.select(P.array(P.union(P.string, P.number))) }, (values: any[]) => {
+        .with({ code: 'too_big', maximum: P.number }, (e: { maximum: number }) => `Too big: expected number to be <=${e.maximum}`)
+        .with({ code: 'too_small', minimum: P.number }, (e: { minimum: number }) => `Too small: expected number to be >=${e.minimum}`)
+        .with({ code: 'invalid_value', values: P.select(P.array(P.union(P.string, P.number))) }, (values: (string | number)[]) => {
           if ((mergedValues as Record<string, unknown>)[field] === undefined) {
             if (field === 'validation') return `Missing required flag. You MUST append '--validation passed', '--validation failed', or '--validation none' to your command.`;
             return `Missing required flag.`;
           }
           return `Invalid enum value. Expected one of: ${values.join(', ')}`;
         })
-        .with({ message: P.string }, (e: any) => e.message)
+        .with({ message: P.string }, (e: { message: string }) => e.message)
         .otherwise(() => 'Validation failed for this field');
       
       console.error(`- --${field}: ${errorMessage}`);
