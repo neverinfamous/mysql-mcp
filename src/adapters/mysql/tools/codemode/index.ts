@@ -28,7 +28,6 @@ import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 export const ExecuteCodeSchemaBase = z.object({
   code: z
     .string()
-    .optional()
     .describe(
       "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations.",
     ),
@@ -163,17 +162,6 @@ return results;
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { code, readonly, timeout } = ExecuteCodeSchema.parse(params);
-
-        if (!code) {
-        return {
-          success: false,
-          error: "Code parameter is required",
-          code: "VALIDATION_ERROR",
-          category: "validation",
-          recoverable: false,
-          metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
-        };
-      }
 
       // Initialize infrastructure
       const { pool, security } = await ensureInitialized();

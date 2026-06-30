@@ -33,10 +33,37 @@ export function applySdkPatch(): void {
         // (isError: true) for WASM graceful degradation and test suite setup logic.
         if (rawError.includes("Input validation error")) {
           // Strip out the MCP error prefix to match handler validation error formatting
-          const cleanError = rawError.replace(
+          let cleanError = rawError.replace(
             /^MCP error -32602: Input validation error: /,
-            "Validation error: ",
+            "",
           );
+
+          // The SDK error typically looks like: "Invalid arguments for tool ...: [...]"
+          // We extract the JSON array and format it to match our handler Zod error format.
+          const regex = /Invalid arguments for tool [^:]+: (\[.*\])/s;
+          const match = regex.exec(cleanError);
+          if (match?.[1]) {
+            try {
+              const issues = JSON.parse(match[1]) as unknown;
+              if (Array.isArray(issues)) {
+                const formatted = issues.map((i: unknown) => {
+                  if (typeof i === "object" && i !== null) {
+                    const issue = i as Record<string, unknown>;
+                    const pathObj = issue["path"];
+                    const pathStr = Array.isArray(pathObj) ? pathObj.join(".") : "";
+                    const msg = typeof issue["message"] === "string" ? issue["message"] : "";
+                    return pathStr !== "" ? `${pathStr}: ${msg}` : msg;
+                  }
+                  return "";
+                }).join("; ");
+                cleanError = formatted;
+              }
+            } catch {
+              // fallback to the raw error string if parsing fails
+            }
+          }
+          
+          cleanError = "Validation error: " + cleanError;
           const structured = {
             success: false,
             error: cleanError,
