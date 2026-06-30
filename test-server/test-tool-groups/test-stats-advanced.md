@@ -171,7 +171,7 @@ stats-advanced Tool Group (6 tools +1 for code mode):
 
 **Checklist:**
 
-1. `mysql_stats_hypothesis({table: "test_products", column: "price", groupColumn: "category", group1: "Electronics", group2: "Clothing"})` → verify t-test results
+1. `mysql_stats_hypothesis({table: "test_products", column: "price", groupColumn: "category", group1: "electronics", group2: "office"})` → verify t-test results
 2. `mysql_stats_outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
 3. `mysql_stats_top_n({table: "test_measurements", column: "temperature", n: 5, direction: "desc"})` → verify top 5
 4. `mysql_stats_distinct({table: "test_events", column: "event_type"})` → verify distinct counts
@@ -181,7 +181,7 @@ stats-advanced Tool Group (6 tools +1 for code mode):
 **Domain error paths (🔴):**
 
 7. 🔴 `mysql_stats_top_n({table: "nonexistent_xyz", column: "temperature"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_stats_hypothesis({table: "test_products", column: "nonexistent", groupColumn: "category", group1: "A", group2: "B"})` → `{success: false, error: "..."}` handler error
+8. 🔴 `mysql_stats_hypothesis({table: "test_products", column: "nonexistent", groupColumn: "category", group1: "electronics", group2: "office"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
