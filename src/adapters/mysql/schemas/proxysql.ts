@@ -291,7 +291,23 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
 );
 
 export const ProxySQLCommandInputSchemaBase = z.object({
-  command: z.unknown().optional().describe("ProxySQL admin command to execute"),
+  command: z
+    .enum([
+      "LOAD MYSQL USERS TO RUNTIME",
+      "SAVE MYSQL USERS TO DISK",
+      "LOAD MYSQL SERVERS TO RUNTIME",
+      "SAVE MYSQL SERVERS TO DISK",
+      "LOAD MYSQL QUERY RULES TO RUNTIME",
+      "SAVE MYSQL QUERY RULES TO DISK",
+      "LOAD MYSQL VARIABLES TO RUNTIME",
+      "SAVE MYSQL VARIABLES TO DISK",
+      "LOAD ADMIN VARIABLES TO RUNTIME",
+      "SAVE ADMIN VARIABLES TO DISK",
+      "PROXYSQL FLUSH QUERY CACHE",
+      "PROXYSQL FLUSH LOGS",
+    ])
+    .optional()
+    .describe("ProxySQL admin command to execute"),
 });
 
 export const ProxySQLCommandInputSchema = z.object({
