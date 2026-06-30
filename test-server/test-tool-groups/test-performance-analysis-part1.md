@@ -163,7 +163,7 @@ performance-analysis Tool Group (8 tools +1 for code mode):
 3. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TREE"})` → verify TREE-format plan
 4. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TRADITIONAL"})` → verify TRADITIONAL-format plan
 4b. `mysql_explain_analyze({query: "SELECT * FROM test_products WHERE id = 1"})` -> verify actual execution timings
-5. `mysql_table_stats({table: "test_products"})` → verify `{rows, avgRowLength, dataLength}` present
+5. `mysql_table_stats({table: "test_products"})` → verify `{estimated_rows, avg_row_length, data_size_bytes}` present
 
 ## Post-Test Procedures
 
