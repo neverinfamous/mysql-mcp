@@ -42,11 +42,11 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
 
         const query = `
           INSERT INTO \`${table}\` (\`${idCol}\`, \`${column}\`) 
-          VALUES (?, STRING_TO_VECTOR(?))
+          VALUES (?, STRING_TO_VECTOR('${vectorStr}'))
           ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
         `;
 
-        const result = await adapter.executeQuery(query, [validated.id, vectorStr]);
+        const result = await adapter.executeQuery(query, [validated.id]);
 
         return withTokenEstimate({
           success: true,
@@ -87,8 +87,9 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         const flatValues: unknown[] = [];
 
         for (const item of validated.items) {
-          placeholders.push(`(?, STRING_TO_VECTOR(?))`);
-          flatValues.push(item.id, formatVector(item.vector));
+          const itemVectorStr = formatVector(item.vector);
+          placeholders.push(`(?, STRING_TO_VECTOR('${itemVectorStr}'))`);
+          flatValues.push(item.id);
         }
 
         const query = `
