@@ -9,8 +9,8 @@
  */
 export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ CORE GROUP ============
-  readQuery: "sql",
-  writeQuery: "sql",
+  readQuery: ["sql", "params"],
+  writeQuery: ["sql", "params"],
   describeTable: "table",
   dropTable: "table",
   listTables: "database",
