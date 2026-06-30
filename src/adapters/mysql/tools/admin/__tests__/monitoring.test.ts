@@ -181,7 +181,7 @@ describe("Admin Monitoring Tools", () => {
       expect(result.data.status).toHaveProperty("Queries", "98765");
     });
 
-    it("should apply default limit of 30 when results exceed it", async () => {
+    it("should apply default limit of 10 when results exceed it", async () => {
       const rows = Array.from({ length: 150 }, (_, i) => ({
         Variable_name: `Status_${i}`,
         Value: `${i}`,
@@ -198,8 +198,8 @@ describe("Admin Monitoring Tools", () => {
         };
       };
 
-      expect(Object.keys(result.data.status)).toHaveLength(30);
-      expect(result.data.rowCount).toBe(30);
+      expect(Object.keys(result.data.status)).toHaveLength(10);
+      expect(result.data.rowCount).toBe(10);
       expect(result.data.totalAvailable).toBe(150);
       expect(result.data.limited).toBe(true);
     });
@@ -358,7 +358,7 @@ describe("Admin Monitoring Tools", () => {
       );
     });
 
-    it("should apply default limit of 30 when results exceed it", async () => {
+    it("should apply default limit of 10 when results exceed it", async () => {
       const rows = Array.from({ length: 200 }, (_, i) => ({
         Variable_name: `var_${i}`,
         Value: `val_${i}`,
@@ -377,8 +377,8 @@ describe("Admin Monitoring Tools", () => {
         };
       };
 
-      expect(Object.keys(result.data.variables)).toHaveLength(30);
-      expect(result.data.rowCount).toBe(30);
+      expect(Object.keys(result.data.variables)).toHaveLength(10);
+      expect(result.data.rowCount).toBe(10);
       expect(result.data.totalAvailable).toBe(200);
       expect(result.data.limited).toBe(true);
     });
