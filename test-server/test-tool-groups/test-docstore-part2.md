@@ -150,10 +150,10 @@ docstore Tool Group (5 tools +1 for code mode):
 2. 'mysql_doc_add'
 
 3. `mysql_doc_add({collection: "test_coll", documents: [{"_id": "1", "name": "test"}]})` -> verify success
-4. `mysql_doc_find({collection: "test_coll", condition: "_id = '1'"})` -> verify document found
-5. `mysql_doc_modify({collection: "test_coll", condition: "_id = '1'", modifications: [{operation: "set", path: "$.name", value: "updated"}]})` -> verify success
+4. `mysql_doc_find({collection: "test_coll", filter: "_id = '1'"})` -> verify document found
+5. `mysql_doc_modify({collection: "test_coll", filter: "_id = '1'", set: {"$.name": "updated"}})` -> verify success
 6. `mysql_doc_create_index({collection: "test_coll", name: "idx_name", fields: [{field: "$.name", type: "STRING"}]})` -> verify success
-7. `mysql_doc_remove({collection: "test_coll", condition: "_id = '1'"})` -> verify success
+7. `mysql_doc_remove({collection: "test_coll", filter: "_id = '1'"})` -> verify success
 
 **Domain error paths (??):**
 1. ?? `mysql_doc_find({collection: "nonexistent_coll"})` -> `{success: false, error: "..."}`
