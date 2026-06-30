@@ -8,10 +8,13 @@ import { z } from 'zod';
 import { match, P } from 'ts-pattern';
 
 const VALID_CATEGORIES = ['Added', 'Changed', 'Fixed', 'Removed', 'Security', 'Deprecated'] as const;
+const VALIDATION_STATES = ['passed', 'none', 'failed'] as const;
 const JOURNAL_IMPACT_THRESHOLD = 0.4;
+const CONVENTIONAL_COMMIT_REGEX = /^([a-zA-Z0-9_-]+)(?:\(([^)]+)\))?(!)?:\s*(.+)$/;
+const HISTORY_CATEGORY_REGEX = /^([A-Za-z]+):\s*([\s\S]+)$/;
 
 function isValidCategory(cat: string): cat is typeof VALID_CATEGORIES[number] {
-  return (VALID_CATEGORIES as readonly string[]).includes(cat);
+  return VALID_CATEGORIES.some((c) => c === cat);
 }
 
 const TYPE_TO_CATEGORY: Record<string, typeof VALID_CATEGORIES[number]> = {
@@ -38,7 +41,7 @@ const cliSchema = z.object({
   impact: z.coerce.number().min(0.0).max(1.0),
   trust: z.coerce.number().min(0.0).max(1.0).optional(),
   confidence: z.coerce.number().min(0.0).max(1.0),
-  validation: z.enum(['passed', 'none', 'failed']),
+  validation: z.enum(VALIDATION_STATES),
   significance: z.string().optional(),
   category: z.string()
     .min(1, { message: "Category cannot be empty" })
@@ -49,6 +52,14 @@ const cliSchema = z.object({
   add: z.array(z.string()).optional(),
   journal: z.boolean().default(false),
   'journal-project': z.coerce.number().int().finite().positive().optional(),
+}).superRefine((data, ctx) => {
+  if (!data.msg && !data.message) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Missing Commit Message! You must provide a commit message using either `--msg \"...\"` or as the first positional argument.",
+      path: ["msg"]
+    });
+  }
 });
 
 type CliArgs = z.infer<typeof cliSchema>;
@@ -84,27 +95,30 @@ function parseArguments(): CliArgs {
     }
   }
 
-  let values: Record<string, unknown>, positionals: string[];
-  try {
-    const parsedArgs = parseArgs({ args: sanitizedArgs, options, allowPositionals: true });
-    values = parsedArgs.values;
-    positionals = parsedArgs.positionals;
-  } catch (error) {
-    match(error)
-      .with({ code: 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE', message: P.string }, (e: { message: string }) => {
-        console.error(`Error parsing CLI arguments: ${e.message}`);
-        process.exit(1);
-      })
-      .with({ code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION', message: P.string }, (e: { message: string }) => {
-        console.error(`Error: Unknown CLI argument. ${e.message}`);
-        process.exit(1);
-      })
-      .otherwise((e: unknown) => {
-        console.error(`Error parsing CLI arguments: ${e instanceof Error ? e.message : String(e)}`);
-        process.exit(1);
-      });
-    process.exit(1);
+  function parseCLI() {
+    try {
+      return parseArgs({ args: sanitizedArgs, options, allowPositionals: true });
+    } catch (error) {
+      match(error)
+        .with({ code: 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE', message: P.string }, (e: { message: string }) => {
+          console.error(`Error parsing CLI arguments: ${e.message}`);
+          process.exit(1);
+        })
+        .with({ code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION', message: P.string }, (e: { message: string }) => {
+          console.error(`Error: Unknown CLI argument. ${e.message}`);
+          process.exit(1);
+        })
+        .otherwise((e: unknown) => {
+          console.error(`Error parsing CLI arguments: ${e instanceof Error ? e.message : String(e)}`);
+          process.exit(1);
+        });
+      process.exit(1);
+    }
   }
+  const cliResult = parseCLI();
+  const values = cliResult.values;
+  let positionals = cliResult.positionals;
+
   
   let messageCount = 0;
   if (values.msg) messageCount++;
@@ -120,6 +134,10 @@ function parseArguments(): CliArgs {
       positionals = []; // Clear them so they aren't parsed as a second commit message
     } else {
       messageCount++; // First positional is the commit message
+      if (positionals.length > 1) {
+        console.error("Error: Multiple positional arguments provided but only one commit message is allowed.");
+        process.exit(1);
+      }
     }
   }
 
@@ -152,21 +170,22 @@ function parseArguments(): CliArgs {
   const parsed = cliSchema.safeParse(mergedValues);
   if (!parsed.success) {
     console.error("🛠️ AUTONOMOUS HEALING: Invalid CLI arguments provided to commit.ts");
+    
+    const getMissingFlagMessage = (field: string) => {
+      if (field === 'validation') return `Missing required flag. You MUST append one of: ${VALIDATION_STATES.map(v => `'--validation ${v}'`).join(', ')} to your command.`;
+      if (field === 'impact') return `Missing required flag. You MUST append an impact score (e.g. '--impact 0.5').`;
+      if (field === 'confidence') return `Missing required flag. You MUST append a confidence score (e.g. '--confidence 1.0').`;
+      return `Missing required flag.`;
+    };
+
     parsed.error.issues.forEach(err => {
       const field = err.path.join('.');
       
       const errorMessage = match(err)
-        .with({ code: 'invalid_type', received: 'undefined' }, () => {
-          if (field === 'validation') return `Missing required flag. You MUST append '--validation passed', '--validation failed', or '--validation none' to your command.`;
-          if (field === 'impact') return `Missing required flag. You MUST append an impact score (e.g. '--impact 0.5').`;
-          if (field === 'confidence') return `Missing required flag. You MUST append a confidence score (e.g. '--confidence 1.0').`;
-          return `Missing required flag.`;
-        })
+        .with({ code: 'invalid_type', received: 'undefined' }, () => getMissingFlagMessage(field))
         .with({ code: 'invalid_type', expected: 'number', received: P.union('nan', 'NaN') }, () => {
           if (mergedValues[field as keyof typeof mergedValues] === undefined) {
-            if (field === 'impact') return `Missing required flag. You MUST append an impact score (e.g. '--impact 0.5').`;
-            if (field === 'confidence') return `Missing required flag. You MUST append a confidence score (e.g. '--confidence 1.0').`;
-            return `Missing required flag.`;
+            return getMissingFlagMessage(field);
           }
           return 'Expected a valid number, but received NaN';
         })
@@ -176,8 +195,7 @@ function parseArguments(): CliArgs {
         .with({ code: 'too_small', minimum: P.number }, (e: { minimum: number }) => `Too small: expected number to be >=${e.minimum}`)
         .with({ code: 'invalid_value', values: P.select(P.array(P.union(P.string, P.number))) }, (values: (string | number)[]) => {
           if (mergedValues[field as keyof typeof mergedValues] === undefined) {
-            if (field === 'validation') return `Missing required flag. You MUST append '--validation passed', '--validation failed', or '--validation none' to your command.`;
-            return `Missing required flag.`;
+            return getMissingFlagMessage(field);
           }
           return `Invalid enum value. Expected one of: ${values.join(', ')}`;
         })
@@ -223,13 +241,11 @@ Options:
 function validateCommitMessage(msg?: string): string {
   if (!msg) {
     console.error("❌ CRITICAL: Missing Commit Message!");
-    console.error("You must provide a commit message using either `--msg \"...\"` or as the first positional argument.");
-    console.error("Example: bun commit.ts --msg \"feat(core): added new optimization workflow\"");
     process.exit(1);
   }
 
   const firstLine = msg.trim().split('\n')[0];
-  const commitMatch = firstLine.match(/^([a-zA-Z0-9_-]+)(?:\(([^)]+)\))?(!)?:\s*(.+)$/);
+  const commitMatch = firstLine.match(CONVENTIONAL_COMMIT_REGEX);
   if (!commitMatch) {
     console.error("Error: --msg must follow conventional commit format (e.g., 'feat(core): subject' or 'feat!: breaking').");
     process.exit(1);
@@ -257,10 +273,17 @@ function ensureStagedFiles(filesToAdd?: string[]): void {
       process.exit(1);
     }
   } catch {
-    // Ignore error, allow git status to fail naturally if not a git repository
+    // Ignore error here and let git status catch it properly
   }
 
-  const status = execSync('git status --porcelain', { encoding: 'utf-8' });
+  let status: string;
+  try {
+    status = execSync('git status --porcelain', { encoding: 'utf-8' });
+  } catch {
+    console.error('Error: Not a git repository or git command failed.');
+    process.exit(1);
+  }
+
   const hasStaged = status.split('\n').some(line => {
     if (line.length < 2) return false;
     const indexStatus = line[0];
@@ -281,35 +304,20 @@ function ensureStagedFiles(filesToAdd?: string[]): void {
 }
 
 function parseCategory(history: string, type: string): { category: string; entry: string } {
-  let rawCategory: string;
-  let entry: string;
-
-  const categoryMatch = history.match(/^([A-Za-z]+):\s*([\s\S]+)$/);
+  const categoryMatch = history.match(HISTORY_CATEGORY_REGEX);
 
   if (categoryMatch) {
     const matchedCat = categoryMatch[1];
     const capitalizedMatch = matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1).toLowerCase();
     
     if (isValidCategory(capitalizedMatch)) {
-      rawCategory = matchedCat.trim();
-      entry = categoryMatch[2].trim();
-    } else {
-      rawCategory = TYPE_TO_CATEGORY[type] || 'Changed';
-      entry = history.trim();
+      return { category: capitalizedMatch, entry: categoryMatch[2].trim() };
     }
-  } else {
-    rawCategory = TYPE_TO_CATEGORY[type] || 'Changed';
-    entry = history.trim();
   }
 
+  const rawCategory = TYPE_TO_CATEGORY[type] || 'Changed';
   const category = rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1).toLowerCase();
-
-  if (!isValidCategory(category)) {
-    console.error(`Error: Invalid explicit category '${category}'. Must be one of: ${VALID_CATEGORIES.join(', ')}`);
-    process.exit(1);
-  }
-
-  return { category, entry };
+  return { category, entry: history.trim() };
 }
 
 function generateHistoryEntry(args: CliArgs, type: string, historyContent: string): string {
@@ -333,9 +341,6 @@ function generateHistoryEntry(args: CliArgs, type: string, historyContent: strin
   }
   if (args.impact !== undefined) {
     body += `\nHistory-Impact: ${args.impact}`;
-  }
-  if (args.trust !== undefined) {
-    body += `\nHistory-Trust: ${args.trust}`;
   }
   if (args.confidence !== undefined) {
     body += `\nHistory-Confidence: ${args.confidence}`;
@@ -401,10 +406,12 @@ function executeCommit(header: string, body: string, args: CliArgs, historyConte
       const journalFile = path.join(os.tmpdir(), `journal-${sha}.md`);
       fs.writeFileSync(journalFile, journalContent);
       
-      execSync(`memory-journal-mcp entry create --file "${journalFile}"`, { stdio: 'inherit' });
-      
-      if (fs.existsSync(journalFile)) {
-        fs.unlinkSync(journalFile);
+      try {
+        execFileSync('memory-journal-mcp', ['entry', 'create', '--file', journalFile], { stdio: 'inherit', shell: process.platform === 'win32' });
+      } finally {
+        if (fs.existsSync(journalFile)) {
+          fs.unlinkSync(journalFile);
+        }
       }
     } catch (e) {
       console.error(`\n⚠️ Failed to create journal entry: ${e instanceof Error ? e.message : String(e)}`);
@@ -415,10 +422,6 @@ function executeCommit(header: string, body: string, args: CliArgs, historyConte
 async function main(): Promise<void> {
   try {
     const args = parseArguments();
-
-    if (args.help) {
-      showHelpAndExit();
-    }
 
     if (args.cwd) {
       const targetCwd = path.resolve(args.cwd);
