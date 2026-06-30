@@ -42,35 +42,7 @@ export const ReadQuerySchemaBase = z.object({
 
 // Transformed schema for handler parsing (normalizes aliases)
 export const ReadQuerySchema = z
-  .preprocess(
-    preprocessQueryParams,
-    z.object({
-      query: z.string().optional().describe("SQL SELECT query to execute"),
-      sql: z.string().optional().describe("Alias for query"),
-      params: z
-        .array(z.unknown())
-        .optional()
-        .describe("Query parameters for prepared statement"),
-      cursor: z
-        .string()
-        .optional()
-        .describe("Opaque cursor for pagination (use nextCursor from previous response)"),
-      transactionId: z
-        .string()
-        .optional()
-        .describe("Optional transaction ID for executing within a transaction"),
-      txId: z.string().optional().describe("Alias for transactionId"),
-      tx: z.string().optional().describe("Alias for transactionId"),
-      stream: z
-        .boolean()
-        .optional()
-        .describe("Stream results via progress notifications instead of returning them all at once (requires client support)"),
-      chunkSize: z
-        .number()
-        .optional()
-        .describe("Number of rows per chunk when streaming (default: 10)"),
-    }),
-  )
+  .preprocess(preprocessQueryParams, ReadQuerySchemaBase)
   .transform((data) => ({
     query: data.query ?? data.sql ?? "",
     params: data.params,
@@ -117,26 +89,7 @@ export const WriteQuerySchemaBase = z.object({
 
 // Transformed schema for handler parsing
 export const WriteQuerySchema = z
-  .preprocess(
-    preprocessQueryParams,
-    z.object({
-      query: z
-        .string()
-        .optional()
-        .describe("SQL INSERT/UPDATE/DELETE query to execute"),
-      sql: z.string().optional().describe("Alias for query"),
-      params: z
-        .array(z.unknown())
-        .optional()
-        .describe("Query parameters for prepared statement"),
-      transactionId: z
-        .string()
-        .optional()
-        .describe("Optional transaction ID for executing within a transaction"),
-      txId: z.string().optional().describe("Alias for transactionId"),
-      tx: z.string().optional().describe("Alias for transactionId"),
-    }),
-  )
+  .preprocess(preprocessQueryParams, WriteQuerySchemaBase)
   .transform((data) => ({
     query: data.query ?? data.sql ?? "",
     params: data.params,
@@ -163,20 +116,16 @@ export const ListTablesSchemaBase = z.object({
     .optional()
     .describe("Database name (defaults to connected database)"),
   limit: z
-    .unknown()
+    .number()
     .optional()
     .describe("Maximum number of tables to return (default: 50)"),
 });
 
 // Transformed schema for handler parsing
-export const ListTablesSchema = z
-  .object({
-    database: z.string().optional(),
-    limit: z.unknown().optional(),
-  })
+export const ListTablesSchema = ListTablesSchemaBase
   .transform((data) => ({
     database: data.database,
-    limit: data.limit !== undefined ? Number(data.limit) : 50,
+    limit: data.limit ?? 50,
   }))
   .refine(
     (data) =>
