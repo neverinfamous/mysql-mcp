@@ -4,6 +4,8 @@ import { preprocessJsonColumnParams } from "../../../schemas/preprocess-utils.js
 export const StatsRowNumberSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z
@@ -11,6 +13,8 @@ export const StatsRowNumberSchemaBase = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -38,6 +42,8 @@ export const StatsRowNumberSchema = z.preprocess(
 export const StatsRankSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   orderBy: z
     .string()
     .optional()
@@ -49,6 +55,8 @@ export const StatsRankSchemaBase = z.object({
     .describe("Columns to include in result"),
   method: z.unknown().optional().describe("Rank function type (default: rank)"),
   where: z.string().optional().describe("Filter condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -77,7 +85,11 @@ export const StatsRankSchema = z.preprocess(
 export const StatsLagLeadSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to get lag/lead value from"),
+  col: z.string().optional().describe("Alias for column"),
+  valueColumn: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   direction: z
     .unknown()
@@ -97,6 +109,8 @@ export const StatsLagLeadSchemaBase = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -128,7 +142,11 @@ export const StatsLagLeadSchema = z.preprocess(
 export const StatsRunningTotalSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to sum"),
+  col: z.string().optional().describe("Alias for column"),
+  valueColumn: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   partitionBy: z
     .string()
@@ -139,6 +157,8 @@ export const StatsRunningTotalSchemaBase = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -167,7 +187,11 @@ export const StatsRunningTotalSchema = z.preprocess(
 export const StatsMovingAvgSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to average"),
+  col: z.string().optional().describe("Alias for column"),
+  valueColumn: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   windowSize: z
     .unknown()
@@ -179,6 +203,8 @@ export const StatsMovingAvgSchemaBase = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -208,6 +234,8 @@ export const StatsMovingAvgSchema = z.preprocess(
 export const StatsNtileSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by"),
   buckets: z
     .unknown()
@@ -219,6 +247,8 @@ export const StatsNtileSchemaBase = z.object({
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
