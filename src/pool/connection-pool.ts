@@ -90,7 +90,7 @@ export class ConnectionPool {
         enableKeepAlive: poolConfig.enableKeepAlive ?? true,
         keepAliveInitialDelay: poolConfig.keepAliveInitialDelay ?? 0,
         supportBigNumbers: true,
-        bigNumberStrings: true,
+        bigNumberStrings: false,
 
         // Namedplaceholders for better parameter handling
         namedPlaceholders: false,
