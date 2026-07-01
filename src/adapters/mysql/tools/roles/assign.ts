@@ -56,6 +56,7 @@ export const RoleRevokeSchemaBase = z.object({
   db: z.string().optional(),
   table: z.string().default("*"),
   on: z.string().optional(),
+  object: z.string().optional(),
 });
 
 export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role || val.name || val.roleName, {
@@ -80,13 +81,15 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
     let database = val.db ?? val.database;
     let table = val.table;
 
-    if (val.on) {
-      if (val.on.includes(".")) {
-        const [db, tbl] = val.on.split(".");
+    const targetOn = val.on ?? val.object;
+
+    if (targetOn) {
+      if (targetOn.includes(".")) {
+        const [db, tbl] = targetOn.split(".");
         database = db || "*";
         table = tbl || "*";
       } else {
-        database = val.on;
+        database = targetOn;
       }
     }
 
