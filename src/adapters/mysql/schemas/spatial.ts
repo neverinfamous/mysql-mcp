@@ -15,6 +15,8 @@ export const SpatialColumnSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
   tableName: z.unknown().optional(),
   name: z.unknown().optional(),
+  spatialColumn: z.unknown().optional().describe("Spatial column name"),
+  geometryColumn: z.unknown().optional(),
   column: z.unknown().optional().describe("Column name"),
   type: z.unknown().optional().describe("Geometry type (default: GEOMETRY)"),
   srid: z
@@ -32,14 +34,16 @@ export const SpatialColumnSchema = z
     table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
-    column: z.string(),
+    spatialColumn: z.string().optional(),
+    geometryColumn: z.string().optional(),
+    column: z.string().optional(),
     type: z.unknown().optional(),
     srid: z.unknown().optional(),
     nullable: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column,
+    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? "",
     type: typeof data.type === "string" ? data.type : "GEOMETRY",
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
     nullable: data.nullable !== undefined ? Boolean(data.nullable) : false,
@@ -52,6 +56,8 @@ export const SpatialIndexSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
   tableName: z.unknown().optional(),
   name: z.unknown().optional(),
+  spatialColumn: z.unknown().optional().describe("Spatial column name"),
+  geometryColumn: z.unknown().optional(),
   column: z.unknown().optional().describe("Spatial column name"),
   indexName: z
     .unknown()
@@ -64,12 +70,14 @@ export const SpatialIndexSchema = z
     table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
-    column: z.string(),
+    spatialColumn: z.string().optional(),
+    geometryColumn: z.string().optional(),
+    column: z.string().optional(),
     indexName: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column,
+    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? "",
     indexName: typeof data.indexName === "string" ? data.indexName : undefined,
   }));
 
