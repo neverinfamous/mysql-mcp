@@ -22,6 +22,9 @@ import {
   AuditListBackupsSchemaBase,
   AuditRestoreBackupSchemaBase,
   AuditDiffBackupSchemaBase,
+  AuditListBackupsSchema,
+  AuditRestoreBackupSchema,
+  AuditDiffBackupSchema,
 } from "../../schemas/index.js";
 
 
@@ -29,21 +32,19 @@ import {
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = AuditListBackupsSchemaBase;
-
   return {
     name: "mysql_audit_list_backups",
     title: "MySQL Audit List Backups",
     description:
       "List available pre-mutation snapshots captured before destructive operations.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: AuditListBackupsSchemaBase,
     outputSchema: AuditListBackupsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { limit, target } = schema.parse(params);
+        const { limit, target } = AuditListBackupsSchema.parse(params);
 
         const backupManager = adapter.getBackupManager();
         if (!backupManager) {
@@ -82,20 +83,18 @@ export function createAuditListBackupsTool(
 export function createAuditRestoreBackupTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = AuditRestoreBackupSchemaBase;
-
   return {
     name: "mysql_audit_restore_backup",
     title: "MySQL Audit Restore Backup",
     description: "Restore a specific pre-mutation snapshot to the database.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: AuditRestoreBackupSchemaBase,
     outputSchema: AuditRestoreBackupOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { filename, includeData, dryRun } = schema.parse(params);
+        const { filename, includeData, dryRun } = AuditRestoreBackupSchema.parse(params);
 
         const backupManager = adapter.getBackupManager();
         if (!backupManager) {
@@ -169,21 +168,19 @@ export function createAuditRestoreBackupTool(
 export function createAuditDiffBackupTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = AuditDiffBackupSchemaBase;
-
   return {
     name: "mysql_audit_diff_backup",
     title: "MySQL Audit Diff Backup",
     description:
       "Compare a snapshot's DDL against the current live schema of the object.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: AuditDiffBackupSchemaBase,
     outputSchema: AuditDiffBackupOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { filename } = schema.parse(params);
+        const { filename } = AuditDiffBackupSchema.parse(params);
 
         const backupManager = adapter.getBackupManager();
         if (!backupManager) {

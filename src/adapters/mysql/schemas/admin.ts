@@ -516,7 +516,33 @@ export const AuditListBackupsSchemaBase = z.object({
     .string()
     .optional()
     .describe("Filter by exact target object name (e.g. users)"),
+  name: z.string().optional().describe("Alias for target"),
+  tableName: z.string().optional().describe("Alias for target"),
+  table: z.string().optional().describe("Alias for target"),
 });
+
+export const AuditListBackupsSchema = z
+  .preprocess(
+    (obj: unknown) => {
+      if (typeof obj === "object" && obj !== null) {
+        const data = obj as Record<string, unknown>;
+        return {
+          ...data,
+          target: data["target"] ?? data["name"] ?? data["tableName"] ?? data["table"],
+        };
+      }
+      return obj;
+    },
+    z.object({
+      limit: z.number().int().min(1).max(100).default(10),
+      target: z.string().optional(),
+    })
+  )
+  .transform((data) => ({
+    limit: data.limit,
+    target: data.target,
+  }));
+
 
 export const AuditListBackupsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -526,7 +552,9 @@ export const AuditListBackupsOutputSchema = BaseOutputSchema.extend({
 });
 
 export const AuditRestoreBackupSchemaBase = z.object({
-  filename: z.string().describe("Snapshot filename to restore"),
+  filename: z.string().optional().describe("Snapshot filename to restore"),
+  file: z.string().optional().describe("Alias for filename"),
+  fileUrl: z.string().optional().describe("Alias for filename"),
   includeData: z
     .boolean()
     .default(false)
@@ -536,6 +564,34 @@ export const AuditRestoreBackupSchemaBase = z.object({
     .default(false)
     .describe("Return the DDL/DML without executing it"),
 });
+
+export const AuditRestoreBackupSchema = z
+  .preprocess(
+    (obj: unknown) => {
+      if (typeof obj === "object" && obj !== null) {
+        const data = obj as Record<string, unknown>;
+        return {
+          ...data,
+          filename: data["filename"] ?? data["file"] ?? data["fileUrl"],
+        };
+      }
+      return obj;
+    },
+    z.object({
+      filename: z.string().optional(),
+      includeData: z.boolean().default(false),
+      dryRun: z.boolean().default(false),
+    })
+  )
+  .transform((data) => ({
+    filename: data.filename ?? "",
+    includeData: data.includeData,
+    dryRun: data.dryRun,
+  }))
+  .refine((data) => data.filename !== "", {
+    message: "filename (or file/fileUrl alias) is required",
+  });
+
 
 export const AuditRestoreBackupOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -549,8 +605,35 @@ export const AuditRestoreBackupOutputSchema = BaseOutputSchema.extend({
 export const AuditDiffBackupSchemaBase = z.object({
   filename: z
     .string()
+    .optional()
     .describe("Snapshot filename to compare against current schema"),
+  file: z.string().optional().describe("Alias for filename"),
+  fileUrl: z.string().optional().describe("Alias for filename"),
 });
+
+export const AuditDiffBackupSchema = z
+  .preprocess(
+    (obj: unknown) => {
+      if (typeof obj === "object" && obj !== null) {
+        const data = obj as Record<string, unknown>;
+        return {
+          ...data,
+          filename: data["filename"] ?? data["file"] ?? data["fileUrl"],
+        };
+      }
+      return obj;
+    },
+    z.object({
+      filename: z.string().optional(),
+    })
+  )
+  .transform((data) => ({
+    filename: data.filename ?? "",
+  }))
+  .refine((data) => data.filename !== "", {
+    message: "filename (or file/fileUrl alias) is required",
+  });
+
 
 export const AuditDiffBackupOutputSchema = BaseOutputSchema.extend({
   data: z.object({
