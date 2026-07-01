@@ -10,7 +10,7 @@ import { BaseOutputSchema } from "./output-schemas.js";
 // =============================================================================
 
 export const MemberSchemaBase = z.object({
-  memberId: z.unknown().optional().describe("Filter by specific member UUID"),
+  memberId: z.string().optional().describe("Filter by specific member UUID"),
 });
 
 export const MemberSchema = z.object({
@@ -18,12 +18,12 @@ export const MemberSchema = z.object({
 });
 
 export const LimitSchemaBase = z.object({
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
 export const SummarySchemaBase = z.object({
   summary: z
-    .unknown()
+    .boolean()
     .optional()
     .describe("If true, return condensed output without configuration blobs"),
 });
