@@ -44,9 +44,9 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         const vectorStr = formatVector(validated.queryVector);
         
-        let whereClause = "";
+        let whereClause = `WHERE \`${column}\` IS NOT NULL`;
         if (validated.filter) {
-          whereClause = `WHERE ${validated.filter}`;
+          whereClause += ` AND (${validated.filter})`;
         }
 
         // distance function requires literal string for metric: 'COSINE', 'EUCLIDEAN', or 'DOT'
@@ -127,9 +127,9 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         
         const vectorStr = formatVector(validated.queryVector);
         
-        let whereClause = "";
+        let whereClause = `WHERE \`${column}\` IS NOT NULL`;
         if (validated.filter) {
-          whereClause = `WHERE ${validated.filter}`;
+          whereClause += ` AND (${validated.filter})`;
         }
 
         const metricLiteral = validated.metric === "DOT" ? "DOT" : validated.metric === "EUCLIDEAN" ? "EUCLIDEAN" : "COSINE";
@@ -225,15 +225,17 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
         }
 
         let selectCols = "*";
+        let tSelectCols = "t.*";
         if (validated.select && validated.select.length > 0) {
           selectCols = validated.select.map(c => `\`${sanitizeIdentifier(c)}\``).join(", ");
+          tSelectCols = validated.select.map(c => `t.\`${sanitizeIdentifier(c)}\``).join(", ");
         }
 
-        let whereClause = "";
+        let whereClause = `WHERE \`${vCol}\` IS NOT NULL`;
         let filterAnd = "";
         if (validated.filter) {
-          whereClause = `WHERE ${validated.filter}`;
-          filterAnd = `AND ${validated.filter}`;
+          whereClause += ` AND (${validated.filter})`;
+          filterAnd = `AND (${validated.filter})`;
         }
 
         const metricLiteral = validated.metric === "DOT" ? "DOT" : validated.metric === "EUCLIDEAN" ? "EUCLIDEAN" : "COSINE";
@@ -253,7 +255,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
           // Full Hybrid Search with RRF
           const vectorStr = formatVector(validated.queryVector ?? []);
           
-          query = `WITH vector_results AS ( SELECT \`${pkCol}\`, distance, ROW_NUMBER() OVER (ORDER BY distance ASC) as v_rank FROM ( SELECT \`${pkCol}\`, DISTANCE(\`${vCol}\`, STRING_TO_VECTOR('${vectorStr}'), '${metricLiteral}') as distance FROM \`${table}\` ${whereClause} ORDER BY distance ASC LIMIT ${limit} ) ranked_v ), text_results AS ( SELECT \`${pkCol}\`, text_score, ROW_NUMBER() OVER (ORDER BY text_score DESC) as t_rank FROM ( SELECT \`${pkCol}\`, MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) as text_score FROM \`${table}\` WHERE MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) ${filterAnd} ORDER BY text_score DESC LIMIT ${limit} ) ranked_t ) SELECT t.${selectCols === '*' ? '*' : selectCols}, COALESCE(v.distance, NULL) as vector_distance, COALESCE(tx.text_score, 0) as text_score, COALESCE(v.v_rank, 1000) as vector_rank, COALESCE(tx.t_rank, 1000) as text_rank, ( (1.0 / (${rrfK} + COALESCE(v.v_rank, 1000))) * ${validated.vectorWeight} + (1.0 / (${rrfK} + COALESCE(tx.t_rank, 1000))) * ${validated.textWeight} ) as combined_score FROM \`${table}\` t LEFT JOIN vector_results v ON t.\`${pkCol}\` = v.\`${pkCol}\` LEFT JOIN text_results tx ON t.\`${pkCol}\` = tx.\`${pkCol}\` WHERE v.\`${pkCol}\` IS NOT NULL OR tx.\`${pkCol}\` IS NOT NULL ORDER BY combined_score DESC LIMIT ${limit}`.replace(/\s+/g, ' ').trim();
+          query = `WITH vector_results AS ( SELECT \`${pkCol}\`, distance, ROW_NUMBER() OVER (ORDER BY distance ASC) as v_rank FROM ( SELECT \`${pkCol}\`, DISTANCE(\`${vCol}\`, STRING_TO_VECTOR('${vectorStr}'), '${metricLiteral}') as distance FROM \`${table}\` ${whereClause} ORDER BY distance ASC LIMIT ${limit} ) ranked_v ), text_results AS ( SELECT \`${pkCol}\`, text_score, ROW_NUMBER() OVER (ORDER BY text_score DESC) as t_rank FROM ( SELECT \`${pkCol}\`, MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) as text_score FROM \`${table}\` WHERE MATCH(\`${tCol}\`) AGAINST(? IN NATURAL LANGUAGE MODE) ${filterAnd} ORDER BY text_score DESC LIMIT ${limit} ) ranked_t ) SELECT ${tSelectCols}, COALESCE(v.distance, NULL) as vector_distance, COALESCE(tx.text_score, 0) as text_score, COALESCE(v.v_rank, 1000) as vector_rank, COALESCE(tx.t_rank, 1000) as text_rank, ( (1.0 / (${rrfK} + COALESCE(v.v_rank, 1000))) * ${validated.vectorWeight} + (1.0 / (${rrfK} + COALESCE(tx.t_rank, 1000))) * ${validated.textWeight} ) as combined_score FROM \`${table}\` t LEFT JOIN vector_results v ON t.\`${pkCol}\` = v.\`${pkCol}\` LEFT JOIN text_results tx ON t.\`${pkCol}\` = tx.\`${pkCol}\` WHERE v.\`${pkCol}\` IS NOT NULL OR tx.\`${pkCol}\` IS NOT NULL ORDER BY combined_score DESC LIMIT ${limit}`.replace(/\s+/g, ' ').trim();
           queryParams.push(queryText, queryText);
         } 
         else if (hasVector) {
