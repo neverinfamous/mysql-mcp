@@ -179,9 +179,9 @@ All tools implement P154 structured error handling. Test with valid and invalid 
 
 **Code Execution tools:**
 
-1. `mysql_execute_code({code: "return 1 + 1;"})` -> `{success: true, output: 2}`
-2. `mysql_execute_code({code: "return 'hello world';"})` -> `{success: true, output: "hello world"}`
-3. `mysql_execute_code({code: "return {a: 1, b: 2};"})` -> `{success: true, output: {a: 1, b: 2}}`
+1. `mysql_execute_code({code: "return 1 + 1;"})` -> `{success: true, result: 2}`
+2. `mysql_execute_code({code: "return 'hello world';"})` -> `{success: true, result: "hello world"}`
+3. `mysql_execute_code({code: "return {a: 1, b: 2};"})` -> `{success: true, result: {a: 1, b: 2}}`
 
 **Domain error paths (🔴):**
 
