@@ -151,14 +151,17 @@ security Tool Group (4 tools +1 for code mode):
 3. 'mysql_security_sensitive_tables'
 4. 'mysql_security_encryption_status'
 
-5. `mysql_security_ssl_status()` -> verify SSL configuration
-6. `mysql_security_user_privileges({user: "root@localhost"})` -> verify privileges
-7. `mysql_security_sensitive_tables({schema: "testdb"})` -> verify sensitive tables listing
-8. `mysql_security_encryption_status()` -> verify encryption info
+5. ✅ `mysql_security_ssl_status()` -> verify SSL configuration
+6. ✅ `mysql_security_user_privileges({user: "root"})` -> verify privileges
+7. ✅ `mysql_security_sensitive_tables({schema: "testdb"})` -> verify sensitive tables listing
+8. ✅ `mysql_security_encryption_status()` -> verify encryption info
 
-**Domain error paths (??):**
-1. ?? `mysql_security_user_privileges({user: "nonexistent_user@localhost"})` -> `{success: false, error: "..."}`
+**Domain error paths (✅):**
+1. ✅ `mysql_security_user_privileges({user: "nonexistent_user@localhost"})` -> `{success: false, error: "..."}`
+2. ✅ `mysql_security_sensitive_tables({schema: "nonexistent_schema"})` -> `{success: false, error: "..."}`
 
-**Zod validation error paths (??):**
+**Zod validation error paths (✅):**
+1. ✅ `mysql_security_user_privileges({})` -> `{success: false, error: "..."}`
+2. ✅ `mysql_security_sensitive_tables({})` -> `{success: false, error: "..."}`
 
 ## Post-Test Procedures
