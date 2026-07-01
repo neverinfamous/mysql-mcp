@@ -13,9 +13,15 @@ export const MemberSchemaBase = z.object({
   memberId: z.string().optional().describe("Filter by specific member UUID"),
 });
 
-export const MemberSchema = z.object({
-  memberId: z.string().optional().describe("Filter by specific member UUID"),
-});
+export const MemberSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || val === undefined || typeof val !== "object") {
+      return val;
+    }
+    return val;
+  },
+  MemberSchemaBase
+);
 
 export const LimitSchemaBase = z.object({
   limit: z.number().optional().describe("Maximum number of results"),
