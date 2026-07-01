@@ -249,5 +249,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     describe: "describeTable",
     create: "createTable",
     drop: "dropTable",
+    indexCreate: "createIndex",
+    indexes: "getIndexes",
+    listIndexes: "getIndexes",
+    showIndexes: "getIndexes",
+    versioning: "enableVersioning",
   },
 };

@@ -18,6 +18,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   dropIndex: "name",
   createTable: ["name", "columns"],
   createIndex: ["table", "columns"],
+  enableVersioning: "table",
 
   // ============ SCHEMA GROUP ============
   createSchema: "name",
