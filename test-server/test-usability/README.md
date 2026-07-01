@@ -8,7 +8,7 @@ This directory contains organic testing prompts designed to "fuzz" the `mysql-mc
 ## Testing Philosophy
 Unlike the deterministic integration tests in `test-server/test-codemode/`, these prompts instruct agents to act intuitively, guess properties, and purposefully omit syntax like `await` or exact object structures. 
 
-When an agent fails, they are instructed to permanently heal the codebase using the optimization layers described in `skills/mysql-mcp-heal/SKILL.md`.
+When an agent fails, they are instructed to permanently heal the codebase using the optimization layers described in [`skills/mysql-mcp-heal/SKILL.md`](../../skills/mysql-mcp-heal/SKILL.md).
 
 ## Execution Workflow (Divide & Conquer)
 

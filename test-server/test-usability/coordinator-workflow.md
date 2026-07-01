@@ -8,7 +8,7 @@ This guide instructs the Coordinator agent on how to run the `mysql-mcp` usabili
 
 ## Goal
 
-Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-mcp` tools and explicitly trigger agent hallucinations. Harden the codebase against these hallucinations via the `mysql-mcp-heal` skill.
+Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-mcp` tools and explicitly trigger agent hallucinations. Harden the codebase against these hallucinations via the [`mysql-mcp-heal`](../../skills/mysql-mcp-heal/SKILL.md) skill.
 
 ## Workflow Rules
 
