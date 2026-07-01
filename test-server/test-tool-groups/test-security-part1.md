@@ -155,7 +155,7 @@ security Tool Group (5 tools +1 for code mode):
 6. `mysql_security_audit()` -> verify security configuration
 7. `mysql_security_firewall_status()` -> verify firewall status (if installed) or structured "not installed" message
 8. `mysql_security_firewall_rules({user: "root@localhost"})` -> verify rules or structured "not installed" message
-9. `mysql_security_mask_data({table: "test_users", columns: ["email", "phone"]})` -> verify masking preview
+9. `mysql_security_mask_data({value: "test@example.com", type: "email"})` -> verify masking preview
 10. `mysql_security_password_validate({password: "TestPass123!"})` -> verify validation results
 
 **Domain error paths (??):**
