@@ -166,14 +166,16 @@ shell Tool Group (5 tools +1 for code mode):
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
+> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
+
 7. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
 8. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
 9. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
 
 4b. `mysqlsh_check_upgrade()` -> verify success
-4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
-4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> verify success
-4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> verify success
+4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
+4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
+4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
 
 **Domain error paths (🔴):**
 
