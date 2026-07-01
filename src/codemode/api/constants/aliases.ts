@@ -254,5 +254,13 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     listIndexes: "getIndexes",
     showIndexes: "getIndexes",
     versioning: "enableVersioning",
+    unversioning: "disableVersioning",
+    disableVersion: "disableVersioning",
+    removeVersioning: "disableVersioning",
+    getVersion: "checkVersion",
+    version: "checkVersion",
+    condUpdate: "conditionalUpdate",
+    updateConditionally: "conditionalUpdate",
+    updateVersion: "conditionalUpdate",
   },
 };

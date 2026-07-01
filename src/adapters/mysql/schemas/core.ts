@@ -4,6 +4,7 @@ import {
   preprocessTableParams,
   preprocessQueryParams,
   preprocessCreateTableParams,
+  preprocessConditionalUpdateParams,
 } from "./preprocess-utils.js";
 
 // =============================================================================
@@ -446,12 +447,12 @@ export const ConditionalUpdateSchemaBase = z.object({
       operator: z.string().optional(),
       value: z.unknown(),
     })
-  ).describe("Conditions identifying the row (e.g. primary key)"),
+  ).describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
   expectedVersion: z.number().describe("The _version value currently expected. Update fails if this does not match."),
 });
 
 export const ConditionalUpdateSchema = z
-  .preprocess(preprocessTableParams, ConditionalUpdateSchemaBase)
+  .preprocess(preprocessConditionalUpdateParams, ConditionalUpdateSchemaBase)
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     data: data.data,

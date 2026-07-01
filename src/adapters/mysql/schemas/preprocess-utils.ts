@@ -48,6 +48,29 @@ export function preprocessTableParams(input: unknown): unknown {
 }
 
 /**
+ * Preprocess conditional update parameters:
+ * - Alias: condition -> conditions
+ * - Normalizes string/object condition to array
+ */
+export function preprocessConditionalUpdateParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  const conditions = result["conditions"];
+  const condition = result["condition"];
+  if (conditions === undefined && condition !== undefined) {
+    if (Array.isArray(condition)) {
+      result["conditions"] = condition;
+    } else if (typeof condition === "object" && condition !== null) {
+      result["conditions"] = [condition];
+    } else if (typeof condition === "string") {
+      result["conditions"] = [condition];
+    }
+  }
+  return result;
+}
+
+/**
  * Preprocess vector parameters:
  * - Alias: vector → queryVector
  * - Alias: distance → maxDistance
