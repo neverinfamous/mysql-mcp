@@ -9,6 +9,9 @@ export const ShellLoadDumpInputSchemaBase = z
       .describe("Directory containing MySQL Shell dump"),
     inputUrl: z.string().optional().describe("Alias for inputDir"),
     dumpDir: z.string().optional().describe("Alias for inputDir"),
+    url: z.string().optional().describe("Alias for inputDir"),
+    path: z.string().optional().describe("Alias for inputDir"),
+    file: z.string().optional().describe("Alias for inputDir"),
     threads: z
       .number()
       .int()
@@ -55,19 +58,14 @@ export const ShellLoadDumpInputSchemaBase = z
   })
   .describe("Load dump to instance using util.loadDump()");
 
-export const ShellLoadDumpInputSchema = z
-  .object({
-    inputDir: z.string().optional(),
-    inputUrl: z.string().optional(),
-    dumpDir: z.string().optional(),
-    threads: z.number().int().optional().default(4),
-    dryRun: booleanCoerce.optional().default(false),
-    includeSchemas: z.array(z.string()).optional(),
-    excludeSchemas: z.array(z.string()).optional(),
-    includeTables: z.array(z.string()).optional(),
-    excludeTables: z.array(z.string()).optional(),
-    ignoreExistingObjects: booleanCoerce.optional().default(false),
-    ignoreVersion: booleanCoerce.optional().default(false),
-    resetProgress: booleanCoerce.optional().default(false),
-    updateServerSettings: booleanCoerce.optional().default(false),
-  });
+export const ShellLoadDumpInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown };
+    return {
+      ...obj,
+      inputDir: obj.inputDir ?? obj.inputUrl ?? obj.dumpDir ?? obj.url ?? obj.path ?? obj.file,
+    };
+  },
+  ShellLoadDumpInputSchemaBase
+);

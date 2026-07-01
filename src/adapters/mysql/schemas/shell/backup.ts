@@ -8,6 +8,8 @@ export const ShellDumpInstanceInputSchemaBase = z
       .optional()
       .describe("Output directory for dump (must be empty or non-existent)"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
+    url: z.string().optional().describe("Alias for outputDir"),
+    path: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -44,18 +46,17 @@ export const ShellDumpInstanceInputSchemaBase = z
   })
   .describe("Dump entire MySQL instance using util.dumpInstance()");
 
-export const ShellDumpInstanceInputSchema = z
-  .object({
-    outputDir: z.string().optional(),
-    outputUrl: z.string().optional(),
-    threads: z.number().int().optional().default(4),
-    compression: z.enum(["none", "zstd", "gzip"]).optional().default("zstd"),
-    dryRun: booleanCoerce.optional().default(false),
-    includeSchemas: z.array(z.string()).optional(),
-    excludeSchemas: z.array(z.string()).optional(),
-    consistent: booleanCoerce.optional().default(true),
-    users: booleanCoerce.optional().default(true),
-  });
+export const ShellDumpInstanceInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    return {
+      ...obj,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
+    };
+  },
+  ShellDumpInstanceInputSchemaBase
+);
 
 export const ShellDumpSchemasInputSchemaBase = z
   .object({
@@ -64,6 +65,8 @@ export const ShellDumpSchemasInputSchemaBase = z
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
+    url: z.string().optional().describe("Alias for outputDir"),
+    path: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -98,31 +101,25 @@ export const ShellDumpSchemasInputSchemaBase = z
   })
   .describe("Dump selected schemas using util.dumpSchemas()");
 
-export const ShellDumpSchemasInputSchema = z
-  .object({
-    schemas: z.unknown().optional(),
-    schema: z.unknown().optional(),
-    name: z.unknown().optional(),
-    outputDir: z.string().optional(),
-    outputUrl: z.string().optional(),
-    threads: z.number().int().optional().default(4),
-    compression: z.enum(["none", "zstd", "gzip"]).optional().default("zstd"),
-    dryRun: booleanCoerce.optional().default(false),
-    includeTables: z.array(z.string()).optional(),
-    excludeTables: z.array(z.string()).optional(),
-    ddlOnly: booleanCoerce.optional().default(false),
-  })
-  .transform((data) => {
-    const rawSchemas = data.schemas ?? data.schema ?? data.name;
+export const ShellDumpSchemasInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { schemas?: unknown; schema?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const rawSchemas = obj.schemas ?? obj.schema ?? obj.name;
+    const schemasArray = Array.isArray(rawSchemas) 
+      ? rawSchemas.map(String) 
+      : typeof rawSchemas === "string" 
+        ? [rawSchemas] 
+        : undefined;
     return {
-      ...data,
-      schemas: Array.isArray(rawSchemas) 
-        ? rawSchemas.map(String) 
-        : typeof rawSchemas === "string" 
-          ? [rawSchemas] 
-          : [],
+      ...obj,
+      schemas: schemasArray,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
     };
-  })
+  },
+  ShellDumpSchemasInputSchemaBase
+)
+  .transform((data) => ({ ...data, schemas: data.schemas ?? [] }))
   .refine((data) => data.schemas.length > 0, {
     message: "At least one schema name is required",
   });
@@ -136,6 +133,8 @@ export const ShellDumpTablesInputSchemaBase = z
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
+    url: z.string().optional().describe("Alias for outputDir"),
+    path: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -166,38 +165,31 @@ export const ShellDumpTablesInputSchemaBase = z
   })
   .describe("Dump specific tables using util.dumpTables()");
 
-export const ShellDumpTablesInputSchema = z
-  .object({
-    schema: z.unknown().optional(),
-    tables: z.unknown().optional(),
-    table: z.unknown().optional(),
-    tableName: z.unknown().optional(),
-    name: z.unknown().optional(),
-    outputDir: z.string().optional(),
-    outputUrl: z.string().optional(),
-    threads: z.number().int().optional().default(4),
-    compression: z.enum(["none", "zstd", "gzip"]).optional().default("zstd"),
-    where: z.record(z.string(), z.string()).optional(),
-    dryRun: booleanCoerce.optional().default(false),
-    all: booleanCoerce.optional().default(false),
-  })
-  .transform((data) => {
-    const rawTables = data.tables ?? data.table ?? data.tableName ?? data.name;
+export const ShellDumpTablesInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") return val;
+    const obj = val as { schema?: unknown; tables?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const rawTables = obj.tables ?? obj.table ?? obj.tableName ?? obj.name;
+    const tablesArray = Array.isArray(rawTables) 
+      ? rawTables.map(String) 
+      : typeof rawTables === "string" 
+        ? [rawTables] 
+        : undefined;
     return {
-      ...data,
+      ...obj,
       schema:
-        typeof data.schema === "string"
-          ? data.schema
-          : typeof data.schema === "number" || typeof data.schema === "boolean"
-            ? String(data.schema)
+        typeof obj.schema === "string"
+          ? obj.schema
+          : typeof obj.schema === "number" || typeof obj.schema === "boolean"
+            ? String(obj.schema)
             : "",
-      tables: Array.isArray(rawTables) 
-        ? rawTables.map(String) 
-        : typeof rawTables === "string" 
-          ? [rawTables] 
-          : [],
+      tables: tablesArray,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
     };
-  })
+  },
+  ShellDumpTablesInputSchemaBase
+)
+  .transform((data) => ({ ...data, tables: data.tables ?? [] }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.tables.length > 0, {
     message: "At least one table name is required",

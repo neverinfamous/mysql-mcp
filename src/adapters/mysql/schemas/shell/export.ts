@@ -11,6 +11,9 @@ export const ShellExportTableInputSchemaBase = z
       .optional()
       .describe("Output file path (absolute path recommended)"),
     outputUrl: z.string().optional().describe("Alias for outputPath"),
+    path: z.string().optional().describe("Alias for outputPath"),
+    file: z.string().optional().describe("Alias for outputPath"),
+    url: z.string().optional().describe("Alias for outputPath"),
     format: z
       .enum(["csv", "tsv"])
       .optional()
@@ -27,7 +30,7 @@ export const ShellExportTableInputSchemaBase = z
 export const ShellExportTableInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown };
+    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown; path?: unknown; file?: unknown; url?: unknown };
     const rawTable = obj.table ?? obj.tableName ?? obj.name;
     const finalWhere = obj.where ?? obj.filter;
     return {
@@ -41,7 +44,7 @@ export const ShellExportTableInputSchema = z.preprocess(
           ? String(rawTable)
           : rawTable,
       where: finalWhere,
-      outputPath: obj.outputPath ?? obj.outputUrl,
+      outputPath: obj.outputPath ?? obj.outputUrl ?? obj.path ?? obj.file ?? obj.url,
     };
   },
   ShellExportTableInputSchemaBase
