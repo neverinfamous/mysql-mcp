@@ -342,16 +342,17 @@ export const CreateIndexOutputSchema = BaseOutputSchema.extend({
 export const GetIndexesSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
 });
 
 // Transformed schema for handler parsing
 export const GetIndexesSchema = z
   .preprocess(preprocessTableParams, GetIndexesSchemaBase)
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? "",
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName alias) is required",
+    message: "table (or tableName/name alias) is required",
   });
 
 export const GetIndexesOutputSchema = BaseOutputSchema.extend({
