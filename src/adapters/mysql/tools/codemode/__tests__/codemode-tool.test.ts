@@ -110,7 +110,7 @@ describe("Code Mode Tool", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Code parameter is required");
+      expect(result.error).toContain("Code must be a non-empty string");
     });
 
     it("should execute valid code successfully", async () => {
