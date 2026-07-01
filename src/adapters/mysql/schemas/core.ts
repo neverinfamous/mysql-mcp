@@ -118,7 +118,7 @@ export const ListTablesSchemaBase = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of tables to return (default: 50)"),
+    .describe("Maximum number of tables to return (default: 50). Anti-Hallucination Hint: To get details for a specific table, use describeTable instead."),
 });
 
 // Transformed schema for handler parsing

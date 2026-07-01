@@ -238,4 +238,13 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     export: "exportTable",
     import: "importTable",
   },
+  // Core: shorter aliases
+  core: {
+    get: "readQuery",
+    query: "readQuery",
+    insert: "writeQuery",
+    update: "writeQuery",
+    delete: "writeQuery",
+    list: "listTables",
+  },
 };
