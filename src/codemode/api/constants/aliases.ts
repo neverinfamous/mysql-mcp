@@ -246,5 +246,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     update: "writeQuery",
     delete: "writeQuery",
     list: "listTables",
+    describe: "describeTable",
+    create: "createTable",
+    drop: "dropTable",
   },
 };
