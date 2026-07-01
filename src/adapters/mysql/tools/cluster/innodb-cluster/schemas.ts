@@ -10,5 +10,5 @@ export const LimitSchema = z.object({
     .int("Expected positive integer")
     .positive("Expected positive integer")
     .optional()
-    .default(10),
+    .default(100),
 });
