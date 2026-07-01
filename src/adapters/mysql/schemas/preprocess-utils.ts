@@ -226,7 +226,7 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
   
-  let where = v["where"] ?? v["filter"] ?? v["condition"];
+  let where = v["where"] ?? v["filter"] ?? v["condition"] ?? v["query"] ?? v["sql"];
   if (where === undefined && v["idColumn"] !== undefined && v["rowId"] !== undefined) {
     const idCol = v["idColumn"] as string;
     const rowId = v["rowId"];
@@ -242,7 +242,7 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   return {
     ...v,
     table: v["table"] ?? v["tableName"] ?? v["name"],
-    column: v["column"] ?? v["col"] ?? v["valueColumn"],
+    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"],
     where,
     searchValue: v["searchValue"] ?? v["searchString"],
   };

@@ -8,11 +8,14 @@ export const JsonSetSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to set"),
   value: z.unknown().optional().describe("Value to set"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonSetSchema = z
@@ -61,11 +64,14 @@ export const JsonInsertSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to insert at"),
   value: z.unknown().optional().describe("Value to insert"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonInsertSchema = z
@@ -114,11 +120,14 @@ export const JsonReplaceSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to replace"),
   value: z.unknown().optional().describe("Replacement value"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonReplaceSchema = z
@@ -167,11 +176,14 @@ export const JsonRemoveSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   paths: z.array(z.string()).optional().describe("JSON paths to remove"),
   path: z.string().optional().describe("Alias for single path to remove"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonRemoveSchema = z
@@ -217,11 +229,14 @@ export const JsonArrayAppendSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to array"),
   value: z.unknown().optional().describe("Value to append"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
 });
 
 export const JsonArrayAppendSchema = z
@@ -270,11 +285,14 @@ export const JsonUpdateSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to update"),
   value: z.unknown().optional().describe("New value"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });

@@ -8,9 +8,12 @@ export const JsonExtractSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path (e.g., $.name or $[0])"),
   where: z.string().optional().describe("WHERE clause for filtering rows"),
   filter: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
 });
 
@@ -53,9 +56,12 @@ export const JsonGetSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to extract"),
   where: z.string().optional().describe("WHERE clause to identify rows"),
   filter: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
@@ -100,9 +106,12 @@ export const JsonKeysSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
   path: z.string().optional().describe("Optional JSON path (defaults to root)"),
   where: z.string().optional().describe("Optional WHERE clause"),
   filter: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
 });
 
