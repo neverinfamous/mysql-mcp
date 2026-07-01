@@ -107,7 +107,7 @@ export async function checkDuplicateHash(
 
   // Check for checksum mismatch on the same version
   const versionCheck = await adapter.executeReadQuery(
-    `SELECT id, migration_hash FROM ${qualifiedTable} WHERE version = ? AND status IN ('applied', 'recorded')`,
+    `SELECT id, migration_hash, status FROM ${qualifiedTable} WHERE version = ? AND status IN ('applied', 'recorded')`,
     [version],
   );
   if (versionCheck.rows && versionCheck.rows.length > 0) {
@@ -127,14 +127,31 @@ export async function checkDuplicateHash(
           migrationHash,
           duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
         };
+      } else {
+        // Hash matches, but version is already applied or recorded
+        const status = row["status"] as string;
+        const duplicateError = {
+          success: false as const,
+          error: `Migration "${version}" has already been ${status}.`,
+          code: status === 'applied' ? "ALREADY_APPLIED" : "ALREADY_RECORDED",
+          category: "validation",
+          recoverable: true,
+        };
+        const tokenEstimate = Math.ceil(
+          Buffer.byteLength(JSON.stringify(duplicateError), "utf8") / 4,
+        );
+        return {
+          migrationHash,
+          duplicateError: { ...duplicateError, metrics: { tokenEstimate } },
+        };
       }
     }
   }
 
-  // Check for duplicate hash
+  // Check for duplicate hash (same SQL applied as a different version)
   const dupCheck = await adapter.executeReadQuery(
     `SELECT id, version, status FROM ${qualifiedTable}
-     WHERE migration_hash = ? AND status = 'applied'`,
+     WHERE migration_hash = ? AND status IN ('applied', 'recorded')`,
     [migrationHash],
   );
   const dupRows = dupCheck.rows ?? [];
@@ -142,12 +159,13 @@ export async function checkDuplicateHash(
     const dup = dupRows[0] ?? {};
     const dupId = dup["id"] as number;
     const dupVersion = dup["version"] as string;
+    const dupStatus = dup["status"] as string;
 
     if (dupVersion === version) {
       const duplicateError = {
         success: false as const,
-        error: `Migration "${version}" has already been applied.`,
-        code: "ALREADY_APPLIED",
+        error: `Migration "${version}" has already been ${dupStatus}.`,
+        code: dupStatus === 'applied' ? "ALREADY_APPLIED" : "ALREADY_RECORDED",
         category: "validation",
         recoverable: true,
       };
