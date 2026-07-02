@@ -82,8 +82,15 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   commit: "transactionId",
   rollback: "transactionId",
   savepoint: ["transactionId", "name"],
+  createSavepoint: ["transactionId", "name"],
+  addSavepoint: ["transactionId", "name"],
   release: ["transactionId", "name"],
+  releaseSavepoint: ["transactionId", "name"],
+  removeSavepoint: ["transactionId", "name"],
+  dropSavepoint: ["transactionId", "name"],
   rollbackTo: ["transactionId", "name"],
+  rollbackToSavepoint: ["transactionId", "name"],
+  revertToSavepoint: ["transactionId", "name"],
 
   // ============ PERFORMANCE GROUP ============
   explain: "sql",

@@ -143,8 +143,10 @@ export function preprocessSavepointParams(input: unknown): unknown {
     if (result["txId"] !== undefined) result["transactionId"] = result["txId"];
     else if (result["tx"] !== undefined) result["transactionId"] = result["tx"];
   }
-  if (result["savepoint"] === undefined && result["name"] !== undefined) {
-    result["savepoint"] = result["name"];
+  if (result["savepoint"] === undefined) {
+    if (result["name"] !== undefined) result["savepoint"] = result["name"];
+    else if (result["savepointName"] !== undefined) result["savepoint"] = result["savepointName"];
+    else if (result["id"] !== undefined) result["savepoint"] = result["id"];
   }
   return result;
 }

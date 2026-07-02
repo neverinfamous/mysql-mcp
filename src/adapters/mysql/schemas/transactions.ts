@@ -82,6 +82,8 @@ export const TransactionSavepointSchemaBase = z.object({
   tx: z.string().optional().describe("Alias for transactionId"),
   savepoint: z.string().optional().describe("Savepoint name"),
   name: z.string().optional().describe("Alias for savepoint"),
+  savepointName: z.string().optional().describe("Alias for savepoint"),
+  id: z.string().optional().describe("Alias for savepoint"),
 });
 
 // Transformed schema for handler parsing
