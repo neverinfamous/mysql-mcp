@@ -112,6 +112,7 @@ export function preprocessVectorParams(input: unknown): unknown {
   if (result["queryText"] === undefined) {
     if (result["query"] !== undefined) result["queryText"] = result["query"];
     else if (result["sql"] !== undefined) result["queryText"] = result["sql"];
+    else if (result["search"] !== undefined) result["queryText"] = result["search"];
   }
   
   if (typeof result["metric"] === "string") {

@@ -24,7 +24,7 @@ const filterParamBase = z
   .describe("Optional SQL WHERE clause fragment to filter results (e.g., 'status = \"active\"')");
 
 const tableParam = z.string().min(1, "Table name cannot be empty").describe("Target table name");
-const columnParam = z.string().min(1, "Column name cannot be empty").describe("Vector column name");
+const columnParam = z.string().min(1, "Column name cannot be empty").optional().describe("Vector column name (optional if table has only one)");
 const idParam = z.union([z.string(), z.number()]).describe("Row identifier (primary key value)");
 const idColumnParam = z
   .string()
@@ -181,7 +181,7 @@ export const VectorRangeSearchSchema = z
 export const VectorHybridSearchSchemaBase = z.object({
   ...tableAliasesBase,
   vectorColumn: z.string().optional().describe("Name of the vector column"),
-  textColumn: z.string().optional().describe("Name of the fulltext-indexed column"),
+  textColumn: z.string().describe("Name of the fulltext-indexed column"),
   queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers"),
   vector: z.array(z.number()).optional().describe("Alias for queryVector"),
   queryText: z.string().optional().describe("Natural language search query"),
