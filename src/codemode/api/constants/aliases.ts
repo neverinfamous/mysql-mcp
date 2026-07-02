@@ -108,6 +108,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     rollbackToSavepoint: "transactionRollbackTo",
     revertToSavepoint: "transactionRollbackTo",
     execute: "transactionExecute",
+    run: "transactionExecute",
+    exec: "transactionExecute",
+    query: "transactionExecute",
   },
   performance: {
     mysql_explain: "explain",

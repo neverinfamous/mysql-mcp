@@ -94,6 +94,9 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   rollbackToSavepoint: ["transactionId", "name"],
   revertToSavepoint: ["transactionId", "name"],
   execute: ["statements", "isolationLevel"],
+  run: ["statements", "isolationLevel"],
+  exec: ["statements", "isolationLevel"],
+  query: ["statements", "isolationLevel"],
 
   // ============ PERFORMANCE GROUP ============
   explain: "sql",
@@ -360,5 +363,8 @@ export const ARRAY_WRAP_MAP: Record<string, string> = {
   flushTables: "tables",
   transactionExecute: "statements",
   execute: "statements",
+  run: "statements",
+  exec: "statements",
+  query: "statements",
   polygon: "coordinates",
 };
