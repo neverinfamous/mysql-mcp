@@ -446,3 +446,37 @@ export function preprocessBinlogEventsParams(input: unknown): unknown {
 
   return result;
 }
+
+export function preprocessSpatialParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["spatialColumn"] === undefined) {
+    if (result["geometryColumn"] !== undefined) result["spatialColumn"] = result["geometryColumn"];
+    else if (result["column"] !== undefined) result["spatialColumn"] = result["column"];
+    else if (result["geomColumn"] !== undefined) result["spatialColumn"] = result["geomColumn"];
+  }
+
+  if (result["polygon"] === undefined) {
+    if (result["wkt"] !== undefined) result["polygon"] = result["wkt"];
+    else if (result["geometry"] !== undefined) result["polygon"] = result["geometry"];
+    else if (result["value"] !== undefined) result["polygon"] = result["value"];
+    else if (result["point"] !== undefined) {
+      result["polygon"] = Array.isArray(result["point"]) ? JSON.stringify(result["point"]) : result["point"];
+    }
+  }
+
+  if (result["geometry"] === undefined) {
+    if (result["wkt"] !== undefined) result["geometry"] = result["wkt"];
+    else if (result["polygon"] !== undefined) result["geometry"] = result["polygon"];
+    else if (result["point"] !== undefined) {
+      result["geometry"] = Array.isArray(result["point"]) ? JSON.stringify(result["point"]) : result["point"];
+    }
+  }
+  
+  if (result["geometry1"] === undefined && result["geomColumn1"] !== undefined) result["geometry1"] = result["geomColumn1"];
+  if (result["geometry2"] === undefined && result["geomColumn2"] !== undefined) result["geometry2"] = result["geomColumn2"];
+
+  return result;
+}
+

@@ -266,6 +266,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getPoint: "point",
     get: "polygon",
     getPolygon: "polygon",
+    intersect: "intersection",
   },
   // Security: intuitive aliases
   security: {

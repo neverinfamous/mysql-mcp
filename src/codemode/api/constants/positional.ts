@@ -209,6 +209,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   distanceSphere: ["table", "spatialColumn"],
   point: ["longitude", "latitude"],
   polygon: ["table", "spatialColumn", "coordinates"],
+  within: ["table", "spatialColumn", "geometry"],
+  intersection: ["geometry1", "geometry2"],
 
   // ============ SHELL GROUP ============
   // Note: exportTable omitted — conflicts with backup group's exportTable

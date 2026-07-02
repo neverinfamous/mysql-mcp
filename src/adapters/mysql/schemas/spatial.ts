@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { preprocessSpatialParams } from "./preprocess-utils.js";
 
 export const VALID_GEOMETRY_TYPES = new Set([
   "POINT",
@@ -222,8 +223,9 @@ export const ContainsSchemaBase = z.object({
     .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
 });
 
-export const ContainsSchema = z
-  .object({
+export const ContainsSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
@@ -242,6 +244,7 @@ export const ContainsSchema = z
     limit: data.limit !== undefined ? Number(data.limit) : 100,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+)
   .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -266,8 +269,9 @@ export const WithinSchemaBase = z.object({
     .describe("SRID of the input geometry (default: 4326 for GPS coordinates)"),
 });
 
-export const WithinSchema = z
-  .object({
+export const WithinSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
@@ -286,6 +290,7 @@ export const WithinSchema = z
     limit: data.limit !== undefined ? Number(data.limit) : 100,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+)
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -300,8 +305,9 @@ export const IntersectionSchemaBase = z.object({
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const IntersectionSchema = z
-  .object({
+export const IntersectionSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     geometry1: z.string(),
     geometry2: z.string(),
     srid: z.unknown().optional(),
@@ -311,6 +317,7 @@ export const IntersectionSchema = z
     geometry2: data.geometry2,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+)
   .refine((data) => data.geometry1.trim() !== "" && data.geometry2.trim() !== "", { message: "both geometries must be non-empty strings" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
