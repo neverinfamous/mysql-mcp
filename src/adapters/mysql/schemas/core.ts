@@ -15,7 +15,7 @@ import {
 
 // Base schema for MCP visibility (AI sees: query, sql, params, transactionId, txId, tx)
 export const ReadQuerySchemaBase = z.object({
-  query: z.string().optional().describe("SQL SELECT query to execute"),
+  query: z.string().optional().describe("SQL SELECT query to execute. Anti-Hallucination Hint: Must be a valid SQL query (e.g. 'SELECT * FROM users'), not just a table name."),
   sql: z.string().optional().describe("Alias for query"),
   params: z
     .array(z.unknown())
@@ -206,7 +206,7 @@ export const CreateTableSchemaBase = z.object({
       }),
     )
     .optional()
-    .describe("Column definitions"),
+    .describe("Column definitions. Anti-Hallucination Hint: Must be an array of objects (e.g. [{name: 'id', type: 'INT'}]), not a key-value object."),
   engine: z
     .enum(["InnoDB", "MyISAM", "MEMORY", "CSV", "ARCHIVE"])
     .optional()

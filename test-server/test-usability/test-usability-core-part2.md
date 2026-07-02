@@ -18,6 +18,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `c
 - Test positional params: Try `mysql.core.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.core.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Test column structure: Try passing `columns: { id: "int" }` (an object instead of an array) to `createTable` to ensure the Anti-Hallucination hint fires.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
