@@ -81,6 +81,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Performance: intuitive aliases
   performance: {
+    mysql_explain: "explain",
+    mysql_explain_analyze: "explainAnalyze",
+    mysql_slow_queries: "slowQueries",
     queryPlan: "explain",
     analyze: "explainAnalyze",
     slowLog: "slowQueries",
