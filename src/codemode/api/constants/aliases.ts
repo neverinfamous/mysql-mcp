@@ -314,8 +314,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   // DocStore: shorter aliases
   docstore: {
     add: "docAdd",
+    insert: "docAdd",
     find: "docFind",
     modify: "docModify",
+    update: "docModify",
     remove: "docRemove",
     createCollection: "docCreateCollection",
     create: "docCreateCollection",

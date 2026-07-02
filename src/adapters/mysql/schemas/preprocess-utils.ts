@@ -33,6 +33,9 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
   if (result["schema"] === undefined && result["database"] !== undefined) {
     result["schema"] = result["database"];
   }
+  if (result["documents"] === undefined && result["document"] !== undefined) {
+    result["documents"] = Array.isArray(result["document"]) ? result["document"] : [result["document"]];
+  }
   return result;
 }
 
@@ -320,7 +323,15 @@ export function preprocessDocFilterParams(val: unknown): unknown {
 
   // Aliases
   if (result["filter"] === undefined) {
-    if (result["criteria"] !== undefined) {
+    if (result["documentId"] !== undefined) {
+      if (typeof result["documentId"] === "string") {
+        result["filter"] = result["documentId"];
+      } else if (typeof result["documentId"] === "number" || typeof result["documentId"] === "boolean") {
+        result["filter"] = String(result["documentId"]);
+      } else {
+        result["filter"] = JSON.stringify(result["documentId"]);
+      }
+    } else if (result["criteria"] !== undefined) {
       // Stringify if criteria is an object, because filter expects a string
       result["filter"] =
         typeof result["criteria"] === "object" && result["criteria"] !== null
@@ -337,8 +348,12 @@ export function preprocessDocFilterParams(val: unknown): unknown {
           : result["query"];
     }
   }
-  if (result["set"] === undefined && result["update"] !== undefined) {
-    result["set"] = result["update"];
+  if (result["set"] === undefined) {
+    if (result["patch"] !== undefined) {
+      result["set"] = result["patch"];
+    } else if (result["update"] !== undefined) {
+      result["set"] = result["update"];
+    }
   }
 
   if (result["filter"] !== undefined) {
