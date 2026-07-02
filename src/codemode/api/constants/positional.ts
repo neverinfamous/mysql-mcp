@@ -264,7 +264,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ SHELL GROUP ============
   // Note: exportTable omitted — conflicts with backup group's exportTable
+  version: "includeComponents",
+  mysqlsh_version: "includeComponents",
   checkUpgrade: "targetVersion",
+  mysqlsh_check_upgrade: "targetVersion",
   runScript: ["script", "language"],
   importTable: ["inputPath", "schema", "table"],
   importJson: ["inputPath", "schema", "collection"],

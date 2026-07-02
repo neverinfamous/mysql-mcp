@@ -580,6 +580,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     get: "version",
     info: "version",
     status: "version",
+    getVersion: "version",
+    check: "checkUpgrade",
   },
   // Introspection: shorter aliases
   introspection: {

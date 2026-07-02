@@ -49,5 +49,5 @@ export const ShellExportTableInputSchema = z.preprocess(
     };
   },
   ShellExportTableInputSchemaBase
-).refine((data) => data.schema !== "", { message: "schema must not be empty" })
- .refine((data) => data.table !== "", { message: "table must not be empty" });
+).refine((data) => data.table != null && data.table !== "", { message: "VALIDATION_ERROR: table is required" })
+ .refine((data) => data.outputPath != null && data.outputPath !== "", { message: "VALIDATION_ERROR: outputPath is required" });

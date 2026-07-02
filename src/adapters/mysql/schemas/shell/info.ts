@@ -46,8 +46,15 @@ export const ShellVersionInputSchemaBase = ShellToolBaseSchema.extend({
 
 export const ShellVersionInputSchema = z.preprocess(
   (val: unknown) => {
-    if (val === undefined || val === null || typeof val !== "object") return val;
-    return val;
+    if (val === undefined || val === null) return {};
+    if (typeof val === "boolean") return { includeComponents: val };
+    if (typeof val === "string") return { includeComponents: val === "true" || val === "1" };
+    if (typeof val !== "object") return {};
+    const obj = { ...(val as Record<string, unknown>) };
+    if (typeof obj['includeComponents'] === "string") {
+      obj['includeComponents'] = obj['includeComponents'] === "true" || obj['includeComponents'] === "1";
+    }
+    return obj;
   },
   ShellVersionInputSchemaBase
 );
