@@ -129,6 +129,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     kill: "killQuery",
     serverConfig: "serverConfig",
     config: "serverConfig",
+    insight: "appendInsight",
+    append: "appendInsight",
+    audit: "auditSearch",
+    search: "auditSearch",
   },
   // Monitoring: intuitive aliases
   monitoring: {

@@ -106,7 +106,9 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   analyzeTable: "table",
   killQuery: "processId",
   flushTables: "tables",
-  serverConfig: "logLevel",
+  serverConfig: ["action", "setting", "value"],
+  appendInsight: "insight",
+  auditSearch: "search",
 
   // ============ BACKUP GROUP ============
   createDump: "tables",

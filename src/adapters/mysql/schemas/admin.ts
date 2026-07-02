@@ -350,7 +350,7 @@ export const ServerHealthSchema = z.preprocess(
 export const ServerConfigSchemaBase = z.object({
   action: z
     .enum(["get", "set"])
-    .describe("Whether to get or set the configuration value"),
+    .describe("Whether to get or set the configuration value. Note: action is required."),
   setting: z
     .enum(["logLevel"])
     .optional()
@@ -374,6 +374,8 @@ export const ServerConfigSchema = ServerConfigSchemaBase.refine(
 // --- AuditSearch ---
 export const AuditSearchSchemaBase = z.object({
   search: z.string().optional().describe("Fuzzy text search across tool, category, error, and args"),
+  query: z.string().optional().describe("Alias for search"),
+  sql: z.string().optional().describe("Alias for search"),
   tool: z.string().optional().describe("Filter by exact tool name"),
   category: z.string().optional().describe("Filter by category (e.g. read, write, admin)"),
   success: z.boolean().optional().describe("Filter by success status"),
@@ -388,6 +390,9 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
   if (obj === null || obj === undefined || typeof obj !== "object") return obj;
   const record = obj as Record<string, unknown>;
   const result = { ...record };
+  if (result["search"] === undefined && (result["query"] !== undefined || result["sql"] !== undefined)) {
+    result["search"] = result["query"] ?? result["sql"];
+  }
   if (typeof result["limit"] === "string") {
     const num = Number(result["limit"]);
     if (!Number.isNaN(num)) result["limit"] = num;
@@ -403,12 +408,36 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
 export const AppendInsightSchemaBase = z.object({
   insight: z
     .string()
+    .optional()
     .describe(
-      "Business insight text to record (e.g., 'Sales table has 40% NULL values in email column').",
+      "Business insight text to record. Note: Pass insight, not text or message.",
     ),
+  text: z.string().optional().describe("Alias for insight"),
+  message: z.string().optional().describe("Alias for insight"),
 });
 
-export const AppendInsightSchema = AppendInsightSchemaBase;
+export const AppendInsightSchema = z
+  .preprocess(
+    (obj: unknown) => {
+      if (typeof obj === "object" && obj !== null) {
+        const data = obj as Record<string, unknown>;
+        return {
+          ...data,
+          insight: data["insight"] ?? data["text"] ?? data["message"] ?? data["query"] ?? data["sql"] ?? data["name"] ?? data["table"],
+        };
+      }
+      return obj;
+    },
+    z.object({
+      insight: z.string().optional(),
+    })
+  )
+  .transform((data) => ({
+    insight: data.insight ?? "",
+  }))
+  .refine((data) => data.insight !== "", {
+    message: "insight (or text/message alias) is required",
+  });
 
 // =============================================================================
 // Output Schemas
