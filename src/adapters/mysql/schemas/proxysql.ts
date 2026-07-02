@@ -376,14 +376,27 @@ export const ProxySQLCommandInputSchemaBase = z.object({
       "PROXYSQL FLUSH QUERY CACHE",
       "PROXYSQL FLUSH LOGS",
     ])
-    .describe("ProxySQL admin command to execute"),
+    .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
 });
 
 export const ProxySQLCommandInputSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "string") return { command: val };
     if (typeof val !== "object" || val === null) return val ?? {};
-    return val;
+    const result = { ...(val as Record<string, unknown>) };
+    
+    // Anti-Hallucination: map 'sql' or 'query' to 'command'
+    if (result["command"] === undefined) {
+      if (result["sql"] !== undefined) {
+        result["command"] = result["sql"];
+      } else if (result["query"] !== undefined) {
+        result["command"] = result["query"];
+      }
+    }
+    delete result["sql"];
+    delete result["query"];
+    
+    return result;
   },
   z.object({
     command: z
@@ -401,7 +414,7 @@ export const ProxySQLCommandInputSchema = z.preprocess(
         "PROXYSQL FLUSH QUERY CACHE",
         "PROXYSQL FLUSH LOGS",
       ])
-      .describe("ProxySQL admin command to execute"),
+      .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
   }).strict()
 );
 
