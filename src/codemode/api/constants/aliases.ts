@@ -289,6 +289,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getInstances: "clusterInstances",
     getRouterStatus: "clusterRouterStatus",
     getSwitchover: "clusterSwitchover",
+    failover: "clusterSwitchover",
     mysql_gr_status: "grStatus",
     mysql_gr_members: "grMembers",
     mysql_gr_primary: "grPrimary",

@@ -19,9 +19,9 @@ export function createClusterSwitchoverTool(
     name: "mysql_cluster_switchover",
     title: "MySQL Cluster Switchover Analysis",
     description:
-      "Analyze cluster state and provide switchover recommendations.",
+      "Analyze cluster state and provide switchover recommendations. Note: This tool does NOT execute a switchover.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Note: This tool ONLY performs switchover analysis and recommendations. It does NOT execute a switchover. It takes NO parameters."),
     outputSchema: ClusterSwitchoverOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
