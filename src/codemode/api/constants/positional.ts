@@ -96,7 +96,12 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ PERFORMANCE GROUP ============
   explain: "sql",
+  mysql_explain: "sql",
   explainAnalyze: "sql",
+  mysql_explain_analyze: "sql",
+  slowQueries: "limit",
+  slow_queries: "limit",
+  mysql_slow_queries: "limit",
   indexUsage: "table",
   tableStats: "table",
   threadStats: "limit",
