@@ -91,6 +91,12 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   detectBloatRisk: "table",
   detectConnectionSpike: "warningPercent",
 
+  // ============ OPTIMIZATION GROUP ============
+  indexRecommendation: "table",
+  forceIndex: ["table", "query", "indexName"],
+  queryRewrite: "query",
+  optimizerTrace: "query",
+
   // ============ ADMIN GROUP ============
   checkTable: "table",
   repairTable: "table",

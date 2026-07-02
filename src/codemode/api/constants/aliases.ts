@@ -115,6 +115,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     hint: "forceIndex",
     forceHint: "forceIndex",
     rewrite: "queryRewrite",
+    get: "indexRecommendation",
   },
   // Admin: intuitive aliases
   admin: {
