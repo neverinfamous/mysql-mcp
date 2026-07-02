@@ -121,7 +121,7 @@ export const JsonInsertSchema = z
 
 // --- JsonReplace ---
 export const JsonReplaceSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -129,7 +129,7 @@ export const JsonReplaceSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to replace"),
   value: z.unknown().optional().describe("Replacement value"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -180,15 +180,17 @@ export const JsonReplaceSchema = z
 
 // --- JsonRemove ---
 export const JsonRemoveSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
-  paths: z.array(z.string()).optional().describe("JSON paths to remove"),
+  paths: z.array(z.string()).optional().describe("JSON paths to remove (Anti-Hallucination: Pass 'paths', not 'path' or 'keys')"),
   path: z.string().optional().describe("Alias for single path to remove"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  keys: z.array(z.string()).optional().describe("Alias for paths"),
+  key: z.string().optional().describe("Alias for single path to remove"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -206,6 +208,8 @@ export const JsonRemoveSchema = z
       col: z.string().optional(),
       paths: z.array(z.string()).optional(),
       path: z.string().optional(),
+      keys: z.array(z.string()).optional(),
+      key: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
@@ -217,7 +221,7 @@ export const JsonRemoveSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    paths: data.paths ?? (data.path ? [data.path] : []),
+    paths: data.paths ?? data.keys ?? (data.path ? [data.path] : data.key ? [data.key] : []),
     where: data.where ?? data.filter ?? data.condition ?? "",
   }))
   .refine((data) => data.table !== "", {
