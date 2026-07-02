@@ -71,6 +71,26 @@ export function preprocessTableParams(input: unknown): unknown {
 }
 
 /**
+ * Preprocess index parameters:
+ * - Alias: column -> columns
+ * - Coerce string to array
+ */
+export function preprocessIndexParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["columns"] === undefined && result["column"] !== undefined) {
+    result["columns"] = result["column"];
+  }
+
+  if (typeof result["columns"] === "string") {
+    result["columns"] = [result["columns"]];
+  }
+
+  return result;
+}
+
+/**
  * Preprocess conditional update parameters:
  * - Alias: condition -> conditions
  * - Normalizes string/object condition to array

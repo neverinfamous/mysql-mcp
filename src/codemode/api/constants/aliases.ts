@@ -529,7 +529,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Core: shorter aliases
   core: {
-    get: "readQuery",
     query: "readQuery",
     insert: "writeQuery",
     update: "writeQuery",
@@ -545,11 +544,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     drop: "dropTable",
     indexCreate: "createIndex",
     indexes: "getIndexes",
+    getIndex: "getIndexes",
     listIndexes: "getIndexes",
     showIndexes: "getIndexes",
     versioning: "enableVersioning",
+    enableVersion: "enableVersioning",
+    enable: "enableVersioning",
     unversioning: "disableVersioning",
     disableVersion: "disableVersioning",
+    disable: "disableVersioning",
     removeVersioning: "disableVersioning",
     getVersion: "checkVersion",
     version: "checkVersion",

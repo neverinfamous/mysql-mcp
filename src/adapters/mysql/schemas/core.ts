@@ -5,6 +5,7 @@ import {
   preprocessQueryParams,
   preprocessCreateTableParams,
   preprocessConditionalUpdateParams,
+  preprocessIndexParams,
 } from "./preprocess-utils.js";
 
 // =============================================================================
@@ -309,7 +310,7 @@ export const CreateIndexSchemaBase = z.object({
 
 // Transformed schema for handler parsing
 export const CreateIndexSchema = z
-  .preprocess(preprocessTableParams, CreateIndexSchemaBase)
+  .preprocess(preprocessIndexParams, CreateIndexSchemaBase)
   .transform((data) => ({
     name: data.name ?? data.indexName,
     table: data.table ?? data.tableName ?? "",
