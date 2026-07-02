@@ -294,7 +294,7 @@ export const CreateIndexSchemaBase = z.object({
   indexName: z.string().optional().describe("Alias for name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Column names to index"),
+  columns: z.array(z.string()).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
   unique: z.boolean().optional().default(false).describe("Create unique index"),
   type: z
     .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])

@@ -17,7 +17,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   getIndexes: "table",
   dropIndex: "name",
   createTable: ["name", "columns"],
-  createIndex: ["table", "columns"],
+  createIndex: ["table", "name", "columns"],
   enableVersioning: "table",
   disableVersioning: "table",
   checkVersion: ["table", "rowId"],
