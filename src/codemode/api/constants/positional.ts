@@ -189,7 +189,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ PARTITIONING GROUP ============
   addPartition: ["table", "partitionName", "partitionType", "value"],
   dropPartition: ["table", "partitionName"],
-  reorganizePartition: ["table", "partitions"],
+  reorganizePartition: ["table", "fromPartitions", "toPartitions"],
   partitionInfo: "table",
 
   // ============ SPATIAL GROUP ============

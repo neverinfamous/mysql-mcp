@@ -204,9 +204,12 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   partitioning: {
     add: "addPartition",
     drop: "dropPartition",
+    remove: "dropPartition",
+    delete: "dropPartition",
     reorganize: "reorganizePartition",
     info: "partitionInfo",
     list: "partitionInfo", // list() → partitionInfo()
+    get: "partitionInfo",
   },
   // Schema: intuitive aliases
   schema: {

@@ -61,7 +61,16 @@ export const AddPartitionSchemaBase = z.object({
 
 export const AddPartitionSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => {
+      const v = preprocessTableParams(val);
+      if (typeof v === "object" && v !== null) {
+        const obj = v as Record<string, unknown>;
+        if (typeof obj["partitionType"] === "string") {
+          obj["partitionType"] = obj["partitionType"].toUpperCase();
+        }
+      }
+      return v;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -173,7 +182,16 @@ export const ReorganizePartitionSchemaBase = z.object({
 
 export const ReorganizePartitionSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => {
+      const v = preprocessTableParams(val);
+      if (typeof v === "object" && v !== null) {
+        const obj = v as Record<string, unknown>;
+        if (typeof obj["partitionType"] === "string") {
+          obj["partitionType"] = obj["partitionType"].toUpperCase();
+        }
+      }
+      return v;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
