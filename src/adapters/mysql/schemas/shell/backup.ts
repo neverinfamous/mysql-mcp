@@ -10,6 +10,8 @@ export const ShellDumpInstanceInputSchemaBase = z
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
+    dir: z.string().optional().describe("Alias for outputDir"),
+    directory: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -49,10 +51,10 @@ export const ShellDumpInstanceInputSchemaBase = z
 export const ShellDumpInstanceInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; dir?: unknown; directory?: unknown };
     return {
       ...obj,
-      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.dir ?? obj.directory,
     };
   },
   ShellDumpInstanceInputSchemaBase

@@ -189,7 +189,7 @@ export const ShellImportTableInputSchema = z
         : String(data.table as string | number | boolean),
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.table !== "", { message: "table must not be empty" });
+  .refine((data) => data.table != null && data.table !== "", { message: "table is required" });
 
 export const ShellImportJSONInputSchemaBase = z
   .object({
@@ -236,8 +236,8 @@ export const ShellImportJSONInputSchema = z
         : "",
   }))
   .refine((data) => data.schema !== "", { message: "schema must not be empty" })
-  .refine((data) => data.collection !== "", {
-    message: "collection must not be empty",
+  .refine((data) => data.collection != null && data.collection !== "", {
+    message: "collection is required",
   });
 
 // =============================================================================
