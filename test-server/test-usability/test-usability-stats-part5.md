@@ -18,6 +18,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `s
 - Test positional params: Try `mysql.stats.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.stats.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Test full SELECT query injection: Try passing a full SQL query (e.g., `SELECT * FROM table`) to `where` to verify it gets blocked by anti-hallucination refine checks.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase

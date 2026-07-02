@@ -205,6 +205,9 @@ export const StatsMovingAvgSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Number of rows in the moving window"),
+  window_size: z.unknown().optional().describe("Alias for windowSize"),
+  size: z.unknown().optional().describe("Alias for windowSize"),
+  period: z.unknown().optional().describe("Alias for windowSize"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z
     .unknown()
@@ -226,7 +229,13 @@ export const StatsMovingAvgSchemaBase = z.object({
 });
 
 export const StatsMovingAvgSchema = z.preprocess(
-  preprocessJsonColumnParams,
+  (val: unknown) => {
+    const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    return {
+      ...v,
+      windowSize: v["windowSize"] ?? v["window_size"] ?? v["size"] ?? v["period"],
+    };
+  },
   z.object({
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),
@@ -251,6 +260,8 @@ export const StatsNtileSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Number of buckets (e.g., 4 for quartiles)"),
+  quantiles: z.unknown().optional().describe("Alias for buckets"),
+  n: z.unknown().optional().describe("Alias for buckets"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z
     .unknown()
@@ -272,7 +283,13 @@ export const StatsNtileSchemaBase = z.object({
 });
 
 export const StatsNtileSchema = z.preprocess(
-  preprocessJsonColumnParams,
+  (val: unknown) => {
+    const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    return {
+      ...v,
+      buckets: v["buckets"] ?? v["quantiles"] ?? v["n"],
+    };
+  },
   z.object({
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),

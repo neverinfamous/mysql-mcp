@@ -36,7 +36,11 @@ export const StatsHypothesisSchemaBase = z.object({
   groupColumn: z.string().optional().describe("Column containing the two groups (for two-sample test)"),
   group1: z.unknown().optional().describe("First group value"),
   group2: z.unknown().optional().describe("Second group value"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const StatsHypothesisSchema = z.preprocess(
@@ -47,6 +51,7 @@ export const StatsHypothesisSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["sql"] ?? obj["query"],
     };
   },
   z.object({
@@ -60,7 +65,7 @@ export const StatsHypothesisSchema = z.preprocess(
     groupColumn: z.string().optional(),
     group1: z.union([z.string(), z.number()]).optional(),
     group2: z.union([z.string(), z.number()]).optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
   })
 );
 
