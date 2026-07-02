@@ -32,6 +32,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user"),
   username: z.string().optional().describe("Alias for user"),
+  account: z.string().optional().describe("Alias for user"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
 
@@ -40,9 +41,9 @@ const UserSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { user?: unknown; username?: unknown; limit?: unknown };
+    const v = val as { user?: unknown; username?: unknown; account?: unknown; limit?: unknown };
     return {
-      user: v.user ?? v.username,
+      user: v.user ?? v.username ?? v.account,
       limit: v.limit,
     };
   },
@@ -55,6 +56,8 @@ const UserSummarySchema = z.preprocess(
 const HostSummarySchemaBase = z.object({
   host: z.string().optional().describe("Filter by specific host"),
   hostname: z.string().optional().describe("Alias for host"),
+  ip: z.string().optional().describe("Alias for host"),
+  address: z.string().optional().describe("Alias for host"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
 
@@ -63,9 +66,9 @@ const HostSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { host?: unknown; hostname?: unknown; limit?: unknown };
+    const v = val as { host?: unknown; hostname?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
     return {
-      host: v.host ?? v.hostname,
+      host: v.host ?? v.hostname ?? v.ip ?? v.address,
       limit: v.limit,
     };
   },

@@ -32,6 +32,8 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const LimitSchemaBase = z.object({
   limit: z.number().optional().describe("Maximum number of results to return"),
+  max: z.number().optional().describe("Alias for limit"),
+  count: z.number().optional().describe("Alias for limit"),
 });
 
 const LimitSchema = z.preprocess(
@@ -39,9 +41,9 @@ const LimitSchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { limit?: unknown };
+    const v = val as { limit?: unknown; max?: unknown; count?: unknown };
     return {
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
