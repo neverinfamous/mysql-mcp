@@ -24,7 +24,7 @@ export const BinlogEventsSchema = z.preprocess(
       .string()
       .min(1, "Invalid logFile: cannot be an empty string")
       .optional()
-      .describe("Binlog file name (aliases: file, filename, binlog)"),
+      .describe("Binlog file name (aliases: file, filename, fileName, binlog)"),
     position: z.number().optional().describe("Starting position (alias: pos)"),
     limit: z
       .number()

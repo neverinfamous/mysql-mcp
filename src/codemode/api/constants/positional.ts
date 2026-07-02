@@ -203,6 +203,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ REPLICATION GROUP ============
   binlogEvents: ["logFile", "position"],
+  mysql_binlog_events: ["logFile", "position"],
 
   // ============ ROLES GROUP ============
   roleCreate: "name",

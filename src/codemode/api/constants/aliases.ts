@@ -241,6 +241,11 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getLag: "replicationLag",
     get: "slaveStatus",
     info: "slaveStatus",
+    mysql_master_status: "masterStatus",
+    mysql_slave_status: "slaveStatus",
+    mysql_binlog_events: "binlogEvents",
+    mysql_gtid_status: "gtidStatus",
+    mysql_replication_lag: "replicationLag",
   },
   // Partitioning: shorter aliases
   partitioning: {
