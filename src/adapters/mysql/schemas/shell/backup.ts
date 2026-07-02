@@ -64,6 +64,7 @@ export const ShellDumpSchemasInputSchemaBase = z
   .object({
     schemas: z.union([z.string(), z.array(z.string())]).optional().describe("Schema names to dump"),
     schema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
+    schemaNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
@@ -106,8 +107,8 @@ export const ShellDumpSchemasInputSchemaBase = z
 export const ShellDumpSchemasInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schemas?: unknown; schema?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
-    const rawSchemas = obj.schemas ?? obj.schema ?? obj.name;
+    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const rawSchemas = obj.schemas ?? obj.schema ?? obj.schemaNames ?? obj.name;
     const schemasArray = Array.isArray(rawSchemas) 
       ? rawSchemas.map(String) 
       : typeof rawSchemas === "string" 
@@ -129,7 +130,9 @@ export const ShellDumpSchemasInputSchema = z.preprocess(
 export const ShellDumpTablesInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Schema containing tables"),
+    schemaName: z.string().optional().describe("Alias for schema"),
     tables: z.array(z.string()).optional().describe("Table names to dump"),
+    tableNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
@@ -170,8 +173,8 @@ export const ShellDumpTablesInputSchemaBase = z
 export const ShellDumpTablesInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; tables?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
-    const rawTables = obj.tables ?? obj.table ?? obj.tableName ?? obj.name;
+    const obj = val as { schema?: unknown; schemaName?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const rawTables = obj.tables ?? obj.tableNames ?? obj.table ?? obj.tableName ?? obj.name;
     const tablesArray = Array.isArray(rawTables) 
       ? rawTables.map(String) 
       : typeof rawTables === "string" 
@@ -182,9 +185,13 @@ export const ShellDumpTablesInputSchema = z.preprocess(
       schema:
         typeof obj.schema === "string"
           ? obj.schema
-          : typeof obj.schema === "number" || typeof obj.schema === "boolean"
-            ? String(obj.schema)
-            : "",
+          : typeof obj.schemaName === "string"
+            ? obj.schemaName
+            : typeof obj.schema === "number" || typeof obj.schema === "boolean"
+              ? String(obj.schema)
+              : typeof obj.schemaName === "number" || typeof obj.schemaName === "boolean"
+                ? String(obj.schemaName)
+                : "",
       tables: tablesArray,
       outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
     };
