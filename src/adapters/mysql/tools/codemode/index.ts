@@ -21,7 +21,7 @@ import { createMysqlApi } from "../../../../codemode/api/index.js";
 import { logger } from "../../../../utils/logger.js";
 
 import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
-import { defaultToEmpty } from "../../schemas/preprocess-utils.js";
+import { preprocessExecuteCodeParams } from "../../schemas/preprocess-utils.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
 // Schema for mysql_execute_code input
@@ -42,7 +42,7 @@ export const ExecuteCodeSchemaBase = z.object({
 });
 
 export const ExecuteCodeSchema = z.preprocess(
-  defaultToEmpty,
+  preprocessExecuteCodeParams,
   ExecuteCodeSchemaBase,
 );
 

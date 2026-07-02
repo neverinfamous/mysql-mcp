@@ -15,6 +15,21 @@ export function defaultToEmpty(input: unknown): unknown {
 }
 
 /**
+ * Preprocess execute code params:
+ * - Alias: script/query/sql -> code
+ */
+export function preprocessExecuteCodeParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input ?? {};
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["code"] === undefined) {
+    if (result["script"] !== undefined) result["code"] = result["script"];
+    else if (result["query"] !== undefined) result["code"] = result["query"];
+    else if (result["sql"] !== undefined) result["code"] = result["sql"];
+  }
+  return result;
+}
+
+/**
  * Preprocess document collection params:
  * - Alias: collection -> name
  */
