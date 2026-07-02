@@ -38,7 +38,7 @@ export function getReplicationTools(adapter: MySQLAdapter): ToolDefinition[] {
 }
 
 function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_master_status",
@@ -81,7 +81,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_slave_status",
@@ -228,7 +228,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_gtid_status",
@@ -279,7 +279,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_replication_lag",

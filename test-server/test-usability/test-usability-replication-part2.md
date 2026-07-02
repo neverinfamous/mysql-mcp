@@ -16,7 +16,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `r
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
 - Test positional params: Try `mysql.replication.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.replication.get()`).
-- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Test extra properties: Try passing `{ fakeProp: 1 }` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception or silently ignoring it.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
