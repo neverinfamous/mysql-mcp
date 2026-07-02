@@ -14,11 +14,13 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListTriggersSchemaBase = z.object({
   table: z.string().optional().describe("Filter by table name"),
+  tableName: z.string().optional().describe("Alias for table"),
   schema: z
     .string()
     .optional()
     .describe("Schema name to list triggers for"),
   database: z.string().optional().describe("Alias for schema"),
+  dbName: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
 });
@@ -29,7 +31,8 @@ const ListTriggersSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj['schema'] ?? obj['database'],
+        table: obj['table'] ?? obj['tableName'],
+        schema: obj['schema'] ?? obj['database'] ?? obj['dbName'],
       };
     }
     return val;

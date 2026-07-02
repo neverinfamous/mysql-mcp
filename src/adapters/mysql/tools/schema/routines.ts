@@ -18,6 +18,7 @@ const ListObjectsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  dbName: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
 });
@@ -28,7 +29,7 @@ const ListObjectsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj['schema'] ?? obj['database'],
+        schema: obj['schema'] ?? obj['database'] ?? obj['dbName'],
       };
     }
     return val;
