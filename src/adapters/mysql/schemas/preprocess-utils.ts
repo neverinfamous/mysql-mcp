@@ -52,6 +52,7 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
   const result = { ...(input as Record<string, unknown>) };
   if (result["name"] === undefined) {
     if (result["collection"] !== undefined) result["name"] = result["collection"];
+    else if (result["collectionName"] !== undefined) result["name"] = result["collectionName"];
     else if (result["table"] !== undefined) result["name"] = result["table"];
     else if (result["tableName"] !== undefined) result["name"] = result["tableName"];
     else if (result["tbl"] !== undefined) result["name"] = result["tbl"];
@@ -453,6 +454,10 @@ export function preprocessDocFilterParams(val: unknown): unknown {
       result["filter"] = typeof result["query"] === "object" && result["query"] !== null
           ? JSON.stringify(result["query"])
           : result["query"];
+    } else if (result["sql"] !== undefined) {
+      result["filter"] = typeof result["sql"] === "object" && result["sql"] !== null
+          ? JSON.stringify(result["sql"])
+          : result["sql"];
     }
   }
   if (result["set"] === undefined) {
@@ -483,6 +488,7 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   delete result["condition"];
   delete result["update"];
   delete result["query"];
+  delete result["sql"];
 
   return result;
 }

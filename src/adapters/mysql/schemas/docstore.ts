@@ -37,7 +37,7 @@ export const CreateCollectionSchemaBase = z.object({
 });
 
 export const CreateCollectionSchemaStrict = z.object({
-  name: z.string().describe("Collection name"),
+  name: z.string().describe("Collection name. Hint: Use 'name' instead of 'tableName' or 'collectionName'."),
   schema: z.string().optional(),
   ifNotExists: z.boolean().default(false).describe("Add IF NOT EXISTS clause"),
   validation: z
@@ -107,7 +107,7 @@ export const FindSchemaStrict = z.object({
     .string()
     .optional()
     .describe(
-      "Filter: JSON path for existence ($.name) OR _id value for specific document",
+      "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
   fields: z.array(z.string()).optional(),
   limit: z.number().default(100),
@@ -173,7 +173,7 @@ export const ModifyDocSchemaStrict = z.object({
   filter: z
     .string()
     .describe(
-      "Filter: JSON path for existence ($.name) OR _id value for specific document",
+      "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
   set: z.record(z.string(), z.unknown()).optional().describe("Fields to set"),
   unset: z.array(z.string()).optional(),
@@ -207,7 +207,7 @@ export const RemoveDocSchemaStrict = z.object({
   filter: z
     .string()
     .describe(
-      "Filter: JSON path for existence ($.name) OR _id value for specific document",
+      "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
 });
 
