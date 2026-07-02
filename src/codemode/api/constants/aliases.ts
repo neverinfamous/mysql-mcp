@@ -202,6 +202,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getInnodbStatus: "innodbStatus",
     getReplicationStatus: "replicationStatus",
     getPoolStats: "poolStats",
+    getServerHealth: "serverHealth",
   },
   // Backup: shorter aliases
   backup: {
