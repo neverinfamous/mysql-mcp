@@ -17,7 +17,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `s
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
 - Test positional params: Try `mysql.sysschema.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.sysschema.get()`).
-- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Test missing properties: Note that `sysschema` tools often have all optional properties, so `{}` will succeed. To verify structured domain errors (e.g., `VALIDATION_ERROR`), pass explicitly invalid types (e.g., `{ limit: "abc" }` or `{ type: "invalid_type" }`) instead of `{}`.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase

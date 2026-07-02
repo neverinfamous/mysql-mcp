@@ -30,7 +30,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const UserSummarySchemaBase = z.object({
-  user: z.string().optional().describe("Filter by specific user"),
+  user: z.string().optional().describe("Filter by specific user. Anti-Hallucination: Pass 'user', not 'userName' or 'account'."),
   username: z.string().optional().describe("Alias for user"),
   account: z.string().optional().describe("Alias for user"),
   limit: z.number().optional().describe("Maximum number of results"),
@@ -41,9 +41,9 @@ const UserSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { user?: unknown; username?: unknown; account?: unknown; limit?: unknown };
+    const v = val as { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown };
     return {
-      user: v.user ?? v.username ?? v.account,
+      user: v.user ?? v.username ?? v.userName ?? v.account,
       limit: v.limit,
     };
   },
@@ -54,7 +54,7 @@ const UserSummarySchema = z.preprocess(
 );
 
 const HostSummarySchemaBase = z.object({
-  host: z.string().optional().describe("Filter by specific host"),
+  host: z.string().optional().describe("Filter by specific host. Anti-Hallucination: Pass 'host', not 'hostName' or 'ip'."),
   hostname: z.string().optional().describe("Alias for host"),
   ip: z.string().optional().describe("Alias for host"),
   address: z.string().optional().describe("Alias for host"),
@@ -66,9 +66,9 @@ const HostSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { host?: unknown; hostname?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
+    const v = val as { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
     return {
-      host: v.host ?? v.hostname ?? v.ip ?? v.address,
+      host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
       limit: v.limit,
     };
   },

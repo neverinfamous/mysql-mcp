@@ -39,7 +39,7 @@ const VALID_ORDER_BY: readonly string[] = [
 ];
 
 const StatementSummarySchemaBase = z.object({
-  orderBy: z.string().optional().describe("Order results by"),
+  orderBy: z.string().optional().describe("Order results by. Anti-Hallucination: Pass 'orderBy', not 'sort' or 'order'."),
   order: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   limit: z.number().optional().describe("Maximum number of results"),
@@ -50,9 +50,9 @@ const StatementSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; limit?: unknown };
+    const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown };
     return {
-      orderBy: v.orderBy ?? v.order ?? v.sort,
+      orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.order ?? v.sort,
       limit: v.limit,
     };
   },
@@ -70,7 +70,7 @@ const VALID_WAIT_TYPES: readonly string[] = [
 ];
 
 const WaitSummarySchemaBase = z.object({
-  type: z.string().optional().describe("Type of wait summary"),
+  type: z.string().optional().describe("Type of wait summary. Anti-Hallucination: Valid values are 'global', 'by_host', 'by_user', 'by_instance'."),
   waitType: z.string().optional().describe("Alias for type"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
@@ -95,7 +95,7 @@ const WaitSummarySchema = z.preprocess(
 const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 
 const IOSummarySchemaBase = z.object({
-  type: z.string().optional().describe("Type of I/O summary"),
+  type: z.string().optional().describe("Type of I/O summary. Anti-Hallucination: Valid values are 'file', 'table', 'global'."),
   ioType: z.string().optional().describe("Alias for type"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
