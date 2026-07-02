@@ -450,14 +450,15 @@ export const ConditionalUpdateSchemaBase = z.object({
   table: z.string().optional().describe("Table to update"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  data: z.record(z.string(), z.unknown()).describe("Column-value pairs to update"),
+  data: z.record(z.string(), z.unknown()).optional().describe("Column-value pairs to update"),
   conditions: z.array(
     z.object({
       column: z.string(),
       operator: z.string().optional(),
       value: z.unknown(),
     })
-  ).describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
+  ).optional().describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
+  condition: z.unknown().optional().describe("Alias for conditions (can be object, string, or number)"),
   expectedVersion: z.number().optional().describe("The _version value currently expected. Update fails if this does not match."),
   version: z.number().optional().describe("Alias for expectedVersion"),
 });
@@ -466,12 +467,18 @@ export const ConditionalUpdateSchema = z
   .preprocess(preprocessConditionalUpdateParams, ConditionalUpdateSchemaBase)
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    data: data.data,
-    conditions: data.conditions,
+    data: data.data ?? {},
+    conditions: data.conditions ?? [],
     expectedVersion: data.expectedVersion ?? data.version,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => Object.keys(data.data).length > 0, {
+    message: "data is required and must not be empty",
+  })
+  .refine((data) => data.conditions.length > 0, {
+    message: "conditions array is required and must not be empty",
   })
   .refine((data) => data.expectedVersion !== undefined, {
     message: "expectedVersion (or version alias) is required",

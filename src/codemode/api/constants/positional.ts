@@ -21,7 +21,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   enableVersioning: "table",
   disableVersioning: "table",
   checkVersion: ["table", "rowId"],
-  conditionalUpdate: ["table", "data", "conditions", "expectedVersion"],
+  conditionalUpdate: ["table", "condition", "expectedVersion", "data"],
 
   // ============ SCHEMA GROUP ============
   createSchema: "name",
