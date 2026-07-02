@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessJsonColumnParams } from "../preprocess-utils.js";
+import { defaultToEmpty } from "../preprocess-utils.js";
 
 // --- CollationConvert ---
 export const CollationConvertSchemaBase = z.object({
@@ -29,7 +29,7 @@ export const CollationConvertSchemaBase = z.object({
 export const CollationConvertSchema = z
   .preprocess(
     (val) => {
-      const v1 = preprocessJsonColumnParams(val);
+      const v1 = defaultToEmpty(val);
       // Alias targetCharset to charset
       if (
         v1 !== null &&

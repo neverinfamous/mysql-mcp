@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessJsonColumnParams } from "../preprocess-utils.js";
+import { defaultToEmpty } from "../preprocess-utils.js";
 
 // --- RegexpMatch ---
 export const RegexpMatchSchemaBase = z.object({
@@ -21,7 +21,7 @@ export const RegexpMatchSchemaBase = z.object({
 
 export const RegexpMatchSchema = z
   .preprocess(
-    preprocessJsonColumnParams,
+    defaultToEmpty,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -78,7 +78,7 @@ export const LikeSearchSchemaBase = z.object({
 
 export const LikeSearchSchema = z
   .preprocess(
-    preprocessJsonColumnParams,
+    defaultToEmpty,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -142,7 +142,7 @@ export const SoundexSchemaBase = z.object({
 
 export const SoundexSchema = z
   .preprocess(
-    preprocessJsonColumnParams,
+    defaultToEmpty,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -207,7 +207,7 @@ export const SubstringSchemaBase = z.object({
 
 export const SubstringSchema = z
   .preprocess(
-    preprocessJsonColumnParams,
+    defaultToEmpty,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -284,7 +284,7 @@ export const ConcatSchemaBase = z.object({
 
 export const ConcatSchema = z
   .preprocess(
-    preprocessJsonColumnParams,
+    defaultToEmpty,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
