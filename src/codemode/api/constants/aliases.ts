@@ -317,14 +317,13 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Migration: shorter aliases
   migration: {
-    init: "migrationInit",
-    record: "migrationRecord",
-    apply: "migrationApply",
-    rollback: "migrationRollback",
-    history: "migrationHistory",
-    status: "migrationStatus",
-    get: "migrationHistory",
-    info: "migrationStatus",
+    getHistory: "history",
+    get: "history",
+    log: "history",
+    getStatus: "status",
+    info: "status",
+    revert: "rollback",
+    undo: "rollback",
   },
   // DocStore: shorter aliases
   docstore: {

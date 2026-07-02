@@ -131,7 +131,25 @@ export const MigrationRollbackSchemaBase = z.object({
     .describe("Database to roll back the migration in (default: active database)"),
 });
 
-export const MigrationRollbackSchema = z.object({
+export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
+  if (typeof input === "object" && input !== null) {
+    const obj = input as Record<string, unknown>;
+    const out = { ...obj };
+
+    // Resolve positional param collision with transactionRollback
+    if (out["transactionId"] !== undefined && out["id"] === undefined) {
+      out["id"] = out["transactionId"];
+      delete out["transactionId"];
+    }
+
+    if (typeof out["id"] === "string" && isNaN(parseInt(out["id"], 10)) && out["version"] === undefined) {
+      out["version"] = out["id"];
+      delete out["id"];
+    }
+    return out;
+  }
+  return input;
+}, z.object({
   id: z
     .preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
@@ -141,7 +159,7 @@ export const MigrationRollbackSchema = z.object({
   version: z.string().optional(),
   dryRun: z.boolean().optional(),
   database: z.string().optional(),
-});
+}));
 
 /**
  * mysql_migration_history input
@@ -193,7 +211,18 @@ export const MigrationStatusSchemaBase = z.object({
     .describe("Database where the tracking table lives (default: active database)"),
 });
 
-export const MigrationStatusSchema = MigrationStatusSchemaBase.default({});
+export const MigrationStatusSchema = z.preprocess((input: unknown) => {
+  if (typeof input === "object" && input !== null) {
+    const obj = input as Record<string, unknown>;
+    const out = { ...obj };
+    // Gracefully ignore boolean arguments hallucinated by agents (e.g. status(true))
+    if (typeof out["database"] === "boolean") {
+      delete out["database"];
+    }
+    return out;
+  }
+  return input;
+}, MigrationStatusSchemaBase.default({}));
 
 // Output Schemas
 // =============================================================================

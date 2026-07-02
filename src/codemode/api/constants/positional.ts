@@ -166,12 +166,11 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   statsRegression: ["table", "xColumn", "yColumn"],
 
   // ============ MIGRATION GROUP ============
-  migrationInit: "database",
-  migrationRecord: ["version", "migrationSql"],
-  migrationApply: ["version", "migrationSql"],
-  migrationRollback: "id",
-  migrationHistory: "limit",
-  migrationStatus: "database",
+  init: "database",
+  record: ["version", "migrationSql"],
+  apply: ["version", "migrationSql"],
+  history: "limit",
+  status: "database",
 
   // ============ REPLICATION GROUP ============
   binlogEvents: ["logFile", "position"],
