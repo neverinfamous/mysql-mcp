@@ -379,6 +379,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     connections: "routeConnections",
     destinations: "routeDestinations",
     blocked: "routeBlockedHosts",
+    getRoutes: "routes",
+    getRouteStatus: "routeStatus",
+    getStatus: "status",
+    getRouteHealth: "routeHealth",
+    getRouteConnections: "routeConnections",
+    getRouteDestinations: "routeDestinations",
+    getRouteBlockedHosts: "routeBlockedHosts",
+    getMetadata: "metadataStatus",
+    getPool: "poolStatus",
   },
   // Shell: shorter aliases
   shell: {

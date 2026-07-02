@@ -244,6 +244,15 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   audit: "user",
   firewallRules: "user",
 
+  // ============ ROUTER GROUP ============
+  routeStatus: "routeName",
+  routeHealth: "routeName",
+  routeConnections: "routeName",
+  routeDestinations: "routeName",
+  routeBlockedHosts: "routeName",
+  metadataStatus: "metadataName",
+  poolStatus: "poolName",
+
   // ============ PROXYSQL GROUP ============
   proxysql_status: "summary",
   proxysql_runtime_status: "summary",

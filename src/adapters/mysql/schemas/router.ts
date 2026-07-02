@@ -120,6 +120,7 @@ export const RouterBaseInputSchema = z.object({});
 export const RouteNameInputSchemaBase = z.object({
   routeName: z.string().optional().describe("Name of the route to query"),
   name: z.string().optional().describe("Alias for routeName"),
+  route: z.string().optional().describe("Alias for routeName"),
 });
 
 export const RouteNameInputSchema = z.preprocess(
@@ -128,7 +129,7 @@ export const RouteNameInputSchema = z.preprocess(
     const obj = data as Record<string, unknown>;
     return {
       ...obj,
-      routeName: obj["routeName"] !== undefined ? obj["routeName"] : obj["name"],
+      routeName: obj["routeName"] !== undefined ? obj["routeName"] : (obj["route"] !== undefined ? obj["route"] : obj["name"]),
     };
   },
   RouteNameInputSchemaBase
@@ -145,6 +146,7 @@ export const MetadataNameInputSchemaBase = z.object({
     .optional()
     .describe("Name of the metadata cache instance"),
   name: z.string().optional().describe("Alias for metadataName"),
+  metadata: z.string().optional().describe("Alias for metadataName"),
 });
 
 export const MetadataNameInputSchema = z.preprocess(
@@ -153,7 +155,7 @@ export const MetadataNameInputSchema = z.preprocess(
     const obj = data as Record<string, unknown>;
     return {
       ...obj,
-      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : obj["name"],
+      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : (obj["metadata"] !== undefined ? obj["metadata"] : obj["name"]),
     };
   },
   MetadataNameInputSchemaBase
@@ -167,6 +169,7 @@ export const MetadataNameInputSchema = z.preprocess(
 export const ConnectionPoolNameInputSchemaBase = z.object({
   poolName: z.string().optional().describe("Name of the connection pool"),
   name: z.string().optional().describe("Alias for poolName"),
+  pool: z.string().optional().describe("Alias for poolName"),
 });
 
 export const ConnectionPoolNameInputSchema = z.preprocess(
@@ -175,7 +178,7 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
     const obj = data as Record<string, unknown>;
     return {
       ...obj,
-      poolName: obj["poolName"] !== undefined ? obj["poolName"] : obj["name"],
+      poolName: obj["poolName"] !== undefined ? obj["poolName"] : (obj["pool"] !== undefined ? obj["pool"] : obj["name"]),
     };
   },
   ConnectionPoolNameInputSchemaBase
