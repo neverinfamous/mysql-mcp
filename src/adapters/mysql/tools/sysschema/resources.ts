@@ -43,12 +43,15 @@ const LimitSchema = z.preprocess(
     }
     const v = val as { limit?: unknown; max?: unknown; count?: unknown };
     return {
+      ...val,
       limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
     limit: z.coerce.number().int().positive().default(5),
-  })
+    max: z.any().optional(),
+    count: z.any().optional(),
+  }).strict()
 );
 
 const SchemaStatsSchemaBase = z.object({
@@ -69,6 +72,7 @@ const SchemaStatsSchema = z.preprocess(
     }
     const v = val as { schema?: unknown; database?: unknown; db?: unknown; schemaName?: unknown; limit?: unknown };
     return {
+      ...val,
       schema: v.schema ?? v.database ?? v.db ?? v.schemaName,
       limit: v.limit,
     };
@@ -76,7 +80,10 @@ const SchemaStatsSchema = z.preprocess(
   z.object({
     schema: z.string().optional(),
     limit: z.coerce.number().int().positive().default(5),
-  })
+    database: z.any().optional(),
+    db: z.any().optional(),
+    schemaName: z.any().optional(),
+  }).strict()
 );
 
 /**

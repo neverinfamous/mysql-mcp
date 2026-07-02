@@ -52,6 +52,7 @@ const StatementSummarySchema = z.preprocess(
     }
     const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown };
     return {
+      ...val,
       orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.order ?? v.sort,
       limit: v.limit,
     };
@@ -59,7 +60,11 @@ const StatementSummarySchema = z.preprocess(
   z.object({
     orderBy: z.string().default("total_latency"),
     limit: z.coerce.number().int().positive().default(5),
-  })
+    order: z.any().optional(),
+    sort: z.any().optional(),
+    sortBy: z.any().optional(),
+    order_by: z.any().optional(),
+  }).strict()
 );
 
 const VALID_WAIT_TYPES: readonly string[] = [
@@ -82,6 +87,7 @@ const WaitSummarySchema = z.preprocess(
     }
     const v = val as { type?: unknown; waitType?: unknown; limit?: unknown };
     return {
+      ...val,
       type: v.type ?? v.waitType,
       limit: v.limit,
     };
@@ -89,7 +95,8 @@ const WaitSummarySchema = z.preprocess(
   z.object({
     type: z.string().default("global"),
     limit: z.coerce.number().int().positive().default(5),
-  })
+    waitType: z.any().optional(),
+  }).strict()
 );
 
 const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
@@ -107,6 +114,7 @@ const IOSummarySchema = z.preprocess(
     }
     const v = val as { type?: unknown; ioType?: unknown; limit?: unknown };
     return {
+      ...val,
       type: v.type ?? v.ioType,
       limit: v.limit,
     };
@@ -114,7 +122,8 @@ const IOSummarySchema = z.preprocess(
   z.object({
     type: z.string().default("table"),
     limit: z.coerce.number().int().positive().default(5),
-  })
+    ioType: z.any().optional(),
+  }).strict()
 );
 
 /**
