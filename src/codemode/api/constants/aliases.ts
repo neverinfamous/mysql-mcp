@@ -120,6 +120,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     table: "tableStats",
     threads: "threadStats",
     queries: "queryStats",
+    getStats: "queryStats",
     slowlog: "slowQueries",
     index: "indexUsage",
     indexes: "indexUsage",

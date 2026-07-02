@@ -91,6 +91,8 @@ export const SlowQuerySchema = z.object({
 export const QueryStatsSchemaBase = z.object({
   orderBy: z.enum(["total_time", "avg_time", "executions"]).optional().describe("Order results by metric"),
   limit: z.number().optional().describe("Maximum number of queries to return"),
+  query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query stats. Use explain or explainAnalyze instead."),
+  sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query stats. Use explain or explainAnalyze instead."),
 });
 
 export const QueryStatsSchema = z.object({
@@ -106,6 +108,10 @@ export const QueryStatsSchema = z.object({
     .optional()
     .default(3)
     .describe("Maximum number of queries to return"),
+  query: z.string().optional(),
+  sql: z.string().optional(),
+}).refine((data) => !data.query && !data.sql, {
+  message: "Anti-Hallucination Hint: mysql_query_stats returns overall server stats. It does NOT accept a specific query or sql string. Use explain or explainAnalyze to analyze a specific query.",
 });
 
 // --- IndexUsage ---
